@@ -172,6 +172,10 @@ func _winter(s: Season) -> void:
 	## treats them alike loses the free one every time.
 	for f in s.club.roster:
 		_place_all(f)
+	## AND PUT THE BEST MEN ON THE LINE. Roster order is the depth chart and a
+	## signing lands at the END of it, so a manager who does not do this signs
+	## better men and never plays them — see `MeleeClub.best_line`.
+	s.club.best_line()
 
 
 ## SPEND EVERY POINT HE HAS WAITING. `Career.level_up` places one; a man who

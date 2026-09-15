@@ -290,6 +290,84 @@ func swap_order(a: FighterCard, b: FighterCard) -> String:
 	return ""
 
 
+## PUT THE BEST MEN ON THE LINE — the move every club makes after a signing and
+## the one nothing in this game could make for you.
+##
+## `starting_five()` walks `active_eight()`, which walks `roster` IN ORDER, and
+## takes the first fit man who plays each slot. So roster order is the depth
+## chart and a new man is appended to the END of it. Sign a 49 into a club whose
+## 32 is listed first and **the 49 does not play** — he is not even on the bus
+## once eight men are already active.
+##
+## `tools/probe_pace.gd` measured what that costs: a competent manager signing
+## one to two men every summer for twenty seasons, whose club rating never moved
+## off 36 and whose starting five aged from 27.7 to 31.8. Thirty signings, and
+## the line was still whoever happened to be on the books first. **Every career
+## measurement this project has ever taken was taken on a club that never picked
+## its best team.**
+##
+## `swap_order` (above) gave the player the verb. This is the whole job in one
+## call, because the verb is not the point — nobody wants to hand-sort thirteen
+## men after every transfer, and a manager who forgets is silently punished for
+## a whole season.
+##
+## GREEDY, SLOT BY SLOT, because that is exactly how the picker reads it. A
+## globally optimal assignment would matter if men covered several slots well;
+## `Tuning.covers` is a fallback for a line that cannot otherwise fill, not a
+## routine case, so matching the picker's own walk is both simpler and honest.
+func best_line() -> void:
+	## TYPED, because `roster` is `Array[FighterCard]` and an untyped rebuild
+	## cannot be assigned back to it. Godot catches that at run time and not at
+	## parse time, so the probe ran the whole first season printing nothing.
+	var was_order: Array[FighterCard] = roster.duplicate()
+	var was_active: Array[bool] = []
+	for f in roster:
+		was_active.append(f.active)
+
+	## THE EIGHT FIRST: the eight best fit men travel. A man who cannot pass
+	## inspection or is carrying a knock is no use on the bus, so he sorts last
+	## rather than being excluded — the eight is always eight, even when the club
+	## has only eight bodies.
+	var ranked: Array = roster.duplicate()
+	ranked.sort_custom(func(a, b):
+		if a.fit() != b.fit():
+			return a.fit()
+		return a.rating() > b.rating())
+	for i in ranked.size():
+		ranked[i].active = i < ACTIVE_SIZE
+
+	## THEN THE ORDER: the best active man for each slot, in slot order, at the
+	## front. Everybody else keeps their relative order behind them, so a reserve
+	## list a player has arranged is not shuffled for no reason.
+	var line: Array[FighterCard] = []
+	for slot in 5:
+		var pick: FighterCard = null
+		for f in ranked:
+			if not f.active or not f.fit() or line.has(f):
+				continue
+			if int(f.pos) == slot and (pick == null or f.rating() > pick.rating()):
+				pick = f
+		if pick != null:
+			line.append(pick)
+	var rest: Array[FighterCard] = []
+	for f in was_order:
+		if not line.has(f):
+			rest.append(f)
+	var next: Array[FighterCard] = []
+	next.append_array(line)
+	next.append_array(rest)
+	roster = next
+
+	## AND IT MUST STILL FILL. The picker has a cover fallback with real
+	## conditions in it and this reorder can strand a slot nobody plays natively.
+	## Put everything back exactly as it was if so — the same guard `swap_order`
+	## keeps, for the same reason.
+	if starting_five().size() != 5:
+		roster = was_order
+		for i in roster.size():
+			roster[i].active = was_active[i]
+
+
 ## Sign a man into the reserve.
 func sign(card: FighterCard) -> String:
 	if roster.size() >= SQUAD_MAX:

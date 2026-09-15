@@ -3,11 +3,19 @@
 ##
 ##   bash tools/run_tests.sh
 ##
-## The timeout is 900s per test and NOT 300s, because test_melee.gd takes
-## 8m20s on its own — 40 bouts a measure, thirteen measures. A 300s cap
+## The timeout is 2400s per test and NOT 300s, because test_melee.gd takes
+## **21m19s** on its own — 40 bouts a measure, thirteen measures. A 300s cap
 ## killed it mid-run and the suite printed fourteen greens' worth of
 ## nothing without saying a word. A harness that can silently drop a test
 ## is worse than no harness.
+##
+## IT WAS 8m20s UNTIL 15 SEP 2026 and the cap was 900s. `Career.LEVEL_XP` went
+## from 8 to 5 that day — the XP bar was set against a level rate nobody had
+## measured — so the bar fills far more often, and `gain_for` now spends up to
+## five stat points on each one instead of one. Every bout in this file does
+## more work. The number here is a MEASUREMENT taken with `date` around a clean
+## run, not a guess with headroom bolted on: a cap that is not measured is a cap
+## that will silently drop this test again the next time the economy moves.
 ##
 ## THE ENGINE IS WHICHEVER ONE IS HERE, AND IT SAYS WHICH. The path used to be a
 ## literal `.../Godot_v4.6-stable_linux.x86_64`, which was fine right up until
@@ -67,7 +75,7 @@ for t in tests/test_*.gd; do
   ## hands it 960x960, which is not a shape any device has. It runs below.
   [ "$t" = "tests/test_shapes.gd" ] && continue
   echo "=== $t"
-  timeout 900 "$G" --headless --path . --script "res://$t" 2>&1 \
+  timeout 2400 "$G" --headless --path . --script "res://$t" 2>&1 \
     | grep -Ev '^(Godot Engine|--- Debug|Vulkan|OpenGL|TextServer|WARNING|ERROR: Condition "\(uint32_t\)|  |$)'
   rc=${PIPESTATUS[0]}
   ran=$((ran+1))
@@ -88,7 +96,7 @@ if command -v xvfb-run >/dev/null 2>&1; then
   for res in 960x540 1170x540 1260x540 960x720; do
     for t in tests/test_ink.gd tests/test_shapes.gd; do
       echo "=== $t @ $res"
-      timeout 900 xvfb-run -a "$G" --path . --resolution "$res" --script "res://$t" 2>&1 \
+      timeout 2400 xvfb-run -a "$G" --path . --resolution "$res" --script "res://$t" 2>&1 \
         | grep -Ev '^(Godot Engine|--- Debug|Vulkan|OpenGL|TextServer|WARNING|ERROR|ALSA|  |$)'
       rc=${PIPESTATUS[0]}
       ran=$((ran+1))

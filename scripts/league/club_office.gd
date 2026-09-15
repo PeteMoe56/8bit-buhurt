@@ -488,6 +488,30 @@ func buy_level(card: FighterCard) -> String:
 	return ""
 
 
+## AND THE OTHER DOOR ON THE SAME MAN: pay to raise his CEILING.
+##
+## `buy_level` above moves a man up. This moves where he can get to, which is the
+## job paid training now has — see `Career.RAISE_COST_PER` for why the two were
+## the same thing and why that made the old one worthless.
+##
+## Throttled on the SAME slot as his extra reps, deliberately. They are one
+## week's attention from one coaching staff on one fighter, and letting a club
+## buy both every week would make the throttle a formality.
+func raise_ceiling(card: FighterCard) -> String:
+	if not Career.can_raise_ceiling(card):
+		return "%s is as far along as a fighter his age gets." % card.display_name
+	var slot := "reps:%s#%d" % [card.display_name, card.number]
+	if _throttled(slot):
+		return "%s has done his extra reps this week." % card.display_name
+	var cost := Career.raise_cost(card)
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	spend(cost, LINE_SQUAD)
+	Career.raise_ceiling(card)
+	_mark(slot)
+	return ""
+
+
 static func throttle_word(what: String) -> String:
 	return "The %s has already been worked on this week. One job at a time." % what
 

@@ -438,11 +438,24 @@ func _test_a_career_climbs_as_far_as_it_used_to() -> void:
 	## The winter it replaced measured 47 points and 50 -> 61 over the same eight
 	## seasons — see `tools/probe_levels.gd`. The floor is deliberately loose:
 	## this is a guard against the curve collapsing, not a pin on the tuning.
-	_ok(levels >= 36, "eight seasons still build a fighter",
-		"%d levels, overall 50 -> %d (the winter gave 47 and 61)"
-		% [levels, f.overall()])
-	_ok(f.overall() >= 58, "and the overall climbs with them",
-		"%d against a potential of %d" % [f.overall(), f.potential])
+	##
+	## AND IT COUNTS THE CLIMB, NOT THE LEVELS, which it did not until 15 Sep
+	## 2026. `levels >= 36` was a proxy for "he got somewhere", and it was a fair
+	## one while every level was worth exactly one stat point. `Career.gain_for`
+	## pays by how far a man has left to go, so a level is now worth up to five —
+	## and this fighter reaches his ceiling of 72 in THIRTY-TWO levels where he
+	## used to stop at 61 after forty-seven. The proxy failed while the thing it
+	## stood for got better by eleven points.
+	##
+	## **A proxy is only a proxy until the rate it assumed changes.** The climb
+	## is what the check has always been about, so the climb is what it reads —
+	## and the level count stays in the note, where a number that is interesting
+	## but not load-bearing belongs.
+	_ok(f.overall() >= 61, "eight seasons still build a fighter",
+		"overall 50 -> %d in %d levels (the winter it replaced gave 61 in 47)"
+		% [f.overall(), levels])
+	_ok(levels >= 24, "and he is paid in levels along the way",
+		"%d levels over %d seasons" % [levels, CAREER_SEASONS])
 	notes.append("a played career: %d levels over %d seasons, overall 50 -> %d"
 		% [levels, CAREER_SEASONS, f.overall()])
 

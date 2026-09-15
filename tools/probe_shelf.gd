@@ -202,6 +202,11 @@ func _run(policy: String) -> void:
 				levels += float(_place(f))
 			if policy != "train":
 				signed += float(_market(s))
+			## AND PICK THE LINE. Roster order is the depth chart — see
+			## `MeleeClub.best_line`. Without this a policy signs better men and
+			## never plays them, which is what every earlier run of this probe
+			## was measuring.
+			s.club.best_line()
 			bought += float(_season(s, policy))
 			s.roll_over()
 			var now := s.world.player_tier()

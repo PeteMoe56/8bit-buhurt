@@ -213,12 +213,30 @@ func _test_xp_is_earned_by_doing() -> void:
 
 	notes.append("a bout: 3 downs and 3 rounds standing pays %d, 0 downs pays %d, never on the field pays %d"
 		% [busy, quiet, flattened])
-	notes.append("after one fought event the five carried %d XP between them; the bench carried %d"
-		% [line_xp, bench_man.xp if bench_man != null else -1])
+	## AND THE BENCH EARNS A SHARE, WHICH IT DID NOT UNTIL 15 SEP 2026.
+	##
+	## This used to assert `bench_man.xp == bench_xp` — that a man who did not
+	## start earned NOTHING — and that rule is what made a squad impossible to
+	## develop. Eight men travel and five fight, so the other three and the five
+	## in reserve improved by exactly zero for their entire careers; the only way
+	## to bring a twenty-year-old on was to start him instead of a better man.
+	## `tools/probe_pace.gd` measured the consequence at the club level: a
+	## starting five stuck at a mean age of 29.5 for twenty seasons.
+	##
+	## The rule the check is named for is unchanged and it is still what is being
+	## held here — **XP is earned by DOING** — so the bench has to earn strictly
+	## less than the line, and a man who is not in the squad at all still earns
+	## nothing. `Career.XP_BENCH` is the ratio; this asserts the ordering rather
+	## than the ratio, because the ratio is a tuning number and the ordering is
+	## the rule.
+	var line_each := float(line_xp) / 5.0
+	var bench_got := float(bench_man.xp - bench_xp) if bench_man != null else -1.0
+	notes.append("after one fought event a starter carried %.0f XP and the bench %.0f"
+		% [line_each, bench_got])
 	_ok(busy > quiet and quiet > flattened and line_xp > 0
-			and bench_man != null and bench_man.xp == bench_xp,
+			and bench_man != null and bench_got > 0.0 and bench_got < line_each,
 		"XP is earned by doing",
-		"downs and rounds both pay, and a man who did not come on earned nothing")
+		"downs and rounds both pay, and a man who sat earned a share of what a man who fought did")
 
 
 func _test_one_prospect_a_winter() -> void:
@@ -230,6 +248,23 @@ func _test_one_prospect_a_winter() -> void:
 	s.office.facilities[ClubOffice.Facility.TRAINING] = Career.PROSPECT_GROUND
 	var man: FighterCard = s.club.roster[0]
 	var before := man.potential
+	## TWO SOURCES MOVE A CEILING NOW, so this measures a RANGE rather than a
+	## figure.
+	##
+	## It used to assert `after == before + PROSPECT_GAIN` on the nose, which was
+	## true when naming a prospect was the only thing in the game that touched a
+	## ceiling. `Career.CEILING_DRIFT` moves the ceiling of any fighter who has
+	## caught his own projection, free, every winter — so the absolute figure now
+	## measures two rules at once and can only ever read as a failure of whichever
+	## one changed last.
+	##
+	## A control man was tried first and is worse, not better: two different
+	## fighters sit different distances from their own ceilings, so one drifts and
+	## one does not and the "control" reports a difference that is nothing to do
+	## with being named. **A control has to be comparable to be a control.** The
+	## rule stated as a range needs no control at all: naming is worth
+	## `PROSPECT_GAIN` ON TOP of whatever the winter gives everybody, and a club
+	## without the ground gets the winter's share and nothing for the naming.
 	s.prospect = man
 	while not s.ready_to_roll():
 		if s.bid_open(): s.decline_bid()
@@ -251,10 +286,14 @@ func _test_one_prospect_a_winter() -> void:
 		else: t.skip_event()
 	t.roll_over()
 
-	notes.append("named prospect: ceiling %d -> %d; the same man with a level-%d ground: %d -> %d"
-		% [before, after, Career.PROSPECT_GROUND - 1, poor_before, poor.potential])
-	_ok(after == before + Career.PROSPECT_GAIN and cleared
-			and poor.potential == poor_before,
+	var named_gain := after - before
+	var poor_gain := poor.potential - poor_before
+	notes.append("named prospect gained %d of ceiling (naming is worth %d, a winter up to %d); with a level-%d ground he gained %d"
+		% [named_gain, Career.PROSPECT_GAIN, Career.CEILING_DRIFT,
+			Career.PROSPECT_GROUND - 1, poor_gain])
+	_ok(named_gain >= Career.PROSPECT_GAIN
+			and named_gain <= Career.PROSPECT_GAIN + Career.CEILING_DRIFT
+			and cleared and poor_gain <= Career.CEILING_DRIFT,
 		"one prospect a winter",
 		"the named man gained %d and the slot cleared; a club without the ground gained nothing"
 			% Career.PROSPECT_GAIN)

@@ -187,21 +187,79 @@ static func projected(f: FighterCard) -> int:
 	return f.overall() + int(round(float(gap) * clampf(runway, 0.0, 1.0)))
 
 
-## AND WHAT HE IS WORTH TO A CLUB DECIDING TODAY, which is neither number on its
-## own. A man's whole value is not his peak — you have to survive the seasons
-## before it, and he has to still be here when it arrives. So this sits between
-## what he is and what he becomes, weighted toward the finish because that is the
-## call Pete is asking for: a 55 who is finished loses to a 54 who reaches 62.
+## AND WHAT HE IS WORTH TO A CLUB DECIDING TODAY, WHICH IS A NUMBER OF SEASONS
+## AND NOT A NUMBER OF POINTS.
 ##
-##   55 maxed, age 30     -> 55
-##   54 -> 64, age 24     -> 54 + 10*1.0 = 64  worth 60
+## The first cut of this was `lerp(projected, overall, 0.40)` — a blend of what
+## he is and what he becomes — and `tools/probe_pace.gd` showed exactly how it
+## fails. A competent manager buying on it signed one to two men every summer for
+## twenty seasons and **his starting five aged from 27.7 to 31.8 and his club
+## rating never moved.** He was sitting on fifty credits in a division where a
+## Star costs eighteen. Nothing was refusing him. He was simply buying the best
+## man on the board every time, and the best man on the board is always the
+## oldest one, because a finished 49 beats a 42 who becomes a 52 on any blend
+## weighted at all toward today.
 ##
-## Six points of difference on a decision that used to come out backwards.
-const WORTH_NOW: float = 0.40
+## **A club does not buy a rating, it buys seasons of a rating.** So this walks
+## the man forward through the game's OWN curves and averages what he actually
+## gives you:
+##
+##   the climb       he closes his gap toward `potential` at the rate a regular
+##                   starter closes it — `POTENTIAL_GAP_MAX` over `PROJECT_YEARS`,
+##                   derived rather than typed so the two cannot drift apart.
+##   the fall        `decline_for`, per stat against its own peak, averaged. The
+##                   same function the winter uses, so a projection cannot
+##                   disagree with what then happens to him.
+##   the exit        `retire_chance` compounded year on year. A 35-year-old who
+##                   is gone in two summers contributes two summers.
+##
+## Worked through, on a six-year horizon:
+##
+##   49 maxed, age 35   ->  worth 27   (declining, and gone about year three)
+##   42 -> 52, age 23   ->  worth 48   (climbs to his ceiling and holds it)
+##
+## Which is the call Pete asked for, and the opposite of the one the old blend
+## made. `projected()` above still exists because it is the honest answer to a
+## different question — what will he BE — and that is the one the card shows.
+const WORTH_HORIZON: int = 6
+const CLIMB_PER_SEASON: float = float(POTENTIAL_GAP_MAX) / PROJECT_YEARS
 
 
 static func worth(f: FighterCard) -> int:
-	return int(round(lerpf(float(projected(f)), float(f.overall()), WORTH_NOW)))
+	var rating := float(f.overall())
+	var ceiling := float(f.potential)
+	var age := f.age
+	## How likely he is still here at all, compounded. Starts certain.
+	var here := 1.0
+	var total := 0.0
+	for _y in WORTH_HORIZON:
+		if rating < ceiling:
+			rating = minf(ceiling, rating + CLIMB_PER_SEASON)
+		var fell := 0.0
+		for stat in STATS:
+			fell += float(decline_for(age, stat))
+		rating = maxf(0.0, rating - fell / float(STATS.size()))
+		total += here * rating
+		## The retirement roll happens at the WINTER, after the season he has just
+		## given you — so it discounts the years AFTER this one, never this one.
+		## Read at the default morale, because a man being valued on the market
+		## has no club mood yet and guessing one would make the fee depend on how
+		## the last fixture went.
+		here *= 1.0 - _retire_at(age, ceiling - rating)
+		age += 1
+	return int(round(total / float(WORTH_HORIZON)))
+
+
+## `retire_chance` without a FighterCard, because the walk above is projecting a
+## man who does not exist yet at each of those ages. Same constants, same shape —
+## it is the one function rather than a second copy of the rule.
+static func _retire_at(age: int, faded: float) -> float:
+	if age >= RETIRE_HARD:
+		return 1.0
+	if age < RETIRE_FROM:
+		return 0.0
+	return clampf(float(age - RETIRE_FROM + 1) * RETIRE_PER_YEAR
+		+ maxf(0.0, faded) * RETIRE_PER_FADED_POINT, 0.0, 1.0)
 
 
 ## ONE SCARCE WAY TO RAISE IT, and this is it: the club names ONE fighter its
@@ -214,6 +272,97 @@ static func worth(f: FighterCard) -> int:
 ## steps.
 const PROSPECT_GAIN: int = 3
 const PROSPECT_GROUND: int = 3       ## Training ground level required
+
+
+## THE SECOND WAY, AND IT IS THE ONE CREDITS BUY.
+##
+## Pete, 15 Sep 2026, on the finding that no rational manager ever bought a
+## level: *"Alright so let's fix that."*
+##
+## `tools/probe_shelf.gd` priced the old paid level honestly and it was worthless
+## — **twenty-four bought levels moved a club 0.4 points** for about 290 credits,
+## against a signing that moves it three to six for eleven. The reason was never
+## the price. A bought level did the SAME JOB a fought level does, and the fought
+## one is free: the club was paying for a thing the season hands out. *A purchase
+## that duplicates something the game gives away is a purchase with no argument
+## for itself at any price.*
+##
+## So paid training stops raising the RATING and raises the CEILING. What a man
+## earns by fighting still moves him up; what the club buys moves where he can
+## get to. That splits the two cleanly:
+##
+##   fighting   closes the gap to `potential`      free, automatic, his
+##   training   opens a wider gap to close         credits, the club's choice
+##
+## And it makes training something signing cannot substitute for, which is the
+## whole test the old version failed. A 24-year-old signed at 42 with a ceiling
+## of 52 becomes a 62 if the club spends on him for a few winters — that man does
+## not exist on any shelf, at any price, in any division.
+##
+## THE COMMENT ABOVE STILL STANDS AND THIS DOES NOT CONTRADICT IT. *"Anything you
+## can buy in bulk stops being a ceiling and becomes a price"* — which is why
+## this is one point at a time, throttled to one job a week like every other
+## building, priced off how much ceiling the man already has, and hard-capped at
+## what a man of his age could ever have had.
+const RAISE_COST_PER: int = 2
+const RAISE_STEP: int = 1
+## What a man's ceiling moves on its own, per winter, once he has caught it. See
+## the end of `winter()` — this is the free half of the same idea.
+## FOUR, AND THE SIZE OF THIS NUMBER IS THE SIZE OF A CAREER.
+##
+## Everything else in development is already capable of about five rating points
+## a season — `gain_for` pays up to five stat points a level and a starter earns
+## four or five levels a year. What it cannot do is use them, because `level_up`
+## stops at `potential` and the ceiling was only creeping up a point a winter. At
+## one, a man grew about one point a year. **The ceiling was never a description
+## of a fighter, it was the throttle on the whole game**, and Pete's *"1 point a
+## season seems dismal as fuck"* is that throttle, felt from the outside.
+##
+## At four the ceiling leads and the man chases it, which is the right way round.
+## It is still bounded twice and both bounds matter: `ceiling_limit` only offers
+## a man the room his AGE still has — fifteen points at twenty-two, six at
+## thirty, nothing at thirty-five — and this only fires for a man who has caught
+## what was already in front of him. A career becomes a climb that slows and then
+## stops, rather than a wall at twenty-five.
+const CEILING_DRIFT: int = 4
+## How near his ceiling a man has to be for it to move. See `winter()`.
+const CEILING_NEAR: int = 4
+
+
+## WHAT A MAN'S CEILING CAN NEVER EXCEED: what he is today plus the room a man
+## of HIS AGE still has in front of him.
+##
+## It is a ROLLING headroom, not a lifetime cap, and that distinction is the
+## whole of how a career reaches the top of the scale. A twenty-year-old rated 40
+## can be trained toward 57; when he IS 57 the same rule offers him 74. He walks
+## up the scale over a career instead of being told on his first day how good he
+## is ever allowed to get. `potential_room` closes on its own with age, so the
+## door shuts around thirty-five without a second age table saying so — and
+## buying a point a winter can never walk a thirty-eight-year-old to 99, because
+## by then it offers him nothing.
+static func ceiling_limit(f: FighterCard) -> int:
+	return clampi(f.overall() + potential_room(f.age), 1, POTENTIAL_CEILING)
+
+
+static func can_raise_ceiling(f: FighterCard) -> bool:
+	return f.potential < ceiling_limit(f)
+
+
+## AND THE PRICE CLIMBS WITH THE CEILING HE ALREADY HAS, measured from where his
+## division starts him rather than from zero — so the first winter on a young
+## prospect is cheap and the last point before a man's limit is not.
+static func raise_cost(f: FighterCard) -> int:
+	var room := maxi(1, ceiling_limit(f) - f.overall())
+	var done := maxi(0, f.potential - f.overall())
+	return maxi(1, int(round(float(RAISE_COST_PER)
+		* (1.0 + 1.5 * float(done) / float(room)) / learn_rate(f))))
+
+
+## Raise it. Returns how much it moved, so a caller can say so.
+static func raise_ceiling(f: FighterCard) -> int:
+	var was := f.potential
+	f.potential = mini(f.potential + RAISE_STEP, ceiling_limit(f))
+	return f.potential - was
 
 
 # ------------------------------------------------------------------------ XP
@@ -273,7 +422,28 @@ const XP_PER_ROUND_STANDING: int = 1
 ## because the rework was meant to move WHEN a man levels and not how far he
 ## climbs, and a rework that quietly halved a career would have been a balance
 ## change wearing a UX change's clothes.
-const LEVEL_XP: int = 8
+##
+## FIVE, NOT EIGHT, AND THAT IS PETE'S "DISMAL AS FUCK" IN ONE NUMBER.
+##
+## The paragraph above is right that a constant income needs a constant bar, and
+## it set the bar against *the winter it replaced* — a rework that deliberately
+## changed WHEN a man levels and not how far he climbs. The trouble is that "how
+## far he climbs" was itself never measured, and `tools/probe_growth.gd` finally
+## did it: **a man banks about eleven XP an event and fights seven of them, so a
+## 32-point bar is two and a bit levels a season.** Everything downstream was
+## tuned against that without knowing it.
+##
+## At five the bar reads 5 / 10 / 15 / 20 and a starter takes four levels a year,
+## which is what the rest of the development economy was already built for —
+## `gain_for` pays up to five stat points a level and `CEILING_DRIFT` keeps four
+## points of ceiling in front of him a winter. Those two were sized for a man who
+## levels four or five times a season and were being fed one who levelled twice.
+##
+## It is deliberately NOT a doubling of XP income. Moving the bar moves one
+## number; moving income moves what a down is worth, what a round standing is
+## worth, what a simmed afternoon is worth and what a level costs to buy, all of
+## which are priced against each other elsewhere in this file.
+const LEVEL_XP: int = 5
 ## RAISED FROM 3 TO 4 ON 15 Sep 2026. Pete: *"Let's lean more toward theirs."*
 ##
 ## Theirs does not cap at all — `xp_level * 100`, forever — and ours cannot go
@@ -552,6 +722,36 @@ static func level_into(f: FighterCard, stat: int) -> Dictionary:
 ## keyboard — a simulated club's men, and the drain of a save made before levels
 ## existed. It goes through `_raise_one` so the automatic path and the winter
 ## cannot disagree about which stat a point lands on.
+## WHAT ONE LEVEL IS WORTH, AND IT IS NOT ALWAYS ONE POINT.
+##
+## A level was one stat point, always, which works out at about +0.23 of a man's
+## rating — `rating()` weights the four stats at roughly a quarter each. At the
+## four or five levels a season a starter earns, that is a fighter improving
+## just over a point a year, and `tools/probe_pace.gd` measured what it does to
+## a career: **a club climbing 0.4 rating points a season against division
+## leaders eight to ten clear of it.** Pete wants the top flight reachable in
+## about ten seasons; three promotions in ten years is nearer four points a
+## season, and no amount of shopping closes a gap that arithmetic wide.
+##
+## So a level pays by HOW FAR HE HAS LEFT TO GO. A young man with a wide gap
+## takes three points from one level; a man at his ceiling takes one and then
+## stops, because `at_ceiling` is checked first. The accelerator is self-
+## limiting — it cannot run away, it cannot lift anybody past `potential`, and
+## it is worth nothing at all to the veteran it would have been worth most to
+## under a flat rate.
+##
+## It is also what makes the OTHER training door matter. Paying to raise a man's
+## ceiling (see `RAISE_COST_PER`) now widens the gap AND speeds the climb into
+## it, so a club that invests in a twenty-three-year-old compounds twice. That
+## is the thing a shelf cannot sell you at any price.
+const GAIN_PER_GAP: int = 3
+const GAIN_MAX: int = 5
+
+
+static func gain_for(f: FighterCard) -> int:
+	return clampi(1 + maxi(0, f.potential - f.overall()) / GAIN_PER_GAP, 1, GAIN_MAX)
+
+
 static func level_up(f: FighterCard) -> Dictionary:
 	var report := {"lost": 0, "gained": 0, "spent": 0, "ground": 0, "held": 0}
 	if at_ceiling(f):
@@ -559,6 +759,13 @@ static func level_up(f: FighterCard) -> Dictionary:
 	var before := f.overall()
 	if not _raise_one(f, {}, report):
 		return {"levelled": false, "reason": "nothing to grow"}
+	## THE REST OF THE LEVEL'S WORTH. Re-checking `at_ceiling` between points
+	## rather than counting them out in advance, because the first point can be
+	## the one that finishes him and a level must never carry a man past his own
+	## potential — that is the whole meaning of the number.
+	for _extra in gain_for(f) - 1:
+		if at_ceiling(f) or not _raise_one(f, {}, report):
+			break
 	## THE REMAINDER IS KEPT. Theirs sets `xp = 1` on crossing, and at their income
 	## that rounding is invisible; at ours an event is worth eleven against a bar
 	## of twenty-four, so discarding it would bin something like a fifth of
@@ -707,25 +914,61 @@ static func winter(f: FighterCard, coached: bool, ground_points: int) -> Diction
 		fell[stat] = took
 		report["lost"] = int(report["lost"]) + took
 
-	if not coached:
-		return report
 
-	## THE CLIMB, AND IT IS ONE SOURCE NOW. The fighter's own XP used to be spent
-	## here, in the summer, at a rising cost — which meant a man who had a
-	## storming November found out about it in June. Levelling moved to the moment
-	## it is earned (see `drain`, called after every bout), so what the winter does
-	## is age him, take the decline off him, and hand out the TRAINING GROUND's
-	## allocation, which is the club's investment rather than his own effort.
+	## THE CLUB'S OWN INVESTMENT ONLY RUNS IF THERE IS SOMEBODY TO RUN IT. This
+	## was an early `return`; it is a branch now, because the ceiling drift below
+	## belongs to every fighter and not only to the coached ones.
+	if coached:
+		## THE CLIMB, AND IT IS ONE SOURCE NOW. The fighter's own XP used to be spent
+		## here, in the summer, at a rising cost — which meant a man who had a
+		## storming November found out about it in June. Levelling moved to the moment
+		## it is earned (see `drain`, called after every bout), so what the winter does
+		## is age him, take the decline off him, and hand out the TRAINING GROUND's
+		## allocation, which is the club's investment rather than his own effort.
+		##
+		## `fell` still reaches `_raise_one`, so a ground point can hold back a loss
+		## the winter just took — that was always the interesting half of this.
+		var g := 0
+		while g < ground_points and f.overall() < f.potential:
+			if not _raise_one(f, fell, report):
+				break
+			g += 1
+		report["ground"] = g
+		report["gained"] = int(report["gained"]) + g
+
+	## AND HE MAY HAVE OUTGROWN THE PROJECTION.
 	##
-	## `fell` still reaches `_raise_one`, so a ground point can hold back a loss
-	## the winter just took — that was always the interesting half of this.
-	var g := 0
-	while g < ground_points and f.overall() < f.potential:
-		if not _raise_one(f, fell, report):
-			break
-		g += 1
-	report["ground"] = g
-	report["gained"] = int(report["gained"]) + g
+	## LAST IN THE WINTER, AND OUTSIDE THE `coached` GATE. Both placements were
+	## wrong once. Running it before the training-ground allocation gave that
+	## allocation a ceiling the man had not earned yet, so `test_career` caught a
+	## fighter AT his potential being handed twelve points of training — the
+	## ceiling stopped binding, which is the one thing it is for. And gating it on
+	## `coached` would mean a club with no coach has men who can never exceed a
+	## number somebody wrote about them at nineteen. It is a conclusion drawn from
+	## the season just finished, so it belongs after everything that season did.
+	##
+	## Pete, 15 Sep 2026: *"99 overall should be the top of the goal... 1 point a
+	## season seems dismal as fuck."* `tools/probe_growth.gd` showed why it was:
+	## a twenty-year-old reached his rolled ceiling in five seasons and then sat
+	## there, unchanged, for the next seven — **potential was a wall a career hit
+	## at twenty-five**, and a club could not pass it at any price.
+	##
+	## A scout's number written on a nineteen-year-old is a guess, and the sport
+	## corrects it. A young man who is AT his ceiling and still fighting every
+	## week is a man the club under-rated, so his ceiling moves — free, a few
+	## points a winter, and only while he is young enough for `ceiling_limit` to
+	## still offer him anything. That is what makes the paid door worth paying for
+	## rather than the only door there is: training buys the same movement several
+	## times a season instead of once.
+	##
+	## CLOSE ENOUGH COUNTS, and "at or above" did not. A man one point under his
+	## ceiling gains a point in November and gives it back to the decline in
+	## June, so he never technically CATCHES it — `probe_growth` had a fighter
+	## pinned at 54 against a ceiling of 55 for four straight seasons with the
+	## drift never once firing. Within `CEILING_NEAR` is what "he has caught his
+	## own projection" actually looks like on a moving number.
+	if f.potential - f.overall() <= CEILING_NEAR and can_raise_ceiling(f):
+		f.potential = mini(f.potential + CEILING_DRIFT, ceiling_limit(f))
 	return report
 
 
