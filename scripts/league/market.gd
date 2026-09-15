@@ -36,26 +36,109 @@ const SIZE: int = 6
 ## The bands are read against the DIVISION's own power range, so "a good signing"
 ## means the same thing in the Backyard Circuit as it does at National — and the
 ## fee is in credits, where every other decision the owner makes already lives.
-const BANDS: Array[float] = [0.25, 0.50, 0.75, 1.00]
-const BAND_NAME: Array[String] = ["Journeyman", "Steady", "Good", "Strong", "Star"]
-const BAND_FEE: Array[int] = [1, 3, 6, 11, 18]
+## FIVE EVEN FIFTHS OF THE SHELF, AND THE LAST EDGE IS NOT 1.00.
+##
+## It was [0.25, 0.50, 0.75, 1.00], which made Star fire only at t == 1.0 —
+## a band exactly ONE RATING POINT WIDE. It went unnoticed for weeks because
+## `clampf` pinned everything above the range to 1.0 and swept it into Star, so
+## the band looked 19% wide while its definition was a single number. The moment
+## `Marquee` claimed everything over the shelf top, the clamp stopped covering
+## for it and `tools/probe_market.gd` printed "Star  52- 52".
+##
+## **A band held open by a clamp is not a band, it is a rounding artifact.** Four
+## edges at fifths give five real bands and leave the top of the scale to mean
+## what it says.
+const BANDS: Array[float] = [0.20, 0.40, 0.60, 0.80]
+const BAND_NAME: Array[String] = ["Journeyman", "Steady", "Good", "Strong", "Star",
+	"Marquee"]
+
+
+## THE FEE IS A FRACTION OF A SEASON, NOT A NUMBER OF CREDITS.
+##
+## `BAND_FEE` was [1, 3, 6, 11, 18] and it was those credits at EVERY rung of the
+## pyramid. `tools/probe_wallet.gd` measured what a season actually leaves a club
+## for its squad — 16 / 33 / 37 / 67 credits up the ladder — so an 18-credit Star
+## was a whole season's spending money in the Backyard Circuit and a quarter of
+## one at National. `probe_shelf` saw the consequence from the other side: 97 to
+## 100 per cent of every shelf, at every rung, was inside the club's reach. The
+## market never once said no on money.
+##
+## So the fee is a SHARE of `League.TIERS[t]["slack"]`. The Backyard column comes
+## out at the same 1 / 3 / 6 / 11 / 18 it always was — that division was tuned
+## and Pete confirmed it plays right — and every rung above it scales:
+##
+##            BYC   STL   REG   NAT
+##   Journey    1     2     2     4
+##   Steady     3     6     7    12
+##   Good       6    12    14    25
+##   Strong    11    22    25    46
+##   Star      18    36    41    74
+##   Marquee    -     -     -   174
+##
+## A Star is now about one season's entire squad budget wherever you stand, which
+## is what a Star should cost, and what "save up for him" means.
+const BAND_SHARE: Array[float] = [0.06, 0.18, 0.37, 0.68, 1.10, 2.60]
+
+
+## THE FOREIGN MAN, and he exists because the top of the pyramid had nothing to
+## want. Pete, 15 Sep 2026: *"a rare foreign man that upfront costs are large can
+## show up, but otherwise, nothing above national."*
+##
+## `probe_shelf` measured the hole: `clampi(tier + step, 0, 3)` sends the
+## one-in-six reach draw back into your own band at the top flight, so "above"
+## collapsed to 6% and a club arriving at National — with the most money it will
+## ever have — found a FLATTER shelf than the one it left. Every rung below had
+## a man you saved for and the top rung did not.
+##
+## He is not a fifth division bolted onto the world. He is one name, rarely, from
+## outside it: rated over the National ceiling, carrying a Marquee fee that is two
+## and a half seasons of everything a top-flight club has spare. Rare enough that
+## a career sees a handful, dear enough that taking one is the year's decision.
+const FOREIGN_CHANCE: float = 0.25    ## of the reach draws, at the top rung only
+const FOREIGN_TOP: int = 94
+
+
+## THE SPAN A FEE IS MEASURED AGAINST — the SHELF, not the division.
+##
+## This was `League.TIERS[tier]["power"]`, which is the standard of the clubs in
+## the division and not the standard of the men on offer to them. The pool draws
+## a third of its names from the division below, so a third of every shelf sat
+## entirely underneath the scale pricing it — and since the bands get wider the
+## higher you climb, the mispricing got worse with every promotion. Journeyman
+## share ran 30% at Backyard and 59% at National.
+##
+## `shelf` is measured (see `League.TIERS`) and both this and the odds in
+## `_band_step` describe the same list, so the probe that measures one is the
+## check on the other.
+static func shelf_of(tier: int) -> Array:
+	return League.TIERS[clampi(tier, 0, League.TIERS.size() - 1)]["shelf"]
 
 
 ## Which band a rating falls in, against the division it is being signed into.
 static func band_of(rating: int, tier: int) -> int:
-	var range_: Array = League.TIERS[tier]["power"]
-	var lo := float(range_[0])
-	var hi := float(range_[1])
+	var shelf: Array = shelf_of(tier)
+	var hi := float(shelf[1])
+	## ABOVE THE SHELF IS THE MARQUEE BAND, and at the top rung that is the only
+	## thing it can be: nothing in the world rates over the National ceiling
+	## except the man who came from outside it. Checked before the scale rather
+	## than after it, because clamping him into the top of the ordinary range is
+	## exactly how he would end up costing Star money.
+	if float(rating) > hi:
+		return BAND_NAME.size() - 1
+	var lo := float(shelf[0])
 	var t: float = clampf((float(rating) - lo) / maxf(1.0, hi - lo), 0.0, 1.0)
 	var b := 0
 	for edge in BANDS:
 		if t >= edge:
 			b += 1
-	return mini(b, BAND_FEE.size() - 1)
+	return mini(b, BAND_NAME.size() - 2)
 
 
+## AND THE PRICE IS THAT BAND'S SHARE OF THE DIVISION'S SEASON. One multiply,
+## and it is the multiply that makes the fee mean the same thing at every rung.
 static func fee(rating: int, tier: int) -> int:
-	return BAND_FEE[band_of(rating, tier)]
+	var slack: int = int(League.TIERS[clampi(tier, 0, League.TIERS.size() - 1)]["slack"])
+	return maxi(1, int(round(BAND_SHARE[band_of(rating, tier)] * float(slack))))
 
 
 static func band_name(rating: int, tier: int) -> String:
@@ -94,7 +177,13 @@ static func step_of(rating: int, tier: int) -> int:
 static func step_word(rating: int, tier: int) -> String:
 	match step_of(rating, tier):
 		Step.BELOW: return "depth"
-		Step.ABOVE: return "step up"
+		## "STEP UP" IS A LIE AT THE TOP OF THE PYRAMID. There is no division above
+		## National, so a man over its ceiling did not come from one — he came from
+		## outside the world, and the card should say so. Derived from where he
+		## stands rather than flagged on the object, so a foreign man who fades under
+		## the ceiling stops reading as one, which is correct.
+		Step.ABOVE:
+			return "foreign" if tier >= League.TIERS.size() - 1 else "step up"
 	return ""
 
 
@@ -140,16 +229,30 @@ static func pool(world_seed: int, season: int, tier: int, refreshes: int = 0,
 		## one above, weighted to your own — and the man from the league above is
 		## the one you save for.
 		var step := _band_step(rng)
-		var t := clampi(tier + step, 0, League.TIERS.size() - 1)
-		var range_: Array = League.TIERS[t]["power"]
-		var at: float = rng.randf()
-		var target := int(lerpf(float(range_[0]) - 6.0, float(range_[1]) + 2.0, at))
+		var top_rung: bool = tier >= League.TIERS.size() - 1
+		var target := 0
+		if step > 0 and top_rung and rng.randf() < FOREIGN_CHANCE:
+			## THE FOREIGN MAN. Drawn off the top of the National band rather than
+			## out of a fifth division, because there is no fifth division — see
+			## `FOREIGN_CHANCE`. One in four of the reach draws at the top rung, which
+			## is roughly one name every three or four summers.
+			target = int(lerpf(float(League.TIERS[tier]["power"][1]) + 1.0,
+				float(FOREIGN_TOP), rng.randf()))
+		else:
+			var t := clampi(tier + step, 0, League.TIERS.size() - 1)
+			var range_: Array = League.TIERS[t]["power"]
+			target = int(lerpf(float(range_[0]) - 6.0, float(range_[1]) + 2.0,
+				rng.randf()))
 		var slot: int = rng.randi() % 5
 		var f := ClubFactory.free_agent(rng, slot, target)
 		out.append(f)
-	## Best first. A list a player has to sort himself is a list he will misread
-	## once and then distrust.
-	out.sort_custom(func(a, b): return a.overall() > b.overall())
+	## BEST FIRST, AND "BEST" IS WHAT HE WILL BE. A list a player has to sort
+	## himself is a list he will misread once and then distrust — and a list
+	## sorted on today's rating puts the finished 55 above the 54 who becomes a
+	## 62, which is the misreading Pete named on 15 Sep. The card shows both
+	## numbers; the ORDER should agree with the one that decides. See
+	## `Career.worth`.
+	out.sort_custom(func(a, b): return Career.worth(a) > Career.worth(b))
 	return out
 
 

@@ -36,17 +36,17 @@ func _bands() -> void:
 		var range_: Array = League.TIERS[t]["power"]
 		var lo := -1
 		var last := -1
-		for r in range(int(range_[0]) - 8, int(range_[1]) + 4):
+		for r in range(int(Market.shelf_of(t)[0]) - 2, Market.FOREIGN_TOP + 2):
 			var b := Market.band_of(r, t)
 			if b != last:
 				if last >= 0:
 					print("%-18s  %-12s  %3d-%3d %7d" % [
 						String(League.TIERS[t]["name"]) if last == 0 else "",
-						Market.BAND_NAME[last], lo, r - 1, Market.BAND_FEE[last]])
+						Market.BAND_NAME[last], lo, r - 1, Market.fee(lo, t)])
 				lo = r
 				last = b
 		print("%-18s  %-12s  %3d-%3d %7d" % ["", Market.BAND_NAME[last], lo,
-			int(range_[1]) + 4, Market.BAND_FEE[last]])
+			Market.FOREIGN_TOP + 1, Market.fee(lo, t)])
 		print("")
 
 

@@ -150,6 +150,60 @@ static func roll_potential(rng: RandomNumberGenerator, f: FighterCard) -> int:
 	return clampi(f.overall() + (rng.randi() % (room + 1)), 1, POTENTIAL_CEILING)
 
 
+## WHAT HE WILL BE WORTH, WHICH IS NOT WHAT HE IS WORTH TODAY.
+##
+## Pete, 15 Sep 2026: *"The simulations need to run on potential, not immediate
+## power. I may have a guy with a power of 55 maxed, but there's a guy for signing
+## that's starting at 54 with a max of 60s. It's worth it to buy the guy with
+## higher tier and potential."*
+##
+## He is right and the probes were wrong: every manager fixture in `tools/` sorted
+## the shelf by `overall()` and compared against the weakest starter's `overall()`,
+## so a finished 55 beat a 54 who becomes a 62. **A market read on today's number
+## is a market that systematically buys the wrong man**, and it had been measuring
+## the game's balance through that mistake.
+##
+## Two things decide how much of the gap a man actually closes, and BOTH are age:
+##
+##   the gap itself   `roll_potential` already shrinks with age, so an old man
+##                    has little room in front of him to begin with.
+##   the runway       and he has to be fighting to use it. `PEAK_SKILL` at 35 is
+##                    the last peak to arrive; after it he is falling away from
+##                    his ceiling, not climbing to it.
+##
+## That double-counting of age is deliberate rather than a mistake: a thirty-four
+## year old with a 4-point gap will not close it, and one number saying so twice
+## is closer to the truth than either alone. `PROJECT_YEARS` is how long a man
+## fighting every week takes to reach his ceiling — five seasons, which is about
+## what `probe_dev.gd` measured a regular starter doing.
+const PROJECT_YEARS: float = 5.0
+
+
+static func projected(f: FighterCard) -> int:
+	var gap := maxi(0, f.potential - f.overall())
+	if gap == 0:
+		return f.overall()
+	var runway := float(maxi(0, PEAK_SKILL - f.age)) / PROJECT_YEARS
+	return f.overall() + int(round(float(gap) * clampf(runway, 0.0, 1.0)))
+
+
+## AND WHAT HE IS WORTH TO A CLUB DECIDING TODAY, which is neither number on its
+## own. A man's whole value is not his peak — you have to survive the seasons
+## before it, and he has to still be here when it arrives. So this sits between
+## what he is and what he becomes, weighted toward the finish because that is the
+## call Pete is asking for: a 55 who is finished loses to a 54 who reaches 62.
+##
+##   55 maxed, age 30     -> 55
+##   54 -> 64, age 24     -> 54 + 10*1.0 = 64  worth 60
+##
+## Six points of difference on a decision that used to come out backwards.
+const WORTH_NOW: float = 0.40
+
+
+static func worth(f: FighterCard) -> int:
+	return int(round(lerpf(float(projected(f)), float(f.overall()), WORTH_NOW)))
+
+
 ## ONE SCARCE WAY TO RAISE IT, and this is it: the club names ONE fighter its
 ## prospect each winter, and that man gains this much. Not buyable, not
 ## repeatable within a year, and gated behind a Training ground the club had to

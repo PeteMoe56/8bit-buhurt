@@ -46,7 +46,7 @@ func _initialize() -> void:
 func _shelf() -> void:
 	print("\n=== what is on the shelf, %d seasons a division ===\n" % SEASONS)
 	print("%-19s %6s %6s %6s %7s %7s %7s %8s" % [
-		"division", "best", "worst", "ceiling", "below", "own", "above", "carriable"])
+		"division", "best", "worst", "ceiling", "below", "own", "above", "affords"])
 	for t in League.TIERS.size():
 		var best := 0.0
 		var worst := 0.0
@@ -78,13 +78,18 @@ func _shelf() -> void:
 			100.0 * float(carriable) / float(maxi(1, seen))])
 		var line: Array[String] = []
 		for b in Market.BAND_NAME:
-			line.append("%s %d%%" % [b,
-				int(round(100.0 * float(bands.get(b, 0)) / float(maxi(1, seen))))])
+			var share := 100.0 * float(bands.get(b, 0)) / float(maxi(1, seen))
+			## The Marquee band is meant to be rare and at three rungs of four it
+			## is the stretch man rather than the foreigner, so it prints to one
+			## decimal — "0%" and "one every four summers" are different answers.
+			line.append("%s %.1f%%" % [b, share])
 		print("      fee bands: " + "  ·  ".join(line))
 	print("")
 	print("below/own/above  which division's power band the man was generated in")
-	print("carriable        his fee is inside a division's typical season AND his")
-	print("                 wage fits under the cap beside twelve ordinary men")
+	print("affords          his fee fits inside League.TIERS[t][\"slack\"] — what a")
+	print("                 season at that rung actually leaves for the squad, as")
+	print("                 measured by probe_wallet — AND his wage fits under the")
+	print("                 cap beside twelve ordinary men")
 	print("")
 
 
@@ -106,9 +111,12 @@ func _origin(rating: int, tier: int) -> int:
 ## measuring half the shelf.
 func _can_carry(f: FighterCard, tier: int) -> bool:
 	var fee := Market.fee(f.overall(), tier)
-	## A season's growth money, roughly, off `probe_run`: a club has about twenty
-	## credits of slack in the division it is in.
-	if fee > 20:
+	## WHAT THE DIVISION ACTUALLY LEAVES HIM. This was a flat `fee > 20` — "a
+	## club has about twenty credits of slack" — which was true of the Backyard
+	## Circuit and wrong by a factor of four at National, and it is half the
+	## reason `carriable` came back at 97-100% everywhere. `probe_wallet.gd`
+	## measured the real figure per rung; it lives in `League.TIERS`.
+	if fee > int(League.TIERS[tier]["slack"]):
 		return false
 	var o := ClubOffice.new()
 	o.tier = tier
@@ -286,17 +294,24 @@ func _market(s: Season) -> int:
 		var pool: Array = s.market()
 		if pool.is_empty():
 			break
-		pool.sort_custom(func(a, b): return a.overall() > b.overall())
+		## READ ON WHAT HE WILL BE, NOT WHAT HE IS. Pete, 15 Sep 2026: *"I may
+		## have a guy with a power of 55 maxed, but there's a guy for signing
+		## that's starting at 54 with a max of 60s."* Sorting the shelf by
+		## `overall()` takes the finished man every time, so every career this
+		## probe has ever reported was played by a manager making that mistake
+		## six times a summer. `Career.worth` is the same comparison a player
+		## makes when he reads the two numbers on the card.
+		pool.sort_custom(func(a, b): return Career.worth(a) > Career.worth(b))
 		var five: Array = s.club.starting_five()
 		var lo := 999
 		for c in five:
-			lo = mini(lo, c.overall())
+			lo = mini(lo, Career.worth(c))
 		var keep := s.office.upkeep_bill() + League.dues_for(s.office.tier) + 8
 		var hit := false
 		for f in pool:
 			if s.office.credits <= keep + s.market_fee(f):
 				continue
-			if s.club.roster.size() >= 13 and f.overall() <= lo + 1:
+			if s.club.roster.size() >= 13 and Career.worth(f) <= lo + 1:
 				continue
 			_make_room(s, f)
 			if s.sign_from_market(f) != "":
@@ -327,7 +342,7 @@ func _make_room(s: Season, want: FighterCard) -> void:
 				go = c
 			elif over and ClubOffice.billed(c) > ClubOffice.billed(go):
 				go = c
-			elif not over and c.overall() < go.overall():
+			elif not over and Career.worth(c) < Career.worth(go):
 				go = c
 		if go == null or s.release(go) != "":
 			return

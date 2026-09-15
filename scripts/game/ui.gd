@@ -487,7 +487,7 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 			13 if big else 11, Color(d.get("foot_col", YOU)), 140)
 	## AND THE FOOT'S LEFT, which is the other half of a price.
 	##
-	## `Market.BAND_FEE` charges by BAND and not by rating — a 61 and a 68 in the
+	## `Market.BAND_SHARE` charges by BAND and not by rating — a 61 and a 68 in the
 	## same band cost the same credits, and reading the pool for the man at the
 	## top of a band is the seam Pete asked for in item 8. **The card showed the
 	## fee and never the band**, so the one piece of information the seam is made

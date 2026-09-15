@@ -126,7 +126,7 @@ func _draw() -> void:
 		## THE TWO LABELS THE TIERING IS MADE OF, and neither was on the card.
 		##
 		## `Market.pool` draws across the division below, your own and the one
-		## above, and `Market.BAND_FEE` charges by bucket rather than by rating.
+		## above, and `Market.BAND_SHARE` charges by bucket rather than by rating.
 		## Both are deliberate seams — Pete's item 8, *"coarse tiers somewhere, so
 		## there is a seam to game"* — and the screen was showing the OUTPUT of
 		## each (a rating, a price) and never the seam itself. A player could play

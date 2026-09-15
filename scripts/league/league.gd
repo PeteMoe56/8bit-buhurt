@@ -26,6 +26,30 @@ enum Tier { BACKYARD, STATE, REGIONAL, NATIONAL }
 ## asserted over a hundred simulated seasons in tests/test_league.gd, because a
 ## division that quietly gains a team every year is the kind of bug that only
 ## shows up in a save file two hours in.
+## TWO NUMBERS ON EVERY RUNG THAT WERE MEASURED RATHER THAN CHOSEN, and both
+## exist because `tools/probe_shelf.gd` found the market pricing itself against
+## the wrong thing.
+##
+##   "shelf"  the rating range the FREE-AGENT LIST actually spans at this rung —
+##            not the division's own `power` band. `Market.pool` draws a third
+##            from the division below and a sixth from the one above, so the
+##            shelf is wider than the division at both ends, and it is wider by
+##            a DIFFERENT amount at each rung. Pricing a man against `power`
+##            meant the whole below-tier draw sat underneath the scale, and the
+##            Journeyman share ran 30% -> 59% up the pyramid: the richest
+##            division had the cheapest shelf. Measured by `probe_shelf`.
+##
+##   "slack"  what a season leaves for the squad after the bills and the dues —
+##            16 / 33 / 37 / 67 credits, measured by `tools/probe_wallet.gd`.
+##            `Market.BAND_SHARE` is a fraction OF this, which is the whole point:
+##            **a cost that is not derived from the thing it is a cost of will
+##            eventually exceed it, or stop mattering.** A flat 18-credit Star
+##            was a season's wages in the Backyard Circuit and pocket money at
+##            National, which is why 97-100% of every shelf was affordable.
+##
+## Note that slack does NOT climb as fast as income does, because the dues climb
+## with it — State 33 to Regional 37 on a 40% jump in income. That squeeze is
+## real and the fee ladder follows it honestly rather than smoothing it out.
 const TIERS := [
 	{
 		"id": Tier.BACKYARD,
@@ -56,6 +80,8 @@ const TIERS := [
 		"up": 2,
 		"down": 0,        ## the floor of the pyramid; nowhere to fall
 		"power": [30, 46],
+		"shelf": [26, 52],
+		"slack": 16,
 		"blurb": "Six clubs, a field and a rail. Win it and somebody notices.",
 	},
 	{
@@ -66,6 +92,8 @@ const TIERS := [
 		"up": 2,
 		"down": 2,        ## two, to match the two the Backyard Circuit sends up
 		"power": [40, 58],
+		"shelf": [33, 64],
+		"slack": 33,
 		"blurb": "Proper marshals, proper armor inspection, and clubs that travel.",
 	},
 	{
@@ -76,6 +104,8 @@ const TIERS := [
 		"up": 2,
 		"down": 2,
 		"power": [52, 70],
+		"shelf": [39, 76],
+		"slack": 37,
 		"blurb": "The grind. Twelve clubs, eleven events, no easy weekends.",
 	},
 	{
@@ -86,6 +116,11 @@ const TIERS := [
 		"up": 2,          ## not promoted — these are the Worlds berths
 		"down": 2,
 		"power": [64, 86],
+		## THE TOP OF THE PYRAMID, AND THE TOP OF ITS SHELF IS THE DIVISION'S OWN
+		## CEILING. There is nothing above National, so anything over 86 on this
+		## shelf is the foreign man — see `Market.FOREIGN_CHANCE`.
+		"shelf": [52, 86],
+		"slack": 67,
 		"blurb": "The top flight. Finish top two and the federation sends you to Worlds.",
 	},
 ]

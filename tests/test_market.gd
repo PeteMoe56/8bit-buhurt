@@ -113,7 +113,7 @@ func _test_the_shelf_spans_three_divisions() -> void:
 		"under the floor reads depth, inside it reads nothing, over it reads step up")
 
 	## THE FEE BAND IS ON THE CARD TOO, and it is the half of the seam that does
-	## the work: `BAND_FEE` charges by bucket, so the skill is taking the man at
+	## the work: `BAND_SHARE` charges by bucket, so the skill is taking the man at
 	## the TOP of a bucket. The screen printed the price and never the bucket.
 	var names: Dictionary = {}
 	for season in range(1, 41):
@@ -285,8 +285,8 @@ func _test_the_fee_is_by_band() -> void:
 			lo, hi, Market.fee(lo, t)]
 	## And the fee must actually climb, or the bands are decoration.
 	var climbs := true
-	for i in range(1, Market.BAND_FEE.size()):
-		if Market.BAND_FEE[i] <= Market.BAND_FEE[i - 1]:
+	for i in range(1, Market.BAND_SHARE.size()):
+		if Market.BAND_SHARE[i] <= Market.BAND_SHARE[i - 1]:
 			climbs = false
 	notes.append("same fee across a band: " + line.strip_edges())
 	_ok(found_equal and climbs and widest >= 4,

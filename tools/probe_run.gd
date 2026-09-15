@@ -378,7 +378,10 @@ func _market_moves(s: Season) -> int:
 		## BEST FIRST, because the fee is banded — within a band a better fighter
 		## costs the same, which is the seam this market is built around and the
 		## reason reaching high is usually right.
-		pool.sort_custom(func(a, b): return a.overall() > b.overall())
+		## ON WHAT HE WILL BE. See `Career.worth` — reading the shelf on today's
+		## rating buys the finished man over the one who becomes better, which is
+		## the mistake Pete named on 15 Sep.
+		pool.sort_custom(func(a, b): return Career.worth(a) > Career.worth(b))
 		var took := false
 		for f in pool:
 			if s.office.credits <= _reserve(s) + s.market_fee(f):
@@ -386,7 +389,7 @@ func _market_moves(s: Season) -> int:
 			## IS HE BETTER THAN WHAT WE HAVE? Against the weakest of the five
 			## when the squad is full, and against nothing at all when it is short
 			## — a club with eleven men needs bodies before it needs upgrades.
-			if s.club.roster.size() >= SQUAD_WANT and f.overall() <= _weakest(s) + 1:
+			if s.club.roster.size() >= SQUAD_WANT and Career.worth(f) <= _weakest(s) + 1:
 				continue
 			## MAKE ROOM FIRST, BOTH KINDS. `sign_from_market` refuses two
 			## different ways and the first cut of this policy cut AFTERWARDS, so
@@ -439,7 +442,7 @@ func _make_room(s: Season, want: FighterCard) -> void:
 				go = c
 			elif over and ClubOffice.billed(c) > ClubOffice.billed(go):
 				go = c
-			elif not over and c.overall() < go.overall():
+			elif not over and Career.worth(c) < Career.worth(go):
 				go = c
 		if go == null or s.release(go) != "":
 			return
@@ -454,7 +457,7 @@ func _weakest(s: Season) -> int:
 		return 0
 	var lo := 999
 	for f in five:
-		lo = mini(lo, f.overall())
+		lo = mini(lo, Career.worth(f))
 	return lo
 
 
