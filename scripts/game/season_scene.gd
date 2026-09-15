@@ -193,9 +193,13 @@ func _rebuild() -> void:
 				tab = i
 				picked = null
 				_rebuild(), marks[i]))
+	## MENU IS NOT BACK. It leaves the career, which is the end of a path rather
+	## than a step back along one — a trail that survived it would send Back from
+	## the front door into somebody's half-finished season.
 	ui.add_child(UiKit.button("Menu", Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
 		Session.autosave()
-		UiKit.back("res://scenes/Title.tscn"), "cog"))
+		UiKit.trail_reset()
+		UiKit.go("res://scenes/Title.tscn"), "cog"))
 	match tab:
 		Tab.CLUB: _club_controls()
 		Tab.SQUAD: _squad_controls()
@@ -522,18 +526,59 @@ func _tap(f: FighterCard) -> void:
 		flash = ""
 		_rebuild()
 		return
-	## One of the two has to be on the eight and the other in the reserve. Anything
-	## else is a tap the player did not mean, so say what the move needs rather
-	## than silently doing nothing.
+	## TWO KINDS OF SWAP, AND THE SCREEN NO LONGER REFUSES THE SECOND ONE.
+	##
+	## One on the bus and one in the clubhouse is a squad change: `swap_squad`.
+	## TWO ON THE BUS is a depth-chart change — which men start and which sit on
+	## the bench — and this used to answer it with *"Pick one from the eight and
+	## one from the reserve"*, i.e. the screen told the player that the thing he
+	## was trying to do was a mistake. It was not. It was the one thing the game
+	## could not do at all: `starting_five()` reads roster order and nothing
+	## could reorder the roster, so a man who ended up on the bench stayed there
+	## whatever the player thought of him.
+	##
+	## Two in the RESERVE is still a no-op rather than a refusal — the reserve
+	## has no order that means anything, so there is nothing to say and nothing
+	## to do.
+	## WHO WAS ON THE LINE BEFORE, so the message can say what actually changed.
+	var five_before: Array = season.club.starting_five()
 	var err := ""
 	if picked.active and not f.active:
 		err = season.club.swap_squad(picked, f)
 	elif f.active and not picked.active:
 		err = season.club.swap_squad(f, picked)
+	elif picked.active and f.active:
+		err = season.club.swap_order(picked, f)
 	else:
-		err = "Pick one from the eight and one from the reserve."
+		err = "Two in the reserve: bring one up to the eight first."
 	if err == "":
-		flash = "%s and %s swapped." % [picked.display_name, f.display_name]
+		## REPORT WHAT CHANGED, NOT WHAT WAS TAPPED.
+		##
+		## The five is not a list the player edits — it is CHOSEN, by walking the
+		## depth chart and taking the first fit man who covers each slot. So
+		## swapping two entries can move somebody the player never touched: a
+		## probe on the starting club swapped Calder for Quillan and promoted
+		## Egan as well, because a Center arriving at the top of the chart
+		## displaces the man who was covering that slot out of position.
+		##
+		## That is the model working, and a message saying "Calder and Quillan
+		## swapped" while three names moved is the screen lying about it. So the
+		## line is compared before and after and the message names the men who
+		## actually came on and came off.
+		var five_after: Array = season.club.starting_five()
+		var came_on: Array[String] = []
+		var came_off: Array[String] = []
+		for m in five_after:
+			if not five_before.has(m):
+				came_on.append(String(m.display_name))
+		for m in five_before:
+			if not five_after.has(m):
+				came_off.append(String(m.display_name))
+		if came_on.is_empty():
+			flash = "%s and %s swapped. The five is unchanged." % [
+				picked.display_name, f.display_name]
+		else:
+			flash = "On: %s.  Off: %s." % [", ".join(came_on), ", ".join(came_off)]
 		season.sync_power()
 		Session.autosave()
 	else:
@@ -1597,29 +1642,39 @@ func _draw_office() -> void:
 	## moves this with it instead of printing through it.
 	var y := CONTENT_Y + 28.0 + NAV_ROW * 4.0 + NAV_BTN_H + 26.0
 	UiKit.text(self, font, "ON THE LIST", Vector2(NAV_X, y), 13, UiKit.DIM)
+	## THREE CELLS ACROSS THE COLUMN, AND THE WORDS STACK INSIDE THEM.
+	##
+	## This was role and tier side by side at `480 + i * 156`, which fits exactly
+	## as long as every tier is called "Rust". A club with taught roles says
+	## **Hardened** — 88 pixels at 15px against the 80 the third cell had left —
+	## and the word ran to x=962 of a 960-wide frame.
+	##
+	## It had been there since captains could teach, and the sweep could not see
+	## it: the fixture that hires two captains was being deleted by the first
+	## screen the sweep opened, so the clubhouse was only ever photographed with
+	## nobody teaching anything. Fixing the fixture found this in one run.
+	##
+	## Stacked, the cell only has to hold the LONGER of the two words rather than
+	## both plus a gap — and the pitch is measured off the canvas, so it is right
+	## on a handset as well.
+	var cells := (UiKit.right_edge() - NAV_X) / 3.0
 	var i2 := 0
 	for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
 		var tier: int = o.tier_for(role)
 		var col := UiKit.DOWN if tier == Tuning.AiSkill.RUST else UiKit.UP
-		## Two explicit columns rather than a %-9s pad: the font is proportional,
-		## so padding with spaces lines nothing up and produced three differently
-		## indented pairs.
-		var cx := 480.0 + float(i2) * 156.0
-		## SIXTY-TWO PIXELS FITS "RAIL" AND NOT "FLANKER", and the screenshot
-		## read "FlankeRust". A proportional face means the gap has to be
-		## measured off the longest label in the set rather than guessed off the
-		## first one — the same mistake, in miniature, as clipping a name at a
-		## character count into a pixel-wide box.
-		UiKit.text(self, font, String(Tuning.ROLE_NAME[role]), Vector2(cx, y + 26), 15, UiKit.DIM)
-		UiKit.text(self, font, String(Tuning.AI_SKILL[tier]["name"]),
-			Vector2(cx + _role_col_w() + 10.0, y + 26), 15, col)
+		var cx := NAV_X + float(i2) * cells
+		UiKit.text(self, font, String(Tuning.ROLE_NAME[role]),
+			Vector2(cx, y + 20), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.fit_px(font,
+			String(Tuning.AI_SKILL[tier]["name"]), 15, cells - 10.0),
+			Vector2(cx, y + 40), 15, col)
 		i2 += 1
 	## THE WARNING, and it is the only thing on this screen a player must act on.
 	## Two captains have four specializations between them and there are three
 	## roles, so leaving one untaught means two of them are teaching the same job.
 	var bare := o.untaught()
 	if bare.is_empty():
-		UiKit.text(self, font, "Every role taught.", Vector2(480, y + 52), 13, UiKit.DIM)
+		UiKit.text(self, font, "Every role taught.", Vector2(NAV_X, y + 64), 13, UiKit.DIM)
 	else:
 		var names := ""
 		for r in bare:
@@ -1627,14 +1682,14 @@ func _draw_office() -> void:
 		## Two lines. One ran off the right edge and lost its last two words,
 		## which on a warning is the half that says what to do about it.
 		UiKit.text(self, font, "%s going out untaught." % names,
-			Vector2(480, y + 52), 13, UiKit.DOWN)
+			Vector2(NAV_X, y + 64), 13, UiKit.DOWN)
 		var doubled := ""
 		for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
 			if o.doubled(role):
 				doubled = String(Tuning.ROLE_NAME[role])
 		UiKit.text(self, font, "Both captains are teaching %s." % doubled
 			if doubled != "" else "Hire a captain who teaches it.",
-			Vector2(480, y + 70), 13, UiKit.DIM)
+			Vector2(NAV_X, y + 82), 13, UiKit.DIM)
 
 ## The widest role name at the size the list draws them, so the skill column
 ## clears all three rather than clearing the first one.

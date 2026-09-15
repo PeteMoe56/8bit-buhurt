@@ -66,7 +66,12 @@ func _build() -> void:
 
 
 func _play() -> void:
-	UiKit.back("res://scenes/Title.tscn")
+	## FORWARD, and the trail starts here. This used `UiKit.back()` — for the
+	## sound, which is the only thing that used to differ between the two doors.
+	## Now that Back follows a trail, calling it to go FORWARD means the slot
+	## screen's own Back pops whatever was underneath instead of returning here.
+	UiKit.trail_reset()
+	UiKit.go("res://scenes/Title.tscn")
 
 
 func _settings() -> void:

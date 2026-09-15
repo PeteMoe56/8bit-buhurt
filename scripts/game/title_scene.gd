@@ -228,6 +228,9 @@ func _enter(s: Season, slot: int) -> void:
 	Session.slot = slot
 	if Store.claim(s.office) > 0 and slot >= 0:
 		SaveGame.save(s, slot)
+	## A CAREER OPENING CUTS THE TRAIL. Everything before this belongs to the
+	## menus, and Back inside a club must never walk out of it into a slot list.
+	UiKit.trail_reset()
 	UiKit.go("res://scenes/Season.tscn")
 
 

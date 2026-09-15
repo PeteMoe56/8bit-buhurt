@@ -29,6 +29,7 @@ func _initialize() -> void:
 	_test_a_short_line_still_numbers_its_men()
 	_test_a_squad_is_shaped_like_a_squad()
 	_test_the_register_still_describes_the_code()
+	_test_a_player_can_name_his_own_starters()
 
 	print("")
 	for n in notes:
@@ -971,3 +972,63 @@ func _test_a_squad_is_shaped_like_a_squad() -> void:
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "a squad is shaped like a squad",
 		"the men who travel are concentrated in their prime rather than spread flat across a twenty-year career span, and both tails still exist")
+
+
+## ------------------------------------------------- naming your own starters
+## THE VERB THE SQUAD SCREEN NEVER HAD.
+##
+## Pete, playing the game end to end on 15 Sep 2026: *"No way to drag players
+## into fighter slots. 'Pick who to trade places with' can just drop fighters
+## from starts to bench without a way to add anyone to starters."*
+##
+## He is right and the cause is `starting_five()`: the five are CHOSEN, by
+## walking `active_eight()` — which is roster order — and taking the first fit
+## man who covers each slot. Roster order IS the depth chart, and until now
+## nothing in the game could reorder it. `swap_squad` moved men between the bus
+## and the clubhouse; there was no move at all inside the bus, so a man who ended
+## up on the bench stayed there whatever the player thought of him.
+func _test_a_player_can_name_his_own_starters() -> void:
+	var c := MeleeRosters.starting_club()
+	c.travel_cap = MeleeClub.ACTIVE_SIZE
+	var eight := c.active_eight()
+	var before := c.starting_five()
+	var bench_man: FighterCard = eight[eight.size() - 1]
+	_ok(not before.has(bench_man), "a man at the foot of the depth chart does not start",
+		"%s is eighth of eight" % bench_man.display_name)
+
+	var err := c.swap_order(before[0], bench_man)
+	var after := c.starting_five()
+	_ok(err == "" and after.has(bench_man),
+		"and moving him up the chart puts him on the line",
+		"%s started after one swap%s" % [bench_man.display_name,
+			"" if err == "" else " — " + err])
+
+	## AND IT IS REVERSIBLE, exactly. A reorder that cannot be undone is a
+	## reorder a player will not use.
+	c.swap_order(bench_man, before[0])
+	var back := c.starting_five()
+	var same := back.size() == before.size()
+	for i in back.size():
+		if i < before.size() and back[i] != before[i]:
+			same = false
+	_ok(same, "and swapping the pair back restores the line exactly",
+		"the depth chart is the only state a reorder touches")
+
+	## NOTHING ELSE MOVES. Position in the list is the only thing the verb says;
+	## a reorder that quietly changed `active`, fitness or a contract would be a
+	## squad edit wearing a sort's clothes.
+	var kept := true
+	for f in c.roster:
+		if f.active != eight.has(f) and c.reserves().has(f) == eight.has(f):
+			kept = false
+	_ok(kept and c.active_eight().size() == eight.size(),
+		"and the same eight are still travelling",
+		"a reorder is not a squad change")
+
+	## A MAN WHO IS NOT ON THE BOOKS IS REFUSED, like every other verb here.
+	var stranger := MeleeRosters.starting_club().roster[0]
+	_ok(c.swap_order(c.roster[0], stranger) != "",
+		"a fighter who is not on this club cannot be ordered into it",
+		"refused with a sentence, like every other verb on the club")
+	notes.append("the depth chart: %s -> %s and back"
+		% [before[0].display_name, bench_man.display_name])

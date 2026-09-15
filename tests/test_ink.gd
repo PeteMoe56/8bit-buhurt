@@ -114,9 +114,31 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 
 ## The same thin world the layout sweep uses, for the same reason: a screen only
 ## draws some of its text in some states, and the empty case is not the case.
+## THE WORLD THE SWEEP LOOKS AT, held so it can be put back.
+##
+## IT WAS BEING DESTROYED BY THE FIRST SCREEN IT VISITED. `Title.tscn` is first
+## in `SCREENS`, and its `_ready()` does `Session.season = null` — correctly, and
+## for a good reason: coming back to the title means that career is over and a
+## stale world must not stay alive behind it. Every screen after it then hit its
+## own `if Session.season == null: Session.season = Season.new(..., randi())`
+## fallback and swept a RANDOM DEFAULT CLUB.
+##
+## So the careful fixture below — two captains, a hard regime, a man one XP from
+## a level, and now a chalkboard with something saved on it — was being built,
+## used for exactly one screen, and thrown away. Nineteen of twenty screens were
+## being photographed in a world nobody had set up.
+##
+## Found on 15 Sep 2026 while trying to make this suite catch a bug it could see
+## the shape of and would not report. It is the same lesson as the shape sweep
+## and the migration floor: **a fixture that is not re-asserted is a fixture that
+## one screen can delete for all the others.**
+var world_season: Season = null
+
+
 func _world() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 4242)
 	Session.season = s
+	world_season = s
 	s.world.season = 3
 	s.office.credits = 60
 	s.hire_captain(ClubOffice.captain("Vaughn", Tuning.Role.RAIL, Tuning.Role.CENTER,
@@ -131,6 +153,32 @@ func _world() -> void:
 	man.xp = Career.next_level_at(man) + 1
 	Session.viewing_fighter = man
 
+	## A CHALKBOARD WITH SOMETHING ON IT, and this is not decoration.
+	##
+	## The sweep drove the chalkboard for weeks with **nought slots unlocked**,
+	## which is the state a brand-new club is in and the only state the fixture
+	## ever built. An owned slot is the only thing on that screen that draws a
+	## name and puts a control over it — so the screen with #18 and #19 in it was
+	## being photographed with the faulty half switched off.
+	##
+	## Proved, not assumed: re-flipping `b.flat` to false in `chalkboard_scene`
+	## and re-running this suite PASSED, with the slab back over the name.
+	## **A state nothing constructs is a state nothing tests**, and the fourth
+	## time this project has written that down.
+	s.office.credits = 60
+	s.board.unlock_formation(s.office)
+	s.board.save_formation(0, "Strong Right",
+		s.board.spots_for(Tuning.Formation.TWO_ONE_TWO))
+	s.board.unlock_play(s.office)
+	s.board.save_play(0, "Full Right", s.board.routes_of(0), Chalkboard.UNIVERSAL)
+
+
+## PUT THE WORLD BACK, before every screen. See the note on `world_season`.
+func _restore() -> void:
+	if world_season != null:
+		Session.season = world_season
+		Session.viewing_fighter = world_season.club.starting_five()[0]
+
 
 ## Open a screen, let it settle, then make it draw with the ledger running.
 ## `queue_redraw` is not enough on its own — the draw happens on the next frame,
@@ -138,6 +186,7 @@ func _world() -> void:
 func _ink(path: String, tab: int) -> Array:
 	if not ResourceLoader.exists(path):
 		return []
+	_restore()
 	var packed: PackedScene = load(path)
 	if packed == null:
 		return []
@@ -201,6 +250,7 @@ func _test_no_text_lands_on_a_control() -> void:
 		var tab := int(page[1])
 		if not ResourceLoader.exists(path):
 			continue
+		_restore()
 		var n: Node = (load(path) as PackedScene).instantiate()
 		root.add_child(n)
 		if Session.season != null:
@@ -227,19 +277,28 @@ func _test_no_text_lands_on_a_control() -> void:
 				var hit := r.intersection(cr)
 				if hit.size.x <= 1.0 or hit.size.y <= 1.0:
 					continue
-				## A WORDLESS BUTTON THAT WHOLLY CONTAINS A STRING IS ITS HIT
-				## TARGET, not a collision. The mark bank is built that way on
-				## purpose — each slot's rect runs 18px past the badge so that
-				## tapping the NAME under it picks the mark — and a check that
-				## called that a fault would be a check demanding the caption be
-				## unclickable.
+				## THE EXEMPTION THAT USED TO BE HERE WAS THE HOLE.
 				##
-				## Partial overlaps are still faults, and so is anything landing
-				## on a button that has its own label: those are two pieces of
-				## text on top of each other, which is the thing being looked for.
-				if String(c["name"]) == "Button" and cr.encloses(r):
-					continue
-				bad.append("%s: '%s' over '%s'" % [_label(path, tab),
+				## It said: a wordless Button that WHOLLY CONTAINS a string is
+				## that string's hit target, not a collision — written for the
+				## club-creator's mark bank, where each slot's rect runs 18px past
+				## the badge so the caption under it is tappable.
+				##
+				## It is also the exact signature of the bug Pete found on 15 Sep:
+				## *"Saved formation doesn't save or show up in blank slot."* It
+				## saved. It drew. And a full-size, empty-labelled, NOT-flat Button
+				## on the CanvasLayer above painted a solid slab over the name —
+				## wholly containing it, and so wholly excused. Two screens were
+				## doing it; the mark bank was the second.
+				##
+				## The right answer was never an exemption. A hit box over a
+				## drawing is `flat`, and `_controls()` already skips flat buttons
+				## because they cannot cover anything. Both call sites are flat
+				## now, so the exemption has nothing left to protect and its
+				## removal turns this check into the one that would have caught
+				## the bug. **An exemption written for one screen is a hole for
+				## every other one.**
+				bad.append("%s: '%s' under '%s'" % [_label(path, tab),
 					String(row["text"]), String(c["name"])])
 		n.queue_free()
 		await process_frame
@@ -382,6 +441,14 @@ func _test_the_ledger_can_fail() -> void:
 ## mistake this project has now made twice.** A corner over a fight that has not
 ## started photographs five of seven fields blank; a report before a bout has
 ## been fought photographs nothing at all.
+## THESE NUMBERS ARE CASE LABELS, NOT `Screen` VALUES, and the difference has
+## cost an hour. `Screen` is `{SPLASH, PREFIGHT, FIGHT, CORNER, REPORT}` — so
+## FIGHT is 2 and CORNER is 3 — while this table's "the fight" is 1 and "the
+## corner" is 2. The branches below mostly do not set `screen` from them at all:
+## they take the road the game takes and let the scene decide where it lands.
+## Writing `n.set("screen", 1)` in a new branch therefore puts the scene in
+## PREFIGHT while the code around it says FIGHT, which is exactly the mistake
+## that made the first attempt at the report check pass against a live bug.
 const FIGHT_STATES := [
 	["the splash", 0],
 	["the fight", 1],
@@ -410,10 +477,30 @@ func _ink_fight(state: int) -> Array:
 			n.set("corner_done_for_round", -1)
 			n.call("_show_strategy_panel")
 		4:
+			## THROUGH A LIVE FIGHT, not straight to the report.
+			##
+			## This used to set `screen = 4` on a bout that had never been
+			## watched — and CALL and SKIP ROUND are only ever turned ON by
+			## `_sync_controls` during a live fight, so they sat in their
+			## `visible = false` starting state and the sweep was photographing a
+			## report with no fight behind it.
+			##
+			## Which is exactly why it never saw #11: Pete's SKIP ROUND on top of
+			## the after-action report. A button has to be switched on before a
+			## check can notice that nothing switched it off.
+			##
+			## So: answer the plan the way state 1 does, let two frames pass so
+			## the controls come up, THEN end the bout. Anything that skips the
+			## fight also skips the thing under test.
+			var sh = n.call("_shape_of", int(sim.formations[0]))
+			n.call("_call_from_book", sh if sh is Dictionary else {},
+				{"kind": "push", "id": int(sim.strategies[0]), "name": "hold"})
+			await process_frame
+			await process_frame
 			sim.run_to_end()
-			n.set("screen", 4)
 			if n.has_method("_show_report"):
 				n.call("_show_report")
+			await process_frame
 		1:
 			## INTO THE FIGHT THE WAY A PLAYER GETS THERE, which is by answering
 			## the plan — `_apply_chosen()` — and not by writing to `screen`.
@@ -668,6 +755,23 @@ func _test_the_fight_screens_hold_their_ink() -> void:
 					continue
 				over.append("%s: '%s' over '%s'" % [label, String(row["text"]),
 					String(c["name"])])
+	## AND NOTHING FROM THE FIGHT IS STILL LIVE ON THE REPORT.
+	##
+	## The ink sweep above can only see a control that a STRING happens to land
+	## on. A live button in a corner of the report with nothing under it is
+	## invisible to it and still a control the player can press on a bout that is
+	## already scored. So this asks the question directly.
+	var live_on_report: Array[String] = []
+	var report_pair: Array = await _ink_fight(4)
+	for c in report_pair[1]:
+		var nm := String(c["name"])
+		if nm == "CALL" or nm == "HOLD" or nm == "SKIP ROUND":
+			live_on_report.append(nm)
+	_ok(live_on_report.is_empty(),
+		"and no fight control is still live once the bout is scored",
+		"CALL and SKIP ROUND watched%s" % ("" if live_on_report.is_empty()
+			else " — STILL UP: " + ", ".join(live_on_report)))
+
 	notes.append("the fight: %d strings across %d states, %d text-control pairs"
 		% [seen, FIGHT_STATES.size(), pairs])
 	_ok(off.is_empty(), "the fight screens stay inside the frame",

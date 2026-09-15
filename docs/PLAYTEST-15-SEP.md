@@ -39,17 +39,64 @@ fifteen places to add a watermark and one to forget. Both are one call now.
 
 | # | Item | Status |
 |---|---|---|
-| 24 | **Back in any popup goes to the main club**, not the previous screen | `open` |
-| 22 | **No way to put a fighter INTO the starting five.** "Pick who to trade places with" only drops men from starters to bench | `open` |
-| 18 | Saved **formation** does not appear in the blank slot | `open` |
-| 19 | Saved **play** does not appear in the blank slot | `open` |
-| 11 | **SKIP ROUND floats over the after-action report** and does nothing useful there | `open` |
-| 10 | Playbook appears on click — #9 may be this same bug | `open` |
-| 13 | One man is already OUT at season start, for no stated reason | `open` |
+| 24 | **Back in any popup goes to the main club**, not the previous screen | `done` |
+| 22 | **No way to put a fighter INTO the starting five.** "Pick who to trade places with" only drops men from starters to bench | `done` |
+| 18 | Saved **formation** does not appear in the blank slot | `done` |
+| 19 | Saved **play** does not appear in the blank slot | `done` |
+| 11 | **SKIP ROUND floats over the after-action report** and does nothing useful there | `done` |
+| 10 | Playbook appears on click — #9 may be this same bug | `done` |
+| 13 | One man is already OUT at season start, for no stated reason | `answered` |
 
-24 and 22 are the two that make the game feel broken rather than unfinished: one
-loses the player's place on every popup, the other means the squad screen can
-only ever make your team worse.
+**24** — every screen carried a literal Back destination. Right for most of them
+most of the time, wrong the moment a screen has two ways in: the fighter card
+returned to the roster whether you opened it from the roster, the market or the
+staff room. A screen cannot know where it was opened from, so it must not be the
+thing that decides. `UiKit` keeps a six-deep trail now; the old argument became
+the *fallback*, so all fifteen call sites are still correct. `test_nav.gd`, 10
+checks.
+
+**22** — the deeper of the two. `starting_five()` *chooses* the five by walking
+roster order and taking the first fit man who covers each slot, so **roster order
+is the depth chart** — and nothing in the game could reorder the roster.
+`swap_squad` only ever moved men between the bus and the clubhouse. A man who
+ended up on the bench stayed there whatever you thought of him. `swap_order()` is
+the missing verb.
+
+**18 / 19** — they saved. They drew. And a full-size, empty-labelled, **not-flat**
+Button on the layer above painted a slab over the name. The same fault was in the
+club-creator's mark bank. The check that should have caught it had an explicit
+exemption for "a wordless button that wholly contains a string" — written for the
+mark bank, and it is the exact signature of this bug. *An exemption written for
+one screen is a hole for every other one.*
+
+**11** — `_process` returns early on the report, pre-fight and splash screens,
+**before** the one function that decides whether CALL and SKIP ROUND exist. That
+function's own docstring says *"two call sites deciding a control's visibility is
+how a button ends up live on the report screen."* It was right, and it was
+unreachable from the report screen.
+
+**10** — and Pete's hunch was right, it was #9 as well. `_show_strategy_panel()`
+built the pre-fight's controls and **never changed `screen`**, so the splash went
+on drawing underneath: a playbook floating over a walk-out. It came right on the
+next thing he touched because `_choose()` sets the screen — hence *"I clicked and
+the rest of the playbook appeared."* One line.
+
+**13** — not a bug. Four seeds, thirteen men each, every one fit at season start.
+The man Pete saw was hurt in the bout he had just fought. Measured, since nothing
+ever had (`tools/probe_knocks.gd`, 60 bouts):
+
+| | |
+|---|---|
+| Bouts leaving at least one man hurt | **12%** |
+| Knocks per bout | 0.12 |
+| Events missed | mean 1.7, median 1, worst 3 |
+
+That is a sane rate — one bout in eight. What it exposed is that `OUT 1` never
+says it is an *injury*; that goes in the formatting band.
+
+**Still open from #9:** the pre-fight should show the field, the idle fighters,
+and a dashed line of the plan that updates as a formation is picked. That is a
+feature in `melee_scene.gd` and belongs to the arena chat — see the hand-off.
 
 ---
 

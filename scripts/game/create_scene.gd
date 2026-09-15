@@ -339,7 +339,12 @@ func _club_controls() -> void:
 		## one pixel outside its own hit target. `test_ink.gd` found it by
 		## refusing to treat a partly-covered label as a deliberate one, which is
 		## the right refusal: the bottom of that word was not clickable.
-		ui.add_child(UiKit.button("", at - Vector2(BANK_R, BANK_R),
+		## FLAT, LIKE EVERY OTHER HIT BOX OVER A DRAWING. This one was not, and
+		## so it painted a themed slab over each badge in the bank — the same
+		## fault that hid every saved formation name on the chalkboard. Found by
+		## looking for the chalkboard's shape everywhere else rather than fixing
+		## the one Pete happened to open.
+		var bank_b := UiKit.button("", at - Vector2(BANK_R, BANK_R),
 			Vector2(BANK_R * 2.0, BANK_R * 2.0 + 24.0), func():
 				if shop.owns(id):
 					icon_i = id
@@ -352,7 +357,10 @@ func _club_controls() -> void:
 						flash = "%s unlocked." % IconBank.icon_name(id)
 					else:
 						flash = err
-				_rebuild()))
+				_rebuild())
+		bank_b.flat = true
+		bank_b.focus_mode = Control.FOCUS_NONE
+		ui.add_child(bank_b)
 
 	ui.add_child(UiKit.button("Save the club", Vector2(STAT_X, 486), Vector2(260, 42),
 		_save_club))

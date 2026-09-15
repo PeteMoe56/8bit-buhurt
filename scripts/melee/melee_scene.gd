@@ -292,6 +292,19 @@ func _process(delta: float) -> void:
 	## out of the walk-out.
 	if screen == Screen.REPORT or screen == Screen.PREFIGHT \
 			or screen == Screen.SPLASH:
+		## AND THE BUTTONS STILL GET ASKED. This returned first, which put the
+		## one function that decides whether CALL and SKIP ROUND exist behind a
+		## guard that skipped it on exactly the three screens it was written to
+		## protect — so the two controls kept whatever visibility the last frame
+		## of the fight left them with, and SKIP ROUND sat on top of the
+		## after-action report with a clock on it.
+		##
+		## `_sync_controls`'s own docstring said *"two call sites deciding a
+		## control's visibility is how a button ends up live on the report
+		## screen."* It was right. It was also unreachable from the report
+		## screen, which is worse than two call sites: it is one call site in the
+		## wrong place. Pete found it playing the game — #11 of 26, 15 Sep 2026.
+		_sync_controls()
 		queue_redraw()
 		return
 
@@ -1980,6 +1993,24 @@ func _show_strategy_panel() -> void:
 	_clear_panel()
 	_clear_corner()
 	sub_open = -1
+	## AND IT SAYS WHICH SCREEN THIS IS. It did not, and that is #9 and #10 of
+	## Pete's 15 Sep playtest in one line.
+	##
+	## The walk-out button called this and nothing else. So the controls became
+	## the pre-fight's — five SUB boxes, four play cards, FULL PLAYBOOK, FIGHT —
+	## while `screen` was still `SPLASH`, and `_draw` went on painting the two
+	## crests, the records and *"Your crowd."* underneath them. Pete's shot shows
+	## exactly that: a playbook floating over a walk-out.
+	##
+	## It came right on the next thing he touched, because `_choose()` sets the
+	## screen — which is why he wrote *"I clicked and the rest of the playbook
+	## appeared"* and guessed it was a redraw bug. It was a screen that had never
+	## been told it had changed.
+	##
+	## Same expression `_choose` uses, and that is the point: two places deciding
+	## which of these two screens this is were always going to disagree, and for
+	## a while only one of them was deciding at all.
+	screen = Screen.CORNER if sim.phase == MeleeSim.Phase.CORNER else Screen.PREFIGHT
 	## The round is over and the panel covers the list; anything still rising off
 	## it is a number that has been overtaken by the screen reporting on it.
 	Juice.clear_pops()

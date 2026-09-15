@@ -1209,15 +1209,102 @@ static func said(err: String) -> String:
 ## screen is already there.
 static func go(path: String) -> void:
 	Audio.play("wipe")
+	_push_here()
 	Juice.go(path)
+
+
+## WHERE BACK GOES, and until 15 Sep 2026 the answer was "wherever the screen's
+## author typed", which is why Pete's playtest said *"Pressing back in any popup
+## brings you all the way to the main club instead of the previous screen."*
+##
+## Fifteen screens each carried a literal destination. It is right for most of
+## them most of the time and wrong the moment a screen has TWO ways in: the
+## fighter card returns to the roster whether you opened it from the roster, the
+## market's free-agent grid, or the staff room, and two of those three throw the
+## player back to the clubhouse having lost their place.
+##
+## **A screen cannot know where it was opened from, so it must not be the thing
+## that decides where Back goes.** The trail does. `go()` writes down the screen
+## it is leaving; `back()` reads the last one off.
+##
+## THE ARGUMENT IS NOW A FALLBACK, not a destination — so every existing call
+## site is still correct and still says something true: it is where this screen
+## goes when nothing brought you here, which happens on a fresh load and after a
+## save is opened. A deep-linked screen with an empty trail behaves exactly as it
+## did yesterday.
+static var _trail: PackedStringArray = PackedStringArray()
+
+## HOW DEEP THE TRAIL GOES. Six is more than any real path through this game
+## (clubhouse → squad → roster → fighter → meeting is four) and it is capped at
+## all because a trail that only grows is a slow leak in a save-less object that
+## lives for the whole run.
+const TRAIL_MAX := 6
+
+
+static func _here() -> String:
+	var loop := Engine.get_main_loop()
+	if loop is SceneTree:
+		var cur := (loop as SceneTree).current_scene
+		if cur != null:
+			return cur.scene_file_path
+	return ""
+
+
+## THE LOGIC AND THE LOOKUP ARE SEPARATE FUNCTIONS, and that is not tidiness.
+##
+## They were one, reading `_here()` off a live `SceneTree` — so the only way to
+## exercise the trail was to change scenes for real, which a headless check
+## cannot do. `test_nav.gd`'s first cut worked around it by appending to the
+## array itself, and in doing so walked straight past the cap: it reported a
+## depth of 30 against a cap of 6 and was right, because the capping code had
+## never been on the path it was driving. **A rule enforced in a function
+## nothing can call is a rule nothing is checking.**
+static func _push(path: String) -> void:
+	if path == "":
+		return
+	## NO IMMEDIATE REPEAT. A screen that reloads itself — the season screen
+	## does, on a tab change — must not stack six copies of itself and make Back
+	## take six presses to leave.
+	if _trail.size() > 0 and _trail[_trail.size() - 1] == path:
+		return
+	_trail.append(path)
+	while _trail.size() > TRAIL_MAX:
+		_trail.remove_at(0)
+
+
+static func _push_here() -> void:
+	_push(_here())
 
 
 ## THE WAY BACK, which is a different sound from the way forward. `back` is
 ## `tap` transposed down a fifth — the same sound, the other direction, which is
 ## a thing a player understands the first time he hears it without being told.
-static func back(path: String) -> void:
+static func back(fallback: String) -> void:
 	Audio.play("back")
-	Juice.go(path)
+	var to := fallback
+	if _trail.size() > 0:
+		to = _trail[_trail.size() - 1]
+		_trail.remove_at(_trail.size() - 1)
+		## A TRAIL POINTING AT THE SCREEN YOU ARE ON is a Back button that does
+		## nothing. It cannot happen through `go()` — which pushes before the
+		## change — but it can through a scene loaded any other way, and a dead
+		## Back button is the worst possible outcome of a fix for Back buttons.
+		if to == _here():
+			to = fallback
+	Juice.go(to)
+
+
+## THE TRAIL IS CUT WHEN A CAREER OPENS OR CLOSES. Going back into the title
+## screen from inside a club, or into a club from the title, is not a step in a
+## path — it is a different session, and a trail that survives it would send Back
+## from the front door into somebody's half-finished season.
+static func trail_reset() -> void:
+	_trail.clear()
+
+
+## For the suite: how deep the trail is, without handing out the trail itself.
+static func trail_depth() -> int:
+	return _trail.size()
 
 
 ## Clip a name so it stops before the numbers do. A long club or fighter name

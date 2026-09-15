@@ -224,6 +224,45 @@ func swap_squad(out_card: FighterCard, in_card: FighterCard) -> String:
 	return ""
 
 
+## MOVE A MAN UP OR DOWN THE DEPTH CHART — the verb this club has been missing.
+##
+## Pete, playing the game on 15 Sep 2026: *"No way to drag players into fighter
+## slots. 'Pick who to trade places with' can just drop fighters from starts to
+## bench without a way to add anyone to starters."*
+##
+## He is exactly right and the cause is one line up in `starting_five()`: the
+## five are CHOSEN, by walking `active_eight()` — which is `roster` order — and
+## taking the first fit man who covers each slot. So roster order IS the depth
+## chart, `swap_squad` only ever moved men between the bus and the clubhouse, and
+## **nothing in the game could reorder the roster.** A player could demote his
+## best Rail by signing somebody and could never promote him back.
+##
+## This is that reorder, and it is a swap rather than an insert for the same
+## reason the favourites list is: a swap needs two taps and no drag, and the
+## screen it lives on is a list the player is reading, not a board he is
+## arranging. Both men keep whatever else is true about them — `active`, fitness,
+## contract — because position in the list is the only thing being said here.
+func swap_order(a: FighterCard, b: FighterCard) -> String:
+	if a == b:
+		return ""
+	var ia := roster.find(a)
+	var ib := roster.find(b)
+	if ia < 0 or ib < 0:
+		return "Both fighters must be on this club's books."
+	roster[ia] = b
+	roster[ib] = a
+	## AND THE LINE MUST STILL FILL. Reordering cannot break the five the way a
+	## swap on and off the bus can — the same eight men are still travelling —
+	## but `starting_five()` has a role fallback with real conditions in it, and
+	## a check that costs nothing is cheaper than the afternoon spent proving it
+	## cannot fail. Put back exactly as it was if it does.
+	if starting_five().size() != 5:
+		roster[ia] = a
+		roster[ib] = b
+		return "That order leaves the five unable to fill all five positions."
+	return ""
+
+
 ## Sign a man into the reserve.
 func sign(card: FighterCard) -> String:
 	if roster.size() >= SQUAD_MAX:

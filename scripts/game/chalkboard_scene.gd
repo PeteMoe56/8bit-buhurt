@@ -151,10 +151,32 @@ func _rebuild() -> void:
 		var y := SLOT_Y + float(i) * (SLOT_H + 6.0)
 		if i < owned:
 			var take := i
-			ui.add_child(UiKit.button("", Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), func():
+			## FLAT, AND THAT IS THE WHOLE OF #18 AND #19.
+			##
+			## Pete, 15 Sep 2026: *"Saved formation doesn't save or show up in
+			## blank slot"*, and the same for plays. It saved perfectly. The row
+			## drew its name perfectly. And then this — a full-size themed Button
+			## with an EMPTY label — was added to the `ui` CanvasLayer, which sits
+			## ABOVE the Node2D the row is drawn on, and painted a solid slab over
+			## the name every time.
+			##
+			## The tell was in his own screenshot and read as a design choice: the
+			## locked rows showed their text and the owned one was a blank blue
+			## rectangle, because only the owned rows get one of these.
+			##
+			## This project has written down *"a scrim cannot cover a Button"*
+			## four times. **It goes the other way too, and the other way is
+			## worse** — a control that covers your drawing does not look broken,
+			## it looks like a control, so nobody goes looking for the drawing.
+			## The season screen's team sheet already solved it: draw the row,
+			## put a FLAT hit box on top.
+			var b := UiKit.button("", Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), func():
 				_load_slot(take)
 				flash = ""
-				_rebuild()))
+				_rebuild())
+			b.flat = true
+			b.focus_mode = Control.FOCUS_NONE
+			ui.add_child(b)
 		elif i == owned:
 			## Only the NEXT slot is for sale. Four buy buttons in a column
 			## would read as four separate things to want.
