@@ -539,15 +539,28 @@ static var _ledger: Array[Dictionary] = []
 static var _panels: Array[Rect2] = []
 
 
+## COPY THAT DID NOT FIT THE COLUMN IT WAS WRITTEN FOR — see `fit_px`.
+static var _overrun: Array[Dictionary] = []
+
+
 static func ledger_start() -> void:
 	_ledger_on = true
 	_ledger.clear()
 	_panels.clear()
+	_overrun.clear()
 
 
 ## The panels drawn since the ledger opened, in draw order.
 static func ledger_panels() -> Array[Rect2]:
 	return _panels.duplicate()
+
+
+## Every string this draw had to cut short. NOT cleared by `ledger_cover()`, and
+## deliberately: a scrim makes ink unreadable, which is a reason to stop checking
+## where it landed, and no reason at all to stop caring that the copy underneath
+## was written too long for its column.
+static func ledger_overrun() -> Array[Dictionary]:
+	return _overrun.duplicate()
 
 
 ## A COVER WIPES THE SLATE. Call this immediately after painting something
@@ -633,6 +646,53 @@ static func right(ci: CanvasItem, font: Font, s: String, at: Vector2,
 	_note(font, s, at - Vector2(width, 0), size, HORIZONTAL_ALIGNMENT_RIGHT, width)
 	ci.draw_string(font, at - Vector2(width, 0), s, HORIZONTAL_ALIGNMENT_RIGHT,
 		width, size, col)
+
+
+## THE SAME CUT, FOR COPY WE WROTE OURSELVES — and recorded when it happens.
+##
+## `clip_px` is the right answer for a string whose length is not ours: a club a
+## player named, a fighter off the generator. Those can be any length and cutting
+## one is the layout working.
+##
+## A LABEL, A NOTE OR A BLURB IS A DIFFERENT THING. We chose those words and we
+## chose the column, so a cut means one of the two is wrong — and a cut sentence
+## reads to a player as a broken game, not as a long name. Three of them shipped
+## in this screen alone before a screenshot caught them. So this door records the
+## cut and `test_ink.gd` fails on it, which turns "somebody looked" into "the
+## suite said so".
+static func fit_px(font: Font, s: String, px: int, width: float) -> String:
+	var out := clip_px(font, s, px, width)
+	if _ledger_on and out != s:
+		_overrun.append({"text": s, "kept": out, "size": px, "width": width})
+	return out
+
+
+## A LABEL ON THE LEFT AND A NOTE ON THE RIGHT, ON ONE LINE, THAT CANNOT MEET.
+##
+## Four rows of the clubhouse were drawn as a `text()` at the left edge and a
+## `right()` at the right edge with a width typed in by hand, and three of them
+## overlapped: "PLACES ON THE BUS" ran into "13 fit on the books" and printed
+## `PLACES ON THE BUS13 fit on the books`. Nothing in the suite could see it —
+## the ink sweep finds text off the frame, on a control or outside a panel, and
+## text over text is none of those. A screenshot found it, twice, months apart.
+##
+## So the pair is now ONE call that measures the label and gives the note what
+## is left. The note is the half that gets clipped because the label is the half
+## that says what the row is; if there is no room at all the note is dropped
+## rather than drawn through the label, which is the only other honest answer.
+static func pair(ci: CanvasItem, font: Font, label: String, note: String,
+		at: Vector2, right_x: float, label_px: int, note_px: int,
+		label_col: Color, note_col: Color, gap: float = 12.0) -> void:
+	text(ci, font, label, at, label_px, label_col)
+	if note.strip_edges() == "":
+		return
+	var used := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0,
+		label_px).x
+	var room := right_x - (at.x + used + gap)
+	if room <= 0.0:
+		return
+	right(ci, font, fit_px(font, note, note_px, room), Vector2(right_x, at.y),
+		note_px, note_col, room)
 
 
 ## Centred in a box that starts at `at` and runs `width` wide — for a caption

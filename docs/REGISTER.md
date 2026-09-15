@@ -8856,3 +8856,114 @@ The README's own documented workaround for the sandbox's lock problem did not su
 contact — `mv` could not move `.git/index.lock` either, because the sandbox refuses to
 unlink it at all. It took a delete-permission grant for that one folder. The README still
 carries the `mv` recipe because it is right for the tmp objects; the lock needs the grant.
+
+
+## 27 — THE COUNTER, THE STRIP, AND THE THIRD KIND OF INVISIBLE
+
+15 Sep 2026. Pete: *"Lets go export targets, IAP, favorites, and cancel order."* Four
+items off the ship list. Export targets and the store were built in section 26; this is
+what finishing them cost, and what finishing the other two turned up.
+
+### A function inserted into the middle of another function
+
+The clubhouse tab rendered as a flat grey rectangle with no UI on it at all. The cause was
+a helper — `_role_col_w()` — that had been written into the body of `_draw_office()`
+rather than after it, splitting the function in two and orphaning everything below it.
+
+The tool that took the screenshot **reported two successful writes**. It wrote two PNGs of
+a blank frame and said so cheerfully, and the run's stderr, which was not read, carried
+the error. This is the same house rule as before and it keeps coming back in new clothes:
+**an error you do not read is an error that did not happen.** The fix in the loop was to
+pipe every render through `grep -E "SCRIPT ERROR|wrote"` so a silent failure cannot be
+read as a success again.
+
+### Text over text is the one thing the ink sweep cannot see
+
+`test_ink.gd` finds a string off the frame, a string on a control, and a string running
+off its panel. A string printed *through another string* is none of those: both are on the
+frame, on no control, inside the same panel. It is perfectly placed and unreadable.
+
+Three of them were on the clubhouse tab at once. `PLACES ON THE BUS` and `13 fit on the
+books` printed as `PLACES ON THE BUS13 fit on the books`. `6 of 8 places` ran into the
+bench note. The training blurb — 462 pixels against a 440-pixel column — printed straight
+through `ON THE LIST` in the next column.
+
+Every one of them was the same shape: a label drawn at a left edge, a note right-aligned
+to a right edge inside a hand-typed width, and nothing anywhere that knew the two could
+meet. **Two things anchored to opposite edges of one row are two things that will
+eventually touch.**
+
+`UiKit.pair()` is the answer: one call that draws the label, measures it, and gives the
+note whatever is left. The note is the half that gets clipped because the label is the
+half that says what the row is. If there is no room at all the note is dropped rather than
+drawn through the label — the only other honest answer.
+
+### And a clipped sentence is invisible too
+
+Fixing the collisions produced a second fault immediately: `13 fit on the boo.` and
+`1 on the bench · 1 sw.` The overlap was gone and the meaning was still missing, and
+nothing in the suite could see that either.
+
+So `UiKit.fit_px()` — the same cut as `clip_px`, except that having to cut is **recorded**,
+and `test_ink.gd` fails on the recording. The two doors are deliberately different things:
+
+| door | for | a cut is |
+|---|---|---|
+| `clip_px` | a club a player named, a fighter off the generator | the layout working |
+| `fit_px` | a label, a note, a blurb — words *we* wrote | a fault |
+
+A name can be any length and cutting one is correct. A sentence we wrote for a column we
+chose that does not fit means one of the two is wrong, and a cut sentence reads to a
+player as a broken game rather than as a long name. The check carries its own negative
+control, same as the ledger's: it sets up the exact fault and confirms the recorder sees
+it, so a refactor that quietly stops recording fails here rather than in the next
+screenshot.
+
+Three strings were shortened and one blurb rewritten. The suite reads 658 strings across
+20 screens and reports **0 cut short**.
+
+### A scrim cannot cover a Button — the fifth time
+
+The coaching-credits shop is a modal, and `_rebuild()` had the right guard in the wrong
+place: the `if shop_open: return` sat *below* the tab row, so the modal covered five tab
+buttons in the drawing and left all five of them live. A tap on CLUBHOUSE behind the shop
+changed the tab underneath and the player found out on the way back. The guard moved to
+the first line after the wipe.
+
+The same edit orphaned the gold tab underline — a mark pointing at a control that is no
+longer there — which moved below the guard too. **A modal that hides a control has to stop
+drawing what the control was for, not just the control.**
+
+### Taking back a route
+
+`MeleeSim.cancel_order(idx)` had been written, and had had no caller since the day it was
+written. You could drag a man somewhere and the only way out was to drag him somewhere
+else — which is not a cancel, it is a second wrong instruction on top of the first.
+
+It is a tap now, in the branch that already means *this man, and I am not drawing*. Only a
+route the player drew: a called play's routes carry `from_play` and are the plan the whole
+line is running. No confirmation is drawn because three things change in the frame the tap
+lands on — the route line goes, the card border drops from ROUTE to EDGE, and the card
+stops saying "on a route".
+
+### Where a reorder control does not go
+
+`promote_favourite` and `demote_favourite` had passed seventeen checks for a week with
+nothing calling either one — a tested verb no player could reach, which is the most
+convincing kind of dead code, because the suite is green. **A function with no caller is
+not a feature, it is a question nobody answered**, and a green suite is not an answer.
+
+The hand-off note had suggested up/down taps on the corner. That was wrong twice: the
+corner is the one screen in the game with a clock on the player, and a two-by-two grid has
+no up and down — it has four positions, so arrows on it would point in a direction that is
+not on the screen.
+
+The strip went under the playbook in starring mode instead: no clock, a mode already named
+"picking favourites", and a left-to-right order that is exactly the order the corner grid
+fills. It cost 68 pixels, and those pixels came **out of the book's height, not out of the
+panel** — `panel_box` grows downward from a fixed y, so anything added to it comes off the
+bottom of a 540-pixel frame. The first cut pushed "Done picking favourites" half off the
+screen. One constant, subtracted once.
+
+Both new controls are held by a source check as well as a behaviour check, because the
+thing that was missing for a month was not the behaviour. It was the caller.

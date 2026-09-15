@@ -20,6 +20,12 @@ func _ready() -> void:
 	Juice.arm()
 	font = UiKit.body()
 	Settings.load_once()
+	## THE STORE CONNECTS AT THE FRONT DOOR — this is `run/main_scene` — and not
+	## when somebody opens the shop. Play re-delivers purchases it never got an
+	## acknowledgement for, the charge that landed while the phone was in a
+	## tunnel, and it delivers them on connect. A store that only connects when
+	## somebody browses is a store that loses those until somebody browses.
+	Store.connect_backend()
 	## Coming back here means no season is live. A stale world behind the front
 	## door is how a title screen ends up wearing a boss palette.
 	Session.season = null

@@ -20,6 +20,7 @@ func _initialize() -> void:
 	_test_an_index_would_have_pointed_at_the_wrong_play()
 	_test_they_survive_a_save()
 	_test_the_four_can_be_put_in_order()
+	_test_a_screen_can_actually_reorder_them()
 	print("")
 	if failures.is_empty():
 		print("THE FAVOURITES HOLD (%d checks)\n" % checks)
@@ -235,3 +236,29 @@ func _test_they_survive_a_save() -> void:
 	_ok(fixed.favourites.size() <= Chalkboard.MAX_FAVOURITES and kinds_ok,
 		"and a hand-edited save is coerced and capped, not trusted",
 		"%d favourites, every kind legal" % fixed.favourites.size())
+
+
+## AND THERE IS A CONTROL FOR IT.
+##
+## `promote_favourite` and `demote_favourite` passed every check above for a week
+## with nothing in the game calling either one — a tested verb no player can
+## reach, which is the most convincing kind of dead code because the suite is
+## green. **A function with no caller is not a feature, it is a question nobody
+## answered.**
+##
+## The control is the strip under the playbook in starring mode, NOT the corner.
+## The corner runs on a clock and its favourites sit in a two-by-two grid, which
+## has four positions and no up or down; the strip has no clock and reads left to
+## right in the same order the grid fills. This check holds that a screen calls
+## the verb at all — where it lives is a design decision and this is not the
+## place to pin it.
+func _test_a_screen_can_actually_reorder_them() -> void:
+	var src := FileAccess.get_file_as_string("res://scripts/melee/melee_scene.gd")
+	_ok(src.contains("promote_favourite("),
+		"a screen calls the verb that moves one up the list",
+		"the strip under the playbook, in starring mode")
+	## AND THE STRIP IS ONLY THERE WHEN THERE IS SOMETHING TO ORDER. One chip
+	## that cannot move is a control a player cannot tell from a broken one.
+	_ok(src.contains("favs.size() < 2"),
+		"and it does not draw a list of one",
+		"ordering one favourite is not a thing that can be done")

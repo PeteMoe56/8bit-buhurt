@@ -198,7 +198,11 @@ const FACILITY_COST := [3, 5, 7, 9, 11]
 const FACILITIES := {
 	Facility.TRAINING: {
 		"name": "Training ground",
-		"blurb": "Fighters improve over the winter. Your captains decide who.",
+		## SHORT ENOUGH FOR THE COLUMN IT IS DRAWN IN. At 58 characters this was
+		## 462 pixels against a 440-pixel column, so the clubhouse clipped it to
+		## "…Your captains dec." — which is worse than the shorter sentence,
+		## because a clipped line reads as a bug and a short one reads as a line.
+		"blurb": "Your captains improve fighters over the winter.",
 		"effect": "%d stat points a season, spread over the squad",
 	},
 	Facility.INFIRMARY: {

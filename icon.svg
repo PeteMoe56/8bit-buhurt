@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 16 16"
+     shape-rendering="crispEdges">
+  <!--
+    PLACEHOLDER. `project.godot` has pointed at `res://icon.svg` since the day the
+    project was created and the file was never there, so no export could build
+    cleanly. This is the smallest thing that makes that true: a heater shield
+    with a cross, on the game's own ground colour, drawn on a 16x16 grid so it
+    scales to every launcher density by whole numbers.
+
+    Palette is the game's, not invented: BG #2e2a24, FRAME #6e6252, YOU #f2d13c,
+    INK #e8e4d8 — see `UiKit` in scripts/game/ui.gd.
+
+    THE ART CHAT OWNS THE REAL ONE. This is infrastructure, not a design: it
+    exists so `export_presets.cfg` resolves and a build can be made today.
+  -->
+  <rect width="16" height="16" fill="#2e2a24"/>
+
+  <!-- The shield, as whole cells. A heater shape: square shoulders, tapering
+       to a point, which is the same silhouette `UiKit.badge()` draws in game. -->
+  <g fill="#f2d13c">
+    <rect x="3" y="2" width="10" height="7"/>
+    <rect x="4" y="9"  width="8" height="2"/>
+    <rect x="5" y="11" width="6" height="1"/>
+    <rect x="6" y="12" width="4" height="1"/>
+    <rect x="7" y="13" width="2" height="1"/>
+  </g>
+
+  <!-- The cross, in the ground colour, so the mark reads as a hole in the
+       shield rather than as a third colour. -->
+  <g fill="#2e2a24">
+    <rect x="7" y="4" width="2" height="7"/>
+    <rect x="5" y="6" width="6" height="2"/>
+  </g>
+
+  <!-- A one-cell edge, which is what stops it reading as a flat sticker at
+       launcher size. -->
+  <g fill="#6e6252">
+    <rect x="3" y="2" width="10" height="1"/>
+    <rect x="3" y="2" width="1"  height="7"/>
+    <rect x="12" y="2" width="1" height="7"/>
+  </g>
+</svg>

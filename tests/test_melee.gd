@@ -40,6 +40,7 @@ func _initialize() -> void:
 	_test_the_endings_look_like_buhurt()
 	_test_report_blames_the_roster()
 	_test_the_corner_pays_the_men_who_sat()
+	_test_a_route_can_be_taken_back()
 
 	print("")
 	for n in notes:
@@ -683,3 +684,54 @@ func _test_the_corner_pays_the_men_who_sat() -> void:
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "the corner pays the men who sat",
 		"rest is credited by who fought, on both ways out of a corner, and a swap does not pay the wrong man")
+
+
+# --------------------------------------------------------- taking it back
+## AN INSTRUCTION YOU CAN GIVE AND CANNOT WITHDRAW IS HALF A CONTROL.
+##
+## `cancel_order` sat in the sim with no caller from the day it was written. You
+## could drag a man somewhere and the only way out was to drag him somewhere
+## else, which is not a cancel — it is a second wrong instruction on top of the
+## first. `melee_scene._release()` now sends a tap on a man already on a route
+## here.
+##
+## Two things are checked and they are different things: that the verb does what
+## it says, and that SOMETHING CALLS IT. The second is the one that was missing
+## for a month, and it is the one a check can actually keep.
+func _test_a_route_can_be_taken_back() -> void:
+	var sim := _mirror(770077)
+	sim.phase = MeleeSim.Phase.LIVE
+	var idx := -1
+	for m in sim.men:
+		if m.team == 0 and m.standing():
+			idx = m.idx
+			break
+	var path: Array[Vector2] = [Vector2(0.2, 0.0), Vector2(0.4, 0.1)]
+	var given := sim.give_order(idx, path, -1)
+	_ok(given and sim.men[idx].under_orders(),
+		"a man can be sent somewhere", "order accepted: %s" % str(given))
+
+	sim.cancel_order(idx)
+	_ok(not sim.men[idx].under_orders(),
+		"and the same man can be told to forget it",
+		"under_orders is %s after the cancel" % str(sim.men[idx].under_orders()))
+
+	## AND CANCELLING A MAN WHO HAS NO ORDER IS QUIET, because the gesture is a
+	## tap and a tap lands on men who are not on a route all the time.
+	sim.cancel_order(idx)
+	_ok(not sim.men[idx].under_orders(),
+		"and cancelling nothing is not an error",
+		"a second cancel leaves him exactly as he was")
+
+	## THE PLAY IS NOT YOURS TO CANCEL ONE MAN OUT OF. The scene holds that rule
+	## rather than the sim — the sim's verb is deliberately blunt — so the rule is
+	## read where it lives. A screen that stopped asking would silently let a tap
+	## pull one fighter out of the line's plan.
+	var src := FileAccess.get_file_as_string("res://scripts/melee/melee_scene.gd")
+	_ok(src.contains("sim.cancel_order("),
+		"and a screen actually calls it — it had no caller at all until 15 Sep",
+		"the tap is in melee_scene._release()")
+	_ok(src.contains("not man.order.from_play"),
+		"and only a route the PLAYER drew can be taken back",
+		"a called play's routes are the plan, and the corner is where you change it")
+	notes.append("the cancel: given, withdrawn, and withdrawn again with no order on him")

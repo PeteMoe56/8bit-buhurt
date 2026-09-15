@@ -1,7 +1,19 @@
 # Godot 4
 .godot/
 /android/
-export_presets.cfg
+
+# `export_presets.cfg` is TRACKED, which is the opposite of the usual advice.
+#
+# It is normally ignored because it is where a keystore path and a keystore
+# password end up, and a repo that carries those is a repo that leaks them. The
+# file in this project carries neither: the three release-signing fields are
+# empty on purpose and the header says so. What it does carry is the exclude
+# filters, the architectures, the billing permission and the package name —
+# decisions worth keeping in history, and worth a diff when one of them moves.
+#
+# THE RULE THAT MAKES THAT SAFE: never put a credential in it. If you fill in
+# `keystore/release` or `keystore/release_password` on your machine, that line
+# does not get committed. `tests/test_export.gd` fails if either is non-empty.
 
 # Exports
 /build/

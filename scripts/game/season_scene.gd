@@ -78,6 +78,9 @@ var season: Season
 var ui: CanvasLayer
 var tab: int = Tab.CLUB
 var flash := ""
+## The counter, open or shut. A modal on this screen for the same reason the
+## fighter's meeting card is one: real money deserves a deliberate stop.
+var shop_open := false
 ## The squad screen's whole interaction: pick a man, then pick who he trades
 ## places with. Two taps, no modal, and the second tap is on a list you are
 ## already looking at.
@@ -162,6 +165,20 @@ func _upkeep_word() -> String:
 func _rebuild() -> void:
 	for c in ui.get_children():
 		c.queue_free()
+	## THE SHOP REPLACES THE SCREEN'S CONTROLS WHEN IT IS OPEN, rather than
+	## sitting on top of them. **A scrim cannot cover a Button** — this project
+	## has paid for that five times now, and the fifth was here: the early return
+	## sat BELOW the tab row, so the modal covered the tabs in the drawing and
+	## left all five of them live. A tap on CLUBHOUSE behind the shop changed the
+	## tab under it and the player found out on the way back.
+	##
+	## So it is the first thing after the wipe. Nothing else on this screen is
+	## built while the counter is open, and the only way out of it is the modal's
+	## own Back — which is what a modal is.
+	if shop_open:
+		_shop_controls()
+		queue_redraw()
+		return
 	## Five tabs across 960 with the Menu button on the right, so they narrow
 	## rather than the row wrapping — a wrapped tab row on a landscape phone
 	## screen eats the first line of every page behind it.
@@ -547,6 +564,13 @@ func _draw() -> void:
 	UiKit.rule(self, UiKit.RULE_GEM, Vector2(0, 58), UiKit.screen().x, UiKit.FRAME)
 	_banner()
 	## The selected tab, marked under the buttons rather than on them, because a
+	if shop_open:
+		## AND NOT THE TAB'S UNDERLINE EITHER. `_rebuild` stopped building the tab
+		## buttons under the modal; this used to draw the gold bar that marks
+		## which one is current, which left a three-pixel underline floating over
+		## an empty row — a mark pointing at a control that is not there.
+		_draw_shop()
+		return
 	## Button's own styling is the one thing here that is not mine to draw.
 	draw_rect(Rect2(24 + float(tab) * (TAB_W + 6.0), TAB_Y + TAB_H, TAB_W, 3), UiKit.YOU)
 	if flash != "":
@@ -1249,7 +1273,19 @@ const NAV_W := 456.0
 ## landed ON the buttons — a decorative bracket through the middle of "The
 ## staff". The frame keeps the full span and the buttons step inside it.
 const NAV_PAD := 26.0
-const NAV_ROW := 50.0
+## FIVE ROWS IN THE SPACE FOUR HAD. The coaching-credits entry made this list
+## five long, and at the old 50 the column grew fifty pixels and pushed "ON THE
+## LIST" and its three role readouts down into the action row — a collision the
+## ink sweep cannot see, because text over text is neither off the frame nor on
+## a control nor off a panel. A screenshot saw it.
+##
+## 42 and a 36-high button gets five rows into 210 where four took 200, which is
+## ten pixels rather than fifty, and leaves the block below where it was.
+const NAV_ROW := 42.0
+const NAV_BTN_H := 36.0
+## Where the counter sits: under the four nav buttons, above the action row.
+## The shop is a modal; this is the panel it draws in.
+const SHOP_CARD := Rect2(200.0, 120.0, 560.0, 300.0)
 
 
 func _office_row_y(i: int) -> float:
@@ -1263,11 +1299,11 @@ func _office_controls() -> void:
 	## HONOURS tab and then through the captain panel underneath it, which a
 	## screenshot shows instantly and reasoning about coordinates never does.
 	ui.add_child(UiKit.button("The staff", Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 0),
-		Vector2(NAV_W - NAV_PAD * 2.0, 44), func():
+		Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Staff.tscn"), "helm"))
 	ui.add_child(UiKit.button("The book", Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 1),
-		Vector2(NAV_W - NAV_PAD * 2.0, 44), func():
+		Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Records.tscn"), "book"))
 	## YOU. The only screen in the game that is not about the club, and it carries
@@ -1275,7 +1311,7 @@ func _office_controls() -> void:
 	## the same as no job offer.
 	var wanted: int = Jobs.offers(season.coach, season.world).size()
 	ui.add_child(UiKit.button("Your career%s" % ("  ·  %d" % wanted if wanted > 0 else ""),
-		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 2), Vector2(NAV_W - NAV_PAD * 2.0, 44), func():
+		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 2), Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Coach.tscn"), "ladder"))
 	## THE FEDERATION CARRIES ITS OWN WARNING. Being quietly not entered for the
@@ -1283,9 +1319,26 @@ func _office_controls() -> void:
 	## message, and the player earns his place on the table where he can see it.
 	var shorts := season.office.shortfalls()
 	ui.add_child(UiKit.button("The federation%s" % ("  ·  BARRED" if not shorts.is_empty() else ""),
-		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 3), Vector2(NAV_W - NAV_PAD * 2.0, 44), func():
+		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 3), Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Federation.tscn"), "banner"))
+
+	## THE COUNTER GETS ITS OWN SCREEN, reached from the nav list rather than
+	## drawn into this tab.
+	##
+	## The first build put three price buttons straight into the clubhouse, under
+	## the four nav buttons — and the screenshot showed them printing through the
+	## crest ornament and through "ON THE LIST", because that column was already
+	## full and nothing said so. That was the cheap fix; this is the right one.
+	##
+	## Real money deserves a deliberate stop anyway. A price that shares a row
+	## with a coaching readout is a price somebody taps by accident.
+	ui.add_child(UiKit.button("Coaching credits%s" % (
+			"  ·  %d waiting" % Store.owed if Store.owed > 0 else ""),
+		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 4), Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H),
+		func():
+			shop_open = true
+			_rebuild(), "coin"))
 
 	var o := season.office
 	for i in OFFICE_ROWS.size():
@@ -1352,13 +1405,90 @@ func _offer(slot: int) -> Dictionary:
 		season.office.staff_refreshes)
 
 
+## ---------------------------------------------------------------- the shop
+## COACHING CREDITS, BOUGHT WITH MONEY. The only thing this game sells.
+##
+## Direction §8, superseded by Pete on 12 Sep 2026: premium at $4.99 with IAP
+## for credits. There is no unlock product — nothing is locked, because the
+## price of entry already happened.
+##
+## `Store` decides whether there is a counter at all; this only draws it. On
+## desktop and on any build without the billing plugin the packs are not drawn
+## and the reason is, because **a shop that shows a button it cannot honour is a
+## shop that takes a tap and does nothing.**
+func _shop_controls() -> void:
+	var y := SHOP_CARD.position.y + SHOP_CARD.size.y - 62.0
+	if Store.available():
+		var packs := Store.PRODUCTS
+		var pad := 24.0
+		var pw: float = (SHOP_CARD.size.x - pad * 2.0 - 16.0) / float(maxi(1, packs.size()))
+		for i in packs.size():
+			var pk: Dictionary = packs[i]
+			ui.add_child(UiKit.button("%d  ·  %s" % [int(pk["credits"]), String(pk["price"])],
+				Vector2(SHOP_CARD.position.x + pad + float(i) * (pw + 8.0),
+					SHOP_CARD.position.y + 150.0), Vector2(pw, 46),
+				func(id = String(pk["id"])):
+					var err := Store.buy(id)
+					if err != "":
+						flash = UiKit.said(err)
+					else:
+						## The grant is the store's callback, not this tap — a
+						## shop that credits on the REQUEST credits a cancelled
+						## purchase. What lands now is whatever is already owed.
+						var got := Store.claim(season.office)
+						flash = ("%d credits." % got) if got > 0 \
+							else "Asked the store. Credits land when it answers."
+						Session.autosave()
+					_rebuild()))
+		## THE BUTTON A PLAYER WHOSE MONEY WENT MISSING WILL LOOK FOR. For a
+		## consumable there is nothing to re-own — the credits were spent — so
+		## this asks the store for anything it charged for and never delivered.
+		ui.add_child(UiKit.button("Restore a purchase",
+			Vector2(SHOP_CARD.position.x + 24.0, y), Vector2(240, 44), func():
+				Store.resolve_pending()
+				var got := Store.claim(season.office)
+				flash = ("%d credits." % got) if got > 0 \
+					else "Asked the store for anything outstanding."
+				Session.autosave()
+				_rebuild()))
+	ui.add_child(UiKit.button("Back",
+		Vector2(SHOP_CARD.end.x - 184.0, y), Vector2(160, 44), func():
+			shop_open = false
+			_rebuild()))
+
+
+func _draw_shop() -> void:
+	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(self, SHOP_CARD)
+	UiKit.mid(self, font, "COACHING CREDITS",
+		Vector2(SHOP_CARD.position.x, SHOP_CARD.position.y + 34.0), 19, UiKit.INK,
+		SHOP_CARD.size.x)
+	UiKit.mid(self, font, "Spent on levels, kit, the cap and the bus.",
+		Vector2(SHOP_CARD.position.x, SHOP_CARD.position.y + 60.0), 12, UiKit.DIM,
+		SHOP_CARD.size.x)
+	UiKit.text(self, font, "In hand", Vector2(SHOP_CARD.position.x + 24.0,
+		SHOP_CARD.position.y + 104.0), 13, UiKit.DIM)
+	UiKit.right(self, font, "%d CC" % season.office.credits,
+		Vector2(SHOP_CARD.end.x - 24.0, SHOP_CARD.position.y + 104.0), 15, UiKit.YOU, 200)
+	if not Store.available():
+		## The reason, in the middle, where the packs would have been.
+		UiKit.mid(self, font, Store.closed_word(),
+			Vector2(SHOP_CARD.position.x, SHOP_CARD.position.y + 170.0), 14,
+			UiKit.EDGE.lightened(0.5), SHOP_CARD.size.x)
+	elif Store.owed > 0:
+		UiKit.right(self, font, "%d waiting" % Store.owed,
+			Vector2(SHOP_CARD.end.x - 24.0, SHOP_CARD.position.y + 128.0), 12,
+			UiKit.YOU, 200)
+
+
 func _draw_office() -> void:
 	var o := season.office
 	## THE CREST GOES HERE AND ON THREE OTHER SCREENS. The clubhouse is the room
 	## the player comes back to, the trophy cabinet, the bracket and the title —
 	## four places, out of sixteen. Everywhere would be wallpaper.
 	UiKit.ornament(self, UiKit.ORN_CREST,
-		Rect2(NAV_X, CONTENT_Y, NAV_W, 28 + NAV_ROW * 3.0 + 44.0 + 20.0), UiKit.FRAME, 24.0)
+		Rect2(NAV_X, CONTENT_Y, NAV_W, 28 + NAV_ROW * 4.0 + NAV_BTN_H + 12.0), UiKit.FRAME, 24.0)
+
 	## NO HINT BAR, AND THAT IS SETTLED. `UiKit.hints()` was deleted on
 	## 15 Sep 2026 — see the note where it used to live in `ui.gd`. It had never
 	## been drawn on any screen, and the reason was structural rather than
@@ -1371,7 +1501,7 @@ func _draw_office() -> void:
 		var y := _office_row_y(i)
 		var key: String = String(row["kind"]) if row["kind"] is String else ""
 		var is_cap: bool = key == "cap"
-		UiKit.text(self, font, String(row["label"]), Vector2(BAR_X, y), 13, UiKit.DIM)
+		var label := String(row["label"])
 		if key == "travel":
 			## HOW MANY YOU CAN TAKE, and how many you actually have — two numbers
 			## on one row, because a club with six places and five fit men has a
@@ -1380,44 +1510,40 @@ func _draw_office() -> void:
 			for f2 in season.club.roster:
 				if f2.fit():
 					fit_men += 1
-			UiKit.right(self, font, "%d fit on the books" % fit_men,
-				Vector2(BAR_X + BAR_W, y), 12, UiKit.DIM, 240)
+			UiKit.pair(self, font, label, "%d fit on books" % fit_men,
+				Vector2(BAR_X, y), BAR_X + BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
 			UiKit.meter(self, Rect2(BAR_X, y + 8, BAR_W, BAR_H),
 				o.travel_slots - ClubOffice.TRAVEL_MIN,
 				ClubOffice.TRAVEL_MAX - ClubOffice.TRAVEL_MIN, UiKit.YOU)
-			UiKit.text(self, font, "%d of %d places" % [o.travel_slots, ClubOffice.TRAVEL_MAX],
-				Vector2(BAR_X, y + 54), 14, UiKit.INK)
-			UiKit.right(self, font,
+			UiKit.pair(self, font,
+				"%d of %d" % [o.travel_slots, ClubOffice.TRAVEL_MAX],
 				"a line and no more" if o.travel_slots <= ClubOffice.TRAVEL_MIN
 					## SHORT ENOUGH FOR THE 220px IT IS GIVEN. The first version said
 					## "2 swaps in the corner" and the screenshot printed "2 swaps
 					## in the corn" — a right-aligned field clips from the right,
 					## so the half that gets cut is the half carrying the meaning.
-					else ("%d on the bench  ·  %d swap%s" % [
+					else ("%d on the bench · %d swap%s" % [
 						o.travel_slots - ClubOffice.TRAVEL_MIN,
 						mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER),
 						"" if mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER) == 1 else "s"]),
-				Vector2(BAR_X + BAR_W, y + 54), 12,
-				UiKit.DOWN if o.travel_slots <= ClubOffice.TRAVEL_MIN else UiKit.DIM, 220)
+				Vector2(BAR_X, y + 54), BAR_X + BAR_W, 14, 12, UiKit.INK,
+				UiKit.DOWN if o.travel_slots <= ClubOffice.TRAVEL_MIN else UiKit.DIM)
 			continue
 		if is_cap:
-			UiKit.right(self, font, "%s rules" % season.tier_name(),
-				Vector2(BAR_X + BAR_W, y), 12, UiKit.DIM, 240)
+			UiKit.pair(self, font, label, "%s rules" % season.tier_name(),
+				Vector2(BAR_X, y), BAR_X + BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
 			var bill := ClubOffice.wage_bill(season.club)
 			var cap := o.cap()
 			UiKit.bar(self, Rect2(BAR_X, y + 8, BAR_W, BAR_H),
 				float(bill) / float(maxi(1, cap)),
 				UiKit.DOWN if bill > cap else UiKit.YOU)
-			UiKit.text(self, font, "%s of %s" % [ClubOffice.money(bill), ClubOffice.money(cap)],
-				Vector2(BAR_X, y + 54), 14, UiKit.DOWN if bill > cap else UiKit.INK)
-			UiKit.right(self, font, "%d raises  ·  next %d CC" % [o.cap_level, o.cap_cost()],
-				Vector2(BAR_X + BAR_W, y + 54), 12, UiKit.DIM, 220)
+			UiKit.pair(self, font,
+				"%s of %s" % [ClubOffice.money(bill), ClubOffice.money(cap)],
+				"%d raises · next %d CC" % [o.cap_level, o.cap_cost()],
+				Vector2(BAR_X, y + 54), BAR_X + BAR_W, 14, 12,
+				UiKit.DOWN if bill > cap else UiKit.INK, UiKit.DIM)
 			continue
 		var f := int(row["kind"])
-		UiKit.meter(self, Rect2(BAR_X, y + 8, BAR_W, BAR_H), o.level(f), ClubOffice.FACILITY_MAX,
-			UiKit.UP if o.level(f) > 0 else UiKit.EDGE)
-		UiKit.text(self, font, String(ClubOffice.FACILITIES[f]["blurb"]),
-			Vector2(BAR_X, y + 54), 13, UiKit.DIM)
 		## A facility at level nought has no effect, and saying "-0 events off a
 		## knock" is worse than saying nothing: it reads like a broken number
 		## rather than like a thing you have not built.
@@ -1434,7 +1560,18 @@ func _draw_office() -> void:
 		## On the LABEL line, not under the bar. Under the bar it landed in the
 		## same place as the blurb and the two strings printed through each other
 		## — which a screenshot shows instantly and nothing else would.
-		UiKit.right(self, font, effect, Vector2(BAR_X + BAR_W, y), 13, UiKit.INK, 240)
+		UiKit.pair(self, font, label, effect, Vector2(BAR_X, y),
+			BAR_X + BAR_W, 13, 13, UiKit.DIM, UiKit.INK)
+		UiKit.meter(self, Rect2(BAR_X, y + 8, BAR_W, BAR_H), o.level(f), ClubOffice.FACILITY_MAX,
+			UiKit.UP if o.level(f) > 0 else UiKit.EDGE)
+		## CLIPPED TO THE LEFT COLUMN. "Fighters improve over the winter. Your
+		## captains decide who." is 462 pixels at this size and the column ends
+		## at NAV_X — so it printed through "ON THE LIST" in the right column,
+		## which is text over text and therefore invisible to every check in the
+		## suite. A screenshot saw it.
+		UiKit.text(self, font, UiKit.fit_px(font,
+			String(ClubOffice.FACILITIES[f]["blurb"]), 13, NAV_X - BAR_X - 16.0),
+			Vector2(BAR_X, y + 54), 13, UiKit.DIM)
 
 	# ------------------------------------------------------------ the captains
 	## THE CAPTAIN CARDS USED TO BE DRAWN HERE TOO, in full, with their own hire
@@ -1456,7 +1593,9 @@ func _draw_office() -> void:
 	## BELOW THE CREST, not through it. The ornament's bottom bracket reaches
 	## `CONTENT_Y + 242` and this label sat at 250 — eight pixels of clearance
 	## for a 24-pixel corner piece, so the bracket printed through "ON".
-	var y := CONTENT_Y + 268.0
+	## MEASURED OFF THE NAV LIST rather than written down, so a sixth button
+	## moves this with it instead of printing through it.
+	var y := CONTENT_Y + 28.0 + NAV_ROW * 4.0 + NAV_BTN_H + 26.0
 	UiKit.text(self, font, "ON THE LIST", Vector2(NAV_X, y), 13, UiKit.DIM)
 	var i2 := 0
 	for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
@@ -1466,9 +1605,14 @@ func _draw_office() -> void:
 		## so padding with spaces lines nothing up and produced three differently
 		## indented pairs.
 		var cx := 480.0 + float(i2) * 156.0
+		## SIXTY-TWO PIXELS FITS "RAIL" AND NOT "FLANKER", and the screenshot
+		## read "FlankeRust". A proportional face means the gap has to be
+		## measured off the longest label in the set rather than guessed off the
+		## first one — the same mistake, in miniature, as clipping a name at a
+		## character count into a pixel-wide box.
 		UiKit.text(self, font, String(Tuning.ROLE_NAME[role]), Vector2(cx, y + 26), 15, UiKit.DIM)
 		UiKit.text(self, font, String(Tuning.AI_SKILL[tier]["name"]),
-			Vector2(cx + 62, y + 26), 15, col)
+			Vector2(cx + _role_col_w() + 10.0, y + 26), 15, col)
 		i2 += 1
 	## THE WARNING, and it is the only thing on this screen a player must act on.
 	## Two captains have four specializations between them and there are three
@@ -1491,6 +1635,16 @@ func _draw_office() -> void:
 		UiKit.text(self, font, "Both captains are teaching %s." % doubled
 			if doubled != "" else "Hire a captain who teaches it.",
 			Vector2(480, y + 70), 13, UiKit.DIM)
+
+## The widest role name at the size the list draws them, so the skill column
+## clears all three rather than clearing the first one.
+func _role_col_w() -> float:
+	var w := 0.0
+	for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
+		w = maxf(w, font.get_string_size(String(Tuning.ROLE_NAME[role]),
+			HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15).x)
+	return w
+
 
 # --------------------------------------------------------------- HONOURS tab
 func _draw_honours() -> void:

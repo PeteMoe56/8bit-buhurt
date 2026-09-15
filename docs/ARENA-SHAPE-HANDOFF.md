@@ -66,22 +66,73 @@ Retro Bowl took the no-bars route. **Changing this changes every screen in the
 game, not just the fight** — so if you want `integer`, say so and the management
 screens get re-checked against it.
 
-## Two more, added 15 Sep (code pass)
+## Two more, added 15 Sep — and TAKEN, later the same day
 
-Not shape questions, but both land in your file.
+These were left for you as questions 5 and 6. Pete asked for both directly on 15 Sep, so
+they were built rather than left. **Both touched `melee_scene.gd`.** What follows is what
+changed and where, so you can see it coming in a diff rather than find it.
 
-**5. `MeleeSim.cancel_order(idx)` has no caller.** It is the last entry on the
-uncalled-functions list; the other fifteen were wired or deleted on 15 Sep. Its only
-possible home is the corner screen in `melee_scene.gd`, so it was left alone. Wire it to a
-corner control or delete it.
+Nothing else in that file was touched. The fight's own drawing, the pixel scale, the
+camera, `SCREEN` and its twenty-eight references: all still yours and all untouched.
 
-**6. Favourites can now be reordered, and the control belongs to you.**
-`Chalkboard.promote_favourite(i)` and `demote_favourite(i)` are in and tested
-(`test_favourites.gd` — 17 checks). A swap, not a drag: a drag needs a pointer the corner
-has no time for, and two taps on a list of four is the same job with one thumb. The corner
-already draws the starred list at `melee_scene.gd:2081`; it needs a pair of up/down taps
-beside each row. Both functions return `""` on success and a sentence on refusal, like
-every other verb in the project, and the ends refuse quietly rather than erroring.
+**5. `MeleeSim.cancel_order(idx)` now has a caller — a tap.**
+
+In `melee_scene._release()`, in the branch that already handles a tap rather than a drag.
+That branch had exactly one meaning before ("this man is clinched, give me his options")
+and now has two, decided by his state:
+
+```
+if   man.state == GRAPPLED              -> sim.request_prompt(idx)
+elif man.under_orders() and not from_play -> sim.cancel_order(idx)
+```
+
+The tap was the right gesture because it is the one that already means *this man, and I am
+not drawing*. **Only a route the player drew can be taken back** — a called play's routes
+arrive with `from_play` set and are the plan the whole line is running; one man tapped out
+of that is a different call, and the screen for a different call is the corner.
+
+No message is drawn and none is needed: the route line goes, the card border drops from
+ROUTE back to EDGE, and the card stops saying "on a route". Three things change in the
+frame the tap lands on.
+
+Checked in `test_melee.gd` — `_test_a_route_can_be_taken_back`, five checks: the verb
+works, a second cancel on a man with no order is quiet, and two source checks that a
+screen calls it at all and still asks about `from_play`.
+
+**6. Favourites can be reordered — and the control is NOT in the corner.**
+
+This is a decision against the note that used to be here, which suggested up/down taps
+beside each card on the corner. Two reasons:
+
+- **The corner has a clock.** `corner_t` is running. A control that costs seconds of the
+  round to tidy a list is a control that punishes being used.
+- **A two-by-two grid has no up and down.** It has four positions. Arrows on it would be
+  arrows against a direction that is not on the screen.
+
+So the control is a strip under the playbook, in starring mode — `_build_fav_strip()` in
+`melee_scene.gd`. No clock, the mode is already called "picking favourites", and the strip
+reads left to right in exactly the order the corner grid fills (slot 1 top-left, 2
+top-right, 3 bottom-left, 4 bottom-right). One tap moves a chip one place towards the
+front; the front chip is dead rather than absent. A strip of fewer than two is not drawn.
+
+**One thing this cost you:** the strip is paid for out of the book's height, not added to
+the panel. `panel_box` grows downward from a fixed y and `_draw` frames whatever height it
+ends up with, so the first cut pushed "Done picking favourites" half off a 540-pixel
+frame. `const FAV_STRIP_H := 68.0` is subtracted from `BOOK_H` while `starring` — so **in
+starring mode the playbook page is 68 pixels shorter**. It scrolls, so nothing is lost. If
+your pixel-scale pass changes `BOOK_H` or the panel's origin, that subtraction is the line
+to look at.
+
+Shots: `shots/favs_before.png`, `shots/favs_after.png`, `shots/favs_corner.png` — the strip
+before a move, after it, and the corner grid in the new order.
+
+## One thing found and NOT fixed, 15 Sep
+
+On the pre-fight screen the crowd line ("Louisville's crowd.") draws **over** the playbook
+panel — see `shots/favs_after.png`, centre. So does a fragment of the distance line at the
+right edge. It is a draw-order question in `_draw()`: `UiKit.panel()` goes down before
+those strings do. It was there before either of the changes above and it is in the part of
+the file that is yours, so it was left alone rather than fixed in passing.
 
 ## Reference shots in the repo
 

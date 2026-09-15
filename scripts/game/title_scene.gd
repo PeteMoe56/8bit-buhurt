@@ -215,9 +215,19 @@ func _delete(slot: int) -> void:
 	_build()
 
 
+## THE ONE DOOR INTO A CAREER — new or continued, both come through here.
+##
+## Which makes it the only place a bought credit can be handed over. `Store`
+## keeps money in a wallet outside every save, because a purchase is not
+## attached to a save slot: a player can buy with nothing loaded, or buy while
+## slot 1 is open and then play slot 2. It is claimed here, once, into whichever
+## club he actually opens, and written to that slot immediately — a credit that
+## is in the office and not in the file is a credit the next crash eats.
 func _enter(s: Season, slot: int) -> void:
 	Session.season = s
 	Session.slot = slot
+	if Store.claim(s.office) > 0 and slot >= 0:
+		SaveGame.save(s, slot)
 	UiKit.go("res://scenes/Season.tscn")
 
 

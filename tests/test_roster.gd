@@ -870,7 +870,14 @@ func _test_a_short_line_still_numbers_its_men() -> void:
 	## `_put_down`, which only happens once somebody goes down — so building the
 	## sim is not enough, it has to be fought.
 	sim.run_to_end()
-	if not sim.finished():
+	## `is_over()`, NOT `finished()`. There is no `finished()` on `MeleeSim` and
+	## there never was, so this line threw every run and this arm of the check
+	## has never once been entered — `SCRIPT ERROR: Nonexistent function
+	## 'finished'` scrolled past in a suite that then printed THE ROSTER HOLDS.
+	## Found on 15 Sep by reading a log rather than its last line. **An error you
+	## do not read is an error that did not happen**, and a green summary above a
+	## thrown call is the most expensive way to learn it.
+	if not sim.is_over():
 		bad.append("a short-handed bout never reached an end")
 	for m in sim.men:
 		if m.target >= sim.men.size():

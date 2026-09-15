@@ -532,6 +532,32 @@ func _release(p: Vector2) -> void:
 	if total < 16.0:
 		if man.state == MeleeSim.State.GRAPPLED:
 			sim.request_prompt(idx)
+		## AND A TAP ON A MAN WHO IS ON YOUR ROUTE TAKES IT BACK.
+		##
+		## `MeleeSim.cancel_order()` had been sitting there since the sim was
+		## written with nothing in the game that called it: you could send a man
+		## somewhere and there was no gesture that meant "no, stay". Drawing a
+		## second route over the first was the only way out, which is worse than
+		## no gesture — it is a wrong one, because the fix for "I did not mean
+		## that" should not be another instruction.
+		##
+		## It is the tap, because the tap is the gesture that already means
+		## "this man, and I am not drawing" — the only other thing it does is ask
+		## a clinched man for his options, and a clinched man is not on a route.
+		##
+		## ONLY A ROUTE YOU DREW. A play's routes arrive through `_run_play` with
+		## `from_play` set, and those are the plan the whole line is running: one
+		## man tapped out of it is not a cancel, it is a different call, and the
+		## screen for that is the corner. `_plan_live` reads the same flag for
+		## the same reason.
+		##
+		## No message is needed and none is drawn. The route line goes, the card
+		## border drops back from ROUTE to EDGE, and the card stops saying "on a
+		## route" — three things change in the frame the tap lands on, which is
+		## what confirmation is supposed to look like.
+		elif man.under_orders() and not man.order.from_play:
+			sim.cancel_order(idx)
+			Audio.play("tap")
 		draw_path.clear()
 		draw_screen = PackedVector2Array()
 		return
@@ -1743,7 +1769,14 @@ func _show_playbook() -> void:
 		panel_title.text += "   ·   " + book_note
 	panel_box.visible = true
 	again_button.visible = false
-	_build_book(Vector2(PANEL_W, BOOK_H))
+	## THE STRIP IS PAID FOR BY THE BOOK, not added to the panel.
+	##
+	## `panel_box` grows downward from a fixed y and `_draw` frames whatever
+	## height it ends up with, so anything added to it comes off the bottom of a
+	## 540-pixel screen rather than out of the panel — the first cut of the strip
+	## pushed "Done picking favourites" half off the frame. The page scrolls; the
+	## panel does not. So the page gives back exactly what the strip takes.
+	_build_book(Vector2(PANEL_W, BOOK_H - (FAV_STRIP_H if starring else 0.0)))
 	## THE MODE SWITCH, and it is a switch rather than a star on every card
 	## because the cards sit in a GridContainer that owns their positions — an
 	## overlay would be a second positioning system on the one screen that
@@ -1751,6 +1784,8 @@ func _show_playbook() -> void:
 	## THE TWO OF THEM SIDE BY SIDE. Stacked they cost eighty pixels and the panel
 	## does not have eighty pixels; they are also peers — one changes what a tap
 	## means, one leaves — so a row is what they are.
+	if starring:
+		_build_fav_strip(board)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	panel_box.add_child(row)
@@ -1766,6 +1801,80 @@ func _show_playbook() -> void:
 		_clear_panel()
 		_build_corner()))
 
+
+
+## ------------------------------------------------- the four, in corner order
+## WHICH OF YOUR FOUR SITS WHERE. The corner lays the favourites out two by two
+## in list order — slot 1 top-left, 2 top-right, 3 bottom-left, 4 bottom-right —
+## so the list's order IS the thumb-reach order on the screen with the clock on
+## it. Until now nothing could change it: a favourite landed wherever starring it
+## happened to put it. `Chalkboard.promote_favourite` and `demote_favourite` were
+## written and tested for this and had no caller.
+##
+## NOT IN THE CORNER, and that is a decision against the hand-off note, which
+## suggested a pair of up/down taps beside each card there. Two reasons. The
+## corner runs on `corner_t` — it is the one screen in the game with a clock on
+## the player — and a control that costs seconds of the round to tidy a list is a
+## control that punishes being used. And a two-by-two grid has no up and down; it
+## has four positions, so arrows on it would be arrows against a direction that
+## is not on the screen.
+##
+## Here there is no clock, the mode is already called "picking favourites", and
+## the strip reads left to right in exactly the order the corner reads. One tap
+## moves a card one place towards the front; the front one has nowhere to go and
+## says so by being dead rather than by being absent. Four items reorder in at
+## most six taps and there is no drag, which was Pete's own call on this control.
+func _build_fav_strip(board: Chalkboard) -> void:
+	if board == null:
+		return
+	var favs := board.live_favourites()
+	## ONE FAVOURITE HAS NO ORDER. A strip with a single dead chip on it is a
+	## control that has never worked, and a player cannot tell that from one that
+	## is broken.
+	if favs.size() < 2:
+		return
+	var head := Label.new()
+	head.text = "IN THE CORNER, IN THIS ORDER — tap to move one left"
+	head.add_theme_color_override("font_color", UiKit.DIM)
+	head.add_theme_font_size_override("font_size", 12)
+	panel_box.add_child(head)
+	var strip := HBoxContainer.new()
+	strip.add_theme_constant_override("separation", 6)
+	panel_box.add_child(strip)
+	var w := _fit(Chalkboard.MAX_FAVOURITES)
+	var f := UiKit.body()
+	for i in favs.size():
+		var take := i
+		var name_ := _fav_name(favs[i])
+		## THE NUMBER IS THE SLOT, and it is drawn whether or not the chip can
+		## move, because the number is what the player is reading the strip for.
+		var b := _panel_button("%s%d  %s" % ["\u25c0 " if i > 0 else "   ", i + 1,
+			UiKit.clip_px(f, name_, 13, w - 52.0)], Vector2(w, 34.0),
+			func():
+				var err := board.promote_favourite(take)
+				if err != "":
+					book_note = err
+					Audio.play("refuse")
+				_show_playbook())
+		b.disabled = i == 0
+		strip.add_child(b)
+
+
+## A favourite is `{shape, kind, key}` on the board; the name a player knows it
+## by lives on the call it resolves to. `_fav_calls` already does that resolution
+## for the corner, so this asks it rather than repeating the lookup — two places
+## turning a favourite into a name is two places that can disagree about which
+## one slot 3 is.
+func _fav_name(f: Dictionary) -> String:
+	var shape_id := int(f["shape"])
+	for c in _book_calls(shape_id):
+		if String(c["kind"]) != String(f["kind"]):
+			continue
+		if Chalkboard.fav_key(String(c["kind"]), int(c["id"]),
+				String(c["name"])) != String(f["key"]):
+			continue
+		return String(c["name"])
+	return String(f["key"])
 
 
 ## WHICH SLOT'S SUB BOX IS OPEN, or -1. Tap SUB beside a man, pick from the
@@ -1817,6 +1926,12 @@ const BOOK_H := 268.0
 ## scroll was cutting read as the screen running out rather than as a list
 ## continuing. A cut card wants somewhere to be cut.
 const BOOK_H_CORNER := 176.0
+## WHAT THE FAVOURITE STRIP COSTS the page above it: its heading, its row of
+## chips, and the two `separation` gaps the VBox puts around them. Written once
+## and subtracted once — the pair of numbers this replaces would have been the
+## strip's real height and the book's guess at it, which is the shape of bug
+## section 19 of the register is about.
+const FAV_STRIP_H := 68.0
 
 
 func _fit(n: int) -> float:

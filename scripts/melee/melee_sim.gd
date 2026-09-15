@@ -639,12 +639,13 @@ func lineup(team: int) -> Array:
 	return lineups[team].duplicate()
 
 
-## LEFT FOR THE ARENA CHAT, 15 Sep 2026. This has no caller and the only place
-## one could live is `melee_scene.gd`'s corner screen — the file whose pixel
-## scale is being settled elsewhere, so it was not touched. Wire it to a
-## corner control or delete it; the rest of the uncalled list was resolved on
-## 15 Sep and this is the one entry left on it. See
-## `docs/ARENA-SHAPE-HANDOFF.md`.
+## TAKE BACK A ROUTE. Called by a tap on a man who is already on one — see
+## `melee_scene._release()`, which is also where the one rule about it lives: a
+## route the PLAYER drew can be taken back, a route the called PLAY put on him
+## cannot, because that is the plan the line is running.
+##
+## He becomes the AI's again rather than reverting to the play, which is the same
+## thing that happens when a drawn route runs out on its own.
 func cancel_order(idx: int) -> void:
 	men[idx].order = null
 

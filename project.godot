@@ -1,6 +1,8 @@
 ; Retro Buhurt — BonkWorks
-; Godot 4.6, Compatibility renderer, portrait mobile.
-; See docs/CONSTRAINTS.md before changing anything in scripts/sim.
+; Godot 4.6, Compatibility renderer, LANDSCAPE mobile — 960x540 with an
+; expanding canvas. "Portrait" stood on this line until 15 Sep 2026, when the
+; handheld orientation setting below turned out to say the same thing.
+; See docs/CONSTRAINTS.md before changing anything in scripts/melee.
 
 config_version=5
 

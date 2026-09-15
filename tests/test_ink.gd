@@ -90,6 +90,7 @@ func _initialize() -> void:
 	await _test_the_card_prints_itself()
 	_test_the_purse_stays_in_its_box()
 	await _test_no_text_runs_off_its_panel()
+	await _test_no_line_we_wrote_loses_its_tail()
 	print("")
 	for n in notes:
 		print("   " + n)
@@ -675,3 +676,50 @@ func _test_the_fight_screens_hold_their_ink() -> void:
 	_ok(over.is_empty(), "and none of their text lands on a control",
 		"%d pairs checked%s" % [pairs,
 			"" if over.is_empty() else " — " + "; ".join(over.slice(0, 6))])
+
+
+## --------------------------------------------------- copy against its column
+func _test_no_line_we_wrote_loses_its_tail() -> void:
+	## A CLIPPED SENTENCE IS INVISIBLE TO EVERY OTHER CHECK IN THIS FILE. It is
+	## on the frame, it is not on a control, it is inside its panel — it is
+	## perfectly placed and it says `Your captains dec.` instead of what it means.
+	## Three of them were on the clubhouse tab at once and a screenshot is the
+	## only thing that had ever found one.
+	##
+	## `UiKit.fit_px()` is the door every string WE wrote goes through — a label,
+	## a note, a blurb. Player-supplied names go through `clip_px` and are not
+	## recorded, because a name can be any length and cutting one is the layout
+	## doing its job. So anything in this list is copy that does not fit a column
+	## we chose, which is a thing to fix in the copy or in the column.
+	_world()
+	var cut: Array[String] = []
+	var drawn := 0
+	for page in SCREENS:
+		var path := String(page[0])
+		var tab := int(page[1])
+		if not ResourceLoader.exists(path):
+			continue
+		var ink: Array = await _ink(path, tab)
+		drawn += ink.size()
+		var label := path.get_file().get_basename() + ("" if tab < 0 else " tab %d" % tab)
+		for row in UiKit.ledger_overrun():
+			cut.append("%s: '%s' cut to '%s' for %.0fpx at %dpx"
+				% [label, String(row["text"]), String(row["kept"]),
+					float(row["width"]), int(row["size"])])
+	notes.append("the copy: %d strings drawn, %d cut short" % [drawn, cut.size()])
+	_ok(cut.is_empty(), "no line the game wrote itself is cut short by its column",
+		"%d screens read%s" % [SCREENS.size(),
+			"" if cut.is_empty() else " — " + "; ".join(cut.slice(0, 6))])
+
+	## AND THE CHECK CAN FAIL, which is the thing a check like this most often
+	## cannot. Same shape as `_test_the_ledger_can_fail` above: set up the exact
+	## fault and confirm the recorder sees it, so a future refactor that quietly
+	## stops recording is caught here rather than by the next screenshot.
+	UiKit.ledger_start()
+	var f := UiKit.body()
+	var kept := UiKit.fit_px(f, "a sentence far too long for this", 13, 30.0)
+	var caught := UiKit.ledger_overrun()
+	UiKit.ledger_stop()
+	_ok(caught.size() == 1 and kept.ends_with("."),
+		"and a line that is cut IS recorded, so the check can fail",
+		"cut to '%s', %d recorded" % [kept, caught.size()])
