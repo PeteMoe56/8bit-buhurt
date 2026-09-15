@@ -7,9 +7,25 @@ and nothing in the suite could have told you.
 
 Three presets: **Android**, **Windows Desktop**, **Linux**.
 
+## The engine is 4.6.2
+
+`4.6.2.stable.official.71f334935`, on both machines, as of 15 Sep 2026.
+
+It was 4.6.stable in the test container and 4.6.2 on the machine that will
+actually ship the game — a green suite on an engine nobody builds from. **Export
+templates are matched to the patch number**, so the two disagreeing is not
+academic, and the whole suite was re-run on 4.6.2 before this line was written.
+
+`tools/run_tests.sh` now finds whichever engine is present and **prints its
+version on every run**, rather than carrying a path with a version baked into it.
+`tools/godot_find.ps1` does the same job on Windows and derives the export
+template folder from the answer. Nothing in `tools/` has a version number typed
+into it any more, which is the only form of this fix that stays fixed.
+
 ## What is proven and what is not
 
-**Linux is proven.** Exported headless, 90MB, launched, played, quit clean:
+**Linux is proven.** Exported headless, launched, played, quit clean — on 4.6
+first, and again on 4.6.2 after the bump:
 
 ```
 godot --headless --path . --export-debug "Linux" build/combat-club.x86_64

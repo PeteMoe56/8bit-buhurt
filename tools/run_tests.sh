@@ -8,8 +8,24 @@
 ## killed it mid-run and the suite printed fourteen greens' worth of
 ## nothing without saying a word. A harness that can silently drop a test
 ## is worse than no harness.
+##
+## THE ENGINE IS WHICHEVER ONE IS HERE, AND IT SAYS WHICH. The path used to be a
+## literal `.../Godot_v4.6-stable_linux.x86_64`, which was fine right up until
+## the machine that SHIPS the game turned out to be on 4.6.2 while the machine
+## that TESTS it was on 4.6 — a green suite on an engine nobody builds from.
+## Export templates are matched to the patch number, so those two disagreeing is
+## not academic. It prints the version it found, every run, so a mismatch is on
+## the screen rather than in somebody's memory.
 set -u
-G="${GODOT:-/tmp/godot/Godot_v4.6-stable_linux.x86_64}"
+G="${GODOT:-}"
+if [ -z "$G" ]; then
+  for c in /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64 \
+           /tmp/godot/Godot_v4.6-stable_linux.x86_64; do
+    [ -x "$c" ] && G="$c" && break
+  done
+fi
+[ -x "${G:-}" ] || { echo "No Godot binary. Set GODOT=/path/to/godot." >&2; exit 2; }
+echo "engine: $("$G" --version 2>&1 | head -1)   ($G)"
 cd "$(dirname "$0")/.."
 "$G" --headless --path . --import >/dev/null 2>&1
 

@@ -8967,3 +8967,32 @@ screen. One constant, subtracted once.
 
 Both new controls are held by a source check as well as a behaviour check, because the
 thing that was missing for a month was not the behaviour. It was the caller.
+
+### The toolchain disagreed with itself
+
+15 Sep 2026, immediately after the export work. The test container ran
+**4.6.stable**; the machine that will actually ship the game runs **4.6.2**. A
+green suite on an engine nobody builds from.
+
+That is not a cosmetic split, because **export templates are matched to the patch
+number** — a 4.6.2 editor will not use 4.6.stable templates and the error it
+gives says nothing useful. The container is on 4.6.2 now and the whole suite was
+re-run there: 629 checks, 43 files, no failures, and the Linux export rebuilt and
+launched on the new engine.
+
+The way it surfaced is worth keeping. `android_check.ps1` had `4.6` typed into it
+in two places, so on Pete's machine it looked for templates in a folder that will
+never exist and told him, confidently, that his engine was wrong. Same rule as
+section 25 and for the same reason: **a number that has to agree with another
+number is a number that will stop agreeing.** So nothing in `tools/` carries a
+version any more — `run_tests.sh` finds whichever engine is there and prints its
+version every run, and `godot_find.ps1` asks the binary and derives the template
+folder from the answer.
+
+One trap found underneath it. `Godot_v*_console.exe` on Windows is a **198 KB
+stub** that relaunches the main `.exe` beside it by exact filename. Pete's folder
+had the stub and nothing else, so it exited with *"Main executable ... not
+found"* — which reads as a broken engine and is a missing file. `Find-Godot` now
+tries every candidate and accepts only one that answers `--version` with a real
+version string, which is the difference between reporting a symptom and
+reporting the cause.
