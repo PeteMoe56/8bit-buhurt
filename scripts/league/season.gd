@@ -2051,9 +2051,26 @@ func dilemma_card() -> Dictionary:
 		return {}
 	var man := dilemma_man()
 	var out := card.duplicate(true)
-	out["body"] = Dilemma.fill(String(card["text"]),
-		man.display_name if man != null else "somebody",
-		club.display_name, String(dilemma.get("rival", "the other lot")))
+	var who := man.display_name if man != null else "somebody"
+	var rival := String(dilemma.get("rival", "the other lot"))
+	out["body"] = Dilemma.fill(String(card["text"]), who, club.display_name, rival)
+	## AND THE OPTIONS TOO. Only the body was filled, so a card whose ANSWERS
+	## named the club printed the token: *"{club} is not an advert."* — caught in
+	## a screenshot on 15 Sep 2026, on the one card in the deck whose blurbs use
+	## the tokens at all, which is why it had survived.
+	##
+	## **A substitution applied to some of the strings is a substitution nobody
+	## can rely on**, and the cheapest version of that bug is the one where the
+	## unfilled field is the one a player is reading when he decides.
+	var opts: Array = []
+	for o in out.get("options", []):
+		var c: Dictionary = (o as Dictionary).duplicate(true)
+		c["label"] = Dilemma.fill(String(c.get("label", "")), who,
+			club.display_name, rival)
+		c["blurb"] = Dilemma.fill(String(c.get("blurb", "")), who,
+			club.display_name, rival)
+		opts.append(c)
+	out["options"] = opts
 	out["man"] = man
 	return out
 

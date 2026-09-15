@@ -179,6 +179,10 @@ func _rebuild() -> void:
 		_shop_controls()
 		queue_redraw()
 		return
+	if sim_asking:
+		_sim_controls()
+		queue_redraw()
+		return
 	## Five tabs across 960 with the Menu button on the right, so they narrow
 	## rather than the row wrapping — a wrapped tab row on a landscape phone
 	## screen eats the first line of every page behind it.
@@ -200,6 +204,12 @@ func _rebuild() -> void:
 		Session.autosave()
 		UiKit.trail_reset()
 		UiKit.go("res://scenes/Title.tscn"), "cog"))
+	## The tape's own control goes with the tab's, so leaving the club tab takes
+	## it down and nothing has to remember to.
+	_tape_label = null
+	_tape_clip = null
+	if tab == Tab.CLUB and season.blocked_by() == "":
+		_tape_build()
 	match tab:
 		Tab.CLUB: _club_controls()
 		Tab.SQUAD: _squad_controls()
@@ -327,38 +337,64 @@ func _club_controls() -> void:
 	## and a formation on the next is asking the player to hold two names for it.
 	## The clip drops to 10 so the label is no longer than "Shape:" plus 14 was —
 	## `test_layout.gd` measures the outcome either way.
-	ui.add_child(UiKit.button("Formation: %s" % UiKit.clip(
-			season.board.formation_name(season.formation_id), 10),
-		Vector2(24, action_y() - 54), Vector2(204, 40), func():
-			var ids: Array = []
-			for c in season.board.formation_choices():
-				ids.append(int(c["id"]))
-			var at := ids.find(season.formation_id)
-			season.formation_id = ids[(at + 1) % ids.size()]
-			## A play tied to the shape you just left stops being called, so it
-			## is dropped here rather than silently not happening in the fight.
-			if season.called_play() == null:
-				season.play_index = -1
+	## ---------------------------------------------- the fixture's action row
+	## THE FORMATION AND PLAY SLOTS ARE GONE FROM HERE — Pete, item 20 of the
+	## 15 Sep playtest: *"We can find something else to put in the formation and
+	## play slot. That should be a pop up for 'Sim it' and Fight should eventually
+	## go to the pre-fight screen anyway."*
+	##
+	## He is describing a redundancy. `Fight it` leads to the walk-out and then to
+	## BEFORE THE CHARGE, which is a screen whose entire job is choosing a shape
+	## and a play with the men and their condition in front of you. Choosing them
+	## HERE, on a card that shows a league table, is the same decision taken
+	## earlier with less information — and then taken again ten seconds later.
+	##
+	## **A decision offered twice is a decision the player makes once and then
+	## has to remember he already made.** The pre-fight screen keeps it, because
+	## that is where the evidence is.
+	ui.add_child(UiKit.button("Fight it", Vector2(24, action_y()),
+		Vector2(204, 46), _fight, "crossed"))
+	## AND SIM ASKS FIRST. It is the one button on this screen that spends a
+	## fixture and cannot be undone — the result is written, the week ticks, kit
+	## wears — and it sat one accidental thumb away from the button beside it.
+	ui.add_child(UiKit.button("Sim it", Vector2(244, action_y()), Vector2(204, 46),
+		func():
+			sim_asking = true
+			_rebuild(), "clock"))
+
+
+## THE SIM CONFIRM, AS A MODAL RATHER THAN A TAP.
+##
+## Same shape as the shop: it REPLACES this screen's controls rather than sitting
+## over them, because a scrim cannot cover a Button and this project has paid for
+## that five times.
+func _sim_controls() -> void:
+	ui.add_child(UiKit.button("Sim it", Vector2(SIM_CARD.position.x + 28.0,
+		SIM_CARD.position.y + SIM_CARD.size.y - 62.0), Vector2(220, 46), func():
+			sim_asking = false
+			season.skip_event()
 			Session.autosave()
+			flash = "Event simulated."
+			_rebuild(), "clock"))
+	ui.add_child(UiKit.button("Go back", Vector2(SIM_CARD.position.x
+		+ SIM_CARD.size.x - 248.0, SIM_CARD.position.y + SIM_CARD.size.y - 62.0),
+		Vector2(220, 46), func():
+			sim_asking = false
 			_rebuild()))
-	ui.add_child(UiKit.button("Play: %s" % _play_label(),
-		Vector2(244, action_y() - 54), Vector2(204, 40), func():
-			## Only the plays that can actually be called from the shape you are
-			## in. An unrunnable play offered in the list is a lie.
-			var offered: Array = season.board.plays_for(season.formation_id)
-			var idx: Array = [-1]
-			for o in offered:
-				idx.append(int(o["index"]))
-			var at := idx.find(season.play_index)
-			season.play_index = idx[(at + 1) % idx.size()] if at != -1 else -1
-			Session.autosave()
-			_rebuild()))
-	ui.add_child(UiKit.button("Fight it", Vector2(24, action_y()), Vector2(204, 46), _fight))
-	ui.add_child(UiKit.button("Sim it", Vector2(244, action_y()), Vector2(204, 46), func():
-		season.skip_event()
-		Session.autosave()
-		flash = "Event simulated."
-		_rebuild()))
+
+
+func _draw_sim_ask() -> void:
+	UiKit.panel(self, SIM_CARD)
+	var o := String(season.world.clubs[season.opponent_id()]["name"]) \
+		if season.opponent_id() >= 0 else "nobody yet"
+	UiKit.text(self, font, "SIM THIS ONE?", Vector2(SIM_CARD.position.x + 28.0,
+		SIM_CARD.position.y + 46.0), 20, UiKit.YOU)
+	UiKit.text(self, font, "The marshals run it without you. The result stands.",
+		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 76.0), 14, UiKit.INK)
+	UiKit.text(self, font, "Your men still take the week: kit wears, the room moves.",
+		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 98.0), 13, UiKit.DIM)
+	UiKit.text(self, font, "Against %s." % o,
+		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 124.0), 13, UiKit.EDGE)
 
 
 ## What the play button says. "None" is a real choice and reads as one.
@@ -433,10 +469,86 @@ func _squad_rows() -> Array:
 	## you might promote are visible at the same time, so the swap is a
 	## comparison instead of a memory test.
 	var ry := CONTENT_Y + 26.0
-	for f in season.club.reserves():
+	for f in _reserve_sorted():
 		out.append({ "card": f, "y": ry, "kind": "reserve", "x": RESERVE_X })
 		ry += SQUAD_ROW
 	return out
+
+
+## ------------------------------------------------------- ordering the reserve
+## Pete, item 21 of the 15 Sep playtest: *"Squad screen needs sort by and
+## min/max for skills/age/cost/whatever else."*
+##
+## IT SORTS THE RESERVE AND NOT THE EIGHT, and that is the whole design decision
+## on this screen rather than an omission.
+##
+## `MeleeClub.starting_five()` picks the five by walking roster order and taking
+## the first fit man who covers each slot — **roster order IS the depth chart**,
+## which is what made `swap_order()` the fix for item 22. So the left column is
+## not an arbitrary list that happens to be in an order: it is the order, it is
+## information, and sorting it by wage would be sorting away the one thing it
+## says. A screen that let you re-sort it would also have to decide whether
+## tapping two men then swaps their DISPLAY places or their real ones, and there
+## is no answer to that a player would guess right.
+##
+## The reserve has no such order. Nothing reads it, nothing depends on it, and it
+## is the list a player is actually scanning when he asks "who is my best
+## nineteen-year-old". So it sorts, and the eight stays the depth chart.
+const RESERVE_SORTS := [
+	{"key": "rating", "word": "rating"},
+	{"key": "age", "word": "age"},
+	{"key": "wage", "word": "wage"},
+	{"key": "ceiling", "word": "ceiling"},
+]
+
+
+func _reserve_sorted() -> Array:
+	var out: Array = season.club.reserves().duplicate()
+	match String(RESERVE_SORTS[reserve_sort % RESERVE_SORTS.size()]["key"]):
+		"age":
+			## YOUNGEST FIRST, because the reason to sort a reserve by age is to
+			## find the man worth waiting for, not the one about to retire.
+			out.sort_custom(func(a, b): return a.age < b.age)
+		"wage":
+			out.sort_custom(func(a, b):
+				return ClubOffice.billed(a) > ClubOffice.billed(b))
+		"ceiling":
+			out.sort_custom(func(a, b): return a.potential > b.potential)
+		_:
+			out.sort_custom(func(a, b): return a.overall() > b.overall())
+	return out
+
+
+## THE SPREAD OF THE WHOLE BOOK, which is the "min/max" half of item 21.
+##
+## Not a filter. Thirteen men is a list you read, not a set you query — a filter
+## on a squad this size hides men to save scrolling that is not happening. What a
+## player actually wants from "min/max" is the SHAPE: how old is this club, how
+## far apart are the best and worst, what does the top earner cost. Three pairs
+## on one line answer that, and they answer it about every man on the books
+## rather than about whichever column is on screen.
+func _squad_spread() -> String:
+	var r: Array = season.club.roster
+	if r.is_empty():
+		return ""
+	var lo_age := 99
+	var hi_age := 0
+	var lo_rat := 99
+	var hi_rat := 0
+	for f in r:
+		lo_age = mini(lo_age, f.age)
+		hi_age = maxi(hi_age, f.age)
+		lo_rat = mini(lo_rat, f.overall())
+		hi_rat = maxi(hi_rat, f.overall())
+	## TWO PAIRS, NOT THREE. The third was the top wage and it did not fit: the
+	## heading leaves 259 pixels and the three-pair line wanted 280, so `fit_px`
+	## cut it to "top ." — which `test_ink.gd` would have failed on its next run,
+	## because copy the game wrote itself is not allowed to lose its tail.
+	##
+	## The wage is the least of the three anyway. Total wages against the cap are
+	## already on the right of this same line, which is the number that decides
+	## anything; what one man costs is on his own row.
+	return "age %d-%d  ·  rated %d-%d" % [lo_age, hi_age, lo_rat, hi_rat]
 
 
 func _squad_controls() -> void:
@@ -451,6 +563,16 @@ func _squad_controls() -> void:
 		Vector2(200, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Roster.tscn"), "roster"))
+	## ONE BUTTON THAT CYCLES, not four that are three-quarters wrong at any
+	## moment. The action row has three places on it and the sort is the least of
+	## them; a segmented control would cost the width of the roster button to say
+	## something the heading already says.
+	var sw := String(RESERVE_SORTS[(reserve_sort + 1) % RESERVE_SORTS.size()]["word"])
+	ui.add_child(UiKit.button("Reserve by %s" % sw,
+		Vector2(24, action_y()), Vector2(200, 46), func():
+			reserve_sort = (reserve_sort + 1) % RESERVE_SORTS.size()
+			_rebuild(), "roster"))
+
 	## THE FREE AGENTS LIVE HERE NOW.
 	##
 	## They used to be the MARKET tab, which also carried a button labelled "Free
@@ -625,6 +747,9 @@ func _draw() -> void:
 	UiKit.rule(self, UiKit.RULE_GEM, Vector2(0, 58), UiKit.screen().x, UiKit.FRAME)
 	_banner()
 	## The selected tab, marked under the buttons rather than on them, because a
+	if sim_asking:
+		_draw_sim_ask()
+		return
 	if shop_open:
 		## AND NOT THE TAB'S UNDERLINE EITHER. `_rebuild` stopped building the tab
 		## buttons under the modal; this used to draw the gold bar that marks
@@ -735,7 +860,113 @@ func _draw_club() -> void:
 		return
 	_fixture()
 	_last_event()
+	_schedule()
 	_table()
+	_tape_draw_ground()
+
+
+## ------------------------------------------------------------- what is left
+## THE SPACE THE FORMATION AND PLAY BUTTONS LEFT. Pete, item 20: *"Maybe the
+## schedule, and a couple other things."*
+##
+## The card said what is happening this week and the table said where everybody
+## stands, and nothing anywhere said what is COMING — which is the one thing a
+## manager plans against. Five rows, home and away marked, the current one lit.
+func _schedule() -> void:
+	var rest: Array = season.world.remaining_fixtures(5)
+	if rest.is_empty():
+		return
+	## UNDER THE LAST RESULT, which sits at `CONTENT_Y + 152`. The first cut put
+	## this at 150 and the heading printed straight through *"Last: beat Oklahoma
+	## City Guard 2-0"* — two blocks in one column, written in two functions,
+	## neither of which knew the other's height. Same shape as the clubhouse,
+	## twice, today.
+	var y := CONTENT_Y + 186.0
+	UiKit.text(self, font, "WHAT IS LEFT", Vector2(24, y), 13, UiKit.DIM)
+	y += 24.0
+	for i in rest.size():
+		var r: Dictionary = rest[i]
+		var opp := int(r["opponent"])
+		var nm := "a bye" if opp < 0 \
+			else String(season.world.clubs[opp]["name"])
+		## THE CURRENT MATCHDAY IS LIT and the rest are quiet, so the eye finds
+		## "now" without reading the numbers.
+		var col := UiKit.INK if i == 0 else UiKit.DIM
+		UiKit.pair(self, font, "%d.  %s" % [int(r["event"]),
+			UiKit.clip_px(font, nm, 13, 210.0)],
+			("home" if bool(r["home"]) else "away") if opp >= 0 else "",
+			Vector2(28, y), fixture_w() - 16.0, 13, 12, col, UiKit.EDGE)
+		y += 20.0
+
+
+## ------------------------------------------------------------------ the tape
+## Pete, item 20: *"Definitely need a Ticker across the bottom full of humor and
+## results."*
+##
+## ON THE CLUB TAB AND NOWHERE ELSE. It is a results service, and this is the
+## screen where a player is looking at results — put on every tab it would be a
+## moving object beside a roster somebody is reading, which is the thing the
+## juice rules exist to prevent.
+##
+## IT IS A CONTROL, NOT DRAWN INK, AND THAT IS NOT A STYLE CHOICE.
+##
+## The first cut drew it with `UiKit.text` and a moving x, with a comment saying
+## it could run off both ends because the y was fixed inside the strip and there
+## was "nothing to clip". `test_ink.gd` failed it on the next run: *'Pittsburgh
+## Club and Oklahoma City Guard are level...' at 955,944 runs to 2003,955* — a
+## two-thousand-pixel string on a nine-hundred-pixel canvas, which is exactly
+## what that check exists to forbid and exactly what the comment had waved away.
+##
+## The tempting fix was an exemption. **An exemption written for one screen is a
+## hole for every other one** — that sentence was written into this suite six
+## hours ago, about a hole that hid two of Pete's bugs, and it applies here.
+##
+## So the tape is really clipped: a `Control` with `clip_contents` on, a `Label`
+## inside it that moves. Nothing is drawn outside the strip because nothing CAN
+## be, the ledger never sees it because it is not ink, and the screen stops
+## needing a redraw every frame to move a string — the Label moves itself.
+var _tape: String = ""
+var _tape_key: String = ""
+var _tape_clip: Control = null
+var _tape_label: Label = null
+const TAPE_H := 22.0
+
+
+func _tape_build() -> void:
+	var key := "%d:%d" % [season.world.season, season.results.size()]
+	if key != _tape_key or _tape_label == null:
+		_tape_key = key
+		## BUILT ONCE AN EVENT, NOT ONCE A FRAME. `Ticker.line_for()` joins a
+		## dozen strings; at sixty frames a second that is a thousand joins for a
+		## thing that changes eight times a season.
+		_tape = Ticker.line_for(season)
+	if _tape == "":
+		return
+	var y := UiKit.screen().y - TAPE_H
+	_tape_clip = Control.new()
+	_tape_clip.position = Vector2(0, y)
+	_tape_clip.size = Vector2(UiKit.screen().x, TAPE_H)
+	_tape_clip.clip_contents = true
+	_tape_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tape_label = Label.new()
+	_tape_label.text = _tape
+	_tape_label.add_theme_font_override("font", font)
+	_tape_label.add_theme_font_size_override("font_size", 12)
+	_tape_label.add_theme_color_override("font_color", UiKit.DIM)
+	_tape_label.position = Vector2(UiKit.screen().x, 3)
+	_tape_clip.add_child(_tape_label)
+	ui.add_child(_tape_clip)
+
+
+func _tape_draw_ground() -> void:
+	if _tape == "":
+		return
+	var y := UiKit.screen().y - TAPE_H
+	draw_rect(Rect2(0, y, UiKit.screen().x, TAPE_H), UiKit.PANEL)
+	draw_line(Vector2(0, y), Vector2(UiKit.screen().x, y), UiKit.FRAME, 1.0)
+
+
+var _tape_t: float = 0.0
 
 
 ## Which card the typer is part-way through. Without it the redraw restarted the
@@ -765,6 +996,17 @@ var _typing_key: String = ""
 func _process(_delta: float) -> void:
 	if season == null or tab != Tab.CLUB:
 		return
+	## THE TAPE ASKS FOR ITS OWN FRAMES, which is the lesson of the note above:
+	## an animation on a canvas that only redraws on rebuild is a still frame.
+	## It runs only on the club tab, only when there is no card in the way, and
+	## it is the second thing in this game allowed to move by itself.
+	## THE TAPE MOVES ITSELF. A Label's position, not a redraw — the screen does
+	## not need a new frame to slide a control, and asking for one every frame to
+	## move a decoration is how a ticker ends up costing more than the fight.
+	if _tape_label != null and _tape_label.is_inside_tree():
+		_tape_t += _delta
+		var w := _tape_label.size.x
+		_tape_label.position.x = Ticker.offset(_tape_t, w, UiKit.screen().x)
 	if season.blocked_by() != "dilemma":
 		return
 	var card := season.dilemma_card()
@@ -852,9 +1094,12 @@ func _draw_dilemma() -> void:
 	## On the rule rather than under the figures, because it is a legend and not
 	## a fourth column — and read out of `Dilemma.FX_WORD` so that renaming a
 	## currency renames its own key instead of leaving a caption behind.
-	UiKit.right(self, font, "%s = the squad's mood   ·   %s = how well you are known"
+	## SHORT ENOUGH FOR THE RULE IT SITS ON. The first wording ran to 440 pixels
+	## in the 420 it was given and printed "how well you are kn" — a legend that
+	## needs its own legend.
+	UiKit.right(self, font, "%s = the squad's mood   ·   %s = your renown"
 		% [Dilemma.FX_WORD["morale"], Dilemma.FX_WORD["note"]],
-		Vector2(UiKit.right_edge(48.0), action_y() - 110.0), 12, UiKit.EDGE, 420.0)
+		Vector2(UiKit.right_edge(48.0), action_y() - 110.0), 12, UiKit.EDGE, 400.0)
 	for i in opts.size():
 		var o: Dictionary = opts[i]
 		var x := 24.0 + float(i) * (w + 12.0)
@@ -1067,8 +1312,20 @@ func _table() -> void:
 
 # ----------------------------------------------------------------- SQUAD tab
 func _draw_squad() -> void:
-	UiKit.text(self, font, "THE EIGHT WHO TRAVEL", Vector2(24, CONTENT_Y), 13, UiKit.DIM)
-	UiKit.text(self, font, "RESERVE — never at an event", Vector2(RESERVE_X, CONTENT_Y), 13, UiKit.DIM)
+	## THE HEADING CARRIES THE SPREAD, because there is nowhere else for it.
+	##
+	## It went on its own line at `CONTENT_Y + 18` first, which is eight pixels
+	## above the first man's baseline — so it printed under "#1 Calder" and was
+	## invisible. The heading line has three hundred spare pixels between the end
+	## of the words and the reserve column, and a summary belongs beside the thing
+	## it summarises anyway.
+	UiKit.pair(self, font, "THE EIGHT WHO TRAVEL", _squad_spread(),
+		Vector2(24, CONTENT_Y), RESERVE_X - 16.0, 13, 12, UiKit.DIM, UiKit.EDGE)
+	## THE RESERVE SAYS HOW IT IS ORDERED, because it is the only list on this
+	## screen whose order is a choice rather than a fact.
+	UiKit.text(self, font, "RESERVE — by %s" % String(
+		RESERVE_SORTS[reserve_sort % RESERVE_SORTS.size()]["word"]),
+		Vector2(RESERVE_X, CONTENT_Y), 13, UiKit.DIM)
 	## The cap, where the decision is: every man on this screen costs against it.
 	var bill := ClubOffice.wage_bill(season.club)
 	var cap := season.office.cap()
@@ -1229,6 +1486,15 @@ func squad_columns(f: Font, size_hint: int = 0) -> Array:
 ## market is built around — the fee is charged by band, so within a band a better
 ## fighter is free, and a player who never sees the band name will never notice
 ## that the 65 and the 61 cost the same six credits.
+## IS THE SIM CONFIRM UP. See `_sim_controls()`.
+var sim_asking: bool = false
+## The confirm's own box. Same width as the shop's, because they are the same
+## kind of thing and two modals at two sizes reads as two programs.
+const SIM_CARD := Rect2(200.0, 150.0, 560.0, 240.0)
+
+## HOW THE RESERVE COLUMN IS ORDERED. See `_reserve_sorted()`.
+var reserve_sort: int = 0
+
 ## WHOSE HARNESS IS SELECTED ON THE ARMOURER'S TABLE. Named for the screen it
 ## belongs to rather than the tab it happens to sit on — `market_pick` was the
 ## old name and the old screen, and a variable that outlives the thing it was

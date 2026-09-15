@@ -371,6 +371,33 @@ func _new_season() -> void:
 		tables[t] = tbl
 
 
+## THE REST OF THE SEASON, as [{event, opponent, home}] from the current matchday
+## on. Empty at the end of a season, which reads correctly as "nothing left".
+##
+## FOR THE FIXTURE CARD's empty half. Pete, item 20 of the 15 Sep playtest, on
+## what should replace the formation and play buttons: *"Maybe the schedule, and
+## a couple other things."*
+##
+## It reads the same `schedule` the matchday reads, so the card and the fixture
+## it is about cannot disagree — the alternative is a second walk of the same
+## array, which in this project has a track record.
+func remaining_fixtures(limit: int = 6) -> Array:
+	var out: Array = []
+	var days: Array = schedule[player_tier()]
+	for d in range(event, days.size()):
+		if out.size() >= limit:
+			break
+		var opp := -1
+		var home := false
+		for pair in days[d]:
+			if int(pair[0]) == player_club or int(pair[1]) == player_club:
+				opp = int(pair[1]) if int(pair[0]) == player_club else int(pair[0])
+				home = League.host_of(pair) == player_club
+				break
+		out.append({"event": d + 1, "opponent": opp, "home": home})
+	return out
+
+
 func events_this_season() -> int:
 	return League.events_in_season(player_tier())
 

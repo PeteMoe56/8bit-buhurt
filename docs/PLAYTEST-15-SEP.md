@@ -130,7 +130,7 @@ rows attached to it (21, 22), so it is a screen rebuild rather than a tidy.
 | 25 | **No weekly income, ever.** You are set to lose, and you die out if you do not win | `answered` |
 | 8 | **No fan information anywhere**, and none on the fight card | `open` |
 | 16 | **"room" and "name" are never explained** — the two dilemma currencies | `done` |
-| 21 | Squad needs **sort-by and min/max** on skill / age / cost | `open` |
+| 21 | Squad needs **sort-by and min/max** on skill / age / cost | `done` |
 
 **14** — not moved, signposted. `Season.grade`'s own note says why it lives on the
 career and not in Settings: *"volume is a property of the room you are sitting
@@ -249,7 +249,7 @@ Free agents moved to the **Squad** tab, which kills the tab-in-a-tab.
 
 | # | Item | Status |
 |---|---|---|
-| 20 | **The formation and play slots on the fixture card should not be there.** Fight should go to the pre-fight screen anyway and Sim should be a popup. Candidates for the space: the schedule, and *"definitely a ticker across the bottom full of humor and results"* |
+| 20 | **The formation and play slots on the fixture card should not be there.** — `done` |
 | 9 | **Pre-fight should show the field**, idle fighters behind it, positions updating as a formation is picked, and a dashed line of the plan |
 | 7b | Remove **"A night out"** — *"pretty dumb"* — `done`. The verb stays and is still tested; the button is gone from the busiest row in the game. |
 
@@ -265,3 +265,65 @@ opener, a fight, a dilemma, a contract and the chalkboard. The shots are the
 evidence and they are worth keeping: half the findings in `docs/REGISTER.md` are
 "the screenshot showed something no test could see", and this run is the largest
 single batch of those the project has had.
+
+
+---
+
+## What #20 and #21 turned into
+
+**21 — the sort goes on the reserve, not on the eight.** That is the design
+decision rather than an omission. `starting_five()` picks the five by walking
+roster order, so **the left column IS the depth chart** — that is what made
+`swap_order()` the fix for #22, and sorting it by wage would sort away the one
+thing it says. A screen that let you re-sort it would also have to decide whether
+tapping two men swaps their *display* places or their real ones, and there is no
+answer a player would guess right.
+
+The reserve has no such order. Nothing reads it and nothing depends on it, and it
+is the list you scan when you ask "who is my best nineteen-year-old". So it sorts
+— rating, age, wage, ceiling — and the eight stays the depth chart.
+
+"Min/max" is answered as a **spread**, not a filter: `age 19-31 · rated 21-41` on
+the heading line. Thirteen men is a list you read, not a set you query; a filter
+on a squad this size hides men to save scrolling that is not happening.
+
+**20 — the slots are gone and three things took their place.**
+
+The slots were a redundancy. `Fight it` leads to the walk-out and then to BEFORE
+THE CHARGE, whose entire job is choosing a shape and a play *with the men and
+their condition in front of you*. Choosing them on a card that shows a league
+table is the same decision taken earlier with less information, and then taken
+again ten seconds later. **A decision offered twice is a decision the player
+makes once and then has to remember he already made.**
+
+- **Sim asks first.** It is the one button on that screen that spends a fixture
+  and cannot be undone — the result is written, the week ticks, kit wears — and
+  it sat one thumb away from Fight. It is a modal now, the same shape as the
+  shop, and it says what a sim costs.
+- **The schedule** fills the hole: what is left this season, home or away, the
+  current matchday lit.
+- **The ticker** runs along the foot of the club tab and nowhere else. Results
+  first, remarks second, one in four. A ticker of pure jokes is a screensaver; a
+  ticker of pure results is a second league table. It reads `season.table()` and
+  the club's own log rather than recomputing either, so it cannot disagree with
+  the table sitting above it — and it is built once an event, not once a frame.
+
+**And a bug fell out of photographing it:** `Dilemma.fill()` was applied to the
+card's BODY and not to its options, so a card whose answers name the club printed
+`{club} is not an advert.` One card in the deck uses the tokens in its blurbs,
+which is why it had survived. *A substitution applied to some of the strings is a
+substitution nobody can rely on.*
+
+---
+
+## Still open
+
+| # | Item | Why it is still here |
+|---|---|---|
+| 4 | **Squad redesign** | Sort, spread and promote-into-the-five all landed; a full visual rebuild wants a mockup Pete approves rather than my taste applied at 4am |
+| 3 | **No tutorial** | The largest single item on the list and the one most shaped by what Pete wants the first ten minutes to feel like |
+| 8 | **No fan information** anywhere, including the fight card | Notoriety, the crowd band and `crowd_meter()` all exist — this is a screen, like the armourer was |
+| 1, 2, 6, 12, 17 | The rest of the **formatting sweep** | 7 and the clubhouse are done; the title, slots, free-agent cards, dilemma card and chalkboard are not |
+| 2 | **No "Name Your Club"** step | Part of the same pass |
+| 9 | The pre-fight **field with idle fighters and a dashed plan line** | `melee_scene.gd` — the arena chat's, and written up in the hand-off |
+| 15 | **The ladder** | Unchanged and still the biggest question in the game |
