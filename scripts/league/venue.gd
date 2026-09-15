@@ -69,9 +69,56 @@ static func mood_line(kind: int, host_name: String) -> String:
 		_: return "%s's crowd." % host_name
 
 
-## DOES THE GATE COME TO YOU? Only at home. A club that took its gate on the road
-## would be a club with no reason to build an arena, which is the whole of the
-## Arena screen.
+## ---------------------------------------------------------------- the gate
+## WHAT SHARE OF THE GATE COMES TO YOU, by where the afternoon is.
+##
+## Pete, 16 Sep 2026: *"We can have more money gained from home games, and less
+## from away games."*
+##
+## THIS USED TO BE A BOOLEAN AND THE BOOLEAN WAS THE PROBLEM. `pays_the_gate`
+## returned true at home and false everywhere else, on the reasoning that *"a
+## club that took its gate on the road would be a club with no reason to build an
+## arena"*. The reasoning is sound and the implementation overshot it: away and
+## neutral paying NOTHING meant that in a Backyard season of five events with one
+## or two at home, the entire crowd economy — notoriety, the bands, the meter,
+## the turnout percentage, five screens of apparatus — was worth **1.4 credits a
+## season**. `tools/probe_year1.gd` printed it as a line of the club's books next
+## to eight credits of membership subs, and a player reading that table would
+## conclude, correctly, that fighting does not pay.
+##
+## `tools/probe_venue.gd` measured the real calendar at home 33%, away 37%,
+## neutral 30% — the cup ties are neutral ground and they are nearly a third of
+## the year. So two thirds of a club's fights paid nothing at all.
+##
+## A SHARE KEEPS THE ARENA WORTH BUILDING and fixes the hole, because the thing
+## that makes your own ground worth money is no longer that it is the only fight
+## that pays — it is that home pays FULL and the take is multiplied by the ground
+## it is fought in. Build a better arena and every home fight is worth more; let
+## it go and every home fight is worth less.
+const HOME_SHARE: float = 1.00
+
+## AWAY IS NOT HALF A HOME GAME BY ACCIDENT. A visiting club takes a cut of the
+## door and its own travelling support through it; it does not take the bar, the
+## programme or the retainer. Just under half is the number that makes an away
+## day worth going to and still makes you want the home draw.
+const AWAY_SHARE: float = 0.45
+
+## AND NEUTRAL SITS ABOVE AWAY, because a cup tie on the federation's ground is a
+## bigger afternoon than a Tuesday at somebody's club — both sides are visitors
+## and the house is full of people who came for the occasion.
+const NEUTRAL_SHARE: float = 0.60
+
+
+static func gate_share(kind: int) -> float:
+	match kind:
+		Kind.HOME: return HOME_SHARE
+		Kind.NEUTRAL: return NEUTRAL_SHARE
+		_: return AWAY_SHARE
+
+
+## Kept, because eleven places ask it and all of them still mean "is this my
+## afternoon" rather than "is there money in it". It is now a question about the
+## venue and not about the wallet.
 static func pays_the_gate(kind: int) -> bool:
 	return kind == Kind.HOME
 

@@ -215,9 +215,22 @@ static func news(season) -> Array:
 	## figure here would be `ClubEvent.attendance()` run again after the fact —
 	## an estimate of a number, printed as if it were the number. The credits are
 	## a fact.
-	if Venue.pays_the_gate(season.venue_kind()):
-		out.append(News.new("The gate", "%d CC, at %s." % [
-			season.office.crowd_pay(), season.office.arena.arena_name()], 0))
+	## THE GATE IS PAID EVERYWHERE NOW, at a share, so the report says so
+	## everywhere — and it names the ROOM, because the room is half the figure.
+	## It used to print only at home, which meant two thirds of a season's
+	## afternoons had a report with no money on it at all.
+	var g: Dictionary = season.gate_now()
+	## TYPED, because `season` is untyped in this function and `:=` cannot infer
+	## through it — the parse gate in `run_tests.sh` caught it, which is the whole
+	## reason that gate exists: `--import` swallows the error and the file only
+	## fails when somebody opens the screen.
+	var room: String = season.office.arena.arena_name()
+	if int(g["kind"]) != Venue.Kind.HOME:
+		room = Venue.title(int(g["kind"]),
+			season.world.city_of(season.host_id()),
+			Arena.arena_name_of(int(g["level"])))
+	out.append(News.new("The gate", "%d CC, %s at %s." % [
+		int(g["cc"]), String(g["where"]).to_lower(), room], 0))
 	out.append(News.new("The following", "%d, and the room knows it."
 		% int(season.office.fans), 0))
 	return out

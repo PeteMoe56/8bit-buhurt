@@ -262,6 +262,90 @@ func city_of(id: int) -> String:
 	return guess if guess != "" else String(c["name"]).split(" ")[0]
 
 
+## ------------------------------------------------------------ their grounds
+## EVERY CLUB HAS A GROUND NOW, and until 16 Sep 2026 exactly one did.
+##
+## Pete, 16 Sep 2026: *"Money from matches is manipulated by condition of arena,
+## so you may actually look forward to an opponent with a great stadium or roll
+## your eyes from an opponent with a shitty arena."*
+##
+## That sentence needs the other fifteen clubs in your division to HAVE arenas,
+## and they did not: a CPU club is a name, a town, a tier and a `power` integer.
+## `tools/probe_kit.gd` found the same hole about harnesses in September — the
+## player was the only club in the world paying the wear tax — and this is the
+## same shape, one system over.
+##
+## ---------------------------------------------------------------------------
+## DERIVED, NOT STORED, AND THAT IS THE WHOLE TRICK.
+##
+## Storing a level and a condition on sixteen clubs a division across four
+## divisions means fifty-six more numbers in every save, a migration, and a
+## per-club upkeep economy nobody will ever see. Deriving them from the club's id
+## costs nothing, cannot go stale, and is stable the way a real ground is stable:
+## the club in Holt has the ground it has, and you learn it.
+##
+##   LEVEL is keyed on the id and the club's CURRENT tier, so a club that gets
+##   promoted arrives with a better ground — which is the same rule the player
+##   lives under, and it means the fixture list gets richer as you climb rather
+##   than the away days all looking the same.
+##
+##   CONDITION is keyed on the id and the SEASON, so it drifts year to year. A
+##   club that was a tip last year may have cleaned up. This is the part that
+##   makes an away day worth reading about instead of a coin flip you cannot see.
+##
+## THE PLAYER'S OWN CLUB IS THE EXCEPTION and has to be: his ground is a thing he
+## bought and keeps, not a hash. `Season.ground_of()` is the door that knows
+## that; this function answers for everybody else and says so.
+const GROUND_SALT: int = 0x51C3B7
+
+
+## A CPU CLUB'S GROUND: `{"level": int, "condition": float}`.
+##
+## THE SPREAD WITHIN A TIER IS THE POINT. A division where every club has the
+## same ground is a division where the mechanic is a constant, so a tier's clubs
+## are spread across the levels that tier can hold — a Regional division has
+## clubs still in a fenced ground and clubs in a full arena, and the fixture list
+## is worth reading because of it.
+func ground_of(id: int) -> Dictionary:
+	if id < 0 or id >= clubs.size():
+		return {"level": 0, "condition": 1.0}
+	var c: Dictionary = clubs[id]
+	var tier := int(c.get("tier", 0))
+	## THE BEST GROUND THIS TIER CAN HOLD, off the arena's own table rather than
+	## off a second ladder here — `Arena.LEVELS` says which tier each level needs
+	## and a copy of that mapping is a copy that will disagree.
+	var top := 0
+	for lv in Arena.LEVELS.size():
+		if int(Arena.LEVELS[lv]["tier"]) <= tier:
+			top = lv
+	## AND HOW FAR DOWN FROM IT THIS CLUB IS. Two rungs of spread, weighted so
+	## most clubs are near the top of what their division allows: a division is
+	## mostly clubs that belong there, with a couple who came up and have not
+	## built yet.
+	var h := _hash2(id * 31 + tier * 7, GROUND_SALT)
+	var drop: int = 0 if h % 100 < 55 else (1 if h % 100 < 88 else 2)
+	var level := clampi(top - drop, 0, Arena.MAX_LEVEL)
+
+	## THE STATE OF IT, this year. Spread across the whole band a player can be
+	## in, so "their place is a tip" and "their place is immaculate" are both
+	## things the fixture list can say — and a back field is always spotless for
+	## the same reason the player's is (`Arena.WEARS_FROM_LEVEL`): there is
+	## nothing there to keep.
+	if level < Arena.WEARS_FROM_LEVEL:
+		return {"level": level, "condition": 1.0}
+	var h2 := _hash2(id * 131 + season * 17, GROUND_SALT + 977)
+	return {"level": level, "condition": 0.30 + 0.70 * (float(h2 % 1000) / 999.0)}
+
+
+## A SMALL INTEGER HASH, kept private and kept boring. Not `randi()` and not the
+## world's RNG: reading a club's ground must not consume a draw, or a screen
+## that shows the fixture list would reshuffle the country.
+static func _hash2(a: int, b: int) -> int:
+	var x := (a * 2654435761) ^ (b * 40503)
+	x = (x ^ (x >> 13)) * 1274126177
+	return absi(x ^ (x >> 16))
+
+
 ## THE PLAYER TAKES A TOWN, and whoever was in it takes his.
 ##
 ## A SWAP AND NOT A CLAIM. Forty-six cities and forty-six clubs means every town
@@ -435,6 +519,18 @@ func player_opponent() -> int:
 ## Resolve the whole matchday. `player_rounds` is the real result of the bout you
 ## just fought; pass null and the player's fixture is resolved on rating like
 ## everyone else's, which is what the auto-play path and the soak test do.
+## WHAT THE PLAYER'S OPPOSITION IS MULTIPLIED BY when his fixture is simmed.
+##
+## Set by `Season` from `opposition_scale()` immediately before the call and
+## reset after, rather than passed as an argument, because `play_event` is called
+## from five places and four of them have no opinion about it — an argument would
+## be four call sites each restating a default they do not care about.
+##
+## 1.0 means "as rated", which is what every other club in the world gets and
+## what a save from before this existed will read.
+var player_scale: float = 1.0
+
+
 func play_event(player_rounds = null) -> void:
 	for t in League.TIERS.size():
 		var days: Array = schedule[t]
@@ -450,6 +546,27 @@ func play_event(player_rounds = null) -> void:
 				## simulated one enter the table through exactly one shape.
 				var pr: Array = _four(player_rounds)
 				res = pr if a == player_club else [pr[1], pr[0], pr[3], pr[2]]
+			elif a == player_club or b == player_club:
+				## A SIMMED FIXTURE OF THE PLAYER'S STILL HAPPENS AT HIS GRADE.
+				##
+				## It did not, and that is the third time this project has found
+				## the same shape: simmed events cost no kit wear until 15 Sep,
+				## they cost no arena wear until 16 Sep, and they were fought at
+				## no difficulty at all until now. `opposition_scale()` — the
+				## whole of `Grade` — was read in exactly two places, both of them
+				## `MeleeSim.new`, so **the difficulty setting applied only to
+				## fights you chose to play**, and the SIM IT button on every
+				## fixture was a button that turned it off.
+				##
+				## `tools/probe_run.gd` found it by accident and could not have
+				## missed it: twenty-season careers at all five grades came back
+				## byte for byte identical. **A column that matches another column
+				## exactly is not a result, it is a bug report** — this suite has
+				## said so since `probe_spend.gd` and it was right again.
+				var scaled := int(round(float(clubs[b if a == player_club else a]
+					["power"]) * player_scale))
+				res = quick_bout(int(clubs[a]["power"]), scaled) if a == player_club \
+					else quick_bout(scaled, int(clubs[b]["power"]))
 			else:
 				res = quick_bout(int(clubs[a]["power"]), int(clubs[b]["power"]))
 			var ma: int = int(res[2]) if res.size() > 2 else 0

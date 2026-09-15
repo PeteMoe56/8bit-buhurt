@@ -35,6 +35,10 @@ const ROW_H := 22.0
 ## room to the fixture, the rest to the table, which lands on exactly 470 at
 ## 960 wide and keeps the proportion at 1170 and 1260.
 const TABLE_SPLIT := 0.475
+## HOW TALL THE FIXTURE CARD IS. Named because the thing under it measures itself
+## from `CONTENT_Y` rather than from the card's foot, so the two have to be read
+## together by whoever changes either.
+const FIXTURE_H := 118.0
 
 
 static func fixture_w() -> float:
@@ -232,12 +236,19 @@ func _club_controls() -> void:
 	## it covered the right half of the HONORS tab on every screen that had a
 	## cup to look at.
 	##
-	## The left column under the fixture card is the one region on this tab that
-	## belongs to nothing: the table is on the right and the action row is below.
-	## `test_layout.gd` now treats the tab strip as a no-go region, so the second
-	## mistake cannot be made a third time.
+	## THE THIRD MOVE, AND THE SECOND COMMENT THAT WAS WRONG. The note above used
+	## to end *"the left column under the fixture card is the one region on this
+	## tab that belongs to nothing"*, and put the button at y=276. `_last_event()`
+	## draws its line at `CONTENT_Y + 152` — which is 284. So the region belonged
+	## to something, the button covered *"Last: beat Milwaukee Free Company 2-0
+	## (+6) · simmed"* on every screen with a live cup, and the screenshot of the
+	## fixture panel on 16 Sep caught it with half the sentence sticking out.
+	##
+	## **A comment that describes a region as empty is a comment, not a check.**
+	## The genuinely free band is under the schedule and above the action row:
+	## five rows of fixtures end at 418 and the action row starts at 476.
 	if season.viewable_cup() != null:
-		ui.add_child(UiKit.button("The draw", Vector2(24, 276),
+		ui.add_child(UiKit.button("The draw", Vector2(24, action_y() - 52.0),
 			Vector2(200, 44), func():
 				Session.viewing_cup = season.viewable_cup()
 				Session.autosave()
@@ -925,15 +936,48 @@ func _schedule() -> void:
 	for i in rest.size():
 		var r: Dictionary = rest[i]
 		var opp := int(r["opponent"])
+		var home: bool = bool(r["home"])
 		var nm := "a bye" if opp < 0 \
 			else String(season.world.clubs[opp]["name"])
 		## THE CURRENT MATCHDAY IS LIT and the rest are quiet, so the eye finds
 		## "now" without reading the numbers.
 		var col := UiKit.INK if i == 0 else UiKit.DIM
+		## H AND A AS A MARK IN THE MARGIN, not "home" and "away" as words at the
+		## end of the row.
+		##
+		## Pete, 16 Sep 2026: *"Let's have the Home and Away games notated."* They
+		## were notated — in twelve-pixel EDGE grey, right-aligned past the club's
+		## name, which is where the eye goes last. A one-letter mark in its own
+		## column at the left is read at a glance down the list, which is what a
+		## fixture list is for: **a fact you have to hunt for on a five-row list
+		## is a fact that is not on the list.**
+		if opp >= 0:
+			UiKit.text(self, font, "H" if home else "A", Vector2(28, y), 13,
+				UiKit.YOU if home else UiKit.EDGE.lightened(0.4))
+		## AND WHAT THE AFTERNOON IS WORTH, which is the new half. The gate is
+		## multiplied by the ground it is fought in, so a trip to somebody's
+		## Sports hall pays better than a home tie in a back field — and a fixture
+		## list that does not say so is hiding the one thing that now makes an
+		## away day interesting.
+		##
+		## THE GROUND'S NAME AND THE FIGURE, not the figure and an adjective. The
+		## first cut printed "1 CC · a thin gate" on all five rows, because in the
+		## Backyard Circuit every club really is on a back field and the words
+		## were all the same word — **a column that says the same thing on every
+		## row is a column carrying no information.** The NAME differs from the
+		## first season (a back field, a club gym, somebody's fenced ground) and
+		## it teaches the player the map, which is what makes a fixture list worth
+		## reading ahead. The adjective lives on the fixture panel, once, where
+		## there is room for it to mean something.
+		var tail := ""
+		if opp >= 0:
+			var gr: Dictionary = season.ground_of(
+				season.world.player_club if home else opp)
+			tail = "%s  ·  %d CC" % [Arena.arena_name_of(int(gr["level"])),
+				season.gate_for_fixture(opp, home)]
 		UiKit.pair(self, font, "%d.  %s" % [int(r["event"]),
-			UiKit.clip_px(font, nm, 13, 210.0)],
-			("home" if bool(r["home"]) else "away") if opp >= 0 else "",
-			Vector2(28, y), fixture_w() - 16.0, 13, 12, col, UiKit.EDGE)
+			UiKit.clip_px(font, nm, 13, 150.0)], tail,
+			Vector2(46, y), fixture_w() - 16.0, 13, 12, col, UiKit.EDGE)
 		y += 20.0
 
 
@@ -1206,7 +1250,12 @@ func _fixture_title() -> String:
 
 func _fixture() -> void:
 	var y := CONTENT_Y + 20.0
-	var r := Rect2(24, y, fixture_w(), 104)
+	## 118 AND NOT 104. The card grew a line — where the fight is, in what ground,
+	## and what the gate is worth — and the first cut drew it at `y + 98` inside a
+	## 104-tall box, so the sentence sat ON the bottom rule. A line added to a
+	## panel sized for the lines it already had is the same bug this project has
+	## now shipped on the clubhouse, the settings screen and here.
+	var r := Rect2(24, y, fixture_w(), FIXTURE_H)
 	## THE HEADING GOES IN THE FRAME.
 	##
 	## It used to be the first line INSIDE the panel, which cost a line of the
@@ -1265,6 +1314,33 @@ func _fixture() -> void:
 	## feels harder two divisions up was invisible.
 	UiKit.right(self, font, String(Tuning.AI_SKILL[season.ai_tier()]["name"]).to_upper(),
 		Vector2(432, y + 28), 12, UiKit.YOU, 200)
+
+	## ------------------------------------------------- where, and what it pays
+	## Pete, 16 Sep 2026: *"Let's have the Home and Away games notated."*
+	##
+	## THE PANEL THAT SAYS WHO YOU ARE FIGHTING DID NOT SAY WHERE. The schedule
+	## underneath it carried a grey "home"/"away" and this — the card the player
+	## actually looks at, the one with the rating and the odds on it — said
+	## nothing at all about the venue. The one screen where the question is live
+	## was the one screen with no answer on it.
+	##
+	## AND THE GROUND IS ON IT, because the gate now reads the room: a trip to a
+	## club with a Sports hall pays better than a home tie in a back field, and
+	## *"you may actually look forward to an opponent with a great stadium or roll
+	## your eyes from an opponent with a shitty arena"* only works if the screen
+	## tells you which one this is before you tap FIGHT.
+	var g: Dictionary = season.gate_now()
+	var kind := int(g["kind"])
+	var where := String(Venue.NAME[kind]).to_upper()
+	UiKit.text(self, font, where, Vector2(44, y + 28), 12,
+		UiKit.YOU if kind == Venue.Kind.HOME else UiKit.DIM)
+	UiKit.pair(self, font,
+		"%s  ·  %s" % [Arena.arena_name_of(int(g["level"])),
+			Arena.worth_word(int(g["level"]), float(g["condition"]))],
+		"%d CC at the gate" % int(g["cc"]),
+		Vector2(44, y + 104), 24.0 + fixture_w() - 20.0, 12, 12,
+		UiKit.EDGE.lightened(0.35),
+		UiKit.UP if int(g["cc"]) >= season.office.crowd_pay() else UiKit.DIM)
 
 
 func _last_event() -> void:

@@ -403,6 +403,71 @@ func miles_travelled() -> float:
 		_: return world.miles_between(world.player_club, opp)
 
 
+## ----------------------------------------------------------- whose ground
+## THE GROUND A GIVEN CLUB PLAYS ON, and the player's own is the exception.
+##
+## `LeagueWorld.ground_of()` derives a level and a condition for any club from
+## its id, its tier and the season — which is right for the other fifteen clubs
+## in the division and WRONG for the player, whose ground is a thing he bought,
+## keeps and lets go. Asking the world about your own club would tell you a hash
+## about an arena you are looking at on another screen.
+##
+## **A derived answer that overrides a real one is a screen lying about something
+## the player can see.** So one door, and it knows which is which.
+func ground_of(id: int) -> Dictionary:
+	if id == world.player_club:
+		return {"level": office.arena.level, "condition": office.arena.condition}
+	return world.ground_of(id)
+
+
+## THE FEDERATION'S GROUND, for a cup tie on neutral turf.
+##
+## It scales with the division the tie is being fought in rather than being one
+## fixed room, because a Backyard invitational and the Worlds final are not the
+## same afternoon — and it is always immaculate, because the federation is the
+## one body in this game with a groundsman.
+func neutral_ground() -> Dictionary:
+	return {"level": clampi(world.player_tier() + 2, 0, Arena.MAX_LEVEL),
+		"condition": 1.0}
+
+
+## THE GROUND THIS WEEK'S FIGHT IS IN, whoever owns it.
+func fight_ground() -> Dictionary:
+	match venue_kind():
+		Venue.Kind.NEUTRAL: return neutral_ground()
+		Venue.Kind.HOME: return ground_of(world.player_club)
+		_:
+			var opp := opponent_id()
+			return ground_of(opp) if opp >= 0 else neutral_ground()
+
+
+## WHAT THIS WEEK'S GATE IS WORTH, and where it is. One function, because the
+## pre-fight panel, the report and the payment itself all want it and three
+## copies of this arithmetic is three answers to one question — which is the
+## failure mode that put a second league table on the ticker.
+##
+## Returns `{cc, where, level, condition, kind}`.
+func gate_now() -> Dictionary:
+	var kind := venue_kind()
+	var g := fight_ground()
+	return {
+		"cc": office.gate_for(kind, int(g["level"]), float(g["condition"])),
+		"where": String(Venue.NAME[kind]),
+		"level": int(g["level"]),
+		"condition": float(g["condition"]),
+		"kind": kind,
+	}
+
+
+## AND WHAT A NAMED FIXTURE WOULD BE WORTH, for the schedule. Same arithmetic,
+## a stated opponent and a stated venue rather than this week's.
+func gate_for_fixture(opp: int, home: bool) -> int:
+	var kind: int = Venue.Kind.HOME if home else Venue.Kind.AWAY
+	var g: Dictionary = ground_of(world.player_club) if home else (
+		ground_of(opp) if opp >= 0 else neutral_ground())
+	return office.gate_for(kind, int(g["level"]), float(g["condition"]))
+
+
 ## WHERE THE NEXT BOUT IS. A cup tie is neutral ground whoever is in it; a league
 ## fixture is home or away as the schedule says.
 func venue_kind() -> int:
@@ -827,7 +892,14 @@ func skip_event() -> void:
 	var was_home: bool = venue_kind() == Venue.Kind.HOME
 	var before := _my_row()
 	var was := _my_row()
+	## THE GRADE APPLIES TO A SIMMED FIXTURE TOO. See the note in
+	## `LeagueWorld.play_event` — until 16 Sep 2026 the difficulty setting was
+	## read only by `MeleeSim`, so pressing SIM IT fought the season at no
+	## difficulty at all and five twenty-season careers at five different grades
+	## came back identical.
+	world.player_scale = opposition_scale(opp)
 	world.play_event()
+	world.player_scale = 1.0
 	var now := _my_row()
 	_after_event(int(now["rf"]) - int(was["rf"]), int(now["ra"]) - int(was["ra"]))
 	## AND THE WEEK STILL HAPPENED.
@@ -862,8 +934,13 @@ func _after_event(rf: int, ra: int) -> void:
 	## the whole of the Arena screen. `Venue.pays_the_gate` is the one place that
 	## rule lives, so a second earner added next year cannot quietly disagree
 	## with it.
-	if Venue.pays_the_gate(venue_kind()):
-		office.take(office.crowd_pay(), "The gate", "event", ClubOffice.LINE_GATE)
+	## THE GATE IS PAID WHEREVER THE FIGHT WAS, at a share set by the venue and
+	## multiplied by the ground it was fought in. It used to be home-only, which
+	## made two thirds of a season's fixtures worth nothing at all — see the long
+	## note over `Venue.gate_share`.
+	var g := gate_now()
+	office.take(int(g["cc"]), "The gate  ·  %s" % String(g["where"]), "event",
+		ClubOffice.LINE_GATE)
 	if rf > ra:
 		office.take(CREDITS_WIN, "Won the event", "event", ClubOffice.LINE_PRIZE)
 		office.morale_after(true, false)

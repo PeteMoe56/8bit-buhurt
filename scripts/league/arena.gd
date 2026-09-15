@@ -184,6 +184,68 @@ func retainer() -> int:
 	return int(floor(float(retainer_full()) * gate_scale()))
 
 
+## HOW MUCH A GROUND MULTIPLIES WHAT A FIGHT IN IT IS WORTH.
+##
+## Pete, 16 Sep 2026: *"Money from matches is manipulated from condition of
+## arena, so you may actually look forward to an opponent with a great stadium or
+## roll your eyes from an opponent with a shitty arena."*
+##
+## THE COMMENT OVER `ClubOffice.gate_income()` HAS CLAIMED THIS SINCE SEPTEMBER —
+## *"The events are where the arena earns"* — and the code did not do it. A fight
+## paid `CROWD_PAY[band]`, a flat 1 to 6 off your own notoriety, and read nothing
+## about the room it was fought in. The arena's entire contribution to the economy
+## was a 2-to-21 CC annual retainer, which is why `probe_afford` found a National
+## Arena's whole existence worth less than the membership subs.
+##
+## A STATIC FUNCTION OF THE LEVEL, because the caller needs it for grounds it
+## does not own: an away day multiplies by the HOST's ground, and the host is a
+## row in `LeagueWorld.clubs` with no `Arena` object behind it.
+##
+## 1.0 to 2.2 across the six. Deliberately not steeper: the band is already worth
+## six to one top to bottom, and a second multiplier of the same size would make
+## the National Division's gate thirty times the Backyard Circuit's, which is not
+## a climb, it is two different games.
+const GATE_PER_LEVEL: float = 0.24
+
+
+static func gate_factor(level: int) -> float:
+	return 1.0 + float(clampi(level, 0, MAX_LEVEL)) * GATE_PER_LEVEL
+
+
+## THE SAME SLIDE FOR A GROUND WE DO NOT OWN. `gate_scale()` reads this object's
+## own `condition`; a fixture list asking about somebody else's has a float and
+## no arena, so the arithmetic lives here once and both roads take it.
+static func condition_scale(condition: float) -> float:
+	return lerpf(GATE_FLOOR, 1.0, clampf(condition, 0.0, 1.0))
+
+
+## AND WHAT A GROUND IS WORTH IN ONE NUMBER, for a screen that wants to say
+## "their place is worth going to" without printing two multipliers.
+static func worth(level: int, condition: float) -> float:
+	return gate_factor(level) * condition_scale(condition)
+
+
+## IN WORDS, for the fixture list. The player is choosing nothing here — he
+## cannot pick his opponents — so this is flavour that happens to be true, which
+## is the only kind worth printing.
+static func worth_word(level: int, condition: float) -> String:
+	var w := worth(level, condition)
+	## THE BANDS ARE SET SO A SPOTLESS BACK FIELD READS AS HONEST, not as thin.
+	## `worth` is exactly 1.0 there — the bottom of both ladders, kept — and the
+	## first cut put the "honest" gate at 1.05, so the whole Backyard Circuit was
+	## described to the player as barely worth turning up to. A scale whose
+	## baseline is an insult is a scale that is measuring from the wrong end.
+	if w >= 1.85:
+		return "a big day out"
+	if w >= 1.40:
+		return "a proper ground"
+	if w >= 0.95:
+		return "an honest ground"
+	if w >= 0.70:
+		return "a thin gate"
+	return "barely worth the trip"
+
+
 ## WHAT THE RETAINER IS MULTIPLIED BY. Full at a well-kept ground, `GATE_FLOOR`
 ## at a ruin, straight line between.
 ##
@@ -195,7 +257,7 @@ func retainer() -> int:
 ## too high"*, and **a balance change shipped in the same commit as a feature is
 ## a balance change nobody can attribute.** One at a time.
 func gate_scale() -> float:
-	return lerpf(GATE_FLOOR, 1.0, clampf(condition, 0.0, 1.0))
+	return condition_scale(condition)
 
 
 func shabby() -> bool:
@@ -298,7 +360,14 @@ func here() -> Dictionary:
 
 
 func arena_name() -> String:
-	return String(here()["name"])
+	return arena_name_of(level)
+
+
+## THE NAME OF A GROUND AT A GIVEN LEVEL, for a ground we do not own. The fixture
+## list and the post-bout report both want to name the other club's place, and
+## neither has an `Arena` object to ask.
+static func arena_name_of(level: int) -> String:
+	return String(LEVELS[clampi(level, 0, MAX_LEVEL)]["name"])
 
 
 func capacity() -> int:

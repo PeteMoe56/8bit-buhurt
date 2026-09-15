@@ -32,7 +32,28 @@ const TIERS := [
 		"name": "Backyard Circuit",
 		"short": "BYC",
 		"clubs": 6,
-		"up": 1,          ## champion only
+		## TWO UP, NOT ONE, AND THE STATE LEAGUE SENDS TWO DOWN TO MATCH.
+		##
+		## This was *"champion only"* — the one division in the pyramid that
+		## promoted a single club, and the one every career starts and spends its
+		## first hours in. `tools/probe_run.gd` played a hundred twenty-season
+		## careers with a manager who does every obvious thing and got **one
+		## promotion every twenty seasons at the default grade**. Four divisions
+		## to climb at that rate is a sixty-season career before anybody sees the
+		## National Division, which is not a difficulty curve, it is a queue.
+		##
+		## Champion-only also made the Backyard Circuit the HARDEST division to
+		## leave, which is precisely backwards: the bottom of a pyramid is where a
+		## player is least equipped and least invested, and it was the rung with
+		## the narrowest gate.
+		##
+		## THE PYRAMID STAYS BALANCED and that is why `down` moves with it. Tier 0
+		## sends two up and receives two down; the State League sends two each way
+		## and receives two from each side; every division above it already ran
+		## 2-and-2. **A ladder where one rung has different arithmetic from the
+		## others is a rung that will silently leak or gain a club**, which this
+		## world's own soak test exists to catch.
+		"up": 2,
 		"down": 0,        ## the floor of the pyramid; nowhere to fall
 		"power": [30, 46],
 		"blurb": "Six clubs, a field and a rail. Win it and somebody notices.",
@@ -43,7 +64,7 @@ const TIERS := [
 		"short": "STL",
 		"clubs": 8,
 		"up": 2,
-		"down": 1,
+		"down": 2,        ## two, to match the two the Backyard Circuit sends up
 		"power": [40, 58],
 		"blurb": "Proper marshals, proper armor inspection, and clubs that travel.",
 	},

@@ -841,9 +841,34 @@ func crowd_band() -> int:
 	return b
 
 
-## What a league fight pays for being watched, before the result is counted.
+## WHAT A FIGHT PAYS FOR BEING WATCHED, before the result is counted.
+##
+## THE BAND IS YOUR OWN AND THE ROOM IS WHOSEVER IT IS. That split is the whole
+## model and it is the honest one: your notoriety is how many people would turn
+## out to see YOU, and the ground decides how many of them can get in and what
+## they paid at the door. So a famous club in a tip takes a tip's money, and an
+## unknown club that draws a National Arena takes more than it has ever seen.
+##
+## `kind` is the venue, `host_level` and `host_condition` are the GROUND IT IS
+## FOUGHT IN — yours at home, theirs away, the federation's on neutral ground.
+## Pete, 16 Sep 2026: *"you may actually look forward to an opponent with a great
+## stadium or roll your eyes from an opponent with a shitty arena."*
+##
+## A FLOOR OF ONE, for the same reason band 0 pays at all: **a multiplier that
+## can legitimately reach zero annihilates whatever it is applied to**, and this
+## project has already lost twenty seasons of gate income to exactly that. A club
+## nobody has heard of, away, at a ruin, still comes home with a credit.
+func gate_for(kind: int, host_level: int, host_condition: float) -> int:
+	return maxi(1, int(round(float(CROWD_PAY[crowd_band()])
+		* Venue.gate_share(kind)
+		* Arena.worth(host_level, host_condition))))
+
+
+## THE OLD DOOR, kept for the screens that want "what is a home fight worth" as a
+## headline figure rather than for a particular fixture. It is the club's own
+## ground at home, which is the question those screens are actually asking.
 func crowd_pay() -> int:
-	return CROWD_PAY[crowd_band()]
+	return gate_for(Venue.Kind.HOME, arena.level, arena.condition)
 
 
 ## How far along the current band we are, 0 to 1 — the meter itself. The top band
