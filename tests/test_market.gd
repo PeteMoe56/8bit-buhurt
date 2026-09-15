@@ -46,6 +46,7 @@ func _initialize() -> void:
 	_test_the_pool_is_the_same_after_a_reload()
 	_test_the_cap_raise_has_no_ceiling()
 	_test_a_refusal_names_a_door_that_opens()
+	_test_the_shelf_spans_three_divisions()
 
 	print("")
 	for n in notes:
@@ -59,6 +60,69 @@ func _initialize() -> void:
 			print("FAIL: " + f)
 		print("\n%d FAILED\n" % failures.size())
 		quit(1)
+
+
+## THE SHELF SPANS THREE DIVISIONS, AND A PLAYER CAN SEE WHICH.
+##
+## Pete, 15 Sep 2026: *"tier the free agents... A free agent won't bother being
+## available if they aren't one league above or below the team's standing."*
+## `Market._band_step` draws a third from below, half from your own and a sixth
+## from above, and `tools/probe_shelf.gd` measured what comes out.
+##
+## Two things are held here and the second is the one that was missing for a day.
+##
+## The first is that the span is REAL: over a long run of summers a middle
+## division has to put men on the shelf both under its floor and over its
+## ceiling. A market drawn from one band is a shop.
+##
+## The second is that the span is VISIBLE. `step_word` is what the card prints,
+## and it has to disagree with itself in the right places — blank at your own
+## standard, "step up" above it, "depth" below. **A mechanic the player cannot
+## see is not a mechanic, it is a random number**, and the market screen showed a
+## rating and a price and neither of the two rules that produced them.
+func _test_the_shelf_spans_three_divisions() -> void:
+	## A MIDDLE DIVISION, because the ends of the ladder cannot span three: at
+	## tier 0 the below-draw clamps up into your own band and at tier 3 the
+	## above-draw clamps down, so asking either end for three divisions is asking
+	## for a state the game does not have.
+	var tier := 1
+	var below := 0
+	var above := 0
+	var own := 0
+	for season in range(1, 41):
+		for f in Market.pool(4242, season, tier):
+			match Market.step_of(f.overall(), tier):
+				Market.Step.BELOW: below += 1
+				Market.Step.ABOVE: above += 1
+				_: own += 1
+	notes.append("forty State League summers: %d men under the floor, %d at it, %d over it"
+		% [below, own, above])
+	_ok(below > 0 and above > 0 and own > below and own > above,
+		"the shelf spans the division below, your own and the one above",
+		"a middle division sees all three over forty summers, weighted to its own")
+
+	## AND THE WORDS. Read off a rating against a band rather than off the draw,
+	## so these are the exact strings the card puts in the header corner.
+	var band: Array = League.TIERS[tier]["power"]
+	var lo := int(band[0])
+	var hi := int(band[1])
+	_ok(Market.step_word(lo - 4, tier) == "depth"
+			and Market.step_word((lo + hi) / 2, tier) == ""
+			and Market.step_word(hi + 4, tier) == "step up",
+		"the card's word for a man matches where he sits",
+		"under the floor reads depth, inside it reads nothing, over it reads step up")
+
+	## THE FEE BAND IS ON THE CARD TOO, and it is the half of the seam that does
+	## the work: `BAND_FEE` charges by bucket, so the skill is taking the man at
+	## the TOP of a bucket. The screen printed the price and never the bucket.
+	var names: Dictionary = {}
+	for season in range(1, 41):
+		for f in Market.pool(4242, season, tier):
+			names[Market.band_name(f.overall(), tier)] = true
+	_ok(names.size() >= 4,
+		"a summer's shelf is not all one fee band",
+		"forty summers of a State League shelf put men in %d of the %d bands"
+			% [names.size(), Market.BAND_NAME.size()])
 
 
 ## EVERY REFUSAL THAT NAMES A DOOR HAS TO MEAN IT.

@@ -62,6 +62,42 @@ static func band_name(rating: int, tier: int) -> String:
 	return BAND_NAME[band_of(rating, tier)]
 
 
+## WHICH DIVISION'S STANDARD THIS MAN IS AT, read off his RATING against the
+## division doing the signing — not remembered from `_band_step` at generation.
+##
+## Two reasons it is read and not stored. A man drawn in the band above who came
+## out at the bottom of it really is an own-division signing however he was made,
+## and the player can only ever judge by the number on the card; a label that
+## disagrees with the stars is a label that teaches the player to ignore labels.
+## And a stored origin would be a second copy of something the rating already
+## says — *a number that has to agree with another number is a number that will
+## stop agreeing*.
+enum Step { BELOW, OWN, ABOVE }
+
+static func step_of(rating: int, tier: int) -> int:
+	var own: Array = League.TIERS[clampi(tier, 0, League.TIERS.size() - 1)]["power"]
+	if rating < int(own[0]):
+		return Step.BELOW
+	if rating > int(own[1]):
+		return Step.ABOVE
+	return Step.OWN
+
+
+## AND THE WORD FOR IT, WHICH IS BLANK FOR MOST OF THE LIST ON PURPOSE.
+##
+## Half the shelf is at your own standard. Stamping "YOUR LEVEL" on three cards
+## in six is a label that costs a corner of every card to say nothing; the two
+## worth a word are the bargain and the reach, and they want DIFFERENT words
+## because they are different decisions. A man below your band is depth — he is
+## the fourteenth name, the one who covers an injury. A man above it is the
+## signing that changes a season, and he is what you save for.
+static func step_word(rating: int, tier: int) -> String:
+	match step_of(rating, tier):
+		Step.BELOW: return "depth"
+		Step.ABOVE: return "step up"
+	return ""
+
+
 ## THE POOL. Rebuilt from the season and the seed every time it is asked for, so
 ## it is the same list on both sides of a reload.
 ##

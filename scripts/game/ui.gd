@@ -447,6 +447,16 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 		right(ci, font, "%d" % int(d["number"]),
 			Vector2(r.end.x - 8, head.position.y + (30.0 if big else 22.0)),
 			22 if big else 15, INK * Color(1, 1, 1, 0.85), 60)
+	## THE HEADER'S RIGHT-HAND CORNER, for a card with no shirt number on it.
+	##
+	## The market is the one screen where a man does not have a number yet, so
+	## that corner has been empty since the card was written. It is the right
+	## place for a word about WHERE HE CAME FROM, because it sits in the colored
+	## band next to the position and reads before anything below the fold.
+	elif d.has("head_right"):
+		right(ci, font, String(d["head_right"]).to_upper(),
+			Vector2(r.end.x - 8, head.position.y + (18.0 if big else 14.0)),
+			11 if big else 9, Color(d.get("head_right_col", INK)), 84)
 
 	var dim_it: bool = bool(d.get("dim", false))
 	var y := r.position.y + hh
@@ -475,6 +485,17 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 	elif d.has("foot"):
 		right(ci, font, String(d["foot"]), Vector2(r.end.x - 8, r.end.y - 8),
 			13 if big else 11, Color(d.get("foot_col", YOU)), 140)
+	## AND THE FOOT'S LEFT, which is the other half of a price.
+	##
+	## `Market.BAND_FEE` charges by BAND and not by rating — a 61 and a 68 in the
+	## same band cost the same credits, and reading the pool for the man at the
+	## top of a band is the seam Pete asked for in item 8. **The card showed the
+	## fee and never the band**, so the one piece of information the seam is made
+	## of was the one piece a player could not see. A bucketed price with the
+	## bucket hidden is not a seam, it is a surprise.
+	if big and d.has("foot_left"):
+		text(ci, font, String(d["foot_left"]), Vector2(r.position.x + 8, r.end.y - 8),
+			11, Color(d.get("foot_left_col", DIM)))
 
 
 ## STARS, AND A HALF STAR IS NOT A ROUNDING ERROR.
