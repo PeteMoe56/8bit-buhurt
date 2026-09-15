@@ -220,7 +220,17 @@ const XP_PER_ROUND_STANDING: int = 1
 ## climbs, and a rework that quietly halved a career would have been a balance
 ## change wearing a UX change's clothes.
 const LEVEL_XP: int = 8
-const LEVEL_BAR_CAP: int = 3
+## RAISED FROM 3 TO 4 ON 15 Sep 2026. Pete: *"Let's lean more toward theirs."*
+##
+## Theirs does not cap at all — `xp_level * 100`, forever — and ours cannot go
+## that far: `probe_levels` measured an uncapped bar at 14 levels and **+3
+## overall across eight seasons** against the winter's 47 and +11. The cap is the
+## admission that a rising bar needs a rising income.
+##
+## What changed is the income. `xp_for` reads the man's rating now, so a fighter
+## who is getting better fills the bar faster — which buys exactly one more rung
+## of bar before the wall. 8, 16, 24, 32, and flat at 32.
+const LEVEL_BAR_CAP: int = 4
 ## WHAT A LEVEL DOES TO HIS MOOD, and theirs does not transfer at face value.
 ##
 ## Retro Bowl adds 10 to a 1-100 attitude, which looks like a tenth of our morale
@@ -338,6 +348,39 @@ static func next_level_at(f: FighterCard) -> int:
 	## this is the number every door charges and every bar measures against.
 	return maxi(1, int(round(
 		float(mini(maxi(1, f.level), LEVEL_BAR_CAP) * LEVEL_XP) * learn_rate(f))))
+
+
+## ------------------------------------------------- and at the ceiling, money
+## A MAN AT HIS CEILING TURNS A LEVEL INTO CREDITS.
+##
+## Straight from their build, and it is the cheapest good idea left in it:
+## *"Maxed players convert further level-ups into credits."* Ours refused —
+## `msg_MeetingLevelUpNotNeeded` in their nouns, *"%s has nothing left to learn"*
+## in ours — and a refusal is a dead end on the one man you spent a career
+## building. Every point of XP a thirty-four-year-old at his ceiling earns for
+## the rest of his career was being thrown away.
+##
+## PRICED AT WHAT THE LEVEL WOULD HAVE COST, which makes the two doors agree
+## about what a level IS: the club either pays that to push him or is paid it
+## because he cannot be pushed. A different figure would be a second opinion.
+##
+## IT IS NOT A MONEY PRINTER, and the arithmetic says why rather than a clamp.
+## He has to earn the whole bar to convert once, the bar rises with his level,
+## and `learn_rate` makes it rise faster as he ages — so the man who converts is
+## an old veteran filling a 32-point bar for a handful of credits, which is
+## exactly the trickle it should be.
+static func cashes_in(f: FighterCard) -> bool:
+	return at_ceiling(f) and f.xp >= next_level_at(f)
+
+
+## Take the bar and hand back the credits. Returns what it paid, or 0.
+static func cash_in(f: FighterCard) -> int:
+	if not cashes_in(f):
+		return 0
+	var paid := level_cost(f)
+	f.xp -= next_level_at(f)
+	f.level += 1
+	return paid
 
 
 ## AT HIS CEILING HE STOPS. Retro Bowl says it in a sentence —
@@ -566,7 +609,15 @@ static func drain_all(f: FighterCard) -> Array:
 ## which is the same `learn_rate` the bar itself reads, and it is a better idea
 ## than a flat ladder: 10 CC for a 26-year-old at level five, 20 for a
 ## thirty-eight-year-old at the same level.
-const LEVEL_COST_PER: int = 2
+## 3 RATHER THAN 2, which is three quarters of theirs rather than half.
+##
+## Theirs is `xp_level * 4`. Ours was halved because our credit economy is
+## smaller and their early-game drought is priced against a 99-cent button. Both
+## of those are still true and neither argues for half specifically — and the bar
+## is longer now, so a level is a rarer and larger thing than it was when the
+## price was set. A rarer purchase that stayed cheap would be the one thing on
+## the meeting card nobody has to think about.
+const LEVEL_COST_PER: int = 3
 
 
 static func level_cost(f: FighterCard) -> int:
@@ -682,6 +733,31 @@ static func _raise_one(f: FighterCard, fell: Dictionary, report: Dictionary) -> 
 
 ## What a bout was worth to one man. Read straight off the numbers the report
 ## already shows him.
-static func xp_for(downs_caused: int, rounds_standing: int) -> int:
-	return XP_BOUT + XP_PER_DOWN * downs_caused \
+## AND IT SCALES WITH THE MAN, which is the half of Retro Bowl's model we did
+## not have. Pete, 15 Sep 2026, on levelling: *"Let's lean more toward theirs."*
+##
+## `s_has_xp_gain` works against a bar of `xp_level * 100` — linear in the level,
+## forever — and it works because **their XP income grows with production**: a
+## five-star quarterback throws for four thousand yards where a one-star throws
+## for twelve hundred, so a better player fills a longer bar in the same season.
+##
+## Ours read `2 + 3 a down + 1 a round standing` and nothing else. A better
+## fighter does cause more downs, so it was never entirely flat — but not nearly
+## enough to carry a bar that rises with the level, which is exactly why
+## `probe_levels` measured an uncapped bar walling a career at **+3 overall** and
+## why `LEVEL_BAR_CAP` exists.
+##
+## `rating` closes that gap directly: a 65-rated man earns a third again what a
+## 50-rated one does for the same afternoon, so the bar can go on rising longer
+## before the cap has to catch it. Modest on purpose — this is the term that
+## makes the rich richer, and a steep one would turn a career into a runaway.
+const XP_RATING_BASE: float = 50.0
+const XP_RATING_PULL: float = 0.60
+
+
+static func xp_for(downs_caused: int, rounds_standing: int,
+		rating: int = int(XP_RATING_BASE)) -> int:
+	var raw := XP_BOUT + XP_PER_DOWN * downs_caused \
 		+ XP_PER_ROUND_STANDING * rounds_standing
+	var scale := 1.0 + (float(rating) / XP_RATING_BASE - 1.0) * XP_RATING_PULL
+	return maxi(1, int(round(float(raw) * clampf(scale, 0.5, 2.0))))

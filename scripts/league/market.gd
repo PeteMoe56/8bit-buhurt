@@ -85,8 +85,27 @@ static func pool(world_seed: int, season: int, tier: int, refreshes: int = 0,
 	## do not collide into the same list.
 	rng.seed = hash("market:%d:%d:%d:%d" % [world_seed, season, tier, refreshes])
 	var out: Array = []
-	var range_: Array = League.TIERS[tier]["power"]
 	for i in SIZE + maxi(0, extra):
+		## ONE DIVISION EITHER SIDE, AND NO FURTHER.
+		##
+		## Pete, 15 Sep 2026: *"tier the free agents. Then there can be ranges for
+		## stats. A free agent won't bother being available if they aren't one
+		## league above or below the team's standing."*
+		##
+		## It used to draw every man from the club's own band, widened six points
+		## down and two up — one range, and the same range whoever you were. Two
+		## things were wrong with that. A club had no reason to look forward to
+		## the next division, because the list it would find there was the list it
+		## already had; and there was no such thing as a stretch signing, because
+		## nobody better than your own band ever appeared.
+		##
+		## **A market that offers you your own standard is a market with nothing
+		## to want in it.** So the list spans the division below, your own, and the
+		## one above, weighted to your own — and the man from the league above is
+		## the one you save for.
+		var step := _band_step(rng)
+		var t := clampi(tier + step, 0, League.TIERS.size() - 1)
+		var range_: Array = League.TIERS[t]["power"]
 		var at: float = rng.randf()
 		var target := int(lerpf(float(range_[0]) - 6.0, float(range_[1]) + 2.0, at))
 		var slot: int = rng.randi() % 5
@@ -96,6 +115,23 @@ static func pool(world_seed: int, season: int, tier: int, refreshes: int = 0,
 	## once and then distrust.
 	out.sort_custom(func(a, b): return a.overall() > b.overall())
 	return out
+
+
+## WHICH OF THE THREE DIVISIONS THIS MAN CAME FROM. Half your own, a third from
+## below, a sixth from above — so most of the list is men you can carry, there is
+## always somebody who would be a bargain, and roughly one man in six is a reach.
+##
+## THE ODDS ARE NOT SYMMETRIC AND THAT IS THE POINT. A man a division above you
+## is a signing that changes a season; a man a division below is depth. If they
+## were equally likely the list would be half bargains and the reach would stop
+## being a reach.
+static func _band_step(rng: RandomNumberGenerator) -> int:
+	var r := rng.randf()
+	if r < 0.33:
+		return -1
+	if r < 0.83:
+		return 0
+	return 1
 
 
 ## Has this man already been signed out of this summer's pool? Matched on name

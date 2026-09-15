@@ -85,6 +85,17 @@ static func span(margin: float = 24.0) -> float:
 	return screen().x - margin * 2.0
 
 
+## A CROWD, IN WORDS A PERSON USES. 40, 1.2k, 80k — because "80000" in a
+## sentence is a number a reader has to count the digits of, and the crowd is now
+## the most-printed figure in the game.
+static func crowd_word(heads: int) -> String:
+	if heads < 1000:
+		return str(heads)
+	if heads < 100000:
+		return "%.1fk" % (float(heads) / 1000.0)
+	return "%dk" % int(round(float(heads) / 1000.0))
+
+
 static func bottom(margin: float = 24.0) -> float:
 	return screen().y - margin
 

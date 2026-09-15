@@ -35,31 +35,107 @@ extends RefCounted
 const LEVELS := [
 	{
 		"name": "Back field", "tier": 0, "cost": 0, "capacity": 40,
+		"sells": "Lemonade and a bake sale", "take": 1.00,
 		"blurb": "A rope, a rail and somebody's truck. It is a place to fight and that is all it is.",
 	},
 	{
 		"name": "Club gym", "tier": 0, "cost": 6, "capacity": 120,
+		"sells": "Tea urn, brownies, a biscuit tin", "take": 1.05,
 		"blurb": "Mats, a roof and a kettle. Forty people can watch without standing in mud.",
 	},
 	{
 		"name": "Fenced ground", "tier": 1, "cost": 12, "capacity": 400,
+		"sells": "A burger van and a coffee cart", "take": 1.10,
 		"blurb": "A proper list, hoarding all the way round and a gate you can take money on.",
 	},
 	{
 		"name": "Sports hall", "tier": 1, "cost": 22, "capacity": 1200,
+		"sells": "Hot food, and a bar with a licence", "take": 1.15,
 		"blurb": "Seated, lit and warm. Clubs will travel to fight here.",
 	},
 	{
 		"name": "Arena", "tier": 2, "cost": 38, "capacity": 12000,
+		"sells": "Concession stands and beer on tap", "take": 1.20,
 		"blurb": "Tiered stands, a marshal's box and a screen. This is where a season gets decided.",
 	},
 	{
 		"name": "National Arena", "tier": 3, "cost": 60, "capacity": 80000,
+		"sells": "Concourse bars and four franchises", "take": 1.25,
 		"blurb": "The federation brings the National Championship here. The whole ambition, built.",
 	},
 ]
 
+## ------------------------------------------------------------ the counter
+## WHAT THE GROUND SELLS, AND IT COMES WITH THE GROUND.
+##
+## Pete, 15 Sep 2026: *"Stadium damper could be food sales. Lemonade, bakery,
+## brownies for back yard, progressing to real NFL beer sales and stuff at higher
+## tiers (yes, we can add beer)."* Asked whether it should be bought separately
+## or arrive with the level: **comes with the ground.**
+##
+## THAT IS THE RIGHT ANSWER AND IT IS WHY THIS IS TWO FIELDS RATHER THAN A
+## SYSTEM. A second ladder beside the arena would be a second set of prices, a
+## second upkeep bill, a second screen and a second thing to explain — for a
+## decision that is always "yes, buy the food". The ground already IS the
+## decision; this is what the ground is for.
+##
+## WHAT IT IS ACTUALLY DOING IS DAMPING THE SWING, which is Retro Bowl's stadium
+## in our nouns. Theirs *"determines the amount of fan support you receive after
+## each win, and lose after each loss"* — you spend the currency the meter
+## produces to make the meter less volatile. Ours pays **per head, whatever the
+## result**: a club that loses in front of a full house still sold them all a
+## pint. The gate reads the band and swings with form; the counter reads the
+## turnstile and does not.
+##
+## AND IT GROWS LIKE THE LOG OF THE CROWD, NOT LIKE THE CROWD.
+##
+## The first cut was credits-per-head, flat: three hundredths at a back field and
+## a tenth at a National Arena. Eighty thousand people at a tenth of a credit is
+## **8,400 CC a home meet** against a division that earns ninety-seven a season —
+## the exact bug the ground retainer shipped with and this file already carries a
+## page about. **A line that grows as fast as the crowd is the crowd, paid
+## twice.**
+##
+## So `counter_take` is `K x heads^POW`, the same shape as the retainer, times a
+## small multiplier for what the level is allowed to SELL. Both halves earn their
+## place: more people come to a bigger ground, and a bar with a licence takes
+## more off each of them than a biscuit tin does.
+##
+## Packed, that is 1 / 1 / 3 / 4 / 10 / 20 CC a home meet up the ladder —
+## concessions are nothing at a rope and a rail and they are most of a matchday
+## at a National Arena, exactly as they are in the sport.
+## TUNED TWICE, BOTH TIMES OFF `tools/probe_run.gd` AND `probe_afford.gd`.
+##
+## At 0.42 a whole career's bar takings came to **2.0 credits a season** — a line
+## on the finances page that was not worth the line. Raised, the exponent then
+## had to come DOWN: at 0.28 a packed National Arena took 22 a meet, and across
+## five home dates that was 110 credits a season, the single biggest line in the
+## game and a bigger one than the gate it is supposed to steady.
+##
+## Packed, the ladder now runs **2 / 2 / 3 / 4 / 7 / 11** a home meet — a five-
+## fold spread top to bottom rather than elevenfold, which is the right shape for
+## a second income: the counter is meant to be the half that does not swing, not
+## the half that decides the career.
+const COUNTER_POW: float = 0.20
+const COUNTER_K: float = 1.00
 const MAX_LEVEL: int = 5
+
+
+## WHAT THE COUNTER TOOK, given how many came through the door.
+##
+## HOME ONLY, and the caller enforces it: it is your bar or it is not. A club on
+## the road takes a share of the gate — see `Venue.gate_share` — and none of the
+## catering, which is the true and the simple rule.
+static func counter_take(level: int, heads: int) -> int:
+	if heads <= 0:
+		return 0
+	var lv: Dictionary = LEVELS[clampi(level, 0, MAX_LEVEL)]
+	return int(floor(COUNTER_K * pow(float(heads), COUNTER_POW)
+		* float(lv["take"])))
+
+
+static func sells(level: int) -> String:
+	return String(LEVELS[clampi(level, 0, MAX_LEVEL)]["sells"])
 
 var level: int = 0
 

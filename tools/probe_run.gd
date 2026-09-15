@@ -48,6 +48,10 @@ const SEEDS: Array[int] = [4242, 90210, 31337, 777, 24601]
 ## and this is the line above which they are worth having: enough left over that
 ## the club is not about to want it for a ground, a cap raise or a signing.
 const LEVEL_FLOAT := 25
+## WHAT A MANAGER KEEPS BACK FOR THE MARKET. A Backyard signing is 11 to 18
+## credits and the market is the only road up the pyramid, so this is the last
+## money the policy spends rather than the first.
+const KITTY := 20
 ## HOW MANY MEN THE POLICY KEEPS ON THE BOOKS. Thirteen is what the game hands
 ## you at the start — eight who travel and five in reserve — so it is the squad
 ## the rest of the design is written against.
@@ -225,15 +229,27 @@ func _week(s: Season) -> void:
 	## **This is also the finding, not just the fixture.** A player has no way to
 	## know any of that: the level-up screen shows an XP bar and a price, which
 	## reads like the upgrade it is not.
+	## THE GROUND FIRST AND THE FACILITIES LAST, WITH A TRANSFER KITTY HELD BACK.
+	##
+	## The order was right and the reserve was not. `probe_run` measured a career
+	## spending **8.3 credits a season on facilities and 0.2 on the squad** — the
+	## manager was buying training grounds every week, so by the time the winter
+	## came round there was never a signing's worth in the bank, and a signing is
+	## worth three to six club power against a facility's nothing-you-can-measure.
+	##
+	## A player does not do that. He keeps a float for the market, because the
+	## market is where a squad comes from. `KITTY` is roughly one Backyard signing
+	## and it is held back from everything except the ground — the ground is the
+	## one purchase that pays for itself.
 	var float_ := _reserve(s)
 	if o.credits > float_ + o.arena.next_cost():
 		o.build_arena()
-	if o.credits > float_ + o.cap_cost():
+	if o.credits > float_ + KITTY + o.cap_cost():
 		o.raise_cap()
-	if o.credits > float_ + o.travel_cost():
+	if o.credits > float_ + KITTY + o.travel_cost():
 		o.buy_travel_slot()
 	for fac in [ClubOffice.Facility.TRAINING, ClubOffice.Facility.INFIRMARY]:
-		if o.credits > float_ + o.facility_cost(fac):
+		if o.credits > float_ + KITTY + o.facility_cost(fac):
 			o.upgrade(fac)
 
 	## AND THE LEVELS LAST, out of what a season did not need. The throttle is per
@@ -280,10 +296,24 @@ func _season(s: Season) -> void:
 						s.decline_bid()
 				"dilemma":
 					s.answer_dilemma(0)
+				"promotion":
+					## TAKE IT WHEN THE CLUB CAN CARRY THE BIGGER BILL, stay down
+					## when it cannot. Pete, 15 Sep 2026: *"A player may bust
+					## through the season but want to stay a season and continue
+					## building up their money."*
+					##
+					## The rule is the obvious one and it is the whole point of
+					## the feature being a choice: go up if the club can pay the
+					## new division's entry fee and still have something left.
+					var t: Dictionary = s.promotion_terms()
+					s.answer_promotion(s.office.credits
+						>= int(t["dues_up"]) + _reserve(s))
 				"cup":
 					s.sim_cup_tie()
-		if s.season_complete():
+		if s.season_complete() and s.blocked_by() == "":
 			break
+		if s.season_complete():
+			continue
 		_week(s)
 		s.skip_event()
 

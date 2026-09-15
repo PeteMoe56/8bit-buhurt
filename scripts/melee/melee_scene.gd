@@ -785,7 +785,7 @@ func _draw_report_table() -> void:
 		_cell("%d" % int(m.rounds_standing), "up", y, 11, COL_INK)
 		_cell("%d" % int(m.times_downed), "off", y, 11,
 			COL_HOT if m.times_downed >= 2 else COL_DIM)
-		var got := Career.xp_for(m.downs_caused, m.rounds_standing)
+		var got := Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall())
 		_cell("+%d" % got, "xp", y, 10, COL_GOOD)
 		_cell("%d" % m.card.level, "lv", y, 11,
 			UiKit.YOU if Career.can_place(m.card) else COL_INK)

@@ -189,61 +189,75 @@ func _test_the_two_masters_pull_apart() -> void:
 	## The first version had members leaving when the club was non-compliant,
 	## which made both masters want the same thing and collapsed the pillar into
 	## one slider called "be good". This check is what would have caught that:
-	## compliance must be **invisible** to the members.
+	## compliance must be **invisible** to the people who turn up.
+	##
+	## THE MEMBERSHIP ROLL IS GONE AND THE PILLAR IS NOT. `members` was the third
+	## of three populations (Pete, 15 Sep 2026: *"there should be one"*), and the
+	## signals it answered to were always the right ones — a season in the top
+	## half, a room worth being in, a bus you can fill. They move `fans` now, via
+	## `Federation.following_after`, and every question below is the same question.
 	var bad: Array[String] = []
+	var cap := 1000.0
 
-	var paid := Federation.members_after(20.0, true, 0.70, true)
-	var unpaid := Federation.members_after(20.0, true, 0.70, true)
+	var paid := Federation.following_after(400.0, cap, true, 0.70, true)
+	var unpaid := Federation.following_after(400.0, cap, true, 0.70, true)
 	if not is_equal_approx(paid, unpaid):
-		bad.append("the members are watching the paperwork")
+		bad.append("the following is watching the paperwork")
 
 	## What they DO watch, each on its own, measured against a club identical but
 	## for the one thing — so the check cannot pass on "everything moves it".
-	var base := Federation.members_after(20.0, true, 0.70, true)
-	var losing := Federation.members_after(20.0, false, 0.70, true)
-	var miserable := Federation.members_after(20.0, true, 0.20, true)
-	var thin := Federation.members_after(20.0, true, 0.70, false)
+	var base := Federation.following_after(400.0, cap, true, 0.70, true)
+	var losing := Federation.following_after(400.0, cap, false, 0.70, true)
+	var miserable := Federation.following_after(400.0, cap, true, 0.20, true)
+	var thin := Federation.following_after(400.0, cap, true, 0.70, false)
 	if losing >= base:
-		bad.append("a losing season keeps as many members")
+		bad.append("a losing season keeps as many people")
 	if miserable >= base:
-		bad.append("a miserable room keeps as many members")
+		bad.append("a miserable room keeps as many people")
 	if thin >= base:
-		bad.append("turning up short-handed keeps as many members")
+		bad.append("turning up short-handed keeps as many people")
 
-	## They cannot be driven to nothing and cannot grow forever — the same
-	## logistic the morale and the following already use.
-	var floor_ := 20.0
+	## They cannot grow past the ground — the same logistic the morale and the
+	## week-to-week following already use.
+	var floor_ := 400.0
 	for _i in 60:
-		floor_ = Federation.members_after(floor_, false, 0.05, false)
-	var ceil_ := 20.0
+		floor_ = Federation.following_after(floor_, cap, false, 0.05, false)
+	var ceil_ := 400.0
 	for _i in 60:
-		ceil_ = Federation.members_after(ceil_, true, 0.95, true)
-	if floor_ <= 0.0:
-		bad.append("a club can be driven to zero members")
-	if ceil_ > Federation.MEMBERS_MAX:
-		bad.append("members grew past the ceiling")
+		ceil_ = Federation.following_after(ceil_, cap, true, 0.95, true)
+	if floor_ < 0.0:
+		bad.append("a club can be driven below nothing")
+	if ceil_ > cap + 0.001:
+		bad.append("the following grew past the ground")
 
-	## AND THE TENSION IS REAL MONEY. The dues have to be worth something against
-	## the bill, or "two masters" is one master and a decoration.
+	## AND THE TENSION IS REAL MONEY — except the money now runs the other way.
+	##
+	## It used to be *"the dues have to be worth something against the bill"*: a
+	## membership subscription paid the club and the federation took a slice. Both
+	## halves are bills now. `League.dues_for(tier)` is the entry fee and
+	## `federation_upkeep()` is the paperwork, and the pillar holds if a club has
+	## to CHOOSE between them — which it does when the two together are a real
+	## share of what the division earns.
 	var o := ClubOffice.new()
 	o.tier = League.Tier.REGIONAL
-	o.members = 24.0
 	for r in Federation.rules():
 		o.compliance[r] = Federation.required(League.Tier.REGIONAL, r)
-	var dues := o.dues()
+	var entry := o.dues()
 	var bill := o.federation_upkeep()
 	if bill <= 0:
 		bad.append("holding the paperwork costs nothing")
-	if dues < bill:
-		bad.append("a healthy membership cannot cover the bill at all (%d vs %d)" % [dues, bill])
-	if dues > bill * 6:
-		bad.append("the dues dwarf the bill, so there is no decision")
+	if entry <= 0:
+		bad.append("entering a division costs nothing")
+	## Neither may be so much bigger than the other that the smaller one stops
+	## being a decision.
+	if entry > bill * 8 or bill > entry * 8:
+		bad.append("one bill dwarfs the other (%d entry vs %d paperwork)" % [entry, bill])
 
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))
-	notes.append("members settle at %.1f under everything going wrong and %.1f under everything right"
-		% [floor_, ceil_])
-	notes.append("a Regional club of 24 members banks %d CC of dues against a %d CC paperwork bill"
-		% [dues, bill])
+	notes.append("the following settles at %.0f under everything going wrong and %.0f under everything right, of a %.0f ground"
+		% [floor_, ceil_, cap])
+	notes.append("the Regional League costs %d to enter and %d to stay legal"
+		% [entry, bill])
 	_ok(bad.is_empty(), "the two masters pull apart",
-		"the members never once look at the paperwork, and the dues that fund the club are the money the federation is asking for")
+		"the following never once looks at the paperwork, and the entry fee and the paperwork are two bills competing for one purse")

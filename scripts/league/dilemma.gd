@@ -16,8 +16,7 @@ extends RefCounted
 ##
 ##   CC        the only money there is
 ##   morale    which decides who waits for you and who retires early
-##   notoriety which fills the seats
-##   fans      the following itself
+##   the room  the following — who turns up, which is the whole gate
 ##   a man     his harness, his fitness, his deal, his ceiling
 ##
 ## Trading credits for morale is a decision. Trading credits for credits is not.
@@ -37,11 +36,75 @@ extends RefCounted
 enum Who { ANYONE, OLDEST, YOUNGEST, WORST_KIT, A_RESERVE, BEST }
 
 
+## ------------------------------------------------------ who gets offered what
+## YOUR NAME DECIDES WHAT PEOPLE BRING YOU.
+##
+## Pete, 15 Sep 2026, on where notoriety should go: *"Delete it and make Coaches
+## reputation a driving factor on what appears for the conflicts or choices.
+## Better reputations mean better choices, but bad reputations can also mean more
+## choices that have chances for cheating or subversion."*
+##
+## THIS IS A BETTER HOME FOR IT THAN THE WALLET EVER WAS. A club's fame banded
+## the gate, which made it a second income multiplier sitting beside the ground;
+## a COACH's name decides who knocks on his door, which is a thing reputations
+## actually do and a thing no other system in this game was modelling.
+##
+## Three kinds of card, and the middle one is most of the deck:
+##
+##   CLEAN   the offers a well-regarded man gets. A federation course, a
+##           sponsor who wants to be associated with you, a good young fighter
+##           who would rather be here.
+##   ANY     the ordinary business of a club. Always in the deck.
+##   SHADY   what turns up when nobody is watching your name. A cheap harness
+##           of uncertain provenance, a marshal who can be spoken to, a man who
+##           will fight under another name.
+##
+## THE SHADY CARDS ARE NOT PUNISHMENT. Several of them are the best deal on the
+## page — that is what makes a bad reputation a texture rather than a debuff, and
+## what makes climbing out of one a decision rather than an obligation.
+enum Tone { ANY, CLEAN, SHADY }
+
+## WHERE THE DOOR OPENS AND SHUTS, on `Coach.reputation`'s 1–20 scale. A coach
+## nobody has heard of is a 1 and sits in the shady half by default, which is
+## right: he has no name to protect and nobody is bringing him federation work.
+const CLEAN_FROM: int = 11
+const SHADY_UNDER: int = 9
+
+
+## WHICH CARDS THIS COACH IS OFFERED. Always the ordinary ones, plus whichever
+## end of the deck his name has opened.
+##
+## THE BANDS OVERLAP DELIBERATELY. Between 9 and 11 a coach gets both halves,
+## because a reputation crossing a line and the deck changing completely on the
+## same tick would read as a bug rather than as a consequence.
+static func deck_for(reputation: int) -> Array:
+	var out: Array = []
+	for c in CARDS:
+		var tone := int(c.get("tone", Tone.ANY))
+		if tone == Tone.ANY \
+				or (tone == Tone.CLEAN and reputation >= CLEAN_FROM) \
+				or (tone == Tone.SHADY and reputation < SHADY_UNDER):
+			out.append(c)
+	return out
+
+
+## HOW OFTEN A CARD COMES UP AT ALL. Default 10; the armorer's van and the two
+## cards like it are 3, which is Pete's *"have it kind of rare for sure"* — about
+## one appearance in four of an ordinary card's.
+##
+## A WEIGHT AND NOT A SEPARATE RARE DECK, because a rare deck is a second draw
+## with a second chance to be wrong, and the recent-cards memory already stops a
+## card repeating whatever its weight.
+static func weight_of(card: Dictionary) -> int:
+	return int(card.get("weight", 10))
+
+
 ## What an option does. Absent keys do nothing, so a card only writes what it
 ## changes and a reader can see the whole cost of an answer in one line.
 ##   cc         credits, + or -
 ##   morale     -1..1, added
-##   note       notoriety, added
+##   note       the room — how much more (or less) the club is talked about;
+##              read as a move on the following, since that is the one population
 ##   fans       a FRACTION of the current following, added
 ##   armor      to {man}, added (0-1)
 ##   kit        to every man on the books, added
@@ -50,6 +113,67 @@ enum Who { ANYONE, OLDEST, YOUNGEST, WORST_KIT, A_RESERVE, BEST }
 ##   potential  to {man}'s ceiling
 ##   years      to {man}'s deal
 const CARDS: Array[Dictionary] = [
+{
+	## ------------------------------------------------------ the armorer's van
+	## Pete, 15 Sep 2026: *"Have some of the decisions effect armor as well, seems
+	## like a good cheap add in where the player could decided to spend less to
+	## have an at event armorer sell them new gambesons or repair armor. Have it
+	## kind of rare for sure."*
+	##
+	## Three cards, all `weight: 3`, and they are the cheapest thing in this
+	## session: the deck already spends `armor` on one man and `kit` on the whole
+	## book, so a card that puts harness back is a data entry rather than a system.
+	##
+	## AND THEY ARE A REAL DECISION BECAUSE THE ARMORER IS A PRICE LIST. Every
+	## other road to a repaired harness — `repair_kit`, `buy_harness` — is one man,
+	## one week, at a fixed rate. The van is the whole squad at once, at a discount,
+	## once in a while, and the cheap option is cheap for a reason.
+	"id": "van",
+	"who": Who.WORST_KIT,
+	"weight": 3,
+	"title": "A van in the car park",
+	"text": "There is an armorer working out of a transit at the far end. He has gambesons in three sizes, a grinder, and a queue. He will do the whole club before the first bout if you want.",
+	"options": [
+		{"label": "New gambesons all round", "blurb": "Proper kit, properly fitted, and it is not cheap.",
+			"fx": {"cc": -6, "kit": 0.22}},
+		{"label": "Just patch the worst of it", "blurb": "{man} first, and whatever the hour is worth.",
+			"fx": {"cc": -2, "armor": 0.28}},
+		{"label": "Wave him off", "blurb": "Nobody has the money and everybody noticed.",
+			"fx": {"morale": -0.05, "kit": -0.02}},
+	],
+},
+{
+	"id": "surplus",
+	"who": Who.ANYONE,
+	"weight": 3,
+	"tone": Tone.SHADY,
+	"title": "A very good price",
+	"text": "Somebody knows somebody with a pallet of plate going cheap. It is good steel. Nobody will say which club it came off, and one of the helms still has a name inside it.",
+	"options": [
+		{"label": "Take the pallet", "blurb": "Every harness in the club, for the price of two.",
+			"fx": {"cc": -4, "kit": 0.30, "note": -2.0}},
+		{"label": "Take the plain pieces only", "blurb": "The ones with nothing written in them.",
+			"fx": {"cc": -3, "kit": 0.12}},
+		{"label": "Nothing doing", "blurb": "The room is quietly relieved and quietly poorer.",
+			"fx": {"morale": 0.04, "kit": -0.03}},
+	],
+},
+{
+	"id": "gambeson",
+	"who": Who.WORST_KIT,
+	"weight": 3,
+	"tone": Tone.CLEAN,
+	"title": "The federation's fitting day",
+	"text": "The federation is running a kit clinic before the meet — a proper fitter, a stack of new gambesons, and an inspector who will sign off anything that passes in front of him.",
+	"options": [
+		{"label": "Put the whole club through", "blurb": "A morning gone, and every harness legal.",
+			"fx": {"cc": -3, "kit": 0.18, "note": 1.0}},
+		{"label": "Send {man} on his own", "blurb": "He is the one who needs it.",
+			"fx": {"cc": -1, "armor": 0.34}},
+		{"label": "We have a meet to fight", "blurb": "Warm up instead. The kit will keep.",
+			"fx": {"xp": 8, "kit": -0.02}},
+	],
+},
 {
 	"id": "harness",
 	"who": Who.WORST_KIT,

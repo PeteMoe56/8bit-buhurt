@@ -234,28 +234,24 @@ static func demand(f: FighterCard) -> Dictionary:
 		"refuses": refuses(f), "why": refusal(f)}
 
 
-static func will_wait(f: FighterCard, notoriety: float, band_top: int,
+static func will_wait(f: FighterCard, pull_: float, band_top: int,
 		morale: float = 0.7) -> float:
 	var quality := clampf(float(f.overall()) / float(maxi(1, band_top)), 0.0, 1.4)
-	## PULLING POWER, AND IT IS A CURVE RATHER THAN A RAMP.
+	## PULLING POWER IS THE SIZE OF THE HOUSE NOW, and it arrives already curved.
 	##
-	## This was `notoriety / NOTORIETY_MAX`, straight. The constant below promises
-	## up to +0.30 — the reason a good man stays at a club people want to play for
-	## — and a designer reading it sees a thirty-point lever. A new club does not:
-	## it starts at notoriety 1 of 125 and spends its first ten seasons climbing
-	## to maybe 10, which on a straight line collects **seven per cent** of that
-	## thirty points. The lever is off exactly where it is needed, which is the
-	## same fault the ground retainer had and is now checked for by name in
-	## `test_office.gd` — *"nothing a new club owns is pinned at zero"*.
+	## It was `sqrt(notoriety / 125)`, and the square root was there for a good
+	## reason recorded at length: a straight line collected **seven per cent** of
+	## a thirty-point lever for a new club, because a club climbing from 1 to 10
+	## on a 125 scale is climbing the part of the scale where reputations are
+	## actually made and being paid a tenth for it.
 	##
-	## A reputation curve should be steep where reputations are actually made. The
-	## game already says where that is: `CROWD_GATES` puts its first band at 10 of
-	## 125, so going from nobody to talked-about is the first tenth of the scale
-	## and ought to be worth a great deal more than a tenth of the effect. A
-	## square root does that with no table and no new constant — a fifth of the
-	## whole swing lands in that first tenth — and it still reaches exactly +0.30
-	## at the top, so nothing about a famous club changes.
-	var pull := sqrt(clampf(notoriety / ClubOffice.NOTORIETY_MAX, 0.0, 1.0))
+	## `ClubOffice.pull()` is the crowd band as a fraction — 0 for a club nobody
+	## comes to and 1 for a full National Arena — and the bands are already spaced
+	## like the log of the crowd (25 / 90 / 300 / 1,000 / 6,000 heads). So the
+	## curve the square root was providing is in the quantity itself, and applying
+	## another one on top would compress it twice. **A curve applied to an
+	## already-curved number is a curve nobody can reason about.**
+	var pull := clampf(pull_, 0.0, 1.0)
 	## Centerd on 0.7, which is where a club starts, so a club that never thinks
 	## about morale is neither rewarded nor punished for it.
 	var mood := clampf(morale, 0.0, 1.0) - 0.7

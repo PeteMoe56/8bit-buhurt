@@ -63,7 +63,7 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 
 func _test_every_option_costs_something() -> void:
 	## THE RULE, swept over the whole deck. An option is free when nothing it does
-	## points the wrong way — no credits out, no morale down, no notoriety lost, no
+	## points the wrong way — no credits out, no morale down, no following lost, no
 	## man hurt, no deal shortened, no raise given.
 	##
 	## `injury` and `wage` count as costs whichever way they point: a man out is a
@@ -251,9 +251,18 @@ func _test_morale_cannot_be_pinned() -> void:
 func _test_a_card_cannot_break_a_clamp() -> void:
 	## Every effect goes through the office's own functions rather than writing
 	## its fields, so a card is the one thing in the game that could push
-	## notoriety past 125 or a balance below nothing — and cannot.
+	## the following past the ground's ceiling or a morale above one — and cannot.
+	##
+	## THE BALANCE IS NO LONGER ON THE LIST. A club may go negative now: the
+	## federation's entry fee is charged whether or not the club can cover it
+	## (Pete, 15 Sep 2026: *"one in which you CAN go negative but it's a good
+	## bite"*), so `credits < 0` is a legal state and a check that forbade it
+	## would be asserting the opposite of the design. What a CARD may do is
+	## unchanged — every option still checks before it spends — so the deck is
+	## still held to the old rule and the federation is not.
 	var s := Season.new(MeleeRosters.starting_club(), 777)
-	s.office.notoriety = ClubOffice.NOTORIETY_MAX
+	s.office.fans = 1e9
+	s.office._clamp_fans()
 	s.office.credits = 1
 	s.office.morale = 0.99
 	var pushed := 0
@@ -263,12 +272,12 @@ func _test_a_card_cannot_break_a_clamp() -> void:
 			s.dilemma = {"id": String(card["id"]), "man": 0, "rival": "X"}
 			s.answer_dilemma(i)
 			pushed += 1
-			if s.office.notoriety > ClubOffice.NOTORIETY_MAX or s.office.notoriety < 1.0 \
-					or s.office.credits < 0 or s.office.morale > 1.0 or s.office.morale < 0.0 \
+			if s.office.credits < 0 or s.office.morale > 1.0 \
+					or s.office.morale < 0.0 or s.office.fans < 0.0 \
 					or s.office.fans > s.office.fan_cap() + 0.001:
 				broke = true
-	notes.append("played all %d options against a maxed club: notoriety %.1f, %d CC, morale %.2f, %d fans of a %d cap"
-		% [pushed, s.office.notoriety, s.office.credits, s.office.morale,
+	notes.append("played all %d options against a maxed club: %d CC, morale %.2f, %d following of a %d ceiling"
+		% [pushed, s.office.credits, s.office.morale,
 			int(s.office.fans), int(s.office.fan_cap())])
 	_ok(not broke and pushed > 30,
 		"a card cannot break a clamp",

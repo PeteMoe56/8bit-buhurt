@@ -323,16 +323,19 @@ func _test_the_club_traits_move_their_number() -> void:
 
 	## DRAW pulls people through the gate, and only while he is on the eight.
 	var o := ClubOffice.new()
-	o.notoriety = 40.0
-	var without := o.turnout()
+	## THE DRAW IS THE ONLY THING LEFT THAT PULLS PEOPLE WHO DO NOT ALREADY FOLLOW
+	## YOU. `turnout()` was `notoriety / 125` plus the trait; with one population
+	## the division has nothing to divide, so what survives is exactly the trait —
+	## `draw_scale()`, 1.0 for everybody else.
+	var without := o.draw_scale()
 	var d := _man(T.DRAW).card
 	o.set_draws([d])
-	var with_him := o.turnout()
+	var with_him := o.draw_scale()
 	_moved("a draw sells tickets", T.DRAW, "turnout", with_him, without, true)
 	o.set_draws([])
-	_ok(is_equal_approx(o.turnout(), without),
+	_ok(is_equal_approx(o.draw_scale(), without),
 		"and stops selling them the week he does not travel",
-		"back to %.3f" % o.turnout())
+		"back to %.3f" % o.draw_scale())
 
 	## LOYAL does not walk, however sour he is.
 	var loyal := _man(T.LOYAL).card
@@ -510,13 +513,13 @@ func _test_a_sour_man_will_not_re_sign_at_any_price() -> void:
 	## THE FLOOR BEATS EVERYTHING ABOVE IT. A tiny club with a huge following and
 	## a modest fighter is the best case the old maths could build, and it still
 	## does not matter.
-	_ok(is_equal_approx(Contracts.will_wait(sour, ClubOffice.NOTORIETY_MAX, 99,
+	_ok(is_equal_approx(Contracts.will_wait(sour, 1.0, 99,
 			0.99), 0.0),
 		"no amount of club pull buys him back",
 		"will_wait is 0.00 with the following maxed")
-	_ok(Contracts.will_wait(happy, ClubOffice.NOTORIETY_MAX, 99, 0.9) > 0.0,
+	_ok(Contracts.will_wait(happy, 1.0, 99, 0.9) > 0.0,
 		"while the man who is happy is still a live conversation",
-		"%.2f" % Contracts.will_wait(happy, ClubOffice.NOTORIETY_MAX, 99, 0.9))
+		"%.2f" % Contracts.will_wait(happy, 1.0, 99, 0.9))
 
 
 ## A LEVEL IS SPENT WHERE THE PLAYER PUTS IT, and refused where it cannot go.

@@ -161,8 +161,10 @@ func _draw() -> void:
 	UiKit.text(self, font, "%s  ·  %s  ·  %s fans  ·  %d CC" % [
 		office.note_word(), _capacity_word(), _fans_word(), office.credits],
 		Vector2(24, 64), 14, UiKit.DIM)
-	## The two numbers that fill the seats, said plainly. Notoriety is a turnout
-	## percentage wearing a different hat, so it is shown as both.
+	## THE ONE NUMBER, said two ways: how many came, and what share of the room
+	## that was. It used to be notoriety and a turnout percentage derived from it
+	## — the same quantity printed twice, which is what having three populations
+	## did to every screen that tried to describe the crowd.
 	## IN A 420 BOX AND NOT A 320 ONE. `UiKit.right` passes its width to
 	## `draw_string` as an ALIGNMENT width, which does not clip: at 320 this
 	## sentence started at 520 and finished at 977 on a 960 canvas, so "1 CC a
@@ -170,9 +172,9 @@ func _draw() -> void:
 	## fell off. The left of this row ends around 370, so the box can have the
 	## room, and `fit_px` records the cut if it ever needs one anyway.
 	UiKit.right(self, font, UiKit.fit_px(font,
-		"notoriety %d of %d  ·  %d%% turn out  ·  %d CC a fight" % [
-			int(round(office.notoriety)), int(ClubOffice.NOTORIETY_MAX),
-			int(round(office.turnout() * 100.0)), office.crowd_pay()], 13, 420.0),
+		"%s in  ·  %d%% full  ·  %d CC a home fight" % [
+			UiKit.crowd_word(office.attendance()),
+			int(round(office.fill() * 100.0)), office.crowd_pay()], 13, 420.0),
 		Vector2(UiKit.right_edge(120.0), 64), 13, UiKit.DIM, 420.0)
 	## THE METER, because a band you cannot see coming is a band you cannot chase.
 	## Retro Bowl's whole fan bar is this: the player watches it fill and knows a

@@ -30,7 +30,7 @@ func _initialize() -> void:
 	_test_the_ladder_costs_credits()
 	_test_a_demo_cannot_lose()
 	_test_a_tournament_can_lose()
-	_test_fans_and_notoriety_both_matter()
+	_test_the_ground_and_the_following_both_cap_the_house()
 	_test_the_climb_feeds_the_following()
 	_test_the_bid_is_a_start_of_year_decision()
 	_test_you_can_pass_on_the_year()
@@ -120,12 +120,13 @@ func _test_a_tournament_can_lose() -> void:
 	var wins := 0
 	var line := ""
 	var cap := int(Arena.LEVELS[4]["capacity"])
-	for note in [10.0, 40.0, 80.0, 120.0]:
-		line += "\n     notoriety %3d: " % int(note)
+	## THE AXIS IS THE FOLLOWING NOW, not notoriety — there is one crowd number
+	## and this sweeps it from a club nobody comes to up to one that sells the
+	## place out. Same question, same shape, one population.
+	for share in [0.05, 0.25, 0.60, 1.10]:
+		line += "\n     following %4d: " % int(float(cap) * share)
 		for b in ClubEvent.BUDGETS.size():
-			## A following sized to the ground, so the sweep is about notoriety
-			## and budget rather than about which arena is in front of it.
-			var p := ClubEvent.preview(cap, float(cap) * 1.1, note, b,
+			var p := ClubEvent.preview(cap, float(cap) * share, b,
 				ClubEvent.bid_cost(2))
 			line += "%s %+d  " % [String(ClubEvent.BUDGETS[b]["name"]), int(p["net"])]
 			if int(p["net"]) < 0:
@@ -134,14 +135,14 @@ func _test_a_tournament_can_lose() -> void:
 				evens += 1
 			else:
 				wins += 1
-	notes.append("tournament net by notoriety and budget:" + line)
+	notes.append("tournament net by following and budget:" + line)
 	_ok(losses > 0 and wins > 0,
 		"a tournament can lose",
 		"%d losing, %d level, %d winning combinations across the sweep" % [losses, evens, wins])
 	## And the worst case is a bruise, not a wipe-out — "lose a little money".
 	var worst := 0
 	for b in ClubEvent.BUDGETS.size():
-		var p := ClubEvent.preview(int(Arena.LEVELS[0]["capacity"]), 0.0, 1.0, b,
+		var p := ClubEvent.preview(int(Arena.LEVELS[0]["capacity"]), 0.0, b,
 			ClubEvent.bid_cost(3))
 		worst = mini(worst, int(p["net"]))
 	var dearest: int = int(ClubEvent.BUDGETS[ClubEvent.BUDGETS.size() - 1]["cost"]) \
@@ -152,33 +153,34 @@ func _test_a_tournament_can_lose() -> void:
 			worst, dearest])
 
 
-func _test_fans_and_notoriety_both_matter() -> void:
-	## Pete, 10 Sep 2026: *"Each arena runs off the amount of fans you have and
-	## notoriety… 1 notoriety means no one comes. 125 Notoriety means sold out and
-	## people are trying to sneak in."*
+func _test_the_ground_and_the_following_both_cap_the_house() -> void:
+	## THIS CHECK USED TO BE `fans and notoriety both matter` and it was about two
+	## populations. There is one now — Pete, 15 Sep 2026: *"I don't like our 3
+	## factors, there should be one"* — so the question it asks has changed and the
+	## reason it exists has not.
 	##
-	## Two numbers doing two jobs, and NEITHER IS ANY USE ALONE. If a big ground
-	## filled itself the whole feature would be "buy the biggest one"; if
-	## notoriety filled it, the following you spend years building would be
-	## decoration.
-	var cap := int(Arena.LEVELS[5]["capacity"])
-	var nobody := ClubEvent.attendance(cap, float(cap) * 1.25, 1.0)
-	var sold_out := ClubEvent.attendance(cap, float(cap) * 1.25, 125.0)
-	var famous_no_following := ClubEvent.attendance(cap, 40.0, 125.0)
-	_ok(nobody <= cap / 100 and sold_out == cap and famous_no_following <= 40,
-		"fans and notoriety both matter",
-		"at notoriety 1 a full-following club draws %d of %d; at 125 it draws %d; a club everybody knows with 40 fans draws %d"
-			% [nobody, cap, sold_out, famous_no_following])
+	## A house is capped twice, by the SEATS and by the PEOPLE, and neither cap
+	## alone is the whole system. If the ground filled itself the feature would be
+	## "buy the biggest one"; if the following filled any ground, the arena ladder
+	## would be decoration.
+	var big := int(Arena.LEVELS[5]["capacity"])
+	var small := int(Arena.LEVELS[0]["capacity"])
+	var packed := ClubEvent.attendance(big, float(big) * 1.25)
+	var no_following := ClubEvent.attendance(big, 40.0)
+	var no_ground := ClubEvent.attendance(small, float(big) * 1.25)
+	_ok(packed == big and no_following <= 40 and no_ground == small,
+		"the ground and the following both cap the house",
+		"a full following in a National Arena draws %d of %d; forty people in the same room draw %d; the same following at a back field draws %d of %d"
+			% [packed, big, no_following, no_ground, small])
 
 	## THE 25% RULE. Pete: *"each level can have 25% over their max upgraded
 	## arena… 25% of fans usually never come to events."* So a club at the fan
-	## ceiling with maximum notoriety sells out AND turns a quarter away, which
-	## is the top of the whole system and has to be reachable.
+	## ceiling sells out AND turns a quarter away, which is the top of the whole
+	## system and has to be reachable.
 	var o := ClubOffice.new()
 	o.arena.level = Arena.MAX_LEVEL
 	o.fans = 1e9
 	o._clamp_fans()
-	o.notoriety = ClubOffice.NOTORIETY_MAX
 	var turned_away := int(o.fans) - o.attendance()
 	_ok(is_equal_approx(o.fan_cap(), float(o.arena.capacity()) * 1.25)
 			and o.attendance() == o.arena.capacity() and turned_away > 0,
@@ -186,34 +188,83 @@ func _test_fans_and_notoriety_both_matter() -> void:
 		"%d fans, %d seats, %d left outside" % [
 			int(o.fans), o.attendance(), turned_away])
 
+	## AND THE BAND READS THE HOUSE. The gate used to be banded off a fame number
+	## that had nothing to do with how many people were in the room; it reads the
+	## turnstile now, so **filling the ground you built is a band and building the
+	## next one is the next band.** That is the relationship the arena screen has
+	## always claimed and the economy never had.
+	## A PACKED GROUND IS A PACKED GROUND WHATEVER ITS SIZE — every one of the six
+	## reads band 5 when it is full, and that is the design rather than a bug: the
+	## band asks *"did you fill it"* and the SIZE is `Arena.gate_factor`, which is
+	## where the climbing lives. The first cut of this check banded absolute heads
+	## and asserted the opposite; it pinned the whole bottom of the pyramid to
+	## band 0 and a career's gate to 6.3 credits a season.
+	##
+	## So what has to be true is that a packed bigger ground PAYS MORE, which is
+	## the two halves multiplying.
+	var bands: Array[String] = []
+	var last := -1
+	var climbs := 0
+	for lv in Arena.LEVELS.size():
+		var c := ClubOffice.new()
+		c.arena.level = lv
+		c.fans = 1e9
+		c._clamp_fans()
+		var pay := c.crowd_pay()
+		bands.append("%s band %d, %d CC" % [Arena.arena_name_of(lv),
+			c.crowd_band(), pay])
+		if pay > last:
+			climbs += 1
+		last = pay
+	_ok(climbs >= 4, "and a packed bigger ground pays more than a packed smaller one",
+		"filled, the six grounds pay: " + ", ".join(bands))
+
 
 func _test_the_climb_feeds_the_following() -> void:
-	## Notoriety has to actually move, and going up has to be a big part of it —
-	## the pyramid is the fuel, which is what makes the gates soft rather than
-	## arbitrary.
+	## THE FOLLOWING HAS TO ACTUALLY MOVE, and going up has to be a big part of
+	## it — the pyramid is the fuel, which is what makes a small club small.
+	##
+	## It used to assert this about notoriety, with a per-tier win constant to
+	## prove a win at National was worth more than one in the Backyard Circuit.
+	## That constant is gone and it is not missed: a win at National is watched by
+	## twelve thousand people instead of forty, and `fan_cap()` says so without a
+	## ladder of its own. **A number that is implied by the ground does not need a
+	## second table.**
 	var o := ClubOffice.new()
-	var start := o.notoriety
+	o.arena.level = 3
+	var start := o.fans
 	for i in 10:
-		o.note_after(true, false, 0)
-	var ten_wins := o.notoriety - start
-	o.notoriety = start
-	o.note_shift(ClubOffice.NOTE_PROMOTED)
-	var promotion := o.notoriety - start
-	## And a win is worth more the higher you are, which is most of why a
-	## Backyard club cannot reach a National club's number.
-	var low := ClubOffice.NOTE_WIN_BASE
-	var high := ClubOffice.NOTE_WIN_BASE + ClubOffice.NOTE_WIN_PER_TIER * 3.0
-	_ok(ten_wins > 0 and promotion > 0 and high > low * 1.5,
+		o.after_event(true, false)
+	var ten_wins := o.fans - start
+	var p := ClubOffice.new()
+	p.arena.level = 3
+	p.after_move(true)
+	var promotion := p.fans - start
+	_ok(ten_wins > 0.0 and promotion > 0.0,
 		"the climb feeds the following",
-		"ten Backyard wins move it %.1f; a win at National is worth %.2f against %.2f down there"
-			% [ten_wins, high, low])
+		"ten wins at a sports hall move it %.0f; going up moves it %.0f"
+			% [ten_wins, promotion])
+
+	## AND A WIN IS WORTH MORE THE HIGHER YOU ARE, without a per-tier constant:
+	## the gap to the ceiling is the ceiling, and the ceiling is the ground.
+	var low := ClubOffice.new()
+	var high := ClubOffice.new()
+	high.arena.level = Arena.MAX_LEVEL
+	var lo0 := low.fans
+	var hi0 := high.fans
+	low.after_event(true, false)
+	high.after_event(true, false)
+	_ok((high.fans - hi0) > (low.fans - lo0) * 10.0,
+		"and a win at the top is worth more than a win at the bottom",
+		"%.1f at a back field against %.1f at a National Arena"
+			% [low.fans - lo0, high.fans - hi0])
 
 	## Fans grow toward the ground and bleed when you stop winning.
 	var f := ClubOffice.new()
 	f.arena.level = 3
 	var f0 := f.fans
 	for i in 10:
-		f.note_after(true, false, 1)
+		f.after_event(true, false)
 	var grown := f.fans
 	f.winter()
 	var after_winter := f.fans
@@ -353,7 +404,6 @@ func _test_the_arena_saves() -> void:
 	var s := _season()
 	s.office.credits = 60
 	s.office.arena.level = 3
-	s.office.notoriety = 42.0
 	s.office.fans = 900.0
 	s.take_bid(2, 2)
 	var due := s.booked.due
@@ -361,13 +411,12 @@ func _test_the_arena_saves() -> void:
 	var back := SaveGame.load_slot(2)
 	SaveGame.delete(2)
 	_ok(back != null and back.office.arena.level == 3
-			and is_equal_approx(back.office.notoriety, 42.0)
 			and is_equal_approx(back.office.fans, 900.0)
 			and back.booked != null and back.booked.due == due
 			and back.booked.budget == 2
 			and not back.office.facilities.has(0),
 		"the arena survives a save",
-		"the ground, the reputation and the booking all came back; no Home ground key left")
+		"the ground, the following and the booking all came back; no Home ground key left")
 
 
 func _season() -> Season:

@@ -266,6 +266,28 @@ func _club_controls() -> void:
 	## dilemma first in the drawing. Three orderings of one rule, and the only
 	## thing keeping them agreeing was that nobody had hit the case where they
 	## differ. The season is asked now.
+	if season.promotion_offered():
+		var pt: Dictionary = season.promotion_terms()
+		## SHORT LABELS. "Take the State League" and "Stay in the Backyard Circuit
+		## · save 8 CC" are 218 and 280 pixels of text in 240- and 300-pixel
+		## buttons, and both spilled over their own edges on the first render. The
+		## division names are on the card six lines above; the buttons only have to
+		## say which way.
+		ui.add_child(UiKit.button("Take it",
+			Vector2(24, action_y()), Vector2(200, 46), func():
+				season.answer_promotion(true)
+				flash = "Up to the %s." % String(pt["to"])
+				Session.autosave()
+				_rebuild(), "up"))
+		ui.add_child(UiKit.button("Stay down  ·  save %d CC"
+				% (int(pt["dues_up"]) - int(pt["dues_now"])),
+			Vector2(240, action_y()), Vector2(260, 46), func():
+				season.answer_promotion(false)
+				flash = "Staying in the %s another year." % String(pt["from"])
+				Session.autosave()
+				_rebuild(), "shield"))
+		return
+
 	if season.bid_open():
 		ui.add_child(UiKit.button("Tournament bid", Vector2(24, action_y()),
 			Vector2(204, 46), func():
@@ -1237,6 +1259,10 @@ func _wrap(text: String, cols: int) -> Array[String]:
 ## body are drawn in two places and a heading computed twice is a heading that
 ## eventually says two different things.
 func _fixture_title() -> String:
+	## THE PROMOTION OFFER OUTRANKS EVERYTHING, because it is the only decision in
+	## the game that changes which division you are in.
+	if season.promotion_offered():
+		return "PROMOTION"
 	if season.bid_open():
 		return "TOURNAMENT BID"
 	var cup := season.pending_cup()
@@ -1264,6 +1290,37 @@ func _fixture() -> void:
 	## rectangle becomes a labelled window — which is the single change that
 	## stops an 8-bit menu reading like a web layout with a pixel font on it.
 	UiKit.window(self, r, _fixture_title(), font)
+	if season.promotion_offered():
+		## GO UP, OR STAY WHERE YOU ARE.
+		##
+		## Pete, 15 Sep 2026: *"If you qualify for the next league, you can choose
+		## to advance, or stay within your league next season. A player may bust
+		## through the season but want to stay a season and continue building up
+		## their money, train players, or whatever they wish, and staying in a
+		## cheaper league would be beneficial."*
+		##
+		## BOTH BILLS ON THE CARD, because that is the whole decision and a player
+		## should not have to go and find the second number on another page. The
+		## division is a thing you pay to be in now, so "stay down" is a saving
+		## with a figure on it rather than a button that wastes a year.
+		var t: Dictionary = season.promotion_terms()
+		UiKit.text(self, font, "Up to the %s" % String(t["to"]),
+			Vector2(44, y + 52), 22, UiKit.UP)
+		## FITTED TO THE CARD. "You finished 1st. The place is yours if you want
+		## it." is 430 pixels at 14px against a 436-pixel panel, and the first
+		## render lost the last two words — copy the game wrote itself is not
+		## allowed to lose its tail.
+		UiKit.text(self, font, UiKit.fit_px(font,
+			"Finished %s. The place is yours if you want it."
+				% UiKit.ordinal(season.position()), 13, fixture_w() - 40.0),
+			Vector2(44, y + 80), 13, UiKit.DIM)
+		UiKit.pair(self, font,
+			"%s costs %d a season" % [String(t["to"]), int(t["dues_up"])],
+			"you have %d" % int(t["in_hand"]),
+			Vector2(44, y + 104), 24.0 + fixture_w() - 20.0, 12, 12,
+			UiKit.EDGE.lightened(0.35),
+			UiKit.UP if int(t["in_hand"]) >= int(t["dues_up"]) else UiKit.DOWN)
+		return
 	if season.bid_open():
 		UiKit.text(self, font, "Three dates on offer", Vector2(44, y + 52), 22, UiKit.INK)
 		## WRAPPED TO THE CARD. This ran 53 pixels past the fixture panel's right
@@ -2575,9 +2632,18 @@ func _fin_ground() -> void:
 	y += 34.0
 	UiKit.text(self, font, "THE CROWD", Vector2(FIN_RIGHT, y), 13, UiKit.DIM)
 	y += 26.0
-	UiKit.pair(self, font, "Known by", "%d of %d" % [
-		int(round(o.notoriety)), int(ClubOffice.NOTORIETY_MAX)],
+	UiKit.pair(self, font, "They put through the door",
+		"%s  ·  %d%% full" % [UiKit.crowd_word(o.attendance()),
+			int(round(o.fill() * 100.0))],
 		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
 	y += 22.0
 	UiKit.pair(self, font, "A home fight pays", "%d CC" % o.crowd_pay(),
 		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+	y += 22.0
+	## AND THE BAR, which is the half that does not swing with the results. It is
+	## on this page rather than the arena's because the whole reason it exists is
+	## that it is a different KIND of income, and this is the page about that.
+	UiKit.pair(self, font, Arena.sells(a.level),
+		"%d CC a home meet" % Arena.counter_take(a.level, o.attendance()),
+		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 12, 13,
+		UiKit.EDGE.lightened(0.35), UiKit.DIM)

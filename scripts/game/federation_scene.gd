@@ -120,11 +120,11 @@ func _federation(o: ClubOffice) -> void:
 func _members(o: ClubOffice) -> void:
 	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
 	UiKit.text(self, font, "THE MEMBERS", Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
-	UiKit.text(self, font, Federation.members_word(o.members),
+	UiKit.text(self, font, Federation.following_word(o.fans, o.fan_cap()),
 		Vector2(R_X + 16, COL_Y + 64), 22, UiKit.YOU)
 	UiKit.meter(self, Rect2(R_X + 16, COL_Y + 78, COL_W - 32, 16),
-		int(round(o.members)), int(Federation.MEMBERS_MAX), UiKit.YOU)
-	UiKit.right(self, font, "%d paying" % int(round(o.members)),
+		int(round(o.fans)), int(round(o.fan_cap())), UiKit.YOU)
+	UiKit.right(self, font, "%d following" % int(round(o.fans)),
 		Vector2(R_X + COL_W - 16, COL_Y + 114), 12, UiKit.DIM, 160)
 
 	var y := COL_Y + 148.0

@@ -520,7 +520,26 @@ static func throttle_word(what: String) -> String:
 ## with it, and the following it spent ten years building gets clamped down to
 ## the smaller house. Nothing else in this game punished overreach; the whole
 ## economy was one-way until this existed.
-const UPKEEP_FRACTION: float = 0.45
+## CUT FROM 0.45 TO 0.28 ON 15 Sep 2026, and the reason is that the recurring
+## bite is now charged twice.
+##
+## When this was written it was the ONLY standing cost in the game, and 45% of a
+## building's price every summer was sized to be the thing that punishes
+## overreach. Then the membership subscription stopped funding the club and
+## `League.dues_for(tier)` started billing it — Pete, 15 Sep 2026: *"league dues
+## at the start of a season, one in which you CAN go negative but it's a good
+## bite."*
+##
+## `tools/probe_run.gd` measured what two bites came to: upkeep 10.3 credits a
+## season against an income of 22.6, plus 6.2 of entry fee — **73% of everything
+## the club earned, before it bought anything**, and five buildings lost per
+## twenty-season career. Retro Bowl's equivalent is a facility decaying one level
+## and costing that level to re-buy: 5 credits against a season of 16 to 70, so a
+## tenth of their income where ours was nearly half.
+##
+## **A cost added beside an existing one has to be argued against the total, not
+## against zero.**
+const UPKEEP_FRACTION: float = 0.28
 
 
 ## What each building costs to keep this year. Rounded UP, so no level is ever
@@ -529,8 +548,28 @@ static func upkeep_of(build_cost: int) -> int:
 	return 0 if build_cost <= 0 else int(ceil(float(build_cost) * UPKEEP_FRACTION))
 
 
+## THE GROUND'S BILL IS DERIVED FROM WHAT THE GROUND PAYS, not from what it cost.
+##
+## The rule this has to satisfy has been in the register since the bills went in:
+## **no ground is profitable to simply own.** Letting the retainer cover the
+## upkeep turns the arena into a savings account and the events it was built for
+## stop mattering.
+##
+## It used to satisfy that rule by coincidence — `45% of the build cost` happened
+## to sit above `capacity^0.30 x 0.72` at every rung — and the moment
+## `UPKEEP_FRACTION` came down to 0.28 the two ladders crossed and a National
+## Arena paid 21 to own and cost 17 to hold. `test_office.gd` caught it on the
+## first run, by name.
+##
+## **A rule kept by two numbers that happen to agree is a rule waiting for one of
+## them to move.** So the bill reads the retainer and adds a margin that grows
+## with the ground: 4 / 7 / 10 / 15 / 30 up the ladder, always more than it pays.
+const UPKEEP_MARGIN: float = 0.14
+
+
 func arena_upkeep() -> int:
-	return upkeep_of(int(Arena.LEVELS[arena.level]["cost"]))
+	return arena.retainer_full() + maxi(1, int(ceil(
+		float(Arena.LEVELS[arena.level]["cost"]) * UPKEEP_MARGIN)))
 
 
 func facility_upkeep(f: int) -> int:
@@ -607,72 +646,32 @@ func pay_upkeep() -> Dictionary:
 ## an office carries a club's whole standing in one object.
 var arena := Arena.new()
 
-## NOTORIETY AND FANS — the two numbers that fill the seats, and they do
-## different jobs. Pete, 10 Sep 2026: *"Each arena runs off the amount of fans
-## you have and notoriety… 1 notoriety means no one comes. 125 Notoriety means
-## sold out and people are trying to sneak in."*
+## THE FOLLOWING, AND IT IS THE ONLY CROWD NUMBER LEFT.
 ##
-##   FANS       how many people follow this club at all. A pool, built over
-##              years, capped by the ground you have built for them.
-##   NOTORIETY  how many of them actually turn up. 1 to 125, and it IS the
-##              turnout: at 125 every fan comes and a quarter of them cannot get
-##              in, which is why the fan cap is 125% of capacity.
+## Pete, 15 Sep 2026: *"I don't like our 3 factors, there should be one.
+## Notoriety should be something of a coach trait."*
 ##
-## Together they are `attendance`, and neither is any use alone: a huge following
-## that nobody is talking about stays home, and a club everyone is talking about
-## with no following has nobody to bring.
+## THERE WERE THREE NUMBERS DOING ONE JOB. `notoriety` (1–125, the turnout
+## percentage), `fans` (the following, capped by the ground) and `members` (who
+## paid the dues) were three separate populations, three screens to explain them
+## on, three save fields and three sets of tuning constants — all of them
+## answering the same question, *how many people care about this club*.
 ##
-## THE GATES ARE SOFT. Pete chose soft over hard: notoriety can be anything from
-## 1 to 125 in any division, but a Backyard club realistically tops out near 25
-## because the things that raise it — big crowds, big opposition, promotion —
-## are not available down there. Nothing refuses to climb; the climb just runs
-## out of fuel. About 25 in the Backyard Circuit, 50 in State, 75 in Regional,
-## 125 at National. Measured in tools/probe_notoriety.gd rather than asserted.
-const NOTORIETY_MAX: float = 125.0
-var notoriety: float = 3.0
+## Retro Bowl has exactly one: a fan bar, and every credit in the game comes off
+## it. Part 3 of the teardown put the comparison side by side and it is not close
+## — their single meter is *"the first thing a player learns to read"* and ours
+## was three meters nobody could tell apart.
+##
+## So: **the following is the number, and how many of them get in is the gate.**
+## `fans` is a pool built over years and capped by the ground; `attendance()` is
+## how many of them the ground can hold; the band reads attendance and pays the
+## gate. One chain, four links, exactly theirs with our arena in the middle of it.
+##
+## WHERE NOTORIETY WENT. Onto the coach, where Pete put it — a reputation is a
+## fact about the man and not about the club, so it follows him through a door
+## and it now decides what the dilemma deck offers him rather than what the gate
+## pays. See `Coach.reputation` and `Dilemma.deck_for`.
 var fans: float = 12.0
-
-## A win is worth more the higher you are, because a win at National is watched
-## by people who were not watching at all in the Backyard Circuit. This is most
-## of why the soft gate lands where it does.
-## THE GATES ARE AN EQUILIBRIUM, and it is solvable rather than guessable.
-## Each summer notoriety becomes `(N + G) × DECAY`, so it settles at
-## `N* = G × DECAY / (1 - DECAY)` — with DECAY 0.86 that is **G × 6.14**, where G
-## is what a season adds. Divisions run 5, 7, 11 and 15 events, so to land on
-## Pete's 25 / 50 / 75 / 125 a season has to be worth about 4, 8, 12 and 20.
-##
-## That is where these numbers come from. A win is worth a little more higher up,
-## but only a little: the divisions run 5, 7, 11 and 15 events, so most of the
-## difference between a 25 club and a 125 club is simply that the big division
-## has three times as many weeks to be good in. Tuned against a club winning
-## about four fifths of its fixtures — see tools/probe_notoriety.gd, which
-## measures a realistic run and a perfect one side by side, because a perfect
-## club SHOULD hit the ceiling and a good one should sit on the gate.
-const NOTE_WIN_BASE: float = 1.00
-const NOTE_WIN_PER_TIER: float = 0.32
-const NOTE_DRAW: float = 0.30
-const NOTE_LOSS: float = -0.35
-const NOTE_PROMOTED: float = 6.0
-const NOTE_RELEGATED: float = -5.0
-## People forget. Applied every summer, and it is what stops notoriety ratcheting
-## to 125 on a long enough timeline — the gates are an equilibrium between this
-## and what a division can feed it, not a wall.
-const NOTE_DECAY: float = 0.86
-## And a crowd is the loudest thing that can happen to a club. Scaled by the
-## SIZE of the house as well as how full it was, so a sold-out back field is a
-## nice afternoon and a sold-out National Arena is news.
-## A sold-out National Arena is worth about five notoriety a year; a sold-out
-## club gym is worth a hundredth of one. That gap IS the soft gate — nothing
-## refuses to climb, there is simply nothing down there loud enough to climb on.
-##
-## HALVED ON MEASUREMENT. At twice this it contributed sixty of a National club's
-## hundred-and-seven, and it is the same sixty whether you win the division or
-## finish eleventh — so a mid-table National club came out 104.7 against a
-## champion's 107.5, and the standard of the club stopped mattering at exactly
-## the level where it should matter most. A crowd should be loud; it should not
-## be louder than the season.
-const NOTE_PER_CROWD: float = 0.00006
-
 
 ## FANS GROW TOWARD THE GROUND YOU BUILT. Logistic rather than linear: a win adds
 ## a fraction of the GAP to the ceiling, so a small club grows slowly, a club
@@ -688,24 +687,39 @@ const FANS_PER_HEAD: float = 0.5
 ## "bleeding slowly", and the reason a following is worth defending.
 const FANS_DECAY: float = 0.94
 
+## GOING UP BRINGS PEOPLE AND GOING DOWN LOSES THEM, as a fraction of the room
+## left rather than a flat number — these replace `NOTE_PROMOTED` (+6) and
+## `NOTE_RELEGATED` (−5), which moved a scale that no longer exists. A promotion
+## is about a fifth of the way to the new ground's ceiling, which is a visible
+## jump on a screen and still leaves the club something to earn.
+const FANS_PROMOTED: float = 0.20
+const FANS_RELEGATED: float = -0.12
+
 
 func fan_cap() -> float:
 	## A QUARTER MORE THAN THE GROUND HOLDS. Pete: *"each level can have 25% over
 	## their max upgraded arena… 25% of fans usually never come to events."* So a
-	## club at the ceiling with maximum notoriety sells out and turns people
-	## away, which is the top of the whole system and is meant to be reachable.
+	## club at the ceiling sells out and turns people away, which is the top of
+	## the whole system and is meant to be reachable.
 	return float(arena.capacity()) * 1.25
 
 
-## HOW MANY OF THE FOLLOWING TURN UP. A DRAW on the eight pulls a few more
-## through the gate — small, additive, and capped with everything else, because a
-## trait that could push turnout past one would be selling tickets that do not
-## exist.
-func turnout() -> float:
+## HOW MANY MORE THAN THE FOLLOWING TURN UP. This was `turnout()` and it was
+## `notoriety / 125` — the second population dividing the first. With one number
+## there is nothing to divide by: everybody who follows the club would come, and
+## the ground is what decides how many get in.
+##
+## What is left is the DRAW trait, which is the only thing in the game that pulls
+## people who do not already follow you. Additive, capped, and worth having a
+## name for: a man who is worth an extra tenth of a house is a man you pick.
+const DRAW_MAX: float = 1.60
+
+
+func draw_scale() -> float:
 	var extra := 0.0
 	for f in _draws:
 		extra += f
-	return clampf(notoriety / NOTORIETY_MAX + extra, 0.0, 1.0)
+	return clampf(1.0 + extra, 1.0, DRAW_MAX)
 
 ## Set by the season from whoever travelled. Kept as a list rather than a sum so
 ## a squad with two of them is visibly two of them.
@@ -720,22 +734,28 @@ func set_draws(eight: Array) -> void:
 			_draws.append(d)
 
 
-## How many come through the gate, before any promotion the event buys.
-## HOW MANY ACTUALLY CAME, which is a READ-OUT and not an earner. The ground's
-## retainer is paid on the ground's size (see `gate_income`) and the crowd is
-## paid per fight through `crowd_pay()`; this is the figure a screen shows when
-## it wants to say how full the place looked.
+## HOW MANY CAME, and it is the number the whole economy now reads.
+##
+## It used to be a read-out — *"the figure a screen shows when it wants to say
+## how full the place looked"* — while `crowd_pay()` was banded off notoriety and
+## `gate_income()` off capacity, so the one honest attendance figure in the game
+## was the one thing nothing spent.
 func attendance() -> int:
-	return int(min(float(arena.capacity()), fans * turnout()))
+	return int(min(float(arena.capacity()), fans * draw_scale()))
 
 
-func note_after(won: bool, drew: bool, tier: int) -> void:
-	var d := NOTE_LOSS
-	if won:
-		d = NOTE_WIN_BASE + NOTE_WIN_PER_TIER * float(tier)
-	elif drew:
-		d = NOTE_DRAW
-	note_shift(d)
+## HOW FULL IT LOOKED, 0 to 1. Not what the gate reads — see `crowd_band()` for
+## why — but what a screen says and what the overlay and the commentary want.
+func fill() -> float:
+	var c := float(arena.capacity())
+	return 0.0 if c <= 0.0 else clampf(float(attendance()) / c, 0.0, 1.0)
+
+
+## A RESULT, AND WHAT IT DOES TO THE FOLLOWING. `note_after` in the old money;
+## the notoriety half of it is gone and the tier term with it, because a win at
+## National is already worth more — it is watched by twelve thousand people
+## instead of forty, and `attendance()` says so without a per-tier constant.
+func after_event(won: bool, drew: bool) -> void:
 	var gap := fan_cap() - fans
 	if won:
 		fans += gap * FANS_WIN_GAP
@@ -746,13 +766,17 @@ func note_after(won: bool, drew: bool, tier: int) -> void:
 	_clamp_fans()
 
 
-func note_shift(d: float) -> void:
-	notoriety = clampf(notoriety + d, 1.0, NOTORIETY_MAX)
+## Up a division or down one, as a share of the room left.
+func after_move(up: bool) -> void:
+	if up:
+		fans += (fan_cap() - fans) * FANS_PROMOTED
+	else:
+		fans += fans * FANS_RELEGATED
+	_clamp_fans()
 
 
 ## A crowd turns up, and afterwards the club is bigger for it.
 func crowd_came(heads: int) -> void:
-	note_shift(float(heads) * NOTE_PER_CROWD)
 	## FAN FAVORITE. He is the one they came to see, so the following grows
 	## faster while he is here — and Retro Bowl's own wording adds the sting:
 	## *"but takes a hit when fired."* See `release()` below; a trait with only an
@@ -764,16 +788,36 @@ func crowd_came(heads: int) -> void:
 	_clamp_fans()
 
 
-## The summer. Both numbers sag, which is what makes a following something you
-## defend rather than something you bank.
+## The summer. The following sags, which is what makes it something you defend
+## rather than something you bank.
 func winter() -> void:
-	notoriety = maxf(1.0, notoriety * NOTE_DECAY)
 	fans = maxf(0.0, fans * FANS_DECAY)
 	_clamp_fans()
 
 
 func _clamp_fans() -> void:
 	fans = clampf(fans, 0.0, fan_cap())
+
+
+## HOW BIG A CLUB THIS IS TO A FIGHTER DECIDING WHETHER TO WAIT, 0 to 1.
+##
+## AND IT IS THE ABSOLUTE SIZE OF THE HOUSE, not the fill — deliberately not the
+## same number the gate reads.
+##
+## The gate asks *"did you fill the place"*, which is a question about this
+## season and is the right question to pay on. A fighter deciding whether to wait
+## for you is asking something else entirely: **how many people will watch me.**
+## A packed back field is forty of them. If this read the band, a sold-out back
+## field would out-pull a half-empty National Arena for a man's signature, which
+## is the one thing about it nobody would believe.
+##
+## Log of the crowd against the biggest house in the country, so the climb from
+## nobody to somebody is worth a real share of the curve — the property
+## `test_office.gd` checks by name and the reason the old version carried a square
+## root.
+func pull() -> float:
+	return clampf(log(1.0 + float(attendance())) / log(1.0 + BIGGEST_HOUSE),
+		0.0, 1.0)
 
 
 func note_word() -> String:
@@ -798,19 +842,32 @@ func note_word() -> String:
 ## result pays on top. A band is worth a whole fight-win, which is what makes it
 ## worth chasing.
 ##
-## THE BANDS ARE PETE'S DIVISION GATES, not new numbers: 25 / 50 / 75 / 105 are
-## the notoriety a club realistically reaches in Backyard, State, Regional and
-## National. So a band is *"you have arrived in this division"*, and a promoted
-## club starts the next one at the bottom of its own scale. Nothing refuses to
-## band up early — a freak Backyard club that reaches 50 gets paid for it — the
-## fuel simply runs out down there.
+## THE BANDS READ HOW FULL THE GROUND IS, which is Retro Bowl's bar exactly.
 ##
-## They are also the SAME numbers `note_word()` reads off, deliberately: the word
-## on the Clubhouse screen changes on the exact tick the money changes, so the
-## player is never told two different stories about the same quantity. They used
-## to be two hand-written ladders and the kind of thing that drifts apart in an
-## edit nobody remembers making.
-const CROWD_GATES: Array[float] = [10.0, 25.0, 50.0, 75.0, 105.0]
+## Theirs: *"For each third of this bar that is filled either in full or in part,
+## you will receive one coaching credit at the end of each game."* A percentage,
+## not a headcount — and the stadium is a separate facility that does not move it.
+##
+## THE FIRST CUT OF THIS BANDED ABSOLUTE HEADS — 25 / 90 / 300 / 1,000 / 6,000 —
+## and it looked right on paper: each gate just under a filled ground, so filling
+## the place you built is a band and building the next one is the next band. What
+## it actually did was pin the bottom of the pyramid to band 0 forever. A Backyard
+## club is twelve people in a forty-seat field; forty people is a SOLD-OUT HOUSE
+## and it was being paid the same 1 CC as an empty one. `tools/probe_run.gd`
+## measured a whole career's gate at 6.3 credits a season.
+##
+## **A club that fills the ground it has is doing the thing the game is asking
+## for, whatever size the ground is.** So the band is the fill, the SIZE of the
+## house is `Arena.gate_factor` where it already lived, and the two multiply. A
+## packed back field is a full house paying full band at back-field rates; a
+## National Arena a third full is a poor turnout paying poorly at National rates.
+##
+## AND UPGRADING STILL COSTS YOU A BAND UNTIL YOU FILL IT, which is both true and
+## the same thing their stadium does — a bigger ground does not instantly pay.
+## `fan_cap()` moves the ceiling the moment it is built and the following grows
+## into it at 7.5% of the gap a win, so it is about a season and a half of work
+## rather than a wall.
+const CROWD_GATES: Array[float] = [0.10, 0.28, 0.46, 0.66, 0.88]
 const CROWD_WORD: Array[String] = ["Nobody", "Talked about", "A name locally",
 	"Known across the state", "Known nationally", "A household name"]
 ## Band 0 still pays. A club nobody has heard of is the club that most needs a
@@ -819,8 +876,8 @@ const CROWD_WORD: Array[String] = ["Nobody", "Talked about", "A name locally",
 ## early game has and the one part of their economy not worth copying.
 ##
 ## EVERY GATE MOVES THE MONEY. The first draft paid [1, 1, 2, 3, 4, 5], so the
-## first gate changed the word on the screen and nothing else: a club crossed 10
-## notoriety, got told it was "Talked about", and was paid exactly what it was
+## first gate changed the word on the screen and nothing else: a club crossed the
+## first gate, got told it was "Talked about", and was paid exactly what it was
 ## paid for being nobody. A meter with a dead segment in it teaches the player
 ## that the meter sometimes lies, and then he stops reading it. One pay level per
 ## band, no exceptions — test_office asserts the tick.
@@ -829,25 +886,48 @@ const CROWD_WORD: Array[String] = ["Nobody", "Talked about", "A name locally",
 ## relationship and the point of the whole exercise: **who is watching matters
 ## more than who won.** A National club in front of a full house out-earns a
 ## Backyard champion six to one before a single result is counted.
-const CROWD_PAY: Array[int] = [1, 2, 3, 4, 5, 6]
+## COMPRESSED FROM [1..6] TO [2..7], and the reason is what banding on FILL
+## exposed rather than any change of intent.
+##
+## On the old fame ladder a club climbed through the bands once and stayed high;
+## on this one a club that stops filling its ground **falls back down them**, and
+## a career club sits around band 2 for years. At [1..6] band 2 was three
+## sevenths of the top and a struggling club earned 3 CC a fight against costs
+## that do not fall with it — `probe_run` measured a twenty-season career pinned
+## at 0.85 of its division with two buildings lost.
+##
+## Retro Bowl's own bar is 1 / 2 / 3: **their bottom band is a third of their
+## top, not a sixth.** Theirs can afford to be flat because they have no
+## divisions; ours has `Arena.gate_factor` doing the climbing (1.0 to 2.2), so
+## the band does not need to carry the whole spread and should not.
+##
+## The top still pays a whole fight-win more than the bottom, which is the
+## property `test_office.gd` asserts and the reason the meter is worth reading.
+const CROWD_PAY: Array[int] = [2, 3, 4, 5, 6, 7]
+## Where the top band's meter fills to — a sold-out house, so a club at capacity
+## reads full rather than reading "just started band 5" forever.
+const CROWD_TOP: float = 1.0
+## AND THE BIGGEST HOUSE IN THE COUNTRY, which is what `pull()` measures against.
+const BIGGEST_HOUSE: float = 80000.0
 
 
 ## 0 to 5, and it is the index into both the word and the pay.
 func crowd_band() -> int:
+	var f := fill()
 	var b := 0
 	for g in CROWD_GATES:
-		if notoriety >= g:
+		if f >= g:
 			b += 1
 	return b
 
 
 ## WHAT A FIGHT PAYS FOR BEING WATCHED, before the result is counted.
 ##
-## THE BAND IS YOUR OWN AND THE ROOM IS WHOSEVER IT IS. That split is the whole
-## model and it is the honest one: your notoriety is how many people would turn
-## out to see YOU, and the ground decides how many of them can get in and what
-## they paid at the door. So a famous club in a tip takes a tip's money, and an
-## unknown club that draws a National Arena takes more than it has ever seen.
+## THE BAND IS YOUR OWN HOUSE AND THE ROOM IS WHOSEVER IT IS. That split is the
+## whole model and it is the honest one: the band is how many people you can put
+## in a room, and the venue decides whose room it is and what share of the door
+## comes back to you. So a big club at a tip takes a tip's share of a big crowd,
+## and a small club that draws a National Arena takes more than it has ever seen.
 ##
 ## `kind` is the venue, `host_level` and `host_condition` are the GROUND IT IS
 ## FOUGHT IN — yours at home, theirs away, the federation's on neutral ground.
@@ -876,11 +956,11 @@ func crowd_pay() -> int:
 ## "just started band 5" forever.
 func crowd_meter() -> float:
 	var b := crowd_band()
-	var lo: float = 1.0 if b == 0 else CROWD_GATES[b - 1]
-	var hi: float = NOTORIETY_MAX if b >= CROWD_GATES.size() else CROWD_GATES[b]
+	var lo: float = 0.0 if b == 0 else CROWD_GATES[b - 1]
+	var hi: float = CROWD_TOP if b >= CROWD_GATES.size() else CROWD_GATES[b]
 	if hi <= lo:
 		return 1.0
-	return clampf((notoriety - lo) / (hi - lo), 0.0, 1.0)
+	return clampf((fill() - lo) / (hi - lo), 0.0, 1.0)
 
 
 ## What the ground pays you just for existing: the federation rotates who hosts,
@@ -931,10 +1011,10 @@ func crowd_meter() -> float:
 ## A RETAINER IS NOT A GATE. It is what the federation pays for the ground
 ## existing and being available to host — *"the federation rotates who hosts, and
 ## a better ground takes a bigger turn."* It is a fact about the GROUND. What the
-## crowd is worth is `crowd_pay()`, paid per home fight off the notoriety band,
-## and that one already reads the crowd correctly, floors at 1 for a club nobody
-## has heard of, and says in its own comment why: *"a club nobody has heard of is
-## the club that most needs a trickle."*
+## crowd is worth is `gate_for()`, paid at every fixture off the ATTENDANCE band
+## and the venue's share, and that one already reads the crowd correctly, floors
+## at 1 for a club nobody has heard of, and says in its own comment why: *"a club
+## nobody has heard of is the club that most needs a trickle."*
 ## THE TWO CONSTANTS MOVED TO `Arena`, with the condition that scales them —
 ## `Arena.RETAINER_POW` and `Arena.RETAINER_K`. What a ground is worth is a fact
 ## about the ground, and this file had it because this file happened to be where
@@ -1439,15 +1519,24 @@ func untaught() -> Array:
 
 
 # -------------------------------------------------------- the federation
-## WHAT THE CLUB HOLDS, by rule, and how many people pay to belong to it. The
-## arithmetic is all in `Federation`; what lives here is the state and the money,
-## because this is the object that holds a purse.
+## WHAT THE CLUB HOLDS, BY RULE. The arithmetic is all in `Federation`; what lives
+## here is the state, because this is the object that holds a purse.
+##
+## `members` USED TO LIVE HERE AND IS GONE. It was the third of the three
+## populations — see the note over `fans` — and it was the one with the weakest
+## claim, because the only thing it did was pay dues. Pete, 15 Sep 2026: *"I'm not
+## liking the dues portion, that should more be a league dues at the start of a
+## season."* So the money goes the other way now: the federation BILLS the club,
+## the bill is `League.dues_for(tier)`, and there is no membership roll behind it.
+##
+## What the members used to react to — a winning season, a room worth being in, a
+## club that can fill its own bus — now moves `fans`, which is the one population
+## left and the one the player already watches.
 var compliance := {
 	Federation.Rule.KIT: 0,
 	Federation.Rule.MARSHALS: 0,
 	Federation.Rule.INSURANCE: 0,
 }
-var members: float = Federation.MEMBERS_START
 
 
 func rule_level(r: int) -> int:
@@ -1569,17 +1658,25 @@ const LINE_CLUB := "The club"
 
 const LINE_GATE := "The gate"
 const LINE_PRIZE := "Prize money"
+## Kept only so an old save's books still have a heading for the line they
+## were written with. Nothing produces it any more — the federation bills the
+## club now and that lands under `LINE_FEDERATION`.
 const LINE_DUES := "Members' dues"
 const LINE_CUP := "Tournaments"
 const LINE_STORE := "Bought credits"
+## THE BAR AND THE FOOD. Its own line and not folded into the gate, because the
+## whole reason it exists is that it behaves differently — the gate swings with
+## form and the counter does not — and a player who cannot see them apart cannot
+## see that.
+const LINE_COUNTER := "The counter"
 
 ## The order they are shown in, which is the order they matter in rather than
 ## the order they were written. Anything not on the list is drawn after it, so a
 ## heading added later shows up rather than disappearing.
 const OUT_ORDER: Array[String] = [LINE_SQUAD, LINE_KIT, LINE_GROUND,
 	LINE_FACILITIES, LINE_TRAVEL, LINE_FEDERATION, LINE_CLUB]
-const IN_ORDER: Array[String] = [LINE_GATE, LINE_PRIZE, LINE_GROUND, LINE_CUP,
-	LINE_DUES, LINE_STORE]
+const IN_ORDER: Array[String] = [LINE_GATE, LINE_COUNTER, LINE_PRIZE,
+	LINE_GROUND, LINE_CUP, LINE_STORE]
 
 
 static func _book(books: Dictionary, line: String, cc: int) -> void:
@@ -1649,8 +1746,15 @@ func purse_since(when_: String) -> int:
 	return t
 
 
+## WHAT THE FEDERATION WANTS TO LET YOU ENTER, billed at the start of a season.
+##
+## The other direction from what `dues()` used to be. It was members × 1 CC and
+## it paid the club — 24.4 credits a season across a career, **58% of all income**
+## on the books, which made a standing subscription the biggest earner in a game
+## about fighting. Now it is a cost, it scales with the division, and a club can
+## go into the red paying it.
 func dues() -> int:
-	return Federation.dues_for(members)
+	return League.dues_for(tier)
 
 
 # --------------------------------------------------------------- the levers
@@ -1971,12 +2075,12 @@ func to_dict() -> Dictionary:
 	return {
 		"credits": credits, "cap_level": cap_level, "morale": morale, "tier": tier,
 		"travel": travel_slots,
-		"compliance": compliance.duplicate(), "members": members,
+		"compliance": compliance.duplicate(),
 		"staff_refreshes": staff_refreshes, "market_refreshes": market_refreshes,
 		"facilities": facilities.duplicate(),
 		"captains": captains.duplicate(true),
 		"arena": arena.level, "arena_condition": arena.condition,
-		"notoriety": notoriety, "fans": fans,
+		"fans": fans,
 		## THE BOOKS TRAVEL WITH THE SAVE. A finances page that resets every time
 		## the player closes the app is a finances page that can only ever show
 		## the current week, which is not a year and is not what it is for.
@@ -1995,7 +2099,6 @@ static func from_dict(d: Dictionary) -> ClubOffice:
 	## HARD KEYS, not defaults. These decode into something FALSE rather than into
 	## a gap — see the VERSION note in save_game.gd — and the version gate above is
 	## what stops an old file ever reaching here.
-	o.members = clampf(float(d["members"]), 1.0, Federation.MEMBERS_MAX)
 	for k in d.get("compliance", {}):
 		if o.compliance.has(int(k)):
 			o.compliance[int(k)] = clampi(int(d["compliance"][k]), 0, Federation.MAX_LEVEL)
@@ -2012,7 +2115,6 @@ static func from_dict(d: Dictionary) -> ClubOffice:
 	o.books_in = (d.get("books_in", {}) as Dictionary).duplicate()
 	o.books_out = (d.get("books_out", {}) as Dictionary).duplicate()
 	o.books_last = (d.get("books_last", {}) as Dictionary).duplicate(true)
-	o.notoriety = clampf(float(d.get("notoriety", 3.0)), 1.0, NOTORIETY_MAX)
 	o.fans = maxf(0.0, float(d.get("fans", 12.0)))
 	for k in d.get("facilities", {}):
 		## Only the two that still exist. A stored HOME_GROUND level from an

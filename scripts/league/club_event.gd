@@ -198,17 +198,20 @@ func events_away(world_event: int) -> int:
 
 
 # ------------------------------------------------------------------ the gate
-## HOW FULL THE HOUSE GETS. Fans are the pool and notoriety is the turnout — see
+## HOW FULL THE HOUSE GETS. Fans are the pool and the ground is the ceiling — see
 ## ClubOffice — and the budget buys a bit more of the pool through the door than
 ## would have come on their own.
 ##
 ## It clamps at the ground's capacity, which is the one hard rule: you cannot
 ## seat more people than you have seats, and the fan ceiling sits 25% above it
 ## precisely so a big club sells out and turns people away.
-static func attendance(capacity: int, fans: float, notoriety: float,
-		push: float = 1.0) -> int:
-	var turnout := clampf(notoriety / ClubOffice.NOTORIETY_MAX, 0.0, 1.0)
-	return int(min(float(capacity), maxf(0.0, fans) * turnout * push))
+## THE NOTORIETY TERM IS GONE. It was `notoriety / 125` — a second population
+## dividing the first — and with one crowd number there is nothing to divide by:
+## everybody who follows the club would come, and the ground decides how many get
+## in. `push` is what the event's budget pulls in over and above them, which is
+## the only thing left that can beat the following.
+static func attendance(capacity: int, fans: float, push: float = 1.0) -> int:
+	return int(min(float(capacity), maxf(0.0, fans) * push))
 
 
 static func gate(heads: int, take: float = 1.0) -> int:
@@ -217,10 +220,10 @@ static func gate(heads: int, take: float = 1.0) -> int:
 
 ## An honest preview for the bid screen, so the player is choosing between
 ## numbers rather than between adjectives.
-static func preview(capacity: int, fans: float, notoriety: float, budget_i: int,
+static func preview(capacity: int, fans: float, budget_i: int,
 		bid_cost_: int = 0) -> Dictionary:
 	var b: Dictionary = BUDGETS[clampi(budget_i, 0, BUDGETS.size() - 1)]
-	var heads := attendance(capacity, fans, notoriety, float(b["draw"]))
+	var heads := attendance(capacity, fans, float(b["draw"]))
 	var g := gate(heads, float(b["take"]))
 	var spend := int(b["cost"]) + bid_cost_
 	return {

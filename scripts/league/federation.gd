@@ -1,6 +1,6 @@
 class_name Federation
 extends RefCounted
-## THE FEDERATION, AND THE MEMBERS. Two masters, one purse.
+## THE FEDERATION, AND THE PEOPLE WHO TURN UP. Two masters, one purse.
 ##
 ## DIRECTION §4: *"Owner/fan pressure → members and the federation. Members pay
 ## dues and walk if you're unserious. The federation gates nationals and Worlds
@@ -19,7 +19,7 @@ extends RefCounted
 ##   inspection. Every credit of it buys exactly nothing on the field. Fall short
 ##   and you are not entered for the cups — however well you have played.
 ##
-##   THE MEMBERS pay the dues that fund the club, and they walk when the club
+##   THE FOLLOWING is what the club earns off, and it walks when the club
 ##   stops being worth turning up to: a bad room, a thin squad, a losing year.
 ##   Everything that keeps them costs the money the federation is asking for.
 ##
@@ -115,66 +115,63 @@ static func compliant(held: Dictionary, tier: int) -> bool:
 	return shortfalls(held, tier).is_empty()
 
 
-# ------------------------------------------------------------------ members
-## DUES, AND WHY THEY ARE NOT THE GATE.
+# ---------------------------------------------------------------- the season
+## WHAT A SEASON DOES TO THE FOLLOWING, over and above the week-to-week results.
 ##
-## A member is not a fan. Fans turn up when you are winning and go home when you
-## are not; `ClubOffice.fans` already models that and feeds the gate. A member
-## pays a standing subscription because this is HIS club — he trains there, his
-## mates are there, and he keeps paying through a bad season right up until the
-## point the place stops being worth belonging to.
+## THIS WAS `members_after` AND THE MEMBERSHIP ROLL IT MOVED IS GONE. Pete, 15
+## Sep 2026: *"I don't like our 3 factors, there should be one."* `members` was
+## the third population — behind `notoriety` and `fans` — and the weakest, since
+## its only output was a subscription the club no longer collects: the federation
+## bills the club now, at `League.dues_for(tier)`.
 ##
-## Which is what makes the dues the right money to put against the federation's
-## bill: it is the income that does not move with results, so spending it on
-## paperwork is a decision rather than an accounting entry.
-const DUES: int = 1                     ## credits per member per season
-const MEMBERS_START: float = 8.0
-const MEMBERS_MAX: float = 60.0
-
-## WHAT KEEPS THEM AND WHAT LOSES THEM, per season. Every one of these is
-## something the player chose, and not one of them is compliance — see the note
-## at the top of this file for why that matters.
-const MEM_WIN: float = 0.10             ## a winning season, as a fraction of the gap
-const MEM_LOSS: float = -0.09
-const MEM_MORALE: float = 0.14          ## a room worth being in
-const MEM_THIN_SQUAD: float = -0.12     ## a club that cannot fill its own bus
-
-
-## The dues a club banks for the year.
-static func dues_for(members: float) -> int:
-	return int(floor(members * float(DUES)))
-
-
-## A SEASON OF MEMBERSHIP, as a multiplicative move toward or away from the
-## ceiling — the same logistic shape morale and the following already use, and
-## for the same reason: a flat accumulator walks into a wall and stays there.
+## The SIGNALS were never the problem and they are kept whole. A season in the top
+## half, a room worth being in, and a club that can fill its own bus are three
+## things the player can see on his own screens and three things he chose. They
+## simply move the one population that is left.
 ##
 ## `bench_full` is whether the places on the bus are actually filled with fit
 ## men, which is the most visible form of "unserious" a club has: turning up
 ## five-handed.
 ##
 ## A fourth term used to sit here — a club nobody in the sport would train with
-## lost members too — and it went when goodwill did (Pete, 12 Sep 2026). The
-## three that are left are all things the player can see on his own screens.
-static func members_after(members: float, won_more: bool, morale: float,
-		bench_full: bool) -> float:
-	var m := members
-	var swing := MEM_WIN if won_more else MEM_LOSS
+## lost people too — and it went when goodwill did (Pete, 12 Sep 2026).
+const FOLLOW_WIN: float = 0.10          ## a winning season, as a fraction of the gap
+const FOLLOW_LOSS: float = -0.09
+const FOLLOW_MORALE: float = 0.14       ## a room worth being in
+const FOLLOW_THIN_SQUAD: float = -0.12  ## a club that cannot fill its own bus
+
+
+## A multiplicative move toward or away from the ceiling — the same logistic
+## shape morale and the following's own week-to-week already use, and for the
+## same reason: a flat accumulator walks into a wall and stays there.
+##
+## `cap` is `ClubOffice.fan_cap()`, passed in rather than reached for, because
+## the ceiling is a fact about the ground and this file knows nothing about
+## grounds.
+static func following_after(fans: float, cap: float, won_more: bool,
+		morale: float, bench_full: bool) -> float:
+	var swing := FOLLOW_WIN if won_more else FOLLOW_LOSS
 	if morale >= 0.60:
-		swing += MEM_MORALE
+		swing += FOLLOW_MORALE
 	if not bench_full:
-		swing += MEM_THIN_SQUAD
-	var room: float = (MEMBERS_MAX - m) if swing > 0.0 else m
-	return clampf(m + swing * room, 1.0, MEMBERS_MAX)
+		swing += FOLLOW_THIN_SQUAD
+	var room: float = (cap - fans) if swing > 0.0 else fans
+	return clampf(fans + swing * room, 0.0, cap)
 
 
-static func members_word(members: float) -> String:
-	if members >= 45.0:
+## HOW BIG THE CLUB READS, off the one population. `members_word` banded a 1–60
+## roll; this bands the following against the GROUND, because the following spans
+## twelve to a hundred thousand and a constant could not mean the same thing at
+## both ends. A packed back field is "a proper club" in exactly the way it should
+## be — it is a proper club, it just has a small ground.
+static func following_word(fans: float, cap: float) -> String:
+	var f: float = 0.0 if cap <= 0.0 else clampf(fans / cap, 0.0, 1.0)
+	if f >= 0.85:
 		return "A proper club"
-	if members >= 28.0:
+	if f >= 0.60:
 		return "Healthy"
-	if members >= 14.0:
+	if f >= 0.35:
 		return "Ticking over"
-	if members >= 6.0:
+	if f >= 0.15:
 		return "Thin"
 	return "A few mates"

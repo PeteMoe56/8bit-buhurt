@@ -22,8 +22,10 @@ func _initialize() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 4242)
 	s.office.credits = 80
 	s.office.arena.level = lvl
-	s.office.notoriety = rep * ClubOffice.NOTORIETY_MAX
-	s.office.fans = s.office.fan_cap() * minf(1.0, rep + 0.15)
+	## `rep` IS HOW FULL THE PLACE IS NOW. It used to set notoriety and derive the
+	## following from it; with one population it sets the population, which is the
+	## same picture with one fewer number behind it.
+	s.office.fans = s.office.fan_cap() * clampf(rep, 0.0, 1.0)
 	s.office.tier = mini(3, lvl)
 	## Re-offer at the right division. The dates are generated when the season
 	## opens, and a constructed state has to say so or the screen shows a

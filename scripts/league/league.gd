@@ -99,6 +99,45 @@ static func tier_name(t: int) -> String:
 	return String(TIERS[t]["name"])
 
 
+## ------------------------------------------------------------- the dues
+## WHAT IT COSTS TO ENTER A DIVISION FOR A SEASON, billed the day it opens.
+##
+## Pete, 15 Sep 2026: *"I'm not liking the dues portion, that should more be a
+## league dues at the start of a season, one in which you CAN go negative but
+## it's a good bite."*
+##
+## THE DUES USED TO PAY THE CLUB. `Federation.dues_for(members)` was a standing
+## subscription worth 24.4 credits a season across a career — **58% of every
+## credit the club earned**, in a game about fighting, from a number the player
+## could barely influence. `tools/probe_year1.gd` printed it next to a gate of
+## 1.4 and the shape of the economy was on one line.
+##
+## Reversing it does three things at once, which is why it is the right change
+## rather than a nerf:
+##
+##   IT MAKES THE GATE THE FAUCET. Take the biggest income line out and the
+##   money has to come from somewhere people are watching. That is Retro Bowl's
+##   whole economy and the thing Part 3 of the teardown said we were missing.
+##
+##   IT PRICES THE DIVISION. A division is now a thing you pay to be in, so a
+##   bigger one is a bigger commitment rather than simply a better one — which is
+##   what makes the choice below worth offering at all.
+##
+##   AND IT GIVES THE CLIMB A REASON TO WAIT. Pete: *"A player may bust through
+##   the season but want to stay a season and continue building up their money,
+##   train players, or whatever they wish, and staying in a cheaper league would
+##   be beneficial."* Staying down is only a decision if going up costs money.
+##
+## Priced against what `tools/probe_run.gd` measured a division earning, at
+## roughly a fifth of it: a bite that is felt every year and is not, on its own,
+## the thing that ends a club.
+const DUES := [6, 14, 24, 38]
+
+
+static func dues_for(t: int) -> int:
+	return int(DUES[clampi(t, 0, DUES.size() - 1)])
+
+
 static func club_count(t: int) -> int:
 	return int(TIERS[t]["clubs"])
 

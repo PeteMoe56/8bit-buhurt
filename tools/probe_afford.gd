@@ -207,6 +207,9 @@ func _forced_bill(s: Season) -> int:
 	## AND THE GROUND, once, at whatever state a year of fixtures left it in.
 	if o.arena.condition < 0.999 and o.arena.level >= Arena.WEARS_FROM_LEVEL:
 		bill += o.arena.upkeep_cost()
+	## AND THE FEDERATION'S ENTRY FEE, which is the newest and least avoidable of
+	## the standing costs — a club cannot decline to be in its own division.
+	bill += League.dues_for(o.tier)
 	return bill
 
 

@@ -531,6 +531,39 @@ func player_opponent() -> int:
 var player_scale: float = 1.0
 
 
+## IS THE PLAYER TURNING PROMOTION DOWN THIS SUMMER? Set by `Season` from the
+## player's answer and cleared by the roll-over that consumes it.
+##
+## Pete, 15 Sep 2026: *"If you qualify for the next league, you can choose to
+## advance, or stay within your league next season. A player may bust through the
+## season but want to stay a season and continue building up their money, train
+## players, or whatever they wish, and staying in a cheaper league would be
+## beneficial."*
+##
+## THIS IS THE YO-YO ANSWER AND IT IS BETTER THAN THE ONE I PROPOSED. Part 3 of
+## the teardown suggested copying Retro Bowl's stadium — a thing you buy that
+## narrows the swing — so that a promoted club could survive a bad first season
+## up. Pete's version does not damp the bounce, it **lets the player decline the
+## bounce**: you go up when your squad is ready rather than when the table says
+## so, and the cheaper division you stayed in is the year you spent getting ready.
+## No new currency, no new screen, one boolean.
+var stay_down: bool = false
+
+
+## The division's table with the player taken out of it, so the promotion places
+## fall through to the clubs behind him.
+##
+## A COPY, not a filter in place: `table()` hands back rows the tables dictionary
+## still owns, and removing the player from that would delete him from the
+## division rather than from the shortlist.
+func _without_player(rows: Array) -> Array:
+	var out: Array = []
+	for r in rows:
+		if int(r["club"]) != player_club:
+			out.append(r)
+	return out
+
+
 func play_event(player_rounds = null) -> void:
 	for t in League.TIERS.size():
 		var days: Array = schedule[t]
@@ -716,6 +749,10 @@ func roll_over() -> void:
 	var moves_down: Dictionary = {}
 	for t in League.TIERS.size():
 		var rows := table(t)
+		## THE PLAYER MAY TURN PROMOTION DOWN, and if he does the club under him
+		## goes instead. See `stay_down`.
+		if stay_down and t == player_tier():
+			rows = _without_player(rows)
 		for cid in League.promoted(t, rows):
 			if t < League.TIERS.size() - 1:
 				moves_up[cid] = t + 1

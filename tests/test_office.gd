@@ -293,7 +293,6 @@ func _test_facilities_reach_something() -> void:
 		o.new_week()
 		o.upgrade(ClubOffice.Facility.INFIRMARY)
 	o.arena.level = Arena.MAX_LEVEL
-	o.notoriety = 60.0
 	o.fans = 4000.0
 	var maxed := o.gate_income() > 0 and o.training_points() > 0 and o.injury_relief() > 0
 	o.new_week()
@@ -452,32 +451,43 @@ func _test_the_crowd_bands_the_pay() -> void:
 	## nobody remembers making, so they are now one array read twice — this
 	## proves the reading, not the array.
 	var o := ClubOffice.new()
+	## THE GATES ARE HEADS NOW, so the club has to be given a ground big enough to
+	## hold them — a back field cannot reach band 5 and a check that set the
+	## number directly would be measuring a house the game cannot build.
+	o.arena.level = Arena.MAX_LEVEL
 	var line := ""
 	var last_pay := 0
 	var monotone := true
 	var words: Dictionary = {}
-	for n in [1.0, 9.0, 10.0, 24.0, 25.0, 49.0, 50.0, 74.0, 75.0, 104.0, 105.0, 125.0]:
-		o.notoriety = float(n)
+	## THE GATES ARE A FILL FRACTION NOW, so the sweep sets the FOLLOWING to a
+	## share of the ground rather than to a headcount. `fill()` is
+	## `attendance() / capacity`, so `fans = share x capacity` puts the club
+	## exactly where the check means to put it.
+	var cap := float(o.arena.capacity())
+	for share in [0.0, 0.09, 0.10, 0.27, 0.28, 0.45, 0.46, 0.65, 0.66, 0.87, 0.88, 1.20]:
+		o.fans = share * cap
 		if o.crowd_pay() < last_pay:
 			monotone = false
 		last_pay = o.crowd_pay()
 		words[o.note_word()] = o.crowd_pay()
-	for n in ClubOffice.CROWD_GATES:
+	for g in ClubOffice.CROWD_GATES:
 		## The tick itself: a hair under the gate and exactly on it must differ.
-		o.notoriety = float(n) - 0.01
+		## A hair is one seat, because `attendance()` truncates to whole people.
+		o.fans = float(g) * cap - 1.0
 		var below := o.crowd_pay()
 		var below_word := o.note_word()
-		o.notoriety = float(n)
+		o.fans = float(g) * cap + 1.0
 		if o.crowd_pay() == below:
 			monotone = false
 		if o.note_word() == below_word:
 			monotone = false
-		line += "%d:%d->%d  " % [int(n), below, o.crowd_pay()]
+		line += "%d%%:%d->%d  " % [int(float(g) * 100.0), below, o.crowd_pay()]
 	## And the top band pays a whole fight-win more than the bottom, or the meter
 	## is not worth reading.
-	o.notoriety = 1.0
+	o.fans = 0.0
 	var floor_pay := o.crowd_pay()
-	o.notoriety = ClubOffice.NOTORIETY_MAX
+	o.fans = 1e9
+	o._clamp_fans()
 	var top_pay := o.crowd_pay()
 	notes.append("crowd bands at the gates: " + line.strip_edges())
 	notes.append("each band has its own word: %d words for %d pay levels"
@@ -504,7 +514,6 @@ func _test_the_retainer_stays_a_retainer() -> void:
 	var worst := 0.0
 	for lv in Arena.LEVELS.size():
 		o.arena.level = lv
-		o.notoriety = ClubOffice.NOTORIETY_MAX
 		o.fans = o.fan_cap()
 		var paid := o.gate_income()
 		var cost := int(Arena.LEVELS[lv]["cost"])
@@ -534,7 +543,6 @@ func _test_the_bills_come_due() -> void:
 	var ever_free := false
 	for lv in range(1, Arena.LEVELS.size()):
 		o.arena.level = lv
-		o.notoriety = ClubOffice.NOTORIETY_MAX
 		o.fans = o.fan_cap()
 		var net := o.gate_income() - o.arena_upkeep()
 		if net > 0:
@@ -571,7 +579,6 @@ func _test_what_you_cannot_pay_falls_down() -> void:
 	var o := ClubOffice.new()
 	o.arena.level = Arena.MAX_LEVEL
 	o.facilities[ClubOffice.Facility.TRAINING] = 4
-	o.notoriety = ClubOffice.NOTORIETY_MAX
 	o.fans = o.fan_cap()
 	var fans_before := o.fans
 	var cap_before := o.arena.capacity()
@@ -598,8 +605,19 @@ func _test_what_you_cannot_pay_falls_down() -> void:
 		% [skipped, rebuild, float(rebuild) / float(maxi(1, skipped))])
 	notes.append("the ground fell and took the following with it: %d fans in a %d house -> %d in a %d"
 		% [int(fans_before), cap_before, int(o.fans), o.arena.capacity()])
+	## THE REBUILD USED TO BE MORE THAN TWICE THE BILL and is now a little under
+	## it — 60 to rebuild against a 30-credit bill. That is the arena's upkeep
+	## being derived from what the ground PAYS rather than from what it cost (see
+	## `ClubOffice.arena_upkeep`), and it makes the top of the ladder dearer to
+	## hold than it was.
+	##
+	## The rule the check is for survives with the number changed: **the penalty
+	## is the rebuild, not the bill.** Skipping thirty credits still costs sixty
+	## to put back, and it also costs the following the bigger house was holding —
+	## which is the part of the cascade a reader would not assume and the reason
+	## this check exists.
 	_ok(fell and facility_fell and fans_clamped and order_right
-			and (r["lost"] as Array).size() == 2 and rebuild > skipped * 2,
+			and (r["lost"] as Array).size() == 2 and rebuild > skipped,
 		"what you cannot pay falls down",
 		"a broke club sheds a level, the ground is paid before the facilities, and the fan cap falls with it")
 
@@ -744,9 +762,8 @@ func _test_the_retainer_pays_a_club_nobody_has_heard_of() -> void:
 	for lv in Arena.LEVELS.size():
 		var o := ClubOffice.new()
 		o.arena.level = lv
-		## THE FLOOR, deliberately: a club at the bottom of the notoriety scale
-		## with the following a new club starts on. This is season one.
-		o.notoriety = 1.0
+		## THE FLOOR, deliberately: the following a new club starts on, in a ground
+		## it has not filled. This is season one.
 		o.fans = 12.0
 		var paid := o.gate_income()
 		line += "%s %d  ·  " % [String(Arena.LEVELS[lv]["name"]), paid]
@@ -762,11 +779,9 @@ func _test_the_retainer_pays_a_club_nobody_has_heard_of() -> void:
 	for lv in Arena.LEVELS.size():
 		var quiet := ClubOffice.new()
 		quiet.arena.level = lv
-		quiet.notoriety = 1.0
 		quiet.fans = 12.0
 		var loud := ClubOffice.new()
 		loud.arena.level = lv
-		loud.notoriety = ClubOffice.NOTORIETY_MAX
 		loud.fans = loud.fan_cap()
 		if quiet.gate_income() != loud.gate_income():
 			bad.append("%s pays %d to a nobody and %d to a household name"
@@ -787,7 +802,7 @@ func _test_the_retainer_pays_a_club_nobody_has_heard_of() -> void:
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "the retainer pays a club nobody has heard of",
-		"every ground pays its standing retainer at the notoriety floor, the same figure it pays at the ceiling, and the figures are the ones written down")
+		"every ground pays its standing retainer to a club nobody has heard of, the same figure it pays at the ceiling, and the figures are the ones written down")
 
 
 ## ------------------------------------------- nothing is pinned at the bottom
@@ -816,13 +831,20 @@ func _test_the_retainer_pays_a_club_nobody_has_heard_of() -> void:
 ## points is a curve the first ten hours of the game never sees.
 func _test_nothing_a_new_club_owns_is_pinned_at_zero() -> void:
 	var bad: Array[String] = []
-	var floor_note := 1.0
-	var top_note := ClubOffice.NOTORIETY_MAX
+	## THE FLOOR IS A CLUB, NOT A NUMBER, now that there is one population. A new
+	## club is twelve followers in a back field; a household name is a National
+	## Arena it has filled.
+	var floor_pull := 0.0
+	var top_pull := 1.0
 
 	## 1. THE GROUND RETAINER, which is what this rule was learned from.
 	var o := ClubOffice.new()
-	o.notoriety = floor_note
 	o.fans = 12.0
+	floor_pull = o.pull()
+	var big := ClubOffice.new()
+	big.arena.level = Arena.MAX_LEVEL
+	big.fans = big.fan_cap()
+	top_pull = big.pull()
 	if o.gate_income() <= 0:
 		bad.append("the ground retainer pays a new club nothing")
 
@@ -846,8 +868,8 @@ func _test_nothing_a_new_club_owns_is_pinned_at_zero() -> void:
 	man.aggression = 40
 	man.morale = 0.7
 	var band_top: int = int(League.TIERS[0]["power"][1])
-	var quiet := Contracts.will_wait(man, floor_note, band_top, 0.7)
-	var loud := Contracts.will_wait(man, top_note, band_top, 0.7)
+	var quiet := Contracts.will_wait(man, floor_pull, band_top, 0.7)
+	var loud := Contracts.will_wait(man, top_pull, band_top, 0.7)
 	notes.append("a %d-rated man at a Backyard club: stays %.0f%% for a nobody, %.0f%% for a household name"
 		% [man.overall(), quiet * 100.0, loud * 100.0])
 	## A tenth of the advertised thirty points is the bar — well under what the
@@ -855,18 +877,33 @@ func _test_nothing_a_new_club_owns_is_pinned_at_zero() -> void:
 	if loud - quiet < 0.03:
 		bad.append("being known is worth %.3f to a man deciding whether to stay"
 			% (loud - quiet))
-	## AND THE SPREAD HAS TO REACH THE BOTTOM, not just exist somewhere up the
-	## curve. Half the climb from nobody to famous should happen inside the range
-	## a club actually lives in for its first ten seasons.
-	var early := Contracts.will_wait(man, ClubOffice.CROWD_GATES[0], band_top, 0.7)
-	if loud - quiet > 0.0 and (early - quiet) / (loud - quiet) < 0.15:
-		bad.append("getting from unknown to 'talked about' is worth %.0f%% of the whole curve"
-			% (100.0 * (early - quiet) / (loud - quiet)))
+	## AND THE FLOOR ITSELF HAS TO BE OFF THE BOTTOM, which is now the honest
+	## version of the same rule.
+	##
+	## The old clause asked for a sixth of the whole curve to land in the first
+	## tenth of the SCALE, because `pull` was `sqrt(notoriety / 125)` on a linear
+	## fame number and a straight reading of it collected seven per cent for a new
+	## club. `pull()` is the log of the crowd against the biggest house in the
+	## country now, so the compression is in the quantity: a new club is already a
+	## fifth of the way up it, and filling a back field moves it again.
+	##
+	## **A check written for one curve is a check about that curve.** What
+	## survives, and what the rule was always about, is that nothing a new club
+	## owns reads as nothing.
+	var first := ClubOffice.new()
+	first.fans = first.fan_cap()
+	var early := Contracts.will_wait(man, first.pull(), band_top, 0.7)
+	if floor_pull <= 0.05:
+		bad.append("a new club's pulling power reads as zero (%.3f)" % floor_pull)
+	if early <= quiet:
+		bad.append("filling your own back field is worth nothing to a man deciding")
+	notes.append("pulling power: %.2f for twelve people in a field, %.2f for a packed one, 1.00 for a full National Arena"
+		% [floor_pull, first.pull()])
 
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "nothing a new club owns is pinned at zero",
-		"the retainer, the crowd and a club's pulling power all do something measurable at the notoriety floor")
+		"the retainer, the crowd and a club's pulling power all do something measurable for a club nobody has heard of")
 
 
 ## ------------------------------------------------- the rest of the meeting

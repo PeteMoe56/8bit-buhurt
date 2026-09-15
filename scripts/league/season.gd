@@ -748,7 +748,7 @@ func _award_xp(sim: MeleeSim) -> void:
 		## SPONGE and PLATEAUED ride on the same multiplier the regime and the
 		## captain already use, which is the point of them being multipliers: one
 		## man who learns faster is the same shape as a hard winter, at the man.
-		m.card.xp += int(round(float(Career.xp_for(m.downs_caused, m.rounds_standing))
+		m.card.xp += int(round(float(Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall()))
 			* office.regime_xp(role) * office.specialty_xp(role)
 			* FighterTrait.mod(m.card.trait_id, "xp", 1.0)))
 		## CEILING RAISER. A three-down afternoon is the best thing a man does all
@@ -924,7 +924,7 @@ func _after_event(rf: int, ra: int) -> void:
 	## The result then pays on top, so a win in a big year is worth a great deal
 	## more than the same win was worth in a small one.
 	##
-	## Note the ORDER: the pay is read BEFORE `note_after` moves notoriety, so
+	## Note the ORDER: the pay is read BEFORE `after_event` moves the following, so
 	## the fight pays the band the club had when it walked out. Paying after
 	## would let a single win push a club over a gate and then pay the new band
 	## for the fight that crossed it, which is a half-band of free money on every
@@ -941,6 +941,23 @@ func _after_event(rf: int, ra: int) -> void:
 	var g := gate_now()
 	office.take(int(g["cc"]), "The gate  ·  %s" % String(g["where"]), "event",
 		ClubOffice.LINE_GATE)
+	## AND THE COUNTER, AT HOME ONLY. It is your bar or it is not.
+	##
+	## Pete, 15 Sep 2026: *"Stadium damper could be food sales. Lemonade, bakery,
+	## brownies for back yard, progressing to real NFL beer sales and stuff at
+	## higher tiers."*
+	##
+	## THIS IS THE DAMPER AND THE DAMPING IS THE POINT. The gate reads the band and
+	## swings with form; the counter reads the turnstile and does not. A club that
+	## loses in front of a full house still sold them all a pint, so a bad season
+	## at a well-attended ground is a bad season rather than a crisis — which is
+	## exactly what Retro Bowl's stadium does for them, in a shape that belongs to
+	## this sport instead of theirs.
+	if venue_kind() == Venue.Kind.HOME:
+		var heads := office.attendance()
+		office.take(Arena.counter_take(office.arena.level, heads),
+			"The counter  ·  %s" % Arena.sells(office.arena.level), "event",
+			ClubOffice.LINE_COUNTER)
 	if rf > ra:
 		office.take(CREDITS_WIN, "Won the event", "event", ClubOffice.LINE_PRIZE)
 		office.morale_after(true, false)
@@ -1001,7 +1018,7 @@ func _after_event(rf: int, ra: int) -> void:
 	## The following moves with the result, and then the show goes on if it is
 	## due. In that order, because a tournament is drawn against the standing you
 	## have on the day of it.
-	office.note_after(rf > ra, rf == ra, world.player_tier())
+	office.after_event(rf > ra, rf == ra)
 	## AND IT GOES IN YOUR BOOK TOO. The club's record is the club's; this one
 	## follows you out of the door when you take another job, which is the only
 	## reason to keep a second copy of the same three numbers.
@@ -1205,7 +1222,7 @@ func bid_preview(offer_i: int, budget_i: int) -> Dictionary:
 	if offer_i < 0 or offer_i >= bid_offers.size():
 		return {}
 	var offer: Dictionary = bid_offers[offer_i]
-	return ClubEvent.preview(office.arena.capacity(), office.fans, office.notoriety,
+	return ClubEvent.preview(office.arena.capacity(), office.fans,
 		budget_i, int(offer["bid"]))
 
 
@@ -1323,7 +1340,7 @@ func _finish_cup_round(c: Cup, won: bool) -> void:
 			break
 		c.sim_others(world.cup_resolver())
 	office.morale_after(won, false)
-	office.note_after(won, false, world.player_tier())
+	office.after_event(won, false)
 	## The bronze match, on the path the player actually walks. `run_all` played
 	## it; this route never did, so third place did not exist in a cup anybody
 	## fought through.
@@ -1376,8 +1393,8 @@ func run_demo() -> String:
 	office.take(pay, "A demo at the ground", "event", ClubOffice.LINE_GROUND)
 	## A demo keeps you on the calendar. Barely — a quarter of the turnout a real
 	## event would pull, and no promotion behind it.
-	var heads := int(float(ClubEvent.attendance(office.arena.capacity(), office.fans,
-		office.notoriety)) * 0.25)
+	var heads := int(float(ClubEvent.attendance(office.arena.capacity(),
+		office.fans)) * 0.25)
 	office.crowd_came(heads)
 	office.mark_this_week("demo")
 	last_show = {
@@ -1424,7 +1441,7 @@ func _settle_event() -> void:
 ## whole point of the feature.
 func _settle_gate(e: ClubEvent, c: Cup) -> void:
 	var heads := ClubEvent.attendance(office.arena.capacity(), office.fans,
-		office.notoriety, float(ClubEvent.BUDGETS[e.budget]["draw"]))
+		float(ClubEvent.BUDGETS[e.budget]["draw"]))
 	var g := ClubEvent.gate(heads, float(ClubEvent.BUDGETS[e.budget]["take"]))
 	var podium := 0
 	if c.champion == world.player_club:
@@ -1438,8 +1455,12 @@ func _settle_gate(e: ClubEvent, c: Cup) -> void:
 	## came is half a fan afterwards. An empty house is not punished twice — the
 	## lost credits are punishment enough — so this only ever adds.
 	office.crowd_came(heads)
+	## A PODIUM AT YOUR OWN SHOW IS WORTH A CROWD. It used to be `note_shift(2.0)`
+	## on a fame scale that no longer exists; a fifteenth of the room left is the
+	## same size of nudge against the one number that is.
 	if podium > 0:
-		office.note_shift(2.0)
+		office.fans += (office.fan_cap() - office.fans) * 0.067
+		office.crowd_came(0)
 	e.settled = true
 	last_show = {
 		"kind": e.kind_name(), "heads": heads, "gate": g, "cost": e.cost(),
@@ -1551,7 +1572,75 @@ func blocked_by() -> String:
 	## has to be dealt with before you can fight rather than three.
 	if not dilemma.is_empty():
 		return "dilemma"
+	## AND THE LAST GATE OF THE YEAR: go up, or stay where you are.
+	if promotion_offered():
+		return "promotion"
 	return ""
+
+
+# ------------------------------------------------------- take it or stay down
+## PROMOTION IS AN OFFER NOW, NOT A FACT.
+##
+## Pete, 15 Sep 2026: *"If you qualify for the next league, you can choose to
+## advance, or stay within your league next season. A player may bust through the
+## season but want to stay a season and continue building up their money, train
+## players, or whatever they wish, and staying in a cheaper league would be
+## beneficial."*
+##
+## It only means anything because the division now costs money to be in —
+## `League.dues_for(tier)` is 6 / 14 / 24 / 38 — so staying down is a real saving
+## against a real risk, rather than a button that does nothing but waste a year.
+## The two changes are one change and neither works alone.
+##
+## ANSWERED, NOT DEFAULTED. `promotion_answered` starts false and `blocked_by()`
+## holds the season on it, for the same reason the dilemma card blocks the next
+## matchday: **a decision the player can walk past is a decision he walks past**,
+## and this one is the biggest of the year.
+var promotion_answered: bool = false
+
+
+## Did the club finish in a promotion place, with somewhere to be promoted to?
+func promotion_place() -> bool:
+	if not season_complete():
+		return false
+	var t := world.player_tier()
+	if t >= League.TIERS.size() - 1:
+		return false                      ## nothing above the National Division
+	var p := position()
+	return p >= 1 and p <= int(League.TIERS[t]["up"])
+
+
+func promotion_offered() -> bool:
+	return promotion_place() and not promotion_answered
+
+
+## WHAT IT WOULD COST TO GO UP, for the screen — the two bills side by side,
+## because that is the whole decision and a player should not have to go and find
+## the number on another page.
+func promotion_terms() -> Dictionary:
+	var t := world.player_tier()
+	var up := mini(t + 1, League.TIERS.size() - 1)
+	return {
+		"from": League.tier_name(t),
+		"to": League.tier_name(up),
+		"dues_now": League.dues_for(t),
+		"dues_up": League.dues_for(up),
+		"in_hand": office.credits,
+	}
+
+
+## Take it or leave it. Returns "" like every other verb here.
+func answer_promotion(take: bool) -> String:
+	if not promotion_place():
+		return "There is nothing to decide."
+	promotion_answered = true
+	world.stay_down = not take
+	last_promotion_choice = take
+	return ""
+
+
+## What he said, for the summer report. `true` is went up, `false` is stayed.
+var last_promotion_choice := true
 
 
 ## The summer: cups resolve, promotions and relegations settle, a new fixture
@@ -1583,6 +1672,9 @@ var market_taken: Array[String] = []
 ## winter, cleared either way. Held as the card itself rather than an index
 ## because a roster re-sorts and an index does not survive a cut.
 var prospect: FighterCard = null
+
+## What the veterans at their ceiling turned their XP into this summer.
+var last_cashed: int = 0
 
 ## What the winter did: points gained, points lost to age, who retired, who was
 ## brought on. Read by the season screen — a squad that quietly loses two men
@@ -1663,6 +1755,12 @@ func roll_over() -> void:
 	var before := world.player_tier()
 	var finished := position()
 	world.roll_over()
+	## THE ANSWER IS SPENT. Both flags reset here rather than at the start of the
+	## next season, because `roll_over()` is the only thing that consumes them and
+	## a flag cleared anywhere else is a flag that survives a save and declines a
+	## promotion nobody was offered.
+	world.stay_down = false
+	promotion_answered = false
 	sync_power()
 	var after := world.player_tier()
 	## The summer: prize money, the gate from hosting, and the winter's training.
@@ -1675,15 +1773,33 @@ func roll_over() -> void:
 			"Finished %s" % UiKit.ordinal(finished), "season", ClubOffice.LINE_PRIZE)
 	if after > before:
 		office.take(CREDITS_PROMOTED, "Went up", "season", ClubOffice.LINE_PRIZE)
-		office.note_shift(ClubOffice.NOTE_PROMOTED)
+		office.after_move(true)
 	elif after < before:
-		office.note_shift(ClubOffice.NOTE_RELEGATED)
+		office.after_move(false)
 	office.take(office.gate_income(), "A season of gates", "season",
 		ClubOffice.LINE_GROUND)
 	## THE DUES. Banked before the bills, because that is what they are for — the
 	## members' money is the income that does not move with results, and it is
 	## the money the federation's bill is actually competing for.
-	office.take(office.dues(), "Members' dues", "season", ClubOffice.LINE_DUES)
+	## THE FEDERATION'S BILL, AND IT GOES THE OTHER WAY NOW.
+	##
+	## This line used to READ `office.take(office.dues(), "Members' dues")` and it
+	## was the biggest single earner in the game — 24.4 credits a season across a
+	## career, 58% of everything the club made, from a standing subscription. Pete,
+	## 15 Sep 2026: *"I'm not liking the dues portion, that should more be a league
+	## dues at the start of a season, one in which you CAN go negative but it's a
+	## good bite."*
+	##
+	## CHARGED HERE, at the roll-over, rather than at the first fixture — because
+	## the roll-over is where the division is decided and the bill is for the
+	## division you are about to enter. `office.tier` has already been set by
+	## `_apply_regime`'s caller below; this runs after the promotion choice is
+	## settled, so a club that stayed down pays the cheaper bill it stayed down for.
+	##
+	## AND IT IS ALLOWED TO GO NEGATIVE. `spend()` does not check, deliberately —
+	## every other caller checks first and this one must not, because a bill you
+	## can decline is not a bill. See `ClubOffice.in_the_red()`.
+	office.spend(League.dues_for(office.tier), ClubOffice.LINE_FEDERATION)
 	## AND THEN THE BILLS. Deliberately after the retainer and the prize money and
 	## deliberately before the training: a club should be paid for the year it had
 	## and then asked what it costs to keep what it owns, in that order, because
@@ -1697,6 +1813,16 @@ func roll_over() -> void:
 	## untaught for that winter, which is the cost of having let it lapse.
 	last_staff_left = office.age_captains()
 	_train()
+	## AND THE MEN AT THEIR CEILING CASH IN. Retro Bowl's rule — *"maxed players
+	## convert further level-ups into credits"* — and the reason to take it is
+	## that the alternative is throwing away every point of XP a veteran earns
+	## for the rest of his career. See `Career.cash_in`.
+	last_cashed = 0
+	for f in club.roster:
+		var got := Career.cash_in(f)
+		if got > 0:
+			last_cashed += office.take(got, "%s passing it on" % f.display_name,
+				"season", ClubOffice.LINE_SQUAD)
 	for f in club.roster:
 		f.injury = 0            ## nobody carries a knock across a winter
 	sync_power()
@@ -1730,18 +1856,23 @@ func roll_over() -> void:
 	## been paid, trained and aged first — the men who walk take the winter they
 	## earned with them, which is what makes the rival dangerous rather than a
 	## collection of last year's numbers.
-	## WHO STAYED AND WHO WALKED. After the results and after the bills, because a
-	## member is deciding whether the place was worth belonging to this year and
-	## the answer includes whether the club could keep the lights on.
+	## WHO STAYED AND WHO WALKED, and it moves the FOLLOWING now rather than a
+	## membership roll of its own.
 	##
-	## NOT compliance — see the note at the top of `Federation`. Members leaving
+	## `members` is gone — the third of three populations all answering the same
+	## question, and the one whose only output was a subscription the club no
+	## longer collects. What it reacted to was always right, though: a season in
+	## the top half, a room worth being in, a club that can fill its own bus. So
+	## those three keep moving people; they move the one population that is left.
+	##
+	## NOT compliance — see the note at the top of `Federation`. People leaving
 	## over paperwork would make both masters want the same thing and collapse the
 	## pillar into one slider.
 	var bench_full: bool = club.active_eight().size() >= office.travel_slots
-	var was_members := office.members
-	office.members = Federation.members_after(office.members,
+	var was_fans := office.fans
+	office.fans = Federation.following_after(office.fans, office.fan_cap(),
 		finished <= int(League.club_count(before) / 2), office.morale, bench_full)
-	last_members = {"was": was_members, "now": office.members}
+	last_members = {"was": was_fans, "now": office.fans}
 
 	last_split = _maybe_split(finished, before, after)
 
@@ -2074,7 +2205,7 @@ func _settle_contracts() -> Array[String]:
 	for f in club.roster.duplicate():
 		if f.years > 0:
 			continue
-		var wait := Contracts.will_wait(f, office.notoriety, int(band[1]), office.morale)
+		var wait := Contracts.will_wait(f, office.pull(), int(band[1]), office.morale)
 		if _roster_rng().randf() > wait:
 			walked.append("%s (%d)" % [f.display_name, f.overall()])
 			club.roster.erase(f)
@@ -2236,13 +2367,33 @@ func _draw_dilemma() -> void:
 	rng.seed = hash("deck:%d:%d:%d" % [world.rng.seed, world.season, world.event])
 	if rng.randf() > DILEMMA_CHANCE:
 		return
+	## THE DECK IS THE COACH'S, and it is weighted.
+	##
+	## Pete, 15 Sep 2026: *"make Coaches reputation a driving factor on what
+	## appears for the conflicts or choices. Better reputations mean better
+	## choices, but bad reputations can also mean more choices that have chances
+	## for cheating or subversion."* `Dilemma.deck_for` does the filtering; the
+	## weighted draw below is what makes the armorer's van rare without a second
+	## deck to keep in step.
+	var deck: Array = Dilemma.deck_for(coach.reputation)
 	var options: Array = []
-	for c in Dilemma.CARDS:
+	for c in deck:
 		if not dilemma_recent.has(String(c["id"])):
 			options.append(c)
 	if options.is_empty():
-		options = Dilemma.CARDS.duplicate()
-	var card: Dictionary = options[rng.randi() % options.size()]
+		options = deck.duplicate()
+	if options.is_empty():
+		return
+	var total := 0
+	for c in options:
+		total += Dilemma.weight_of(c)
+	var roll := rng.randi() % maxi(1, total)
+	var card: Dictionary = options[options.size() - 1]
+	for c in options:
+		roll -= Dilemma.weight_of(c)
+		if roll < 0:
+			card = c
+			break
 	var man := Dilemma.pick(int(card["who"]), club.roster, rng)
 	dilemma = {
 		"id": String(card["id"]),
@@ -2338,9 +2489,23 @@ func answer_dilemma(option_i: int) -> String:
 		## that could do it.
 		office.morale_shift(float(fx["morale"]))
 		said.append("morale %s" % ("up" if float(fx["morale"]) > 0.0 else "down"))
+	## THE DECK'S `note` CURRENCY IS NOW THE FOLLOWING TOO.
+	##
+	## Fifteen cards were written against five currencies — credits, morale,
+	## notoriety, fans and a man — and two of those five were the same population
+	## seen twice. Rather than rewrite thirty-eight options, `note` is read as a
+	## move on the one number that is left, scaled: the old scale ran to 125 and
+	## the cards spend two or three of it, so a point of `note` is a fiftieth of
+	## the room left. **A currency that no longer exists is not a currency the
+	## deck should keep spending.**
 	if fx.has("note"):
-		office.note_shift(float(fx["note"]))
-		said.append("talked about %s" % ("more" if float(fx["note"]) > 0.0 else "less"))
+		var n := float(fx["note"])
+		if n > 0.0:
+			office.fans += (office.fan_cap() - office.fans) * (n * 0.02)
+		else:
+			office.fans += office.fans * (n * 0.02)
+		office.crowd_came(0)
+		said.append("talked about %s" % ("more" if n > 0.0 else "less"))
 	if fx.has("fans"):
 		office.crowd_came(int(office.fans * float(fx["fans"]) * 2.0))
 		said.append("%d%% more following" % int(round(float(fx["fans"]) * 100.0)))
