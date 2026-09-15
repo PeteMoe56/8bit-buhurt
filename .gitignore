@@ -1,0 +1,28 @@
+# Godot 4
+.godot/
+/android/
+export_presets.cfg
+
+# Exports
+/build/
+*.apk
+*.aab
+*.ipa
+*.exe
+*.pck
+*.zip
+
+# Editor and OS
+*.translation
+.DS_Store
+Thumbs.db
+
+# This project's own working files
+_to_delete/
+_git_locks_to_delete/
+*.tgz
+
+# Rendered screens are kept ON PURPOSE. `shots/` is evidence: half the findings
+# in docs/REGISTER.md are "the screenshot showed something no test could see",
+# and a repo that throws them away throws away the record of how the layout got
+# the way it is. They are small, they diff usefully, and they stay.

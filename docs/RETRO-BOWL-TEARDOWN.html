@@ -1,0 +1,660 @@
+<title>Retro Bowl Teardown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@600;700;900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;700&display=swap">
+
+<style>
+:root{
+  --ground:#eceae1;
+  --surface:#f6f4ee;
+  --sunk:#e3dfd3;
+  --ink:#232019;
+  --ink-2:#5c5648;
+  --ink-3:#8a8271;
+  --line:#d4cfc0;
+  --line-soft:#e3dfd3;
+  --mark:#856807;          /* Retro Buhurt — marshal yellow, darkened for paper */
+  --mark-fill:#f2d13c;
+  --bowl:#3c6733;          /* Retro Bowl — gridiron green */
+  --bowl-fill:#dde8d8;
+  --pos:#3d7a31;
+  --neg:#ad3820;
+  --warn:#8a6a12;
+  --shadow:0 1px 2px rgba(35,32,25,.07);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#2e2a24;
+    --surface:#37322a;
+    --sunk:#241f1a;
+    --ink:#e8e4d8;
+    --ink-2:#b2aa96;
+    --ink-3:#8a8171;
+    --line:#4b4337;
+    --line-soft:#3d352b;
+    --mark:#f2d13c;
+    --mark-fill:#f2d13c;
+    --bowl:#6fbf5e;
+    --bowl-fill:#2e3a2a;
+    --pos:#6fbf5e;
+    --neg:#e05a3c;
+    --warn:#e0b53c;
+    --shadow:0 1px 2px rgba(0,0,0,.28);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#2e2a24;
+  --surface:#37322a;
+  --sunk:#241f1a;
+  --ink:#e8e4d8;
+  --ink-2:#b2aa96;
+  --ink-3:#8a8171;
+  --line:#4b4337;
+  --line-soft:#3d352b;
+  --mark:#f2d13c;
+  --mark-fill:#f2d13c;
+  --bowl:#6fbf5e;
+  --bowl-fill:#2e3a2a;
+  --pos:#6fbf5e;
+  --neg:#e05a3c;
+  --warn:#e0b53c;
+  --shadow:0 1px 2px rgba(0,0,0,.28);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17px;
+  line-height:1.62;
+  margin:0;
+  padding-inline:20px;
+  padding-block:0 96px;
+}
+.wrap{max-width:1080px;margin:0 auto}
+.col{max-width:68ch}
+
+h1,h2,h3,h4,.eyebrow,th,.chip,.tag,.num{font-family:Chivo,"Helvetica Neue",Arial,sans-serif}
+h1{font-size:clamp(34px,6vw,54px);line-height:1.02;font-weight:900;letter-spacing:-.022em;margin:0;text-wrap:balance}
+h2{font-size:clamp(23px,3.4vw,30px);line-height:1.12;font-weight:800;letter-spacing:-.014em;margin:0;text-wrap:balance}
+h3{font-size:19px;line-height:1.25;font-weight:700;letter-spacing:-.006em;margin:0;text-wrap:balance}
+h4{font-size:15px;line-height:1.3;font-weight:700;margin:0;letter-spacing:.01em}
+p{margin:0}
+a{color:var(--mark)}
+
+.eyebrow{
+  font-size:11.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3);margin:0;
+}
+code,.mono,.num{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+code{font-size:.86em;background:var(--sunk);padding:.1em .36em;border-radius:3px;color:var(--ink)}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- masthead ---------- */
+.mast{border-bottom:2px solid var(--ink);padding-block:44px 22px;display:flex;flex-direction:column;gap:20px}
+.mast .lede{font-size:19px;color:var(--ink-2);max-width:60ch}
+.key{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;font-size:13px;color:var(--ink-2);font-family:Chivo,sans-serif}
+.key b{font-weight:700;color:var(--ink)}
+.swatch{display:inline-flex;align-items:center;gap:7px}
+.swatch i{width:13px;height:13px;border-radius:2px;display:inline-block;flex:none}
+.sw-bowl{background:var(--bowl)}
+.sw-mark{background:var(--mark-fill);outline:1px solid var(--line)}
+
+/* ---------- rhythm ---------- */
+section{padding-block:46px;border-bottom:1px solid var(--line-soft)}
+section:last-of-type{border-bottom:0}
+.stack{display:flex;flex-direction:column;gap:22px}
+.stack-tight{display:flex;flex-direction:column;gap:12px}
+.head{display:flex;flex-direction:column;gap:9px;margin-bottom:8px}
+
+/* ---------- confidence chips ---------- */
+.chip{
+  display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;padding:2px 7px;border-radius:3px;vertical-align:2px;
+  white-space:nowrap;
+}
+.c-doc{background:var(--bowl-fill);color:var(--bowl);border:1px solid var(--bowl)}
+.c-com{background:transparent;color:var(--warn);border:1px solid var(--warn)}
+.c-dis{background:transparent;color:var(--neg);border:1px solid var(--neg)}
+.c-mine{background:var(--sunk);color:var(--ink-3);border:1px solid var(--line)}
+
+/* ---------- tables ---------- */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:5px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:460px}
+th{
+  font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  text-align:left;color:var(--ink-3);padding:11px 14px;border-bottom:1px solid var(--line);
+  background:var(--sunk);white-space:nowrap;
+}
+td{padding:10px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;
+   font-family:"Source Serif 4",Georgia,serif}
+tr:last-child td{border-bottom:0}
+td.n,th.n{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.them{border-left:3px solid var(--bowl)}
+td.us{border-left:3px solid var(--mark-fill)}
+caption{caption-side:bottom;text-align:left;font-size:12.5px;color:var(--ink-3);padding:10px 14px;font-family:Chivo,sans-serif}
+
+/* ---------- the chain diagram ---------- */
+.chain{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:0;padding:0;list-style:none}
+.chain li{
+  flex:1 1 150px;background:var(--surface);border:1px solid var(--line);
+  border-top:3px solid var(--bowl);border-radius:4px;padding:13px 15px;
+  display:flex;flex-direction:column;gap:4px;min-width:0;
+}
+.chain .lbl{font-family:Chivo,sans-serif;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.chain .val{font-family:Chivo,sans-serif;font-size:16px;font-weight:700;line-height:1.25}
+.chain .sub{font-size:13px;color:var(--ink-2);line-height:1.4}
+.chain.ours li{border-top-color:var(--mark-fill)}
+
+/* ---------- spec list ---------- */
+.spec{display:grid;grid-template-columns:minmax(150px,auto) 1fr;gap:0;border:1px solid var(--line);border-radius:5px;overflow:hidden;background:var(--surface)}
+.spec dt{
+  font-family:Chivo,sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);padding:11px 14px;border-bottom:1px solid var(--line-soft);background:var(--sunk);
+}
+.spec dd{margin:0;padding:11px 14px;border-bottom:1px solid var(--line-soft);font-size:15px}
+.spec dt:last-of-type,.spec dd:last-of-type{border-bottom:0}
+
+/* ---------- callout ---------- */
+.note{
+  border-left:3px solid var(--mark-fill);background:var(--surface);
+  padding:16px 18px;border-radius:0 5px 5px 0;display:flex;flex-direction:column;gap:9px;
+}
+.note.them{border-left-color:var(--bowl)}
+.note h4{color:var(--ink)}
+.note p{font-size:15.5px;color:var(--ink-2)}
+.note strong{color:var(--ink);font-weight:600}
+
+/* ---------- ranked recommendations ---------- */
+.recs{display:flex;flex-direction:column;gap:14px;counter-reset:rec}
+.rec{
+  background:var(--surface);border:1px solid var(--line);border-radius:5px;
+  padding:18px 20px 18px 18px;display:grid;grid-template-columns:auto 1fr;gap:0 16px;align-items:start;
+  box-shadow:var(--shadow);
+}
+.rec::before{
+  counter-increment:rec;content:counter(rec,decimal-leading-zero);
+  font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;color:var(--mark);
+  grid-row:1/span 4;padding-top:3px;
+}
+.rec h3{margin-bottom:7px}
+.rec p{font-size:15.5px;color:var(--ink-2);margin-bottom:9px}
+.rec .cost{
+  font-family:Chivo,sans-serif;font-size:12.5px;color:var(--ink-3);
+  border-top:1px dashed var(--line);padding-top:9px;
+}
+.rec .cost b{color:var(--ink);font-weight:700}
+
+/* ---------- verdict rows ---------- */
+.verdicts{display:flex;flex-direction:column;gap:2px}
+.verdict{display:grid;grid-template-columns:minmax(190px,1fr) 2.1fr;gap:0 22px;
+  padding:14px 0;border-bottom:1px solid var(--line-soft);align-items:baseline}
+.verdict:last-child{border-bottom:0}
+.verdict h4{color:var(--ink)}
+.verdict p{font-size:15.5px;color:var(--ink-2)}
+
+ul.plain{margin:0;padding-left:1.15em;display:flex;flex-direction:column;gap:7px}
+ul.plain li{font-size:15.5px;color:var(--ink-2)}
+ul.plain li strong{color:var(--ink);font-weight:600}
+
+.src{font-size:14px;color:var(--ink-2)}
+.src a{text-decoration-thickness:1px;text-underline-offset:2px}
+
+@media (max-width:560px){
+  body{font-size:16px}
+  .spec{grid-template-columns:1fr}
+  .spec dt{border-bottom:0;padding-bottom:2px;background:var(--surface)}
+  .verdict{grid-template-columns:1fr;gap:5px}
+  .rec{grid-template-columns:1fr}
+  .rec::before{grid-row:auto;padding-top:0;padding-bottom:4px}
+}
+@media (prefers-reduced-motion:no-preference){
+  a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">Design teardown &middot; Retro Bowl vs Retro Buhurt &middot; 10 Sep 2026</p>
+  <h1>What Retro Bowl actually does, and what we should take</h1>
+  <p class="lede">A system-by-system directory of Retro Bowl's design, then an honest comparison against Retro Buhurt as it stands at 94 passing checks. The short version: their fan meter is doing far more work than our notoriety, and they have an entire career layer we have not built.</p>
+  <div class="key">
+    <span class="swatch"><i class="sw-bowl"></i><b>Retro Bowl</b></span>
+    <span class="swatch"><i class="sw-mark"></i><b>Retro Buhurt</b></span>
+    <span><span class="chip c-doc">documented</span> in-game text, wiki or developer</span>
+    <span><span class="chip c-com">community</span> reverse-engineered</span>
+    <span><span class="chip c-dis">disputed</span> sources conflict</span>
+  </div>
+</header>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; their economy</p>
+      <h2>The whole game is one chain, and it has exactly one faucet</h2>
+    </div>
+    <p>Retro Bowl has a single currency, a single source of it, and no money system at all. Everything else in their design hangs off this chain. Read it left to right — this is the finding that matters most for your question about fan percentages.</p>
+  </div>
+
+  <ol class="chain" style="margin-top:24px">
+    <li><span class="lbl">Input</span><span class="val">Win or lose</span><span class="sub">The only input. A loss pays nothing at all.</span></li>
+    <li><span class="lbl">Meter</span><span class="val">Fan support %</span><span class="sub">Rises on a win, falls on a loss, carries across seasons.</span></li>
+    <li><span class="lbl">Bands</span><span class="val">Three tiers</span><span class="sub">0&ndash;33% &rarr; 1 credit. 33&ndash;66% &rarr; 2. 66&ndash;100% &rarr; 3.</span></li>
+    <li><span class="lbl">Output</span><span class="val">Coaching Credits</span><span class="sub">Per game. The only currency in the game.</span></li>
+    <li><span class="lbl">Spent on</span><span class="val">Everything</span><span class="sub">Facilities, players, staff, cap space, morale.</span></li>
+  </ol>
+
+  <div class="col stack" style="margin-top:26px">
+    <div class="note them">
+      <h4>The fan meter is an income throttle wearing an approval rating's clothes</h4>
+      <p>It has <strong>exactly one output</strong>: how many credits a game pays. It is not a fail state, not a gate on content, not a reputation that unlocks anything. It does not affect play on the field, there is no home advantage, and it does not generate money because <strong>there is no money</strong>. The feeling is "the city believes in me". The function is a 3&times; multiplier on the drip.</p>
+      <p>A dominant season is roughly <span class="num">70</span> credits. A poor one is <span class="num">16&ndash;20</span>. That <strong>~3.5&times; spread is the entire mechanical footprint of the fan system</strong>, and it is what makes a bad year expensive without ever ending your run. <span class="chip c-doc">documented</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; fans</p>
+      <h2>Fans, in detail</h2>
+    </div>
+    <p>You asked specifically about their fan percentages, so here is everything that is actually known, separated from the very large amount that is guessed at on the open web.</p>
+  </div>
+
+  <div class="scroll" style="margin-top:22px">
+    <table>
+      <thead><tr><th>Fact</th><th>Detail</th><th style="width:1%">Confidence</th></tr></thead>
+      <tbody>
+        <tr><td>Moves per game, not per season</td><td>Up on a win, down on a loss, immediately.</td><td><span class="chip c-doc">documented</span></td></tr>
+        <tr><td>Losses hurt more than wins help</td><td>Every source that comments on it agrees. This asymmetry is the point — it means <em>consistency</em> is what the economy pays for, not peaks.</td><td><span class="chip c-doc">documented</span></td></tr>
+        <tr><td>The Stadium sets the size of the swing</td><td>Not the ceiling — the <em>delta</em>. A better stadium gains more per win <em>and loses less per loss</em>.</td><td><span class="chip c-doc">documented</span></td></tr>
+        <tr><td>Credits are computed after the result is applied</td><td>So a win that pushes you over 33% pays the higher band that same week.</td><td><span class="chip c-doc">documented</span></td></tr>
+        <tr><td>Upgrading the stadium gives an instant small fan bump</td><td>On top of the swing change.</td><td><span class="chip c-doc">documented</span></td></tr>
+        <tr><td>"Fan Favourite" coordinator trait</td><td><span class="num">+1%</span> fan support every game, flat. The only other documented input.</td><td><span class="chip c-doc">documented</span></td></tr>
+        <tr><td>Press dilemmas move it</td><td>Criticising a player costs fans; praising gains them.</td><td><span class="chip c-doc">documented</span></td></tr>
+        <tr><td>Actual % per win / per loss</td><td><strong>Nobody knows.</strong> Community estimates run &minus;3% to &minus;10% per loss, with one outlier claiming &minus;20% against +3%.</td><td><span class="chip c-dis">disputed</span></td></tr>
+        <tr><td>Whether a loss still pays credits</td><td>The wiki says credits need a win. Two better sources say the bar pays regardless and the loss simply drops you a band. Unresolved.</td><td><span class="chip c-dis">disputed</span></td></tr>
+        <tr><td>Anything special at 0% or 100%</td><td>No source describes either. No bonus, no unlock, no fail state.</td><td><span class="chip c-com">community</span></td></tr>
+      </tbody>
+      <caption>The most common false claim on the web is that the stadium "generates revenue" or "boosts attendance". It does neither — there is no revenue or attendance mechanic in Retro Bowl at all.</caption>
+    </table>
+  </div>
+
+  <div class="col stack" style="margin-top:26px">
+    <h3>The cleverest thing in their whole design</h3>
+    <p>The Stadium is <strong>the purchasable answer to variance</strong>. You spend the currency the fan bar produces in order to make the fan bar <em>less volatile</em>, which produces more currency. It is a positive feedback loop the player pays into voluntarily, and it is why every guide says stadium first.</p>
+    <p>And it <strong>saturates</strong>. Once you are parked in the 66&ndash;100% band you are capped at 3 credits a game, and further stadium levels do nothing but protect you through a losing run. The first upgrades feel enormous — a 3&times; income jump — and the last feel like nothing, which quietly rotates the player's attention onto the roster without any explicit gating. That is a real design trick and we do not have anything like it.</p>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; morale</p>
+      <h2>Morale is a separate meter, and the split is deliberate</h2>
+    </div>
+    <p>Sitting directly below the fan bar is a second percentage: team morale. Two meters, two systems, and the difference between them is the sharpest design decision in the game.</p>
+  </div>
+
+  <div class="scroll" style="margin-top:22px">
+    <table>
+      <thead><tr><th></th><th>Fans</th><th>Morale</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Nature</strong></td><td class="them">External, economic</td><td class="them">Internal, mechanical</td></tr>
+        <tr><td><strong>Output</strong></td><td class="them">Currency, and nothing else</td><td class="them">Fumbles, missed tackles, contract refusals</td></tr>
+        <tr><td><strong>Lever</strong></td><td class="them">The Stadium</td><td class="them">Training facility, credits, press choices</td></tr>
+        <tr><td><strong>Speed</strong></td><td class="them">Slow, cumulative, asymmetric</td><td class="them">Fast, per-player</td></tr>
+        <tr><td><strong>Buyable?</strong></td><td class="them"><strong>No.</strong> Only winning moves it.</td><td class="them"><strong>Yes.</strong> A meeting costs a few credits.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col stack" style="margin-top:26px">
+    <div class="note them">
+      <h4>One is buyable and one is not, on purpose</h4>
+      <p>Morale you can fix with credits. Condition you can fix with credits. Cap space you can buy with credits. <strong>Fans you can only fix by winning</strong> — and the credits you need to build a winning roster come from fans. That is the one genuinely locked door in their economy, and it is what produces the widely reported "season six is when the game actually begins" experience.</p>
+      <p>If morale were also unbuyable the game would be punishing. If fans were also buyable there would be no economy. The split gives the player a lever to pull every single week while the strategic constraint stays honest.</p>
+    </div>
+    <p>Morale bands: Toxic below 10%, then Bad, Poor, O.K. at 50%, Good at 70%, Great at 80%, Exceptional at 90%. A toxic player <strong>cannot be traded and will not sign an extension</strong> until you pay to lift him, and he drags team morale down while he sits there. <span class="chip c-doc">documented</span></p>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; the ledger</p>
+      <h2>Every credit in and every credit out</h2>
+    </div>
+  </div>
+
+  <div class="scroll" style="margin-top:22px">
+    <table>
+      <thead><tr><th>Faucet</th><th class="n">Credits</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Per game, from the fan band</td><td class="n">1 / 2 / 3</td><td>The main income. Everything else is garnish.</td></tr>
+        <tr><td>Winning the Retro Bowl</td><td class="n">+10</td><td>Once a year, at most.</td></tr>
+        <tr><td>Owner / board dilemma</td><td class="n">+1 or +2</td><td>Occasional.</td></tr>
+        <tr><td>Selling an unused draft pick</td><td class="n">3 / 2 / 1</td><td>By round.</td></tr>
+        <tr><td>Levelling a fully maxed player</td><td class="n">varies</td><td>A sink that turns into a faucet. Elegant.</td></tr>
+        <tr><td>Real money</td><td class="n">25 for $0.99</td><td>Up to 2,000 for $29.99.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="scroll" style="margin-top:14px">
+    <table>
+      <thead><tr><th>Sink</th><th class="n">Credits</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Salary cap, +$25M</strong></td><td class="n">100</td><td>By far the largest purchase. Repeatable forever. Every guide says ignore it early.</td></tr>
+        <tr><td>One facility, level 1 &rarr; 10</td><td class="n">54</td><td>Cost of level N is N credits. All three = <span class="num">162</span>.</td></tr>
+        <tr><td>Levelling a veteran</td><td class="n">40+</td><td>The worst value in the game.</td></tr>
+        <tr><td>5-star free agent</td><td class="n">~30</td><td>4-star is ~24.</td></tr>
+        <tr><td>Hiring a coordinator</td><td class="n">18&ndash;30</td><td></td></tr>
+        <tr><td>Team-wide morale boost</td><td class="n">~25</td><td>Guides say cut the toxic player instead.</td></tr>
+        <tr><td>Extending a 4-star coordinator</td><td class="n">10</td><td>A 0.5-star costs <span class="num">1</span> — the cheapest action in the game and a genuine arbitrage.</td></tr>
+        <tr><td>Defending a player in a dilemma</td><td class="n">1</td><td>Almost always correct.</td></tr>
+      </tbody>
+      <caption>Note the shape: facilities are cheap and finished by about season three. The expensive things are all people. The game wants infrastructure to be a solved problem so the long game is entirely roster decisions.</caption>
+    </table>
+  </div>
+
+  <div class="col stack" style="margin-top:26px">
+    <div class="note them">
+      <h4>One upgrade per facility per week</h4>
+      <p>A hard throttle. You cannot dump a windfall into infrastructure — a Retro Bowl win or a pick sale cannot be converted into instant progress. Facility investment is <strong>forced to spread across a season regardless of how rich you are</strong>. It is a small rule doing a lot of pacing work. <span class="chip c-com">community</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; the roster</p>
+      <h2>Ten men for twenty-two positions</h2>
+    </div>
+    <p>This is their central squeeze and it is far more brutal than ours.</p>
+  </div>
+
+  <dl class="spec" style="margin-top:22px">
+    <dt>Roster</dt><dd><strong>10 star players free, 12 with the $0.99 unlock.</strong> No per-position minimums — you can roster zero quarterbacks if you want.</dd>
+    <dt>On the field</dt><dd>11 on offence, 11 on defence, plus a kicker. Twenty-three slots.</dd>
+    <dt>Nonames</dt><dd>Every slot you have not filled is played by an <strong>unnamed, unrated player with the worst possible stats</strong>. He accrues no stats and cannot be managed.</dd>
+    <dt>Positions</dt><dd>Nine: QB, RB, WR, TE, OL, DL, LB, DB, K. No punter — the kicker punts.</dd>
+    <dt>Attributes</dt><dd>Exactly <strong>four per player</strong>, scale 1&ndash;10: one position-specific skill, then Strength, Speed, Stamina.</dd>
+    <dt>Overall</dt><dd>0.5 to 5.0 stars in half-star steps.</dd>
+  </dl>
+
+  <div class="col stack" style="margin-top:26px">
+    <div class="note them">
+      <h4>The noname is the best idea in their roster design</h4>
+      <p>It converts "who do I sign" into "which twelve of twenty-three positions do I refuse to leave to a scrub", and it makes every single roster slot a visible, painful trade-off with no accounting required. There is no bench management, no squad depth screen, no rotation — the replacement level is simply <em>terrible</em> and always present.</p>
+    </div>
+
+    <h3>Potential is a separate number, and only one thing raises it</h3>
+    <p>Every player carries a <strong>current</strong> star rating and a <strong>potential</strong> star rating, both on the same 0.5&ndash;5.0 scale, plus per-attribute headroom shown as the hollow part of each bar. A 2.5-star rookie with 4.5-star potential is an asset; a 3.5-star veteran with 3.5-star potential is finished.</p>
+    <p>Players gain XP <strong>from production</strong> — passing yards, tackles, sacks — and are docked for sacks taken, interceptions and fumbles. A level-up gives <span class="num">+1</span> to one attribute. Once every attribute is maxed, further level-ups <strong>pay out credits instead</strong>, which is why the community farms offensive linemen as credit generators.</p>
+    <p>The only way to raise potential itself is a coordinator with the <strong>Talent Spotter</strong> trait: <span class="num">+0.5</span> stars of potential, once per hire, distributed across random attributes. Hiring a <em>new</em> Talent Spotter triggers it again. This single trait is the basis of the entire high-level meta — you draft a player with <em>low</em> overall potential but high potential in the one attribute you care about, then Talent-Spotter him upward. <span class="chip c-com">community</span></p>
+
+    <h3>Ageing is confirmed by the developer</h3>
+    <p>From the official account: over-30s lose <strong>stamina and one of either strength or speed at the end of every season</strong>. Mandatory retirement at <strong>40 for quarterbacks and kickers, 35 for everyone else, 65 for coaches</strong>. Older players also lose condition faster and get injured more. Rookies fumble more and break fewer tackles than veterans with identical attributes. <span class="chip c-doc">documented</span></p>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; contracts</p>
+      <h2>The rookie discount is the whole draft</h2>
+    </div>
+    <p>Veteran salary is almost exactly <strong>stars &times; a position rate</strong> — $10.0M per star for a quarterback, down to $3.2M for a kicker. Rookie contracts price at a consistent <strong>~0.6&times; that rate</strong> across all nine positions, which is stable enough to be a single hard-coded discount multiplier.</p>
+  </div>
+
+  <div class="scroll" style="margin-top:22px">
+    <table>
+      <thead><tr><th></th><th>Extend, with credits</th><th>Re-sign at expiry</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Costs</strong></td><td class="them">Coaching credits</td><td class="them">Nothing</td></tr>
+        <tr><td><strong>Salary</strong></td><td class="them"><strong>Freezes at the current number</strong></td><td class="them">Reprices to his current star rating</td></tr>
+        <tr><td><strong>Adds</strong></td><td class="them">+1 year, stackable</td><td class="them">Whatever the game offers</td></tr>
+        <tr><td><strong>Rookie year</strong></td><td class="them">Not allowed</td><td class="them">n/a</td></tr>
+      </tbody>
+      <caption>Because extension freezes the salary, extending a rising young player during his rookie deal is the best value play in the game — reports of holding a star at $10M a year until he is thirty. Extending an already-maxed five-star is pure waste.</caption>
+    </table>
+  </div>
+
+  <div class="col stack" style="margin-top:26px">
+    <p>There is <strong>no franchise tag, no negotiation, no agent, no holdout</strong>. A player takes the number or leaves. What players experience as "he is demanding $50M" is simply the automatic repricing at expiry.</p>
+    <p>Trade value is startlingly coarse — <strong>three tiers</strong>: 0.5&ndash;1.5 stars is worth a third-round pick, 2.0&ndash;3.5 a second, 4.0&ndash;5.0 a first. Which creates an obvious and beloved arbitrage: nudging a 3.5-star to 4.0 before the deadline converts a second into a first. Coarse tiers make exploitable seams, and players enjoy finding them. <span class="chip c-doc">documented</span></p>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; the rest</p>
+      <h2>Facilities, staff, difficulty and the season</h2>
+    </div>
+  </div>
+
+  <dl class="spec" style="margin-top:22px">
+    <dt>Facilities</dt><dd>Exactly three — <strong>Stadium</strong> (fan swing), <strong>Training</strong> (XP rate + morale), <strong>Rehab</strong> (injury length and frequency, condition). Levels 1&ndash;10. They <strong>decay over time</strong> and need reinvestment, so infrastructure is a treadmill rather than a ratchet. <span class="chip c-dis">disputed</span> — the wiki says so, the best guide never mentions it.</dd>
+    <dt>Staff</dt><dd>Two coordinators, offensive and defensive. 0.5&ndash;5.0 stars, two-year contracts, retire at 65. They govern the <em>simulated</em> half of the game, which for the defence is all of it.</dd>
+    <dt>Traits</dt><dd>One per coordinator. The community's clear verdict is that the <strong>recurring per-game ones win</strong> — Physio (+5% condition every game), Likeable (+5% XP every game) — over one-shots like Motivator. Talent Spotter is the exception because it is the only route to a ceiling raise.</dd>
+    <dt>Difficulty</dt><dd>Easy, Medium, Hard, Extreme, Dynamic. <strong>Extreme simply forces every opponent to play at a 5-star rating regardless of their actual roster.</strong> It scales difficulty by falsifying the one scalar the sim already consumes, rather than writing new AI.</dd>
+    <dt>Season</dt><dd>16 games plus a bye <span class="chip c-dis">disputed</span>, then Wild Card, Divisional, Conference Championship, the Retro Bowl. A full game runs <strong>under eight minutes</strong> at the default two-minute quarters.</dd>
+    <dt>What you play</dt><dd><strong>Offence only</strong>, plus field goals and kick returns. Defence is a text ticker. You do not pick plays — the game deals you a formation that is simultaneously a run and a pass, and you choose which at the snap.</dd>
+    <dt>Dilemmas</dt><dd>Fire <strong>100% of the time</strong> after every game and on bye weeks. A guaranteed between-game decision beat.</dd>
+  </dl>
+
+  <div class="col stack" style="margin-top:26px">
+    <div class="note them">
+      <h4>The developer's own words on why there is no defence</h4>
+      <p>Simon Read: <em>"Every day I get asked for online play, defensive action, full rosters&hellip; some of these will change the core of the game too much."</em> And: <em>"Adding major new features risks upsetting the balance of the game and the simplicity that has brought it success."</em></p>
+      <p>The cut content <strong>is</strong> the design. It descends directly from New Star Soccer — play only the decisive moments, manage the rest — and American football is the sport with the cleanest natural split, because it is already platooned. Cutting half of it costs no coherence.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part one &middot; the absences</p>
+      <h2>What they deliberately do not have</h2>
+    </div>
+    <p>Worth listing, because several are things we have already built and should be confident about.</p>
+    <ul class="plain">
+      <li><strong>You cannot be fired.</strong> Confirmed by the developer. There is no loss condition in the management layer at all. Low fans costs you <em>income, not employment</em> — counter-intuitive enough that most players assume the opposite.</li>
+      <li><strong>No money.</strong> No gate receipts, no sponsorship, no season payout. The salary cap is a fixed pool raised only by spending credits.</li>
+      <li><strong>No relegation, no pyramid.</strong> Thirty-two teams, flat. The only lateral move is accepting a job at another club, which players use as a <em>self-imposed</em> difficulty reset.</li>
+      <li><strong>No progression gating.</strong> No tech tree, no achievement unlocks, no difficulty locked behind seasons. Achievements are pure score-keeping. The <em>only</em> thing between a new player and a maxed franchise is the credit drip.</li>
+      <li><strong>No penalties, no punting input, no defensive call.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part two &middot; side by side</p>
+      <h2>Us against them</h2>
+    </div>
+  </div>
+
+  <div class="scroll" style="margin-top:22px">
+    <table>
+      <thead><tr><th>System</th><th>Retro Bowl</th><th>Retro Buhurt</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Currency</strong></td><td class="them">Coaching credits. One faucet.</td><td class="us">Credits, plus $ as a cap constraint only.</td></tr>
+        <tr><td><strong>Per-event income</strong></td><td class="them"><span class="num">1&ndash;3</span>, scaled by fans</td><td class="us"><span class="num">2</span> flat for a win, <span class="num">1</span> for a draw</td></tr>
+        <tr><td><strong>Crowd meter</strong></td><td class="them">One number, three bands, pays every game</td><td class="us">Two numbers (fans 0&ndash;cap&times;1.25, notoriety 1&ndash;125), pays once a year</td></tr>
+        <tr><td><strong>Ground</strong></td><td class="them">10 levels, pure credits, decays</td><td class="us">6 levels, <strong>gated by league</strong>, permanent</td></tr>
+        <tr><td><strong>Fail state</strong></td><td class="them">None. Cannot be fired.</td><td class="us"><strong>Relegation.</strong> A four-tier pyramid.</td></tr>
+        <tr><td><strong>Salary cap</strong></td><td class="them">Flat $150M, buy +$25M for 100 cr</td><td class="us"><strong>Scales by division</strong>: $200 &rarr; $1M</td></tr>
+        <tr><td><strong>Roster squeeze</strong></td><td class="them">10 stars for 23 slots, rest are scrubs</td><td class="us">13 men, 5 on the line, 3 bench, 5 reserve</td></tr>
+        <tr><td><strong>Ageing &amp; retirement</strong></td><td class="them">Decline at 31, retire at 35/40</td><td class="us"><strong>None.</strong> Fighters never age.</td></tr>
+        <tr><td><strong>Potential</strong></td><td class="them">Separate star rating, raised only by Talent Spotter</td><td class="us"><strong>None.</strong></td></tr>
+        <tr><td><strong>Development</strong></td><td class="them">XP from production, +1 attribute per level</td><td class="us">Winter training points, captains decide who</td></tr>
+        <tr><td><strong>Contracts</strong></td><td class="them">Expiry, re-sign vs extend, rookie discount</td><td class="us"><strong>None.</strong> Wage derived from overall.</td></tr>
+        <tr><td><strong>Player market</strong></td><td class="them">Draft, free agency, trades, pick sales</td><td class="us">Sign and cut, plus 4 created fighters</td></tr>
+        <tr><td><strong>Between events</strong></td><td class="them">A dilemma, every single game</td><td class="us"><strong>Nothing.</strong></td></tr>
+        <tr><td><strong>What you play</strong></td><td class="them">Offence only, drag to throw</td><td class="us">Both sides of a 5v5, draw routes, answer prompts</td></tr>
+        <tr><td><strong>Tactics layer</strong></td><td class="them">Audibles only</td><td class="us"><strong>Formations, strategies, Chalkboard plays</strong></td></tr>
+        <tr><td><strong>Cups</strong></td><td class="them">Playoffs only</td><td class="us">Invitationals, Worlds, hosted tournaments</td></tr>
+        <tr><td><strong>Balance evidence</strong></td><td class="them">Community reverse-engineering</td><td class="us"><strong>94 measured checks</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part three &middot; the take</p>
+      <h2>What to steal, ranked</h2>
+    </div>
+    <p>Ordered by how much they would change the game per hour of work, most first. The numbers are a sequence here because that is what the ranking is.</p>
+  </div>
+
+  <div class="recs" style="margin-top:24px">
+
+    <div class="rec">
+      <div>
+        <h3>Make notoriety pay every event, not once a year</h3>
+        <p>This is the single biggest finding and it answers your original question directly. Their fan meter <strong>multiplies per-game income by three</strong>. Ours currently pays a flat <span class="num">2</span> credits for a win no matter how famous the club is — notoriety only reaches the wallet through the yearly tournament and a small season-end gate. That makes our most interesting meter almost invisible in play.</p>
+        <p>Take their banding. Something like <span class="num">1</span> credit below 25 notoriety, <span class="num">2</span> to 50, <span class="num">3</span> to 75, <span class="num">4</span> above — which conveniently lands on the division gates you already set. Now every fight pays a number the player watches climb, and the whole fans-and-notoriety system starts doing work every week instead of every summer.</p>
+        <div class="cost"><b>Cost:</b> a few lines in <code>_after_event</code> and a balance pass. <b>Risk:</b> total credit income roughly doubles at the top, so the sinks need re-pricing against it.</div>
+      </div>
+    </div>
+
+    <div class="rec">
+      <div>
+        <h3>Fighters have to age and retire</h3>
+        <p>We have no age, no decline and no retirement anywhere in the codebase. That is the biggest structural hole in the game as a <em>career</em>, because it means a squad you build once is a squad you keep forever, and the reserve never has a reason to exist. Retro Bowl's is confirmed and brutally simple: decline from 31, forced retirement at 35, quarterbacks and kickers at 40.</p>
+        <p>Buhurt's own shape would be different and better — this is a sport people fight into their forties, and the stat that goes first is gas, not strength. Decline gas and speed-adjacent stats from about 33, retire around 42, and the heavy Rails last longer than the Flankers.</p>
+        <div class="cost"><b>Cost:</b> an <code>age</code> field on FighterCard, a decline pass in <code>roll_over</code>, retirement handling, and the squad screen showing it. <b>Unlocks:</b> makes the reserve, the training ground and the draft all matter at once.</div>
+      </div>
+    </div>
+
+    <div class="rec">
+      <div>
+        <h3>Potential, as a second visible number</h3>
+        <p>Their entire long game is "draft the 2.5-star with 4.5-star potential". We have no equivalent — a fighter is simply as good as he is. Adding a potential rating to <code>FighterCard</code> turns every signing and every created fighter into a bet rather than a purchase, and it gives the Training ground something to <em>push against</em>.</p>
+        <p>Their Talent Spotter lesson is worth taking too: <strong>make exactly one thing raise the ceiling</strong>, and make it scarce. A captain speciality, or a facility level, but only one road.</p>
+        <div class="cost"><b>Cost:</b> a field, a training rework, two screens. <b>Pairs with:</b> ageing — potential is meaningless without a clock.</div>
+      </div>
+    </div>
+
+    <div class="rec">
+      <div>
+        <h3>A replacement-level fighter, and a smaller squad</h3>
+        <p>Their noname is the best idea in their roster design. Our squeeze is soft: 13 men for 5 positions, so the line is always fillable and depth is comfortable. Theirs is 10 men for 23 slots with a guaranteed disaster in every gap.</p>
+        <p>We should not copy the number — a buhurt club genuinely carries a squad — but we should copy the <em>pressure</em>. An injured or suspended fighter with nobody behind him should put a visibly terrible stand-in on the line, named as such, rather than quietly shuffling the depth chart. It makes the eight feel thin in exactly the way a real club feels thin.</p>
+        <div class="cost"><b>Cost:</b> small. <code>starting_five</code> already falls back by role — it just needs to fall back to something <em>bad</em> and say so.</div>
+      </div>
+    </div>
+
+    <div class="rec">
+      <div>
+        <h3>A decision between every fight</h3>
+        <p>Their dilemma fires <strong>100% of the time</strong> after every game and on every bye. It costs the player ten seconds, moves morale or fans by a little, and occasionally pays a credit. We have nothing at all between fights — you finish a bout and go straight back to the table.</p>
+        <p>For buhurt the material is right there: a fighter's kit failed inspection, a marshal's call you can contest, another club wants a friendly, a captain disagrees with the line. One binary choice, one small consequence, every event.</p>
+        <div class="cost"><b>Cost:</b> a small data table and one panel. <b>Value:</b> it is the cheapest pacing device on this whole list.</div>
+      </div>
+    </div>
+
+    <div class="rec">
+      <div>
+        <h3>Contracts, with the re-sign versus extend fork</h3>
+        <p>Our wages are derived from overall and never expire, so the salary cap is a static constraint rather than a rolling decision. Theirs makes it a yearly fight: extend early with currency and <strong>freeze the price</strong>, or let it run and pay the market rate for the fighter he has become.</p>
+        <p>That one fork generates most of their long-game texture, and the rookie discount at ~0.6&times; is what makes bringing men through worth doing.</p>
+        <div class="cost"><b>Cost:</b> the largest item on this list — contract length, expiry, a re-sign phase in the summer. <b>Do it after ageing</b>, or there is nothing for a contract to be about.</div>
+      </div>
+    </div>
+
+    <div class="rec">
+      <div>
+        <h3>Facility decay, or a deliberate decision not to</h3>
+        <p>Theirs decay, so infrastructure is a treadmill and equilibrium is never reached. Ours are permanent, so the Clubhouse is a checklist you finish and never look at again. Either is defensible, but right now ours is an accident rather than a choice.</p>
+        <p>Buhurt's version writes itself: a training ground and an infirmary need maintaining, and a ground that stands empty for a season is a ground that needs work. It also gives credits somewhere to go late, when the arena is built and there is nothing left to buy.</p>
+        <div class="cost"><b>Cost:</b> trivial. <b>Watch:</b> decay plus a per-week throttle is how they stop windfalls collapsing pacing — worth taking both or neither.</div>
+      </div>
+    </div>
+
+    <div class="rec">
+      <div>
+        <h3>Coarse tiers, so the seams are findable</h3>
+        <p>Their trade value has three brackets, which means nudging a fighter over a boundary converts a cheap asset into an expensive one. Every community guide has found this and enjoys it. Our numbers are mostly continuous and smooth, which is fairer and much less fun to optimise.</p>
+        <p>Worth deliberately introducing a couple of coarse boundaries somewhere — signing value, or what the federation pays for a podium — purely so there is something to game.</p>
+        <div class="cost"><b>Cost:</b> none, it is a re-shape of numbers we already have.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Part four &middot; hold the line</p>
+      <h2>What we already do better</h2>
+    </div>
+    <p>Not everything they do is worth copying, and some of our differences are the reason to build this game at all.</p>
+  </div>
+
+  <div class="verdicts col" style="margin-top:22px">
+    <div class="verdict">
+      <h4>We have real stakes</h4>
+      <p>They cannot be fired and there is no pyramid. Relegation is a genuine fail state and promotion is a genuine reward, and it is what makes our arena gating and our notoriety curve mean something. Keep it.</p>
+    </div>
+    <div class="verdict">
+      <h4>Our crowd model is richer than theirs</h4>
+      <p>They have one number with three bands. We have a following that is built over years and a turnout that decides how much of it shows up, with a 25% ceiling that produces a genuine sold-out-and-turning-people-away state. That is better — it just needs to pay out more often.</p>
+    </div>
+    <div class="verdict">
+      <h4>Our cap scales with the league</h4>
+      <p>Theirs is flat and purchasable, which makes money a pure credit sink. Ours moves with the division, so promotion changes what a club can afford. That is the more interesting system.</p>
+    </div>
+    <div class="verdict">
+      <h4>The tactics layer is ours</h4>
+      <p>They have audibles. We have formations, strategies, a Chalkboard and a measured ladder that says the roster beats the thumb and the thumb beats the tactics. Nothing in Retro Bowl is trying to do this, and it is the clearest reason for our game to exist.</p>
+    </div>
+    <div class="verdict">
+      <h4>We measure</h4>
+      <p>Every number in their game is community reverse-engineering, and some of it is wrong. Every number in ours has a check behind it. That is worth more the longer this project runs.</p>
+    </div>
+    <div class="verdict">
+      <h4>We should not copy their monetisation shape</h4>
+      <p>Their early-game credit bottleneck is priced against a $0.99 button — the fan meter is the monetisation curve with a crowd drawn on it, and the most-cited criticism of the game is that the first five seasons are friction. A premium game has no reason to inherit that ramp. <strong>Take the banding, not the scarcity.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section>
+  <div class="col stack">
+    <div class="head">
+      <p class="eyebrow">Caveats</p>
+      <h2>How much of this to trust</h2>
+    </div>
+    <p>Retro Bowl has shipped continuously since 2020 and has three spin-offs. Most precise figures come from 2021&ndash;22 community guides, so treat them as period-accurate rather than current. The developer has never commented on the fan meter, the credit economy or their tuning — everything about <em>why</em> the fan system works as it does is analysis, mine or the community's, not a statement of intent.</p>
+    <p>Three specific holes worth knowing: <strong>the actual fan percentage per win and per loss is genuinely unknown</strong> at every stadium level; injury durations have no published table and sources contradict each other; and the playoff field size is undocumented. Reddit and parts of the wiki were unreachable during this research, so some gaps are access gaps rather than absences.</p>
+    <p class="src" style="margin-top:8px">Principal sources: the <a href="https://retro-bowl.fandom.com/wiki/Front_Office">Retro Bowl Wiki</a> (Front Office, Coaching Credits, Morale, Star System, Difficulty, Draft, Trading, Achievements); <a href="https://robwritesaboutwhatever.com/2021/04/15/robs-complete-guide-to-retro-bowl-part-1-how-to-build-a-winning-front-office/">Rob's Complete Guide</a>, six parts, by a distance the best mechanical source in existence; developer interviews at <a href="https://www.pocketgamer.biz/new-star-games-simon-read-retro-bowl-making-of/">PocketGamer.biz</a> and <a href="https://www.nintendolife.com/features/from-retro-bowl-to-retro-goal-how-new-star-games-returned-to-its-grass-roots">Nintendo Life</a>; <a href="https://x.com/retro_bowl/status/1257665376546103296">@retro_bowl</a> on ageing and retirement; <a href="https://inreviewcritics.com/2020/05/18/death-by-algorithm-retro-bowl-mobile-game-review-seasons-1-5/">In Review Critics</a> on the credit gate; <a href="https://www.crossplay.news/p/retro-bowl-25-is-the-ultimate-dad-game">Patrick Klepek</a> on why it works; community attribute and salary charts from r/RetroBowl; <a href="https://apps.apple.com/us/app/retro-bowl/id1478902583">the App Store listing</a> for live prices.</p>
+  </div>
+</section>
+
+</div>

@@ -1,0 +1,1715 @@
+class_name ClubOffice
+extends RefCounted
+## THE CLUBHOUSE: you are the owner, and these are the levers you actually pull.
+##
+## Modelled on Retro Bowl's front office at Pete's instruction (10 Sep 2026) —
+## a cap bar, facility bars, staff cards, a credit balance — and deliberately
+## not a copy of it. The differences are all places where buhurt is not the NFL:
+##
+##   * Two CAPTAINS, not a head coach and two coordinators. There is no offence
+##     and defence in a melee — everybody does the same job in a different place
+##     on the line — so a captain covers POSITIONS instead of a side of the ball.
+##   * A captain covers TWO roles: a primary and a secondary. There are only
+##     three roles, so **two captains cover all three and double up on one, and
+##     that overlap is the club's focus.** Pete's rule, and it is a better one
+##     than picking a focus off a menu because it falls out of who you hired.
+##   * No draft picks, no trades. Fighters are signed and cut, and the reserve
+##     is where they are developed.
+##
+## Everything here is plain data so it saves as plain data.
+
+# ------------------------------------------------------------------- credits
+## Retro Bowl calls them coaching credits and spends them on staff and
+## facilities. Same currency shape, Pete's name for it (10 Sep 2026), and the
+## same reason it works: a small integer you never have enough of is easier to
+## reason about than a bank balance, and it keeps the club's books out of the
+## way of the fight.
+var credits: int = 8
+
+# ------------------------------------------------------------- the salary cap
+## A LITERAL CAP, Pete's call — and almost no money in it, which is his second
+## call and the more important one: **"This isn't a rich sport by any means."**
+##
+## The Backyard Circuit runs on about **two hundred dollars a season**. Not two
+## hundred thousand — two hundred. Fighters are not paid; that number is what a
+## club actually spends keeping thirteen people in harness and on the road, and
+## at the bottom of the pyramid it is somebody's weekend. The National Division
+## reaches the high hundreds of thousands, and barely.
+##
+## So the cap is not a ladder of equal steps, it is a different order of
+## magnitude in every division, and a wage curve steep enough to match:
+##
+##   rating 38    $3         a Backyard fighter, in every sense
+##   rating 46    $14        top of that division
+##   rating 58    $180
+##   rating 70    $2,307
+##   rating 86    $69,229
+##
+## The curve and the caps are anchored TOGETHER, on the top of each division's
+## power band: the best club a division can field bills just inside that
+## division's cap. The first attempt anchored them separately and a top-of-table
+## Backyard club billed $793 against a $200 cap — four times its own league's
+## limit, which is not a tight cap, it is a broken one.
+##
+##   Backyard  top rates 46, bills $182   cap $200
+##   State     top rates 58, bills $2,340  cap $2,600
+##   Regional  top rates 70, bills $29,991 cap $34,000
+##   National  top rates 86, bills $899,977 cap $1,000,000
+##
+## Money that only becomes real at the top is the truest thing this game can say
+## about the sport, and it makes the climb mean something a flat cap cannot: in
+## the Backyard you are choosing between two fighters, and in the National
+## Division you are choosing between a fighter and a facility.
+const WAGE_A: float = 0.000794
+const WAGE_B: float = 0.2126
+
+## Per division, not per club. The federation sets what a league costs to be in.
+const TIER_CAP := [200, 2600, 34000, 1000000]
+## THE CAP RAISE HAS NO CEILING, at Pete's instruction — *"the upgradable salary
+## cap"* — and Retro Bowl's works the same way: you can keep buying it, and the
+## price keeps climbing, forever.
+##
+## It was five levels and a hard stop. Two separate measurements said that was
+## wrong. tools/probe_economy.gd found the National Division earning 185 CC a
+## season against a ladder it had already finished, with nothing left to buy;
+## tools/probe_market.gd then found a club sitting on **1,100 unspent credits**
+## while being unable to sign a single free agent, because the cap it had maxed
+## out five raises ago had no room in it for anybody. One system had a surplus and
+## the other had a shortage, and the same missing feature caused both.
+##
+## So: unbounded, and priced to bite. `CAP_COST_BASE x CAP_COST_GROWTH^level` —
+## 4, 5, 7, 8, 11, 14, 17, 22, 28, 36, 46, 59 — so the first few are ordinary
+## club business and the twentieth is a season's income. A sink with no ceiling
+## and a rising price absorbs a surplus without ever becoming the obvious buy,
+## which is exactly what the top of the pyramid needed.
+const CAP_COST_BASE: float = 4.0
+const CAP_COST_GROWTH: float = 1.28
+## Kept because the screen and the old tests read it: the number of raises after
+## which the cost is no longer in the hand-written table. It is not a limit.
+const CAP_MAX_LEVEL: int = 5
+## Each raise is a slice of your own division's cap rather than a fixed sum,
+## because a fixed sum that matters in the Backyard is a rounding error at the top.
+const CAP_STEP_FRACTION: float = 0.15
+const CAP_COST := [4, 6, 8, 10, 12]
+
+var cap_level: int = 0
+## Which division's rules you are under. Season keeps it current.
+var tier: int = 0
+
+
+func cap() -> int:
+	var base: int = TIER_CAP[clampi(tier, 0, TIER_CAP.size() - 1)]
+	return int(round(float(base) * (1.0 + CAP_STEP_FRACTION * float(cap_level))))
+
+
+## WHAT ONE FIGHTER WOULD COST TODAY — the market rate, not the bill.
+##
+## This used to be both, and that was the bug the contract layer exists to fix: a
+## man who improved got more expensive the instant he improved, so developing
+## somebody was self-defeating and the cap punished exactly what the training
+## ground is for. It is now the price of a NEW deal and the figure the roster
+## screen compares a man's actual wage against.
+static func wage(card: FighterCard) -> int:
+	return maxi(1, int(round(WAGE_A * exp(WAGE_B * float(card.overall())))))
+
+
+## WHAT HE IS ACTUALLY ON. Falls back to the market rate for a card that has
+## never been put on paper — a hand-written fixture, or anything built before
+## contracts existed — so no code path can bill zero for a fighter.
+## WHAT HE ACTUALLY COSTS. CHEAP and LOYAL sign under the going rate, and they
+## do it here rather than at the point of signing so the discount survives a
+## re-sign — a trait that only applied once would be a one-off, not a trait.
+static func billed(card: FighterCard) -> int:
+	var base := card.wage_agreed if card.wage_agreed > 0 else wage(card)
+	return maxi(1, int(round(float(base)
+		* FighterTrait.mod(card.trait_id, "wage", 1.0))))
+
+
+static func wage_bill(club: MeleeClub) -> int:
+	var total := 0
+	for f in club.roster:
+		total += billed(f)
+	return total
+
+
+## Money, written the way a club would write it. At the bottom of the pyramid
+## every dollar is legible and at the top nobody counts them, so the format has
+## to do both.
+static func money(n: int) -> String:
+	if n >= 1000000:
+		return "$%.2fM" % (float(n) / 1000000.0)
+	if n >= 10000:
+		return "$%dk" % int(round(float(n) / 1000.0))
+	if n >= 1000:
+		return "$%.1fk" % (float(n) / 1000.0)
+	return "$%d" % n
+
+
+func over_cap(club: MeleeClub) -> int:
+	return maxi(0, wage_bill(club) - cap())
+
+
+func can_afford_wage(club: MeleeClub, card: FighterCard) -> bool:
+	return wage_bill(club) + billed(card) <= cap()
+
+
+func raise_cap() -> String:
+	if _throttled(SLOT_CAP):
+		return throttle_word("cap")
+	var cost: int = cap_cost()
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	credits -= cost
+	cap_level += 1
+	_mark(SLOT_CAP)
+	return ""
+
+
+## What the next raise costs. The hand-written table for the first few, then the
+## curve — the table is kept because those five numbers were tuned against a
+## Backyard club's income and the curve happens to agree with them.
+func cap_cost() -> int:
+	if cap_level < CAP_COST.size():
+		return CAP_COST[cap_level]
+	return maxi(1, int(round(CAP_COST_BASE * pow(CAP_COST_GROWTH, float(cap_level)))))
+
+
+# ------------------------------------------------------------------ facilities
+## Three, and each one has to change a number that already exists in the sim or
+## the league — a facility that only feeds another facility is a progress bar
+## with a name on it.
+## HOME GROUND IS GONE, and it is gone rather than renamed. Its blurb was *"Host
+## an event each season. Better ground, better gate"* — it was the Arena in
+## embryo, five levels of a progress bar with nothing behind it. Keeping both
+## would have given the player a Home ground level AND an arena level, both
+## feeding the same gate, with no way to reason about which to spend on. The
+## credits go to Arena now; see scripts/league/arena.gd.
+##
+## The remaining two keep their ORIGINAL enum values. Renumbering them would
+## have turned every stored Training level into an Infirmary level in any save
+## that survived the change — and the save version is bumped as well, so no save
+## survives it, but a rule that only holds because of a second rule is not a
+## rule.
+enum Facility { TRAINING = 1, INFIRMARY = 2 }
+
+const FACILITY_MAX: int = 5
+const FACILITY_COST := [3, 5, 7, 9, 11]
+
+const FACILITIES := {
+	Facility.TRAINING: {
+		"name": "Training ground",
+		"blurb": "Fighters improve over the winter. Your captains decide who.",
+		"effect": "%d stat points a season, spread over the squad",
+	},
+	Facility.INFIRMARY: {
+		"name": "Infirmary",
+		"blurb": "A knock keeps a man out of fewer events.",
+		"effect": "-%d events off every injury",
+	},
+}
+
+var facilities := { Facility.TRAINING: 0, Facility.INFIRMARY: 0 }
+
+
+func level(f: int) -> int:
+	return int(facilities[f])
+
+
+func facility_cost(f: int) -> int:
+	var l := level(f)
+	return FACILITY_COST[l] if l < FACILITY_MAX else 0
+
+
+func upgrade(f: int) -> String:
+	if _throttled(str(f)):
+		return throttle_word(String(FACILITIES[f]["name"]).to_lower())
+	if level(f) >= FACILITY_MAX:
+		return "%s cannot be improved further." % FACILITIES[f]["name"]
+	var cost := facility_cost(f)
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	credits -= cost
+	facilities[f] = level(f) + 1
+	_mark(str(f))
+	return ""
+
+
+## BUILDING THE GROUND LIVES HERE, not on the Arena screen.
+##
+## It used to be three lines inside `arena_scene._build()` — check, subtract,
+## increment — which was fine right up until there was a rule that had to apply
+## to every upgrade in the club. A rule enforced at one call site is a rule with a
+## hole in it, and this codebase has already said so about two other things. The
+## screen now asks the office, like the facilities and the cap already did.
+func build_arena() -> String:
+	if _throttled(SLOT_ARENA):
+		return throttle_word("ground")
+	var err := arena.can_build(tier, credits)
+	if err != "":
+		return err
+	credits -= arena.next_cost()
+	arena.level += 1
+	_mark(SLOT_ARENA)
+	return ""
+
+
+# --------------------------------------------------------- one thing a week
+## THE THROTTLE, and it is the last piece of Pete's item 7.
+##
+## Retro Bowl lets you improve one thing at a time and it is not a fussy rule, it
+## is what stops a windfall from becoming an instant club. Without it, the moment
+## a player banks a good tournament he buys the arena, both facilities and four
+## cap raises on the same afternoon and arrives at the next matchday a different
+## team — and every one of those decisions, which the whole Clubhouse exists to
+## make interesting, gets made in one undifferentiated blur.
+##
+## ONE UPGRADE PER BUILDING PER MATCHDAY. Not one upgrade total: a club should
+## still be able to mend the infirmary and raise the cap in the same week, because
+## those are different decisions about different problems. What it cannot do is
+## take the same building up three levels while nothing else in the world moves.
+##
+## Cleared by the season at the end of every matchday, so "a week" means the same
+## thing here as it does everywhere else in this game.
+var built_this_week: Dictionary = {}
+
+const SLOT_ARENA: String = "arena"
+const SLOT_CAP: String = "cap"
+const SLOT_TRAVEL: String = "travel"
+const SLOT_BOOST: String = "boost"
+const SLOT_RULE: String = "rule"
+
+
+func _throttled(slot: String) -> bool:
+	return bool(built_this_week.get(slot, false))
+
+
+func _mark(slot: String) -> void:
+	built_this_week[slot] = true
+
+
+## The same throttle, reachable from outside. The demo button had no limit at
+## all and handed out unbounded credits; it needed a per-week guard and did not
+## need a second mechanism to go wrong independently of this one.
+func done_this_week(slot: String) -> bool:
+	return _throttled(slot)
+
+
+func mark_this_week(slot: String) -> void:
+	_mark(slot)
+
+
+func new_week() -> void:
+	built_this_week.clear()
+
+
+## What the screen says when a button is greyed by the throttle. One sentence,
+## and it names the rule rather than the state — "not this week" tells a player
+## he is being refused; it does not tell him it will work next week.
+## ---------------------------------------------------------- sitting him down
+## A CREDIT SINK THAT BUYS A RELATIONSHIP, not a result — Pete, 13 Sep 2026:
+## *"have a credit sink to 'negotiate' and raise his morale."*
+##
+## This is Retro Bowl's meeting, and their cost table is the interesting part.
+## `s_get_meeting_cost_morale` prices it by the man's ATTITUDE BAND and by
+## nothing else — not his rating, not his wage:
+##
+##   Toxic 4 · Bad 3 · Poor 3 · Ok 2 · Good 2 · Great 1 · Exceptional 1
+##
+## The worse his mood, the more it costs to move it. That is the opposite of the
+## obvious design and it is right: rescuing a ruined relationship is expensive
+## and topping up a good one is cheap. And because it ignores his rating, the
+## price tells you about the RELATIONSHIP rather than about the asset — a star
+## and a squad man cost the same to sit down with, which is true of people.
+##
+## Our seven bands are their seven bands (`FighterCard.morale_word`), so the
+## table ports across unchanged.
+const NEGOTIATE_COST := {
+	"Toxic": 4, "Bad": 3, "Poor": 3, "Ok": 2, "Good": 2,
+	"Great": 1, "Exceptional": 1,
+}
+
+## WHAT AN AFTERNOON WITH HIM IS WORTH. Through `morale_shift`, which scales by
+## the room left — so the same conversation lifts a sour man a long way and a
+## contented one barely at all. Combined with the cost table that makes rescuing
+## somebody the better buy, which is the behaviour worth rewarding.
+const NEGOTIATE_LIFT: float = 0.14
+
+
+static func negotiate_cost(card: FighterCard) -> int:
+	return int(NEGOTIATE_COST.get(card.morale_word(), 2))
+
+
+## ONE CONVERSATION A WEEK, PER MAN. On the same throttle the facilities use,
+## because without it a club with credits could walk a toxic squad to delighted
+## in an afternoon and morale would stop being a consequence of anything.
+func negotiate(card: FighterCard) -> String:
+	var slot := "neg:%s#%d" % [card.display_name, card.number]
+	if _throttled(slot):
+		return "You have already sat down with %s this week." % card.display_name
+	var cost := negotiate_cost(card)
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	credits -= cost
+	card.morale_shift(NEGOTIATE_LIFT)
+	_mark(slot)
+	return ""
+
+
+## ---------------------------------------------------------- the armourer
+## THE SECOND ROW OF RETRO BOWL'S MEETING CARD, which is where this came from —
+## Pete, 14 Sep 2026, sending the screen over: MORALE / CONDITION / XP LEVEL /
+## CONTRACT, each with a button and a price in credits beside it.
+##
+## Three of those four were already on the fighter screen. CONDITION was not, and
+## it is the one with a hole under it: `armor` multiplies straight into
+## `eff_base()`, it is taken off by the HARD regime every week, and until now the
+## ONLY thing in the entire game that put any of it back was the luck of the
+## dilemma deck dealing the armourer's bill. A stat that can only fall unless the
+## game happens to deal you a card is the same shape as the ground retainer that
+## paid nothing and the pulling power that collected seven per cent of itself:
+## **a system the player cannot reach.**
+##
+## Priced off the damage rather than off the man, exactly as `negotiate` is
+## priced off his mood rather than his rating: an armourer charges for the work
+## in front of him and does not ask what the fighter is worth. The step is the
+## same size as the deck's own best card (+0.16) so the two roads to a repaired
+## harness agree with each other about what a repair IS.
+const KIT_STEP: float = 0.16
+## What a completely wrecked harness costs to put a step back into. A club at the
+## bottom earns a handful of credits a season, so this has to be affordable at
+## the bottom and trivial at the top — which is the same shape as NEGOTIATE_COST
+## and for the same reason.
+const KIT_COST_FULL: int = 5
+
+
+## What the armourer wants for one visit, 1 CC at a scratch and KIT_COST_FULL at
+## a harness that is falling apart.
+static func kit_cost(card: FighterCard) -> int:
+	return clampi(int(ceil((1.0 - card.armor) * float(KIT_COST_FULL))), 1, KIT_COST_FULL)
+
+
+## ONE VISIT A WEEK, PER MAN, on the same throttle every other per-man purchase
+## uses — without it a club with credits walks a wrecked squad back to new in an
+## afternoon, which is the armourer as a vending machine rather than a decision.
+func repair_kit(card: FighterCard) -> String:
+	if card.armor >= 1.0:
+		return "%s's harness is as good as it gets." % card.display_name
+	var slot := "kit:%s#%d" % [card.display_name, card.number]
+	if _throttled(slot):
+		return "The armourer has already had %s's kit this week." % card.display_name
+	var cost := kit_cost(card)
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	credits -= cost
+	card.armor = clampf(card.armor + KIT_STEP, 0.0, 1.0)
+	_mark(slot)
+	return ""
+
+
+## ------------------------------------------------------------ extra reps
+## THE THIRD ROW, and the function for it was written months ago and never
+## called. `Career.level_cost` carries the comment *"BUYING ONE, which is their
+## meeting — go through some extra reps on the training field"* — somebody had
+## this exact screen in mind, wrote the price, and never wired the button.
+##
+## It buys the XP, not the point. Placing a level is a decision — which of five
+## stats goes up — and that decision is the whole of the row above this one on
+## the fighter screen. Buying the man to the bar and letting the player choose
+## keeps both halves: the credits answer "can he improve", the buttons answer
+## "at what".
+func buy_level(card: FighterCard) -> String:
+	if Career.at_ceiling(card):
+		return "%s has nothing left to learn." % card.display_name
+	if Career.can_level(card):
+		return "%s already has a level waiting. Spend it." % card.display_name
+	var slot := "reps:%s#%d" % [card.display_name, card.number]
+	if _throttled(slot):
+		return "%s has done his extra reps this week." % card.display_name
+	var cost := Career.level_cost(card)
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	credits -= cost
+	card.xp = Career.next_level_at(card)
+	_mark(slot)
+	return ""
+
+
+static func throttle_word(what: String) -> String:
+	return "The %s has already been worked on this week. One job at a time." % what
+
+
+# ------------------------------------------------------------------- upkeep
+## BUILDINGS COST MONEY TO KEEP. Pete, 10 Sep 2026: *"the ground decay, you'll
+## want to have to maintain them."*
+##
+## Retro Bowl does this by decaying facilities a level a season and making you
+## re-buy the step. Same loop here with the price written on it: every summer
+## each building bills a fraction of what its CURRENT level cost to build, and
+## anything the club cannot pay for drops a level.
+##
+## The fraction is the whole design. At 45%:
+##
+##   Training ground / Infirmary   2 CC a year at level 1, 5 at level 5
+##   Club gym            3      Fenced ground      6
+##   Sports hall        10      Arena             18
+##   National Arena     27
+##
+## A fully built National club bills about 37 a summer against an income near
+## 200, which sounds ignorable and is not, because THE BILL IS NOT THE PENALTY —
+## the rebuild is. Skipping a 27-credit bill on the National Arena costs 60 to
+## put back. That asymmetry is what makes maintenance a thing you do rather than
+## a thing you weigh.
+##
+## And it is what finally makes RELEGATION hurt. A club that overbuilds and goes
+## down keeps the bills of the division it left while earning the income of the
+## division it landed in — the ground starts shedding levels, the fan cap falls
+## with it, and the following it spent ten years building gets clamped down to
+## the smaller house. Nothing else in this game punished overreach; the whole
+## economy was one-way until this existed.
+const UPKEEP_FRACTION: float = 0.45
+
+
+## What each building costs to keep this year. Rounded UP, so no level is ever
+## free to hold — a bill of zero is a building that is not really maintained.
+static func upkeep_of(build_cost: int) -> int:
+	return 0 if build_cost <= 0 else int(ceil(float(build_cost) * UPKEEP_FRACTION))
+
+
+func arena_upkeep() -> int:
+	return upkeep_of(int(Arena.LEVELS[arena.level]["cost"]))
+
+
+func facility_upkeep(f: int) -> int:
+	var l := level(f)
+	return 0 if l <= 0 else upkeep_of(FACILITY_COST[l - 1])
+
+
+func upkeep_bill() -> int:
+	var t := arena_upkeep()
+	for f in facilities.keys():
+		t += facility_upkeep(int(f))
+	return t
+
+
+## The summer bill. Returns what happened so the screen can say it plainly —
+## a decay the player is not told about is a bug he will report as one.
+##
+## THE ARENA IS PAID FIRST because it is the thing that earns: letting the ground
+## fall while a Training ground survives would cost the club its income to keep a
+## coaching bonus, which is never the trade a player would have chosen. Anything
+## still unpaid after that drops a level, and a ground that drops takes its fan
+## cap down with it — see `_clamp_fans`.
+func pay_upkeep() -> Dictionary:
+	var billed: int = 0
+	var lost: Array[String] = []
+
+	var a := arena_upkeep()
+	if a > 0:
+		if credits >= a:
+			credits -= a
+			billed += a
+		elif arena.level > 0:
+			arena.level -= 1
+			lost.append(String(Arena.LEVELS[arena.level + 1]["name"]))
+
+	for f in facilities.keys():
+		var key := int(f)
+		var c := facility_upkeep(key)
+		if c <= 0:
+			continue
+		if credits >= c:
+			credits -= c
+			billed += c
+		else:
+			facilities[key] = level(key) - 1
+			lost.append(String(FACILITIES[key]["name"]))
+
+	## AND THE FEDERATION'S BILL, which is different in kind from the two above
+	## and so is charged differently. A ground or a facility you cannot afford
+	## FALLS A LEVEL — it is a building and buildings decay. A certificate you do
+	## not renew does not decay, it LAPSES: the level goes to nothing at all, and
+	## a club that could not find three credits for its insurance is not
+	## partially insured.
+	var lapsed: Array[String] = []
+	for r in Federation.rules():
+		var lvl := rule_level(r)
+		if lvl <= 0:
+			continue
+		var c: int = int(Federation.UPKEEP[r]) * lvl
+		if credits >= c:
+			credits -= c
+			billed += c
+		else:
+			compliance[r] = 0
+			lapsed.append(String(Federation.RULE_NAME[r]))
+
+	_clamp_fans()
+	return {"billed": billed, "lost": lost, "lapsed": lapsed}
+
+
+# ---------------------------------------------------------- the ground itself
+## The arena, and the following that fills it. All of it lives here because the
+## Clubhouse is where they are spent and earned, and because a save that carries
+## an office carries a club's whole standing in one object.
+var arena := Arena.new()
+
+## NOTORIETY AND FANS — the two numbers that fill the seats, and they do
+## different jobs. Pete, 10 Sep 2026: *"Each arena runs off the amount of fans
+## you have and notoriety… 1 notoriety means no one comes. 125 Notoriety means
+## sold out and people are trying to sneak in."*
+##
+##   FANS       how many people follow this club at all. A pool, built over
+##              years, capped by the ground you have built for them.
+##   NOTORIETY  how many of them actually turn up. 1 to 125, and it IS the
+##              turnout: at 125 every fan comes and a quarter of them cannot get
+##              in, which is why the fan cap is 125% of capacity.
+##
+## Together they are `attendance`, and neither is any use alone: a huge following
+## that nobody is talking about stays home, and a club everyone is talking about
+## with no following has nobody to bring.
+##
+## THE GATES ARE SOFT. Pete chose soft over hard: notoriety can be anything from
+## 1 to 125 in any division, but a Backyard club realistically tops out near 25
+## because the things that raise it — big crowds, big opposition, promotion —
+## are not available down there. Nothing refuses to climb; the climb just runs
+## out of fuel. About 25 in the Backyard Circuit, 50 in State, 75 in Regional,
+## 125 at National. Measured in tools/probe_notoriety.gd rather than asserted.
+const NOTORIETY_MAX: float = 125.0
+var notoriety: float = 3.0
+var fans: float = 12.0
+
+## A win is worth more the higher you are, because a win at National is watched
+## by people who were not watching at all in the Backyard Circuit. This is most
+## of why the soft gate lands where it does.
+## THE GATES ARE AN EQUILIBRIUM, and it is solvable rather than guessable.
+## Each summer notoriety becomes `(N + G) × DECAY`, so it settles at
+## `N* = G × DECAY / (1 - DECAY)` — with DECAY 0.86 that is **G × 6.14**, where G
+## is what a season adds. Divisions run 5, 7, 11 and 15 events, so to land on
+## Pete's 25 / 50 / 75 / 125 a season has to be worth about 4, 8, 12 and 20.
+##
+## That is where these numbers come from. A win is worth a little more higher up,
+## but only a little: the divisions run 5, 7, 11 and 15 events, so most of the
+## difference between a 25 club and a 125 club is simply that the big division
+## has three times as many weeks to be good in. Tuned against a club winning
+## about four fifths of its fixtures — see tools/probe_notoriety.gd, which
+## measures a realistic run and a perfect one side by side, because a perfect
+## club SHOULD hit the ceiling and a good one should sit on the gate.
+const NOTE_WIN_BASE: float = 1.00
+const NOTE_WIN_PER_TIER: float = 0.32
+const NOTE_DRAW: float = 0.30
+const NOTE_LOSS: float = -0.35
+const NOTE_PROMOTED: float = 6.0
+const NOTE_RELEGATED: float = -5.0
+## People forget. Applied every summer, and it is what stops notoriety ratcheting
+## to 125 on a long enough timeline — the gates are an equilibrium between this
+## and what a division can feed it, not a wall.
+const NOTE_DECAY: float = 0.86
+## And a crowd is the loudest thing that can happen to a club. Scaled by the
+## SIZE of the house as well as how full it was, so a sold-out back field is a
+## nice afternoon and a sold-out National Arena is news.
+## A sold-out National Arena is worth about five notoriety a year; a sold-out
+## club gym is worth a hundredth of one. That gap IS the soft gate — nothing
+## refuses to climb, there is simply nothing down there loud enough to climb on.
+##
+## HALVED ON MEASUREMENT. At twice this it contributed sixty of a National club's
+## hundred-and-seven, and it is the same sixty whether you win the division or
+## finish eleventh — so a mid-table National club came out 104.7 against a
+## champion's 107.5, and the standard of the club stopped mattering at exactly
+## the level where it should matter most. A crowd should be loud; it should not
+## be louder than the season.
+const NOTE_PER_CROWD: float = 0.00006
+
+
+## FANS GROW TOWARD THE GROUND YOU BUILT. Logistic rather than linear: a win adds
+## a fraction of the GAP to the ceiling, so a small club grows slowly, a club
+## that has just built a bigger ground grows fast into it, and nobody has to
+## invent a per-division fan number. Upgrading the arena is what raises the
+## ceiling, which is exactly the sink Pete asked for seen from the other side.
+const FANS_WIN_GAP: float = 0.075
+const FANS_DRAW_GAP: float = 0.025
+const FANS_LOSS: float = -0.022
+## Half of everyone who came is a fan afterwards.
+const FANS_PER_HEAD: float = 0.5
+## And they bleed. A club that stops winning stops filling seats — Pete's
+## "bleeding slowly", and the reason a following is worth defending.
+const FANS_DECAY: float = 0.94
+
+
+func fan_cap() -> float:
+	## A QUARTER MORE THAN THE GROUND HOLDS. Pete: *"each level can have 25% over
+	## their max upgraded arena… 25% of fans usually never come to events."* So a
+	## club at the ceiling with maximum notoriety sells out and turns people
+	## away, which is the top of the whole system and is meant to be reachable.
+	return float(arena.capacity()) * 1.25
+
+
+## HOW MANY OF THE FOLLOWING TURN UP. A DRAW on the eight pulls a few more
+## through the gate — small, additive, and capped with everything else, because a
+## trait that could push turnout past one would be selling tickets that do not
+## exist.
+func turnout() -> float:
+	var extra := 0.0
+	for f in _draws:
+		extra += f
+	return clampf(notoriety / NOTORIETY_MAX + extra, 0.0, 1.0)
+
+## Set by the season from whoever travelled. Kept as a list rather than a sum so
+## a squad with two of them is visibly two of them.
+var _draws: Array[float] = []
+
+
+func set_draws(eight: Array) -> void:
+	_draws.clear()
+	for f in eight:
+		var d := FighterTrait.mod(f.trait_id, "turnout", 0.0)
+		if d > 0.0:
+			_draws.append(d)
+
+
+## How many come through the gate, before any promotion the event buys.
+## HOW MANY ACTUALLY CAME, which is a READ-OUT and not an earner. The ground's
+## retainer is paid on the ground's size (see `gate_income`) and the crowd is
+## paid per fight through `crowd_pay()`; this is the figure a screen shows when
+## it wants to say how full the place looked.
+func attendance() -> int:
+	return int(min(float(arena.capacity()), fans * turnout()))
+
+
+func note_after(won: bool, drew: bool, tier: int) -> void:
+	var d := NOTE_LOSS
+	if won:
+		d = NOTE_WIN_BASE + NOTE_WIN_PER_TIER * float(tier)
+	elif drew:
+		d = NOTE_DRAW
+	note_shift(d)
+	var gap := fan_cap() - fans
+	if won:
+		fans += gap * FANS_WIN_GAP
+	elif drew:
+		fans += gap * FANS_DRAW_GAP
+	else:
+		fans += fans * FANS_LOSS
+	_clamp_fans()
+
+
+func note_shift(d: float) -> void:
+	notoriety = clampf(notoriety + d, 1.0, NOTORIETY_MAX)
+
+
+## A crowd turns up, and afterwards the club is bigger for it.
+func crowd_came(heads: int) -> void:
+	note_shift(float(heads) * NOTE_PER_CROWD)
+	## FAN FAVOURITE. He is the one they came to see, so the following grows
+	## faster while he is here — and Retro Bowl's own wording adds the sting:
+	## *"but takes a hit when fired."* See `release()` below; a trait with only an
+	## upside is a purchase, not a decision.
+	var gain := float(heads) * FANS_PER_HEAD
+	if has_trait(Trait.FAN_FAVOURITE):
+		gain *= TRAIT_FANS
+	fans += gain
+	_clamp_fans()
+
+
+## The summer. Both numbers sag, which is what makes a following something you
+## defend rather than something you bank.
+func winter() -> void:
+	notoriety = maxf(1.0, notoriety * NOTE_DECAY)
+	fans = maxf(0.0, fans * FANS_DECAY)
+	_clamp_fans()
+
+
+func _clamp_fans() -> void:
+	fans = clampf(fans, 0.0, fan_cap())
+
+
+func note_word() -> String:
+	return CROWD_WORD[crowd_band()]
+
+
+# ------------------------------------------------------ what a crowd is worth
+## RETRO BOWL'S ONE GOOD TRICK, taken on Pete's instruction (10 Sep 2026).
+##
+## Their fan meter is not decoration: it BANDS the per-game payout. At a third
+## full a game pays one credit, at two thirds two, above that three — so a run of
+## wins is worth triple what the same run was worth in a bad year, and the meter
+## is the first thing a player learns to read.
+##
+## Ours did none of that. Notoriety moved the gate ONCE A YEAR at roll-over and
+## every fight paid a flat 2 credits regardless, which meant the number the whole
+## arena system is built on never reached the wallet on a timescale anybody
+## feels. The teardown found this and it is the single biggest thing they do
+## better.
+##
+## So: every league fight pays `crowd_pay()` for putting on the show, and the
+## result pays on top. A band is worth a whole fight-win, which is what makes it
+## worth chasing.
+##
+## THE BANDS ARE PETE'S DIVISION GATES, not new numbers: 25 / 50 / 75 / 105 are
+## the notoriety a club realistically reaches in Backyard, State, Regional and
+## National. So a band is *"you have arrived in this division"*, and a promoted
+## club starts the next one at the bottom of its own scale. Nothing refuses to
+## band up early — a freak Backyard club that reaches 50 gets paid for it — the
+## fuel simply runs out down there.
+##
+## They are also the SAME numbers `note_word()` reads off, deliberately: the word
+## on the Clubhouse screen changes on the exact tick the money changes, so the
+## player is never told two different stories about the same quantity. They used
+## to be two hand-written ladders and the kind of thing that drifts apart in an
+## edit nobody remembers making.
+const CROWD_GATES: Array[float] = [10.0, 25.0, 50.0, 75.0, 105.0]
+const CROWD_WORD: Array[String] = ["Nobody", "Talked about", "A name locally",
+	"Known across the state", "Known nationally", "A household name"]
+## Band 0 still pays. A club nobody has heard of is the club that most needs a
+## trickle, and zero here would mean a bad first season in the Backyard Circuit
+## could not buy its way out of being bad — the failure mode Retro Bowl's own
+## early game has and the one part of their economy not worth copying.
+##
+## EVERY GATE MOVES THE MONEY. The first draft paid [1, 1, 2, 3, 4, 5], so the
+## first gate changed the word on the screen and nothing else: a club crossed 10
+## notoriety, got told it was "Talked about", and was paid exactly what it was
+## paid for being nobody. A meter with a dead segment in it teaches the player
+## that the meter sometimes lies, and then he stops reading it. One pay level per
+## band, no exceptions — test_office asserts the tick.
+##
+## The top band is worth 6 CC a fight against a win's 2, which is the Retro Bowl
+## relationship and the point of the whole exercise: **who is watching matters
+## more than who won.** A National club in front of a full house out-earns a
+## Backyard champion six to one before a single result is counted.
+const CROWD_PAY: Array[int] = [1, 2, 3, 4, 5, 6]
+
+
+## 0 to 5, and it is the index into both the word and the pay.
+func crowd_band() -> int:
+	var b := 0
+	for g in CROWD_GATES:
+		if notoriety >= g:
+			b += 1
+	return b
+
+
+## What a league fight pays for being watched, before the result is counted.
+func crowd_pay() -> int:
+	return CROWD_PAY[crowd_band()]
+
+
+## How far along the current band we are, 0 to 1 — the meter itself. The top band
+## fills against the ceiling, so a club at 125 reads full rather than reading
+## "just started band 5" forever.
+func crowd_meter() -> float:
+	var b := crowd_band()
+	var lo: float = 1.0 if b == 0 else CROWD_GATES[b - 1]
+	var hi: float = NOTORIETY_MAX if b >= CROWD_GATES.size() else CROWD_GATES[b]
+	if hi <= lo:
+		return 1.0
+	return clampf((notoriety - lo) / (hi - lo), 0.0, 1.0)
+
+
+## What the ground pays you just for existing: the federation rotates who hosts,
+## and a better ground takes a bigger turn.
+##
+## IT IS MEANT TO BE SMALL AND IT WAS NOT. At `^0.62 x 0.22` a full National
+## Arena paid **284 CC every summer for doing nothing** — nearly five times the
+## cost of the arena itself, every year, forever. tools/probe_economy.gd found it
+## the first time anybody put a season's income next to a season's prices: a
+## National club earned 394 a year against a 60-credit ground, so every sink in
+## the game was decorative above the State League and the crowd banding that was
+## just added was 19% of an income it was supposed to drive.
+##
+## The exponent is the whole bug. At 0.62 this grows nearly as fast as the crowd
+## does, so it is really "attendance, paid twice" — once here and once through
+## the event gate, where it belongs. At **0.30** it grows like the LOG of the
+## crowd: 2 CC at a back field, 6 at a sports hall, 11 at an arena, 22 at a full
+## National Arena. A tenth of what it was at the top and almost unchanged at the
+## bottom, which is the right shape for a retainer.
+##
+## The events are where the arena earns. That sentence was already in this
+## comment and the code disagreed with it.
+##
+## ---------------------------------------------------------------------------
+## AND IT DISAGREED WITH IT AGAIN, in the other direction, and paid NOTHING.
+##
+## Every figure in the paragraph above is a CAPACITY. 40 at a back field gives
+## `40^0.30 x 0.72 = 2`; a sports hall's 1,200 gives 6; an arena's 12,000 gives
+## 11; a National Arena's 80,000 gives 22. Those are the four numbers written
+## down, and they are the four numbers the ground's own size produces.
+##
+## The function was reading `attendance()` — capacity multiplied by `turnout()`,
+## which is `notoriety / 125`. A club that has not made a name yet sits at the
+## notoriety FLOOR of 1.0, so its turnout is 0.008, and 12 followers times 0.008
+## is 0.096, and `int()` of that is ZERO. Not a small gate: no gate, and no gate
+## for as long as the club is unknown, which at the bottom of the pyramid is
+## forever.
+##
+## A twenty-season walk found it as a column of noughts. Every other line in the
+## summer ledger was doing something; this one paid 0 in all twenty years, and
+## the club's entire income was its members' dues, which fall as it loses.
+##
+## **A multiplier that can legitimately reach zero annihilates whatever it is
+## applied to.** That is the same shape as the sentinel that was a legal value
+## and the guard that could only fail: the fault is never the number, it is that
+## nothing downstream can tell "very small" from "not there".
+##
+## A RETAINER IS NOT A GATE. It is what the federation pays for the ground
+## existing and being available to host — *"the federation rotates who hosts, and
+## a better ground takes a bigger turn."* It is a fact about the GROUND. What the
+## crowd is worth is `crowd_pay()`, paid per home fight off the notoriety band,
+## and that one already reads the crowd correctly, floors at 1 for a club nobody
+## has heard of, and says in its own comment why: *"a club nobody has heard of is
+## the club that most needs a trickle."*
+const GROUND_RETAINER_POW: float = 0.30
+const GROUND_RETAINER_K: float = 0.72
+
+
+func gate_income() -> int:
+	return int(floor(pow(maxf(1.0, float(arena.capacity())),
+		GROUND_RETAINER_POW) * GROUND_RETAINER_K))
+
+
+func training_points() -> int:
+	return level(Facility.TRAINING) * 3
+
+
+func injury_relief() -> int:
+	return int(floor(float(level(Facility.INFIRMARY)) / 2.0))
+
+
+# ------------------------------------------------------------------- captains
+## A CAPTAIN TEACHES UP TO TWO ROLES, AND HIS STARS SAY HOW MANY.
+##
+## Pete, 11 Sep 2026: *"each captain can cover up to two positions in their
+## leadership. Rail/Flanker, Rail/Center, Center/Flanker. Which will always make
+## one position have an overlap, making it so the teams will have a 'specialty'.
+## Low Star staff can have no specialties or just one specialty. So a One Star
+## will have no specialty but just generally help. Mid star staff will have one
+## specialty, and High star can have two specialties."*
+##
+## There are three jobs on a line — Rail, Flanker, Center. A role a captain
+## specializes in is **taught**, a role no captain specializes in is **not**,
+## and that half of it is binary: a man has been shown how to fight that
+## position or he has not. What the grade changes is HOW MANY roles the man can
+## show anybody — see specialty_count() — so the stars are the thing you are
+## buying rather than a decoration next to the name.
+##
+## I built it wrong three times before this. First a primary worth 2 and a second
+## worth 1, then head-counts with an Elite tier on top: both produced a role that
+## could be half-taught or better-than-taught, and neither is a thing. Then every
+## captain got two specialties regardless of grade, which made a one-star and a
+## five-star identical hires.
+##
+## TWO FIVE-STAR CAPTAINS GIVE FOUR SLOTS OVER THREE ROLES, so a top staff always
+## overlaps somewhere. That overlap is not waste — it is the club's **specialty**
+## (club_specialty()), the job the place is known for, and men who stand in it
+## develop faster. A captain who teaches nothing still lifts the room
+## (presence()). There is no way to buy a role above Hardened.
+## THE PRICE IS THE STARS. It was a flat 5 CC while every captain taught two
+## roles whatever his grade, and a flat price with a graded product means the
+## only sensible move is to wait for a five-star — the decision evaporates.
+## A one-star is cheap and lifts the room; a five-star teaches two jobs and is
+## most of a season's savings.
+const CAPTAIN_COST: int = 5
+const CAPTAIN_COST_PER_STAR: int = 3
+## How long a new captain signs for, and what one more year costs. Extending is
+## deliberately cheap against hiring: keeping the man you have should be the easy
+## decision and finding a better one the expensive one.
+const CAPTAIN_YEARS: int = 3
+const CAPTAIN_EXTEND: int = 2
+const MAX_CAPTAINS: int = 2
+const SPECIALTIES: int = 2
+
+
+static func cost_of(c: Dictionary) -> int:
+	return CAPTAIN_COST + CAPTAIN_COST_PER_STAR * (int(c.get("grade", 1)) - 1)
+
+## THE TRAINING REGIME, and these numbers are Retro Bowl's own.
+##
+## The field existed here for days as three words on a screen: drawn, never
+## settable, and read by nothing. Pete: *"Look up how Retro Bowl uses Training
+## Regime."* So rather than inventing a trade, it was read out of the shipped
+## GameMaker build — `s_training_regime_effect_on_morale`, `s_get_training_reg`
+## and the XP and condition paths, `training_reg_of` / `training_reg_df`,
+## default 2.
+##
+## Their regime does FOUR things at once, which is why it is a real decision and
+## not a slider:
+##
+## | | XP | morale a week | condition | injury odds |
+## |---|---|---|---|---|
+## | Light | ×0.6 | +0 to +2 | +10 on a big rest | 10% of base |
+## | Normal | ×1.0 | — | — | 20% of base |
+## | Hard | ×1.5 | −1 to −3 | −10 on a big rest | **100% of base** |
+##
+## The injury column is the one that makes it bite: Hard is not 50% riskier than
+## Normal, it is **five times** riskier. Development is bought with bodies.
+##
+## WHAT CHANGES IN TRANSLATION: they split the regime by side of the ball,
+## because their staff are an offensive and a defensive coordinator. Ours are
+## CAPTAINS, and a captain covers roles rather than a side — so the regime is
+## per captain and applies to the roles he teaches. Same shape, our taxonomy.
+enum Regime { LIGHT, NORMAL, HARD }
+
+const REGIME_NAME := { Regime.LIGHT: "Light", Regime.NORMAL: "Normal", Regime.HARD: "Hard" }
+const REGIME_XP := { Regime.LIGHT: 0.6, Regime.NORMAL: 1.0, Regime.HARD: 1.5 }
+## Morale a week, as a fraction of the 0-1 scale this game keeps it on. Theirs
+## is 1-100 and moves 0..+2 or -1..-3; scaled, that is the same weight.
+const REGIME_MORALE := { Regime.LIGHT: 0.015, Regime.NORMAL: 0.0, Regime.HARD: -0.020 }
+## Armour condition a week. Theirs adds or removes 10 of 100 on a big rest.
+const REGIME_WEAR := { Regime.LIGHT: 0.10, Regime.NORMAL: 0.0, Regime.HARD: -0.10 }
+## And the multiplier on a knock actually landing.
+const REGIME_INJURY := { Regime.LIGHT: 0.10, Regime.NORMAL: 0.20, Regime.HARD: 1.00 }
+
+
+## WHICH REGIME APPLIES TO A ROLE. A role a captain teaches is trained his way;
+## a role NOBODY teaches is trained nobody's way, which is Normal — the man is
+## turning up and doing what he has always done.
+func regime_for(role: int) -> int:
+	for c in captains:
+		if specialties_of(c).has(role):
+			return int(c.get("regime", Regime.NORMAL))
+	return Regime.NORMAL
+
+
+func set_regime(index: int, regime: int) -> String:
+	if index < 0 or index >= captains.size():
+		return "There is no captain in that job."
+	if regime < Regime.LIGHT or regime > Regime.HARD:
+		return "That is not a regime."
+	captains[index]["regime"] = regime
+	return ""
+
+
+## The four multipliers, by the role a man stands in.
+func regime_xp(role: int) -> float:
+	return float(REGIME_XP[regime_for(role)])
+
+
+func regime_morale(role: int) -> float:
+	return float(REGIME_MORALE[regime_for(role)])
+
+
+func regime_wear(role: int) -> float:
+	return float(REGIME_WEAR[regime_for(role)])
+
+
+func regime_injury(role: int) -> float:
+	return float(REGIME_INJURY[regime_for(role)])
+
+## captains are dictionaries: name, specialties (two roles), grade (1-5), regime.
+var captains: Array[Dictionary] = []
+
+
+static func captain(nm: String, a: int, b: int, grade: int = 2,
+		trait_: int = Trait.NONE) -> Dictionary:
+	## HIS GRADE SAYS HOW MANY HE TEACHES. Two different roles at the top, one in
+	## the middle, none at the bottom — and a captain who lists the same job
+	## twice knows one job, which is the half-coverage the whole model exists to
+	## refuse.
+	var second: int = b if b != a else (a + 1) % 3
+	var spec: Array = [a, second]
+	spec.resize(specialty_count(grade))
+	return {
+		"name": nm, "specialties": spec, "grade": grade,
+		"regime": Regime.NORMAL, "trait": trait_,
+		## A CAPTAIN IS ON A DEAL, like everybody else at the club.
+		## `msg_StaffExpiring`: *"Your $position's contract expires at the end of
+		## this season."* Without it a five-star hired in season two is yours for
+		## twenty years for five credits, and the staff room — the screen with the
+		## sharpest decision in the game on it — is visited once and never again.
+		"years": CAPTAIN_YEARS,
+	}
+
+
+## WHAT ELSE A CAPTAIN BRINGS, beyond the jobs he teaches.
+##
+## These are Retro Bowl's nine coach traits, and the thing worth saying about
+## them is that I had them on the wrong object. I read "coach trait" and built
+## them as properties of the PLAYER — your own nine perks, chosen at the start.
+## The shipped build disagrees: every one of them is read off `staff_hire`, and
+## every description is scoped — *"Instant morale boost for $pos players"*,
+## *"Toxic players ($pos) have no negative impact on teammates"*. They belong to
+## the man you hire, and they apply to the roles he covers.
+##
+## Which is a better system than the one I was about to write, because it makes
+## the hire a real comparison: a four-star who teaches the two jobs you need
+## against a three-star Physio whose men never gas. And it lands on the object
+## that already has a scope — a captain's specialties are exactly the "$pos" the
+## descriptions are talking about.
+##
+## A captain with no specialties (a one-star) applies his trait to NOBODY, which
+## is the same rule as his teaching and keeps the grade honest: the stars buy
+## reach, and a trait with no reach is worth nothing.
+## TACTICIAN IS APPENDED, not inserted. Every captain in every save carries his
+## trait as an int, so slotting a new one into the middle would silently turn
+## every Physio in the country into a Likeable — the same renumbering trap the
+## `Facility` enum has a paragraph about further up.
+enum Trait {
+	NONE, EXPERIENCE, TALENT_SPOTTER, MOTIVATOR, NEGOTIATOR,
+	FAN_FAVOURITE, PHYSIO, LIKEABLE, POSITIVE, SCOUT, TACTICIAN,
+}
+
+const TRAIT_NAME := {
+	Trait.NONE: "None", Trait.EXPERIENCE: "Experience",
+	Trait.TALENT_SPOTTER: "Talent Spotter", Trait.MOTIVATOR: "Motivator",
+	Trait.NEGOTIATOR: "Negotiator", Trait.FAN_FAVOURITE: "Fan Favourite",
+	Trait.PHYSIO: "Physio", Trait.LIKEABLE: "Likeable",
+	Trait.POSITIVE: "Positive", Trait.SCOUT: "Scout",
+	Trait.TACTICIAN: "Tactician",
+}
+
+## Their own wording, in our nouns. Each one names the thing it moves so the
+## screen does not have to explain a trait twice in two places.
+const TRAIT_BLURB := {
+	Trait.NONE: "No trait. He teaches, and that is all.",
+	Trait.EXPERIENCE: "His men bank a point of training the day he arrives.",
+	Trait.TALENT_SPOTTER: "His men gain ceiling the day he arrives.",
+	Trait.MOTIVATOR: "His men lift the day he arrives.",
+	Trait.NEGOTIATOR: "His men re-sign for less.",
+	Trait.FAN_FAVOURITE: "The following grows faster, and falls when he goes.",
+	Trait.PHYSIO: "His men come out of the corner with more left.",
+	Trait.LIKEABLE: "A toxic man of his drags nobody down.",
+	Trait.POSITIVE: "His men train faster.",
+	Trait.SCOUT: "More names on the free-agent list.",
+	Trait.TACTICIAN: "One more call from the corner, every bout.",
+}
+
+## THE ARRIVAL TRAITS fire once, when he is hired. The rest are read every week.
+const ARRIVAL_TRAITS: Array[int] = [Trait.EXPERIENCE, Trait.TALENT_SPOTTER, Trait.MOTIVATOR]
+
+const TRAIT_XP_BANKED: int = 8          ## Experience, on arrival
+const TRAIT_CEILING: int = 3            ## Talent Spotter, on arrival
+const TRAIT_MORALE: float = 0.10        ## Motivator, on arrival
+const TRAIT_NEGOTIATOR: float = 0.85    ## Negotiator, on a re-signing
+const TRAIT_FANS: float = 1.25          ## Fan Favourite, on the following
+const TRAIT_PHYSIO: float = 0.06        ## Physio, on corner recovery
+const TRAIT_POSITIVE_XP: float = 1.15   ## Positive, on training
+## SCOUT, on the free-agent list. It said *"More men at the trials"* and pointed
+## at a system that has since been cut (see register §46), which left a trait
+## with a description and no code — the exact state the training regime sat in
+## for a week before anybody noticed. It reaches the market instead, which is now
+## the only inflow there is and is the better place for it anyway: the thing a
+## scout is actually good at is finding a name nobody else has looked at.
+const TRAIT_SCOUT_EXTRA: int = 3
+
+## ---------------------------------------------------------------- TACTICIAN
+## THE UPGRADE PATH FOR TACTICAL CALLS — Pete, 13 Sep 2026: *"you should be able
+## to upgrade through either a rare coaching trait or facility upgrade."*
+##
+## It is the trait and not a facility, for three reasons. The facility list was
+## cut down to two ON PURPOSE — see the note above `enum Facility`: "two
+## facilities feeding the same gate, with no way to reason about which to spend
+## on" — and adding a third walks back a decision made for a stated reason.
+## Facilities are bought with credits, and a call you can buy is a call every
+## player has by season three, which is not an upgrade, it is a delay. And a
+## trait makes it a HIRE: a four-star Tactician against a three-star Physio whose
+## men never gas is the comparison the staff room exists for.
+##
+## WHERE IT BENDS THE REACH RULE, said out loud rather than left to be noticed.
+## Every other trait applies only to the roles its captain covers, and a call
+## from the corner is not addressed to a role — you stop the fight, you do not
+## stop the Rail. So the scoping clause that survives is the one that actually
+## carries the rule's weight: `has_trait` already refuses a captain with no
+## specialties, so a one-star Tactician is worth nothing, exactly like a one-star
+## Physio. The stars still buy reach; reach just stops at "any" here instead of
+## naming which.
+const TRAIT_TACTICIAN_CALLS: int = 1
+## RARE, as asked. He only turns up on the good coaches, and not often on those —
+## roughly one offer in fifteen carries him.
+const TACTICIAN_GRADE: int = 4
+const TACTICIAN_ODDS: int = 6
+
+
+static func trait_of(c: Dictionary) -> int:
+	return int(c.get("trait", Trait.NONE))
+
+
+## DOES ANY CAPTAIN BRING THIS TRAIT TO THIS ROLE? One question, one place. Every
+## trait below is read through here, so a trait can never apply to a role its
+## man does not cover — which is the rule that makes the one-star honest.
+func trait_covers(t: int, role: int) -> bool:
+	for c in captains:
+		if trait_of(c) == t and specialties_of(c).has(role):
+			return true
+	return false
+
+
+## And the same question with no role in mind, for the traits that are about the
+## club rather than about a man — the following, the size of the market.
+## HOW MANY EXTRA CALLS THE STAFF IS WORTH. Zero or one today; a sum rather than
+## a bool so a second source of calls — if one is ever added — does not have to
+## re-decide what "has a Tactician" means.
+func extra_calls() -> int:
+	return TRAIT_TACTICIAN_CALLS if has_trait(Trait.TACTICIAN) else 0
+
+
+func has_trait(t: int) -> bool:
+	for c in captains:
+		if trait_of(c) == t and not specialties_of(c).is_empty():
+			return true
+	return false
+
+
+## WHO IS ON THE MARKET. Deterministic from the club and the season so the offer
+## on screen does not reshuffle while you look at it — a hire screen whose
+## candidates change as you read them is unusable.
+##
+## THIS LIVED IN TWO SCREENS. season_scene.gd and staff_scene.gd each carried
+## their own copy, and the day the grade range changed only one of them changed:
+## the Office tab was still selling three-star captains while the Staff room sold
+## five. A rule applied at two call sites is a rule with a hole in it.
+const OFFER_NAMES: Array[String] = ["Vaughn", "Sable", "Rooke", "Hallam",
+	"Crewe", "Ivers", "Mallory", "Orde"]
+
+
+static func offer(seed_value: int, season_no: int, slot: int,
+		refreshes: int = 0) -> Dictionary:
+	var h := absi(hash("cap:%d:%d:%d:%d" % [seed_value, season_no, slot, refreshes]))
+	var roles := [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]
+	var a: int = roles[h % 3]
+	var b: int = roles[(a + 1 + int(h / 3) % 2) % 3]
+	## THE FULL FIVE STARS ARE ON THE MARKET, not three of them. The grade used to
+	## top out at 3, which — once the grade decided how many roles a man teaches
+	## — made a two-specialty captain a thing the code could build and the game
+	## could never sell.
+	var grade := 1 + int(h / 11) % 5
+	## AND A TRAIT, on roughly half of them. Not all, because a man with no trait
+	## has to be a real thing on the list or the trait is not a reason to pick
+	## anybody — it is just a line every card happens to carry.
+	var t: int = Trait.NONE
+	if int(h / 7) % 2 == 0:
+		t = 1 + int(h / 13) % (Trait.SCOUT)
+	## AND THE RARE ONE, rolled separately rather than added to the common pool.
+	## Dropping TACTICIAN into `% Trait.SCOUT` would have made it as common as
+	## Physio, and "rare" was the word in the brief.
+	if grade >= TACTICIAN_GRADE and int(h / 17) % TACTICIAN_ODDS == 0:
+		t = Trait.TACTICIAN
+	return captain(OFFER_NAMES[h % OFFER_NAMES.size()], a, b, grade, t)
+
+
+static func specialties_of(c: Dictionary) -> Array:
+	return c.get("specialties", [])
+
+
+## WHAT A CAPTAIN TEACHES, IN WORDS, for every screen that prints it. A one-star
+## teaches nothing, and the three screens drawing his card each printed the
+## heading "Teaches" over an empty space — which reads as a bug rather than as
+## the man's actual job. He has one: he is good in a changing room.
+static func teaches_list(c: Dictionary) -> Array[String]:
+	var out: Array[String] = []
+	for r in specialties_of(c):
+		out.append(String(Tuning.ROLE_NAME[int(r)]))
+	if out.is_empty():
+		out.append("Nothing · lifts the room")
+	return out
+
+
+static func teaches_line(c: Dictionary) -> String:
+	return " + ".join(teaches_list(c))
+
+
+func hire(c: Dictionary) -> String:
+	if captains.size() >= MAX_CAPTAINS:
+		return "You already have two captains. Release one first."
+	var price := cost_of(c)
+	if credits < price:
+		return "%s costs %d CC and you have %d." % [String(c.get("name", "A captain")), price, credits]
+	credits -= price
+	captains.append(c)
+	return ""
+
+
+## WHAT HE DOES ON THE DAY HE WALKS IN. Three of the nine fire once, at the
+## hiring, and they are the reason a hire is felt immediately rather than in
+## March. Separated from `hire()` because `hire` knows about money and this knows
+## about the squad — and because the office does not hold the roster, the season
+## does. See `Season.hire_captain`, which is the only caller of both.
+func arrival_effect(c: Dictionary, club) -> Dictionary:
+	var t := trait_of(c)
+	var touched: Array[String] = []
+	if not ARRIVAL_TRAITS.has(t) or specialties_of(c).is_empty():
+		return {"trait": t, "men": touched}
+	for f in club.roster:
+		if not specialties_of(c).has(Tuning.role_of(int(f.pos))):
+			continue
+		match t:
+			Trait.EXPERIENCE:
+				f.xp += TRAIT_XP_BANKED
+			Trait.TALENT_SPOTTER:
+				f.potential = clampi(f.potential + TRAIT_CEILING, 1, 99)
+			Trait.MOTIVATOR:
+				f.morale_shift(TRAIT_MORALE)
+		touched.append(f.display_name)
+	return {"trait": t, "men": touched}
+
+
+## LETTING A CAPTAIN GO, and what the place makes of it.
+const FANS_LOST_FAVOURITE: float = 0.80
+
+
+## THE SUMMER, FOR THE STAFF. Everybody loses a year; anybody on zero has gone.
+## Returns the names that left, so the summer can say so — a captain who
+## disappears silently is a line that starts fighting Green in March for reasons
+## the player never sees.
+func age_captains() -> Array[String]:
+	var gone: Array[String] = []
+	var keep: Array[Dictionary] = []
+	for c in captains:
+		var years := int(c.get("years", CAPTAIN_YEARS)) - 1
+		c["years"] = years
+		if years <= 0:
+			gone.append(String(c.get("name", "A captain")))
+		else:
+			keep.append(c)
+	captains.clear()
+	for c in keep:
+		captains.append(c)
+	return gone
+
+
+func extend_captain(i: int) -> String:
+	if i < 0 or i >= captains.size():
+		return "There is no captain in that job."
+	if credits < CAPTAIN_EXTEND:
+		return "Another year costs %d CC and you have %d." % [CAPTAIN_EXTEND, credits]
+	credits -= CAPTAIN_EXTEND
+	captains[i]["years"] = int(captains[i].get("years", 0)) + 1
+	return ""
+
+
+func release(i: int) -> void:
+	if i < 0 or i >= captains.size():
+		return
+	## The crowd's man walks and takes a fifth of the following with him. This is
+	## the half of Fan Favourite that makes him a decision rather than a bonus:
+	## hiring him is cheap and sacking him is not.
+	if trait_of(captains[i]) == Trait.FAN_FAVOURITE and not specialties_of(captains[i]).is_empty():
+		fans = maxf(0.0, fans * FANS_LOST_FAVOURITE)
+		_clamp_fans()
+	captains.remove_at(i)
+
+
+## Is anybody teaching this role? That is the only question there is.
+func taught(role: int) -> bool:
+	for c in captains:
+		if specialties_of(c).has(role):
+			return true
+	return false
+
+
+## How many captains specialize in it. Only ever used to point out that two of
+## them are teaching the same job while another goes without.
+func doubled(role: int) -> bool:
+	var n := 0
+	for c in captains:
+		if specialties_of(c).has(role):
+			n += 1
+	return n > 1
+
+
+## THE THING THE CAPTAINS DO. A man's AI tier is set by whether his role is
+## taught — not by a difficulty setting, not by his own stats.
+##
+## Two rungs of the six, because a role is taught or it is not. An untaught role
+## goes out **Rust** — it does the opening plan and then stands on its zone,
+## which is exactly what Pete described — and a taught one goes out **Hardened**.
+## The four rungs above are the league's, not the player's: they describe how
+## good a CPU club is, and you climb to meet them rather than buying them.
+func tier_for(role: int) -> int:
+	return Tuning.AiSkill.HARDENED if taught(role) else Tuning.AiSkill.RUST
+
+
+## The roles going out untaught — the warning, and the only thing on the staff
+## screen the player has to act on.
+func untaught() -> Array:
+	var out: Array = []
+	for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
+		if not taught(role):
+			out.append(role)
+	return out
+
+
+# -------------------------------------------------------- the federation
+## WHAT THE CLUB HOLDS, by rule, and how many people pay to belong to it. The
+## arithmetic is all in `Federation`; what lives here is the state and the money,
+## because this is the object that holds a purse.
+var compliance := {
+	Federation.Rule.KIT: 0,
+	Federation.Rule.MARSHALS: 0,
+	Federation.Rule.INSURANCE: 0,
+}
+var members: float = Federation.MEMBERS_START
+
+
+func rule_level(r: int) -> int:
+	return int(compliance.get(r, 0))
+
+
+func rule_cost(r: int) -> int:
+	return Federation.raise_cost(rule_level(r))
+
+
+func raise_rule(r: int) -> String:
+	if rule_level(r) >= Federation.MAX_LEVEL:
+		return "%s is already at the top standard." % String(Federation.RULE_NAME[r])
+	if _throttled(SLOT_RULE):
+		return throttle_word("the paperwork")
+	var cost := rule_cost(r)
+	if credits < cost:
+		return "%s costs %d CC and you have %d." % [
+			String(Federation.RULE_NAME[r]), cost, credits]
+	credits -= cost
+	compliance[r] = rule_level(r) + 1
+	_mark(SLOT_RULE)
+	return ""
+
+
+func compliant() -> bool:
+	return Federation.compliant(compliance, tier)
+
+
+func shortfalls() -> Array[String]:
+	return Federation.shortfalls(compliance, tier)
+
+
+func federation_upkeep() -> int:
+	return Federation.upkeep_of(compliance)
+
+
+func dues() -> int:
+	return Federation.dues_for(members)
+
+
+# --------------------------------------------------------------- the levers
+## FOUR SMALL THINGS OFF THE SHIPPED BUILD, and the first one is the important
+## one: morale now has somewhere to SPEND.
+##
+## `msg_BoostMorale`: *"Do you want to arrange a morale boosting event for $num
+## coach credits?"* Per-man morale went in with results, regimes, captains and
+## cuts all pushing it around, and not one thing the player could do about it on
+## purpose. A system you can only watch is a read-out; this is the lever that
+## makes it a system.
+##
+## It is deliberately weak per credit and throttled to once a week. A morale
+## button you can mash is a morale button that deletes the toxic bottom end, and
+## that bottom end is the half Pete asked for.
+const BOOST_COST: int = 4
+const BOOST_MORALE: float = 0.12
+
+
+func boost_cost() -> int:
+	return BOOST_COST
+
+
+func can_boost() -> bool:
+	return credits >= BOOST_COST and not done_this_week(SLOT_BOOST)
+
+
+## THE OFFICE HOLDS THE MONEY AND THE THROTTLE; the SEASON holds the men. This
+## returns whether the money and the week were there, and `Season.boost_morale`
+## does the lifting — same division of labour as the captain's arrival traits.
+func take_boost() -> String:
+	if done_this_week(SLOT_BOOST):
+		return throttle_word("the club")
+	if credits < BOOST_COST:
+		return "A night out costs %d CC and you have %d." % [BOOST_COST, credits]
+	credits -= BOOST_COST
+	_mark(SLOT_BOOST)
+	return ""
+
+
+## REFRESHING A LIST. `msg_FreeAgentReset` and `msg_StaffReset`: *"Do you wish to
+## refresh the free agent list for $num coaching credits?"*
+##
+## Both lists in this game are deterministic from the season and the slot, which
+## is right — a hire screen that reshuffles while you read it is unusable — and
+## it also means a bad crop is a bad crop for a whole year with nothing to do
+## about it. The refresh is the answer: the list stays fixed until you PAY to
+## turn it over, so it is stable and it is not a dead end.
+const REFRESH_COST: int = 3
+
+## How many times each list has been turned over. It feeds the hash, so a
+## refreshed list is a genuinely different draw rather than a reshuffle of the
+## same men, and it is small enough to save without thinking about it.
+var staff_refreshes: int = 0
+var market_refreshes: int = 0
+
+
+func refresh_staff() -> String:
+	if credits < REFRESH_COST:
+		return "Putting the word out costs %d CC and you have %d." % [REFRESH_COST, credits]
+	credits -= REFRESH_COST
+	staff_refreshes += 1
+	return ""
+
+
+func refresh_market() -> String:
+	if credits < REFRESH_COST:
+		return "Putting the word out costs %d CC and you have %d." % [REFRESH_COST, credits]
+	credits -= REFRESH_COST
+	market_refreshes += 1
+	return ""
+
+
+# ------------------------------------------------------------ kit and travel
+## THE CAP THIS GAME WAS SUPPOSED TO HAVE.
+##
+## DIRECTION §4, written before a line of code: *"Salary cap -> kit and
+## availability. Nobody is paid. The cap isn't money-per-player, it's how many
+## bodies you can put on a plane and how many harnesses you own that pass
+## inspection. Bench depth is limited by armour, not payroll. This constraint has
+## never been in a sports management game and it is completely true to the
+## sport."*
+##
+## And the game shipped a money cap — the literal Retro Bowl mechanic the
+## paragraph exists to replace — because a wage bill was the thing that was easy
+## to port. The money cap stays, because by now it is load-bearing and it does
+## read as the federation's ceiling on what a club may spend. What was missing is
+## the half that is actually about buhurt, and it is two numbers:
+##
+##   TRAVEL SLOTS   how many men you can put on a plane. You start with a LINE
+##                  AND NOTHING BEHIND IT — five — and buy your way to eight.
+##   INSPECTION     a harness under `FighterCard.INSPECTION_MIN` does not pass the
+##                  marshals, and a man who does not pass does not fight.
+##
+## The first makes the bench a purchase rather than a given, which is what makes
+## the corner's two swaps a thing you EARNED. The second makes the Workshop load
+## bearing: armour was a soft multiplier on a man's base and nothing else, so
+## repairs were somewhere to put spare credits. Now it is the difference between
+## having five men and having four.
+const TRAVEL_MIN: int = MeleeClub.LINE_SIZE
+const TRAVEL_MAX: int = MeleeClub.ACTIVE_SIZE
+
+## WHERE A CLUB STARTS: a line and one man behind it.
+##
+## The first version started everybody at the bare five, which is what the
+## direction document literally says and was wrong in play for a reason that only
+## showed up once it ran. The corner allows two swaps; a club travelling five can
+## make none, so the entire corner layer — the screen, the two swaps, the bench
+## recovery, all of it — was dead until the first purchase. A mechanic the player
+## cannot touch in his first season is not a progression, it is a locked door.
+##
+## Six is the smallest number that leaves the corner working. The seventh and
+## eighth places are the purchase, and they are what turn one swap into the two
+## the corner was designed around.
+const TRAVEL_START: int = MeleeClub.LINE_SIZE + 1
+## Rising, like every other ladder in this office.
+const TRAVEL_COST := [6, 10]
+
+var travel_slots: int = TRAVEL_START
+
+
+func travel_cost() -> int:
+	var step := travel_slots - TRAVEL_START
+	if step < 0 or step >= TRAVEL_COST.size():
+		return 0
+	return int(TRAVEL_COST[step])
+
+
+func buy_travel_slot() -> String:
+	if travel_slots >= TRAVEL_MAX:
+		return "You can already take a full eight."
+	if _throttled(SLOT_TRAVEL):
+		return throttle_word("the travel budget")
+	var cost := travel_cost()
+	if credits < cost:
+		return "Another place costs %d CC and you have %d." % [cost, credits]
+	credits -= cost
+	travel_slots += 1
+	_mark(SLOT_TRAVEL)
+	return ""
+
+
+# -------------------------------------------------------------------- morale
+## 0-1. Moves with results and with the ground you train on. It is a read-out
+## rather than a lever, which is what keeps it honest — you cannot buy it.
+var morale: float = 0.7
+
+
+## MORALE IS LOGISTIC, not an accumulator, and it had to become one the moment
+## anything started reading it.
+##
+## It used to add a flat swing per result. tools/probe_dilemma.gd played thirty
+## seasons under three different policies and **every one of them ended pinned at
+## 0.05** — the floor — because a club losing more than it wins subtracts a little
+## every week and there was nothing pulling the other way. That was harmless while
+## morale was a read-out nobody read. It stopped being harmless the same afternoon
+## morale started deciding who waits for you and who retires early: a struggling
+## club would have been permanently at maximum penalty, bleeding fighters it could
+## never keep, in a spiral with no bottom and no way out.
+##
+## So the swing is scaled by the ROOM LEFT IN THE DIRECTION IT IS GOING — the same
+## shape `FANS_WIN_GAP` already uses a few lines up. It cannot reach either end,
+## and it settles at an equilibrium set by how often the club wins:
+##
+##   wins 4 in 5    settles near 0.82   Flying
+##   wins 3 in 5    0.63                Good
+##   wins 2 in 5    0.43                Fine
+##   wins 1 in 5    0.22                Poor
+##
+## which is the spread the five words were written for and which the flat version
+## never actually produced.
+const MORALE_WIN: float = 0.08
+const MORALE_LOSS: float = -0.07
+const MORALE_GROUND: float = 0.006
+
+
+func morale_after(won: bool, drew: bool) -> void:
+	var swing := MORALE_WIN if won else (0.0 if drew else MORALE_LOSS)
+	## A better ground takes the edge off a bad weekend, which is exactly what
+	## Retro Bowl's stadium does and is true of a real club: people forgive more
+	## when the place is warm. It reads the ARENA now that the Home ground
+	## facility is gone — same idea, and now it is the same number the crowd and
+	## the gate are reading too.
+	swing += float(arena.level) * MORALE_GROUND
+	morale_shift(swing)
+
+
+## Every move on morale goes through here, dilemmas included, so nothing can add
+## a flat amount and walk it into the wall the logistic exists to prevent.
+##
+## THE CLUB FIGURE IS NOW AN AVERAGE, not a thing in its own right. It is still
+## shifted directly by anything that has no particular man in mind — a dilemma
+## about the brewery, a bad season — and `Season` pushes the same move through
+## every fighter and then re-derives this from them, so the two never disagree
+## about how the room feels.
+func morale_shift(d: float) -> void:
+	var room: float = (1.0 - morale) if d > 0.0 else morale
+	morale = clampf(morale + d * room, 0.02, 0.99)
+
+
+## Re-read the club's mood off the men who are actually at the event. A reserve
+## who never travels does not set the tone in the changing room.
+func sync_morale(club) -> void:
+	var eight: Array = club.active_eight()
+	if eight.is_empty():
+		return
+	var total := 0.0
+	for f in eight:
+		total += f.morale
+	morale = clampf(total / float(eight.size()), 0.02, 0.99)
+
+
+## HOW MANY ROLES A CAPTAIN TEACHES, and it is his grade that says.
+##
+## Pete, 11 Sep 2026: *"Low Star staff can have no specialties or just one
+## specialty. So a One Star will have no specialty but just generally help. Mid
+## star staff will have one specialty, and High star can have two specialties."*
+##
+## Every captain used to get exactly two regardless of grade, which made the
+## star rating decoration — a one-star and a five-star taught the same number of
+## jobs and the only difference was the number of stars drawn next to the name.
+static func specialty_count(grade: int) -> int:
+	if grade <= 1:
+		return 0
+	if grade <= 3:
+		return 1
+	return 2
+
+
+## A captain who teaches nothing is not useless. He is the man who is good in a
+## changing room: everybody lifts a little, nobody is shown anything new.
+const PRESENCE_MORALE := 0.012
+
+
+func presence() -> float:
+	var lift := 0.0
+	for c in captains:
+		if specialties_of(c).is_empty():
+			lift += PRESENCE_MORALE * float(int(c.get("grade", 1)))
+	return lift
+
+
+## THE CLUB'S SPECIALTY — the role two captains BOTH teach.
+##
+## Pete: *"each captain can cover up to two positions... which will always make
+## one position have an overlap, making it so the teams will have a specialty."*
+## Two men teaching one job is not the waste the old screen called it; it is
+## what a club becomes known for.
+func club_specialty() -> int:
+	var seen := {}
+	for c in captains:
+		for r in specialties_of(c):
+			var k := int(r)
+			if seen.has(k):
+				return k
+			seen[k] = true
+	return -1
+
+
+## What the doubled role is worth. Men who stand in it develop faster — the club
+## has two people who know that job and one of them is always watching.
+const SPECIALTY_XP := 1.25
+
+
+func specialty_xp(role: int) -> float:
+	var mult := SPECIALTY_XP if club_specialty() == role else 1.0
+	## POSITIVE stacks on top of the specialty rather than replacing it. Two
+	## different things are true — two men teach this job, and one of them is good
+	## to be around — and a max() would quietly throw the smaller one away.
+	if trait_covers(Trait.POSITIVE, role):
+		mult *= TRAIT_POSITIVE_XP
+	return mult
+
+
+## THE WORDS ARE ANCHORED ON WHERE MORALE ACTUALLY SETTLES, which is a thing
+## that could only be known once it settled anywhere. Under the old flat swing it
+## drifted to a wall and four of these five names were unreachable; under the
+## logistic the equilibria measured out at 0.85, 0.60, 0.47 and 0.26 for clubs
+## winning four, three, two and one in five — and against thresholds written for
+## the old behaviour, a club winning four fixtures in five read "Good" and
+## "Flying" was still unreachable.
+##
+## So the boundaries are set just under each measured equilibrium. A club that
+## wins most weeks is Flying, a good one is Good, a mid-table one is Fine, and
+## the bottom of the division is Restless — which is what the five words were for.
+func morale_word() -> String:
+	if morale >= 0.80:
+		return "Flying"
+	if morale >= 0.56:
+		return "Good"
+	if morale >= 0.38:
+		return "Fine"
+	if morale >= 0.20:
+		return "Restless"
+	return "Mutinous"
+
+
+# -------------------------------------------------------------------- saving
+func to_dict() -> Dictionary:
+	return {
+		"credits": credits, "cap_level": cap_level, "morale": morale, "tier": tier,
+		"travel": travel_slots,
+		"compliance": compliance.duplicate(), "members": members,
+		"staff_refreshes": staff_refreshes, "market_refreshes": market_refreshes,
+		"facilities": facilities.duplicate(),
+		"captains": captains.duplicate(true),
+		"arena": arena.level, "notoriety": notoriety, "fans": fans,
+	}
+
+
+static func from_dict(d: Dictionary) -> ClubOffice:
+	var o := ClubOffice.new()
+	o.credits = int(d.get("credits", 0))
+	o.cap_level = int(d.get("cap_level", 0))
+	o.tier = int(d.get("tier", 0))
+	o.morale = float(d.get("morale", 0.7))
+	o.travel_slots = clampi(int(d["travel"]), TRAVEL_MIN, TRAVEL_MAX)
+	## HARD KEYS, not defaults. These decode into something FALSE rather than into
+	## a gap — see the VERSION note in save_game.gd — and the version gate above is
+	## what stops an old file ever reaching here.
+	o.members = clampf(float(d["members"]), 1.0, Federation.MEMBERS_MAX)
+	for k in d.get("compliance", {}):
+		if o.compliance.has(int(k)):
+			o.compliance[int(k)] = clampi(int(d["compliance"][k]), 0, Federation.MAX_LEVEL)
+	o.staff_refreshes = int(d.get("staff_refreshes", 0))
+	o.market_refreshes = int(d.get("market_refreshes", 0))
+	o.arena.level = clampi(int(d.get("arena", 0)), 0, Arena.MAX_LEVEL)
+	o.notoriety = clampf(float(d.get("notoriety", 3.0)), 1.0, NOTORIETY_MAX)
+	o.fans = maxf(0.0, float(d.get("fans", 12.0)))
+	for k in d.get("facilities", {}):
+		## Only the two that still exist. A stored HOME_GROUND level from an
+		## older shape is dropped rather than added back as a key nothing reads.
+		if o.facilities.has(int(k)):
+			o.facilities[int(k)] = int(d["facilities"][k])
+	o.captains.clear()
+	for c in d.get("captains", []):
+		o.captains.append((c as Dictionary).duplicate(true))
+	return o
