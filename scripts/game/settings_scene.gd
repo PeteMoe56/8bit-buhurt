@@ -59,7 +59,6 @@ func _back() -> void:
 
 func _draw() -> void:
 	UiKit.set_mood(UiKit.Mood.NORMAL)
-	Audio.music("menu")
 	UiKit.ground(self)
 	UiKit.text(self, font, "SETTINGS", Vector2(LEFT_X, 54), 30, UiKit.INK)
 
@@ -78,8 +77,41 @@ func _draw() -> void:
 			int(round(lvl / Settings.STEP)), 8,
 			UiKit.YOU if lvl > 0.0 else UiKit.EDGE)
 
+	## ------------------------------------------------------ where difficulty is
+	## Pete, item 14 of the 15 Sep playtest: *"Can't find difficulty settings."*
+	##
+	## He could not because they are not here, and that is deliberate — the note
+	## on `Season.grade` says it plainly: *"volume is a property of the room you
+	## are sitting in, and difficulty is a property of the run."* A grade you
+	## could change at the title screen between fixtures would make the table
+	## meaningless.
+	##
+	## So this is not a move, it is a signpost, and the grade is the one thing on
+	## this screen the player cannot change here. **A setting that is deliberately
+	## somewhere else still has to be findable from where people look for it** —
+	## an absence with no explanation is indistinguishable from an omission, and
+	## that is exactly what it was mistaken for.
 	UiKit.text(self, font, "Saved as you set them.",
-		Vector2(LEFT_X + 2, TOP + 288), 13, UiKit.EDGE.lightened(0.5))
+		Vector2(LEFT_X + 2, TOP + 274), 13, UiKit.EDGE.lightened(0.5))
+
+	## ITS OWN PANEL, because it is its own kind of thing. The first cut put it
+	## inside the SOUND box's last six pixels and it landed on "Saved as you set
+	## them" — which is what a row added to a panel sized for the rows it already
+	## had always does.
+	var gy := TOP + 282.0
+	UiKit.panel(self, Rect2(LEFT_X, gy, COL_W, 82))
+	UiKit.text(self, font, "THIS CAREER", Vector2(LEFT_X + 18, gy + 24), 15, UiKit.DIM)
+	if Session.season != null:
+		UiKit.pair(self, font, "Difficulty", Grade.name_of(Session.season.grade),
+			Vector2(LEFT_X + 18, gy + 48.0), LEFT_X + COL_W - 18.0, 17, 15,
+			UiKit.INK, UiKit.YOU)
+		UiKit.text(self, font, "Set per career, on the club screen.",
+			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.DIM)
+	else:
+		UiKit.text(self, font, "Difficulty", Vector2(LEFT_X + 18, gy + 48.0),
+			17, UiKit.DIM)
+		UiKit.text(self, font, "Belongs to a career, not to the game.",
+			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.EDGE)
 
 	# --------------------------------------------------------------- credits
 	UiKit.panel(self, Rect2(RIGHT_X, TOP, COL_W + 6, 344))

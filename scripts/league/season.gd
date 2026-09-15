@@ -511,8 +511,14 @@ func _apply_regime() -> void:
 		## KIT MINDER and ROUGH ON KIT. `regime_wear` is negative, so a multiplier
 		## under one is less damage and over one is more — the sign stays with the
 		## regime and the trait only scales it.
+		## AND THE HARNESS DECIDES HOW MUCH OF THAT WEEK THE KIT ABSORBS. The
+		## regime says how hard it was, the trait scales it, and the grade of
+		## harness he is wearing scales it again — tournament plate takes a third
+		## less than club spares. That is the actual economy of armour in the
+		## sport: good kit pays for itself in repairs it does not need.
 		f.armor = clampf(f.armor + office.regime_wear(role)
-			* FighterTrait.mod(f.trait_id, "wear", 1.0), 0.0, 1.0)
+			* FighterTrait.mod(f.trait_id, "wear", 1.0)
+			* Quartermaster.wear_scale(f), 0.0, Quartermaster.ceiling(f))
 	office.sync_morale(club)
 
 
@@ -747,6 +753,15 @@ func skip_event() -> void:
 	world.play_event()
 	var now := _my_row()
 	_after_event(int(now["rf"]) - int(was["rf"]), int(now["ra"]) - int(was["ra"]))
+	## AND THE WEEK STILL HAPPENED.
+	##
+	## `_apply_regime()` ran from `post_bout` and not from here, so a SIMMED event
+	## cost no morale drift and no kit wear at all: `tools/probe_kit.gd` walked
+	## twenty-four simmed events and the squad finished on exactly the harness it
+	## started with. Fighting your bouts wore your armour out and skipping them
+	## did not, which is a discount for not playing the game — and it is the kind
+	## of asymmetry a player finds by accident and then never fights again.
+	_apply_regime()
 	_log(opp, before, false, was_home)
 	event_played.emit(opp, [])
 
@@ -771,12 +786,12 @@ func _after_event(rf: int, ra: int) -> void:
 	## rule lives, so a second earner added next year cannot quietly disagree
 	## with it.
 	if Venue.pays_the_gate(venue_kind()):
-		office.credits += office.crowd_pay()
+		office.take(office.crowd_pay(), "The gate", "event")
 	if rf > ra:
-		office.credits += CREDITS_WIN
+		office.take(CREDITS_WIN, "Won the event", "event")
 		office.morale_after(true, false)
 	elif rf == ra:
-		office.credits += CREDITS_DRAW
+		office.take(CREDITS_DRAW, "Drew the event", "event")
 		office.morale_after(false, true)
 	else:
 		office.morale_after(false, false)
@@ -1204,7 +1219,7 @@ func run_demo() -> String:
 	if office.done_this_week("demo"):
 		return "You have already put a demo on this week."
 	var pay: int = ClubEvent.DEMO_PAY[clampi(office.arena.level, 0, ClubEvent.DEMO_PAY.size() - 1)]
-	office.credits += pay
+	office.take(pay, "A demo at the ground", "event")
 	## A demo keeps you on the calendar. Barely — a quarter of the turnout a real
 	## event would pull, and no promotion behind it.
 	var heads := int(float(ClubEvent.attendance(office.arena.capacity(), office.fans,
@@ -1264,7 +1279,7 @@ func _settle_gate(e: ClubEvent, c: Cup) -> void:
 		podium = ClubEvent.PODIUM[1]
 	elif c.third == world.player_club:
 		podium = ClubEvent.PODIUM[2]
-	office.credits += g + podium
+	office.take(g + podium, "The cup", "event")
 	## A crowd is the loudest thing that can happen to a club, and everyone who
 	## came is half a fan afterwards. An empty house is not punished twice — the
 	## lost credits are punishment enough — so this only ever adds.
@@ -1445,17 +1460,17 @@ func roll_over() -> void:
 	var after := world.player_tier()
 	## The summer: prize money, the gate from hosting, and the winter's training.
 	if finished >= 1 and finished <= CREDITS_BY_POSITION.size():
-		office.credits += CREDITS_BY_POSITION[finished - 1]
+		office.take(CREDITS_BY_POSITION[finished - 1], "Finished %d" % finished, "season")
 	if after > before:
-		office.credits += CREDITS_PROMOTED
+		office.take(CREDITS_PROMOTED, "Went up", "season")
 		office.note_shift(ClubOffice.NOTE_PROMOTED)
 	elif after < before:
 		office.note_shift(ClubOffice.NOTE_RELEGATED)
-	office.credits += office.gate_income()
+	office.take(office.gate_income(), "A season of gates", "season")
 	## THE DUES. Banked before the bills, because that is what they are for — the
 	## members' money is the income that does not move with results, and it is
 	## the money the federation's bill is actually competing for.
-	office.credits += office.dues()
+	office.take(office.dues(), "Members' dues", "season")
 	## AND THEN THE BILLS. Deliberately after the retainer and the prize money and
 	## deliberately before the training: a club should be paid for the year it had
 	## and then asked what it costs to keep what it owns, in that order, because

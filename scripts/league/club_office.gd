@@ -388,16 +388,48 @@ const KIT_COST_FULL: int = 5
 
 ## What the armourer wants for one visit, 1 CC at a scratch and KIT_COST_FULL at
 ## a harness that is falling apart.
+## AGAINST HIS OWN CEILING, not against a perfect harness. A man in borrowed kit
+## cannot be polished past 0.82, so charging him for the gap to 1.00 would be the
+## armourer billing for work he is about to refuse to do.
 static func kit_cost(card: FighterCard) -> int:
-	return clampi(int(ceil((1.0 - card.armor) * float(KIT_COST_FULL))), 1, KIT_COST_FULL)
+	var top := Quartermaster.ceiling(card)
+	return clampi(int(ceil((top - card.armor) * float(KIT_COST_FULL))), 1, KIT_COST_FULL)
+
+
+## BUY A MAN A BETTER HARNESS. One rung at a time, and no throttle — unlike a
+## repair this is not a thing a club does every week, it is a thing a club does
+## once per man and then lives with.
+##
+## THE NEW KIT ARRIVES FRESH, at the top of its own grade. Charging for
+## tournament plate and handing over a rattling one would be a shop selling
+## condition and delivering grade.
+func buy_harness(card: FighterCard) -> String:
+	var next := Quartermaster.next_grade(card)
+	if next < 0:
+		return "%s is already in tournament plate." % card.display_name
+	var cost := Quartermaster.upgrade_cost(card)
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	credits -= cost
+	card.harness = next
+	card.armor = Quartermaster.ceiling(card)
+	return ""
 
 
 ## ONE VISIT A WEEK, PER MAN, on the same throttle every other per-man purchase
 ## uses — without it a club with credits walks a wrecked squad back to new in an
 ## afternoon, which is the armourer as a vending machine rather than a decision.
 func repair_kit(card: FighterCard) -> String:
-	if card.armor >= 1.0:
-		return "%s's harness is as good as it gets." % card.display_name
+	## AND THE REFUSAL SAYS WHICH KIND IT IS. "As good as it gets" on a borrowed
+	## harness sitting at 0.82 reads as a bug; the player can see it is not full
+	## and the armourer is telling him it is. Naming the grade turns a refusal
+	## into the sales pitch for the next one.
+	if Quartermaster.topped_out(card):
+		if Quartermaster.next_grade(card) < 0:
+			return "%s's harness is as good as it gets." % card.display_name
+		return "%s's %s harness is as good as %s gets. He needs better kit." % [
+			card.display_name, Quartermaster.name_of(card).to_lower(),
+			Quartermaster.name_of(card).to_lower()]
 	var slot := "kit:%s#%d" % [card.display_name, card.number]
 	if _throttled(slot):
 		return "The armourer has already had %s's kit this week." % card.display_name
@@ -405,7 +437,7 @@ func repair_kit(card: FighterCard) -> String:
 	if credits < cost:
 		return "That costs %d CC and you have %d." % [cost, credits]
 	credits -= cost
-	card.armor = clampf(card.armor + KIT_STEP, 0.0, 1.0)
+	card.armor = clampf(card.armor + KIT_STEP, 0.0, Quartermaster.ceiling(card))
 	_mark(slot)
 	return ""
 
@@ -1375,6 +1407,57 @@ func shortfalls() -> Array[String]:
 
 func federation_upkeep() -> int:
 	return Federation.upkeep_of(compliance)
+
+
+# ------------------------------------------------------------------ the purse
+## WHERE THE MONEY CAME FROM, and it is the whole answer to item 25.
+##
+## Pete, 15 Sep 2026: *"No income weekly ever. You're set to lose and you'll die
+## out if you don't win."*
+##
+## Measured first (`tools/probe_purse.gd`), because the sentence is checkable: a
+## club walked from the first event earns **8 -> 92 CC across three seasons**,
+## about 21 in the first and 28 by the third. So income exists and the sentence
+## is not literally true.
+##
+## What IS true is that none of it is ever shown. It arrives as +1 and +2 after
+## an event and a lump at the season roll, against a purse in the header that
+## simply reads a different number than it did a moment ago. **A club that cannot
+## see itself earning is a club that is not earning, as far as the player is
+## concerned** — and that is a screen problem, not a balance one, so it gets a
+## screen fix and the balance stays where it is until Pete says otherwise.
+##
+## Every credit in passes through `take()` and says what it was for. Nothing here
+## changes an amount.
+const PURSE_KEEP: int = 6
+
+## Newest first: {"what": String, "cc": int, "when": String}.
+var purse_log: Array = []
+
+
+## MONEY IN, WITH A REASON. Returns the amount so a caller can still read it.
+func take(cc: int, what: String, when_: String = "") -> int:
+	if cc == 0:
+		return 0
+	credits += cc
+	purse_log.push_front({"what": what, "cc": cc, "when": when_})
+	while purse_log.size() > PURSE_KEEP:
+		purse_log.pop_back()
+	return cc
+
+
+## What the last event or roll paid, in the club's own words. Empty when nothing
+## has been earned yet, which is a true thing to say on day one.
+func purse_lines() -> Array:
+	return purse_log.duplicate()
+
+
+func purse_since(when_: String) -> int:
+	var t := 0
+	for row in purse_log:
+		if String(row.get("when", "")) == when_:
+			t += int(row["cc"])
+	return t
 
 
 func dues() -> int:

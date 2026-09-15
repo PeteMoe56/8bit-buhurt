@@ -72,6 +72,8 @@ var ui: CanvasLayer
 var season: Season
 var man: FighterCard
 var flash: String = ""
+## Why the bus button is dead, when it is. Set in `_build`, drawn in `_draw`.
+var bus_note: String = ""
 
 ## --------------------------------------------------------------- the meeting
 ## PETE, 14 Sep 2026: *"Let's go with B and add the affected stats underneath.
@@ -194,13 +196,40 @@ func _build() -> void:
 	## WHERE HE STANDS. One button with the move that actually applies: a man on
 	## the eight can be stood down, a reserve can be brought up. Two buttons with
 	## one of them always refusing is a screen that argues with you.
+	## AND IT SAYS WHAT IT DOES, IN THE GAME'S OWN WORDS.
+	##
+	## Pete, 15 Sep 2026: *"No idea what 'Stand down' is or does. When pressed,
+	## it's hidden."* Both halves are fair. The label was military and the game is
+	## not — every other screen calls this the BUS ("PLACES ON THE BUS", "6 of 8",
+	## "ON THE BUS") and this one screen called it standing down. The vocabulary
+	## rule this project already applies to formations applies to verbs.
+	##
+	## And the hiding: pressing it on a full eight is REFUSED, with a sentence
+	## that then printed ten pixels above a row of buttons. The refusal is
+	## foreseeable — `set_active` will not let the eight be seven — so the button
+	## says so on its face instead, the way the night-out button learned to. A
+	## control that can tell you no before you spend the tap should.
 	var on_eight: bool = man.active
-	ui.add_child(UiKit.button("Stand down" if on_eight else "Bring him up",
-		Vector2(170, y), Vector2(190, 44), func():
-			flash = UiKit.said(season.club.set_active(man, not on_eight))
-			season.sync_power()
-			Session.autosave()
-			_build()))
+	var bus_label := "Off the bus" if on_eight else "Onto the bus"
+	var bus_why := season.club.set_active_would(man, not on_eight) \
+		if season.club.has_method("set_active_would") else ""
+	## THE REASON GOES ON THE LINE ABOVE, NOT ON THE FACE. "Off the bus · need
+	## eight" is 210 pixels of label in a 190-pixel button and came out as "Off
+	## the bus · need e" — a refusal clipped mid-word, which is worse than no
+	## refusal because it reads as damage. The button says what it does and goes
+	## dead; the sentence says why, where there is room for a sentence.
+	var bus_b := UiKit.button(bus_label, Vector2(170, y), Vector2(190, 44), func():
+		flash = UiKit.said(season.club.set_active(man, not on_eight))
+		season.sync_power()
+		Session.autosave()
+		_build())
+	bus_b.disabled = bus_why != ""
+	## Kept for `_draw`, which is a different function and runs on a different
+	## frame — a screen that recomputed the reason to print it would be two
+	## answers to one question.
+	bus_note = ("" if bus_why == "" else "%s cannot come %s the bus: %s." % [
+		man.display_name, "off" if on_eight else "onto", bus_why])
+	ui.add_child(bus_b)
 
 	## THE CONTRACT, as one control with the price on it — the same fork the
 	## squad tab uses, so the two screens cannot quote different numbers.
@@ -478,7 +507,24 @@ func _draw() -> void:
 		_draw_meeting()
 
 	if flash != "":
-		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 66), 13, UiKit.DOWN)
+		## CLEAR OF THE BUTTON ROW. The row starts at `screen().y - 56`; at -66 a
+		## 13px line's descenders were inside the buttons' own drop shadow, which
+		## is what "when pressed, it's hidden" was describing.
+		UiKit.text(self, font, UiKit.fit_px(font, flash, 13, UiKit.span()),
+			Vector2(24, UiKit.screen().y - 76), 13, UiKit.DOWN)
+	elif bus_note != "":
+		## UNDER THE TITLE, NOT ABOVE THE BUTTONS. The first cut put it on the
+		## same line the flash uses — and the ink sweep failed it at all four
+		## canvas shapes with `'Calder cannot come off the bus: need eight.'
+		## under '+1 Strength'`, because a man with a level to spend grows a row
+		## of three buttons across exactly that y.
+		##
+		## The flash can live there: it appears after a tap, when the player is
+		## looking at the button he tapped. This is standing state, drawn every
+		## frame, so it needs somewhere that is free every frame — and the strip
+		## under the fighter's name is the only band on this screen that is.
+		UiKit.text(self, font, UiKit.fit_px(font, bus_note, 13, UiKit.span()),
+			Vector2(24, 74), 13, UiKit.DIM)
 
 
 # ------------------------------------------------------------------- column 1

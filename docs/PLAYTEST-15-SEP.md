@@ -126,29 +126,132 @@ rows attached to it (21, 22), so it is a screen rebuild rather than a tidy.
 | # | Item | Status |
 |---|---|---|
 | 3 | **No tutorial** — nothing teaches the loop | `open` |
-| 14 | **Difficulty settings cannot be found** | `open` |
-| 25 | **No weekly income, ever.** You are set to lose, and you die out if you do not win | `open` |
+| 14 | **Difficulty settings cannot be found** | `done` |
+| 25 | **No weekly income, ever.** You are set to lose, and you die out if you do not win | `answered` |
 | 8 | **No fan information anywhere**, and none on the fight card | `open` |
-| 16 | **"room" and "name" are never explained** — the two dilemma currencies | `open` |
+| 16 | **"room" and "name" are never explained** — the two dilemma currencies | `done` |
 | 21 | Squad needs **sort-by and min/max** on skill / age / cost | `open` |
-| 23 | **"Stand down" is unexplained**, and hides itself when pressed | `open` |
-| 26 | Put the **settings-menu music into every non-fight menu**; find something else for what it replaces | `open` |
 
-**25 is the same finding as the ladder**, from the other end. The measured result
-was a club that wins its division four times in forty seasons and finishes last
-in the one above every time; Pete's version is *"immediately feel outgunned by
-everyone in Backyard Circuit"* (15). One problem, two symptoms.
+**14** — not moved, signposted. `Season.grade`'s own note says why it lives on the
+career and not in Settings: *"volume is a property of the room you are sitting
+in, and difficulty is a property of the run."* A grade you could change at the
+title screen between fixtures would make the table meaningless. So Settings now
+carries a **THIS CAREER** panel that names the grade and says where it is set —
+because a setting that is deliberately somewhere else still has to be findable
+from where people look for it, and an absence with no explanation is
+indistinguishable from an omission.
+
+**16** — `room` is morale and `name` is notoriety, and neither word appeared
+anywhere else in the game. A key sits on the dilemma card's rule now, read out of
+`Dilemma.FX_WORD` so renaming a currency renames its own caption.
+
+**23** — two faults. The label was military and the game is not: every other
+screen calls this the *bus*. And pressing it on a full eight is refused, with a
+sentence that printed into the button row's drop shadow — that is the "it's
+hidden". The button now says `Off the bus`, goes **dead** when the move is
+impossible, and the reason prints on the line above. `set_active_would()` answers
+in four words what `set_active` already knew.
+
+**26** — three screens in the whole game played anything: the front door, the
+slot picker, and settings, all asking for the same track. **Thirteen other menus
+ran in silence**, including the one a player spends most of his time on. Nobody
+had ever added the line. It is in `UiKit.ground()` now, which already runs on
+exactly the set of screens that want it and none of the ones that do not —
+`melee_scene` paints its own ground, so the fight keeps its own sound.
+| 23 | **"Stand down" is unexplained**, and hides itself when pressed | `done` |
+| 26 | Put the **settings-menu music into every non-fight menu**; find something else for what it replaces | `done` |
+
+**25 — the money is there and you cannot see it.** Measured before anything was
+changed (`tools/probe_purse.gd`): a club walked from its first event goes **8 →
+92 CC across three seasons**, about 21 in the first and 28 by the third. So "no
+income weekly ever" is not literally true.
+
+What is true is that none of it was ever *shown*. It arrived as +1 and +2 after
+an event and a lump at the season roll, against a purse in the header that simply
+read a different number than it had a moment ago. **A club that cannot see itself
+earning is a club that is not earning, as far as the player is concerned.**
+
+Every credit in now passes through `ClubOffice.take()` with a reason attached,
+and the clubhouse shows the last four — *The gate +3, Won the event +2, Members'
+dues +6*. No amount changed. It is a screen fix, because the problem was a screen
+problem.
+
+What it costs to act, for scale: a cap raise 4 CC, a bus place 6, a facility 3, a
+serviceable harness 3 (×8 = 24). So season one earns about one decision.
+
+**15 is the ladder, from the other end.** The measured result was a club that wins
+its division four times in forty seasons and finishes last in the one above every
+time. One problem, two symptoms — and the ladder half is still open.
+
+> **PARKED FOR PETE.** A club that finishes 4th-6th earns **no position money at
+> all** (`CREDITS_BY_POSITION` is `[6, 4, 2]`). Everything else — the gate, dues,
+> the win bonus — is small and slow. That is the shape of "you die out if you do
+> not win", and whether a bottom club should have a floor under it is a design
+> call, not a bug.
 
 ---
 
 ## Design — needs a decision before any code
 
-| # | Item |
+| # | Item | Status |
+|---|---|---|
+| 5 | **Rebuild the Market** as the Quartermaster | `done` |
+
+### 5 — the Armourer
+
+Pete chose the quartermaster direction. What it turned out to be is smaller and
+better grounded than a new gear system, because **most of it already existed and
+had no screen.**
+
+`FighterCard.armor` decays every event off the captain's regime, multiplies a
+man's base through `effective_base()`, and gates `passes_inspection()` at 0.35 —
+below that line the marshals will not pass him and he cannot go out at all.
+Direction §4 has said since day one: *"The cap isn't money-per-player, it's how
+many bodies you can put on a plane and how many harnesses you own that pass
+inspection."* All of it was reachable one man at a time, from a row on the
+fighter card, behind two taps.
+
+Three things were measured before a line was written (`tools/probe_kit.gd`):
+
+| Finding | |
 |---|---|
-| 5 | **Rebuild the Market.** There is a tab inside a tab. Pete: *"Market should be some type of enhancements like armor polish or something. We can brainstorm it"* |
+| **An AI club has no kit at all** | It is a `power` integer drawn from its tier's band, not a squad of men. It cannot wear a harness out or repair one. The player is the only club on the ladder paying this tax. |
+| **A simmed event cost no wear** | `_apply_regime()` ran from `post_bout`, not `skip_event` — 24 simmed events left a squad on exactly the kit it started with. A discount for not playing the game. **Fixed.** |
+| **And the tax is a rounding error** | The whole legal armour range, 0.35 to 1.00, is worth **1.37 rating points**. The 0.90→1.00 a repair buys is worth 0.24. Repairing thirteen men before every event for 24 events moved club power by **zero**. |
+
+So: **inspection has teeth and the multiplier does not.** The screen is built
+around the part that bites. The new part is one integer per fighter — a harness
+*grade* that sets the ceiling a repair can reach and how fast the kit wears:
+
+| Grade | Ceiling | Wear | Cost |
+|---|---|---|---|
+| Borrowed | 90% | ×1.00 | — |
+| Serviceable | 96% | ×0.86 | 3 CC |
+| Fitted | 100% | ×0.72 | 7 CC |
+| Tournament | 100% | ×0.58 | 14 CC |
+
+Nothing on that ladder is worse than the game was before it existed — the first
+cut had Borrowed capped at 82% and wearing ×1.30, which would have shipped a
+ceiling cut and a 30% wear increase to every club as a side effect of adding a
+shop. *A feature that nerfs the baseline to make its own upgrades look good is a
+feature charging you to undo it.*
+
+Free agents moved to the **Squad** tab, which kills the tab-in-a-tab.
+
+> **PARKED FOR PETE — one balance decision.** Armour is worth 1.37 rating points
+> across its entire range. If a harness is meant to be the cap Direction says it
+> is, that range wants widening, and it is **one constant**:
+> `FighterCard.effective_base()` is `base * lerpf(0.78, 1.0, armor)`. Drop the
+> 0.78 to, say, 0.55 and the range becomes ~3.5 points a man, ~3.5 club power
+> across a five — which is the difference between a shop and a decoration.
+> `test_quartermaster.gd` asserts the current figure, so moving it fails the
+> suite and points at this paragraph rather than letting the docs go stale.
+
+| # | Item | Status |
+|---|---|---|
 | 20 | **The formation and play slots on the fixture card should not be there.** Fight should go to the pre-fight screen anyway and Sim should be a popup. Candidates for the space: the schedule, and *"definitely a ticker across the bottom full of humor and results"* |
 | 9 | **Pre-fight should show the field**, idle fighters behind it, positions updating as a formation is picked, and a dashed line of the plan |
-| 7b | Remove **"A night out"** — *"pretty dumb"* |
+| 7b | Remove **"A night out"** — *"pretty dumb"* — `done`. The verb stays and is still tested; the button is gone from the busiest row in the game. |
 
 9 lands in `melee_scene.gd`, which belongs to the arena chat — see
 `docs/ARENA-SHAPE-HANDOFF.md`.

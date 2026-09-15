@@ -679,7 +679,24 @@ static func fit_px(font: Font, s: String, px: int, width: float) -> String:
 ## The front door and the slot picker pass `false`. They already carry the logo
 ## at full strength, and a mark behind a mark is not a background, it is a
 ## printing error.
+## AND IT STARTS THE MENU MUSIC, which is Pete's item 26: *"Put the music used
+## in the settings menu into all the menus outside of fighting."*
+##
+## THREE SCREENS IN THE WHOLE GAME PLAYED ANYTHING — the front door, the slot
+## picker and settings, all asking for the same track. Every other menu, which is
+## thirteen of them including the one a player spends most of his time on, ran in
+## silence. Not a decision anybody made; nobody had ever added the line.
+##
+## It belongs here for the same reason the watermark does: this function already
+## runs on exactly the set of screens that want it and on none of the ones that
+## do not. `melee_scene` paints its own ground and never calls this, so the fight
+## keeps its own sound and cannot accidentally be given a menu tune.
+##
+## `Audio.music()` returns immediately when the track it is asked for is the one
+## already playing, so calling it every frame from a draw costs a comparison —
+## which is what the three screens that already had it have always done.
 static func ground(ci: CanvasItem, wash: bool = true) -> void:
+	Audio.music("menu")
 	ci.draw_rect(Rect2(Vector2.ZERO, screen()), BG)
 	if wash:
 		Brand.draw_wash(ci, screen())

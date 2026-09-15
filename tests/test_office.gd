@@ -339,9 +339,27 @@ func _test_facilities_reach_something() -> void:
 			before += f.overall()
 	var centre_before: int = s.club.starting_five()[Tuning.Pos.CENTER].overall()
 	var rail_before: int = s.club.starting_five()[Tuning.Pos.RAIL_L].overall()
+
+	## AND THE KIT IS HELD STILL, for the same reason ageing is argued about
+	## twenty lines up: this check is named after the facility and it must
+	## measure the facility.
+	##
+	## `skip_event()` began applying the training week on 15 Sep 2026 — it had
+	## not, which meant a simmed event cost no morale drift and no kit wear and
+	## was a straight discount for not fighting your bouts. Correct fix, and it
+	## put a SECOND variable inside this check: a club that sims a whole season
+	## now reaches the winter in worn harness, `effective_base()` reads that, and
+	## the coached men's gain was being netted against it. The check went red
+	## having found something true about the club and nothing about the ground.
+	var kit := {}
+	for f in s.club.roster:
+		kit[f] = f.armor
 	while not s.season_complete():
 		s.skip_event()
 	s.roll_over()
+	for f in s.club.roster:
+		if kit.has(f):
+			f.armor = float(kit[f])
 	var rail: FighterCard = s.club.starting_five()[Tuning.Pos.RAIL_L]
 	var centre: FighterCard = s.club.starting_five()[Tuning.Pos.CENTER]
 	var rail_after: int = rail.overall()

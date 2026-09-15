@@ -84,7 +84,6 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	Audio.music("menu")
 	UiKit.ground(self, false)
 
 	## THE MARK IS THE SCREEN NOW, and the plate it used to sit on is gone.

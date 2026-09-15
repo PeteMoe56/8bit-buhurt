@@ -187,6 +187,33 @@ func reserves() -> Array:
 
 ## Promote a reserve onto an eight that is short — after a cut, or on a squad
 ## that was built incomplete. To CHANGE a full eight, use `swap_squad`.
+## WOULD IT BE REFUSED, AND WHY — in four words, for a button's face.
+##
+## `set_active` already knows every reason; what it does not do is answer the
+## question before the tap. A control that can be pressed and then says no has
+## spent the player's attention to tell him something it knew beforehand.
+##
+## Deliberately terser than the refusals themselves: this goes on a button beside
+## a label, not into a message line. The long sentence still comes back from
+## `set_active` for the screens that show one.
+func set_active_would(card: FighterCard, on: bool) -> String:
+	if not roster.has(card):
+		return "not on the books"
+	if on:
+		if card.active:
+			return "already on"
+		if active_eight().size() >= party_size():
+			return "bus is full"
+		return ""
+	if not card.active:
+		return "already off"
+	if active_eight().size() <= party_size():
+		return "need eight"
+	if reserves().size() >= RESERVE_SIZE:
+		return "reserve full"
+	return ""
+
+
 func set_active(card: FighterCard, on: bool) -> String:
 	if not roster.has(card):
 		return "%s is not on this club's books." % card.display_name

@@ -514,7 +514,8 @@ static func fighter_to_dict(f: FighterCard) -> Dictionary:
 		"name": f.display_name, "no": f.number, "pos": int(f.pos),
 		"str": f.strength, "base": f.base, "tec": f.skill,
 		"gas": f.gas, "agg": f.aggression, "kg": f.weight,
-		"armor": f.armor, "active": f.active, "available": f.available,
+		"armor": f.armor, "harness": f.harness,
+		"active": f.active, "available": f.available,
 		"injury": f.injury,
 		## THE CAREER LAYER. A file without these decodes into a squad of
 		## 26-year-olds whose ceilings equal their current rating — a club that
@@ -549,6 +550,11 @@ static func fighter_from_dict(d: Dictionary) -> FighterCard:
 	f.aggression = int(d["agg"])
 	f.weight = int(d["kg"])
 	f.armor = float(d["armor"])
+	## DEFAULTED, NOT REQUIRED. Every save written before the quartermaster
+	## existed has no `harness` key, and Borrowed is exactly what those men were
+	## wearing — so the absence reads correctly rather than needing a migration
+	## step of its own.
+	f.harness = int(d.get("harness", Quartermaster.Grade.BORROWED))
 	f.active = bool(d["active"])
 	f.available = bool(d["available"])
 	f.injury = int(d.get("injury", 0))

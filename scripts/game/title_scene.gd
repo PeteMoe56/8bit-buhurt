@@ -249,7 +249,6 @@ func _draw() -> void:
 	## the title screen still wearing the boss palette — which reads as the game
 	## having broken rather than as a theme.
 	UiKit.set_mood(UiKit.Mood.NORMAL)
-	Audio.music("menu")
 	UiKit.ground(self, false)
 	## ONE PIXEL, EVERY HALF SECOND, ON THE CREST AND THE SECOND WORD.
 	##

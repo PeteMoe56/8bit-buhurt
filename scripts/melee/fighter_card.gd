@@ -30,6 +30,14 @@ extends Resource
 ## Armor condition, 0-1. Armor is this game's salary cap: rattling harness costs
 ## Base, and Base is what keeps a man on his feet.
 @export_range(0.0, 1.0, 0.01) var armor: float = 1.0
+## WHICH HARNESS HE OWNS, as opposed to the state it is in. `armor` is the
+## condition; this is the kit. See `Quartermaster` — one integer rather than
+## three slots with their own bars, because the decision is always "is this
+## man's kit good enough" and one number answers it.
+##
+## Zero is Borrowed, which is what every fighter in the world starts in and what
+## an AI club's men would be in if AI clubs had men.
+@export var harness: int = 0
 
 ## WHAT IS UNUSUAL ABOUT HIM, or `FighterTrait.T.NONE`, which is most men.
 ##
@@ -334,6 +342,7 @@ func copy() -> FighterCard:
 	c.aggression = aggression
 	c.weight = weight
 	c.armor = armor
+	c.harness = harness
 	c.trait_id = trait_id
 	c.level = level
 	c.active = active

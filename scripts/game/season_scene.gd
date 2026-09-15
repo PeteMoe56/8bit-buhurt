@@ -185,8 +185,8 @@ func _rebuild() -> void:
 	## EACH TAB CARRIES ITS MARK. A row of five words all the same length is
 	## parsed; a row of five marks is recognised, which on a phone held in one
 	## hand is the whole difference. The names stay — an icon alone is a rebus.
-	var names := ["CLUB", "SQUAD", "MARKET", "CLUBHOUSE", "HONOURS"]
-	var marks := ["shield", "roster", "coin", "hall", "trophy"]
+	var names := ["CLUB", "SQUAD", "ARMOURER", "CLUBHOUSE", "HONOURS"]
+	var marks := ["shield", "roster", "armour", "hall", "trophy"]
 	for i in names.size():
 		ui.add_child(UiKit.button(names[i], Vector2(24 + float(i) * (TAB_W + 6.0), TAB_Y),
 			Vector2(TAB_W, TAB_H), func():
@@ -447,9 +447,25 @@ func _squad_controls() -> void:
 	## label read "HONOURS" and the tap opened the roster. Shipped, invisible,
 	## and found by `test_layout.gd` the first time it drove every tab instead of
 	## only the default one.
-	ui.add_child(UiKit.button("Roster", Vector2(736, action_y()), Vector2(200, 46), func():
-		Session.autosave()
-		UiKit.go("res://scenes/Roster.tscn"), "roster"))
+	ui.add_child(UiKit.button("Roster", Vector2(UiKit.right_edge(200.0), action_y()),
+		Vector2(200, 46), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Roster.tscn"), "roster"))
+	## THE FREE AGENTS LIVE HERE NOW.
+	##
+	## They used to be the MARKET tab, which also carried a button labelled "Free
+	## agents" that opened a second and better screen of the same men — Pete's
+	## *"there's a tab within a tab"*, item 5 of the 15 Sep playtest. Two views of
+	## one thing, one of them a worse version of the other, reached by a control
+	## named after the tab you were already standing on.
+	##
+	## Signing a man is a SQUAD decision, so it is reached from the squad, and the
+	## tab it vacated became the armourer's — the one mechanic in this game that
+	## Direction calls the cap and that had no screen at all.
+	ui.add_child(UiKit.button("Free agents", Vector2(UiKit.right_edge(416.0), action_y()),
+		Vector2(200, 46), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Market.tscn"), "coin"))
 	for row in _squad_rows():
 		ui.add_child(_man_button(row["card"], float(row["y"]), float(row["x"])))
 	if picked != null:
@@ -825,6 +841,20 @@ func _draw_dilemma() -> void:
 	## The line says the bottom of this panel is a different kind of thing, which
 	## is true — it is the only structure on the card that encodes something.
 	UiKit.rule(self, UiKit.RULE_GEM, Vector2(48.0, action_y() - 104.0), UiKit.span(48.0), UiKit.FRAME)
+	## AND A KEY TO THE TWO WORDS NOBODY CAN GUESS.
+	##
+	## Pete, item 16 of the 15 Sep playtest: *"No idea what room or name mean."*
+	## They are the squad's morale and the club's notoriety, and the card has been
+	## printing `room -5` and `name +3` since the deck was written without either
+	## word appearing anywhere else in the game. `kit`, `CC` and `crowd` explain
+	## themselves; these two do not.
+	##
+	## On the rule rather than under the figures, because it is a legend and not
+	## a fourth column — and read out of `Dilemma.FX_WORD` so that renaming a
+	## currency renames its own key instead of leaving a caption behind.
+	UiKit.right(self, font, "%s = the squad's mood   ·   %s = how well you are known"
+		% [Dilemma.FX_WORD["morale"], Dilemma.FX_WORD["note"]],
+		Vector2(UiKit.right_edge(48.0), action_y() - 110.0), 12, UiKit.EDGE, 420.0)
 	for i in opts.size():
 		var o: Dictionary = opts[i]
 		var x := 24.0 + float(i) * (w + 12.0)
@@ -1199,96 +1229,231 @@ func squad_columns(f: Font, size_hint: int = 0) -> Array:
 ## market is built around — the fee is charged by band, so within a band a better
 ## fighter is free, and a player who never sees the band name will never notice
 ## that the 65 and the 61 cost the same six credits.
-const MKT_ROW := 52.0
-var market_pick: FighterCard = null
+## WHOSE HARNESS IS SELECTED ON THE ARMOURER'S TABLE. Named for the screen it
+## belongs to rather than the tab it happens to sit on — `market_pick` was the
+## old name and the old screen, and a variable that outlives the thing it was
+## named after is a comment that lies.
+var qm_pick: FighterCard = null
 
 
-func _market_rows() -> Array:
+# ------------------------------------------------------------ QUARTERMASTER
+## THE ARMOURER'S TABLE, and it replaces the free-agent list that used to be on
+## this tab.
+##
+## Pete, 15 Sep 2026: *"Rebuild Market, there's a tab within a tab."* He was
+## exactly right — the tab drew a list of free agents and then carried a button
+## labelled "Free agents" that opened a second, better screen of the same men.
+## Two views of one thing, one of them a worse version of the other, reached by
+## a control that says the name of the tab you are already on.
+##
+## The free agents went to the Squad tab, which is where a player is thinking
+## about his squad. This tab is now the one thing the game had a full mechanic
+## for and no screen at all: what everybody is wearing, what state it is in, who
+## the marshals are about to refuse, and what it costs to put right.
+## How many earnings the clubhouse shows. See the note where they are drawn.
+const QM_PURSE_LINES: int = 3
+
+const QM_ROW := 30.0
+const QM_TOP := 66.0
+## EVERY X ON THIS SCREEN IS DERIVED FROM THE CELL, not typed. The first cut had
+## four hand-placed columns and a bar width, and on the reserve side they added
+## up to more than the half-screen they had — which is the same arithmetic
+## mistake as the clubhouse's three tier words, two screens apart on the same
+## afternoon.
+const QM_GAP := 16.0
+const QM_NAME_W := 118.0
+const QM_GRADE_W := 92.0
+const QM_BAR_W := 86.0
+const QM_COST_W := 58.0
+
+
+func _qm_cell() -> float:
+	return (UiKit.span() - QM_GAP) * 0.5
+
+
+## TWO COLUMNS, THE BUS AND THE CLUBHOUSE — the same split the Squad screen
+## uses, and for the same reason.
+##
+## One column of thirteen at 30 pixels a row needs 390 of the 276 this screen has
+## between the header and the action row, so the first cut ran four men off the
+## bottom of the frame. Splitting it is not a workaround for that: the eight who
+## travel are the men the marshals will actually look at, and the reserve is a
+## different question the player asks less often. The layout should say so.
+func _qm_rows() -> Array:
 	var out: Array = []
-	var y := CONTENT_Y + 44.0
-	for f in season.market():
-		out.append({"card": f, "y": y})
-		y += MKT_ROW
+	var y := CONTENT_Y + QM_TOP
+	for f in season.club.active_eight():
+		out.append({"card": f, "y": y, "x": 24.0, "bus": true})
+		y += QM_ROW
+	y = CONTENT_Y + QM_TOP
+	for f in season.club.reserves():
+		out.append({"card": f, "y": y, "x": 24.0 + _qm_cell() + QM_GAP, "bus": false})
+		y += QM_ROW
 	return out
 
 
+# ------------------------------------------------------------ THE ARMOURER
+## AND IT REPLACES THE FREE-AGENT LIST THAT USED TO BE ON THIS TAB.
+##
+## Pete, 15 Sep 2026: *"Rebuild Market, there's a tab within a tab."* He was
+## exactly right — the tab drew a list of free agents and then carried a button
+## labelled "Free agents" that opened a second, better screen of the same men.
+## Two views of one thing, one of them a worse version of the other, reached by a
+## control named after the tab you were already standing on.
+##
+## The free agents moved to the Squad tab, where a player is already thinking
+## about his squad. This tab is now the one thing the game had a full mechanic
+## for and no screen at all: what everybody is wearing, what state it is in, who
+## the marshals are about to refuse, and what it costs to put right. See
+## `scripts/league/quartermaster.gd` for what was measured before it was built.
 func _draw_market() -> void:
-	UiKit.text(self, font, "FREE AGENTS — season %d" % season.world.season,
-		Vector2(24, CONTENT_Y), 16, UiKit.YOU)
-	var bill := ClubOffice.wage_bill(season.club)
-	var cap := season.office.cap()
-	UiKit.right(self, font, "wages %s of %s  ·  %d CC" % [
-		ClubOffice.money(bill), ClubOffice.money(cap), season.office.credits],
-		Vector2(UiKit.right_edge(), CONTENT_Y), 13,
-		UiKit.DOWN if bill > cap else UiKit.DIM, 420.0)
+	var o := season.office
+	var eight := season.club.active_eight()
+	var led := Quartermaster.ledger(eight)
 
-	var rows := _market_rows()
-	if rows.is_empty():
-		UiKit.text(self, font, "Nobody left this summer. The list refreshes when the season rolls.",
-			Vector2(24, CONTENT_Y + 60), 15, UiKit.DIM)
-		return
-	for row in rows:
+	UiKit.pair(self, font, "THE ARMOURER", "%d CC in hand" % o.credits,
+		Vector2(24, CONTENT_Y), UiKit.right_edge(), 16, 13, UiKit.YOU, UiKit.DIM)
+
+	## THE HEADLINE IS THE MARSHALS, not the average. A club whose mean harness
+	## reads 74% is fine; a club with one man under the line cannot field five,
+	## and those two facts do not live in the same number.
+	var head := "Every harness on the bus passes inspection."
+	var head_col := UiKit.UP
+	if int(led["failing"]) > 0:
+		head = "%d of the eight will not pass inspection." % led["failing"]
+		head_col = UiKit.DOWN
+	elif int(led["at_risk"]) > 0:
+		head = "%d of the eight are a bad week from failing." % led["at_risk"]
+		## YOU, NOT DOWN. A club a bad week from trouble is a warning and a club
+		## already in it is a failure; drawing both in the same red loses the only
+		## distinction the line exists to make.
+		head_col = UiKit.YOU
+	UiKit.pair(self, font, head,
+		("%d CC to put the eight right" % led["bill"]) if int(led["bill"]) > 0
+			else "nothing owing",
+		Vector2(24, CONTENT_Y + 26), UiKit.right_edge(), 14, 13, head_col, UiKit.DIM)
+
+	var cell := _qm_cell()
+	UiKit.text(self, font, "ON THE BUS", Vector2(24, CONTENT_Y + QM_TOP - 22),
+		12, UiKit.EDGE)
+	UiKit.text(self, font, "IN THE CLUBHOUSE",
+		Vector2(24 + cell + QM_GAP, CONTENT_Y + QM_TOP - 22), 12, UiKit.EDGE)
+
+	for row in _qm_rows():
 		var f: FighterCard = row["card"]
 		var y: float = row["y"]
-		if market_pick == f:
-			draw_rect(Rect2(20, y - 22, UiKit.span(20.0), MKT_ROW - 6), UiKit.SELECT)
-		var fee := season.market_fee(f)
-		var wage := season.market_wage(f)
-		var room: bool = bill + wage <= cap
-		var rich: bool = season.office.credits >= fee
+		var x: float = row["x"]
+		var bus: bool = row["bus"]
+		if qm_pick == f:
+			draw_rect(Rect2(x - 4.0, y - 20, cell + 8.0, QM_ROW - 4), UiKit.SELECT)
 
-		UiKit.text(self, font, UiKit.clip(f.display_name, 16), Vector2(30, y), 16, UiKit.INK)
-		UiKit.text(self, font, Tuning.pos_name(int(f.pos)), Vector2(200, y), 13, UiKit.DIM)
-		UiKit.text(self, font, "%d" % f.age, Vector2(300, y), 13, UiKit.DIM)
-		## Rating and ceiling, the same pairing the team sheet uses — a market
-		## that showed only the rating would hide the entire reason to sign a
-		## 23-year-old.
-		UiKit.text(self, font, "%d" % f.overall(), Vector2(348, y), 17, UiKit.INK)
-		UiKit.text(self, font, "%d" % f.potential, Vector2(386, y), 12,
-			UiKit.UP if f.headroom() >= 6 else UiKit.DIM)
-		UiKit.text(self, font, Market.band_name(f.overall(), season.world.player_tier()),
-			Vector2(430, y), 13, UiKit.DIM)
-		UiKit.right(self, font, "%d CC" % fee, Vector2(640, y), 15,
-			UiKit.INK if rich else UiKit.DOWN, 90)
-		UiKit.right(self, font, "%s a week" % ClubOffice.money(wage), Vector2(UiKit.right_edge(160.0), y), 13,
-			UiKit.DIM if room else UiKit.DOWN, 150)
-		## And what he would do to the club, which is the number the player is
-		## actually deciding on. Drawn last and on the right because it is the
-		## conclusion, not the evidence.
-		var delta := f.overall() - season.club.power()
-		UiKit.right(self, font, "%+d" % delta, Vector2(UiKit.right_edge(70.0), y), 15,
-			UiKit.UP if delta > 0 else UiKit.DIM, 70)
+		## A MAN IN THE RESERVE IS DRAWN QUIETER. His kit still wears, but he is
+		## not the one the marshals are about to look at.
+		UiKit.text(self, font, UiKit.clip_px(font, f.display_name, 14, QM_NAME_W),
+			Vector2(x, y), 14, UiKit.INK if bus else UiKit.DIM)
+		var gx := x + QM_NAME_W + 6.0
+		UiKit.text(self, font, UiKit.clip_px(font, Quartermaster.name_of(f), 12,
+			QM_GRADE_W), Vector2(gx, y), 12,
+			UiKit.UP if Quartermaster.grade_of(f) >= Quartermaster.Grade.FITTED
+			else UiKit.DIM)
+
+		## THE BAR CARRIES TWO LINES THE NUMBER CANNOT.
+		##
+		## The inspection line, painted where it actually falls, so "how close am
+		## I" is a look rather than a subtraction. And the ceiling of his grade,
+		## so the gap he can NEVER close is visible — which is the whole sales
+		## pitch for the next harness and the one thing a percentage hides.
+		var bx := gx + QM_GRADE_W + 6.0
+		var r := Rect2(bx, y - 11, QM_BAR_W, 13)
+		var col := UiKit.DOWN if not f.passes_inspection() \
+			else (UiKit.UP if f.inspection_margin() >= Quartermaster.RISK_MARGIN
+				else UiKit.YOU)
+		UiKit.bar(self, r, clampf(f.armor, 0.0, 1.0), col)
+		draw_rect(Rect2(r.position.x + r.size.x * FighterCard.INSPECTION_MIN,
+			r.position.y - 2, 1.0, r.size.y + 4), UiKit.DOWN)
+		if Quartermaster.ceiling(f) < 0.999:
+			draw_rect(Rect2(r.position.x + r.size.x * Quartermaster.ceiling(f),
+				r.position.y - 2, 1.0, r.size.y + 4), UiKit.EDGE)
+
+		## WHAT IT COSTS, on the row, so a player reads the bill down a column
+		## instead of tapping thirteen men to find out.
+		var word := ""
+		var wcol := UiKit.DIM
+		if not f.passes_inspection():
+			word = "OUT"
+			wcol = UiKit.DOWN
+		elif not Quartermaster.topped_out(f):
+			word = "%d CC" % ClubOffice.kit_cost(f)
+		elif Quartermaster.next_grade(f) >= 0:
+			word = "%d CC" % Quartermaster.upgrade_cost(f)
+			wcol = UiKit.EDGE
+		if word != "":
+			UiKit.right(self, font, word, Vector2(x + cell, y), 12, wcol, QM_COST_W)
 
 
 func _market_controls() -> void:
-	## THE CARD GRID, in the action row rather than at y=70 — which is where the
-	## tab strip is, and where this button had been sitting on top of HONOURS
-	## since it was written. Same bug the Clubhouse tab's three links had.
-	ui.add_child(UiKit.button("Free agents", Vector2(344, action_y()),
-		Vector2(UiKit.right_edge() - 344.0, 46), func():
-		Session.autosave()
-		UiKit.go("res://scenes/Market.tscn")))
+	var o := season.office
+	var led := Quartermaster.ledger(season.club.active_eight())
+	var cell := _qm_cell()
 
-	for row in _market_rows():
+	for row in _qm_rows():
 		var f: FighterCard = row["card"]
-		var b := UiKit.button("", Vector2(20, float(row["y"]) - 22), Vector2(UiKit.span(20.0), MKT_ROW - 6),
-			func():
-				market_pick = f
+		var b := UiKit.button("", Vector2(float(row["x"]) - 4.0, float(row["y"]) - 20),
+			Vector2(cell + 8.0, QM_ROW - 4), func():
+				qm_pick = f
 				flash = ""
 				_rebuild())
 		b.flat = true
 		b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(b)
-	if market_pick != null:
-		ui.add_child(UiKit.button("Sign %s  ·  %d CC" % [
-			UiKit.clip(market_pick.display_name, 12), season.market_fee(market_pick)],
-			Vector2(24, action_y()), Vector2(300, 46), func():
-				var err := season.sign_from_market(market_pick)
-				flash = UiKit.said(err) if err != "" else "%s signed." % market_pick.display_name
-				if err == "":
-					market_pick = null
+
+	## THE BULK ACTION IS THE ONE A PLAYER ACTUALLY WANTS. Thirteen taps to fix
+	## thirteen harnesses is not a decision, it is a chore — the decision is "can
+	## I afford the bus this week", and that is one button with the answer on it.
+	var third := (UiKit.span() - 16.0) / 3.0
+	if int(led["bill"]) > 0:
+		ui.add_child(UiKit.button("Fix the bus  ·  %d CC" % led["bill"],
+			Vector2(24, action_y()), Vector2(third, 46), func():
+				var fixed := 0
+				var spent := 0
+				for f in season.club.active_eight():
+					if Quartermaster.topped_out(f):
+						continue
+					var c := ClubOffice.kit_cost(f)
+					if o.repair_kit(f) == "":
+						fixed += 1
+						spent += c
+				flash = ("Nothing the armourer could do this week." if fixed == 0
+					else "%d harnesses seen to, %d CC." % [fixed, spent])
+				season.sync_power()
+				Session.autosave()
+				_rebuild(), "armour"))
+
+	if qm_pick != null:
+		var nm := UiKit.clip(qm_pick.display_name, 9)
+		if not Quartermaster.topped_out(qm_pick):
+			ui.add_child(UiKit.button("Repair %s · %d CC" % [nm,
+				ClubOffice.kit_cost(qm_pick)],
+				Vector2(24 + third + 8.0, action_y()), Vector2(third, 46), func():
+					var err := o.repair_kit(qm_pick)
+					flash = UiKit.said(err) if err != "" \
+						else "%s's harness seen to." % qm_pick.display_name
+					season.sync_power()
 					Session.autosave()
-				_rebuild()))
+					_rebuild()))
+		var nxt := Quartermaster.next_grade(qm_pick)
+		if nxt >= 0:
+			ui.add_child(UiKit.button("%s · %d CC" % [
+				String(Quartermaster.GRADE_NAME[nxt]),
+				Quartermaster.upgrade_cost(qm_pick)],
+				Vector2(24 + (third + 8.0) * 2.0, action_y()), Vector2(third, 46), func():
+					var err := o.buy_harness(qm_pick)
+					flash = UiKit.said(err) if err != "" \
+						else "%s is in %s harness." % [qm_pick.display_name,
+							Quartermaster.name_of(qm_pick).to_lower()]
+					season.sync_power()
+					Session.autosave()
+					_rebuild(), "coin"))
 
 
 # ---------------------------------------------------------------- OFFICE tab
@@ -1414,33 +1579,30 @@ func _office_controls() -> void:
 	## AND IT SAYS WHEN IT CANNOT BE PRESSED. `can_boost()` folds the money and
 	## the once-a-week throttle into one answer and had no caller — so the button
 	## looked live every time and spent a tap to say no.
-	## AND THE LABEL SAYS WHICH KIND OF NO IT IS. `can_boost()` folds the money
-	## and the once-a-week throttle into one answer, which is the right shape for
-	## a guard and the wrong shape for a label: "cannot" is not a reason, and a
-	## player who is four credits short needs to hear something different from
-	## one who has already had his night out. So the button asks the office both
-	## questions and says which.
-	var boost_label := "A night out  ·  %d CC" % season.office.boost_cost()
-	if season.office.done_this_week(ClubOffice.SLOT_BOOST):
-		boost_label = "A night out  ·  had one"
-	elif not season.office.can_boost():
-		boost_label = "A night out  ·  %d CC short" % (
-			season.office.boost_cost() - season.office.credits)
-	ui.add_child(UiKit.button(boost_label,
-		Vector2(684, action_y()), Vector2(252, 46), func():
-			var err := season.boost_morale()
-			flash = UiKit.said(err) if err != "" else "The room lifted."
+	## "A NIGHT OUT" IS GONE. Pete, 15 Sep 2026: *"A night out is pretty dumb,
+	## take that out."*
+	##
+	## `Season.boost_morale()` and `ClubOffice.can_boost()` are left alone and
+	## still tested — morale is real, it is pushed around by results and regimes
+	## and cuts, and a club still wants somewhere to spend on it. What was dumb
+	## was THIS: a button on the busiest row in the game whose whole offer was
+	## "pay four credits, feel slightly better", competing for a thumb with the
+	## chalkboard and the arena.
+	##
+	## The three that are left are all places you GO. That is a coherent row.
+	var third := (UiKit.span() - 16.0) / 3.0
+	ui.add_child(UiKit.button("Chalkboard", Vector2(24, action_y()),
+		Vector2(third, 46), func():
 			Session.autosave()
-			_rebuild(), "heart"))
-	ui.add_child(UiKit.button("Arena", Vector2(464, action_y()), Vector2(204, 46), func():
-		Session.autosave()
-		UiKit.go("res://scenes/Arena.tscn"), "gate"))
-	ui.add_child(UiKit.button("Chalkboard", Vector2(24, action_y()), Vector2(204, 46), func():
-		Session.autosave()
-		UiKit.go("res://scenes/Chalkboard.tscn"), "board"))
-	ui.add_child(UiKit.button("Create", Vector2(244, action_y()), Vector2(204, 46), func():
-		Session.autosave()
-		UiKit.go("res://scenes/Create.tscn"), "anvil"))
+			UiKit.go("res://scenes/Chalkboard.tscn"), "board"))
+	ui.add_child(UiKit.button("Create", Vector2(24 + third + 8.0, action_y()),
+		Vector2(third, 46), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Create.tscn"), "anvil"))
+	ui.add_child(UiKit.button("Arena", Vector2(24 + (third + 8.0) * 2.0, action_y()),
+		Vector2(third, 46), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Arena.tscn"), "gate"))
 
 
 ## Who is available — one list, in ClubOffice, read by both screens that sell
@@ -1532,7 +1694,7 @@ func _draw_office() -> void:
 	## the player comes back to, the trophy cabinet, the bracket and the title —
 	## four places, out of sixteen. Everywhere would be wallpaper.
 	UiKit.ornament(self, UiKit.ORN_CREST,
-		Rect2(NAV_X, CONTENT_Y, NAV_W, 28 + NAV_ROW * 4.0 + NAV_BTN_H + 12.0), UiKit.FRAME, 24.0)
+		Rect2(NAV_X, CONTENT_Y, NAV_W, 28 + NAV_ROW * 4.0 + NAV_BTN_H + 2.0), UiKit.FRAME, 24.0)
 
 	## NO HINT BAR, AND THAT IS SETTLED. `UiKit.hints()` was deleted on
 	## 15 Sep 2026 — see the note where it used to live in `ui.gd`. It had never
@@ -1640,56 +1802,84 @@ func _draw_office() -> void:
 	## for a 24-pixel corner piece, so the bracket printed through "ON".
 	## MEASURED OFF THE NAV LIST rather than written down, so a sixth button
 	## moves this with it instead of printing through it.
-	var y := CONTENT_Y + 28.0 + NAV_ROW * 4.0 + NAV_BTN_H + 26.0
+	## TWELVE, NOT TWENTY-SIX. `CONTENT_Y` is 132, so the nav list ends at 364 and
+	## the action row starts at 476 — a hundred and twelve pixels for two blocks
+	## that want a hundred and six. Twenty-six of gap put the second one through
+	## the Chalkboard button; the gap was sized when there was one block under the
+	## nav and nothing had re-measured it since the purse ledger arrived.
+	var y := CONTENT_Y + 28.0 + NAV_ROW * 4.0 + NAV_BTN_H + 12.0
+	## ---------------------------------------------------- WHAT CAME IN
+	## Pete, item 25: *"No income weekly ever."* A club walked from its first
+	## event earns 8 -> 92 CC across three seasons, so the money is there — and
+	## none of it was ever SHOWN. It arrived as +1 and +2 against a purse in the
+	## header that simply read a different number than it had a moment ago.
+	##
+	## **A club that cannot see itself earning is a club that is not earning, as
+	## far as the player is concerned.** Four lines, newest first, under the
+	## nav — the cheapest possible answer and the only one that is not a balance
+	## change somebody has to live with.
+	var purse := season.office.purse_lines()
+	UiKit.text(self, font, "WHAT CAME IN", Vector2(NAV_X, y), 13, UiKit.DIM)
+	if purse.is_empty():
+		UiKit.text(self, font, "Nothing yet. The gate pays after your first event.",
+			Vector2(NAV_X, y + 20), 13, UiKit.EDGE)
+	else:
+		## THREE LINES, AND THE BLOCK BELOW IS WHY.
+		##
+		## There are 106 pixels between the foot of the nav list and the action
+		## row for this block AND "ON THE LIST". Four lines at 17 needed 86 of
+		## them and pushed the coverage warning through the Chalkboard button —
+		## the second time this column has overflowed in one afternoon, which is
+		## the column telling me it is full rather than me mis-adding.
+		##
+		## Three is also enough: a player wants what just happened, not a
+		## statement. `Your career` is where a history belongs.
+		var py := y + 18.0
+		for i in mini(QM_PURSE_LINES, purse.size()):
+			var row: Dictionary = purse[i]
+			## The newest line is lit and the ones behind it are quiet — but
+			## quiet, not invisible. EDGE on the amounts made them unreadable at
+			## a glance, which defeats the point of showing them at all.
+			UiKit.pair(self, font, String(row["what"]), "+%d CC" % int(row["cc"]),
+				Vector2(NAV_X, py), UiKit.right_edge(), 13, 13,
+				UiKit.DIM if i > 0 else UiKit.INK,
+				UiKit.DIM if i > 0 else UiKit.UP)
+			py += 16.0
+	y += 18.0 + 16.0 * float(maxi(1, mini(QM_PURSE_LINES, purse.size()))) + 8.0
+
+	## ---------------------------------------------------- ON THE LIST
+	## ONE LINE, NOT A TABLE OF THREE.
+	##
+	## This drew Rail / Flanker / Center each with its coaching tier stacked
+	## under it, plus two lines of warning — ninety pixels of a column that had a
+	## hundred and thirty for two blocks. Adding the purse ledger above it pushed
+	## the tiers straight through the action row.
+	##
+	## The table was never the point. Everything it said ended in *"go to the
+	## staff room"*, and the staff room shows the same three roles in more detail
+	## on a screen that is one tap away and is not full. **A summary that repeats
+	## the screen it points at is two screens disagreeing about which of them is
+	## the authority.** So: the headline, and the sentence that says what to do.
 	UiKit.text(self, font, "ON THE LIST", Vector2(NAV_X, y), 13, UiKit.DIM)
-	## THREE CELLS ACROSS THE COLUMN, AND THE WORDS STACK INSIDE THEM.
-	##
-	## This was role and tier side by side at `480 + i * 156`, which fits exactly
-	## as long as every tier is called "Rust". A club with taught roles says
-	## **Hardened** — 88 pixels at 15px against the 80 the third cell had left —
-	## and the word ran to x=962 of a 960-wide frame.
-	##
-	## It had been there since captains could teach, and the sweep could not see
-	## it: the fixture that hires two captains was being deleted by the first
-	## screen the sweep opened, so the clubhouse was only ever photographed with
-	## nobody teaching anything. Fixing the fixture found this in one run.
-	##
-	## Stacked, the cell only has to hold the LONGER of the two words rather than
-	## both plus a gap — and the pitch is measured off the canvas, so it is right
-	## on a handset as well.
-	var cells := (UiKit.right_edge() - NAV_X) / 3.0
-	var i2 := 0
-	for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
-		var tier: int = o.tier_for(role)
-		var col := UiKit.DOWN if tier == Tuning.AiSkill.RUST else UiKit.UP
-		var cx := NAV_X + float(i2) * cells
-		UiKit.text(self, font, String(Tuning.ROLE_NAME[role]),
-			Vector2(cx, y + 20), 13, UiKit.DIM)
-		UiKit.text(self, font, UiKit.fit_px(font,
-			String(Tuning.AI_SKILL[tier]["name"]), 15, cells - 10.0),
-			Vector2(cx, y + 40), 15, col)
-		i2 += 1
-	## THE WARNING, and it is the only thing on this screen a player must act on.
-	## Two captains have four specializations between them and there are three
-	## roles, so leaving one untaught means two of them are teaching the same job.
 	var bare := o.untaught()
 	if bare.is_empty():
-		UiKit.text(self, font, "Every role taught.", Vector2(NAV_X, y + 64), 13, UiKit.DIM)
+		var best := ""
+		for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
+			best = String(Tuning.AI_SKILL[o.tier_for(role)]["name"])
+			break
+		UiKit.pair(self, font, "Every role taught.", "going out %s" % best.to_lower(),
+			Vector2(NAV_X, y + 20), UiKit.right_edge(), 13, 13, UiKit.UP, UiKit.DIM)
 	else:
+		## ONE LINE, and the column is the reason. There are 132 pixels between
+		## the foot of the nav list and the action row for two blocks, and a
+		## second line of warning put its descenders through the Chalkboard
+		## button. The staff room says all of this at length and is one tap away.
 		var names := ""
 		for r in bare:
 			names += ("" if names == "" else " and ") + String(Tuning.ROLE_NAME[r])
-		## Two lines. One ran off the right edge and lost its last two words,
-		## which on a warning is the half that says what to do about it.
-		UiKit.text(self, font, "%s going out untaught." % names,
-			Vector2(NAV_X, y + 64), 13, UiKit.DOWN)
-		var doubled := ""
-		for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
-			if o.doubled(role):
-				doubled = String(Tuning.ROLE_NAME[role])
-		UiKit.text(self, font, "Both captains are teaching %s." % doubled
-			if doubled != "" else "Hire a captain who teaches it.",
-			Vector2(NAV_X, y + 82), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.fit_px(font,
+			"%s untaught — see the staff room." % names,
+			13, UiKit.right_edge() - NAV_X), Vector2(NAV_X, y + 20), 13, UiKit.DOWN)
 
 ## The widest role name at the size the list draws them, so the skill column
 ## clears all three rather than clearing the first one.
