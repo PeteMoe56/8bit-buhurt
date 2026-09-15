@@ -1159,6 +1159,30 @@ static func clip(s: String, n: int) -> String:
 ##
 ## This measures. It takes the width it is allowed and hands back the longest
 ## prefix that fits inside it, ellipsis included.
+##
+## THE COMMENT ABOVE WAS HERE AND THE FUNCTION WAS NOT — for how long, nothing
+## records; it ran straight into `wrap`'s own note, and a doc block with no
+## function under it reads as a function until you look. Found on 15 Sep 2026 by
+## the panel sweep, which caught "Detroit Free Company" seven pixels outside its
+## save-slot card on the title screen: twenty characters, clipped at twenty
+## characters, into a three-hundred-pixel box. The exact mistake this missing
+## function was written to prevent, described in its own absent docstring.
+static func clip_px(font: Font, s: String, px: int, width: float) -> String:
+	if width <= 0.0:
+		return ""
+	if font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x <= width:
+		return s
+	## Trim a character at a time from the end. Strings on this screen are names
+	## and labels — tens of characters, not thousands — so a measured walk is
+	## cheaper to read than a bisection and costs nothing anybody can feel.
+	var out := s
+	while out.length() > 1:
+		out = out.substr(0, out.length() - 1)
+		if font.get_string_size(out + ".", HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x <= width:
+			return out + "."
+	return "."
+
+
 ## WRAP TO A WIDTH, RETURNING THE LINES — not a string with newlines in it, and
 ## not a truncation.
 ##

@@ -296,7 +296,11 @@ func _draw() -> void:
 			UiKit.text(self, font, "Backyard Circuit.", Vector2(x + 20, SLOT_Y + 126), 14, UiKit.DIM)
 			continue
 		UiKit.text(self, font, "SLOT %d" % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
-		UiKit.text(self, font, UiKit.clip(String(info["club"]), 20),
+		## CLIPPED BY PIXELS, into a box that is measured in pixels. It was
+		## twenty characters, and "Detroit Free Company" is exactly twenty — 291
+		## of them at this size, into a card that has 280.
+		UiKit.text(self, font,
+			UiKit.clip_px(font, String(info["club"]), 21, SLOT_W - 40.0),
 			Vector2(x + 20, SLOT_Y + 72), 21, UiKit.INK)
 		UiKit.text(self, font, String(info["tier"]), Vector2(x + 20, SLOT_Y + 102), 15, UiKit.YOU)
 		UiKit.text(self, font, "Season %d" % int(info["season"]),

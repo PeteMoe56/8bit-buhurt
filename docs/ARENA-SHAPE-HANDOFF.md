@@ -66,6 +66,23 @@ Retro Bowl took the no-bars route. **Changing this changes every screen in the
 game, not just the fight** — so if you want `integer`, say so and the management
 screens get re-checked against it.
 
+## Two more, added 15 Sep (code pass)
+
+Not shape questions, but both land in your file.
+
+**5. `MeleeSim.cancel_order(idx)` has no caller.** It is the last entry on the
+uncalled-functions list; the other fifteen were wired or deleted on 15 Sep. Its only
+possible home is the corner screen in `melee_scene.gd`, so it was left alone. Wire it to a
+corner control or delete it.
+
+**6. Favourites can now be reordered, and the control belongs to you.**
+`Chalkboard.promote_favourite(i)` and `demote_favourite(i)` are in and tested
+(`test_favourites.gd` — 17 checks). A swap, not a drag: a drag needs a pointer the corner
+has no time for, and two taps on a list of four is the same job with one thumb. The corner
+already draws the starred list at `melee_scene.gd:2081`; it needs a pair of up/down taps
+beside each row. Both functions return `""` on success and a sentence on refusal, like
+every other verb in the project, and the ends refuse quietly rather than erroring.
+
 ## Reference shots in the repo
 
 `shots/aspect_1170x540.png`, `shots/aspect_1260x540.png`, `shots/aspect_720x540.png`

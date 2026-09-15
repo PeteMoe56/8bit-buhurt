@@ -21,24 +21,31 @@ ran=0
 ## A tool that no longer compiles fails loudly the moment anybody runs it, which
 ## sounds self-correcting and is the opposite: nobody runs it, so nobody sees it,
 ## and it rots. `shot_menus.gd` sat broken against a facility enum that had moved
-## underneath it for long enough that nothing in the repo remembered. `--check-only`
-## parses without running, so this costs a second and covers what no test does:
-## the tools themselves.
+## underneath it for long enough that nothing in the repo remembered.
+##
+## IN PARALLEL, because the honest way to do this is one engine launch per file
+## and one engine launch is EIGHT SECONDS — fifteen minutes across a hundred and
+## thirteen files, which is a gate somebody turns off. Six at a time brings it to
+## about forty seconds.
+##
+## Two cheaper ways were tried and both were wrong. `--import` does not report a
+## parse error at all: a deliberately broken tool imported silently. And handing
+## each file's source to a detached `GDScript.reload()` flags every file that
+## references a `class_name`, because a detached script has no project to resolve
+## them against — thirty false positives, which is worse than no gate.
 echo "=== every script parses"
-parse_bad=0
-for f in $(find scripts tools tests -name '*.gd' | sort); do
-  if timeout 40 "$G" --headless --check-only --script "res://$f" 2>&1 | grep -q "Parse Error"; then
-    echo "PARSE ERROR: $f"
-    parse_bad=$((parse_bad+1))
-  fi
-done
+parse_out="$(find scripts tools tests -name '*.gd' | sort | xargs -P 6 -I{} \
+  sh -c 'timeout 60 "$0" --headless --path . --check-only --script "res://$1" 2>&1 \
+    | grep -q "Parse Error" && echo "PARSE ERROR: $1"' "$G" {})"
 ran=$((ran+1))
-if [ "$parse_bad" -ne 0 ]; then
-  echo "FAILED: $parse_bad script(s) do not parse"
+if [ -n "$parse_out" ]; then
+  echo "$parse_out"
+  echo "FAILED: $(echo "$parse_out" | wc -l) script(s) do not parse"
   fails=$((fails+1))
 else
   echo "all scripts parse"
 fi
+
 for t in tests/test_*.gd; do
   ## `test_shapes.gd` needs a real display and a stated resolution — headless
   ## hands it 960x960, which is not a shape any device has. It runs below.

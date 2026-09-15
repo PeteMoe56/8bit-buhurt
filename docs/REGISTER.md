@@ -8708,3 +8708,151 @@ the fight screen's pixel scale:
    snapping on, which is what keeps fractional crisp; whether that is good enough
    at the scale the art is authored to is the art chat's call, and changing it
    changes every screen in the game, not just the fight.
+
+## 26 — THE CODE LIST AND THE HOUSEKEEPING
+
+Pete, 15 Sep 2026: *"Let's get you done all all the code and housekeeping."* Every Code
+and Housekeeping row on the Ship List, in one pass.
+
+### SIXTEEN FUNCTIONS WITH NO CALLER, RESOLVED
+
+Wire it or delete it; the third option is the one that rots. Ten were wired, five deleted,
+one handed to the arena chat — and four of the wires closed a real gap rather than tidying
+a lint warning.
+
+| | |
+|---|---|
+| `events_this_season` | the same expression was written out inline in four places |
+| `over_cap` | both wage-bill footers said THAT you were over and never BY WHAT |
+| `can_afford_wage` | the market coloured the FEE by whether you could pay it and left the WAGE plain — *"a market that shows one of them lies about half its refusals"* was already written on that screen, about that card |
+| `can_boost` | the night-out button looked live every week and spent a tap to say no |
+| `next_tier` | its own comment says *"the Clubhouse screen wants this"*; the screen never asked, so the division a build needs was only visible inside a refusal you had to earn by trying |
+| `is_flaw` | see below |
+| `routes_of` | the chalkboard scene reached into `plays[i]["routes"]` by hand |
+| `drain_all` | see the migration below |
+| `dither` | its comment says it *"belongs on a meter track"*; every bar in the game drew a flat track |
+| `breathe` | see below |
+| `sync_player_power` | **deleted** — an exact duplicate of what `Season.sync_power()` does on its own line 297. 23 callers on one, none on the other |
+| `wearable` | **deleted** — the Create screen draws the whole bank as a shelf, dimmed and priced, on the principle that *you cannot want a thing you cannot see*. A filtered list is the wrong answer to that screen's question |
+| `events_left` | **deleted** — the fixture card says it better: "EVENT 4 OF 5" is the same two numbers arranged so you see the distance and the whole |
+| `hints` | **deleted** — see below |
+| `Juice.frame` | **deleted** — a public getter for a counter nothing outside the file wanted |
+| `cancel_order` | **arena chat** — its only possible caller is in `melee_scene.gd` |
+
+### THE GAME HAD NEVER NAMED A FIGHTER'S TRAIT
+
+Wiring `is_flaw` turned up something bigger than the helper. `FighterTrait.name_of()` and
+`blurb_of()` had **no caller anywhere in `scripts/game/`** — nine wired hooks moving
+numbers the player could feel and could not name, on a screen that lists his weight.
+
+"Known for" is on the fighter card now, coloured by `is_flaw`, with the blurb under it.
+That colour is the whole reason the function exists: *a pool with no downside is a stat
+wearing a nicer hat*, and printing Prima Donna in the same colour as Talisman would hide
+the half that costs you something.
+
+It cost 30 pixels the panel did not have. The first fix grew `COL_H` by 14 and the panel's
+new bottom ran under the +1 button row — which the ink sweep did **not** catch, because
+the text was inside the panel and the panel was the thing in the wrong place. The list pays
+for it out of its own rhythm instead: six rows at 22 instead of 24, which is invisible.
+
+### THE HINT BAR IS GONE, AS A DECISION
+
+Fourteen lines never drawn on any screen. Wiring it was never a call — it wanted 26 pixels
+reserved at the foot of sixteen scenes, which is a layout pass, and the screens had just
+been re-anchored to a canvas that changes shape. **A function with no caller is not a
+feature, it is a question nobody answered.** The git history has it now, which is new.
+
+### THE SAVE MIGRATION
+
+Strict equality was right while the only v11 files in the world were on this machine and
+wrong the moment anybody else has a career — this project moved the version four times in
+a month, and each move would have wiped every player's club.
+
+`VERSION_MIN = 11` is a floor and `_migrate()` walks a file forward one version at a time.
+The floor is 11 rather than 1 deliberately: versions 1–10 predate a career worth keeping
+and no file of them exists outside this repo, so claiming to migrate them would be claiming
+to have checked something nobody can check. **A migration nobody can test is a promise, not
+a path.** A file newer than this build is refused too — it can carry fields this one would
+silently drop.
+
+`Career.drain_all()` is what pays out the levels an old file owes, run after the decode
+because `_migrate` works on a raw dictionary and levels live on decoded cards. It was
+written for exactly this — *"for a save loaded from a build that had no levels, where a
+man may be owed several"* — and had no caller for months for want of a migration to call
+it from.
+
+### PANELS, SWEPT AT LAST
+
+`test_ink.gd` opened by admitting it could not see them: *"panels are drawn rects with no
+association to the text sitting on them."* Named from the day it was written, and naming
+it was all that ever happened to it.
+
+`UiKit.panel()` writes its rect to the ledger now and the sweep pairs the two lists —
+for each string, the INNERMOST panel containing its left edge, because panels nest and the
+meeting card sits over the three it is a decision about.
+
+Three on the first run: a credits line 17px over, the fighter panel's footnote 88px over,
+and the tournament card's subtitle 53px over — **clipped mid-sentence in the oldest
+screenshot in `shots/`**, where it read as a sentence that stops rather than a sentence
+that was cut. Then it caught the first fix for the first one, which wrapped the line and
+pushed the line below it out of the bottom of the same panel. That is what a check is for.
+
+The slop then had to come down from three pixels to one, because three was enough to pass
+a line sitting visibly outside the fighter panel in a screenshot on the same screen.
+**A slop that hides a real overflow is not tolerance, it is the check declining to answer.**
+
+### EVERY SCRIPT PARSES
+
+`shot_menus.gd` had been broken against a facility enum that moved underneath it —
+`HOME_GROUND` became the arena — for long enough that nothing in the repo remembered. A
+tool that fails loudly the moment anybody runs it sounds self-correcting and is the
+opposite: nobody runs it, nobody sees it, it rots.
+
+`run_tests.sh` parses every `.gd` in `scripts/`, `tools/` and `tests/` with `--check-only`
+before it runs anything. One second, and it covers what no test does: the instruments.
+
+### FOUR SLOTS THE PLAYER CAN ORDER
+
+Favourites could be starred and unstarred and never arranged, which is the one thing four
+slots want: the corner offers them in list order, so the first is the one you reach for
+under a clock. `promote_favourite` / `demote_favourite` — a swap, not a drag, because a
+drag needs a pointer the corner has no time for and two taps on a list of four is the same
+job with one thumb. The control belongs on the corner screen, which is `melee_scene.gd`,
+so that half is in the arena hand-off.
+
+### THE DOCS THAT WERE LYING
+
+`README.md` is rewritten. It described a portrait game with no meta layer — *"no season,
+no calendar, no roster management, no economy, no menus outside the bout"* — when all
+sixteen of those screens existed, and it said **"Portrait, 540×960"** in three places while
+the project shipped a 960×540 landscape game whose handheld orientation setting was set to
+portrait.
+
+That is the clearest evidence this project has produced for a rule it had been treating as
+tidiness: **a stale doc is not harmless, it is a wrong answer nobody is checking**, and
+this one plausibly wrote itself into `project.godot`.
+
+`CREDITS.md` opened with "SHIP BLOCKER. There is no credits screen in the game yet" — the
+screen exists and generates itself from `Audio.LICENSED`. A solved problem still advertised
+as a blocker costs exactly as much attention as a real one. What is still outstanding is
+named instead: the menu track is on a revocable licence and `menu_own` is an empty slot.
+
+`docs/LEAGUES.md` listed five things as unbuilt. All five were built. Corrected with what
+each one actually is now.
+
+And ten `[NEW]` markers in `fighter_trait.gd` said their hooks needed building while
+`PENDING` — the constant `is_wired()` actually reads — was empty. **When a comment and a
+constant say different things about the same fact, the comment is the one that will be
+believed and the constant is the one that is true.**
+
+### UNDER GIT
+
+671 files, one commit, on `main`. No version control since 10 Sep, so no history, no
+branches and no way to bisect anything. `shots/` is tracked on purpose: half the findings
+in this register are "the screenshot showed something no test could see", and a repo that
+throws them away throws away the record of how the layout got the way it is.
+
+The README's own documented workaround for the sandbox's lock problem did not survive
+contact — `mv` could not move `.git/index.lock` either, because the sandbox refuses to
+unlink it at all. It took a delete-permission grant for that one folder. The README still
+carries the `mv` recipe because it is right for the tmp objects; the lock needs the grant.
