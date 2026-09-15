@@ -11,6 +11,7 @@
 # It changes nothing. It only looks.
 
 $ErrorActionPreference = "Continue"
+. "$PSScriptRoot\godot_find.ps1"
 $fails = @()
 $warns = @()
 
@@ -26,51 +27,41 @@ Write-Host "=== Combat Club - can this machine build an APK ===" -ForegroundColo
 Write-Host ""
 
 # ----------------------------------------------------------------- 1. Godot
-# THE ENGINE VERSION HAS TO MATCH THE TEMPLATES EXACTLY. 4.6-stable templates
-# do not work with a 4.6.1 editor and the error you get says nothing useful.
-$godot = $null
-foreach ($c in @(
-    $env:GODOT,
-    "$env:LOCALAPPDATA\Programs\Godot\Godot_v4.6-stable_win64_console.exe",
-    "$env:LOCALAPPDATA\Programs\Godot\Godot_v4.6-stable_win64.exe",
-    "C:\Program Files\Godot\Godot_v4.6-stable_win64_console.exe",
-    "C:\Godot\Godot_v4.6-stable_win64_console.exe",
-    "C:\Godot\Godot_v4.6-stable_win64.exe"
-)) { if ($c -and (Test-Path $c)) { $godot = $c; break } }
-if (-not $godot) {
-    $p = Get-Command godot -ErrorAction SilentlyContinue
-    if ($p) { $godot = $p.Source }
-}
-if (-not $godot) {
-    # Last resort: anything called Godot_v4.6* anywhere obvious.
-    $hit = Get-ChildItem -Path @("$env:USERPROFILE\Downloads", "$env:USERPROFILE\Desktop", "C:\Dev") `
-        -Filter "Godot_v4.6*.exe" -Recurse -ErrorAction SilentlyContinue |
-        Sort-Object { $_.Name -notlike "*console*" } | Select-Object -First 1
-    if ($hit) { $godot = $hit.FullName }
-}
-if ($godot) {
-    $ver = (& $godot --version 2>&1 | Select-Object -First 1)
-    $okv = "$ver" -match "^4\.6\."
-    Say $(if ($okv) { "pass" } else { "FAIL" }) "Godot editor" "$ver  --  $godot"
-    if (-not $okv) { Write-Host "         the templates below are 4.6.stable and must match the engine exactly" -ForegroundColor Yellow }
+# THE ENGINE VERSION HAS TO MATCH THE TEMPLATES EXACTLY, and "exactly" includes
+# the patch number: a 4.6.2 editor wants 4.6.2.stable templates and will not use
+# 4.6.stable ones. So nothing here is typed — `Find-Godot` asks the binary and
+# every path below is built from its answer.
+$g = Find-Godot
+if ($g.Path) {
+    Say "pass" "Godot editor" "$($g.Version)  --  $($g.Path)"
 } else {
-    Say "FAIL" "Godot editor" "not found - set `$env:GODOT to the .exe, or put it on PATH"
+    Say "FAIL" "Godot editor" "no working binary in $($g.Tried) candidates - set `$env:GODOT to the editor .exe"
+    Write-Host "         (a *_console.exe whose sibling .exe is missing does not count - it only relaunches it)" -ForegroundColor Yellow
 }
 
 # ------------------------------------------------------- 2. Export templates
 # 1.2GB, not in the repo, and never should be.
-$tpl = "$env:APPDATA\Godot\export_templates\4.6.stable"
-$need = @("android_debug.apk", "android_release.apk")
-if (Test-Path $tpl) {
-    $missing = @($need | Where-Object { -not (Test-Path (Join-Path $tpl $_)) })
-    if ($missing.Count -eq 0) {
-        $n = (Get-ChildItem $tpl -File).Count
-        Say "pass" "Export templates" "$n files in $tpl"
+if ($g.Version) {
+    $tpl = $g.TemplateDir
+    $need = @("android_debug.apk", "android_release.apk")
+    if (Test-Path $tpl) {
+        $missing = @($need | Where-Object { -not (Test-Path (Join-Path $tpl $_)) })
+        if ($missing.Count -eq 0) {
+            $n = (Get-ChildItem $tpl -File).Count
+            Say "pass" "Export templates" "$n files for $($g.Version)"
+        } else {
+            Say "FAIL" "Export templates" ("missing " + ($missing -join ", ") + " in $tpl")
+        }
     } else {
-        Say "FAIL" "Export templates" ("missing " + ($missing -join ", ") + " in $tpl")
+        # NAME THE NEIGHBOURS. Templates for the wrong patch version are the most
+        # likely thing to be sitting there, and "no folder" alone does not say so.
+        $have = Get-ChildItem "$env:APPDATA\Godot\export_templates" -Directory -ErrorAction SilentlyContinue |
+                ForEach-Object { $_.Name }
+        $also = if ($have) { "  (installed: " + ($have -join ", ") + ")" } else { "  (none installed at all)" }
+        Say "FAIL" "Export templates" "need $($g.Version)$also"
     }
 } else {
-    Say "FAIL" "Export templates" "no folder at $tpl"
+    Say "FAIL" "Export templates" "cannot tell which version to look for until Godot is found"
 }
 
 # ------------------------------------------------------------ 3. Android SDK

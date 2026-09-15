@@ -39,7 +39,11 @@ powershell -ExecutionPolicy Bypass -File tools\android_check.ps1
 powershell -ExecutionPolicy Bypass -File tools\android_run.ps1
 ```
 
-`android_check.ps1` changes nothing. It asks each prerequisite separately —
+`android_check.ps1` changes nothing. It finds the engine by asking each
+candidate `--version` — a `*_console.exe` is only a stub that relaunches the
+`.exe` beside it by exact filename, so one whose sibling has been renamed or
+never extracted reports *"Main executable ... not found"*, which reads exactly
+like a broken engine and is a missing file. It asks each prerequisite separately —
 engine version, export templates, SDK, `adb`, `apksigner`, a JVM, the debug
 keystore, Godot's own SDK-path *editor* setting, and whether an AVD exists — and
 prints what it found. Godot's own refusal is four errors that all say "SDK" and
@@ -53,12 +57,23 @@ The rest of this file is what those scripts are doing and why.
 
 ## Getting to an APK
 
-1. **Export templates.** 1.2GB, matched to the engine version exactly. The
-   editor will offer to download them; or fetch
-   `Godot_v4.6-stable_export_templates.tpz` from the release page and point the
-   Export Template Manager at it. They go in
-   `~/.local/share/godot/export_templates/4.6.stable/` (Linux) or the equivalent
-   `%APPDATA%` path on Windows. **They are not in the repo and must not be.**
+1. **Export templates.** 1.2GB, matched to the engine version exactly — and
+   **exactly includes the patch number.** A 4.6.2 editor wants
+   `4.6.2.stable` templates and will not use `4.6.stable` ones; the folder name
+   is the version string the binary itself prints from `--version`. The editor
+   will offer to download the right set (*Editor → Manage Export Templates →
+   Download and Install*), or fetch the matching
+   `Godot_v<version>_export_templates.tpz` from that release's page and point
+   the Export Template Manager at it.
+
+   They go in `%APPDATA%\Godot\export_templates\<version>.stable\` on Windows
+   or `~/.local/share/godot/export_templates/<version>.stable/` on Linux.
+   **They are not in the repo and must not be.**
+
+   `tools/godot_find.ps1` derives that folder from the binary rather than
+   carrying a version number of its own, because the first cut of the check
+   script hard-coded `4.6` and confidently sent a 4.6.2 machine looking in a
+   folder that would never exist.
 
 2. **The Android SDK.** Android Studio, or the command-line tools. Godot needs
    `platform-tools/adb` and `build-tools/<version>/apksigner`, and it finds them

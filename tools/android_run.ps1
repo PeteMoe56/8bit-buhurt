@@ -19,6 +19,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\godot_find.ps1"
 $root = Split-Path -Parent $PSScriptRoot
 $apk  = Join-Path $root "build\combat-club.apk"
 $pkg  = "com.bonkworks.combatclub"
@@ -27,16 +28,15 @@ function Step($s) { Write-Host "`n>> $s" -ForegroundColor Cyan }
 function Die($s)  { Write-Host "`n!! $s" -ForegroundColor Red; exit 1 }
 
 # ------------------------------------------------------------------ the tools
-$godot = $env:GODOT
-if (-not $godot -or -not (Test-Path $godot)) {
-    foreach ($c in @(
-        "$env:LOCALAPPDATA\Programs\Godot\Godot_v4.6-stable_win64_console.exe",
-        "$env:LOCALAPPDATA\Programs\Godot\Godot_v4.6-stable_win64.exe",
-        "C:\Godot\Godot_v4.6-stable_win64_console.exe"
-    )) { if (Test-Path $c) { $godot = $c; break } }
+# ASKED, NOT ASSUMED. Same finder the check script uses, so the two cannot
+# disagree about which binary or which version this machine has.
+$g = Find-Godot
+if (-not $g.Path) { Die "No working Godot found. Set `$env:GODOT to the editor .exe and run again." }
+$godot = $g.Path
+Write-Host "Godot $($g.Version)  $godot" -ForegroundColor DarkGray
+if (-not (Test-Path (Join-Path $g.TemplateDir "android_debug.apk"))) {
+    Die "No android_debug.apk template for $($g.Version). Expected it in $($g.TemplateDir) - run tools\android_check.ps1."
 }
-if (-not $godot) { $p = Get-Command godot -ErrorAction SilentlyContinue; if ($p) { $godot = $p.Source } }
-if (-not $godot) { Die "No Godot found. Set `$env:GODOT to the editor .exe and run again." }
 
 $sdk = $env:ANDROID_HOME
 if (-not $sdk) { $sdk = $env:ANDROID_SDK_ROOT }
