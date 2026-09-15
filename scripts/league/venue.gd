@@ -72,7 +72,7 @@ static func mood_line(kind: int, host_name: String) -> String:
 ## ---------------------------------------------------------------- the gate
 ## WHAT SHARE OF THE GATE COMES TO YOU, by where the afternoon is.
 ##
-## Pete, 16 Sep 2026: *"We can have more money gained from home games, and less
+## Pete, 15 Sep 2026: *"We can have more money gained from home games, and less
 ## from away games."*
 ##
 ## THIS USED TO BE A BOOLEAN AND THE BOOLEAN WAS THE PROBLEM. `pays_the_gate`

@@ -1,7 +1,7 @@
 class_name Grime
 ## WHAT A GROUND NOBODY SWEEPS LOOKS LIKE.
 ##
-## Pete, 16 Sep 2026: *"can we use an overlay to make the best arena level look
+## Pete, 15 Sep 2026: *"can we use an overlay to make the best arena level look
 ## shitty? Like an overlay that adds trash outside the fighting area, cracks in
 ## the wood, and make it really crappy that you'll have to upgrade to clean."*
 ##

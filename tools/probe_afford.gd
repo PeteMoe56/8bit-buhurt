@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ##   godot --headless --path . --script res://tools/probe_afford.gd
 ##
-## Pete, 16 Sep 2026: *"The income is either too low or costs are too high. 84 in
+## Pete, 15 Sep 2026: *"The income is either too low or costs are too high. 84 in
 ## one year will not maintain enough, you'll decline."*
 ##
 ## ---------------------------------------------------------------------------

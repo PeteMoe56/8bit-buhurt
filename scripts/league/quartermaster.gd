@@ -173,7 +173,7 @@ static func upgrade_cost(card: FighterCard) -> int:
 ## the whole of a first season's maintenance bill was this and nothing else —
 ## against a first-season income of 23 CC.
 ##
-## Pete, 16 Sep 2026: *"The income is either too low or costs are too high."*
+## Pete, 15 Sep 2026: *"The income is either too low or costs are too high."*
 ## This is the second one, and it is not a price that needed lowering: it is a
 ## JOB THAT SHOULD NOT HAVE BEEN SOLD. The arena already has the rule in as many
 ## words — *"a ground already spotless is refused rather than billed"* — and the

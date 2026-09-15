@@ -851,7 +851,7 @@ func crowd_band() -> int:
 ##
 ## `kind` is the venue, `host_level` and `host_condition` are the GROUND IT IS
 ## FOUGHT IN — yours at home, theirs away, the federation's on neutral ground.
-## Pete, 16 Sep 2026: *"you may actually look forward to an opponent with a great
+## Pete, 15 Sep 2026: *"you may actually look forward to an opponent with a great
 ## stadium or roll your eyes from an opponent with a shitty arena."*
 ##
 ## A FLOOR OF ONE, for the same reason band 0 pays at all: **a multiplier that
@@ -1531,7 +1531,7 @@ func take(cc: int, what: String, when_: String = "", line: String = "") -> int:
 ## ------------------------------------------------------------------ the books
 ## WHERE THE MONEY WENT, BY HEADING, FOR A YEAR AT A TIME.
 ##
-## Pete, 16 Sep 2026: *"Make Honors a finances page to show balance breakdowns"*
+## Pete, 15 Sep 2026: *"Make Honors a finances page to show balance breakdowns"*
 ## — and, before that, *"The income is either too low or costs are too high. 84
 ## in one year will not maintain enough, you'll decline."*
 ##

@@ -109,7 +109,7 @@ func _test_a_grade_caps_what_a_repair_can_reach() -> void:
 		o.repair_kit(f)
 		o.new_week()
 	## THE CAP IS A CEILING HE NEVER PASSES AND STOPS SHORT OF, and the second
-	## half of that is new on 16 Sep 2026.
+	## half of that is new on 15 Sep 2026.
 	##
 	## `topped_out()` used a tolerance of 0.001 — any scratch at all was work the
 	## armorer would take — and `kit_cost()` has a floor of one credit, so a club

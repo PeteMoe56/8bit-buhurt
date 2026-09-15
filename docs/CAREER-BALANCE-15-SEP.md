@@ -1,4 +1,4 @@
-# Career sims — 16 Sep 2026
+# Career sims — 15 Sep 2026
 
 Pete: *"let's have you do some career Sims and lets find a good balance for all
 the features and difficulties. There's a lot of career variables now."*

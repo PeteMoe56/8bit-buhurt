@@ -1,6 +1,6 @@
-# Where the money comes from — 16 Sep 2026
+# Where the money comes from — 15 Sep 2026
 
-Pete, 16 Sep 2026:
+Pete, 15 Sep 2026:
 
 > The income is either too low or costs are too high. 84 in one year will not
 > maintain enough, you'll decline.

@@ -893,7 +893,7 @@ func skip_event() -> void:
 	var before := _my_row()
 	var was := _my_row()
 	## THE GRADE APPLIES TO A SIMMED FIXTURE TOO. See the note in
-	## `LeagueWorld.play_event` — until 16 Sep 2026 the difficulty setting was
+	## `LeagueWorld.play_event` — until 15 Sep 2026 the difficulty setting was
 	## read only by `MeleeSim`, so pressing SIM IT fought the season at no
 	## difficulty at all and five twenty-season careers at five different grades
 	## came back identical.
@@ -1600,7 +1600,7 @@ const CREDITS_PROMOTED: int = 4
 ## ------------------------------------------------------------- the purse
 ## WHAT THE DIVISION PAYS OUT, AND EVERY CLUB IN IT TAKES A SHARE.
 ##
-## Pete, 16 Sep 2026: *"The income is either too low or costs are too high. 84 in
+## Pete, 15 Sep 2026: *"The income is either too low or costs are too high. 84 in
 ## one year will not maintain enough, you'll decline."*
 ##
 ## This was `CREDITS_BY_POSITION := [6, 4, 2]` — a flat table of three, and both

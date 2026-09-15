@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ##   godot --headless --path . --script res://tools/probe_run.gd
 ##
-## Pete, 16 Sep 2026: *"let's have you do some career Sims and lets find a good
+## Pete, 15 Sep 2026: *"let's have you do some career Sims and lets find a good
 ## balance for the all the features and difficulties. There's a lot of career
 ## variables now."*
 ##

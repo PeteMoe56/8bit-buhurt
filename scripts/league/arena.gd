@@ -67,7 +67,7 @@ var level: int = 0
 ## HOW WELL KEPT IT IS, 0 to 1, and it is a SECOND AXIS rather than a second
 ## level.
 ##
-## Pete, 16 Sep 2026: *"can we use an overlay to make the best arena level look
+## Pete, 15 Sep 2026: *"can we use an overlay to make the best arena level look
 ## shitty? Like an overlay that adds trash outside the fighting area, cracks in
 ## the wood, and make it really crappy that you'll have to upgrade to clean and
 ## it raises your income but costs to maintain as it degrades?"*
@@ -186,7 +186,7 @@ func retainer() -> int:
 
 ## HOW MUCH A GROUND MULTIPLIES WHAT A FIGHT IN IT IS WORTH.
 ##
-## Pete, 16 Sep 2026: *"Money from matches is manipulated from condition of
+## Pete, 15 Sep 2026: *"Money from matches is manipulated from condition of
 ## arena, so you may actually look forward to an opponent with a great stadium or
 ## roll your eyes from an opponent with a shitty arena."*
 ##

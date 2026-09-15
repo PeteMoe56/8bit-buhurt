@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ##   godot --headless --path . --script res://tests/test_arena_condition.gd
 ##
-## Pete, 16 Sep 2026: *"can we use an overlay to make the best arena level look
+## Pete, 15 Sep 2026: *"can we use an overlay to make the best arena level look
 ## shitty? Like an overlay that adds trash outside the fighting area, cracks in
 ## the wood, and make it really crappy that you'll have to upgrade to clean and
 ## it raises your income but costs to maintain as it degrades?"*

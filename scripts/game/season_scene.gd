@@ -622,7 +622,7 @@ func _squad_controls() -> void:
 
 	## THE CLUB'S RECORD, which is where the HONORS tab went.
 	##
-	## Pete, 16 Sep 2026: *"Throw Honors into Squad and a team history page."*
+	## Pete, 15 Sep 2026: *"Throw Honors into Squad and a team history page."*
 	## The trophies and the season-by-season are now a page on the Records screen
 	## — the club's other records already live there — and this is the door to it
 	## from the squad, which is the screen a player is on when he wonders what
@@ -945,7 +945,7 @@ func _schedule() -> void:
 		## H AND A AS A MARK IN THE MARGIN, not "home" and "away" as words at the
 		## end of the row.
 		##
-		## Pete, 16 Sep 2026: *"Let's have the Home and Away games notated."* They
+		## Pete, 15 Sep 2026: *"Let's have the Home and Away games notated."* They
 		## were notated — in twelve-pixel EDGE grey, right-aligned past the club's
 		## name, which is where the eye goes last. A one-letter mark in its own
 		## column at the left is read at a glance down the list, which is what a
@@ -1316,7 +1316,7 @@ func _fixture() -> void:
 		Vector2(432, y + 28), 12, UiKit.YOU, 200)
 
 	## ------------------------------------------------- where, and what it pays
-	## Pete, 16 Sep 2026: *"Let's have the Home and Away games notated."*
+	## Pete, 15 Sep 2026: *"Let's have the Home and Away games notated."*
 	##
 	## THE PANEL THAT SAYS WHO YOU ARE FIGHTING DID NOT SAY WHERE. The schedule
 	## underneath it carried a grey "home"/"away" and this — the card the player
@@ -2034,7 +2034,7 @@ func _office_controls() -> void:
 			UiKit.go("res://scenes/Federation.tscn"), "banner"))
 
 	## THE COUNTER MOVED TO FINANCES, and so did the arena button on the action
-	## row below. Pete, 16 Sep 2026: *"Clubhouse is too crowded."*
+	## row below. Pete, 15 Sep 2026: *"Clubhouse is too crowded."*
 	##
 	## He is right and the count says why: this tab carried four progress bars
 	## with a price button each, five nav buttons, three action buttons, a purse
@@ -2374,7 +2374,7 @@ func _role_col_w() -> float:
 # ------------------------------------------------------------- FINANCES tab
 ## WHERE THE MONEY CAME FROM AND WHERE IT WENT.
 ##
-## Pete, 16 Sep 2026: *"Make Honors a finances page to show balance breakdowns
+## Pete, 15 Sep 2026: *"Make Honors a finances page to show balance breakdowns
 ## and you can use that to advertise/buy CC. Might be a place to put the arena."*
 ##
 ## ---------------------------------------------------------------------------

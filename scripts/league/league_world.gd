@@ -263,9 +263,9 @@ func city_of(id: int) -> String:
 
 
 ## ------------------------------------------------------------ their grounds
-## EVERY CLUB HAS A GROUND NOW, and until 16 Sep 2026 exactly one did.
+## EVERY CLUB HAS A GROUND NOW, and until 15 Sep 2026 exactly one did.
 ##
-## Pete, 16 Sep 2026: *"Money from matches is manipulated by condition of arena,
+## Pete, 15 Sep 2026: *"Money from matches is manipulated by condition of arena,
 ## so you may actually look forward to an opponent with a great stadium or roll
 ## your eyes from an opponent with a shitty arena."*
 ##

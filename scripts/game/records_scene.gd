@@ -13,7 +13,7 @@ extends Node2D
 ## on the world rather than scanned off the roster — see `LeagueWorld.records`.
 
 ## FIVE PAGES NOW. HISTORY is the trophy cabinet and the season-by-season, which
-## used to be the HONORS tab on the season screen — Pete, 16 Sep 2026: *"Throw
+## used to be the HONORS tab on the season screen — Pete, 15 Sep 2026: *"Throw
 ## Honors into Squad and a team history page."*
 ##
 ## This is where it belongs and not because the tab was wanted for something

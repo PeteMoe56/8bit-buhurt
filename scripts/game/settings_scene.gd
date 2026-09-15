@@ -55,7 +55,7 @@ func _build() -> void:
 		ui.add_child(UiKit.button("+", Vector2(LEFT_X + COL_W - 68, y),
 			Vector2(44, 38), _nudge.bind(key, 1)))
 	## ------------------------------------------------------------ difficulty
-	## Pete, 16 Sep 2026: *"Difficulty should be changeable."*
+	## Pete, 15 Sep 2026: *"Difficulty should be changeable."*
 	##
 	## It was set once, on the club-creation screen, and this panel was a SIGNPOST
 	## saying so — which was an answer to item 14 of the 15 Sep playtest (*"Can't
