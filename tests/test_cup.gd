@@ -23,7 +23,7 @@ func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — cups and club power ===\n")
 	_test_bracket_conserves_clubs()
 	_test_pools_feed_the_bracket()
-	_test_seeding_favours_the_favourite()
+	_test_seeding_favours_the_favorite()
 	_test_the_reserve_stays_home()
 	_test_the_roster_menu_cannot_break_the_club()
 	_test_rating_is_position_averages()
@@ -58,7 +58,7 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 
 
 ## A resolver that is pure seeding: the lower id always wins 2-0 by four.
-func _favourite_wins() -> Callable:
+func _favorite_wins() -> Callable:
 	return func(a: int, b: int) -> Array:
 		return [2, 0, 8, 0] if a < b else [0, 2, 0, 8]
 
@@ -124,14 +124,14 @@ func _test_pools_feed_the_bracket() -> void:
 		"%d pool matches, then eight into the quarter-finals, champion and third decided" % pool_matches)
 
 
-func _test_seeding_favours_the_favourite() -> void:
+func _test_seeding_favours_the_favorite() -> void:
 	## Seed 0 is the best club in the field. Give the better club every match and
 	## the top seed must win the cup — if he does not, the bracket is pairing the
 	## seeds wrong and the draw is a raffle.
 	var wrong := 0
 	for i in 16:
 		var c := Cup.new("Test Cup", range(8), i, -1, false)
-		c.run_all(_favourite_wins())
+		c.run_all(_favorite_wins())
 		if c.champion != 0 or c.runner_up != 1:
 			wrong += 1
 	_ok(wrong == 0, "the seeding means something",
@@ -174,7 +174,7 @@ func _test_the_roster_menu_cannot_break_the_club() -> void:
 	## leave a club that cannot travel or cannot field a line. Two of them got
 	## this wrong on the first pass in the same way: demoting the Center was
 	## allowed because the bench Center covers his slot, and cutting him was
-	## allowed for the same reason, and both left SEVEN men on the travelling
+	## allowed for the same reason, and both left SEVEN men on the traveling
 	## list. A rule about the whole squad cannot be enforced one fighter at a time.
 	var club := MeleeRosters.player_club()
 	var up: FighterCard = club.reserves()[0]
@@ -195,7 +195,7 @@ func _test_the_roster_menu_cannot_break_the_club() -> void:
 	var legal_after := club.line_legal() == ""
 	## And now that the flanker is in the reserve, he can be released — and the
 	## club is still legal afterwards, because releasing a reserve does not touch
-	## the travelling eight at all.
+	## the traveling eight at all.
 	var cut_ok := club.cut(flanker) == ""
 	var still_eight := club.active_eight().size() == MeleeClub.ACTIVE_SIZE
 
@@ -306,7 +306,7 @@ func _test_worlds_and_invitationals_run() -> void:
 	var worlds_run := 0
 	var invitationals_run := 0
 	var bad := 0
-	for h in world.honours:
+	for h in world.honors:
 		if int(h["champion"]) < 0:
 			bad += 1
 		if String(h["id"]) == "worlds":

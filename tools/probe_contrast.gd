@@ -1,14 +1,14 @@
 extends SceneTree
 func _initialize() -> void:
 	print("kits:")
-	for c in IconBank.KIT_COLOURS:
+	for c in IconBank.KIT_COLORS:
 		print("  ", c.to_html(false), " luma=", "%.3f" % IconBank.luma(c))
 	print("marks:")
-	for c in IconBank.MARK_COLOURS:
+	for c in IconBank.MARK_COLORS:
 		print("  ", c.to_html(false), " luma=", "%.3f" % IconBank.luma(c))
 	var worst := 9.0
-	for k in IconBank.KIT_COLOURS:
-		for m in IconBank.MARK_COLOURS:
+	for k in IconBank.KIT_COLORS:
+		for m in IconBank.MARK_COLORS:
 			var d: float = absf(IconBank.luma(k) - IconBank.luma(m))
 			if d < worst:
 				worst = d

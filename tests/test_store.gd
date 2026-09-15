@@ -81,7 +81,13 @@ func _test_the_shelf_is_a_real_ladder() -> void:
 	## credits in prize money; a pack that hands over five seasons at once stops
 	## the club being the thing that earns. Held against the prize table itself
 	## rather than against a number typed in here.
-	var season_prize: int = int(Season.CREDITS_BY_POSITION[0]) + int(Season.CREDITS_PROMOTED)
+	## AGAINST THE BACKYARD CHAMPIONS' SHARE, which is the winning season a
+	## player has at the point he would first be offered a pack. `CREDITS_BY_POSITION`
+	## was a flat table of three and is now a per-division purse, so the figure is
+	## asked for rather than indexed — `purse(1, field, 0)` is the same six
+	## credits the table's first entry was.
+	var season_prize: int = Season.purse(1, League.club_count(0), 0) \
+		+ int(Season.CREDITS_PROMOTED)
 	var small: int = int(Store.PRODUCTS[0]["credits"])
 	_ok(small <= season_prize * 3,
 		"and the smallest pack is worth about two good seasons, not ten",

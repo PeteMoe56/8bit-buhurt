@@ -92,7 +92,7 @@ const DEFAULT: int = G.SANCTIONED
 ## of what the games that do this actually spend:
 ##
 ##   Total War battle difficulty  AI melee attack x1.10 (Hard), x1.15 (Very Hard)
-##                                 AI melee defence x1.20 at Very Hard
+##                                 AI melee defense x1.20 at Very Hard
 ##   Civilization VI              AI +4 combat strength at Deity, on a 20-80 scale
 ##   Retro Bowl                   `catching += difficulty * 2` on a 1-100 stat,
 ##                                 a 24-POINT SWING between Easy and Hard against
@@ -202,7 +202,7 @@ static func matched_scale(step: int) -> float:
 ## the same shape as their fourteen-point win, read off the thing our game
 ## actually scores.
 static func matched_next(step: int, rounds_for: int, rounds_against: int,
-		has_honour: bool) -> int:
+		has_honor: bool) -> int:
 	var s := step
 	if rounds_for > rounds_against:
 		s += 1
@@ -210,7 +210,7 @@ static func matched_next(step: int, rounds_for: int, rounds_against: int,
 			s += 1
 	elif rounds_for < rounds_against:
 		s -= 1
-	var top := STEP_MAX if has_honour else STEP_MAX_UNPROVEN
+	var top := STEP_MAX if has_honor else STEP_MAX_UNPROVEN
 	return clampi(s, STEP_MIN, top)
 
 

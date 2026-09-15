@@ -6,7 +6,7 @@ extends Node2D
 ## for why that governor is not optional.
 ##
 ## CLUB is your heraldry and your name. Free, and editable whenever you like,
-## because it is your club; the credits buy fighters, not colours.
+## because it is your club; the credits buy fighters, not colors.
 ##
 ## THE CEILING IS ON SCREEN AT ALL TIMES. A creation screen that lets you build
 ## a man and only then tells you he is illegal has wasted the whole session —
@@ -16,7 +16,7 @@ extends Node2D
 ## A THIRD TAB RATHER THAN A BUTTON IN A GAP, and the gap is the reason.
 ##
 ## The grade went on the club tab first, at (24, 310), and the club badge is
-## drawn centred at (116, 372) with a radius of 54 — so it spans y 318 to 426 and
+## drawn centerd at (116, 372) with a radius of 54 — so it spans y 318 to 426 and
 ## the button sat straight on top of it. `test_layout.gd` would have caught it;
 ## looking at the numbers caught it first.
 ##
@@ -88,8 +88,8 @@ func _ready() -> void:
 	season = Session.season
 	shop = season.workshop
 	card = Workshop.blank()
-	kit_i = maxi(0, IconBank.KIT_COLOURS.find(season.club.kit))
-	mark_col_i = maxi(0, IconBank.MARK_COLOURS.find(season.club.icon_colour))
+	kit_i = maxi(0, IconBank.KIT_COLORS.find(season.club.kit))
+	mark_col_i = maxi(0, IconBank.MARK_COLORS.find(season.club.icon_color))
 	icon_i = int(season.club.icon)
 	pack_i = maxi(0, IconBank.packs().find(String(IconBank.entry(icon_i)["pack"])))
 	ui = CanvasLayer.new()
@@ -236,7 +236,7 @@ var town_offers: Array[String] = []
 ## THE TOWN BLOCK LIVES IN THE RIGHT COLUMN, under the mark bank.
 ##
 ## It was on the left at y 306, which put it through the badge at 372 and its
-## "HOME TOWN" label through the kit-colour button at 258. Nothing in the suite
+## "HOME TOWN" label through the kit-color button at 258. Nothing in the suite
 ## could see either: `test_layout.gd` measures controls against controls and says
 ## in its own header that it cannot see drawn text. `test_ink.gd` — written an
 ## hour later to read the ledger `UiKit` now keeps — found both on its first run,
@@ -312,11 +312,11 @@ func _club_controls() -> void:
 				_offer_towns()
 				_rebuild()))
 
-	ui.add_child(UiKit.button("Kit colour", Vector2(STAT_X, 258), Vector2(150, 34), func():
-		kit_i = (kit_i + 1) % IconBank.KIT_COLOURS.size()
+	ui.add_child(UiKit.button("Kit color", Vector2(STAT_X, 258), Vector2(150, 34), func():
+		kit_i = (kit_i + 1) % IconBank.KIT_COLORS.size()
 		_rebuild()))
-	ui.add_child(UiKit.button("Mark colour", Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
-		mark_col_i = (mark_col_i + 1) % IconBank.MARK_COLOURS.size()
+	ui.add_child(UiKit.button("Mark color", Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
+		mark_col_i = (mark_col_i + 1) % IconBank.MARK_COLORS.size()
 		_rebuild()))
 
 	## THE BANK, as a shelf you can see rather than a cycle button you have to
@@ -375,12 +375,11 @@ func _grade_controls() -> void:
 		var g: int = Grade.ORDER[i]
 		ui.add_child(UiKit.button(Grade.short_of(g),
 			Vector2(STAT_X, GRADE_Y + float(i) * GRADE_ROW), GRADE_BTN, func():
-				season.grade = g
-				## A GRADE CHANGE RESETS MATCHED'S LADDER. Switching away and back
-				## with the running value intact would let a player park on
-				## FRIENDLY, walk the step down, and switch to MATCHED holding a
-				## number he never earned.
-				season.matched_step = Grade.STEP_START
+				## THROUGH THE SEASON'S OWN VERB. This wrote the two fields by
+				## hand, and the day the grade became changeable from a second
+				## screen that would have been two places resetting MATCHED's
+				## ladder — one of which would eventually forget.
+				season.set_grade(g)
 				Session.autosave()
 				_rebuild(),
 			"cursor" if g == season.grade else ""))
@@ -430,7 +429,7 @@ func _draw_grade() -> void:
 
 func _save_club() -> void:
 	var err := shop.rename(season.club, club_name_edit.text, club_short_edit.text,
-		IconBank.KIT_COLOURS[kit_i], IconBank.MARK_COLOURS[mark_col_i], icon_i)
+		IconBank.KIT_COLORS[kit_i], IconBank.MARK_COLORS[mark_col_i], icon_i)
 	if err != "":
 		flash = err
 		_rebuild()
@@ -517,11 +516,11 @@ func _draw_fighter() -> void:
 
 
 func _draw_club() -> void:
-	var kit: Color = IconBank.KIT_COLOURS[kit_i]
-	var mark: Color = IconBank.MARK_COLOURS[mark_col_i]
+	var kit: Color = IconBank.KIT_COLORS[kit_i]
+	var mark: Color = IconBank.MARK_COLORS[mark_col_i]
 	var short: String = club_short_edit.text if club_short_edit != null else season.club.short_name
 
-	UiKit.text(self, font, "One club per save. The colours are free; the marks are not.",
+	UiKit.text(self, font, "One club per save. The colors are free; the marks are not.",
 		Vector2(STAT_X, 126), 14, UiKit.DIM)
 	UiKit.text(self, font, "Name", Vector2(STAT_X + 390, 176), 13, UiKit.EDGE)
 	UiKit.text(self, font, "Short", Vector2(STAT_X + 130, 226), 13, UiKit.EDGE)
@@ -548,7 +547,7 @@ func _draw_club() -> void:
 
 
 ## Every mark on this shelf, owned or not. A locked one is drawn in the club's
-## own colours at half strength rather than as a padlock: the question the
+## own colors at half strength rather than as a padlock: the question the
 ## player is answering is "do I want to wear that", and he cannot answer it from
 ## a padlock.
 func _draw_bank(kit: Color, mark: Color) -> void:
@@ -563,7 +562,7 @@ func _draw_bank(kit: Color, mark: Color) -> void:
 			## size a tick is four pixels and the ring is unmissable.
 			draw_rect(Rect2(at - Vector2(BANK_R + 5, BANK_R + 5),
 				Vector2(BANK_R * 2 + 10, BANK_R * 2 + 10)), UiKit.YOU, false, 2.0)
-		## Darkening BOTH colours made a locked mark unreadable — dark grey on
+		## Darkening BOTH colors made a locked mark unreadable — dark gray on
 		## dark red — which defeats the point of drawing it at all. The kit goes
 		## back, the mark stays bright and goes translucent instead, so the
 		## shape still reads and it still says "not yours".

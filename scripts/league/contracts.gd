@@ -184,8 +184,8 @@ static func refusal(f: FighterCard) -> String:
 ## rating sets the going rate; his mood decides whether he gives you a discount
 ## for the privilege of staying or charges you for the inconvenience.
 ##
-## Centred on 0.70, which is where a club starts and where `will_wait` is also
-## centred — a club that never thinks about morale is neither rewarded nor
+## Centerd on 0.70, which is where a club starts and where `will_wait` is also
+## centerd — a club that never thinks about morale is neither rewarded nor
 ## punished, and one that does is doing it for a reason it can see on the wage
 ## bill.
 ##
@@ -256,7 +256,7 @@ static func will_wait(f: FighterCard, notoriety: float, band_top: int,
 	## whole swing lands in that first tenth — and it still reaches exactly +0.30
 	## at the top, so nothing about a famous club changes.
 	var pull := sqrt(clampf(notoriety / ClubOffice.NOTORIETY_MAX, 0.0, 1.0))
-	## Centred on 0.7, which is where a club starts, so a club that never thinks
+	## Centerd on 0.7, which is where a club starts, so a club that never thinks
 	## about morale is neither rewarded nor punished for it.
 	var mood := clampf(morale, 0.0, 1.0) - 0.7
 	## AND A FLOOR UNDER ALL OF IT. Above the line the old maths still decides —

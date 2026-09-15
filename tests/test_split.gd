@@ -202,18 +202,18 @@ func _test_the_rival_is_your_own_men() -> void:
 		## five, and it could — with walk-ons, while the men who actually walked
 		## sat on its bench, because they carried `active = false` out of the squad
 		## that had not been picking them. A breakaway fielding strangers is a
-		## rename. So the question is now how many of its travelling party are men
+		## rename. So the question is now how many of its traveling party are men
 		## who left you.
-		var travelling: Array = rival.active_eight()
+		var traveling: Array = rival.active_eight()
 		var ours := 0
-		for f in travelling:
+		for f in traveling:
 			if took.has(f.display_name):
 				ours += 1
-		if travelling.is_empty():
+		if traveling.is_empty():
 			bad.append("the breakaway travels nobody at all")
-		elif ours < mini(took.size(), travelling.size()):
+		elif ours < mini(took.size(), traveling.size()):
 			bad.append("only %d of the %d men the breakaway travels came from you"
-				% [ours, travelling.size()])
+				% [ours, traveling.size()])
 		## The rival is in YOUR division, because the point is that you fight them.
 		if int(s.world.clubs[rival_id]["tier"]) != s.world.player_tier():
 			bad.append("the breakaway is not in your division")
@@ -299,7 +299,7 @@ func _fracture() -> Season:
 	while not s.season_complete():
 		s.skip_event()
 		## And a room that never recovers. Morale moving back up over a losing
-		## season is correct behaviour — the logistic pulls toward an equilibrium
+		## season is correct behavior — the logistic pulls toward an equilibrium
 		## — so holding it down is the fixture, not a workaround.
 		for f in s.club.roster:
 			f.morale = 0.03

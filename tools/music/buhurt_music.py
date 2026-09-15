@@ -142,7 +142,7 @@ class Song:
         ## SWING BELONGS TO ONE TRACK. `hosted` is the only celebration in the
         ## game and it is the only thing here that swings — every off-eighth is
         ## pushed late by this fraction of a beat, which is the single cheapest
-        ## way to make an arrangement unmistakable for its neighbours. Applied
+        ## way to make an arrangement unmistakable for its neighbors. Applied
         ## on the clock rather than in the writing, so the drums, the bass and
         ## the tune all lean together instead of one of them sitting square.
         self.swing = swing
@@ -418,7 +418,7 @@ PROG_B = ["A", "A", "D", "D", "E", "E", "F", "F",
 #             sixth. The boss is D PHRYGIAN — the same root, but with a FLAT
 #             SECOND. That one semitone leaning onto the tonic is the most
 #             menacing interval in common use and the reason half of metal is
-#             written in this mode. Same key centre, opposite character.
+#             written in this mode. Same key center, opposite character.
 #   SHAPE     the club theme is a MELODY: it breathes, it phrases, it cadences.
 #             The boss is a RIFF — an eight-beat ostinato that hammers and does
 #             not resolve. A tune you could hum against a figure you cannot get
@@ -463,7 +463,7 @@ def ficta(phrase):
 
     Two consequences, both wanted. It is period-correct — the set's whole claim
     is a folk mode with a raised sixth, and ficta is the other half of that
-    practice. And it puts a little major colour in a minor set, at cadence
+    practice. And it puts a little major color in a minor set, at cadence
     points, which is what stops the front door and the clubhouse sounding like
     two different games.
 
@@ -552,9 +552,9 @@ def lay_bass(song, at, line, per=1.0, gain=0.30, lift=False):
 ## observation from the other side: the sixteenth pulse is what you feel.)
 ##
 ## So the fix is writing, not tempo. `busy()` subdivides a held note into
-## movement using the mode's own neighbours, which keeps the melody recognisable
+## movement using the mode's own neighbors, which keeps the melody recognizable
 ## — it is still the same tune, it just never stops moving.
-NEIGHBOUR = ["D", "E", "F", "G", "A", "B", "C"]
+NEIGHBOR = ["D", "E", "F", "G", "A", "B", "C"]
 
 
 def step_in_mode(note, steps):
@@ -572,12 +572,12 @@ def step_in_mode(note, steps):
     ## root of whatever mode you are in — so in a D-rooted list, C is the one
     ## degree that belongs to the octave ABOVE the D it sits with. Ignoring that
     ## put a passing note a full octave below where it belonged: D5 stepped down
-    ## by one came out as C4 instead of C5, which is not a neighbour tone, it is
+    ## by one came out as C4 instead of C5, which is not a neighbor tone, it is
     ## a leap out of the phrase.
-    i = NEIGHBOUR.index(name) if name in NEIGHBOUR else 0
+    i = NEIGHBOR.index(name) if name in NEIGHBOR else 0
     j = i + steps
-    out = NEIGHBOUR[j % len(NEIGHBOUR)]
-    octave += j // len(NEIGHBOUR)
+    out = NEIGHBOR[j % len(NEIGHBOR)]
+    octave += j // len(NEIGHBOR)
     if out == "C":
         octave += 1
     return out + acc + str(octave)
@@ -586,7 +586,7 @@ def step_in_mode(note, steps):
 def busy(phrase, min_len=1.0, shape=(0, 1)):
     """Subdivide anything held for `min_len` or longer into eighths that walk
     the mode. `shape` is the degree offsets to cycle through: (0, 1) is a
-    neighbour-tone bounce, (0, 2) an arpeggio lift, (0, -1) a lean downward."""
+    neighbor-tone bounce, (0, 2) an arpeggio lift, (0, -1) a lean downward."""
     out = []
     for (b, note, ln) in phrase:
         if note is None or ln < min_len:
@@ -1393,7 +1393,7 @@ def check_register(name, fn, ceiling="C6", max_high_share=0.07):
 
 def _fingerprint(name, fn):
     """Everything about an arrangement that the ear uses to tell it from its
-    neighbour, read off the SCORE — the tune, the kit, the bass, the balance."""
+    neighbor, read off the SCORE — the tune, the kit, the bass, the balance."""
     lead, bassn, drums = [], [], []
     ol, ob, ok_, osn, oh = Song.lead, Song.bass, Song.kick, Song.snare, Song.hat
 

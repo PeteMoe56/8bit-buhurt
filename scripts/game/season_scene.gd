@@ -8,12 +8,12 @@ extends Node2D
 ##
 ##   CLUB     the next fixture and the table you are trying to climb
 ##   SQUAD    the eight who travel, the reserve, and the moves between them
-##   HONOURS  what the club has actually won
+##   FINANCES where the money came from, where it went, and the ground
 ##
 ## Drawn with primitives on the same portrait 540x960 as the melee, so sprites
 ## drop in later without touching layout.
 
-enum Tab { CLUB, SQUAD, MARKET, OFFICE, HONOURS }
+enum Tab { CLUB, SQUAD, MARKET, OFFICE, FINANCES }
 
 ## Landscape, 960x540. Four tabs across the top and two columns underneath —
 ## which is the layout the extra width is FOR: the fixture and the table are
@@ -189,8 +189,8 @@ func _rebuild() -> void:
 	## EACH TAB CARRIES ITS MARK. A row of five words all the same length is
 	## parsed; a row of five marks is recognised, which on a phone held in one
 	## hand is the whole difference. The names stay — an icon alone is a rebus.
-	var names := ["CLUB", "SQUAD", "ARMOURER", "CLUBHOUSE", "HONOURS"]
-	var marks := ["shield", "roster", "armour", "hall", "trophy"]
+	var names := ["CLUB", "SQUAD", "ARMORER", "CLUBHOUSE", "FINANCES"]
+	var marks := ["shield", "roster", "armor", "hall", "purse"]
 	for i in names.size():
 		ui.add_child(UiKit.button(names[i], Vector2(24 + float(i) * (TAB_W + 6.0), TAB_Y),
 			Vector2(TAB_W, TAB_H), func():
@@ -215,6 +215,7 @@ func _rebuild() -> void:
 		Tab.SQUAD: _squad_controls()
 		Tab.MARKET: _market_controls()
 		Tab.OFFICE: _office_controls()
+		Tab.FINANCES: _finances_controls()
 	queue_redraw()
 
 
@@ -228,7 +229,7 @@ func _club_controls() -> void:
 	## action row, where at National the table runs to sixteen clubs and row 16
 	## sits at y=477-497 — so it hid the rank and name of a club in a relegation
 	## place. It was moved to y=70 on the right, which is **the tab strip**, and
-	## it covered the right half of the HONOURS tab on every screen that had a
+	## it covered the right half of the HONORS tab on every screen that had a
 	## cup to look at.
 	##
 	## The left column under the fixture card is the one region on this tab that
@@ -449,11 +450,30 @@ func _fight() -> void:
 ## position, one of them should be asking the other.**
 const SQUAD_ROW := 30.0
 const RESERVE_X := 490.0
+## HOW FAR THE FIRST MAN SITS BELOW THE SECTION TITLE. It was 26, which is the
+## gap a list needs; a TABLE needs room for its heading as well, and both columns
+## read this so neither can be moved without the other.
+const SQUAD_TOP := 40.0
+## Where the heading row's baseline goes inside that gap.
+const SQUAD_HEAD_Y := 22.0
+
+
+## WHERE THE KEY SITS: under the last man and clear of the action row, measured
+## rather than written down. The eight are five on the line, a 28-pixel bench
+## header and three on the bench; on a taller canvas the action row moves and a
+## key at a fixed 452 would have been left stranded in the middle of the screen.
+static func _squad_key_y() -> float:
+	var last := CONTENT_Y + SQUAD_TOP + SQUAD_ROW * 8.0 + 28.0
+	return minf(last + 16.0, action_y() - 22.0)
 
 func _squad_rows() -> Array:
 	var out: Array = []
 	var five := season.club.starting_five()
-	var y := CONTENT_Y + 26.0
+	## CONTENT_Y + 40 AND NOT + 26, because the column heading now sits between
+	## the section title and the first man. Both columns move together and both
+	## read the same constant, so the reserve cannot end up fourteen pixels out
+	## of step with the eight.
+	var y := CONTENT_Y + SQUAD_TOP
 	var bench_started := false
 	for f in season.club.active_eight():
 		var kind := "on the line" if five.has(f) else "bench"
@@ -468,7 +488,7 @@ func _squad_rows() -> Array:
 	## whole reason a landscape screen is worth having: the eight and the five
 	## you might promote are visible at the same time, so the swap is a
 	## comparison instead of a memory test.
-	var ry := CONTENT_Y + 26.0
+	var ry := CONTENT_Y + SQUAD_TOP
 	for f in _reserve_sorted():
 		out.append({ "card": f, "y": ry, "kind": "reserve", "x": RESERVE_X })
 		ry += SQUAD_ROW
@@ -554,9 +574,9 @@ func _squad_spread() -> String:
 func _squad_controls() -> void:
 	## THE ROSTER, which is the same men laid out like the sport rather than
 	## like a list — and the only place a fighter's own record can be read.
-	## IT WAS SITTING ON THE HONOURS TAB. At y=70 with the tab strip at 72 this
+	## IT WAS SITTING ON THE HONORS TAB. At y=70 with the tab strip at 72 this
 	## button covered the right 112 pixels of the fifth tab, so on this tab the
-	## label read "HONOURS" and the tap opened the roster. Shipped, invisible,
+	## label read "HONORS" and the tap opened the roster. Shipped, invisible,
 	## and found by `test_layout.gd` the first time it drove every tab instead of
 	## only the default one.
 	ui.add_child(UiKit.button("Roster", Vector2(UiKit.right_edge(200.0), action_y()),
@@ -582,12 +602,30 @@ func _squad_controls() -> void:
 	## named after the tab you were already standing on.
 	##
 	## Signing a man is a SQUAD decision, so it is reached from the squad, and the
-	## tab it vacated became the armourer's — the one mechanic in this game that
+	## tab it vacated became the armorer's — the one mechanic in this game that
 	## Direction calls the cap and that had no screen at all.
 	ui.add_child(UiKit.button("Free agents", Vector2(UiKit.right_edge(416.0), action_y()),
 		Vector2(200, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Market.tscn"), "coin"))
+
+	## THE CLUB'S RECORD, which is where the HONORS tab went.
+	##
+	## Pete, 16 Sep 2026: *"Throw Honors into Squad and a team history page."*
+	## The trophies and the season-by-season are now a page on the Records screen
+	## — the club's other records already live there — and this is the door to it
+	## from the squad, which is the screen a player is on when he wonders what
+	## this lot have actually done.
+	##
+	## ONLY WHEN NOBODY IS PICKED. The action row has three places and the picked
+	## state already wants all three for Cut, Prospect and Extend; a fourth button
+	## underneath one of those is a button that works until it does not.
+	if picked == null:
+		ui.add_child(UiKit.button("Club record", Vector2(244, action_y()),
+			Vector2(204, 46), func():
+				Session.autosave()
+				Session.records_page = Records.Page.HISTORY
+				UiKit.go("res://scenes/Records.tscn"), "trophy"))
 	for row in _squad_rows():
 		ui.add_child(_man_button(row["card"], float(row["y"]), float(row["x"])))
 	if picked != null:
@@ -741,7 +779,7 @@ func _draw() -> void:
 	UiKit.ground(self)
 	_header()
 	## THE RULE UNDER THE HEADER, and it is the cheapest piece of flair in the
-	## game — one CC0 strip, tiled from the middle so the gem lands centred, in
+	## game — one CC0 strip, tiled from the middle so the gem lands centerd, in
 	## place of the 2px line that was there. It reads on every tab and costs one
 	## call.
 	UiKit.rule(self, UiKit.RULE_GEM, Vector2(0, 58), UiKit.screen().x, UiKit.FRAME)
@@ -766,14 +804,14 @@ func _draw() -> void:
 		Tab.SQUAD: _draw_squad()
 		Tab.MARKET: _draw_market()
 		Tab.OFFICE: _draw_office()
-		Tab.HONOURS: _draw_honours()
+		Tab.FINANCES: _draw_finances()
 
 
 func _header() -> void:
 	var w: Dictionary = season.world.clubs[season.world.player_club]
 	draw_rect(Rect2(0, 0, UiKit.screen().x, 62), UiKit.PANEL)
 	UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
-		season.club.icon_colour, int(season.club.icon))
+		season.club.icon_color, int(season.club.icon))
 	UiKit.text(self, font, UiKit.clip(String(w["name"]), 28), Vector2(68, 28), 20, UiKit.INK)
 	UiKit.text(self, font, "%s  ·  Season %d  ·  rating %d" % [
 		season.tier_name(), season.world.season, int(w["power"])],
@@ -817,7 +855,7 @@ func _banner() -> void:
 	if UiKit.mood == UiKit.Mood.NORMAL:
 		return
 	## A GOLD FRAME, TOP AND BOTTOM, with the occasion written along the bottom
-	## one in the ground colour — a ribbon, the way an 8-bit game labels a stage.
+	## one in the ground color — a ribbon, the way an 8-bit game labels a stage.
 	##
 	## It went at the TOP first, right-aligned, and was invisible: the header
 	## already owns that strip with the balance, the morale word and the Menu
@@ -1073,7 +1111,7 @@ func _draw_dilemma() -> void:
 	##
 	## The sentence stays and the figures go under it. `Dilemma.costs()` decides
 	## both what is shown and which way each figure moves, off one read of one
-	## dictionary, so the words and the colours can never disagree.
+	## dictionary, so the words and the colors can never disagree.
 	var opts: Array = card.get("options", [])
 	var w: float = (UiKit.span(32.0) - float(maxi(0, opts.size() - 1)) * 12.0) / float(maxi(1, opts.size()))
 	## A RULE BETWEEN THE VOICE AND THE PRICES. The body is somebody talking and
@@ -1117,8 +1155,8 @@ func _draw_dilemma() -> void:
 		if bill.is_empty():
 			UiKit.text(self, font, "costs nothing", Vector2(x + 10.0, by + 2.0), 13, UiKit.DIM)
 			continue
-		## EACH FIGURE IN ITS OWN COLOUR, laid out by measuring what has already
-		## been drawn rather than by joining a string — a single colour for the
+		## EACH FIGURE IN ITS OWN COLOR, laid out by measuring what has already
+		## been drawn rather than by joining a string — a single color for the
 		## row would have to pick one, and the answers worth thinking about are
 		## the mixed ones.
 		var fx := x + 10.0
@@ -1213,7 +1251,7 @@ func _fixture() -> void:
 	var o: Dictionary = season.world.clubs[opp]
 	UiKit.text(self, font, UiKit.clip(String(o["name"]), 26), Vector2(44, y + 52), 22, UiKit.INK)
 	var gap := int(season.world.clubs[season.world.player_club]["power"]) - int(o["power"])
-	var word := "even" if absi(gap) <= 2 else ("favourites" if gap > 0 else "underdogs")
+	var word := "even" if absi(gap) <= 2 else ("favorites" if gap > 0 else "underdogs")
 	UiKit.text(self, font, "rating %d  ·  you are %s by %d" % [int(o["power"]), word, absi(gap)],
 		Vector2(44, y + 80), 14,
 		UiKit.DIM if absi(gap) <= 2 else (UiKit.UP if gap > 0 else UiKit.DOWN))
@@ -1274,7 +1312,7 @@ func _table() -> void:
 		var edge := Color.TRANSPARENT
 		if i < up:
 			## The top flight promotes nobody — those two places are Worlds
-			## berths, and colouring them green would promise a division above
+			## berths, and coloring them green would promise a division above
 			## the National that does not exist.
 			edge = UiKit.YOU if top_flight else UiKit.UP
 		elif down > 0 and i >= rows.size() - down:
@@ -1331,6 +1369,11 @@ func _draw_squad() -> void:
 	var cap := season.office.cap()
 	UiKit.right(self, font, "%s of %s" % [ClubOffice.money(bill), ClubOffice.money(cap)],
 		Vector2(UiKit.right_edge(), CONTENT_Y), 13, UiKit.DOWN if bill > cap else UiKit.DIM, 300)
+	## THE HEADINGS, over both columns, before any man is drawn.
+	_squad_head(24.0, CONTENT_Y + SQUAD_HEAD_Y)
+	if not season.club.reserves().is_empty():
+		_squad_head(RESERVE_X, CONTENT_Y + SQUAD_HEAD_Y)
+
 	var rows := _squad_rows()
 	var last_kind := "on the line"
 	for row in rows:
@@ -1346,7 +1389,23 @@ func _draw_squad() -> void:
 		_man_row(row["card"], y, kind, x)
 		last_kind = kind
 	if season.club.reserves().is_empty():
-		UiKit.text(self, font, "Nobody.", Vector2(RESERVE_X + 16, CONTENT_Y + 26), 15, UiKit.DIM)
+		UiKit.text(self, font, "Nobody.",
+			Vector2(RESERVE_X + 16, CONTENT_Y + SQUAD_TOP), 15, UiKit.DIM)
+
+	## AND THE KEY, for the three things a column heading cannot say.
+	##
+	## Headings name the fields; they do not explain the COLORS, and this screen
+	## colors five of them. A player who sees one man's age in red and another's
+	## in grey has been told something and has no way to find out what — which is
+	## the same complaint as the unlabelled numbers, one layer down.
+	##
+	## One line, and only the three that carry a decision. The fourth and fifth
+	## (a green kit percentage, a dimmed reserve name) mean "this is fine" and
+	## "this man is not in the eight", and a key that explains the absence of a
+	## problem is a key nobody finishes reading.
+	UiKit.text(self, font, "NOW is what he is, MAX what he could be  ·  "
+		+ "red = deal with it  ·  green = room to grow",
+		Vector2(24, _squad_key_y()), 11, UiKit.EDGE.lightened(0.25))
 
 
 ## THE COLUMN STOPS, IN ONE PLACE.
@@ -1367,7 +1426,7 @@ func _draw_squad() -> void:
 ## RE-CUT FOR THE REAL FACE, 14 Sep 2026. These stops were measured against
 ## `ThemeDB.fallback_font` and the game drew in it on sixteen screens; Buhurt
 ## Rail is 25 to 55 per cent wider at the same size, and the moment the face went
-## in `position` ran 6px into `armour` and `age` ran 7px into `wage`.
+## in `position` ran 6px into `armor` and `age` ran 7px into `wage`.
 ##
 ## `test_layout.gd` said so, by name, on the first run — which is the entire
 ## reason `squad_columns()` hands back measured rects instead of the nine magic
@@ -1407,7 +1466,7 @@ func _man_row(f: FighterCard, y: float, role: String, x: float) -> void:
 	UiKit.text(self, font, UiKit.fit(font, f.display_name, 16, COL_NAME_W),
 		Vector2(x + COL_NAME, y), 16, col)
 	## An injury is the most important thing on a team sheet, so it goes where a
-	## position would and takes the colour that means "deal with this".
+	## position would and takes the color that means "deal with this".
 	if f.injury > 0:
 		UiKit.text(self, font, "OUT %d" % f.injury, Vector2(x + COL_POS, y), 13, UiKit.DOWN)
 	else:
@@ -1456,26 +1515,115 @@ func _man_row(f: FighterCard, y: float, role: String, x: float) -> void:
 ## drawing code knows about is a column table nothing can test, so this hands
 ## back what each field will actually occupy given the widest string it can
 ## produce and the font the screen is really using.
+## EACH COLUMN NOW CARRIES ITS OWN HEADING AND ITS OWN ALIGNMENT, and that is
+## the fix for Pete's *"Player has no idea what the numbers mean of the
+## fighters."*
+##
+## Nine unlabelled fields is not a dense table, it is a cipher: a row reads
+## `#4 Calder FLANKER 92% 27 $4.1k 3y 61 68` and there is nothing anywhere on
+## the screen that says which of those two trailing numbers is what he is and
+## which is what he could be. Every one of them was explained in a comment in
+## `_man_row`, which is the one place the player cannot see.
+##
+## THE HEADING LIVES IN THE SAME TABLE AS THE STOP, so a column cannot be moved
+## without its label coming with it and a label cannot claim a field the row does
+## not draw. `test_layout.gd` already walks these rects for collisions; putting
+## the heading here means the heading is walked too.
 func squad_columns(f: Font, size_hint: int = 0) -> Array:
 	var _unused := size_hint
 	var out: Array = []
 	var w := func(s: String, px: int) -> float:
 		return f.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x
-	out.append({"name": "number", "rect": Rect2(COL_NUM, 0.0, float(w.call("#13", 13)), 18.0)})
+	## THE HEADING GETS ITS OWN MEASURED RECT, and that turned out to matter on
+	## the first screenshot: the four fields on the right hold tiny values —
+	## `$3`, `3y`, `40`, `44` — so their rects are sized to the widest value they
+	## could ever hold, which is narrower than the WORD that names them. Drawn at
+	## the data's own stops the row read `WAGEDEALNOWMAX`.
+	##
+	## So the heading has its own stop per column, its width is measured from the
+	## label at the size it is actually drawn, and `test_layout.gd` walks these
+	## for collisions exactly as it walks the data rects. **A label that does not
+	## fit where its column does is a column with no label.**
+	var hw := func(s: String) -> float:
+		return f.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0,
+			SQUAD_HEAD_PX).x
+	var lhead := func(label: String, at: float) -> Rect2:
+		return Rect2(at, 0.0, float(hw.call(label)), 14.0)
+	var rhead := func(label: String, to: float) -> Rect2:
+		var wd: float = float(hw.call(label))
+		return Rect2(to - wd, 0.0, wd, 14.0)
+
+	out.append({"name": "number", "head": "#", "align": "left",
+		"rect": Rect2(COL_NUM, 0.0, float(w.call("#13", 13)), 18.0),
+		"head_rect": lhead.call("#", COL_NUM)})
 	## The name can never exceed its budget, because `UiKit.fit` measures it.
-	out.append({"name": "name", "rect": Rect2(COL_NAME, 0.0, COL_NAME_W, 18.0)})
-	out.append({"name": "position", "rect": Rect2(COL_POS, 0.0, float(w.call("FLANKER", 13)), 18.0)})
-	out.append({"name": "armour", "rect": Rect2(COL_ARMOR, 0.0, float(w.call("100%", 13)), 18.0)})
-	out.append({"name": "age", "rect": Rect2(COL_AGE, 0.0, float(w.call("39", 13)), 18.0)})
+	out.append({"name": "name", "head": "FIGHTER", "align": "left",
+		"rect": Rect2(COL_NAME, 0.0, COL_NAME_W, 18.0),
+		"head_rect": lhead.call("FIGHTER", COL_NAME)})
+	out.append({"name": "position", "head": "ROLE", "align": "left",
+		"rect": Rect2(COL_POS, 0.0, float(w.call("FLANKER", 13)), 18.0),
+		"head_rect": lhead.call("ROLE", COL_POS)})
+	out.append({"name": "armor", "head": "KIT", "align": "left",
+		"rect": Rect2(COL_ARMOR, 0.0, float(w.call("100%", 13)), 18.0),
+		"head_rect": lhead.call("KIT", COL_ARMOR)})
+	out.append({"name": "age", "head": "AGE", "align": "left",
+		"rect": Rect2(COL_AGE, 0.0, float(w.call("39", 13)), 18.0),
+		"head_rect": lhead.call("AGE", COL_AGE)})
 	## Right-aligned: the widest string this field can produce, ending at its stop.
 	var wage: float = w.call("$99.9k", 13)
-	out.append({"name": "wage", "rect": Rect2(COL_WAGE_TO - wage, 0.0, wage, 18.0)})
-	out.append({"name": "years", "rect": Rect2(COL_YEARS, 0.0, float(w.call("OUT", 12)), 18.0)})
+	out.append({"name": "wage", "head": "PAY", "align": "right",
+		"rect": Rect2(COL_WAGE_TO - wage, 0.0, wage, 18.0),
+		"head_rect": rhead.call("PAY", COL_WAGE_TO)})
+	## `YR` AND NOT `DEAL`. Six pixels separate the wage's stop from the years'
+	## and no four-letter word survives that; the field says `3y` and `OUT`, so
+	## the two letters are the whole of the information anyway.
+	out.append({"name": "years", "head": "YR", "align": "left",
+		"rect": Rect2(COL_YEARS, 0.0, float(w.call("OUT", 12)), 18.0),
+		"head_rect": lhead.call("YR", COL_YEARS)})
 	var rating: float = w.call("99", 16)
-	out.append({"name": "rating", "rect": Rect2(COL_RATING_TO - rating, 0.0, rating, 18.0)})
+	out.append({"name": "rating", "head": "NOW", "align": "right",
+		"rect": Rect2(COL_RATING_TO - rating, 0.0, rating, 18.0),
+		"head_rect": rhead.call("NOW", COL_RATING_TO)})
 	var pot: float = w.call("99", 12)
-	out.append({"name": "ceiling", "rect": Rect2(COL_POT_TO - pot, 0.0, pot, 18.0)})
+	## MAX RIDES THE END OF THE ROW rather than the ceiling's own stop. There are
+	## eight spare pixels at 446 and this label needs six of them to clear `NOW`;
+	## the alternative was a third abbreviation nobody would read.
+	out.append({"name": "ceiling", "head": "MAX", "align": "right",
+		"rect": Rect2(COL_POT_TO - pot, 0.0, pot, 18.0),
+		"head_rect": rhead.call("MAX", SQUAD_W)})
 	return out
+
+
+## HOW BIG THE HEADING TYPE IS. Small, and smaller than anything in the row it
+## labels, because a heading that competes with its own data is a heading that
+## makes the table harder to read rather than easier.
+const SQUAD_HEAD_PX: int = 11
+
+
+## THE HEADING ROW, drawn from the column table so it cannot drift from it.
+##
+## `NOW` AND `MAX` RATHER THAN `RTG` AND `POT`. The pair is the whole reason the
+## roster screen works — neither number answers "should I keep him" on its own —
+## and two abbreviations a player has to learn do not deliver that; two words he
+## already knows do. Same reason `KIT` is not `ARM`: this game has a harness and
+## an armorer, and the word on the team sheet should be the word on the shop.
+func _squad_head(x: float, y: float) -> void:
+	var cols: Array = squad_columns(font, SQUAD_HEAD_PX)
+	for c in cols:
+		var label := String(c.get("head", ""))
+		if label == "":
+			continue
+		## DRAWN AT ITS OWN RECT'S LEFT EDGE, left-aligned, whatever the column's
+		## alignment is. The rect was already solved for — a right-aligned draw
+		## here would solve for it a second time and the two would disagree the
+		## day somebody changed the size.
+		var hr: Rect2 = c["head_rect"]
+		UiKit.text(self, font, label, Vector2(x + hr.position.x, y),
+			SQUAD_HEAD_PX, UiKit.EDGE.lightened(0.35))
+	## AND THE HAIRLINE UNDER IT, which is what turns nine words into a table
+	## header rather than a tenth row of small text.
+	draw_line(Vector2(x, y + 6.0), Vector2(x + SQUAD_W, y + 6.0),
+		UiKit.FRAME, 1.0)
 
 
 # ---------------------------------------------------------------- MARKET tab
@@ -1495,7 +1643,7 @@ const SIM_CARD := Rect2(200.0, 150.0, 560.0, 240.0)
 ## HOW THE RESERVE COLUMN IS ORDERED. See `_reserve_sorted()`.
 var reserve_sort: int = 0
 
-## WHOSE HARNESS IS SELECTED ON THE ARMOURER'S TABLE. Named for the screen it
+## WHOSE HARNESS IS SELECTED ON THE ARMORER'S TABLE. Named for the screen it
 ## belongs to rather than the tab it happens to sit on — `market_pick` was the
 ## old name and the old screen, and a variable that outlives the thing it was
 ## named after is a comment that lies.
@@ -1503,7 +1651,7 @@ var qm_pick: FighterCard = null
 
 
 # ------------------------------------------------------------ QUARTERMASTER
-## THE ARMOURER'S TABLE, and it replaces the free-agent list that used to be on
+## THE ARMORER'S TABLE, and it replaces the free-agent list that used to be on
 ## this tab.
 ##
 ## Pete, 15 Sep 2026: *"Rebuild Market, there's a tab within a tab."* He was
@@ -1558,7 +1706,7 @@ func _qm_rows() -> Array:
 	return out
 
 
-# ------------------------------------------------------------ THE ARMOURER
+# ------------------------------------------------------------ THE ARMORER
 ## AND IT REPLACES THE FREE-AGENT LIST THAT USED TO BE ON THIS TAB.
 ##
 ## Pete, 15 Sep 2026: *"Rebuild Market, there's a tab within a tab."* He was
@@ -1577,7 +1725,7 @@ func _draw_market() -> void:
 	var eight := season.club.active_eight()
 	var led := Quartermaster.ledger(eight)
 
-	UiKit.pair(self, font, "THE ARMOURER", "%d CC in hand" % o.credits,
+	UiKit.pair(self, font, "THE ARMORER", "%d CC in hand" % o.credits,
 		Vector2(24, CONTENT_Y), UiKit.right_edge(), 16, 13, UiKit.YOU, UiKit.DIM)
 
 	## THE HEADLINE IS THE MARSHALS, not the average. A club whose mean harness
@@ -1689,11 +1837,11 @@ func _market_controls() -> void:
 					if o.repair_kit(f) == "":
 						fixed += 1
 						spent += c
-				flash = ("Nothing the armourer could do this week." if fixed == 0
+				flash = ("Nothing the armorer could do this week." if fixed == 0
 					else "%d harnesses seen to, %d CC." % [fixed, spent])
 				season.sync_power()
 				Session.autosave()
-				_rebuild(), "armour"))
+				_rebuild(), "armor"))
 
 	if qm_pick != null:
 		var nm := UiKit.clip(qm_pick.display_name, 9)
@@ -1758,6 +1906,16 @@ const NAV_PAD := 26.0
 ## 42 and a 36-high button gets five rows into 210 where four took 200, which is
 ## ten pixels rather than fifty, and leaves the block below where it was.
 const NAV_ROW := 42.0
+## HOW MANY BUTTONS ARE IN THE NAV LIST, in one place, because three other things
+## measure themselves from the bottom of it: the ornament frame around it, the
+## purse ledger under it and the coaching line under that. It was five, the
+## coaching-credits button moved to the Finances page, and the frame and both
+## blocks were each carrying their own hand-written `NAV_ROW * 4.0`.
+##
+## **A number that has to agree with another number is a number that will stop
+## agreeing** — and this one had already stopped twice in an afternoon when the
+## list grew.
+const NAV_BUTTONS: int = 4
 const NAV_BTN_H := 36.0
 ## Where the counter sits: under the four nav buttons, above the action row.
 ## The shop is a modal; this is the panel it draws in.
@@ -1772,13 +1930,13 @@ func _office_controls() -> void:
 	## The staff room and the book, both of which outgrew a tab.
 	## THE THREE SCREENS THAT OUTGREW A TAB, in the right column that the captain
 	## cards used to fill. They were at y=70, 116 and 162 — straight through the
-	## HONOURS tab and then through the captain panel underneath it, which a
+	## HONORS tab and then through the captain panel underneath it, which a
 	## screenshot shows instantly and reasoning about coordinates never does.
 	ui.add_child(UiKit.button("The staff", Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 0),
 		Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Staff.tscn"), "helm"))
-	ui.add_child(UiKit.button("The book", Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 1),
+	ui.add_child(UiKit.button("Records", Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 1),
 		Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Records.tscn"), "book"))
@@ -1799,22 +1957,19 @@ func _office_controls() -> void:
 			Session.autosave()
 			UiKit.go("res://scenes/Federation.tscn"), "banner"))
 
-	## THE COUNTER GETS ITS OWN SCREEN, reached from the nav list rather than
-	## drawn into this tab.
+	## THE COUNTER MOVED TO FINANCES, and so did the arena button on the action
+	## row below. Pete, 16 Sep 2026: *"Clubhouse is too crowded."*
 	##
-	## The first build put three price buttons straight into the clubhouse, under
-	## the four nav buttons — and the screenshot showed them printing through the
-	## crest ornament and through "ON THE LIST", because that column was already
-	## full and nothing said so. That was the cheap fix; this is the right one.
+	## He is right and the count says why: this tab carried four progress bars
+	## with a price button each, five nav buttons, three action buttons, a purse
+	## ledger and a coaching warning — sixteen controls and two readouts on one
+	## screen. Both of the ones that left are about MONEY and there is now a page
+	## about money; the arena is on it with the numbers that explain it, and the
+	## counter belongs next to the balance it adds to rather than next to the
+	## buildings.
 	##
-	## Real money deserves a deliberate stop anyway. A price that shares a row
-	## with a coaching readout is a price somebody taps by accident.
-	ui.add_child(UiKit.button("Coaching credits%s" % (
-			"  ·  %d waiting" % Store.owed if Store.owed > 0 else ""),
-		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 4), Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H),
-		func():
-			shop_open = true
-			_rebuild(), "coin"))
+	## **A hub is defined by what it does not hold.** Everything still here is
+	## either a thing this club owns or a room in it.
 
 	var o := season.office
 	for i in OFFICE_ROWS.size():
@@ -1855,9 +2010,9 @@ func _office_controls() -> void:
 	## "pay four credits, feel slightly better", competing for a thumb with the
 	## chalkboard and the arena.
 	##
-	## The three that are left are all places you GO. That is a coherent row.
+	## The ones that are left are all places you GO. That is a coherent row.
 	var third := (UiKit.span() - 16.0) / 3.0
-	ui.add_child(UiKit.button("Chalkboard", Vector2(24, action_y()),
+	ui.add_child(UiKit.button("Playbook", Vector2(24, action_y()),
 		Vector2(third, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Chalkboard.tscn"), "board"))
@@ -1865,10 +2020,10 @@ func _office_controls() -> void:
 		Vector2(third, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Create.tscn"), "anvil"))
-	ui.add_child(UiKit.button("Arena", Vector2(24 + (third + 8.0) * 2.0, action_y()),
-		Vector2(third, 46), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Arena.tscn"), "gate"))
+	## AND THE ARENA IS ON THE FINANCES PAGE NOW — see the note above. Two
+	## buttons across the row rather than three, which is `third` being a
+	## deliberate width rather than a division: the row keeps its proportions and
+	## the space where the arena was is space, which is the point of the exercise.
 
 
 ## Who is available — one list, in ClubOffice, read by both screens that sell
@@ -1887,7 +2042,7 @@ func _offer(slot: int) -> Dictionary:
 ##
 ## `Store` decides whether there is a counter at all; this only draws it. On
 ## desktop and on any build without the billing plugin the packs are not drawn
-## and the reason is, because **a shop that shows a button it cannot honour is a
+## and the reason is, because **a shop that shows a button it cannot honor is a
 ## shop that takes a tap and does nothing.**
 func _shop_controls() -> void:
 	var y := SHOP_CARD.position.y + SHOP_CARD.size.y - 62.0
@@ -1906,7 +2061,7 @@ func _shop_controls() -> void:
 						flash = UiKit.said(err)
 					else:
 						## The grant is the store's callback, not this tap — a
-						## shop that credits on the REQUEST credits a cancelled
+						## shop that credits on the REQUEST credits a canceled
 						## purchase. What lands now is whatever is already owed.
 						var got := Store.claim(season.office)
 						flash = ("%d credits." % got) if got > 0 \
@@ -1960,7 +2115,8 @@ func _draw_office() -> void:
 	## the player comes back to, the trophy cabinet, the bracket and the title —
 	## four places, out of sixteen. Everywhere would be wallpaper.
 	UiKit.ornament(self, UiKit.ORN_CREST,
-		Rect2(NAV_X, CONTENT_Y, NAV_W, 28 + NAV_ROW * 4.0 + NAV_BTN_H + 2.0), UiKit.FRAME, 24.0)
+		Rect2(NAV_X, CONTENT_Y, NAV_W, 28 + NAV_ROW * float(NAV_BUTTONS - 1)
+			+ NAV_BTN_H + 2.0), UiKit.FRAME, 24.0)
 
 	## NO HINT BAR, AND THAT IS SETTLED. `UiKit.hints()` was deleted on
 	## 15 Sep 2026 — see the note where it used to live in `ui.gd`. It had never
@@ -2066,52 +2222,34 @@ func _draw_office() -> void:
 	## BELOW THE CREST, not through it. The ornament's bottom bracket reaches
 	## `CONTENT_Y + 242` and this label sat at 250 — eight pixels of clearance
 	## for a 24-pixel corner piece, so the bracket printed through "ON".
-	## MEASURED OFF THE NAV LIST rather than written down, so a sixth button
-	## moves this with it instead of printing through it.
-	## TWELVE, NOT TWENTY-SIX. `CONTENT_Y` is 132, so the nav list ends at 364 and
-	## the action row starts at 476 — a hundred and twelve pixels for two blocks
-	## that want a hundred and six. Twenty-six of gap put the second one through
-	## the Chalkboard button; the gap was sized when there was one block under the
-	## nav and nothing had re-measured it since the purse ledger arrived.
-	var y := CONTENT_Y + 28.0 + NAV_ROW * 4.0 + NAV_BTN_H + 12.0
-	## ---------------------------------------------------- WHAT CAME IN
-	## Pete, item 25: *"No income weekly ever."* A club walked from its first
-	## event earns 8 -> 92 CC across three seasons, so the money is there — and
-	## none of it was ever SHOWN. It arrived as +1 and +2 against a purse in the
-	## header that simply read a different number than it had a moment ago.
+	## MEASURED OFF THE NAV LIST rather than written down, so a fifth button moves
+	## this with it instead of printing through it.
 	##
-	## **A club that cannot see itself earning is a club that is not earning, as
-	## far as the player is concerned.** Four lines, newest first, under the
-	## nav — the cheapest possible answer and the only one that is not a balance
-	## change somebody has to live with.
-	var purse := season.office.purse_lines()
-	UiKit.text(self, font, "WHAT CAME IN", Vector2(NAV_X, y), 13, UiKit.DIM)
-	if purse.is_empty():
-		UiKit.text(self, font, "Nothing yet. The gate pays after your first event.",
-			Vector2(NAV_X, y + 20), 13, UiKit.EDGE)
-	else:
-		## THREE LINES, AND THE BLOCK BELOW IS WHY.
-		##
-		## There are 106 pixels between the foot of the nav list and the action
-		## row for this block AND "ON THE LIST". Four lines at 17 needed 86 of
-		## them and pushed the coverage warning through the Chalkboard button —
-		## the second time this column has overflowed in one afternoon, which is
-		## the column telling me it is full rather than me mis-adding.
-		##
-		## Three is also enough: a player wants what just happened, not a
-		## statement. `Your career` is where a history belongs.
-		var py := y + 18.0
-		for i in mini(QM_PURSE_LINES, purse.size()):
-			var row: Dictionary = purse[i]
-			## The newest line is lit and the ones behind it are quiet — but
-			## quiet, not invisible. EDGE on the amounts made them unreadable at
-			## a glance, which defeats the point of showing them at all.
-			UiKit.pair(self, font, String(row["what"]), "+%d CC" % int(row["cc"]),
-				Vector2(NAV_X, py), UiKit.right_edge(), 13, 13,
-				UiKit.DIM if i > 0 else UiKit.INK,
-				UiKit.DIM if i > 0 else UiKit.UP)
-			py += 16.0
-	y += 18.0 + 16.0 * float(maxi(1, mini(QM_PURSE_LINES, purse.size()))) + 8.0
+	## The gap is back to 26 now that the purse ledger has gone to FINANCES: it
+	## was cut to 12 because two blocks were fighting for 112 pixels, and with one
+	## block left there is room to breathe — which is the whole of Pete's
+	## *"Clubhouse is too crowded"* in one number.
+	var y := CONTENT_Y + 28.0 + NAV_ROW * float(NAV_BUTTONS - 1) + NAV_BTN_H + 26.0
+	## THE PURSE LEDGER WENT TO THE FINANCES PAGE, and it was already broken here.
+	##
+	## It was three lines of "what came in" under the nav list — Pete's item 25 of
+	## the 15 Sep playtest, *"No income weekly ever"* — and it was, in its own
+	## comment, *"the cheapest possible answer"*. Two things have changed since.
+	##
+	## First, there is a real one now. FINANCES shows every heading of income and
+	## every heading of spending, this year against last, which is what item 25
+	## actually wanted; and **a summary that repeats the screen it points at is two
+	## screens disagreeing about which is the authority.**
+	##
+	## Second, and worse: the screenshot from 16 Sep shows "WHAT CAME IN / Nothing
+	## yet. The gate pays after your first event." drawn UNDERNEATH the five nav
+	## buttons, in grey, invisible. The nav list is Controls on the UI layer and
+	## this block is `_draw()`; the layer always wins. **A scrim cannot cover a
+	## Button — and it goes the other way too, and the other way is worse**,
+	## because nothing errors and nobody can see what is missing.
+	##
+	## So the block is gone rather than moved down, and the space it used to take
+	## is the answer to *"Clubhouse is too crowded."*
 
 	## ---------------------------------------------------- ON THE LIST
 	## ONE LINE, NOT A TABLE OF THREE.
@@ -2157,46 +2295,213 @@ func _role_col_w() -> float:
 	return w
 
 
-# --------------------------------------------------------------- HONOURS tab
-func _draw_honours() -> void:
-	var h := season.honours()
-	var y := CONTENT_Y
-	UiKit.text(self, font, "TROPHIES", Vector2(24, y), 13, UiKit.DIM)
-	y += 30.0
-	var any := false
-	for i in range(h.size() - 1, maxi(-1, h.size() - 9), -1):
-		var e: Dictionary = h[i]
-		var won: bool = int(e["champion"]) == season.world.player_club
-		var mine := String(e["player"]) != ""
-		if not mine and not won:
-			continue
-		any = true
-		UiKit.text(self, font, "S%d  %s" % [int(e["season"]), UiKit.clip(String(e["name"]), 22)],
-			Vector2(40, y), 15, UiKit.INK)
-		UiKit.right(self, font, "Champions" if won else String(e["player"]),
-			Vector2(440, y), 15, UiKit.YOU if won else UiKit.DIM, 200)
-		y += 26.0
-	if not any:
-		UiKit.text(self, font, "Nothing yet.", Vector2(40, y), 15, UiKit.DIM)
+# ------------------------------------------------------------- FINANCES tab
+## WHERE THE MONEY CAME FROM AND WHERE IT WENT.
+##
+## Pete, 16 Sep 2026: *"Make Honors a finances page to show balance breakdowns
+## and you can use that to advertise/buy CC. Might be a place to put the arena."*
+##
+## ---------------------------------------------------------------------------
+## THIS TAB REPLACED THE TROPHY CABINET AND THAT IS THE RIGHT TRADE.
+##
+## What HONORS drew was two lists — the cups the club has won and the seasons it
+## has had — and neither of them is a decision. A player looks at a trophy
+## cabinet once a career; he looks at the books every time he is deciding whether
+## he can afford something, which on this screen is most weeks. A tab is the most
+## expensive piece of real estate the game has and it was spent on a scrapbook.
+##
+## The cabinet is not gone: both lists moved to a HISTORY page on the Records
+## screen, which is where the club's other records already live and which is
+## reached from the Squad tab. See `records_scene.gd`.
+##
+## ---------------------------------------------------------------------------
+## AND IT IS HERE BECAUSE OF WHAT `tools/probe_afford.gd` FOUND.
+##
+## Pete: *"The income is either too low or costs are too high. 84 in one year
+## will not maintain enough, you'll decline."* The probes say something more
+## specific and much more interesting than "income is low", and a player can only
+## act on the specific version:
+##
+##   A Backyard club's first five seasons take 17.8, 23.4, 23.8, 26.2 and 25.2
+##   credits. **Of that, the gate is 1.4 a season and the membership subs are
+##   8 to 19.** The money does not come from fighting; it comes from people
+##   paying to belong to the club. The whole crowd-and-notoriety apparatus —
+##   five screens' worth of bands, meters and turnout percentages — is worth
+##   under two credits a year in the division a new player spends his first
+##   hours in.
+##
+## No screen in the game said so, because money left the club in twenty-three
+## separate places and nothing added it up. Now it does, and this draws it.
+## Whether the shape is RIGHT is Pete's call and a separate commit; this is the
+## instrument that makes the call possible.
 
-	y = CONTENT_Y
-	UiKit.text(self, font, "SEASONS", Vector2(480, y), 13, UiKit.DIM)
+const FIN_LEFT := 24.0
+const FIN_RIGHT := 500.0
+const FIN_ROW := 22.0
+## The two figure columns, as right edges. This year and last, side by side,
+## because a breakdown with nothing to compare it to is a list of numbers.
+const FIN_NOW := 372.0
+const FIN_WAS := 452.0
+## WHERE THE TWO BUTTONS SIT, AND IT IS BELOW THE CROWD BLOCK RATHER THAN IN THE
+## MIDDLE OF IT. They were at 300, which is eleven pixels above "A home fight
+## pays" — and a Control is a child of the UI layer, so the button drew OVER the
+## line and the figure simply was not there. **A scrim cannot cover a Button —
+## and it goes the other way too, and the other way is worse**, because a
+## missing number looks like a number the game does not have.
+const FIN_BUTTONS_Y := 372.0
+
+
+func _finances_controls() -> void:
+	## THE GROUND, from the page that talks about what it earns. Pete asked for
+	## the arena to live here and it half does: the numbers are on this screen and
+	## the building is one tap away, which is better than a sixth copy of the
+	## build button.
+	ui.add_child(UiKit.button("The ground", Vector2(FIN_RIGHT, FIN_BUTTONS_Y),
+		Vector2(200, 44), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Arena.tscn"), "gate"))
+	## AND THE COUNTER. It was on the Clubhouse, which is Pete's *"Clubhouse is
+	## too crowded"* — and it belongs on the page about money rather than the page
+	## about buildings.
+	ui.add_child(UiKit.button("Buy credits", Vector2(FIN_RIGHT + 216.0, FIN_BUTTONS_Y),
+		Vector2(200, 44), func():
+			shop_open = true
+			_rebuild(), "coin"))
+
+
+## THE YEAR IN HAND AND THE YEAR BEFORE IT, in two columns.
+func _draw_finances() -> void:
+	var o := season.office
+	var last: Dictionary = o.books_last
+	var was_in: Dictionary = last.get("in", {})
+	var was_out: Dictionary = last.get("out", {})
+
+	UiKit.text(self, font, "COMING IN", Vector2(FIN_LEFT, CONTENT_Y), 13, UiKit.DIM)
+	UiKit.right(self, font, "this year", Vector2(FIN_NOW, CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
+	UiKit.right(self, font, "last", Vector2(FIN_WAS, CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
+	var y := CONTENT_Y + 26.0
+	y = _fin_block(o.books_in, was_in, ClubOffice.IN_ORDER, y, UiKit.UP)
+	var in_now := ClubOffice.book_total(o.books_in)
+	var in_was := ClubOffice.book_total(was_in)
+	y = _fin_rule(y)
+	_fin_row("Everything in", in_now, in_was, y, UiKit.INK, 15)
+
+	y += 38.0
+	UiKit.text(self, font, "GOING OUT", Vector2(FIN_LEFT, y), 13, UiKit.DIM)
+	y += 26.0
+	y = _fin_block(o.books_out, was_out, ClubOffice.OUT_ORDER, y, UiKit.DOWN)
+	var out_now := ClubOffice.book_total(o.books_out)
+	var out_was := ClubOffice.book_total(was_out)
+	y = _fin_rule(y)
+	_fin_row("Everything out", out_now, out_was, y, UiKit.INK, 15)
+
+	## AND THE ONE LINE THE WHOLE PAGE IS FOR. Green or red, at the foot, because
+	## "am I making money" is the question and everything above it is the working.
 	y += 30.0
-	if season.world.history.is_empty():
-		UiKit.text(self, font, "This is your first.", Vector2(496, y), 15, UiKit.DIM)
-		return
-	for i in range(season.world.history.size() - 1, maxi(-1, season.world.history.size() - 12), -1):
-		var e: Dictionary = season.world.history[i]
-		var tag := ""
-		var col := UiKit.INK
-		if bool(e.get("promoted", false)):
-			tag = "  promoted"
-			col = UiKit.UP
-		elif bool(e.get("relegated", false)):
-			tag = "  relegated"
-			col = UiKit.DOWN
-		UiKit.text(self, font, "S%d  %s" % [int(e["season"]),
-			League.tier_name(int(e["tier"]))], Vector2(496, y), 15, UiKit.DIM)
-		UiKit.right(self, font, "%s%s" % [UiKit.ordinal(int(e["position"])), tag],
-			Vector2(UiKit.right_edge(), y), 15, col, 220)
-		y += 26.0
+	var net := in_now - out_now
+	_fin_row("LEFT OVER" if net >= 0 else "SHORT", net, in_was - out_was, y,
+		UiKit.UP if net >= 0 else UiKit.DOWN, 17)
+
+	_fin_ground()
+
+
+## One heading and its figure in both columns.
+func _fin_row(label: String, now: int, was: int, y: float, col: Color,
+		px: int = 13) -> void:
+	UiKit.text(self, font, label, Vector2(FIN_LEFT + 14.0, y), px, col)
+	UiKit.right(self, font, "%d" % now, Vector2(FIN_NOW, y), px, col, 90)
+	## LAST YEAR IS DIMMED, ALWAYS, whatever this year's line is doing. It is
+	## context, not news — coloring it would put two equally loud numbers on one
+	## row and the eye would have to work out which one is the present.
+	UiKit.right(self, font, "—" if was == 0 else "%d" % was,
+		Vector2(FIN_WAS, y), maxi(11, px - 2), UiKit.EDGE.lightened(0.4), 90)
+
+
+func _fin_rule(y: float) -> float:
+	draw_line(Vector2(FIN_LEFT + 14.0, y + 6.0), Vector2(FIN_WAS, y + 6.0),
+		UiKit.FRAME, 1.0)
+	return y + 24.0
+
+
+## Every heading with anything on it, in the order the office keeps them.
+func _fin_block(now: Dictionary, was: Dictionary, order: Array[String],
+		y: float, col: Color) -> float:
+	var rows: Array = ClubOffice.book_rows(now, order)
+	## A HEADING THAT WAS BUSY LAST YEAR AND IS EMPTY THIS YEAR STILL SHOWS, at
+	## nothing, because its absence is the information: a club that spent forty
+	## credits on kit last year and nothing this year has either finished the job
+	## or stopped doing it, and a row that quietly vanishes says neither.
+	var seen := {}
+	for r in rows:
+		seen[String(r["line"])] = true
+	for r in ClubOffice.book_rows(was, order):
+		if not seen.has(String(r["line"])):
+			rows.append({"line": String(r["line"]), "cc": 0})
+	if rows.is_empty():
+		UiKit.text(self, font, "Nothing yet.", Vector2(FIN_LEFT + 14.0, y), 13,
+			UiKit.EDGE.lightened(0.3))
+		return y + FIN_ROW
+	for r in rows:
+		var line := String(r["line"])
+		_fin_row(line, int(r["cc"]), int(was.get(line, 0)), y,
+			col if int(r["cc"]) > 0 else UiKit.DIM)
+		y += FIN_ROW
+	return y
+
+
+## THE GROUND, ON THE PAGE ABOUT WHAT IT COSTS.
+##
+## Four lines and no more. The Arena screen is where a ground is looked at; this
+## is where it is ACCOUNTED FOR, and the difference is that this side only cares
+## about the two numbers that move money — what it pays and what it is costing
+## you to let it go. **A summary that repeats the screen it points at is two
+## screens disagreeing about which is the authority.**
+func _fin_ground() -> void:
+	var o := season.office
+	var a := o.arena
+	UiKit.text(self, font, "THE GROUND", Vector2(FIN_RIGHT, CONTENT_Y), 13, UiKit.DIM)
+	var y := CONTENT_Y + 28.0
+	UiKit.pair(self, font, a.arena_name(), a.condition_word(),
+		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 16, 13, UiKit.INK,
+		UiKit.DOWN if a.shabby() else UiKit.DIM)
+	y += 26.0
+
+	## WHAT IT PAYS, and what it would pay kept. One line when the ground is
+	## spotless, because "11 of 11" is a sum nobody needs to read.
+	var pays := a.retainer()
+	var full := a.retainer_full()
+	if pays >= full:
+		UiKit.pair(self, font, "Pays a year", "%d CC" % full,
+			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+	else:
+		## SHORTER THAN IT WAS. "%d CC — %d lost to the state of it" finished at
+		## 958 of a 960 canvas and `UiKit.pair` right-aligns, so on any narrower
+		## shape the sentence walked back over its own label.
+		UiKit.pair(self, font, "Pays a year",
+			"%d CC  ·  %d lost to neglect" % [pays, full - pays],
+			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DOWN)
+	y += 22.0
+
+	UiKit.pair(self, font, "Upkeep each summer", "%d CC" % o.arena_upkeep(),
+		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+	y += 22.0
+	if a.condition < 0.999 and a.level >= Arena.WEARS_FROM_LEVEL:
+		UiKit.pair(self, font, "Putting it right", "%d CC" % a.upkeep_cost(),
+			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.YOU)
+	else:
+		UiKit.pair(self, font, "Putting it right", "nothing to do",
+			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM,
+			UiKit.EDGE.lightened(0.35))
+
+	## AND THE CROWD, because it is the other half of what a ground earns and it
+	## is the half the probes found nobody was being told about: at the bottom of
+	## the pyramid the gate is worth about a credit and a half a SEASON.
+	y += 34.0
+	UiKit.text(self, font, "THE CROWD", Vector2(FIN_RIGHT, y), 13, UiKit.DIM)
+	y += 26.0
+	UiKit.pair(self, font, "Known by", "%d of %d" % [
+		int(round(o.notoriety)), int(ClubOffice.NOTORIETY_MAX)],
+		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+	y += 22.0
+	UiKit.pair(self, font, "A home fight pays", "%d CC" % o.crowd_pay(),
+		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)

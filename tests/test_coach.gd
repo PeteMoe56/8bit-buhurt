@@ -67,7 +67,7 @@ func _test_reputation_climbs_and_halves() -> void:
 	if c.reputation > int(round(float(before) * 0.6)):
 		bad.append("finishing ninth cost less than a halving")
 
-	## Every place on the ladder has to differ from its neighbours, or the table
+	## Every place on the ladder has to differ from its neighbors, or the table
 	## is decoration.
 	var by_place: Array[int] = []
 	for place in range(1, 6):
@@ -191,28 +191,28 @@ func _test_the_dream_job_is_held_back() -> void:
 	var c := Coach.new()
 	c.reputation = Coach.REP_MAX
 	c.club_id = s.world.player_club
-	c.favourite_club_id = s.coach.favourite_club_id
-	if c.favourite_club_id < 0:
+	c.favorite_club_id = s.coach.favorite_club_id
+	if c.favorite_club_id < 0:
 		bad.append("no boyhood club was drawn")
 	else:
 		s.world.season = 1
-		var early: bool = Jobs.interested(c, s.world, c.favourite_club_id)
+		var early: bool = Jobs.interested(c, s.world, c.favorite_club_id)
 		s.world.season = Jobs.DREAM_HELD_UNTIL_SEASON
 		## The 1-in-4 also applies to the dream, so "not barred" is the question
 		## rather than "offered" — and it must be answerable, which it is because
 		## the seed depends on the season and this is a different season.
 		s.world.season = 99
-		var late_barred: bool = c.favourite_club_id == c.club_id
+		var late_barred: bool = c.favorite_club_id == c.club_id
 		if early:
 			bad.append("the boyhood club came for you in season 1")
 		if late_barred:
 			bad.append("the boyhood club is the club you already have")
 		## And it must be a club at the top of the pyramid, not one down the road.
-		var tier := int(s.world.clubs[c.favourite_club_id]["tier"])
+		var tier := int(s.world.clubs[c.favorite_club_id]["tier"])
 		if tier != League.TIERS.size() - 1:
 			bad.append("the boyhood club is in tier %d, not the top one" % tier)
 		notes.append("the boyhood club is %s (%s), barred until season %d"
-			% [String(s.world.clubs[c.favourite_club_id]["name"]),
+			% [String(s.world.clubs[c.favorite_club_id]["name"]),
 				League.tier_name(tier), Jobs.DREAM_HELD_UNTIL_SEASON])
 
 	if not bad.is_empty():
@@ -374,7 +374,7 @@ func _test_the_book_outlives_the_club() -> void:
 			bad.append("the reputation did not survive a save")
 		if back.coach.posts.size() != s.coach.posts.size():
 			bad.append("the posts did not survive a save")
-		if back.coach.favourite_club_id != s.coach.favourite_club_id:
+		if back.coach.favorite_club_id != s.coach.favorite_club_id:
 			bad.append("the boyhood club did not survive a save")
 
 	if not bad.is_empty():

@@ -1,5 +1,10 @@
+class_name Records
 extends Node2D
 ## THE BOOK — the club's records, and the manager's own record.
+##
+## NAMED, so another screen can ask for one of its pages by name. The Squad tab
+## opens this on HISTORY, and `Session.records_page = 2` would have been a magic
+## number that survives exactly until somebody inserts a page before it.
 ##
 ## Two things Retro Bowl keeps on one screen behind a tab row, and they belong
 ## together: one is what your fighters have done and the other is what you have.
@@ -7,7 +12,16 @@ extends Node2D
 ## The club's records outlive the men who set them, which is why they are stored
 ## on the world rather than scanned off the roster — see `LeagueWorld.records`.
 
-enum Page { YEAR, CLUB, HALL, MINE }
+## FIVE PAGES NOW. HISTORY is the trophy cabinet and the season-by-season, which
+## used to be the HONORS tab on the season screen — Pete, 16 Sep 2026: *"Throw
+## Honors into Squad and a team history page."*
+##
+## This is where it belongs and not because the tab was wanted for something
+## else. The club's records already live on this screen and the club's honors ARE
+## records; what they are not is a DECISION, and a tab on the season screen is
+## the most expensive place in the game to keep something a player reads once a
+## career. The Squad tab has the button that opens it.
+enum Page { YEAR, CLUB, HISTORY, HALL, MINE }
 
 const ROWS := [
 	{"key": "downs_event", "label": "Most downs in one event"},
@@ -24,8 +38,12 @@ const ROWS := [
 ## a fourth tab would have walked straight past — which is precisely what the
 ## two hand-written x values did when the third arrived. A row that is told how
 ## many tabs there are cannot be told wrong.
-const TAB_W := 172.0
-const TAB_GAP := 10.0
+## 140 AND NOT 172. Five tabs at the old width is 5x172 + 4x10 = 900 pixels,
+## which leaves 36 of margin on a 960 canvas and puts the first tab under the
+## Back button. The row is sized from the count, so this is the one number that
+## had to move.
+const TAB_W := 140.0
+const TAB_GAP := 8.0
 
 
 static func _tab_x(i: int) -> float:
@@ -45,6 +63,12 @@ func _ready() -> void:
 	font = UiKit.body()
 	Settings.load_once()
 	season = Session.season
+	## OPENED ON A PARTICULAR PAGE, when somebody asked for one. The Squad tab's
+	## "Club record" button wants HISTORY and every other road wants whatever the
+	## player was last looking at.
+	if Session.records_page >= 0:
+		page = clampi(Session.records_page, 0, Page.size() - 1)
+		Session.records_page = -1
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_build()
@@ -59,7 +83,7 @@ func _build() -> void:
 	## THREE TABS NOW, and they have to fit the row rather than the row being
 	## assumed to fit them. The two were placed at a hand-written x of 400 and 610
 	## with a width of 200; a third at 820 would have run 84px off a 960 screen.
-	var labels := ["This year", "The club", "The Hall", "Your record"]
+	var labels := ["This year", "The club", "History", "The Hall", "Your record"]
 	for i in labels.size():
 		ui.add_child(UiKit.button(labels[i], Vector2(_tab_x(i), UiKit.screen().y - 56),
 			Vector2(TAB_W, 44), func(p = i): page = p; _build()))
@@ -71,7 +95,7 @@ func _draw() -> void:
 		return
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
-	UiKit.text(self, font, "THE BOOK", Vector2(24, 46), 26, UiKit.INK)
+	UiKit.text(self, font, "RECORDS", Vector2(24, 46), 26, UiKit.INK)
 	UiKit.right(self, font, "Season %d" % season.world.season,
 		Vector2(UiKit.screen().x - 24, 46), 14, UiKit.DIM, 220)
 	## The selected tab, marked where the button is — a Button cannot carry it
@@ -80,6 +104,7 @@ func _draw() -> void:
 	match page:
 		Page.YEAR: _year()
 		Page.CLUB: _club()
+		Page.HISTORY: _history()
 		Page.HALL: _hall()
 		_: _mine()
 
@@ -259,7 +284,7 @@ func _club() -> void:
 				Vector2(UiKit.right_edge(48.0), y), 13, UiKit.DIM, 120)
 		y += 40.0
 	if not any:
-		UiKit.text(self, font, "Nothing yet. The book starts at your first event.",
+		UiKit.text(self, font, "Nothing yet. The record starts at your first event.",
 			Vector2(40, y + 14), 13, UiKit.DIM)
 	else:
 		UiKit.text(self, font, "A record keeps the man's name even after he has gone home.",
@@ -267,7 +292,7 @@ func _club() -> void:
 
 
 ## THE MANAGER'S OWN RECORD, which is the one number a career-long save is for
-## and the game has never shown. Derived from `world.history` and `honours` —
+## and the game has never shown. Derived from `world.history` and `honors` —
 ## both already kept, neither ever added up.
 func _mine() -> void:
 	var h := season.world.history
@@ -287,7 +312,7 @@ func _mine() -> void:
 			best_at = int(e.get("season", 0))
 	var cups := 0
 	var finals := 0
-	for e in season.world.honours:
+	for e in season.world.honors:
 		if int(e.get("champion", -1)) == season.world.player_club:
 			cups += 1
 		elif String(e.get("player", "")) != "":
@@ -337,3 +362,58 @@ func _mine() -> void:
 func _stat(label: String, value: String, y: float) -> void:
 	UiKit.text(self, font, label, Vector2(40, y), 14, UiKit.DIM)
 	UiKit.right(self, font, value, Vector2(24.0 + (UiKit.span() - 16.0) * 0.5 - 16.0, y), 15, UiKit.INK, 300)
+
+
+## ----------------------------------------------------------------- HISTORY
+## WHAT THE CLUB HAS WON, AND EVERY SEASON IT HAS HAD.
+##
+## Lifted whole from `season_scene._draw_honors()`, which was a whole tab of the
+## season screen. Nothing about the two lists changed; what changed is that they
+## are no longer occupying a slot next to the fixture list and the team sheet.
+##
+## THE TROPHIES ARE FILTERED AND THE SEASONS ARE NOT, and that asymmetry is
+## deliberate. A cup the club did not enter and did not win is not this club's
+## history; a season it played and came eleventh in is.
+func _history() -> void:
+	var h: Array = season.honors()
+	var y := 100.0
+	UiKit.text(self, font, "TROPHIES", Vector2(24, y), 13, UiKit.DIM)
+	y += 30.0
+	var any := false
+	for i in range(h.size() - 1, maxi(-1, h.size() - 11), -1):
+		var e: Dictionary = h[i]
+		var won: bool = int(e["champion"]) == season.world.player_club
+		var mine := String(e["player"]) != ""
+		if not mine and not won:
+			continue
+		any = true
+		UiKit.text(self, font, "S%d  %s" % [int(e["season"]),
+			UiKit.clip(String(e["name"]), 22)], Vector2(40, y), 15, UiKit.INK)
+		UiKit.right(self, font, "Champions" if won else String(e["player"]),
+			Vector2(440, y), 15, UiKit.YOU if won else UiKit.DIM, 200)
+		y += 26.0
+	if not any:
+		UiKit.text(self, font, "Nothing yet.", Vector2(40, y), 15, UiKit.DIM)
+
+	y = 100.0
+	UiKit.text(self, font, "SEASONS", Vector2(500, y), 13, UiKit.DIM)
+	y += 30.0
+	if season.world.history.is_empty():
+		UiKit.text(self, font, "This is your first.", Vector2(516, y), 15, UiKit.DIM)
+		return
+	for i in range(season.world.history.size() - 1,
+			maxi(-1, season.world.history.size() - 13), -1):
+		var e: Dictionary = season.world.history[i]
+		var tag := ""
+		var col := UiKit.INK
+		if bool(e.get("promoted", false)):
+			tag = "  promoted"
+			col = UiKit.UP
+		elif bool(e.get("relegated", false)):
+			tag = "  relegated"
+			col = UiKit.DOWN
+		UiKit.text(self, font, "S%d  %s" % [int(e["season"]),
+			League.tier_name(int(e["tier"]))], Vector2(516, y), 15, UiKit.DIM)
+		UiKit.right(self, font, "%s%s" % [UiKit.ordinal(int(e["position"])), tag],
+			Vector2(UiKit.right_edge(), y), 15, col, 220)
+		y += 26.0

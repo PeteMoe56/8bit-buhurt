@@ -253,7 +253,7 @@ var skills := [Tuning.AiSkill.HARDENED, Tuning.AiSkill.HARDENED]
 ## whole reason hiring a captain changes anything on the list.
 ##
 ## Empty means "use `skills` for everybody", which is what every existing test
-## and the exhibition fixtures do, so the default behaviour is untouched.
+## and the exhibition fixtures do, so the default behavior is untouched.
 var role_skills: Array = [[], []]
 
 ## Dev hook for tools/probe_flags.gd: overrides team 1's skill table wholesale so
@@ -586,7 +586,7 @@ func answer_prompt(idx: int, act: int) -> bool:
 ## man with a broken arm was on that list too.
 ##
 ## Both were invisible because the corner screen only ever showed three names and
-## three was usually right. The travelling party is the eight (or fewer — see
+## three was usually right. The traveling party is the eight (or fewer — see
 ## `MeleeClub.travel_cap`), and a man on it has to be fit to step on.
 func bench(team: int) -> Array:
 	var out: Array = []
@@ -875,7 +875,7 @@ func _refresh_anchors() -> void:
 			var lane_x: float = Tuning.LIST_W * float(Tuning.POS_X[m.slot])
 			if m.team == 1:
 				lane_x = Tuning.LIST_W - lane_x
-			## A fixed setback from the centre line — see Tuning.REFORM_SETBACK.
+			## A fixed setback from the center line — see Tuning.REFORM_SETBACK.
 			m.anchor = Vector2(lane_x, Tuning.LIST_H * 0.5
 				+ (-Tuning.REFORM_SETBACK if t == 0 else Tuning.REFORM_SETBACK))
 

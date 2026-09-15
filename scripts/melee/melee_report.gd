@@ -60,7 +60,7 @@ const CHANGE_HEAD := {
 ## smallest case.
 const MAX_QUIPS: int = 6
 
-## `tone`: 1 pleased, 0 flat, -1 unhappy. The screen colours the stripe from it.
+## `tone`: 1 pleased, 0 flat, -1 unhappy. The screen colors the stripe from it.
 class Quip extends RefCounted:
 	var who: String
 	var text: String

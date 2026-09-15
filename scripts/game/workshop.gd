@@ -38,7 +38,7 @@ const STAT_HEADROOM: int = 22
 var made: int = 0
 
 ## THE ICON BANK'S LEDGER, and it is per SAVE FILE — Pete, 10 Sep 2026: *"Yes, 1
-## Create-A-Team for each save file."* One club, one set of colours, one growing
+## Create-A-Team for each save file."* One club, one set of colors, one growing
 ## collection of marks, and a new save starts the collection again. Stored as ids
 ## rather than as indices into the bank, so an asset pack inserted anywhere does
 ## not repaint every club that ever bought a mark.
@@ -64,7 +64,7 @@ func buy_icon(office: ClubOffice, id: int) -> String:
 	if office.credits < price:
 		return "The %s costs %d CC and you have %d." % [
 			IconBank.icon_name(id), price, office.credits]
-	office.credits -= price
+	office.spend(price, ClubOffice.LINE_CLUB)
 	owned.append(id)
 	return ""
 
@@ -199,7 +199,7 @@ func create(office: ClubOffice, club: MeleeClub, card: FighterCard,
 	card.injury = 0
 	card.number = _free_number(club)
 	club.roster.append(card)
-	office.credits -= price
+	office.spend(price, ClubOffice.LINE_SQUAD)
 	made += 1
 	return ""
 
@@ -217,13 +217,13 @@ static func _free_number(club: MeleeClub) -> int:
 # ------------------------------------------------------------- create-a-team
 ## YOUR CLUB'S IDENTITY, and it is free and always editable, because it is your
 ## club. The credits govern how many FIGHTERS you may write, not what your own
-## colours are.
+## colors are.
 ##
 ## The contrast rule is the only thing standing between the player and a black
 ## mark on a black kit. It already exists — IconBank measures it and MeleeClub
 ## enforces it on every club in the world — so it is asked, not reimplemented,
 ## and it is a measurement rather than a taxonomy so it stays right when a pack
-## adds a colour.
+## adds a color.
 static func identity_legal(nm: String, short: String, kit: Color, icon_col: Color) -> String:
 	if nm.strip_edges().length() < 3:
 		return "A club needs a name."
@@ -248,7 +248,7 @@ func rename(club: MeleeClub, nm: String, short: String,
 	club.display_name = nm.strip_edges()
 	club.short_name = short.strip_edges().to_upper()
 	club.kit = kit
-	club.icon_colour = icon_col
+	club.icon_color = icon_col
 	club.icon = mark
 	return ""
 

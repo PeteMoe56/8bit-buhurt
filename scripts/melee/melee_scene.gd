@@ -5,7 +5,7 @@ extends Node2D
 ## over-the-shoulder — you are directing a line, so the constraint and the
 ## camera finally agree instead of pulling against each other.
 ##
-## Drawn with primitives on purpose. A fighter is a silhouette, a two-colour
+## Drawn with primitives on purpose. A fighter is a silhouette, a two-color
 ## surcoat and a mark, because that is what a club badge is engineered to be.
 ## Sprites drop in later without touching layout, contrast or reading distance.
 
@@ -21,7 +21,7 @@ const SCREEN := Vector2(960.0, 540.0)
 ## Drawn rotated (see _to_screen), so the list is LIST_H wide and LIST_W tall on
 ## screen. The fighter cards sit in a row along the bottom, which is where the
 ## width is and where a thumb already is.
-## Scaled to the height between the HUD and the card row, and centred. At 570
+## Scaled to the height between the HUD and the card row, and centerd. At 570
 ## along the charge the list is 701 wide, which leaves about 130 either side —
 ## and that is deliberate rather than left over. Pete, 10 Sep 2026: *"On the
 ## sides we can have either team banners or something."* The two clubs stand
@@ -412,7 +412,7 @@ func _on_downed(idx: int, _by: int) -> void:
 	var team: int = sim.men[idx].team
 	var left := sim.standing_count(team)
 	Juice.down(left <= 1, left <= 0)
-	## The number that lands. Over the fallen man, in his side's colour, so the
+	## The number that lands. Over the fallen man, in his side's color, so the
 	## player reads WHO as well as WHAT without looking at the HUD.
 	var col: Color = UiKit.DOWN if team == 0 else UiKit.UP
 	## Popped in SCREEN space, not sim space. The popup layer lives above the
@@ -819,9 +819,9 @@ func _draw_quips() -> void:
 			var box := Rect2(REP_RX, y, REP_RW - 10.0, h)
 			draw_rect(box, COL_PANEL.lightened(0.05))
 			draw_rect(box, COL_EDGE, false, 1.0)
-			draw_rect(Rect2(REP_RX, y, 3.0, h), _tone_colour(q.tone))
+			draw_rect(Rect2(REP_RX, y, 3.0, h), _tone_color(q.tone))
 			UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 16.0), q.who,
-				HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 10, _tone_colour(q.tone))
+				HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 10, _tone_color(q.tone))
 			for k in lines.size():
 				UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 30.0 + float(k) * 12.0),
 					String(lines[k]), HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 9, COL_DIM)
@@ -835,7 +835,7 @@ func _draw_quips() -> void:
 			int(REP_RW), 10, COL_DIM)
 
 
-func _tone_colour(tone: int) -> Color:
+func _tone_color(tone: int) -> Color:
 	if tone > 0:
 		return COL_GOOD
 	return COL_HOT if tone < 0 else COL_INK
@@ -918,14 +918,14 @@ func _draw_news() -> void:
 		var box := Rect2(bx, by, NEWS_CARD.x, NEWS_CARD.y)
 		draw_rect(box, COL_PANEL.lightened(0.05))
 		draw_rect(box, COL_EDGE, false, 1.0)
-		draw_rect(Rect2(bx, by, 3.0, NEWS_CARD.y), _tone_colour(n.tone))
+		draw_rect(Rect2(bx, by, 3.0, NEWS_CARD.y), _tone_color(n.tone))
 		UiKit.raw(self, font, Vector2(bx + 12.0, by + 18.0), n.head,
 			HORIZONTAL_ALIGNMENT_LEFT, int(NEWS_CARD.x - 24.0), 10, COL_INK)
 		var body := UiKit.wrap(font, n.text, NEWS_CARD.x - 24.0, 9)
 		for k in mini(2, body.size()):
 			UiKit.raw(self, font, Vector2(bx + 12.0, by + 33.0 + float(k) * 11.0),
 				String(body[k]), HORIZONTAL_ALIGNMENT_LEFT,
-				int(NEWS_CARD.x - 24.0), 9, _tone_colour(n.tone))
+				int(NEWS_CARD.x - 24.0), 9, _tone_color(n.tone))
 
 
 ## EVERYTHING ON THE CORNER THAT IS NOT A CONTROL. The five rows, the header,
@@ -1062,14 +1062,14 @@ func _man_in_slot(slot: int):
 
 func _draw_list() -> void:
 	## THE FIGHT WEARS IT TOO, and this is where a boss battle actually lands — a
-	## menu that changes colour is a theme, a LIST that changes colour is an
+	## menu that changes color is a theme, a LIST that changes color is an
 	## occasion. The surround goes all the way to the mood because nothing is read
 	## off it; the fighting surface moves barely a third, because a player reads
 	## a man's position against it fifty times a round.
 	## ART IF THERE IS ANY, PRIMITIVES IF NOT, and the mood tint applies either
 	## way — artwork that cannot be tinted would break the one thing the fight
-	## screen does that the menus do not, which is change colour with the
-	## occasion. So the surface art is specified greyscale and gets its colour
+	## screen does that the menus do not, which is change color with the
+	## occasion. So the surface art is specified grayscale and gets its color
 	## here. See docs/ART.md.
 	var surround := UiKit.tint(Tuning.COL_GROUND, 1.0)
 	if not ArtBank.draw_slot(self, "list_ground", Rect2(Vector2.ZERO, SCREEN), surround):
@@ -1178,7 +1178,7 @@ func _draw_man(m) -> void:
 ## match statement from the one in UiKit — which is how a club could wear one
 ## mark on the league table and another in the fight. One function now.
 func _draw_mark(p: Vector2, club, s: float) -> void:
-	IconBank.draw_icon(self, p, s * 0.5, club.icon_colour, club.kit, club.icon)
+	IconBank.draw_icon(self, p, s * 0.5, club.icon_color, club.kit, club.icon)
 
 
 # ------------------------------------------------------------------ prompts
@@ -1253,12 +1253,12 @@ func _draw_banner(team: int, x: float, club) -> void:
 	var r := Rect2(x, BANNER_TOP, BANNER_W, h)
 	draw_rect(r, COL_PANEL)
 	draw_rect(r, club.kit.darkened(0.35), false, 2.0)
-	## A band of the club's own colour across the top, so the two sides of the
+	## A band of the club's own color across the top, so the two sides of the
 	## screen are told apart by the same thing that tells the men apart.
 	draw_rect(Rect2(x, BANNER_TOP, BANNER_W, 5.0), club.kit)
 
 	var cx := x + BANNER_W * 0.5
-	## The club's kit, then its mark on top — the same two-colour badge the
+	## The club's kit, then its mark on top — the same two-color badge the
 	## men are wearing, at a size you can read from the other side of a room.
 	draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), club.kit)
 	draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), COL_EDGE, false, 2.0)
@@ -1359,7 +1359,7 @@ func _tally(m) -> String:
 ## player reads without looking away from the fight: what he can do, and what he
 ## has done.
 ## What you can do, and what you have done. Both ride on the HUD's second line,
-## in the space either side of the centred fixture text — the gutters they used
+## in the space either side of the centerd fixture text — the gutters they used
 ## to live in are gone now that the list fills the frame, and that is the trade
 ## worth making: the fight gets the screen and the chrome gets the margins.
 func _draw_hint() -> void:
@@ -1460,7 +1460,7 @@ func _build_ui() -> void:
 ##
 ## The melee built five raw `Button.new()`s and never touched them, so the
 ## formation picker, the corner and the report wore **Godot's default theme** —
-## grey rounded rectangles with a soft gradient — while every other screen wore
+## gray rounded rectangles with a soft gradient — while every other screen wore
 ## the game's. It also meant no tap sound in the one place a player taps under
 ## time pressure.
 ##
@@ -1647,7 +1647,7 @@ func _build_book(box: Vector2) -> void:
 		var is_push: bool = String(call_["kind"]) == "push"
 		var key := Chalkboard.fav_key(String(call_["kind"]), int(call_["id"]),
 			String(call_["name"]))
-		var starred: bool = board != null and board.is_favourite(shape_id,
+		var starred: bool = board != null and board.is_favorite(shape_id,
 			String(call_["kind"]), key)
 		## IN STAR MODE THE LIT CARD IS THE STARRED ONE, not the live one. The
 		## highlight means "this is the one you mean" in both modes; what it means
@@ -1676,7 +1676,7 @@ func _tap_call(shape: Dictionary, call_: Dictionary, key: String) -> void:
 	var board: Chalkboard = Session.season.board if Session.season != null else null
 	if board == null:
 		return
-	var err := board.toggle_favourite(int(shape["id"]), String(call_["kind"]), key)
+	var err := board.toggle_favorite(int(shape["id"]), String(call_["kind"]), key)
 	if err != "":
 		book_note = err
 		Audio.play("refuse")
@@ -1741,7 +1741,7 @@ func _apply_chosen() -> void:
 	## A PLAY DOES NOT REPLACE THE PUSH. Routes drive the charge and expire after
 	## PLAN_TIME; the push is what the anchors read for the rest of the round, and
 	## the sim reads `strategies[0]` either way. Calling a play on top of the push
-	## you are already on is the honest behaviour and what the sections promise.
+	## you are already on is the honest behavior and what the sections promise.
 	if String(call_["kind"]) == "push":
 		sim.strategies[0] = int(call_["id"])
 	## The opposition picks its own and you do not get told which until you see
@@ -1775,9 +1775,9 @@ func _show_playbook() -> void:
 	_clear_corner()
 	_clear_panel()
 	var board: Chalkboard = Session.season.board if Session.season != null else null
-	var starred: int = board.live_favourites().size() if board != null else 0
+	var starred: int = board.live_favorites().size() if board != null else 0
 	panel_title.text = "THE PLAYBOOK — %s" % ("tap to star, %d of %d" % [starred,
-		Chalkboard.MAX_FAVOURITES] if starring else "pick one")
+		Chalkboard.MAX_FAVORITES] if starring else "pick one")
 	if book_note != "":
 		panel_title.text += "   ·   " + book_note
 	panel_box.visible = true
@@ -1787,7 +1787,7 @@ func _show_playbook() -> void:
 	## `panel_box` grows downward from a fixed y and `_draw` frames whatever
 	## height it ends up with, so anything added to it comes off the bottom of a
 	## 540-pixel screen rather than out of the panel — the first cut of the strip
-	## pushed "Done picking favourites" half off the frame. The page scrolls; the
+	## pushed "Done picking favorites" half off the frame. The page scrolls; the
 	## panel does not. So the page gives back exactly what the strip takes.
 	_build_book(Vector2(PANEL_W, BOOK_H - (FAV_STRIP_H if starring else 0.0)))
 	## THE MODE SWITCH, and it is a switch rather than a star on every card
@@ -1803,8 +1803,8 @@ func _show_playbook() -> void:
 	row.add_theme_constant_override("separation", 8)
 	panel_box.add_child(row)
 	var half := (PANEL_W - 8.0) * 0.5
-	row.add_child(_panel_button("Done picking favourites" if starring
-		else "Pick favourites for the corner", Vector2(half, 40), func():
+	row.add_child(_panel_button("Done picking favorites" if starring
+		else "Pick favorites for the corner", Vector2(half, 40), func():
 			starring = not starring
 			book_note = ""
 			_show_playbook()))
@@ -1817,11 +1817,11 @@ func _show_playbook() -> void:
 
 
 ## ------------------------------------------------- the four, in corner order
-## WHICH OF YOUR FOUR SITS WHERE. The corner lays the favourites out two by two
+## WHICH OF YOUR FOUR SITS WHERE. The corner lays the favorites out two by two
 ## in list order — slot 1 top-left, 2 top-right, 3 bottom-left, 4 bottom-right —
 ## so the list's order IS the thumb-reach order on the screen with the clock on
-## it. Until now nothing could change it: a favourite landed wherever starring it
-## happened to put it. `Chalkboard.promote_favourite` and `demote_favourite` were
+## it. Until now nothing could change it: a favorite landed wherever starring it
+## happened to put it. `Chalkboard.promote_favorite` and `demote_favorite` were
 ## written and tested for this and had no caller.
 ##
 ## NOT IN THE CORNER, and that is a decision against the hand-off note, which
@@ -1832,7 +1832,7 @@ func _show_playbook() -> void:
 ## has four positions, so arrows on it would be arrows against a direction that
 ## is not on the screen.
 ##
-## Here there is no clock, the mode is already called "picking favourites", and
+## Here there is no clock, the mode is already called "picking favorites", and
 ## the strip reads left to right in exactly the order the corner reads. One tap
 ## moves a card one place towards the front; the front one has nowhere to go and
 ## says so by being dead rather than by being absent. Four items reorder in at
@@ -1840,8 +1840,8 @@ func _show_playbook() -> void:
 func _build_fav_strip(board: Chalkboard) -> void:
 	if board == null:
 		return
-	var favs := board.live_favourites()
-	## ONE FAVOURITE HAS NO ORDER. A strip with a single dead chip on it is a
+	var favs := board.live_favorites()
+	## ONE FAVORITE HAS NO ORDER. A strip with a single dead chip on it is a
 	## control that has never worked, and a player cannot tell that from one that
 	## is broken.
 	if favs.size() < 2:
@@ -1854,7 +1854,7 @@ func _build_fav_strip(board: Chalkboard) -> void:
 	var strip := HBoxContainer.new()
 	strip.add_theme_constant_override("separation", 6)
 	panel_box.add_child(strip)
-	var w := _fit(Chalkboard.MAX_FAVOURITES)
+	var w := _fit(Chalkboard.MAX_FAVORITES)
 	var f := UiKit.body()
 	for i in favs.size():
 		var take := i
@@ -1864,7 +1864,7 @@ func _build_fav_strip(board: Chalkboard) -> void:
 		var b := _panel_button("%s%d  %s" % ["\u25c0 " if i > 0 else "   ", i + 1,
 			UiKit.clip_px(f, name_, 13, w - 52.0)], Vector2(w, 34.0),
 			func():
-				var err := board.promote_favourite(take)
+				var err := board.promote_favorite(take)
 				if err != "":
 					book_note = err
 					Audio.play("refuse")
@@ -1873,10 +1873,10 @@ func _build_fav_strip(board: Chalkboard) -> void:
 		strip.add_child(b)
 
 
-## A favourite is `{shape, kind, key}` on the board; the name a player knows it
+## A favorite is `{shape, kind, key}` on the board; the name a player knows it
 ## by lives on the call it resolves to. `_fav_calls` already does that resolution
 ## for the corner, so this asks it rather than repeating the lookup — two places
-## turning a favourite into a name is two places that can disagree about which
+## turning a favorite into a name is two places that can disagree about which
 ## one slot 3 is.
 func _fav_name(f: Dictionary) -> String:
 	var shape_id := int(f["shape"])
@@ -1906,7 +1906,7 @@ var corner_nodes: Array[Node] = []
 ## THE PLAY THAT IS CHOSEN AND NOT YET CALLED.
 var chosen_shape: Dictionary = {}
 var chosen_call: Dictionary = {}
-## IS THE BOOK PICKING A PLAY OR PICKING FAVOURITES? One grid, two jobs, because
+## IS THE BOOK PICKING A PLAY OR PICKING FAVORITES? One grid, two jobs, because
 ## the alternative was a star control floated over every card — and the cards
 ## live in a GridContainer, which owns the position of everything in it, so an
 ## overlay would have been a second positioning system on the one screen that
@@ -1929,7 +1929,7 @@ const PANEL_X := 120.0
 ## has the panel to itself.
 ## How tall the page is in each place. The corner is sharing the panel with the
 ## line, the bench and the swap note, so it gets less — and scrolls more.
-## 268 AND NOT 300. The playbook gained two buttons under it — the favourites
+## 268 AND NOT 300. The playbook gained two buttons under it — the favorites
 ## switch and the way back to the corner — and at 300 the panel ran to y 566 of a
 ## 540 frame with "Back to the corner" off the bottom of the screen. The page is
 ## what gives way, because the buttons are the part you cannot scroll to.
@@ -1939,7 +1939,7 @@ const BOOK_H := 268.0
 ## scroll was cutting read as the screen running out rather than as a list
 ## continuing. A cut card wants somewhere to be cut.
 const BOOK_H_CORNER := 176.0
-## WHAT THE FAVOURITE STRIP COSTS the page above it: its heading, its row of
+## WHAT THE FAVORITE STRIP COSTS the page above it: its heading, its row of
 ## chips, and the two `separation` gaps the VBox puts around them. Written once
 ## and subtracted once — the pair of numbers this replaces would have been the
 ## strip's real height and the book's guess at it, which is the shape of bug
@@ -2196,7 +2196,7 @@ const C_LY := 100.0
 const C_ROW_H := 64.0
 const C_ROW_GAP := 6.0
 const C_SUB := Vector2(78.0, 34.0)
-## The right column: four favourites over the full book, the chosen strip, Fight.
+## The right column: four favorites over the full book, the chosen strip, Fight.
 const C_RX := 570.0
 const C_RW := 344.0
 const C_FAV_GAP := 8.0
@@ -2212,19 +2212,19 @@ func _corner_rows() -> float:
 
 ## THE FOUR ON THE RIGHT, as the player starred them.
 ##
-## Each favourite is a `{shape, kind, key}` on the board and has to be turned
+## Each favorite is a `{shape, kind, key}` on the board and has to be turned
 ## back into the call dictionary the card wants — routes and all — which is what
-## `_book_calls` already produces. A favourite that resolves to nothing has been
-## pruned by `live_favourites` before we get here.
+## `_book_calls` already produces. A favorite that resolves to nothing has been
+## pruned by `live_favorites` before we get here.
 ##
 ## AND THE FALLBACK IS STILL THERE, for a club that has starred nothing: the
 ## calls out of the shape his men are standing in. An empty right-hand column on
 ## a screen with a clock is worse than a sensible default, and every club begins
-## with no favourites.
+## with no favorites.
 func _fav_calls() -> Array:
 	var out: Array = []
 	if Session.season != null:
-		for f in Session.season.board.live_favourites():
+		for f in Session.season.board.live_favorites():
 			var shape_id := int(f["shape"])
 			for c in _book_calls(shape_id):
 				if String(c["kind"]) != String(f["kind"]):
@@ -2241,10 +2241,10 @@ func _fav_calls() -> Array:
 			var row: Dictionary = c.duplicate()
 			row["shape"] = _live_shape_id()
 			out.append(row)
-	return out.slice(0, mini(Chalkboard.MAX_FAVOURITES, out.size()))
+	return out.slice(0, mini(Chalkboard.MAX_FAVORITES, out.size()))
 
 
-## The shape dictionary a favourite belongs to, since a favourite may be starred
+## The shape dictionary a favorite belongs to, since a favorite may be starred
 ## out of a formation the men are not currently standing in — which is the point
 ## of having four of them.
 func _shape_of(shape_id: int) -> Dictionary:
@@ -2308,7 +2308,7 @@ func _build_corner() -> void:
 	for i in line.size():
 		var ry: float = C_LY + float(i) * (row_h + C_ROW_GAP)
 		## PROUD — *"Refuses the corner - never asks to come off."* A refusal the
-		## screen has to honour, so his box is dead and the row says why. It is
+		## screen has to honor, so his box is dead and the row says why. It is
 		## the only trait in the game whose whole effect is that a control does
 		## not work, which is why it is a flag and not a number.
 		var proud: bool = FighterTrait.flag(line[i].trait_id, "no_sub")
@@ -2319,7 +2319,7 @@ func _build_corner() -> void:
 		corner_nodes.append(b)
 		ui.add_child(b)
 
-	## THE FOUR FAVOURITES, two by two, at the width the column gives them.
+	## THE FOUR FAVORITES, two by two, at the width the column gives them.
 	var fav := _fav_calls()
 	var fw: float = (C_RW - C_FAV_GAP) * 0.5
 	var fh: float = fw * (PLAY_CARD.y / PLAY_CARD.x)

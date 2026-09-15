@@ -21,7 +21,7 @@ extends RefCounted
 
 ## Bumped to 2 on 10 Sep 2026 when the heraldry vocabulary was retired: a club's
 ## kit and mark are stored under new keys and the mark is an IconBank id rather
-## than a Charge enum. A version 1 file would decode into a club with no colours
+## than a Charge enum. A version 1 file would decode into a club with no colors
 ## at all, so it is refused cleanly instead — the whole reason the version is in
 ## the file.
 ## 3 on 10 Sep 2026: the Home ground facility became the Arena, so an office
@@ -278,7 +278,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"schedule": w.schedule.duplicate(true),
 		"tables": w.tables.duplicate(true),
 		"history": w.history.duplicate(true),
-		"honours": w.honours.duplicate(true),
+		"honors": w.honors.duplicate(true),
 		"records": w.records.duplicate(true),
 		"hall": w.hall.duplicate(true),
 		"cups": cups,
@@ -293,6 +293,10 @@ static func to_dict(season: Season) -> Dictionary:
 		"board": season.board.to_dict(),
 		"formation_id": season.formation_id,
 		"grade": season.grade,
+		## EVERY GRADE THIS CAREER HAS BEEN FOUGHT ON. New on 16 Sep, when the
+		## grade became changeable mid-career: a title won on FRIENDLY has to be
+		## able to say so, and a record that only keeps the CURRENT grade cannot.
+		"grade_history": season.grade_history,
 		"matched_step": season.matched_step,
 		"play_index": season.play_index,
 		"workshop": season.workshop.to_dict(),
@@ -346,7 +350,7 @@ static func from_dict(d: Dictionary) -> Season:
 	w.schedule = (d["schedule"] as Dictionary).duplicate(true)
 	w.tables = (d["tables"] as Dictionary).duplicate(true)
 	w.history = _dicts(d["history"])
-	w.honours = _dicts(d["honours"])
+	w.honors = _dicts(d["honors"])
 	w.records = (d.get("records", {}) as Dictionary).duplicate(true)
 	w.hall.clear()
 	for h in d.get("hall", []):
@@ -379,6 +383,9 @@ static func from_dict(d: Dictionary) -> Season:
 	## Pete's saves to record a fact the default already states — the same
 	## argument as the trials and goodwill removal above.
 	s.grade = int(d.get("grade", Grade.DEFAULT))
+	## DEFAULTED, NOT REQUIRED — a save written before the grade could move was a
+	## save fought on one grade, and an empty history says exactly that.
+	s.grade_history = d.get("grade_history", [])
 	## CLAMPED ON THE WAY IN. The step's range narrowed once the win rates were
 	## measured, and a file written before that carries a number outside it —
 	## harmless today because `matched_scale` clamps too, and a lie on the grade
@@ -485,7 +492,7 @@ static func club_to_dict(c: MeleeClub) -> Dictionary:
 		men.append(fighter_to_dict(f))
 	return {
 		"name": c.display_name, "short": c.short_name,
-		"kit": c.kit.to_html(), "icon_colour": c.icon_colour.to_html(),
+		"kit": c.kit.to_html(), "icon_color": c.icon_color.to_html(),
 		"icon": int(c.icon), "roster": men,
 	}
 
@@ -495,7 +502,7 @@ static func club_from_dict(d: Dictionary) -> MeleeClub:
 	for m in d["roster"]:
 		cards.append(fighter_from_dict(m as Dictionary))
 	return MeleeClub.build(String(d["name"]), String(d["short"]),
-		Color(String(d["kit"])), Color(String(d["icon_colour"])),
+		Color(String(d["kit"])), Color(String(d["icon_color"])),
 		int(d["icon"]), cards)
 
 
@@ -528,7 +535,7 @@ static func fighter_to_dict(f: FighterCard) -> Dictionary:
 		## kept yet — unlike the career fields above, a missing book decodes into
 		## something true.
 		"bouts": f.bouts, "downs": f.downs, "standing": f.rounds_standing,
-		"best": f.best_downs, "knocks": f.knocks, "honours": f.honours,
+		"best": f.best_downs, "knocks": f.knocks, "honors": f.honors,
 		## HIS MOOD. Refused rather than defaulted, and the distinction is the
 		## whole reason VERSION moved: a missing book decodes into something true
 		## (no record kept yet), a missing morale decodes into 0.70 for every man
@@ -576,6 +583,6 @@ static func fighter_from_dict(d: Dictionary) -> FighterCard:
 	f.rounds_standing = int(d.get("standing", 0))
 	f.best_downs = int(d.get("best", 0))
 	f.knocks = int(d.get("knocks", 0))
-	f.honours = int(d.get("honours", 0))
+	f.honors = int(d.get("honors", 0))
 	f.morale = float(d["morale"])
 	return f

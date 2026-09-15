@@ -8,13 +8,13 @@ extends SceneTree
 ## never painted. On 15 Sep 2026 the second of those was the actual bug: every
 ## screen drew its background as `Rect2(Vector2.ZERO, Vector2(960, 540))` while a
 ## 19.5:9 handset hands the game 1170x540, so a 210-pixel strip of raw clear
-## colour ran down the right of the whole game and not one of five hundred
+## color ran down the right of the whole game and not one of five hundred
 ## checks could see it.
 ##
 ## This one renders and looks at the pixels. Two questions per screen, asked at
 ## the edge the design used to stop at:
 ##
-##   * is the far edge painted at all, or is it still the clear colour?
+##   * is the far edge painted at all, or is it still the clear color?
 ##   * is the far edge the SAME as the near edge, or did something stop early?
 ##
 ## THE ARENA IS NOT IN THE LIST. `melee_scene.gd` keeps its own `SCREEN` const
@@ -94,7 +94,7 @@ func _world() -> void:
 	Session.viewing_fighter = man
 
 
-## The colour the engine leaves behind where nothing was drawn.
+## The color the engine leaves behind where nothing was drawn.
 func _clear() -> Color:
 	return ProjectSettings.get_setting(
 		"rendering/environment/defaults/default_clear_color", Color(0, 0, 0, 1))
@@ -151,7 +151,7 @@ func _test_every_screen_paints_to_its_edges() -> void:
 		## tolerates one good sample is a check that measures the best case.**
 		##
 		## Every screen in this game paints a full-screen ground before anything
-		## else, so a single pixel of raw clear colour at the far edge means that
+		## else, so a single pixel of raw clear color at the far edge means that
 		## ground did not reach — there is no legitimate reason for one.
 		if painted < rows.size():
 			bare.append("%s: %d of %d samples down the far right are bare"

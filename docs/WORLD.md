@@ -9,11 +9,11 @@ That sentence is the whole filter. Everything below is sorted by it.
 
 ## Carried whole
 
-**The setting rule.** Real countries; fictional federations, clubs, fighters and armourers.
+**The setting rule.** Real countries; fictional federations, clubs, fighters and armorers.
 Locked in Hedge Knight, unchanged here.
 
 **Russia is excluded from the game entirely.** Not a country, not on the calendar, not
-among clubs, opponents or armourers. This tracks the sport's real present rather than
+among clubs, opponents or armorers. This tracks the sport's real present rather than
 departing from it. The war and sanctions are never referenced.
 
 **Tone: grounded and warm.** Kept — but see below for what comes off it.

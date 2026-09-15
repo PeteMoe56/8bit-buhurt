@@ -29,7 +29,7 @@ Every management screen now reads that live canvas:
   game. It is now 4, `SENSOR_LANDSCAPE`. Verified against the engine's own enum.
 - `tests/test_ink.gd` measures the live frame and the runner runs it at four
   shapes. New `tests/test_shapes.gd` renders 16 screens and samples pixels down
-  the far right, failing on any that is still the clear colour.
+  the far right, failing on any that is still the clear color.
 
 ## Four decisions that are yours
 
@@ -41,8 +41,8 @@ handset — the same bare strip the management screens had. The `UiKit` helpers
 above are there when you want them.
 
 **2. The full-screen art slot.** `list_ground` is drawn at melee_scene.gd:1036
-into `Rect2(Vector2.ZERO, SCREEN)`. `ArtBank.fit()` scales-to-fit and **centres**,
-so a 960x540 backdrop on a 1170 canvas sits centred with ~105px bare each side.
+into `Rect2(Vector2.ZERO, SCREEN)`. `ArtBank.fit()` scales-to-fit and **centers**,
+so a 960x540 backdrop on a 1170 canvas sits centerd with ~105px bare each side.
 Wider source art, tiling, or a crop — an art call. `art_bank.gd` declares three
 960x540 slots: `venue_away`, `venue_neutral`, `list_ground`.
 
@@ -57,7 +57,7 @@ lever, and a real tension:
 
 - `fractional` (current): no bars, but a non-integer device scale on almost
   every phone — 2532/1170 = 2.164 — so one art pixel does not land on a whole
-  number of device pixels. The project runs nearest-neighbour filtering with
+  number of device pixels. The project runs nearest-neighbor filtering with
   `snap_2d_transforms_to_pixel` and `snap_2d_vertices_to_pixel` on, which is
   what keeps it crisp.
 - `integer`: a perfect pixel grid, and the bars come back.
@@ -99,7 +99,7 @@ Checked in `test_melee.gd` — `_test_a_route_can_be_taken_back`, five checks: t
 works, a second cancel on a man with no order is quiet, and two source checks that a
 screen calls it at all and still asks about `from_play`.
 
-**6. Favourites can be reordered — and the control is NOT in the corner.**
+**6. Favorites can be reordered — and the control is NOT in the corner.**
 
 This is a decision against the note that used to be here, which suggested up/down taps
 beside each card on the corner. Two reasons:
@@ -110,14 +110,14 @@ beside each card on the corner. Two reasons:
   arrows against a direction that is not on the screen.
 
 So the control is a strip under the playbook, in starring mode — `_build_fav_strip()` in
-`melee_scene.gd`. No clock, the mode is already called "picking favourites", and the strip
+`melee_scene.gd`. No clock, the mode is already called "picking favorites", and the strip
 reads left to right in exactly the order the corner grid fills (slot 1 top-left, 2
 top-right, 3 bottom-left, 4 bottom-right). One tap moves a chip one place towards the
 front; the front chip is dead rather than absent. A strip of fewer than two is not drawn.
 
 **One thing this cost you:** the strip is paid for out of the book's height, not added to
 the panel. `panel_box` grows downward from a fixed y and `_draw` frames whatever height it
-ends up with, so the first cut pushed "Done picking favourites" half off a 540-pixel
+ends up with, so the first cut pushed "Done picking favorites" half off a 540-pixel
 frame. `const FAV_STRIP_H := 68.0` is subtracted from `BOOK_H` while `starring` — so **in
 starring mode the playbook page is 68 pixels shorter**. It scrolls, so nothing is lost. If
 your pixel-scale pass changes `BOOK_H` or the panel's origin, that subtraction is the line
@@ -129,7 +129,7 @@ before a move, after it, and the corner grid in the new order.
 ## One thing found and NOT fixed, 15 Sep
 
 On the pre-fight screen the crowd line ("Louisville's crowd.") draws **over** the playbook
-panel — see `shots/favs_after.png`, centre. So does a fragment of the distance line at the
+panel — see `shots/favs_after.png`, center. So does a fragment of the distance line at the
 right edge. It is a draw-order question in `_draw()`: `UiKit.panel()` goes down before
 those strings do. It was there before either of the changes above and it is in the part of
 the file that is yours, so it was left alone rather than fixed in passing.

@@ -139,7 +139,7 @@ func _test_morale_has_somewhere_to_spend() -> void:
 		if f.morale > 0.40:
 			lifted += 1
 	if lifted != s.club.active_eight().size():
-		bad.append("only %d of the travelling party was lifted" % lifted)
+		bad.append("only %d of the traveling party was lifted" % lifted)
 	## A reserve who did not go is not lifted, because he was not there.
 	var missed := 0
 	for f in s.club.roster:

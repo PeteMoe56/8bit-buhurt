@@ -275,7 +275,7 @@ func _draw() -> void:
 	## against a still first word, which is what made the pair read as alive.
 	if not Brand.draw_logo(self, Brand.CREST_SMALL, Vector2(26, 26 - lift)):
 		UiKit.badge(self, Vector2(60, 78 - lift), 38,
-			IconBank.KIT_COLOURS[0], IconBank.MARK_COLOURS[0], 5)
+			IconBank.KIT_COLORS[0], IconBank.MARK_COLORS[0], 5)
 	## THE SECOND WORD IS PLACED OFF THE FIRST, MEASURED.
 	##
 	## "RETRO" and "BUHURT" were at 118 and 268 — two literals that added up to a

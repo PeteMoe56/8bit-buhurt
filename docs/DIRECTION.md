@@ -151,7 +151,7 @@ trials event per off-season plus year-round poaching that costs goodwill.~~
 
 **Salary cap → kit and availability.** Nobody is paid. The cap isn't
 money-per-player, it's *how many bodies you can put on a plane and how many
-harnesses you own that pass inspection.* Bench depth is limited by armour, not
+harnesses you own that pass inspection.* Bench depth is limited by armor, not
 payroll. A fighter can be your best and unavailable because he can't get the
 weekend off. This constraint has never been in a sports management game and it is
 completely true to the sport.
@@ -199,7 +199,7 @@ and it gives the hands a rest.
    silhouette. Pixel art is heraldry's native format. The existing ACTM charge set
    translates nearly directly.
 2. **It solves the blob problem.** Five armored figures in any realistic style are
-   five grey lumps. In 8-bit you get silhouette + two-color surcoat + shield
+   five gray lumps. In 8-bit you get silhouette + two-color surcoat + shield
    charge, and you can read the field instantly at 5v5 and survive at 12v12.
 3. **It makes the art scope survivable solo.** One skeleton, ~8 animations × 4–6
    frames, palette-swapped harness types, decal-swapped heraldry.
@@ -333,7 +333,7 @@ Sinks, all competing for one pool:
 - Repairs after a hard event
 - Travel and lodging for an away tournament
 - Trials day
-- Coach / armourer / physio hires
+- Coach / armorer / physio hires
 - Gym upgrades — strength, conditioning, technique
 - Federation fees, insurance, marshal certification
 
@@ -424,7 +424,7 @@ layer is tiny and perfect. An ambitious melee sim eats the project and ships a
 mediocre fighter bolted to a mediocre manager. The six constraints in §3.5 exist
 to prevent this.
 
-**Readability.** Ten armored figures on a phone are ten grey blobs. The 8-bit
+**Readability.** Ten armored figures on a phone are ten gray blobs. The 8-bit
 choice plus heraldry doing real work is the mitigation, and ACTM's charge set is
 already a head start.
 

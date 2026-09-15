@@ -53,7 +53,7 @@ const QUIPS: Array[String] = [
 	"Lost property at the last meet: two gauntlets, one boot, somebody's dog.",
 	"The federation reminds clubs that a poleaxe is not a walking aid.",
 	"Weigh-in is at eight. The scales do not care what your harness weighs.",
-	"A fighter writes in to ask whether beard length counts as armour. It does not.",
+	"A fighter writes in to ask whether beard length counts as armor. It does not.",
 	"Three clubs have now asked about fighting in the rain. You fight in the rain.",
 	"The bar at the National Arena has run out of ice for the fourth year running.",
 	"Somebody has painted their club's mark on the inside of their visor. Bold.",

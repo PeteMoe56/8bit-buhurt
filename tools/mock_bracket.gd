@@ -127,7 +127,7 @@ class MockScreen extends Node2D:
 			3: _pools()
 
 	# ------------------------------------------------------------ variant 0
-	## THEIRS, WIDENED. Retro Bowl's idiom — columns converging on a centre
+	## THEIRS, WIDENED. Retro Bowl's idiom — columns converging on a center
 	## column — but with the three things they leave out and we can afford at
 	## twice the resolution: full club names, seeds, and the score of a tie that
 	## has been fought.

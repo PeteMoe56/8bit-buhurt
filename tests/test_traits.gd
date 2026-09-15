@@ -152,7 +152,7 @@ func _test_every_effect_key_is_read_somewhere() -> void:
 	## The first version searched every file for `"key"` in quotes, and
 	## `HEAVY_HANDS`'s `harness` passed that with **no code anywhere** — because
 	## `dilemma.gd` has a card whose id is `"harness"`. A gate an unrelated string
-	## can satisfy is a gate with a hole, and this one is the whole defence
+	## can satisfy is a gate with a hole, and this one is the whole defense
 	## against the Scout: a trait with a description and no code.
 	##
 	## So it matches the shapes a key can actually be read through — `tmod("k"`,
@@ -854,7 +854,7 @@ func _test_proud_and_prima_donna_are_read_where_they_matter() -> void:
 	var f := FighterCard.new()
 	f.trait_id = FighterTrait.T.PROUD
 	_ok(FighterTrait.flag(f.trait_id, "no_sub"),
-		"proud refuses the corner", "the corner greys his box")
+		"proud refuses the corner", "the corner grays his box")
 	var d := FighterCard.new()
 	d.trait_id = FighterTrait.T.PRIMA_DONNA
 	d.morale = 0.7

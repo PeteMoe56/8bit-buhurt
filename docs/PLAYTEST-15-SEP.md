@@ -19,17 +19,17 @@ row can be matched back to what he wrote.
 | — | Logo on the icon, the start menu, and heavily faded behind the main menus | `done` |
 
 `Assets/Logo.png` (1254², opaque black ground) was keyed by flood fill from the
-border — the artwork's *own* outlines are black, so a colour key punches holes
+border — the artwork's *own* outlines are black, so a color key punches holes
 through the helmet — then cut into six files, each at the size it is drawn at,
-because the project runs nearest-neighbour filtering and a texture the engine
+because the project runs nearest-neighbor filtering and a texture the engine
 scales is a texture with chewed edges.
 
 `scripts/game/brand.gd` is the one place that knows the name and the mark. The
 name is read from `application/config/name`, the same copy the APK manifest and
 a store listing are built from.
 
-Two bugs fell out of it: the front door hung every element off `const CENTRE :=
-480.0`, so on a 1170-wide handset the whole screen sat 105 pixels left of centre;
+Two bugs fell out of it: the front door hung every element off `const CENTER :=
+480.0`, so on a 1170-wide handset the whole screen sat 105 pixels left of center;
 and fifteen screens opened `_draw()` with the same ground-painting line, which is
 fifteen places to add a watermark and one to forget. Both are one call now.
 
@@ -197,7 +197,7 @@ time. One problem, two symptoms — and the ladder half is still open.
 |---|---|---|
 | 5 | **Rebuild the Market** as the Quartermaster | `done` |
 
-### 5 — the Armourer
+### 5 — the Armorer
 
 Pete chose the quartermaster direction. What it turned out to be is smaller and
 better grounded than a new gear system, because **most of it already existed and
@@ -217,7 +217,7 @@ Three things were measured before a line was written (`tools/probe_kit.gd`):
 |---|---|
 | **An AI club has no kit at all** | It is a `power` integer drawn from its tier's band, not a squad of men. It cannot wear a harness out or repair one. The player is the only club on the ladder paying this tax. |
 | **A simmed event cost no wear** | `_apply_regime()` ran from `post_bout`, not `skip_event` — 24 simmed events left a squad on exactly the kit it started with. A discount for not playing the game. **Fixed.** |
-| **And the tax is a rounding error** | The whole legal armour range, 0.35 to 1.00, is worth **1.37 rating points**. The 0.90→1.00 a repair buys is worth 0.24. Repairing thirteen men before every event for 24 events moved club power by **zero**. |
+| **And the tax is a rounding error** | The whole legal armor range, 0.35 to 1.00, is worth **1.37 rating points**. The 0.90→1.00 a repair buys is worth 0.24. Repairing thirteen men before every event for 24 events moved club power by **zero**. |
 
 So: **inspection has teeth and the multiplier does not.** The screen is built
 around the part that bites. The new part is one integer per fighter — a harness
@@ -238,7 +238,7 @@ feature charging you to undo it.*
 
 Free agents moved to the **Squad** tab, which kills the tab-in-a-tab.
 
-> **PARKED FOR PETE — one balance decision.** Armour is worth 1.37 rating points
+> **PARKED FOR PETE — one balance decision.** Armor is worth 1.37 rating points
 > across its entire range. If a harness is meant to be the cap Direction says it
 > is, that range wants widening, and it is **one constant**:
 > `FighterCard.effective_base()` is `base * lerpf(0.78, 1.0, armor)`. Drop the
@@ -322,7 +322,7 @@ substitution nobody can rely on.*
 |---|---|---|
 | 4 | **Squad redesign** | Sort, spread and promote-into-the-five all landed; a full visual rebuild wants a mockup Pete approves rather than my taste applied at 4am |
 | 3 | **No tutorial** | The largest single item on the list and the one most shaped by what Pete wants the first ten minutes to feel like |
-| 8 | **No fan information** anywhere, including the fight card | Notoriety, the crowd band and `crowd_meter()` all exist — this is a screen, like the armourer was |
+| 8 | **No fan information** anywhere, including the fight card | Notoriety, the crowd band and `crowd_meter()` all exist — this is a screen, like the armorer was |
 | 1, 2, 6, 12, 17 | The rest of the **formatting sweep** | 7 and the clubhouse are done; the title, slots, free-agent cards, dilemma card and chalkboard are not |
 | 2 | **No "Name Your Club"** step | Part of the same pass |
 | 9 | The pre-fight **field with idle fighters and a dashed plan line** | `melee_scene.gd` — the arena chat's, and written up in the hand-off |

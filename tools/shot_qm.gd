@@ -1,5 +1,5 @@
 extends SceneTree
-## THE ARMOURER'S TABLE, in the three states that matter.
+## THE ARMORER'S TABLE, in the three states that matter.
 ##
 ##   xvfb-run -a godot --path . --script res://tools/shot_qm.gd
 ##
@@ -29,7 +29,7 @@ func _process(_d: float) -> bool:
 		0:
 			root.get_texture().get_image().save_png("res://shots/qm_fresh.png")
 			print("wrote qm_fresh")
-			## A CLUB THAT HAS NOT SEEN AN ARMOURER IN TWO SEASONS. Two men under
+			## A CLUB THAT HAS NOT SEEN AN ARMORER IN TWO SEASONS. Two men under
 			## the line, two more inside a bad week of it, and a couple upgraded
 			## so the grades and the ceiling notches are on the same screen.
 			var r := s.club.roster

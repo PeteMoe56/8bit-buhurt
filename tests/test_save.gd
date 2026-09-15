@@ -201,8 +201,8 @@ func _career_print(s: Season) -> String:
 	## 464" into "the stream was at a different position before a bout was
 	## fought."
 	out += "|rng:%d/%d" % [s.world.rng.seed, s.world.rng.state]
-	out += "|cabinet:%d" % s.world.honours.size()
-	for h in s.world.honours:
+	out += "|cabinet:%d" % s.world.honors.size()
+	for h in s.world.honors:
 		out += ",%s@%d" % [String(h.get("id", "?")), int(h.get("season", -1))]
 	return out
 
@@ -278,7 +278,7 @@ func _test_a_live_cup_survives() -> void:
 			and x.rounds.size() == y.rounds.size() and x.rng.state == y.rng.state
 	s.roll_over()
 	back.roll_over()
-	_ok(same and s.honours().size() == back.honours().size()
+	_ok(same and s.honors().size() == back.honors().size()
 			and _fingerprint(s) == _fingerprint(back),
 		"a live cup survives a save",
 		"%d bracket(s) open at the save point, and both worlds award the same trophies" % live)
@@ -483,7 +483,7 @@ func _test_a_deep_career_survives_a_reload() -> void:
 		bad.append("five seasons and the club never signed anybody — the market is not in the save")
 	notes.append("five fought seasons: %d travel slots, training %d, %d bought, %d in the cabinet, %d CC"
 		% [s.office.travel_slots, s.office.level(ClubOffice.Facility.TRAINING),
-			s.market_taken.size(), s.world.honours.size(), s.office.credits])
+			s.market_taken.size(), s.world.honors.size(), s.office.credits])
 
 	if not SaveGame.save(s, SLOT):
 		_ok(false, "a deep career survives a reload", "the save would not write")

@@ -143,7 +143,7 @@ Picked in the corner, locked for the round (02.14).
 | **Strong left** | Line holds, but the Center hovers left — three men on that side when it matters |
 | **Strong right** | Mirror |
 
-## Difficulty is a behaviour, not a handicap
+## Difficulty is a behavior, not a handicap
 
 > *"For beginner levels of difficulty of this enemy AI, they can just do the strategy and
 > try to stick with it, not knowing how to figure out the next steps — like a new kid

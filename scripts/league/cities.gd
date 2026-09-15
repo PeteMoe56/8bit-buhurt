@@ -19,7 +19,7 @@ extends RefCounted
 ## it is a travel budget. The region is chosen once, at the same moment as the
 ## city, and it is a property of the world.
 ##
-## COORDINATES ARE CITY-CENTRE, TO TWO DECIMALS. That is about a kilometre, which
+## COORDINATES ARE CITY-CENTER, TO TWO DECIMALS. That is about a kilometer, which
 ## is three orders of magnitude finer than anything that reads it — the distance
 ## bands are hundreds of miles wide. Precision here is free and wrong numbers are
 ## the kind of thing a player from that city notices immediately.

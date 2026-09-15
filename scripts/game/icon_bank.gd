@@ -69,18 +69,18 @@ const PACK_NAME := {
 ## The kit — the ground the mark sits on. Dark and saturated, the way a club's
 ## gambeson actually is.
 ##
-## Every kit here clears MIN_CONTRAST against every mark colour below, and that
+## Every kit here clears MIN_CONTRAST against every mark color below, and that
 ## is asserted rather than eyeballed — a screen that offers a combination and
 ## then refuses to save it is worse than one that never offered it. The orange
 ## started at b8541f and failed that check against the gold by three
 ## thousandths, which is exactly the pairing a player would have picked and then
 ## squinted at. Darkened rather than the rule being loosened: the rule was right.
-const KIT_COLOURS: Array[Color] = [
+const KIT_COLORS: Array[Color] = [
 	Color("c0392b"), Color("2a5caa"), Color("2f7d3b"), Color("23232b"),
 	Color("7b3fa0"), Color("9c4416"), Color("1f6f78"),
 ]
 ## The mark. Light, because the point of the mark is that you can see it.
-const MARK_COLOURS: Array[Color] = [
+const MARK_COLORS: Array[Color] = [
 	Color("f4f4e8"), Color("f2c14e"), Color("d8dde3"),
 ]
 
@@ -142,8 +142,8 @@ static func in_pack(pack: String) -> Array:
 ## THE ONE RULE THE OLD SYSTEM GOT RIGHT. A mark that does not contrast with the
 ## kit is not a mark, it is a stain — and at the size this game draws a club on
 ## a league table it disappears entirely. Kept as a measured contrast rather than
-## as a metal/colour taxonomy, because the taxonomy was a proxy for this all
-## along and a proxy stops being right the moment somebody adds a colour.
+## as a metal/color taxonomy, because the taxonomy was a proxy for this all
+## along and a proxy stops being right the moment somebody adds a color.
 const MIN_CONTRAST: float = 0.34
 
 
@@ -160,11 +160,11 @@ static func contrast_ok(kit: Color, mark: Color) -> bool:
 ## badge it sits in; each shape is expressed as a fraction of it so the same
 ## call works at 13 pixels on a league table and at 76 on the create screen.
 ##
-## THE KIT COLOUR IS PASSED IN because half of these marks need a hole. A skull
+## THE KIT COLOR IS PASSED IN because half of these marks need a hole. A skull
 ## without eye sockets is a bag; a helm without a sight is a doorway. There is no
-## third colour and there should not be — the hole is the kit showing through,
+## third color and there should not be — the hole is the kit showing through,
 ## which is how a real surcoat does it, and it costs nothing at 13 pixels where a
-## third colour would turn to mud.
+## third color would turn to mud.
 ##
 ## The first sheet of these was rendered before anything used them, and it is the
 ## only reason this comment exists: Axe read as a flag on a pole, Hammer as a
@@ -180,7 +180,7 @@ static func contrast_ok(kit: Color, mark: Color) -> bool:
 ##   OFF-REGISTER   the mark is not quite where the stencil said. A couple of
 ##                  pixels at the bottom, and it is the single strongest tell.
 ##   GHOSTING       a shadow of the first, misaligned pass showing through.
-##   MUDDY COLOUR   thinned paint, so the mark sits closer to the kit than it
+##   MUDDY COLOR   thinned paint, so the mark sits closer to the kit than it
 ##                  should and the contrast the bank guarantees is spent.
 ##   NO EDGE        a printed mark has a keyline; a painted one has a ragged
 ##                  border that is only there at all further up.
@@ -245,7 +245,7 @@ static func draw_icon(ci: CanvasItem, at: Vector2, r: float, col: Color,
 		7:      ## Diamond
 			_poly(ci, col, [at + Vector2(0, -r * 0.8), at + Vector2(r * 0.7, 0),
 				at + Vector2(0, r * 0.8), at + Vector2(-r * 0.7, 0)])
-		8:      ## Star — five points, struck from the centre.
+		8:      ## Star — five points, struck from the center.
 			var pts: PackedVector2Array = PackedVector2Array()
 			for k in 10:
 				var ang := -PI * 0.5 + float(k) * PI / 5.0
@@ -257,9 +257,9 @@ static func draw_icon(ci: CanvasItem, at: Vector2, r: float, col: Color,
 				at + Vector2(r * 0.18, -r * 0.85), at + Vector2(-r * 0.52, r * 0.10),
 				at + Vector2(-r * 0.08, r * 0.10), at + Vector2(-r * 0.18, r * 0.85),
 				at + Vector2(r * 0.52, -r * 0.10), at + Vector2(r * 0.08, -r * 0.10)])
-		10:     ## Axe. The haft runs down the CENTRE and the head sits across
+		10:     ## Axe. The haft runs down the CENTER and the head sits across
 				## it with a lug on the back — a head hanging off one side of an
-				## off-centre haft is a flag on a pole, which is what the first
+				## off-center haft is a flag on a pole, which is what the first
 				## two versions were. The back lug is the whole tell.
 			ci.draw_rect(Rect2(at.x - r * 0.13, at.y - r * 0.86, r * 0.26, r * 1.72), col)
 			ci.draw_rect(Rect2(at.x - r * 0.38, at.y - r * 0.60, r * 0.25, r * 0.40), col)

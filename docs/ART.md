@@ -19,7 +19,7 @@ does.
 **The locked style.** Constraint 05.1: *8-bit, load-bearing rather than
 decorative.* Pixel art, limited palette, readable at a glance on a phone. The
 reason it is locked is not nostalgia — heraldry is already low-res, it solves
-the grey-blob problem of telling two armoured clubs apart, and it keeps the art
+the gray-blob problem of telling two armored clubs apart, and it keeps the art
 scope survivable for one person.
 
 **Four rules that apply to every slot.**
@@ -38,20 +38,20 @@ scope survivable for one person.
 4. **Nothing important in the bottom-right corner** of an arena slot. The club
    badge is drawn there, at a quality that climbs with the level.
 
-**Two slots must be greyscale. This is the one that is easy to get wrong.**
+**Two slots must be grayscale. This is the one that is easy to get wrong.**
 
-The fight screen changes colour with the occasion — a Worlds final does not look
+The fight screen changes color with the occasion — a Worlds final does not look
 like a Tuesday. It does that by *multiplying* the fighting surface by a mood
-colour. Multiply a brown texture by a brown tint and you get mud.
+color. Multiply a brown texture by a brown tint and you get mud.
 
-So `list_surface` and `list_ground` must be delivered **greyscale, mid-value,
-nothing near pure white or pure black** — texture and detail only, no colour of
-their own. The game supplies the colour. Every other slot is full colour.
+So `list_surface` and `list_ground` must be delivered **grayscale, mid-value,
+nothing near pure white or pure black** — texture and detail only, no color of
+their own. The game supplies the color. Every other slot is full color.
 
 
 ---
 
-## Fighter portraits — 20 slots, full colour, **64 × 64**
+## Fighter portraits — 20 slots, full color, **64 × 64**
 
 **This is the biggest win per image in the whole document.** Four harnesses and
 sixteen heads make **sixty-four different men from twenty pictures**, and a save
@@ -69,7 +69,7 @@ each layer drawn in its own region of it, stacked with a straight overlay and no
 arithmetic. If you take one thing from this section, take this.
 
 **2. The harness is drawn with the head area EMPTY, and the head is drawn with
-no armour on it.** The harness layer is shoulders, chest and gorget. The head
+no armor on it.** The harness layer is shoulders, chest and gorget. The head
 layer is a head and a neck. They meet at the gorget line. A harness that includes
 a helmet will cover every head you own; a head that includes pauldrons will stick
 out past every harness.
@@ -80,7 +80,7 @@ out past every harness.
         ┌────────────────┐  y=0
         │                │
         │   HEAD LAYER   │   head + neck live here
-        │    y 6 → 38    │   roughly 26px wide, centred
+        │    y 6 → 38    │   roughly 26px wide, centerd
         │                │
         ├────────────────┤  y=38  ← the gorget line, where they meet
         │ HARNESS LAYER  │   shoulders, chest, gorget
@@ -110,8 +110,8 @@ is constraint 05.1 doing its job: load-bearing, not decorative.
 > **Prompt to paste, per harness.** Replace the description:
 >
 > *"8-bit pixel art sprite on a 64×64 transparent canvas. The shoulders, chest
-> and gorget of a suit of medieval armour — [DESCRIPTION FROM THE TABLE] — viewed
-> straight on from the front, as a bust. THE HEAD AND NECK ARE ABSENT: the armour
+> and gorget of a suit of medieval armor — [DESCRIPTION FROM THE TABLE] — viewed
+> straight on from the front, as a bust. THE HEAD AND NECK ARE ABSENT: the armor
 > occupies only the bottom half of the canvas, from about 34 pixels down to the
 > bottom edge, and the space above the gorget is fully transparent. No helmet. No
 > face. No head. Limited palette, flat pixel shading, crisp hard pixels, no
@@ -122,7 +122,7 @@ is constraint 05.1 doing its job: load-bearing, not decorative.
 
 Variety here is the whole point — a roster of thirteen should not contain two men
 who look alike. Vary **age, build of face, hair, beard and skin tone** across the
-set, and keep every one of them plausible as a person who fights in armour on a
+set, and keep every one of them plausible as a person who fights in armor on a
 weekend. These are club fighters in their twenties to forties, not fantasy
 heroes.
 
@@ -131,11 +131,11 @@ heroes.
 | `art/fighter/head_00.png` | 20s, clean-shaven, short dark hair, pale |
 | `art/fighter/head_01.png` | 30s, heavy black beard, shaved head, olive |
 | `art/fighter/head_02.png` | 20s, red hair, freckles, thin moustache, pale |
-| `art/fighter/head_03.png` | 40s, grey stubble, receding, weathered, tan |
+| `art/fighter/head_03.png` | 40s, gray stubble, receding, weathered, tan |
 | `art/fighter/head_04.png` | 30s, long brown hair tied back, clean-shaven, brown |
 | `art/fighter/head_05.png` | 20s, blond, square jaw, broken nose, pale |
 | `art/fighter/head_06.png` | 30s, full ginger beard, broad face, ruddy |
-| `art/fighter/head_07.png` | 40s, bald, thick grey moustache, scarred brow, dark |
+| `art/fighter/head_07.png` | 40s, bald, thick gray moustache, scarred brow, dark |
 | `art/fighter/head_08.png` | 20s, black curly hair, no beard, dark brown |
 | `art/fighter/head_09.png` | 30s, shaved sides, topknot, goatee, tan |
 | `art/fighter/head_10.png` | 20s, mousy brown, gaunt, missing a tooth, pale |
@@ -143,16 +143,16 @@ heroes.
 | `art/fighter/head_12.png` | 40s, silver hair, close beard, lined, pale |
 | `art/fighter/head_13.png` | 20s, buzz cut, cauliflower ear, thick neck, tan |
 | `art/fighter/head_14.png` | 30s, braided beard, long fair hair, ruddy |
-| `art/fighter/head_15.png` | 40s, scarred cheek, eyepatch-free, short grey, dark |
+| `art/fighter/head_15.png` | 40s, scarred cheek, eyepatch-free, short gray, dark |
 
 > **Prompt to paste, per head.** Replace the description:
 >
 > *"8-bit pixel art sprite on a 64×64 transparent canvas. The head and neck of a
 > man — [DESCRIPTION FROM THE TABLE] — facing straight forward, neutral
 > expression, looking at the viewer. THE HEAD OCCUPIES ONLY THE UPPER HALF of the
-> canvas, roughly from 6 pixels down to 38 pixels down, centred, about 26 pixels
+> canvas, roughly from 6 pixels down to 38 pixels down, centerd, about 26 pixels
 > wide, with the neck ending in a flat cut at the bottom. Everything below and
-> around it is fully transparent. NO ARMOUR, no helmet, no shoulders, no
+> around it is fully transparent. NO ARMOR, no helmet, no shoulders, no
 > clothing, no collar. Limited palette, flat pixel shading, crisp hard pixels, no
 > anti-aliasing, no gradients. Transparent background. No text, no letters, no
 > numbers."*
@@ -217,7 +217,7 @@ they usually go wrong:
 
 ## The slots
 
-### Arena grounds — 6 slots, full colour, 520 × 300
+### Arena grounds — 6 slots, full color, 520 × 300
 
 One image per level of ground. These are the club's home, seen as a picture on
 the Arena screen — not played on. Each should read instantly as bigger and
@@ -237,14 +237,14 @@ season of gate money.
 >
 > *"8-bit pixel art, landscape 520×300, a [DESCRIPTION FROM THE TABLE ABOVE],
 > seen from a raised corner view. Limited palette, warm earthy tones, dark
-> muted background. Medieval armoured combat venue, empty of fighters. No text,
+> muted background. Medieval armored combat venue, empty of fighters. No text,
 > no words, no numbers, no logos, no signage, no letters anywhere. Nothing
 > important in the bottom-right corner. Flat pixel-art shading, crisp pixels, no
 > anti-aliasing, no gradients."*
 
 ---
 
-### The two away grounds — 2 slots, full colour, 960 × 540
+### The two away grounds — 2 slots, full color, 960 × 540
 
 **Full frame, not a picture on a screen.** These are the splash that runs before
 every bout you do not host, with the two badges, both club names, both records
@@ -253,26 +253,26 @@ bottom third and the top strip both have text over them.
 
 Two pieces carry every fixture the player does not host, and that is deliberate:
 he builds his own ground through six tiers and looks at it all season; he sees
-somebody else's for the length of a splash. The other club's colours and badge go
+somebody else's for the length of a splash. The other club's colors and badge go
 on top, which is what makes an away day at Harrow look different from one at
 Yarrow.
 
 | file | venue | what it is |
 |---|---|---|
 | `art/venue/away.png` | Somebody else's ground | From the tunnel mouth, looking out at a list that is not yours. Their banners on the far rail, the near stands backs-to-camera, colder light than the home grounds. It should read as NOT YOURS in half a second, before anybody reads a word. |
-| `art/venue/neutral.png` | Tournament ground | A cup or the Worlds. Bunting, a federation banner, several lists roped off in a row, a marshal's table with paperwork on it. **No club colours anywhere in it** — it is nobody's home, and any badge in the art would contradict the two the game draws on top. |
+| `art/venue/neutral.png` | Tournament ground | A cup or the Worlds. Bunting, a federation banner, several lists roped off in a row, a marshal's table with paperwork on it. **No club colors anywhere in it** — it is nobody's home, and any badge in the art would contradict the two the game draws on top. |
 
 > **Prompt to paste, per venue.** Replace the description:
 >
 > *"8-bit pixel art, landscape 960×540, a [DESCRIPTION FROM THE TABLE ABOVE],
-> medieval armoured combat venue, empty of fighters. Limited palette, dark muted
+> medieval armored combat venue, empty of fighters. Limited palette, dark muted
 > tones, the middle of the frame darker and quieter than the edges so text reads
 > over it. No text, no words, no numbers, no logos, no heraldry, no signage, no
 > letters anywhere. Flat pixel-art shading, crisp pixels, no anti-aliasing, no
 > gradients."*
 
 **Keep the middle band quiet.** The club names, the records and the venue line
-are drawn across the centre of the frame. A busy crowd or a bright banner through
+are drawn across the center of the frame. A busy crowd or a bright banner through
 the middle third makes all of it unreadable, and unlike the arena pictures there
 is no panel behind this one.
 
@@ -282,7 +282,7 @@ player has already bought would be the same room drawn twice.
 
 ---
 
-### The fighting surface — 2 slots, **greyscale**
+### The fighting surface — 2 slots, **grayscale**
 
 This is the one that matters most. It is under the player's eyes for three
 rounds of up to two minutes each, with men walking over it the whole time — so
@@ -290,7 +290,7 @@ it has to be **quiet**. Anything with strong pattern or high contrast competes
 with the thing the player is actually reading, which is where five men are
 standing relative to five other men.
 
-**`art/list/surface.png` — 701 × 369, greyscale.**
+**`art/list/surface.png` — 701 × 369, grayscale.**
 
 The list floor, rail to rail, seen from **directly above**. No perspective, no
 horizon, no vanishing point — the game is a top-down plan view and a surface
@@ -301,16 +301,16 @@ The game draws on top of this: five lane dividers, two set-up lines, and a
 
 > *"8-bit pixel art texture, 701×369, seen from directly overhead, a flat
 > packed-earth and trodden-grass surface for a medieval combat arena.
-> GREYSCALE ONLY — no colour, mid-tones, nothing near pure white or pure black.
+> GREYSCALE ONLY — no color, mid-tones, nothing near pure white or pure black.
 > Subtle texture, scuffs and wear, low contrast, no strong pattern. Top-down
 > orthographic plan view with no perspective and no horizon. No text, no
 > numbers, no markings, no lines, no logos."*
 
-**`art/list/ground.png` — 960 × 540, greyscale.**
+**`art/list/ground.png` — 960 × 540, grayscale.**
 
 What surrounds the list — whatever the fight is happening *in*. Seen from the
 same overhead angle. The list itself is drawn over the middle of this, so the
-centre can be anything; the edges are what shows.
+center can be anything; the edges are what shows.
 
 > *"8-bit pixel art background texture, 960×540, seen from directly overhead,
 > the ground surrounding a medieval combat arena — grass, dirt, timber boarding.
@@ -322,15 +322,15 @@ centre can be anything; the edges are what shows.
 ## What is deliberately NOT art
 
 **The fighters.** Men are drawn by the game as silhouettes carrying their
-club's kit colour and their club's mark. That is not a placeholder waiting for
+club's kit color and their club's mark. That is not a placeholder waiting for
 sprites — it is the answer to the problem the whole art direction exists to
-solve. Two armoured clubs are two grey blobs; the kit colour and the mark are
+solve. Two armored clubs are two gray blobs; the kit color and the mark are
 what make a four-man pile readable on a phone, and they have to be generated per
-club because the player invents their club. A fixed sprite cannot carry a colour
+club because the player invents their club. A fixed sprite cannot carry a color
 the player picked.
 
-If fighter sprites ever happen they need to be **colourable** — a silhouette
-mask the game tints — not finished coloured figures. That is a different and
+If fighter sprites ever happen they need to be **colorable** — a silhouette
+mask the game tints — not finished colored figures. That is a different and
 much larger job, and it is not specified here.
 
 **The heraldry.** `IconBank` draws every mark in code, on purpose: the marks

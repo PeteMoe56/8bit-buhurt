@@ -18,14 +18,14 @@ extends RefCounted
 ##   * **perfect grid alignment.** These are 16 pixels, drawn at whole-pixel
 ##     positions, at integer scales. An imported 96x96 icon scaled to 16 is mush
 ##     and scaled to 24 is mush at a different size.
-##   * **it recolours for free.** Every mark takes a `Color`, so the mood swap
+##   * **it recolors for free.** Every mark takes a `Color`, so the mood swap
 ##     carries the icons with it and nobody has to author five tinted copies.
 ##
 ## THE VOCABULARY IS BORROWED, and that is the useful half of the work somebody
 ## already did. ACRTW ships 33 UI icons and 19 HUD ones, all smooth vector
 ## silhouettes at 96x96 — the wrong style entirely, and the right LIST. The
 ## buhurt-specific half of it in particular (anvil, round shield, shoulder
-## armour, wolf, fist) is a vocabulary written down by somebody who fights.
+## armor, wolf, fist) is a vocabulary written down by somebody who fights.
 ## These are those ideas redrawn on a grid this game can use.
 ##
 ## WHAT MAKES A 16x16 ICON READ, learned by drawing six that did not: a hard
@@ -183,7 +183,7 @@ const MARKS := {
 		"................",
 		"................",
 	],
-	"armour": [
+	"armor": [
 		"................",
 		"...###....###...",
 		"..#####..#####..",
@@ -760,7 +760,7 @@ static func draw(ci: CanvasItem, name: String, at: Vector2, col: Color,
 ## THE SAME MARK AS A TEXTURE, for the places that need one — a `Button`'s
 ## `icon` property wants a `Texture2D` and will not take a draw call.
 ##
-## Cached on name+colour+scale, because building an image per frame for a button
+## Cached on name+color+scale, because building an image per frame for a button
 ## that never changes is the kind of thing that is invisible on a desktop and
 ## halves the frame rate on a phone.
 static var _textures := {}

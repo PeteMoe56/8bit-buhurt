@@ -120,7 +120,7 @@ func _test_no_card_overlaps_another() -> void:
 		notes.append("  " + ", ".join(bad))
 	notes.append("%d cards, all on screen, none touching" % slots.size())
 	_ok(bad.is_empty(), "no card overlaps another",
-		"every card is inside the screen and clear of its neighbours and the footer")
+		"every card is inside the screen and clear of its neighbors and the footer")
 	s.queue_free()
 
 
@@ -173,7 +173,7 @@ func _test_the_book_survives_a_save() -> void:
 	man.rounds_standing = 130
 	man.best_downs = 6
 	man.knocks = 4
-	man.honours = 2
+	man.honors = 2
 	SaveGame.save(season, 0)
 	var back := SaveGame.load_slot(0)
 	SaveGame.delete(0)
@@ -184,7 +184,7 @@ func _test_the_book_survives_a_save() -> void:
 				found = f
 	var ok: bool = found != null and found.bouts == 57 and found.downs == 91 \
 		and found.rounds_standing == 130 and found.best_downs == 6 \
-		and found.knocks == 4 and found.honours == 2
+		and found.knocks == 4 and found.honors == 2
 	notes.append("saved and reloaded a book of 57 events and 91 downs: %s"
 		% ("intact" if ok else "LOST"))
 	_ok(ok, "the book survives a save",
@@ -236,7 +236,7 @@ func _test_the_market_grid_does_not_collide() -> void:
 		notes.append("  " + ", ".join(bad))
 	notes.append("%d free-agent cards, all clear of each other and the footer" % slots.size())
 	_ok(bad.is_empty(), "the market grid does not collide",
-		"every free-agent card is on screen, clear of its neighbours and above the footer")
+		"every free-agent card is on screen, clear of its neighbors and above the footer")
 	n.queue_free()
 
 
@@ -274,7 +274,7 @@ func _test_the_regime_actually_trades_something() -> void:
 	if not (float(light[1]) > float(hard[1])):
 		bad.append("morale does not fall on Hard")
 	if not (float(light[2]) > float(hard[2])):
-		bad.append("armour does not wear on Hard")
+		bad.append("armor does not wear on Hard")
 	if not (float(light[3]) < float(normal[3]) and float(normal[3]) < float(hard[3])):
 		bad.append("knock odds do not climb with the regime")
 	## And the one that makes it bite: Hard is not a little riskier.
@@ -289,7 +289,7 @@ func _test_the_regime_actually_trades_something() -> void:
 	notes.append("regime: training x%.1f/%.1f/%.1f, knocks x%.2f/%.2f/%.2f"
 		% [light[0], normal[0], hard[0], light[3], normal[3], hard[3]])
 	_ok(bad.is_empty(), "the regime actually trades something",
-		"Hard develops faster and costs morale, armour and bodies; Light is the mirror")
+		"Hard develops faster and costs morale, armor and bodies; Light is the mirror")
 
 
 func _test_a_record_outlives_its_holder() -> void:
@@ -432,7 +432,7 @@ func _test_the_room_is_the_men_in_it() -> void:
 
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))
-	notes.append("the room: %.2f as the average of %d travelling; one man at rock bottom takes it to %.2f, a reserve at rock bottom takes it nowhere"
+	notes.append("the room: %.2f as the average of %d traveling; one man at rock bottom takes it to %.2f, a reserve at rock bottom takes it nowhere"
 		% [before, eight.size(), o.morale])
 	_ok(bad.is_empty(), "the room is the men in it",
 		"club morale is the average of the eight who travel, moves when one of them does, and ignores a reserve")
@@ -531,7 +531,7 @@ func _test_cutting_a_man_is_read_by_the_room() -> void:
 		## THE SAME MEN BEFORE AND AFTER, captured by identity rather than by
 		## re-reading `active_eight()`.
 		##
-		## This summed the travelling party on both sides of the cut, which was
+		## This summed the traveling party on both sides of the cut, which was
 		## fine while every club travelled eight — and the day a club's party
 		## became a thing it buys (`ClubOffice.travel_slots`), the SET changed
 		## under the measurement and the sum fell because there were fewer men in
@@ -929,14 +929,14 @@ func _test_a_squad_is_shaped_like_a_squad() -> void:
 	var mean := float(total) / float(maxi(1, ages.size()))
 
 	## 1. THE MEAN SITS IN THE PRIME BAND. Peak gas is 24 and peak skill is 35;
-	## a squad of grown men who fight in armour averages somewhere in there, and
+	## a squad of grown men who fight in armor averages somewhere in there, and
 	## a flat draw across 19-39 lands at 29 too — so this alone is not the check,
 	## it is the sanity rail under it.
 	if mean < float(Career.PEAK_GAS) or mean > float(Career.PEAK_SKILL):
-		bad.append("the travelling average is %.1f, outside the prime band %d-%d"
+		bad.append("the traveling average is %.1f, outside the prime band %d-%d"
 			% [mean, Career.PEAK_GAS, Career.PEAK_SKILL])
 
-	## 2. AND IT IS CENTRED, which is the part a flat draw fails. Split the career
+	## 2. AND IT IS CENTERD, which is the part a flat draw fails. Split the career
 	## span into thirds: a triangle puts most of its men in the middle third, a
 	## flat line puts exactly a third there. Anything at or under a half is flat.
 	var span := Career.AGE_MAX - Career.AGE_MIN
@@ -954,7 +954,7 @@ func _test_a_squad_is_shaped_like_a_squad() -> void:
 			middle += 1
 	var mid_share := float(middle) / float(maxi(1, ages.size()))
 	if mid_share <= 0.5:
-		bad.append("only %d%% of travelling men are in the middle third — that is a flat draw"
+		bad.append("only %d%% of traveling men are in the middle third — that is a flat draw"
 			% int(round(mid_share * 100.0)))
 
 	## 3. AND BOTH TAILS SURVIVE. A triangle is not a clamp: a nineteen-year-old
@@ -965,7 +965,7 @@ func _test_a_squad_is_shaped_like_a_squad() -> void:
 	if old == 0:
 		bad.append("no man over %d travels anywhere in the country" % hi_edge)
 
-	notes.append("%d travelling men across 120 clubs: average %.1f, %d%% young / %d%% prime / %d%% old"
+	notes.append("%d traveling men across 120 clubs: average %.1f, %d%% young / %d%% prime / %d%% old"
 		% [ages.size(), mean, int(round(100.0 * young / ages.size())),
 			int(round(mid_share * 100.0)), int(round(100.0 * old / ages.size()))])
 	if not bad.is_empty():
@@ -1022,7 +1022,7 @@ func _test_a_player_can_name_his_own_starters() -> void:
 		if f.active != eight.has(f) and c.reserves().has(f) == eight.has(f):
 			kept = false
 	_ok(kept and c.active_eight().size() == eight.size(),
-		"and the same eight are still travelling",
+		"and the same eight are still traveling",
 		"a reorder is not a squad change")
 
 	## A MAN WHO IS NOT ON THE BOOKS IS REFUSED, like every other verb here.

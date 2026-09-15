@@ -10,7 +10,7 @@ func _initialize() -> void:
 	f.best_downs = 5
 	f.rounds_standing = 92
 	f.knocks = 3
-	f.honours = 1
+	f.honors = 1
 	## A LEVEL WAITING TO BE SPENT, so the row of +1 buttons is in the shot. A
 	## screenshot of the state the screen spends most of its time in is a
 	## screenshot of the case that was already working.
@@ -48,7 +48,7 @@ func _process(_d: float) -> bool:
 			## AND THE OTHER HALF OF THE SAME BAND.
 			##
 			## The row of +1 buttons and the two PURCHASED rows — extra reps and
-			## the armourer — share the strip at `LEVEL_ROW_Y`, because a level
+			## the armorer — share the strip at `LEVEL_ROW_Y`, because a level
 			## waiting is a state the player clears on sight and the band is free
 			## almost always. So one shot can only ever show one of them, and the
 			## first version of this tool showed the +1 row and nothing else.

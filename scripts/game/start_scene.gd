@@ -13,10 +13,10 @@ extends Node2D
 ##
 ## This was a literal 480 and every element on the front door hung off it, so on
 ## a 1170-wide handset the whole screen — logo, tagline, all three buttons — sat
-## 105 pixels left of centre with a bare strip down the right. The season screens
+## 105 pixels left of center with a bare strip down the right. The season screens
 ## were re-anchored in the mobile pass and this one was missed, because nothing
 ## that renders a title screen has ever had an opinion about its width.
-static func centre() -> float:
+static func center() -> float:
 	return UiKit.screen().x * 0.5
 
 var font: Font
@@ -52,15 +52,15 @@ func _build() -> void:
 		if SaveGame.has_save(i):
 			has_any = true
 	var y := 300.0
-	ui.add_child(UiKit.button("Play" if not has_any else "Play", Vector2(centre() - 130, y),
+	ui.add_child(UiKit.button("Play" if not has_any else "Play", Vector2(center() - 130, y),
 		Vector2(260, 54), _play))
-	ui.add_child(UiKit.button("Settings", Vector2(centre() - 130, y + 66),
+	ui.add_child(UiKit.button("Settings", Vector2(center() - 130, y + 66),
 		Vector2(260, 46), _settings))
 	## QUIT IS NOT OFFERED ON A PHONE. Mobile platforms have their own way out
 	## and a Quit button in a mobile game reads as a bug; on desktop its absence
 	## reads as one.
 	if not OS.has_feature("mobile"):
-		ui.add_child(UiKit.button("Quit", Vector2(centre() - 130, y + 124),
+		ui.add_child(UiKit.button("Quit", Vector2(center() - 130, y + 124),
 			Vector2(260, 40), func(): get_tree().quit()))
 	queue_redraw()
 
@@ -104,14 +104,14 @@ func _draw() -> void:
 	var logo := Brand.tex(Brand.LOGO)
 	var tag_y := 262.0
 	if logo != null:
-		draw_texture(logo, Vector2(centre() - logo.get_width() * 0.5, 16.0).floor())
+		draw_texture(logo, Vector2(center() - logo.get_width() * 0.5, 16.0).floor())
 		tag_y = 16.0 + float(logo.get_height()) + 26.0
 	else:
 		## No art, no invented layout: the wordmark it always drew.
-		UiKit.text(self, font, "8-BIT", Vector2(centre() - 236, 176), 62, UiKit.INK)
-		UiKit.text(self, font, "BUHURT", Vector2(centre() - 8, 176), 62, UiKit.YOU)
+		UiKit.text(self, font, "8-BIT", Vector2(center() - 236, 176), 62, UiKit.INK)
+		UiKit.text(self, font, "BUHURT", Vector2(center() - 8, 176), 62, UiKit.YOU)
 	UiKit.text(self, font, "Run a club.  Take the list.  Climb.",
-		Vector2(centre() - 134, tag_y), 16, UiKit.DIM)
+		Vector2(center() - 134, tag_y), 16, UiKit.DIM)
 
 	## THE TWO DRIFTING BADGES ARE GONE. They were the game's heraldry on a screen
 	## that had no logo, which is exactly what they were for; beside a

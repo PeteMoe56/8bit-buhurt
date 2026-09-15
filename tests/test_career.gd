@@ -262,11 +262,11 @@ func _test_one_prospect_a_winter() -> void:
 
 func _test_a_squad_survives_its_retirements() -> void:
 	## NOBODY TURNS UP TO AN EVENT WITH SEVEN MEN. Play thirty seasons and the
-	## travelling eight must be eight, and able to fill all five places, at the
+	## traveling eight must be eight, and able to fill all five places, at the
 	## end of every single one of them.
 	##
 	## The first version of the refill signed walk-ons only while the club could
-	## not fill a LINE, so a squad that retired down to six kept travelling with
+	## not fill a LINE, so a squad that retired down to six kept traveling with
 	## six — legal on the day and one knock from being unable to fight. A probe
 	## run found it as a roster of five. This is the check that would have.
 	var s := Season.new(MeleeRosters.player_club(), 99881)
@@ -298,13 +298,13 @@ func _test_a_squad_survives_its_retirements() -> void:
 	## MEASURED AGAINST WHAT THE CLUB CAN TAKE, not against the constant eight.
 	##
 	## This asserted `ACTIVE_SIZE` — a full party — and went red the day a club's
-	## travelling party became a thing it buys (`ClubOffice.travel_slots`): the
+	## traveling party became a thing it buys (`ClubOffice.travel_slots`): the
 	## club in this fixture never buys a place, so it correctly travels six for
 	## thirty seasons and the check called that a failure to survive its
 	## retirements. What it is actually about is whether the squad refills, and
 	## "full" is now a question with a club-specific answer.
 	var want: int = s.club.party_size()
-	notes.append("30 seasons: %d retired, %d walk-ons signed, smallest travelling squad %d of a possible %d"
+	notes.append("30 seasons: %d retired, %d walk-ons signed, smallest traveling squad %d of a possible %d"
 		% [retired, signed, worst_eight, want])
 	_ok(worst_eight == want and worst_five == 5 and retired > 0,
 		"a squad survives its retirements",

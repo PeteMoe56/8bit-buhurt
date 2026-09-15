@@ -11,7 +11,7 @@ class_name Brand
 ## separate `text()` calls with hand-placed x offsets, the settings credits line
 ## said "Retro Buhurt", and `CREDITS.md` said something else again. **A name that
 ## is written in six places is a name that will be wrong in at least one of
-## them**, which is the same rule this project has already applied to colours,
+## them**, which is the same rule this project has already applied to colors,
 ## to the canvas size and to the engine version.
 ##
 ## So: the name is read from `project.godot` — the one copy a store listing and
@@ -26,7 +26,7 @@ class_name Brand
 
 const DIR := "res://art/brand/"
 
-## CUT TO THE SIZE THEY ARE DRAWN AT. The project runs nearest-neighbour
+## CUT TO THE SIZE THEY ARE DRAWN AT. The project runs nearest-neighbor
 ## filtering, so a texture the engine has to scale is a texture with chewed
 ## edges — every file here is its own draw size and nothing scales at runtime.
 const LOGO := DIR + "logo.png"              ## 192x216 — the front door
@@ -42,9 +42,9 @@ const CREST_SMALL := DIR + "crest_64.png"   ## 64x64 — a header's mark
 ## already cost them the number.
 ##
 ## 0.038, AND THE FILE IS FLATTENED TO ONE VALUE. The first cut was 0.055 on the
-## full-colour art and you could read "8-BI" through the reserve column: gold and
+## full-color art and you could read "8-BI" through the reserve column: gold and
 ## white are so much brighter than the ground that 5% of them is still a picture.
-## Greyed on disk it becomes texture rather than a logo, which is what a
+## Grayed on disk it becomes texture rather than a logo, which is what a
 ## watermark is supposed to be.
 const WASH := 0.038
 
@@ -86,7 +86,7 @@ static func draw_logo(ci: CanvasItem, path: String, at: Vector2,
 	return true
 
 
-## THE SAME MARK, CENTRED IN A BOX. For a header that is centred on a canvas
+## THE SAME MARK, CENTERD IN A BOX. For a header that is centerd on a canvas
 ## whose width is not known until it is drawn.
 static func draw_logo_mid(ci: CanvasItem, path: String, box: Rect2,
 		modulate := Color.WHITE) -> bool:
@@ -100,7 +100,7 @@ static func draw_logo_mid(ci: CanvasItem, path: String, box: Rect2,
 
 ## THE FADED GROUND, bottom-right, bled off both edges.
 ##
-## BOTTOM-RIGHT AND NOT CENTRED, because the screens this sits behind all read
+## BOTTOM-RIGHT AND NOT CENTERD, because the screens this sits behind all read
 ## left-to-right from the top: the season table, the roster, the market list and
 ## the clubhouse all put their densest type in the top-left quadrant and their
 ## action row across the foot. The one region of a 960x540 frame that is

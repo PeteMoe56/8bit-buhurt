@@ -7,7 +7,7 @@ extends RefCounted
 ## not a copy of it. The differences are all places where buhurt is not the NFL:
 ##
 ##   * Two CAPTAINS, not a head coach and two coordinators. There is no offence
-##     and defence in a melee — everybody does the same job in a different place
+##     and defense in a melee — everybody does the same job in a different place
 ##     on the line — so a captain covers POSITIONS instead of a side of the ball.
 ##   * A captain covers TWO roles: a primary and a secondary. There are only
 ##     three roles, so **two captains cover all three and double up on one, and
@@ -159,7 +159,7 @@ func raise_cap() -> String:
 	var cost: int = cap_cost()
 	if credits < cost:
 		return "That costs %d CC and you have %d." % [cost, credits]
-	credits -= cost
+	spend(cost, LINE_CLUB)
 	cap_level += 1
 	_mark(SLOT_CAP)
 	return ""
@@ -232,7 +232,7 @@ func upgrade(f: int) -> String:
 	var cost := facility_cost(f)
 	if credits < cost:
 		return "That costs %d CC and you have %d." % [cost, credits]
-	credits -= cost
+	spend(cost, LINE_FACILITIES)
 	facilities[f] = level(f) + 1
 	_mark(str(f))
 	return ""
@@ -251,8 +251,13 @@ func build_arena() -> String:
 	var err := arena.can_build(tier, credits)
 	if err != "":
 		return err
-	credits -= arena.next_cost()
+	spend(arena.next_cost(), LINE_GROUND)
 	arena.level += 1
+	## A NEW GROUND ARRIVES NEW. Paying sixty credits for a National Arena and
+	## being handed one with the last place's rubbish still in it would read as a
+	## bug, and upgrading is not a laundering route anyway — the level is gated on
+	## promotion and costs its full price either way.
+	arena.built()
 	_mark(SLOT_ARENA)
 	return ""
 
@@ -277,6 +282,7 @@ func build_arena() -> String:
 var built_this_week: Dictionary = {}
 
 const SLOT_ARENA: String = "arena"
+const SLOT_TIDY: String = "tidy"
 const SLOT_CAP: String = "cap"
 const SLOT_TRAVEL: String = "travel"
 const SLOT_BOOST: String = "boost"
@@ -306,7 +312,7 @@ func new_week() -> void:
 	built_this_week.clear()
 
 
-## What the screen says when a button is greyed by the throttle. One sentence,
+## What the screen says when a button is grayed by the throttle. One sentence,
 ## and it names the rule rather than the state — "not this week" tells a player
 ## he is being refused; it does not tell him it will work next week.
 ## ---------------------------------------------------------- sitting him down
@@ -335,7 +341,7 @@ const NEGOTIATE_COST := {
 ## WHAT AN AFTERNOON WITH HIM IS WORTH. Through `morale_shift`, which scales by
 ## the room left — so the same conversation lifts a sour man a long way and a
 ## contented one barely at all. Combined with the cost table that makes rescuing
-## somebody the better buy, which is the behaviour worth rewarding.
+## somebody the better buy, which is the behavior worth rewarding.
 const NEGOTIATE_LIFT: float = 0.14
 
 
@@ -353,13 +359,13 @@ func negotiate(card: FighterCard) -> String:
 	var cost := negotiate_cost(card)
 	if credits < cost:
 		return "That costs %d CC and you have %d." % [cost, credits]
-	credits -= cost
+	spend(cost, LINE_SQUAD)
 	card.morale_shift(NEGOTIATE_LIFT)
 	_mark(slot)
 	return ""
 
 
-## ---------------------------------------------------------- the armourer
+## ---------------------------------------------------------- the armorer
 ## THE SECOND ROW OF RETRO BOWL'S MEETING CARD, which is where this came from —
 ## Pete, 14 Sep 2026, sending the screen over: MORALE / CONDITION / XP LEVEL /
 ## CONTRACT, each with a button and a price in credits beside it.
@@ -368,13 +374,13 @@ func negotiate(card: FighterCard) -> String:
 ## it is the one with a hole under it: `armor` multiplies straight into
 ## `eff_base()`, it is taken off by the HARD regime every week, and until now the
 ## ONLY thing in the entire game that put any of it back was the luck of the
-## dilemma deck dealing the armourer's bill. A stat that can only fall unless the
+## dilemma deck dealing the armorer's bill. A stat that can only fall unless the
 ## game happens to deal you a card is the same shape as the ground retainer that
 ## paid nothing and the pulling power that collected seven per cent of itself:
 ## **a system the player cannot reach.**
 ##
 ## Priced off the damage rather than off the man, exactly as `negotiate` is
-## priced off his mood rather than his rating: an armourer charges for the work
+## priced off his mood rather than his rating: an armorer charges for the work
 ## in front of him and does not ask what the fighter is worth. The step is the
 ## same size as the deck's own best card (+0.16) so the two roads to a repaired
 ## harness agree with each other about what a repair IS.
@@ -386,11 +392,11 @@ const KIT_STEP: float = 0.16
 const KIT_COST_FULL: int = 5
 
 
-## What the armourer wants for one visit, 1 CC at a scratch and KIT_COST_FULL at
+## What the armorer wants for one visit, 1 CC at a scratch and KIT_COST_FULL at
 ## a harness that is falling apart.
 ## AGAINST HIS OWN CEILING, not against a perfect harness. A man in borrowed kit
 ## cannot be polished past 0.82, so charging him for the gap to 1.00 would be the
-## armourer billing for work he is about to refuse to do.
+## armorer billing for work he is about to refuse to do.
 static func kit_cost(card: FighterCard) -> int:
 	var top := Quartermaster.ceiling(card)
 	return clampi(int(ceil((top - card.armor) * float(KIT_COST_FULL))), 1, KIT_COST_FULL)
@@ -410,7 +416,7 @@ func buy_harness(card: FighterCard) -> String:
 	var cost := Quartermaster.upgrade_cost(card)
 	if credits < cost:
 		return "That costs %d CC and you have %d." % [cost, credits]
-	credits -= cost
+	spend(cost, LINE_KIT)
 	card.harness = next
 	card.armor = Quartermaster.ceiling(card)
 	return ""
@@ -418,13 +424,25 @@ func buy_harness(card: FighterCard) -> String:
 
 ## ONE VISIT A WEEK, PER MAN, on the same throttle every other per-man purchase
 ## uses — without it a club with credits walks a wrecked squad back to new in an
-## afternoon, which is the armourer as a vending machine rather than a decision.
+## afternoon, which is the armorer as a vending machine rather than a decision.
 func repair_kit(card: FighterCard) -> String:
 	## AND THE REFUSAL SAYS WHICH KIND IT IS. "As good as it gets" on a borrowed
 	## harness sitting at 0.82 reads as a bug; the player can see it is not full
-	## and the armourer is telling him it is. Naming the grade turns a refusal
+	## and the armorer is telling him it is. Naming the grade turns a refusal
 	## into the sales pitch for the next one.
 	if Quartermaster.topped_out(card):
+		## AND THE REFUSAL HAS TO BE TRUE. `topped_out` used to mean "within a
+		## thousandth of his ceiling" and now means "within a hard week of it",
+		## so a man at 0.85 of a 0.90 ceiling gets turned away — and telling him
+		## his harness is "as good as borrowed gets" when the screen beside him
+		## says 85% is the kind of small lie a player spots immediately and then
+		## stops trusting every other refusal in the game.
+		##
+		## So there are three answers now, not two: nothing worth doing, nothing
+		## MORE that can be done at this grade, and nothing better in the world.
+		if card.armor < Quartermaster.ceiling(card) - 0.001:
+			return "%s's kit is fine. Come back when there is something to do." \
+				% card.display_name
 		if Quartermaster.next_grade(card) < 0:
 			return "%s's harness is as good as it gets." % card.display_name
 		return "%s's %s harness is as good as %s gets. He needs better kit." % [
@@ -432,11 +450,11 @@ func repair_kit(card: FighterCard) -> String:
 			Quartermaster.name_of(card).to_lower()]
 	var slot := "kit:%s#%d" % [card.display_name, card.number]
 	if _throttled(slot):
-		return "The armourer has already had %s's kit this week." % card.display_name
+		return "The armorer has already had %s's kit this week." % card.display_name
 	var cost := kit_cost(card)
 	if credits < cost:
 		return "That costs %d CC and you have %d." % [cost, credits]
-	credits -= cost
+	spend(cost, LINE_KIT)
 	card.armor = clampf(card.armor + KIT_STEP, 0.0, Quartermaster.ceiling(card))
 	_mark(slot)
 	return ""
@@ -464,7 +482,7 @@ func buy_level(card: FighterCard) -> String:
 	var cost := Career.level_cost(card)
 	if credits < cost:
 		return "That costs %d CC and you have %d." % [cost, credits]
-	credits -= cost
+	spend(cost, LINE_SQUAD)
 	card.xp = Career.next_level_at(card)
 	_mark(slot)
 	return ""
@@ -542,7 +560,7 @@ func pay_upkeep() -> Dictionary:
 	var a := arena_upkeep()
 	if a > 0:
 		if credits >= a:
-			credits -= a
+			spend(a, LINE_GROUND)
 			billed += a
 		elif arena.level > 0:
 			arena.level -= 1
@@ -554,7 +572,7 @@ func pay_upkeep() -> Dictionary:
 		if c <= 0:
 			continue
 		if credits >= c:
-			credits -= c
+			spend(c, LINE_FACILITIES)
 			billed += c
 		else:
 			facilities[key] = level(key) - 1
@@ -573,7 +591,7 @@ func pay_upkeep() -> Dictionary:
 			continue
 		var c: int = int(Federation.UPKEEP[r]) * lvl
 		if credits >= c:
-			credits -= c
+			spend(c, LINE_FEDERATION)
 			billed += c
 		else:
 			compliance[r] = 0
@@ -735,12 +753,12 @@ func note_shift(d: float) -> void:
 ## A crowd turns up, and afterwards the club is bigger for it.
 func crowd_came(heads: int) -> void:
 	note_shift(float(heads) * NOTE_PER_CROWD)
-	## FAN FAVOURITE. He is the one they came to see, so the following grows
+	## FAN FAVORITE. He is the one they came to see, so the following grows
 	## faster while he is here — and Retro Bowl's own wording adds the sting:
 	## *"but takes a hit when fired."* See `release()` below; a trait with only an
 	## upside is a purchase, not a decision.
 	var gain := float(heads) * FANS_PER_HEAD
-	if has_trait(Trait.FAN_FAVOURITE):
+	if has_trait(Trait.FAN_FAVORITE):
 		gain *= TRAIT_FANS
 	fans += gain
 	_clamp_fans()
@@ -892,13 +910,46 @@ func crowd_meter() -> float:
 ## and that one already reads the crowd correctly, floors at 1 for a club nobody
 ## has heard of, and says in its own comment why: *"a club nobody has heard of is
 ## the club that most needs a trickle."*
-const GROUND_RETAINER_POW: float = 0.30
-const GROUND_RETAINER_K: float = 0.72
+## THE TWO CONSTANTS MOVED TO `Arena`, with the condition that scales them —
+## `Arena.RETAINER_POW` and `Arena.RETAINER_K`. What a ground is worth is a fact
+## about the ground, and this file had it because this file happened to be where
+## the arithmetic was written. Everything below still forwards.
 
 
+## THE RETAINER THE GROUND PAYS ACROSS A SEASON, and what state it is in now
+## decides how much of it arrives.
+##
+## `arena.gate_scale()` is 1.0 at a spotless ground and 0.45 at a ruin, so a club
+## that lets its ground go is earning a little over half what it built. That is
+## the whole of Pete's *"it raises your income but costs to maintain as it
+## degrades"* — the raise is the level, the cost is the upkeep, and the slide
+## between them is this multiplier.
 func gate_income() -> int:
-	return int(floor(pow(maxf(1.0, float(arena.capacity())),
-		GROUND_RETAINER_POW) * GROUND_RETAINER_K))
+	return arena.retainer()
+
+
+## AND WHAT IT WOULD BE IF THE GROUND WERE KEPT. The finances screen shows both,
+## because "you are losing four credits a season to rubbish" is an argument and
+## "you earn eleven" is a number.
+func gate_income_full() -> int:
+	return arena.retainer_full()
+
+
+## PUT THE GROUND RIGHT. One visit a week, like the armorer, and for the same
+## reason: without a throttle a club with credits walks a ruin back to new in an
+## afternoon and the whole axis becomes a vending machine.
+func tidy_arena() -> String:
+	if arena.condition >= 0.999:
+		return "The ground is already spotless."
+	if _throttled(SLOT_TIDY):
+		return "The ground has already been seen to this week."
+	var cost := arena.upkeep_cost()
+	if credits < cost:
+		return "That costs %d CC and you have %d." % [cost, credits]
+	spend(cost, LINE_GROUND)
+	arena.condition = 1.0
+	_mark(SLOT_TIDY)
+	return ""
 
 
 func training_points() -> int:
@@ -988,7 +1039,7 @@ const REGIME_XP := { Regime.LIGHT: 0.6, Regime.NORMAL: 1.0, Regime.HARD: 1.5 }
 ## Morale a week, as a fraction of the 0-1 scale this game keeps it on. Theirs
 ## is 1-100 and moves 0..+2 or -1..-3; scaled, that is the same weight.
 const REGIME_MORALE := { Regime.LIGHT: 0.015, Regime.NORMAL: 0.0, Regime.HARD: -0.020 }
-## Armour condition a week. Theirs adds or removes 10 of 100 on a big rest.
+## Armor condition a week. Theirs adds or removes 10 of 100 on a big rest.
 const REGIME_WEAR := { Regime.LIGHT: 0.10, Regime.NORMAL: 0.0, Regime.HARD: -0.10 }
 ## And the multiplier on a knock actually landing.
 const REGIME_INJURY := { Regime.LIGHT: 0.10, Regime.NORMAL: 0.20, Regime.HARD: 1.00 }
@@ -1079,13 +1130,13 @@ static func captain(nm: String, a: int, b: int, grade: int = 2,
 ## `Facility` enum has a paragraph about further up.
 enum Trait {
 	NONE, EXPERIENCE, TALENT_SPOTTER, MOTIVATOR, NEGOTIATOR,
-	FAN_FAVOURITE, PHYSIO, LIKEABLE, POSITIVE, SCOUT, TACTICIAN,
+	FAN_FAVORITE, PHYSIO, LIKEABLE, POSITIVE, SCOUT, TACTICIAN,
 }
 
 const TRAIT_NAME := {
 	Trait.NONE: "None", Trait.EXPERIENCE: "Experience",
 	Trait.TALENT_SPOTTER: "Talent Spotter", Trait.MOTIVATOR: "Motivator",
-	Trait.NEGOTIATOR: "Negotiator", Trait.FAN_FAVOURITE: "Fan Favourite",
+	Trait.NEGOTIATOR: "Negotiator", Trait.FAN_FAVORITE: "Fan Favorite",
 	Trait.PHYSIO: "Physio", Trait.LIKEABLE: "Likeable",
 	Trait.POSITIVE: "Positive", Trait.SCOUT: "Scout",
 	Trait.TACTICIAN: "Tactician",
@@ -1099,7 +1150,7 @@ const TRAIT_BLURB := {
 	Trait.TALENT_SPOTTER: "His men gain ceiling the day he arrives.",
 	Trait.MOTIVATOR: "His men lift the day he arrives.",
 	Trait.NEGOTIATOR: "His men re-sign for less.",
-	Trait.FAN_FAVOURITE: "The following grows faster, and falls when he goes.",
+	Trait.FAN_FAVORITE: "The following grows faster, and falls when he goes.",
 	Trait.PHYSIO: "His men come out of the corner with more left.",
 	Trait.LIKEABLE: "A toxic man of his drags nobody down.",
 	Trait.POSITIVE: "His men train faster.",
@@ -1114,7 +1165,7 @@ const TRAIT_XP_BANKED: int = 8          ## Experience, on arrival
 const TRAIT_CEILING: int = 3            ## Talent Spotter, on arrival
 const TRAIT_MORALE: float = 0.10        ## Motivator, on arrival
 const TRAIT_NEGOTIATOR: float = 0.85    ## Negotiator, on a re-signing
-const TRAIT_FANS: float = 1.25          ## Fan Favourite, on the following
+const TRAIT_FANS: float = 1.25          ## Fan Favorite, on the following
 const TRAIT_PHYSIO: float = 0.06        ## Physio, on corner recovery
 const TRAIT_POSITIVE_XP: float = 1.15   ## Positive, on training
 ## SCOUT, on the free-agent list. It said *"More men at the trials"* and pointed
@@ -1247,7 +1298,7 @@ func hire(c: Dictionary) -> String:
 	var price := cost_of(c)
 	if credits < price:
 		return "%s costs %d CC and you have %d." % [String(c.get("name", "A captain")), price, credits]
-	credits -= price
+	spend(price, LINE_SQUAD)
 	captains.append(c)
 	return ""
 
@@ -1277,7 +1328,7 @@ func arrival_effect(c: Dictionary, club) -> Dictionary:
 
 
 ## LETTING A CAPTAIN GO, and what the place makes of it.
-const FANS_LOST_FAVOURITE: float = 0.80
+const FANS_LOST_FAVORITE: float = 0.80
 
 
 ## THE SUMMER, FOR THE STAFF. Everybody loses a year; anybody on zero has gone.
@@ -1305,7 +1356,7 @@ func extend_captain(i: int) -> String:
 		return "There is no captain in that job."
 	if credits < CAPTAIN_EXTEND:
 		return "Another year costs %d CC and you have %d." % [CAPTAIN_EXTEND, credits]
-	credits -= CAPTAIN_EXTEND
+	spend(CAPTAIN_EXTEND, LINE_SQUAD)
 	captains[i]["years"] = int(captains[i].get("years", 0)) + 1
 	return ""
 
@@ -1314,10 +1365,10 @@ func release(i: int) -> void:
 	if i < 0 or i >= captains.size():
 		return
 	## The crowd's man walks and takes a fifth of the following with him. This is
-	## the half of Fan Favourite that makes him a decision rather than a bonus:
+	## the half of Fan Favorite that makes him a decision rather than a bonus:
 	## hiring him is cheap and sacking him is not.
-	if trait_of(captains[i]) == Trait.FAN_FAVOURITE and not specialties_of(captains[i]).is_empty():
-		fans = maxf(0.0, fans * FANS_LOST_FAVOURITE)
+	if trait_of(captains[i]) == Trait.FAN_FAVORITE and not specialties_of(captains[i]).is_empty():
+		fans = maxf(0.0, fans * FANS_LOST_FAVORITE)
 		_clamp_fans()
 	captains.remove_at(i)
 
@@ -1391,7 +1442,7 @@ func raise_rule(r: int) -> String:
 	if credits < cost:
 		return "%s costs %d CC and you have %d." % [
 			String(Federation.RULE_NAME[r]), cost, credits]
-	credits -= cost
+	spend(cost, LINE_FEDERATION)
 	compliance[r] = rule_level(r) + 1
 	_mark(SLOT_RULE)
 	return ""
@@ -1436,14 +1487,127 @@ var purse_log: Array = []
 
 
 ## MONEY IN, WITH A REASON. Returns the amount so a caller can still read it.
-func take(cc: int, what: String, when_: String = "") -> int:
+##
+## `line` IS THE HEADING IT GOES UNDER and `what` is what actually happened.
+## They are different questions: the log wants "Finished 3rd", the books want
+## "Prize money", and a screen that groups by the exact wording of an event ends
+## up with a ledger of one-line categories nobody can read.
+func take(cc: int, what: String, when_: String = "", line: String = "") -> int:
 	if cc == 0:
 		return 0
 	credits += cc
 	purse_log.push_front({"what": what, "cc": cc, "when": when_})
 	while purse_log.size() > PURSE_KEEP:
 		purse_log.pop_back()
+	_book(books_in, line if line != "" else what, cc)
 	return cc
+
+
+## ------------------------------------------------------------------ the books
+## WHERE THE MONEY WENT, BY HEADING, FOR A YEAR AT A TIME.
+##
+## Pete, 16 Sep 2026: *"Make Honors a finances page to show balance breakdowns"*
+## — and, before that, *"The income is either too low or costs are too high. 84
+## in one year will not maintain enough, you'll decline."*
+##
+## THE SECOND SENTENCE IS WHY THIS IS A MODEL AND NOT A SCREEN. `probe_economy`
+## reports a Backyard club netting sixty-odd credits a season against a six-credit
+## Club gym and concludes the ladder is a tenth of a season away. Pete played the
+## same build and could not keep up. Both readings are honest, because the probe
+## measures the ARENA and the club's money actually goes on repairs, levels,
+## contracts and upkeep — none of which anything in this project could total,
+## because money left the club in twenty-three separate places and said nothing
+## on the way out.
+##
+## `take()` has said what every credit IN was for since the purse log went in.
+## This is the other half, and the asymmetry is the whole bug: **a ledger with
+## one side is a ledger.**
+##
+## Cleared at the roll-over, with the closing year kept as `books_last` so the
+## screen can say "and last year" — a breakdown with nothing to compare it to is
+## a list of numbers.
+var books_in: Dictionary = {}
+var books_out: Dictionary = {}
+var books_last: Dictionary = {}
+
+## THE HEADINGS. Seven out and six in, which is few enough to read at a glance
+## and specific enough to act on: a player who sees half his year going on Kit
+## knows to buy harnesses, and one who sees it going on The squad knows he is
+## carrying men he cannot afford.
+const LINE_GROUND := "The ground"
+const LINE_FACILITIES := "Facilities"
+const LINE_KIT := "Kit and harness"
+const LINE_SQUAD := "The squad"
+const LINE_FEDERATION := "The federation"
+const LINE_TRAVEL := "Travel"
+const LINE_CLUB := "The club"
+
+const LINE_GATE := "The gate"
+const LINE_PRIZE := "Prize money"
+const LINE_DUES := "Members' dues"
+const LINE_CUP := "Tournaments"
+const LINE_STORE := "Bought credits"
+
+## The order they are shown in, which is the order they matter in rather than
+## the order they were written. Anything not on the list is drawn after it, so a
+## heading added later shows up rather than disappearing.
+const OUT_ORDER: Array[String] = [LINE_SQUAD, LINE_KIT, LINE_GROUND,
+	LINE_FACILITIES, LINE_TRAVEL, LINE_FEDERATION, LINE_CLUB]
+const IN_ORDER: Array[String] = [LINE_GATE, LINE_PRIZE, LINE_GROUND, LINE_CUP,
+	LINE_DUES, LINE_STORE]
+
+
+static func _book(books: Dictionary, line: String, cc: int) -> void:
+	books[line] = int(books.get(line, 0)) + cc
+
+
+## MONEY OUT, WITH A REASON — the mirror of `take()`, and the reason every
+## `credits -= x` in this project is now a call.
+##
+## It does NOT check affordability. Every caller already does, in its own words,
+## with its own refusal ("That costs %d CC and you have %d") — and a second check
+## here would either duplicate those messages or silently swallow a bug. What
+## this does is take the money and write it down.
+func spend(cc: int, line: String) -> int:
+	if cc == 0:
+		return 0
+	credits -= cc
+	_book(books_out, line, cc)
+	return cc
+
+
+## THE YEAR SO FAR, as [{line, cc}] in the order above, biggest headings first
+## within the leftovers. `which` is `books_in` or `books_out`.
+static func book_rows(books: Dictionary, order: Array[String]) -> Array:
+	var out: Array = []
+	for line in order:
+		if books.has(line) and int(books[line]) != 0:
+			out.append({"line": line, "cc": int(books[line])})
+	var rest: Array[String] = []
+	for k in books.keys():
+		if not order.has(String(k)) and int(books[k]) != 0:
+			rest.append(String(k))
+	rest.sort_custom(func(a, b): return int(books[a]) > int(books[b]))
+	for k in rest:
+		out.append({"line": k, "cc": int(books[k])})
+	return out
+
+
+static func book_total(books: Dictionary) -> int:
+	var t := 0
+	for k in books.keys():
+		t += int(books[k])
+	return t
+
+
+## CLOSE THE YEAR. Called from the roll-over, once, after every summer payment
+## and every summer bill — so `books_last` is a WHOLE season and the open books
+## are a season in progress. Two halves of a year in one column would be the
+## most misleading table on the screen.
+func close_books() -> void:
+	books_last = {"in": books_in.duplicate(), "out": books_out.duplicate()}
+	books_in = {}
+	books_out = {}
 
 
 ## What the last event or roll paid, in the club's own words. Empty when nothing
@@ -1497,7 +1661,7 @@ func take_boost() -> String:
 		return throttle_word("the club")
 	if credits < BOOST_COST:
 		return "A night out costs %d CC and you have %d." % [BOOST_COST, credits]
-	credits -= BOOST_COST
+	spend(BOOST_COST, LINE_CLUB)
 	_mark(SLOT_BOOST)
 	return ""
 
@@ -1522,7 +1686,7 @@ var market_refreshes: int = 0
 func refresh_staff() -> String:
 	if credits < REFRESH_COST:
 		return "Putting the word out costs %d CC and you have %d." % [REFRESH_COST, credits]
-	credits -= REFRESH_COST
+	spend(REFRESH_COST, LINE_CLUB)
 	staff_refreshes += 1
 	return ""
 
@@ -1530,7 +1694,7 @@ func refresh_staff() -> String:
 func refresh_market() -> String:
 	if credits < REFRESH_COST:
 		return "Putting the word out costs %d CC and you have %d." % [REFRESH_COST, credits]
-	credits -= REFRESH_COST
+	spend(REFRESH_COST, LINE_CLUB)
 	market_refreshes += 1
 	return ""
 
@@ -1541,7 +1705,7 @@ func refresh_market() -> String:
 ## DIRECTION §4, written before a line of code: *"Salary cap -> kit and
 ## availability. Nobody is paid. The cap isn't money-per-player, it's how many
 ## bodies you can put on a plane and how many harnesses you own that pass
-## inspection. Bench depth is limited by armour, not payroll. This constraint has
+## inspection. Bench depth is limited by armor, not payroll. This constraint has
 ## never been in a sports management game and it is completely true to the
 ## sport."*
 ##
@@ -1558,7 +1722,7 @@ func refresh_market() -> String:
 ##
 ## The first makes the bench a purchase rather than a given, which is what makes
 ## the corner's two swaps a thing you EARNED. The second makes the Workshop load
-## bearing: armour was a soft multiplier on a man's base and nothing else, so
+## bearing: armor was a soft multiplier on a man's base and nothing else, so
 ## repairs were somewhere to put spare credits. Now it is the difference between
 ## having five men and having four.
 const TRAVEL_MIN: int = MeleeClub.LINE_SIZE
@@ -1568,7 +1732,7 @@ const TRAVEL_MAX: int = MeleeClub.ACTIVE_SIZE
 ##
 ## The first version started everybody at the bare five, which is what the
 ## direction document literally says and was wrong in play for a reason that only
-## showed up once it ran. The corner allows two swaps; a club travelling five can
+## showed up once it ran. The corner allows two swaps; a club traveling five can
 ## make none, so the entire corner layer — the screen, the two swaps, the bench
 ## recovery, all of it — was dead until the first purchase. A mechanic the player
 ## cannot touch in his first season is not a progression, it is a locked door.
@@ -1598,7 +1762,7 @@ func buy_travel_slot() -> String:
 	var cost := travel_cost()
 	if credits < cost:
 		return "Another place costs %d CC and you have %d." % [cost, credits]
-	credits -= cost
+	spend(cost, LINE_TRAVEL)
 	travel_slots += 1
 	_mark(SLOT_TRAVEL)
 	return ""
@@ -1645,8 +1809,26 @@ func morale_after(won: bool, drew: bool) -> void:
 	## when the place is warm. It reads the ARENA now that the Home ground
 	## facility is gone — same idea, and now it is the same number the crowd and
 	## the gate are reading too.
-	swing += float(arena.level) * MORALE_GROUND
+	## AND A GROUND THAT HAS GONE TO SEED STOPS DOING IT. Scaled by condition, so
+	## this is the second thing neglect costs and the first one a player at a
+	## small ground can feel — the retainer at a club gym is three credits and the
+	## slide on it is one, which is not a signal. Note the shape: at condition 1.0
+	## it is exactly the number it has always been and at level 0 it is zero
+	## either way, so nothing that was true yesterday is worse today. **A feature
+	## that nerfs the baseline to make its own upgrades look good is a feature
+	## charging you to undo it.**
+	swing += ground_morale()
 	morale_shift(swing)
+
+
+## WHAT THE GROUND IS WORTH TO THE ROOM, in one place. `Season` adds the same
+## number to every man's own swing a few lines after this runs, and it did so by
+## writing the formula out a second time — **a number that has to agree with
+## another number is a number that will stop agreeing**, and this one had
+## already started: the club figure was about to learn about condition and the
+## per-man one was not.
+func ground_morale() -> float:
+	return float(arena.level) * MORALE_GROUND * clampf(arena.condition, 0.0, 1.0)
 
 
 ## Every move on morale goes through here, dilemmas included, so nothing can add
@@ -1741,7 +1923,7 @@ func specialty_xp(role: int) -> float:
 ## drifted to a wall and four of these five names were unreachable; under the
 ## logistic the equilibria measured out at 0.85, 0.60, 0.47 and 0.26 for clubs
 ## winning four, three, two and one in five — and against thresholds written for
-## the old behaviour, a club winning four fixtures in five read "Good" and
+## the old behavior, a club winning four fixtures in five read "Good" and
 ## "Flying" was still unreachable.
 ##
 ## So the boundaries are set just under each measured equilibrium. A club that
@@ -1768,7 +1950,13 @@ func to_dict() -> Dictionary:
 		"staff_refreshes": staff_refreshes, "market_refreshes": market_refreshes,
 		"facilities": facilities.duplicate(),
 		"captains": captains.duplicate(true),
-		"arena": arena.level, "notoriety": notoriety, "fans": fans,
+		"arena": arena.level, "arena_condition": arena.condition,
+		"notoriety": notoriety, "fans": fans,
+		## THE BOOKS TRAVEL WITH THE SAVE. A finances page that resets every time
+		## the player closes the app is a finances page that can only ever show
+		## the current week, which is not a year and is not what it is for.
+		"books_in": books_in.duplicate(), "books_out": books_out.duplicate(),
+		"books_last": books_last.duplicate(true),
 	}
 
 
@@ -1789,6 +1977,16 @@ static func from_dict(d: Dictionary) -> ClubOffice:
 	o.staff_refreshes = int(d.get("staff_refreshes", 0))
 	o.market_refreshes = int(d.get("market_refreshes", 0))
 	o.arena.level = clampi(int(d.get("arena", 0)), 0, Arena.MAX_LEVEL)
+	## DEFAULTED TO SPOTLESS. A save written before a ground could get dirty was
+	## a save whose ground was, by definition, in perfect order.
+	o.arena.condition = clampf(float(d.get("arena_condition", 1.0)), 0.0, 1.0)
+	## SOFT KEYS, deliberately: every save written before the books existed has
+	## none of these, and an empty ledger on an old career is the truth — nothing
+	## was recorded, so nothing is claimed. A hard key here would refuse to load
+	## every save in existence to gain a column of zeroes.
+	o.books_in = (d.get("books_in", {}) as Dictionary).duplicate()
+	o.books_out = (d.get("books_out", {}) as Dictionary).duplicate()
+	o.books_last = (d.get("books_last", {}) as Dictionary).duplicate(true)
 	o.notoriety = clampf(float(d.get("notoriety", 3.0)), 1.0, NOTORIETY_MAX)
 	o.fans = maxf(0.0, float(d.get("fans", 12.0)))
 	for k in d.get("facilities", {}):

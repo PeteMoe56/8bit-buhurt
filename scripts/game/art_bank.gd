@@ -49,7 +49,7 @@ const SLOTS := {
 	## player builds his own ground through six tiers and looks at it all season;
 	## he sees the other club's for the length of a splash screen. One away ground
 	## and one tournament ground carry every fixture that is not his own, and the
-	## club's own colours and badge on top of them are what make an away day at
+	## club's own colors and badge on top of them are what make an away day at
 	## Harrow look different from an away day at Yarrow.
 	"venue_away": {"path": "venue/away.png", "size": Vector2(960, 540),
 		"about": "Somebody else's ground, from the tunnel mouth. Their banners, "
@@ -59,7 +59,7 @@ const SLOTS := {
 	"venue_neutral": {"path": "venue/neutral.png", "size": Vector2(960, 540),
 		"about": "Tournament ground — a cup or the Worlds. Bunting, a federation "
 			+ "banner, lists roped off in a row and a marshal's table. Nobody's "
-			+ "home: no club colours anywhere in it."},
+			+ "home: no club colors anywhere in it."},
 	## And the home splash is the club's own `arena_0..5` reused at full frame,
 	## which is why there is no `venue_home` here — a third piece of art for the
 	## ground the player has already bought and already looks at would be the
@@ -213,7 +213,7 @@ static func has(id: String) -> bool:
 
 
 ## FIT, NEVER STRETCH. Returns the rect to draw a texture into so it fills the
-## box on its long side and centres on the other — a picture at the wrong
+## box on its long side and centers on the other — a picture at the wrong
 ## proportion gets bars, not a squash.
 static func fit(tex: Texture2D, box: Rect2) -> Rect2:
 	if tex == null:

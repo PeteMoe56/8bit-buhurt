@@ -16,7 +16,7 @@ extends RefCounted
 ## gets a dishonest answer.
 ##
 ## World rule inherited from Hedge Knight: real countries, fictional
-## federations, clubs, fighters and armourers. Russia is excluded entirely.
+## federations, clubs, fighters and armorers. Russia is excluded entirely.
 
 const P := Tuning.Pos
 
@@ -92,7 +92,7 @@ static func player_club() -> MeleeClub:
 		## picker before he sees it; what matters is that the default is
 		## somewhere.
 		"Detroit Free Company", "DFC",
-		IconBank.KIT_COLOURS[0], IconBank.MARK_COLOURS[0], 5, cards)
+		IconBank.KIT_COLORS[0], IconBank.MARK_COLORS[0], 5, cards)
 
 
 ## The opposition. Better on paper and built the other way round — a monster
@@ -119,7 +119,7 @@ static func rival_club() -> MeleeClub:
 	]
 	return MeleeClub.build(
 		"Iron Crown Companions", "ICC",
-		IconBank.MARK_COLOURS[1], IconBank.KIT_COLOURS[3], 6, cards)
+		IconBank.MARK_COLORS[1], IconBank.KIT_COLORS[3], 6, cards)
 
 
 static func validate() -> String:
@@ -145,7 +145,7 @@ static func validate() -> String:
 ## club and the twelve you are playing against come out of the same machine.
 static func starting_club() -> MeleeClub:
 	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", 38)
-	c.kit = IconBank.KIT_COLOURS[0]
-	c.icon_colour = IconBank.MARK_COLOURS[0]
+	c.kit = IconBank.KIT_COLORS[0]
+	c.icon_color = IconBank.MARK_COLORS[0]
 	c.icon = 5
 	return c

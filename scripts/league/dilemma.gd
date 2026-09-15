@@ -235,7 +235,7 @@ const CARDS: Array[Dictionary] = [
 {
 	"id": "smith_debt",
 	"who": Who.WORST_KIT,
-	"title": "The armourer's bill",
+	"title": "The armorer's bill",
 	"text": "The smith who keeps half this club standing up has not been paid since the spring. He has not asked twice. He will not ask a third time.",
 	"options": [
 		{"label": "Settle it in full", "blurb": "And he starts on the kit room tomorrow.",
@@ -278,7 +278,7 @@ const FX_WORD := {
 ## moves in. One entry per field: `{"text": "room -5", "dir": -1}`.
 ##
 ## IT RETURNS A DIRECTION PER FIGURE rather than one verdict for the row. The
-## first version handed the whole line to `tone()` and painted it one colour, and
+## first version handed the whole line to `tone()` and painted it one color, and
 ## the shot of the gambeson card showed what that costs: "Just the eight" spends
 ## four credits, annoys the room and BUYS KIT, and the row printed "kit +8" in
 ## red because the other two fields outvoted it. A mixed answer is the only kind
@@ -316,7 +316,7 @@ static func by_id(id: String) -> Dictionary:
 
 ## WHO THE CARD IS ABOUT. Picked by rule rather than at random wherever a rule
 ## reads better: the harness card should find the man in the worst kit, because
-## a card about condemned armour landing on the best-kept fighter in the club
+## a card about condemned armor landing on the best-kept fighter in the club
 ## reads as a game shuffling cards rather than as something happening.
 static func pick(who: int, roster: Array, rng: RandomNumberGenerator) -> FighterCard:
 	if roster.is_empty():

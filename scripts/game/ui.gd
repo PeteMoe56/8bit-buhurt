@@ -1,9 +1,9 @@
 class_name UiKit
 extends RefCounted
-## The one place the game's colours and text sizes live.
+## The one place the game's colors and text sizes live.
 ##
 ## Two screens drawing the same palette from two sets of local constants is how
-## a UI drifts: somebody nudges a grey on the season screen, the title screen
+## a UI drifts: somebody nudges a gray on the season screen, the title screen
 ## keeps the old one, and the game looks like two games. Same reasoning as
 ## Tuning — a look pass should be a diff of one file.
 
@@ -122,7 +122,7 @@ static func slack() -> Vector2:
 ## is exactly wrong for a dense table: at 8px an all-Plate roster is a wall. Rail
 ## is a 5×7 face with one-pixel stems, so it sets a table two-thirds the width
 ## and reads as quieter than the heading above it. The contrast between them is
-## a hierarchy we would otherwise have to fake with colour.
+## a hierarchy we would otherwise have to fake with color.
 ##
 ## | role | face | drawn on | for |
 ## |------|------|----------|-----|
@@ -200,7 +200,7 @@ static func number() -> Font:
 	return _face(FACE_NUMBER)
 
 
-## THE NEAREST LEGAL SIZE, rounded down so nothing grows into its neighbour.
+## THE NEAREST LEGAL SIZE, rounded down so nothing grows into its neighbor.
 ## Every `text()` call runs its size through this, so a screen written against
 ## the old fallback font cannot silently ask for 13px and get a smeared row — it
 ## gets 8px, which is small but sharp, and obviously wrong enough that somebody
@@ -235,19 +235,19 @@ static func snap(px: int, grid: int = GRID) -> int:
 ##
 ## Only the GROUND and the ink move. `YOU` stays gold in every mood, because it
 ## is how a player finds his own club on a table at a glance and a highlight that
-## changes colour is a highlight he has to re-learn five times.
+## changes color is a highlight he has to re-learn five times.
 enum Mood { NORMAL, CUP, HOSTED, WORLDS, FINAL }
 
 ## PETE'S PALETTE, restored 13 Sep 2026. A Tecmo palette went in for about an
 ## hour — black grounds, saturated navy panels, NES primaries — and his verdict
 ## was one line: *"Oh dear god that is an eye sore. Revert that shit and let's
-## mess with UI instead of base colours."*
+## mess with UI instead of base colors."*
 ##
 ## He is right and the useful part is WHY, because the diagnosis that led to it
 ## was not wrong. Four things made the old screens read as a generic dark
 ## dashboard: hairline borders, engine-default buttons, tinted selection, and a
-## flat palette. Three of those are construction and one is colour — and only
-## the construction ones needed fixing. Turning the colour up to eleven fixed
+## flat palette. Three of those are construction and one is color — and only
+## the construction ones needed fixing. Turning the color up to eleven fixed
 ## nothing that was broken and broke the thing that was not.
 ##
 ## So: the grounds are exactly what they were, and everything else in this file
@@ -293,14 +293,14 @@ static var BG := Color("2e2a24")
 static var INK := Color("e8e4d8")
 static var DIM := Color("968c78")
 static var PANEL := Color("241f1a")
-## TWO JOBS, TWO CONSTANTS. `EDGE` was both **the colour a box is drawn in** and
+## TWO JOBS, TWO CONSTANTS. `EDGE` was both **the color a box is drawn in** and
 ## **the quietest ink on the screen**. Those want opposite things — a rule wants
 ## to be the brightest thing on a panel, a footnote wants to be the dimmest —
 ## and while the frame was one pixel wide nobody noticed. Three pixels wide, at
 ## the same dark brown, and a panel has no edge at all.
 ##
 ## DERIVED, NOT DECLARED. `FRAME` is `EDGE` lightened, computed in `set_mood`, so
-## **no new colour enters the palette** and every mood gets its own frame for
+## **no new color enters the palette** and every mood gets its own frame for
 ## free. Pete's grounds are untouched; the frame is simply the edge turned up far
 ## enough to be an edge.
 static var FRAME := Color("6e6252")
@@ -335,7 +335,7 @@ static func set_mood(m: int) -> void:
 	EMPTY = Color(String(p["empty"]))
 
 
-## PULL A COLOUR TOWARDS THE OCCASION. The melee has its own palette in `Tuning`
+## PULL A COLOR TOWARDS THE OCCASION. The melee has its own palette in `Tuning`
 ## — the ground, the list, the rail, the steel — and those are tuned for
 ## readability at speed, so they are not simply replaced by the mood. They are
 ## dragged toward it: enough that a Worlds final is visibly not a Tuesday in the
@@ -387,7 +387,7 @@ static func bar(ci: CanvasItem, r: Rect2, frac: float, col: Color) -> void:
 ## ONE CARD, THREE SCREENS.
 ##
 ## The roster, the free-agent market and the staff room all draw the same thing:
-## a coloured band with a tag and a number, a name, a rating in stars, a line of
+## a colored band with a tag and a number, a name, a rating in stars, a line of
 ## small print and a bar along the bottom. The roster grew it first and the other
 ## two were about to grow their own copies — which is how the heraldry ended up
 ## drawn by two slightly different `match` statements and put a club in one mark
@@ -448,7 +448,7 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 
 	if big and d.has("note"):
 		## `note_col` is optional and defaults to the dim it always was. The
-		## market needs it: a card that colours the FEE by whether you can pay it
+		## market needs it: a card that colors the FEE by whether you can pay it
 		## and leaves the WAGE plain lies about half its refusals, which is a
 		## sentence already written on that screen about this exact card.
 		text(ci, font, String(d["note"]), Vector2(r.position.x + 8, y + 70.0), 12,
@@ -494,7 +494,7 @@ static func stars(ci: CanvasItem, at: Vector2, rating: int, col: Color,
 			##
 			## The polygon version painted the right half out with `PANEL`,
 			## which is correct on a panel and wrong everywhere else — on the
-			## background, on a selected gold row, on a coloured card band it
+			## background, on a selected gold row, on a colored card band it
 			## drew a dark brown rectangle through the middle of the star. It
 			## was invisible because a half star is rare and every screenshot
 			## that had one happened to have it on a panel.
@@ -600,7 +600,7 @@ static func _note(font: Font, s: String, at: Vector2, size: int,
 	var x := at.x
 	## A WIDTH OF -1 IS "NO BOX", which is what `draw_string` means by it, and an
 	## alignment inside no box is a left alignment. Without this the ledger placed
-	## a centred string at `x - (w + 1) * 0.5` and reported ink in the margin.
+	## a centerd string at `x - (w + 1) * 0.5` and reported ink in the margin.
 	if width > 0.0:
 		if align == HORIZONTAL_ALIGNMENT_RIGHT:
 			x = at.x + width - w
@@ -671,7 +671,7 @@ static func fit_px(font: Font, s: String, px: int, width: float) -> String:
 ##
 ## Fifteen screens opened `_draw()` with the identical line —
 ## `draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)` — which was fine
-## while the ground was one colour. It stopped being fine the moment the ground
+## while the ground was one color. It stopped being fine the moment the ground
 ## gained a second layer: adding the watermark would have been the same edit
 ## fifteen times, and the sixteenth screen written next month would have been
 ## the one that forgot.
@@ -730,7 +730,7 @@ static func pair(ci: CanvasItem, font: Font, label: String, note: String,
 		note_px, note_col, room)
 
 
-## Centred in a box that starts at `at` and runs `width` wide — for a caption
+## Centerd in a box that starts at `at` and runs `width` wide — for a caption
 ## under a button, which is the only thing in the game that wants it.
 static func mid(ci: CanvasItem, font: Font, s: String, at: Vector2,
 		size: int, col: Color, width: float) -> void:
@@ -906,7 +906,7 @@ static func button(text_: String, at: Vector2, size: Vector2, on_press: Callable
 
 ## GODOT'S DEFAULT BUTTON IS THE LOUDEST TELL ON THE SCREEN.
 ##
-## A grey rounded rectangle with a soft vertical gradient. It is the one element
+## A gray rounded rectangle with a soft vertical gradient. It is the one element
 ## no amount of pixel font covers, because the player has seen it in a hundred
 ## engine demos. Everything here is about removing what the default adds:
 ## `corner_radius` to zero, no gradient, a 3px border the same white as a panel
@@ -934,7 +934,7 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	##   black ground  ->  navy panel  ->  bright blue control  ->  gold, pressed
 	##
 	## Gold only ever means "this is happening", which is the same job it does on
-	## a league table and the reason it is the one colour the mood swap never
+	## a league table and the reason it is the one color the mood swap never
 	## touches.
 	b.add_theme_stylebox_override("normal", _sb(SELECT, FRAME, DROP_PX, pad))
 	b.add_theme_stylebox_override("hover", _sb(YOU, FRAME, DROP_PX, pad))
@@ -951,7 +951,7 @@ static func _sb(fill: Color, line: Color, drop: float, pad: float = ICON_PAD) ->
 	sb.set_corner_radius_all(0)
 	sb.anti_aliasing = false
 	## The drop is a real shadow with zero softness, and the offset is what makes
-	## the pressed state look like the key went down rather than changed colour.
+	## the pressed state look like the key went down rather than changed color.
 	sb.shadow_size = int(drop)
 	sb.shadow_color = Color(0, 0, 0, 1)
 	sb.shadow_offset = Vector2(drop, drop)
@@ -965,7 +965,7 @@ static func _sb(fill: Color, line: Color, drop: float, pad: float = ICON_PAD) ->
 	##
 	## A mark hard against a rule reads as part of the rule. Ten pixels is enough
 	## to make it an object sitting on the button rather than a notch cut out of
-	## the border, and it costs the label nothing — the text is centred, so the
+	## the border, and it costs the label nothing — the text is centerd, so the
 	## margin takes the same bite from each side.
 	sb.content_margin_left = pad
 	sb.content_margin_right = pad
@@ -1008,7 +1008,7 @@ static func window(ci: CanvasItem, r: Rect2, title: String, font: Font) -> void:
 	var t := title.to_upper()
 	var w := font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x
 	## The notch is cut in PANEL, not in BG — the frame sits on the panel's own
-	## ground, so filling with the background colour would punch a hole through
+	## ground, so filling with the background color would punch a hole through
 	## to whatever is behind the window.
 	ci.draw_rect(Rect2(r.position.x + 14.0, r.position.y - 1.0,
 		w + 16.0, FRAME_PX + 2.0), PANEL)
@@ -1037,7 +1037,7 @@ static func window(ci: CanvasItem, r: Rect2, title: String, font: Font) -> void:
 ## Kenney's *Fantasy UI Borders* is CC0 and Pete had already imported and
 ## curated it into ACRTW fourteen months ago, with his own `KENNEY_PICKS.md`
 ## mapping seven categories. The pack is white line-art on transparent, which
-## means it **multiply-tints to any colour** — so one file serves all five moods
+## means it **multiply-tints to any color** — so one file serves all five moods
 ## and there is nothing to re-author when the palette moves.
 ##
 ## THE REASON IT SURVIVES ON A PIXEL GRID is that the artwork is geometric —
@@ -1158,24 +1158,24 @@ static func rule(ci: CanvasItem, file: String, at: Vector2, width: float,
 
 ## A SELECTED ROW INVERTS. It does not tint.
 ##
-## A slightly different background colour is how a table highlights a row on the
-## web; it is not how a machine with four colours per tile did it, and it is not
+## A slightly different background color is how a table highlights a row on the
+## web; it is not how a machine with four colors per tile did it, and it is not
 ## how anything the player grew up with did it. The bar fills and the ink flips,
-## and the caller draws its text in the colour this hands back.
+## and the caller draws its text in the color this hands back.
 static func row(ci: CanvasItem, r: Rect2, on: bool, tint: Color = YOU) -> Color:
 	if not on:
 		return INK
 	ci.draw_rect(r, tint)
 	## AND THE CURSOR SITS IN IT. A filled bar says which row; a cursor says
 	## that the row is a thing you are pointing AT rather than a thing that
-	## happens to be coloured. Both, because a bar alone reads as a status and
+	## happens to be colored. Both, because a bar alone reads as a status and
 	## a cursor alone is too quiet on a dense table.
 	UiIcons.draw(ci, "cursor", Vector2(r.position.x + 4.0,
 		r.position.y + (r.size.y - 16.0) * 0.5), BG, 1)
 	return BG
 
 
-## TWO COLOURS, 2x2, ON THE GRID. A real machine could not blend, so it
+## TWO COLORS, 2x2, ON THE GRID. A real machine could not blend, so it
 ## dithered, and a checkerboard is legible as 8-bit in a way a flat fill never
 ## is. Cheap only on small rects — this is a draw call per cell, so it belongs
 ## on a meter track or a card ground, never on a full screen.

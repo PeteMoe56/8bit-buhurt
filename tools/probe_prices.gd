@@ -47,7 +47,7 @@ func _init() -> void:
 
 	print("\nCONDITION — priced off the damage. 1 at a scratch, %d at a wreck."
 		% ClubOffice.KIT_COST_FULL)
-	print("  %-10s %s" % ["armour", "CC"])
+	print("  %-10s %s" % ["armor", "CC"])
 	for a in [0.95, 0.80, 0.60, 0.40, 0.20, 0.0]:
 		var f := FighterCard.new()
 		f.display_name = "K"

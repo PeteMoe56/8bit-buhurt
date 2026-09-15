@@ -197,7 +197,10 @@ static func claim(office) -> int:
 	if office == null or owed <= 0:
 		return 0
 	var moved := owed
-	office.credits += moved
+	## THROUGH `take()`, not straight at the balance. Bought credits are the one
+	## line on the finances page that is not the club earning, and a player
+	## looking at a good year has every right to know how much of it he paid for.
+	office.take(moved, "Credits bought", "store", ClubOffice.LINE_STORE)
 	owed = 0
 	save_wallet()
 	return moved
@@ -219,7 +222,7 @@ static func buy(id: String) -> String:
 	if b.has_method("purchase"):
 		b.purchase(id)
 		## The grant happens when the store calls back, not here. A store that
-		## credits on the REQUEST is a store that credits a cancelled purchase.
+		## credits on the REQUEST is a store that credits a canceled purchase.
 		return ""
 	return "This device cannot take a payment."
 

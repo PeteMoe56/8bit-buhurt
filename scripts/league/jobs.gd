@@ -58,7 +58,7 @@ static func interested(coach: Coach, world, club_id: int) -> bool:
 	var club: Dictionary = world.clubs[club_id]
 	if coach.reputation < standing_of(int(club["power"])):
 		return false
-	if club_id == coach.favourite_club_id and world.season < DREAM_HELD_UNTIL_SEASON:
+	if club_id == coach.favorite_club_id and world.season < DREAM_HELD_UNTIL_SEASON:
 		return false
 	## Seeded on the three things that make this offer this offer, so it is the
 	## same answer every time the screen is drawn and a different answer next year.

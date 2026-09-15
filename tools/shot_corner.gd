@@ -25,7 +25,7 @@ func _initialize() -> void:
 	## happened to do is a check waiting for the world to do something else*, and
 	## a picture that changes on its own is the same fault in the other direction.
 	seed(20260914)
-	## A SEASON, because the book reads its shapes and its favourites off
+	## A SEASON, because the book reads its shapes and its favorites off
 	## `Session.season.board` and falls back to the built-in formations without
 	## one. The first version of this tool had none, so the star mode
 	## photographed "0 of 4" on a board that did not exist.
@@ -64,8 +64,8 @@ func _process(_d: float) -> bool:
 			var board = Session.season.board if Session.season != null else null
 			if board != null:
 				var sim = s.get("sim")
-				board.toggle_favourite(int(sim.formations[0]), "push", "0")
-				board.toggle_favourite(int(sim.formations[0]), "push", "2")
+				board.toggle_favorite(int(sim.formations[0]), "push", "0")
+				board.toggle_favorite(int(sim.formations[0]), "push", "2")
 			s.set("starring", true)
 			s.call("_show_playbook")
 		3:
@@ -73,7 +73,7 @@ func _process(_d: float) -> bool:
 			## AND BACK TO THE CORNER, to prove the stars reach it. Two starred
 			## out of four means the right-hand column shows two — the fallback
 			## is all-or-nothing, so a half-full column is the only picture that
-			## can only have come from real favourites.
+			## can only have come from real favorites.
 			s.set("starring", false)
 			s.call("_clear_panel")
 			s.call("_build_corner")

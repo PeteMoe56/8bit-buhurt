@@ -113,19 +113,19 @@ func _draw() -> void:
 			draw_rect(Rect2(r.position - Vector2(4, 4), r.size + Vector2(8, 8)), UiKit.SELECT)
 		## BOTH PRICES ON THE CARD. The fee is what you spend now and the wage
 		## is what you carry, and a market that shows one of them lies about half
-		## its refusals. The fee goes in the foot, in credits, coloured by
+		## its refusals. The fee goes in the foot, in credits, colored by
 		## whether you can actually pay it — a price you cannot meet should look
 		## different from one you can.
 		var fee := season.market_fee(f)
 		var afford: bool = season.office.credits >= fee
 		## AND WHETHER THE CLUB CAN CARRY HIM. `can_afford_wage` answers the
 		## other half of the refusal the comment above is about — it existed with
-		## no caller for months while this screen drew the wage in flat grey and
+		## no caller for months while this screen drew the wage in flat gray and
 		## let the player find out at the tap.
 		var room: bool = season.office.can_afford_wage(season.club, f)
 		UiKit.card(self, font, r, {
 			"tag": f.pos_name(), "name": f.display_name, "rating": f.overall(),
-			"band": _pos_colour(f),
+			"band": _pos_color(f),
 			"note": "age %d  ·  %s/wk%s" % [f.age,
 				ClubOffice.money(season.market_wage(f)), "" if room else "  over cap"],
 			"note_col": UiKit.DIM if room else UiKit.DOWN,
@@ -140,7 +140,7 @@ func _draw() -> void:
 		UiKit.text(self, font, flash, Vector2(200, UiKit.screen().y - 30), 13, UiKit.DOWN)
 
 
-func _pos_colour(f: FighterCard) -> Color:
+func _pos_color(f: FighterCard) -> Color:
 	match int(f.pos):
 		Tuning.Pos.CENTER: return UiKit.DOWN
 		Tuning.Pos.FLANK_L, Tuning.Pos.FLANK_R: return UiKit.SELECT

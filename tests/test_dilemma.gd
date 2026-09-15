@@ -95,7 +95,7 @@ func _test_every_option_costs_something() -> void:
 		notes.append("  FREE: " + ", ".join(free))
 	_ok(free.is_empty() and texts_ok and cards >= 10,
 		"every option costs something",
-		"no answer in the deck is strictly better than its neighbours, so no card has a solution")
+		"no answer in the deck is strictly better than its neighbors, so no card has a solution")
 
 
 func _test_a_card_blocks_the_matchday() -> void:
@@ -134,7 +134,7 @@ func _test_a_card_blocks_the_matchday() -> void:
 
 func _test_the_deck_does_not_repeat_itself() -> void:
 	## Not "never repeats" — a player should see a card again within a season. The
-	## rule is that the armourer's bill does not land three matchdays running,
+	## rule is that the armorer's bill does not land three matchdays running,
 	## which is what makes a deck feel like a deck rather than a slot machine.
 	var s := Season.new(MeleeRosters.starting_club(), 5150)
 	var seen: Array[String] = []
@@ -314,7 +314,7 @@ func _test_every_mood_stays_readable() -> void:
 	## IconBank already uses to stop a club wearing a mark nobody can see. One
 	## function for "can this be read on that", used by the kit and by the shell.
 	##
-	## It caught a mistyped hex on the first run — `"2c3away"` is not a colour,
+	## It caught a mistyped hex on the first run — `"2c3away"` is not a color,
 	## and Godot's `Color(String)` takes it without complaint and returns black.
 	var worst := 1.0
 	var bad: Array[String] = []
@@ -322,7 +322,7 @@ func _test_every_mood_stays_readable() -> void:
 	for m in UiKit.PALETTES.keys():
 		UiKit.set_mood(int(m))
 		var bg := UiKit.BG
-		## Every colour that carries TEXT has to read on the ground and on a
+		## Every color that carries TEXT has to read on the ground and on a
 		## panel. UP, DOWN and YOU are included: a green that vanishes on violet
 		## is a result the player cannot see.
 		var pairs := {
@@ -358,7 +358,7 @@ func _test_every_mood_stays_readable() -> void:
 		notes.append("  UNREADABLE: " + ", ".join(bad))
 	_ok(bad.is_empty() and parsed and worst >= 0.30,
 		"every mood stays readable",
-		"five palettes, every text colour measured against both the ground and a panel; the tightest pair is %.2f apart"
+		"five palettes, every text color measured against both the ground and a panel; the tightest pair is %.2f apart"
 			% worst)
 
 

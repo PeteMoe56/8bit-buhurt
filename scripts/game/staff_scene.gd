@@ -150,13 +150,13 @@ func _draw() -> void:
 				## are the two things about a hired captain that change.
 				"foot": "%s  ·  %dy" % [ClubOffice.REGIME_NAME[reg],
 					int(c.get("years", ClubOffice.CAPTAIN_YEARS))],
-				"foot_col": UiKit.DOWN if int(c.get("years", 9)) <= 1 else _regime_colour(reg),
+				"foot_col": UiKit.DOWN if int(c.get("years", 9)) <= 1 else _regime_color(reg),
 			}, true)
 			## The mark on the selected regime button, which a Button cannot
 			## carry itself without a theme.
 			var w := (CARD_W - 8.0) / 3.0
 			draw_rect(Rect2(x + float(reg) * (w + 4.0), CUR_Y + CARD_H + 4.0, w, 3.0),
-				_regime_colour(reg))
+				_regime_color(reg))
 		else:
 			## AN EMPTY SLOT IS THE STRONGEST THING ON THIS SCREEN. A club with
 			## one captain teaches at most two of the three jobs, and the third
@@ -216,7 +216,7 @@ func _trait_word() -> void:
 			Vector2(OFFER_X, y), 11, UiKit.EDGE.lightened(0.5))
 
 
-func _regime_colour(r: int) -> Color:
+func _regime_color(r: int) -> Color:
 	match r:
 		ClubOffice.Regime.LIGHT: return UiKit.UP
 		ClubOffice.Regime.HARD: return UiKit.DOWN
@@ -229,7 +229,7 @@ func _what_it_costs() -> void:
 	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, CARD_H + 86.0))
 	UiKit.text(self, font, "WHAT A REGIME COSTS", Vector2(OFFER_X + 16, CUR_Y + 26),
 		12, UiKit.DIM)
-	var cols := ["", "TRAINING", "MORALE", "ARMOUR", "KNOCKS"]
+	var cols := ["", "TRAINING", "MORALE", "ARMOR", "KNOCKS"]
 	var xs := [16.0, 140.0, 226.0, 306.0, 386.0]
 	for i in cols.size():
 		UiKit.text(self, font, cols[i], Vector2(OFFER_X + xs[i], CUR_Y + 54), 10, UiKit.EDGE.lightened(0.5))
@@ -240,7 +240,7 @@ func _what_it_costs() -> void:
 	]
 	var y := CUR_Y + 84.0
 	for row in rows:
-		var col := _regime_colour(int(row["r"]))
+		var col := _regime_color(int(row["r"]))
 		UiKit.text(self, font, ClubOffice.REGIME_NAME[int(row["r"])],
 			Vector2(OFFER_X + xs[0], y), 14, col)
 		UiKit.text(self, font, String(row["t"]), Vector2(OFFER_X + xs[1], y), 13, UiKit.INK)
@@ -297,4 +297,4 @@ func _coverage() -> void:
 			if is_spec:
 				line += "  ·  specialty"
 		UiKit.text(self, font, line, Vector2(x, y + 20), 12,
-			(UiKit.UP if is_spec else _regime_colour(o.regime_for(role))) if taught else UiKit.DOWN)
+			(UiKit.UP if is_spec else _regime_color(o.regime_for(role))) if taught else UiKit.DOWN)

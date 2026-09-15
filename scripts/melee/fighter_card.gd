@@ -168,9 +168,9 @@ func morale_flag() -> String:
 	return morale_word() if morale < FLAG_BELOW else ""
 
 
-## THE COLOUR OF A MOOD, so every screen that prints the word prints it the same
-## colour. Three screens were deciding this independently the first afternoon.
-func morale_colour() -> Color:
+## THE COLOR OF A MOOD, so every screen that prints the word prints it the same
+## color. Three screens were deciding this independently the first afternoon.
+func morale_color() -> Color:
 	if toxic():
 		return UiKit.DOWN
 	if angry():
@@ -231,7 +231,7 @@ func morale_shift(d: float) -> void:
 ## career has to leave something on the card or it is a trait about an afternoon.
 @export var grudge_club: int = -1
 @export var knocks: int = 0            ## times he has been carried off
-@export var honours: int = 0           ## cups won while on the eight
+@export var honors: int = 0           ## cups won while on the eight
 
 
 ## Downs per bout, which is the number a scout would actually ask for. Returns
@@ -245,12 +245,12 @@ func downs_per_bout() -> float:
 ##
 ## DIRECTION §4: *"The cap isn't money-per-player, it's how many bodies you can
 ## put on a plane and how many harnesses you own that pass inspection. Bench
-## depth is limited by armour, not payroll."* That paragraph has been in the
+## depth is limited by armor, not payroll."* That paragraph has been in the
 ## document since the first day and the game shipped the thing it replaces — a
 ## money cap, the literal Retro Bowl mechanic — while `armor` sat as a soft
 ## multiplier on a man's base and nothing else.
 ##
-## This is the line that makes armour a GATE. A man at 0.30 is not a slightly
+## This is the line that makes armor a GATE. A man at 0.30 is not a slightly
 ## worse fighter, he is a man the marshals will not pass, and the Workshop that
 ## repairs him stops being a place to spend spare credits and becomes the thing
 ## that decides whether you can field five.
@@ -360,6 +360,6 @@ func copy() -> FighterCard:
 	c.assists = assists
 	c.grudge_club = grudge_club
 	c.knocks = knocks
-	c.honours = honours
+	c.honors = honors
 	c.morale = morale
 	return c

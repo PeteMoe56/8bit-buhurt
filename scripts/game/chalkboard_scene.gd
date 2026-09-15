@@ -296,7 +296,7 @@ func _span() -> float:
 
 
 ## The drawn field: as tall as the panel, as wide as the list's real proportions
-## make it at that height, centred in the panel.
+## make it at that height, centerd in the panel.
 func _field() -> Rect2:
 	var scale := BOARD.size.y / Tuning.LIST_W
 	var w: float = _span() * Tuning.LIST_H * scale
@@ -395,7 +395,7 @@ func _release(_p: Vector2) -> void:
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	UiKit.ground(self)
-	UiKit.text(self, font, "CHALKBOARD", Vector2(LEFT_X, 40), 22, UiKit.YOU)
+	UiKit.text(self, font, "PLAYBOOK", Vector2(LEFT_X, 40), 22, UiKit.YOU)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(LEFT_X, 122), 14, UiKit.DIM)
 	_draw_slots()
@@ -435,7 +435,7 @@ func _draw_board() -> void:
 	## Your own back rail, on the left, because that is where it is in the fight.
 	draw_line(f.position, f.position + Vector2(0, f.size.y), Tuning.COL_RAIL, 6.0)
 	## The set-up line, painted rather than explained — and in formation mode the
-	## ground past it is greyed, so the clamp under the finger has a reason on
+	## ground past it is grayed, so the clamp under the finger has a reason on
 	## screen before the finger ever finds it.
 	var lx := f.position.x + Tuning.SET_UP_LINE / _span() * f.size.x
 	if mode == Mode.FORMATION:

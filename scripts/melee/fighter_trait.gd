@@ -348,7 +348,7 @@ const MOD := {
 	## LAST MAN at full effect with four of his side on the floor; nothing while
 	## the five are up. `_rally` scales it.
 	T.LAST_MAN: {"alone": 1.12},
-	## PROUD is a refusal the corner has to honour, so it is a flag the screen
+	## PROUD is a refusal the corner has to honor, so it is a flag the screen
 	## reads rather than anything the sim does.
 	T.PROUD: {"no_sub": 1.0},
 	## TALISMAN lifts everybody ELSE while he stands. `_rally` never gives it to

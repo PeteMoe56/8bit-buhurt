@@ -210,7 +210,7 @@ func _test_the_auto_path_is_untouched() -> void:
 		w.roll_over()
 		seasons += 1
 	var worlds_run := 0
-	for h in w.honours:
+	for h in w.honors:
 		if String(h.get("id", "")) == "worlds":
 			worlds_run += 1
 	_ok(worlds_run == seasons and w.cups.is_empty() and w.worlds == null,

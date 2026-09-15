@@ -250,7 +250,7 @@ func _test_no_screen_is_silent() -> void:
 		notes.append("  SILENT: " + ", ".join(unresolved))
 	_ok(unresolved.is_empty() and moods_ok,
 		"no screen is silent",
-		"every music slot resolves to a file that exists, %d of them by borrowing a neighbour"
+		"every music slot resolves to a file that exists, %d of them by borrowing a neighbor"
 			% borrowed.size())
 
 

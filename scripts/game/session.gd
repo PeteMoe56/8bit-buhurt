@@ -50,6 +50,19 @@ static var viewing_cup: Cup = null
 ## the current selection rather than a one-shot argument.
 static var viewing_fighter: FighterCard = null
 
+## WHICH PAGE THE RECORDS SCREEN SHOULD OPEN ON, or -1 for its own default.
+##
+## `UiKit.go()` takes a path and nothing else, on purpose — a navigation call
+## that carried arbitrary arguments would be fifteen screens each inventing their
+## own contract for them. So a screen that has to be opened at a particular place
+## says so HERE, in the same object `viewing_fighter` and `viewing_cup` already
+## use for exactly this, and the screen clears it after reading.
+##
+## Cleared on read rather than on arrival, so a later visit by any other road
+## lands on the page the player last chose rather than on whichever one some
+## button picked for him a hour ago.
+static var records_page: int = -1
+
 
 static func in_season() -> bool:
 	return season != null and bout != null

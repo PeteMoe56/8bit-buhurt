@@ -339,7 +339,7 @@ func _test_best_of_three() -> void:
 
 
 func _test_the_difficulty_ladder_points_up() -> void:
-	## The beginner tier is a behaviour, not a stat penalty: the Green club hits
+	## The beginner tier is a behavior, not a stat penalty: the Green club hits
 	## exactly as hard, it just stops thinking once its opening plan runs out.
 	## If that is not measurably worse, the difficulty curve does not exist.
 	var wins := 0

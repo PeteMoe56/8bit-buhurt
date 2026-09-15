@@ -62,7 +62,7 @@ func _process(_d: float) -> bool:
 		print("wrote clubhouse_modal")
 		## AND THE MODAL WITH THE COUNTER SHUT, which is what every desktop player
 		## sees and what `Store.closed_word()` exists to say. A shop that shows
-		## three buttons it cannot honour takes a tap and does nothing; this frame
+		## three buttons it cannot honor takes a tap and does nothing; this frame
 		## is the proof that it does not.
 		modal_shut = true
 		Store.state = Store.State.UNAVAILABLE

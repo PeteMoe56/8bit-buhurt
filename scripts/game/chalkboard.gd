@@ -63,7 +63,7 @@ func _unlock(office: ClubOffice, is_formation: bool) -> String:
 	var cost := slot_cost(have)
 	if office.credits < cost:
 		return "That costs %d CC and you have %d." % [cost, office.credits]
-	office.credits -= cost
+	office.spend(cost, ClubOffice.LINE_CLUB)
 	if is_formation:
 		formation_slots += 1
 	else:
@@ -202,7 +202,7 @@ func plays_for(formation_id: int) -> Array:
 	return out
 
 
-# ---------------------------------------------------------------- favourites
+# ---------------------------------------------------------------- favorites
 ## THE FOUR ON THE CORNER — Pete, 13 Sep 2026, in the spec for the between-rounds
 ## screen: *"on the right side you have your four favorited plays."*
 ##
@@ -215,25 +215,25 @@ func plays_for(formation_id: int) -> Array:
 ##
 ## `plays_for` hands out the play's position in `plays`, and `delete_play` uses
 ## `remove_at`, so every index after a deleted play shifts down by one. A
-## favourite holding index 3 would keep working, keep looking fine, and quietly
+## favorite holding index 3 would keep working, keep looking fine, and quietly
 ## be a different play — the worst kind of bug, because nothing ever errors. A
-## name can go stale, and a stale favourite resolves to nothing and is dropped,
+## name can go stale, and a stale favorite resolves to nothing and is dropped,
 ## which is a failure you can see.
 ##
 ## Two plays under one name in one shape is possible and the first wins. That is
 ## a naming problem the player can see and fix, not a silent substitution.
-const MAX_FAVOURITES: int = 4
+const MAX_FAVORITES: int = 4
 
 ## [{shape: int, kind: "push"|"play", key: String}], in the order they show.
-var favourites: Array = []
+var favorites: Array = []
 
 
 static func fav_key(kind: String, id: int, name_: String) -> String:
 	return str(id) if kind == "push" else name_
 
 
-func is_favourite(shape_id: int, kind: String, key: String) -> bool:
-	for f in favourites:
+func is_favorite(shape_id: int, kind: String, key: String) -> bool:
+	for f in favorites:
 		if int(f["shape"]) == shape_id and String(f["kind"]) == kind \
 				and String(f["key"]) == key:
 			return true
@@ -243,16 +243,16 @@ func is_favourite(shape_id: int, kind: String, key: String) -> bool:
 ## Star it, or take the star off. Refuses past four rather than silently pushing
 ## the oldest out — a list that quietly forgets what you put in it is a list you
 ## stop trusting, and four is a decision the player should have to make.
-func toggle_favourite(shape_id: int, kind: String, key: String) -> String:
-	for i in favourites.size():
-		var f: Dictionary = favourites[i]
+func toggle_favorite(shape_id: int, kind: String, key: String) -> String:
+	for i in favorites.size():
+		var f: Dictionary = favorites[i]
 		if int(f["shape"]) == shape_id and String(f["kind"]) == kind \
 				and String(f["key"]) == key:
-			favourites.remove_at(i)
+			favorites.remove_at(i)
 			return ""
-	if favourites.size() >= MAX_FAVOURITES:
-		return "Four favourites is the lot. Take one off first."
-	favourites.append({"shape": shape_id, "kind": kind, "key": key})
+	if favorites.size() >= MAX_FAVORITES:
+		return "Four favorites is the lot. Take one off first."
+	favorites.append({"shape": shape_id, "kind": kind, "key": key})
 	return ""
 
 
@@ -267,40 +267,40 @@ func toggle_favourite(shape_id: int, kind: String, key: String) -> String:
 ## four is the same job in the same number of seconds, and it works on a phone
 ## with one thumb.
 ##
-## The list is pruned by `live_favourites()` whenever it is read, so an index
+## The list is pruned by `live_favorites()` whenever it is read, so an index
 ## handed in from a screen is an index into what that screen just drew. This
 ## takes the index and checks it rather than trusting it, because the screen and
 ## the model are separated by a frame in which a play could have been deleted.
-func promote_favourite(i: int) -> String:
-	if i <= 0 or i >= favourites.size():
+func promote_favorite(i: int) -> String:
+	if i <= 0 or i >= favorites.size():
 		return "" if i == 0 else "That one is not on the list."
-	var moved: Dictionary = favourites[i]
-	favourites[i] = favourites[i - 1]
-	favourites[i - 1] = moved
+	var moved: Dictionary = favorites[i]
+	favorites[i] = favorites[i - 1]
+	favorites[i - 1] = moved
 	return ""
 
 
 ## And down, so the list can be worked from either end. A list you can only
 ## walk one way is a list you have to empty to reorder.
-func demote_favourite(i: int) -> String:
-	if i < 0 or i >= favourites.size():
+func demote_favorite(i: int) -> String:
+	if i < 0 or i >= favorites.size():
 		return "That one is not on the list."
-	if i == favourites.size() - 1:
+	if i == favorites.size() - 1:
 		return ""
-	var moved: Dictionary = favourites[i]
-	favourites[i] = favourites[i + 1]
-	favourites[i + 1] = moved
+	var moved: Dictionary = favorites[i]
+	favorites[i] = favorites[i + 1]
+	favorites[i + 1] = moved
 	return ""
 
 
 ## THE ONES THAT STILL POINT AT SOMETHING, pruned in place. A play deleted from
-## the board takes its favourite with it, and a drawn formation deleted takes
+## the board takes its favorite with it, and a drawn formation deleted takes
 ## everything starred out of it — but only when this is asked, so deleting a
-## play does not have to know what a favourite is.
-func live_favourites() -> Array:
+## play does not have to know what a favorite is.
+func live_favorites() -> Array:
 	var out: Array = []
 	var keep: Array = []
-	for f in favourites:
+	for f in favorites:
 		var shape_id := int(f["shape"])
 		if String(f["kind"]) == "play":
 			var found := false
@@ -314,7 +314,7 @@ func live_favourites() -> Array:
 			continue
 		keep.append(f)
 		out.append(f)
-	favourites = keep
+	favorites = keep
 	return out
 
 
@@ -366,7 +366,7 @@ func to_dict() -> Dictionary:
 	return {
 		"formation_slots": formation_slots, "play_slots": play_slots,
 		"next_id": _next_id, "formations": fs, "plays": ps,
-		"favourites": favourites.duplicate(true),
+		"favorites": favorites.duplicate(true),
 	}
 
 
@@ -393,16 +393,16 @@ static func from_dict(d: Dictionary) -> Chalkboard:
 	## leave more drawn shapes than slots to hold them.
 	c.formation_slots = maxi(c.formation_slots, c.formations.size())
 	c.play_slots = maxi(c.play_slots, c.plays.size())
-	## READ DEFENSIVELY. A save from before favourites existed has none, and a
+	## READ DEFENSIVELY. A save from before favorites existed has none, and a
 	## hand-edited one could have anything — every field is coerced rather than
 	## trusted, and over-long lists are cut to the cap here rather than being
 	## allowed in and refused later.
-	for f in d.get("favourites", []):
-		if c.favourites.size() >= MAX_FAVOURITES:
+	for f in d.get("favorites", []):
+		if c.favorites.size() >= MAX_FAVORITES:
 			break
 		if not (f is Dictionary) or not f.has("shape") or not f.has("kind"):
 			continue
-		c.favourites.append({"shape": int(f["shape"]),
+		c.favorites.append({"shape": int(f["shape"]),
 			"kind": "push" if String(f["kind"]) == "push" else "play",
 			"key": String(f.get("key", ""))})
 	return c

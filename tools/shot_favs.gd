@@ -1,5 +1,5 @@
 extends SceneTree
-## THE FOUR FAVOURITES, IN THE ORDER THE CORNER WILL READ THEM.
+## THE FOUR FAVORITES, IN THE ORDER THE CORNER WILL READ THEM.
 ##
 ##   xvfb-run -a godot --path . --script res://tools/shot_favs.gd
 ##
@@ -21,17 +21,17 @@ func _initialize() -> void:
 
 
 ## STARRED THROUGH THE SCENE'S OWN BOOK, not by pushing dictionaries into
-## `favourites`. The book is what turns a shape into a list of calls, and a
+## `favorites`. The book is what turns a shape into a list of calls, and a
 ## fixture built from anything else is a fixture that can disagree with the
-## screen it is photographing about what a favourite even is.
+## screen it is photographing about what a favorite even is.
 func _star_four() -> void:
 	var board: Chalkboard = Session.season.board
 	var put := 0
 	for sh in scene.call("_book_shapes"):
 		for c in scene.call("_book_calls", int(sh["id"])):
-			if put >= Chalkboard.MAX_FAVOURITES:
+			if put >= Chalkboard.MAX_FAVORITES:
 				return
-			board.toggle_favourite(int(sh["id"]), String(c["kind"]),
+			board.toggle_favorite(int(sh["id"]), String(c["kind"]),
 				Chalkboard.fav_key(String(c["kind"]), int(c["id"]),
 					String(c["name"])))
 			put += 1
@@ -45,7 +45,7 @@ func _process(_d: float) -> bool:
 	match stage:
 		0:
 			_star_four()
-			print("starred %d" % Session.season.board.live_favourites().size())
+			print("starred %d" % Session.season.board.live_favorites().size())
 			scene.set("starring", true)
 			scene.call("_show_playbook")
 		1:
@@ -54,7 +54,7 @@ func _process(_d: float) -> bool:
 			## SLOT 3 TO SLOT 2 — a move in the middle of the list, not at an
 			## end, because the ends are the cases the verb refuses and a shot
 			## of a refusal is a shot of nothing happening.
-			Session.season.board.promote_favourite(2)
+			Session.season.board.promote_favorite(2)
 			scene.call("_show_playbook")
 		2:
 			root.get_texture().get_image().save_png("res://shots/favs_after.png")
@@ -71,6 +71,6 @@ func _process(_d: float) -> bool:
 
 func _order() -> Array:
 	var out: Array = []
-	for f in Session.season.board.live_favourites():
+	for f in Session.season.board.live_favorites():
 		out.append(scene.call("_fav_name", f))
 	return out

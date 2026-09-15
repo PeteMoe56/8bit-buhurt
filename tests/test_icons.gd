@@ -201,8 +201,8 @@ func _test_textures_are_cached() -> void:
 	_ok(a != null and a == b, "a texture is built once and kept",
 		"a button that rebuilt its icon every frame would be free on a desktop")
 	var c := UiIcons.texture("star", Color.RED, 1)
-	_ok(c != a, "and colour is part of the key",
-		"or every button in the game would wear the first colour anybody asked for")
+	_ok(c != a, "and color is part of the key",
+		"or every button in the game would wear the first color anybody asked for")
 
 
 ## A BETTER RATING CAN NEVER DRAW FEWER STARS. The same rule the roster already

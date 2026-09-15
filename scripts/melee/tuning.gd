@@ -24,7 +24,7 @@ const POS_NAME := {
 const POS_X := [0.10, 0.27, 0.50, 0.73, 0.90]
 
 ## Lanes, matching ACTM's 2-1-2 silhouette exactly (`groups = {5:[2,1,2]}` in
-## actm_arena/lib/src/roster.dart). Left pair, centre, right pair.
+## actm_arena/lib/src/roster.dart). Left pair, center, right pair.
 const POS_LANE := [0, 0, 1, 2, 2]
 
 ## Who a fighter starts paired with. Rail and Flanker stick together on each
@@ -52,7 +52,7 @@ const TICK: float = 1.0 / 30.0
 ## because 760 filled the frame edge to edge and left nowhere for the two clubs'
 ## banners to stand. Both halves of the original instruction still hold.
 ## A near-square list left gutters down both sides of a 16:9 screen, and it also
-## made the charge almost nothing: two lines forty metres apart met in under six
+## made the charge almost nothing: two lines forty meters apart met in under six
 ## seconds and the whole round was one long grind. A real list is fought down its
 ## length, and giving it that length gives the round its shape back — a charge,
 ## a first contact, and then the fight.
@@ -197,7 +197,7 @@ const HIT_GAS: float = 0.05
 const HIT_COOLDOWN: float = 1.1
 const STABILITY_RECOVER: float = 0.050  ## per second, when not engaged
 
-## Putting an armoured man over his own base is HARD, and the first pass had it
+## Putting an armored man over his own base is HARD, and the first pass had it
 ## at 0.30 per attempt — which ended rounds in six seconds and made Hit, Hold
 ## and the 2-on-1 all pointless, because you could just keep trying. A fresh,
 ## well-based man should be close to immovable; everything that puts him down
@@ -322,9 +322,9 @@ const INJURY_LENGTH := [1, 1, 1, 1, 2, 2, 3]
 # --------------------------------------------------------------- the gas tank
 ## WALKING IS FREE. Pete, 10 Sep 2026: *"do not have walking effect stamina."*
 ##
-## It has been charged per second and then per metre, and both were wrong in the
+## It has been charged per second and then per meter, and both were wrong in the
 ## same way — they made crossing the list the thing that emptied a man, when
-## what actually empties a man is being in a grapple with somebody. Armour is heavy
+## what actually empties a man is being in a grapple with somebody. Armor is heavy
 ## to fight in, not heavy to stand up in. The tank is spent in GAS_GRAPPLE and in
 ## the things that cost a burst (a bullrush, an escape), and nowhere else.
 ##
@@ -515,7 +515,7 @@ enum Strategy { RUSH_LEFT, RUSH_RIGHT, TURTLE_LEFT, TURTLE_RIGHT }
 const PLAN_TIME: float = 18.0
 const PLAN_MIN_STANDING: int = 3
 
-## How far back from the centre line a side re-forms once its plan expires.
+## How far back from the center line a side re-forms once its plan expires.
 ##
 ## IN UNITS, NOT AS A FRACTION OF THE LIST. It used to be fractions — 0.34 and
 ## 0.66 of LIST_H — and when the list went from 320 long to 760 those same
@@ -609,7 +609,7 @@ static func plan_target(strategy: int, slot: int, spot_x: float) -> Vector2:
 ## kid going through a motion but then once his taught direction stops, he
 ## doesn't know what to do."*
 ##
-## That is the difficulty curve, and it is a behaviour rather than a stat bonus.
+## That is the difficulty curve, and it is a behavior rather than a stat bonus.
 ## Nobody's numbers change between tiers — a Green club hits exactly as hard as
 ## an Elite one. What changes is whether anyone at home is thinking once the
 ## plan runs out. A difficulty that cheats with multipliers reads as unfair; one
@@ -676,9 +676,9 @@ const THIRD_MAN_BONUS: float = 0.15
 
 
 # ------------------------------------------------------------------ club kit
-## Kit and mark colours moved to IconBank on 10 Sep 2026, with the marks
+## Kit and mark colors moved to IconBank on 10 Sep 2026, with the marks
 ## themselves. They are one decision and they belong in one file; a palette here
-## and the shapes it colours over there is how the two drift.
+## and the shapes it colors over there is how the two drift.
 
 # --------------------------------------------------------------------- 8-bit
 const COL_GROUND: Color = Color("2e2a24")

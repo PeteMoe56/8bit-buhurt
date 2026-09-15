@@ -332,7 +332,7 @@ func _test_the_summer() -> void:
 	for r in rows:
 		if int(r["played"]) != 0:
 			fresh = false
-	var cups := s.honours().size()
+	var cups := s.honors().size()
 	## AND NOTHING IS LEFT HANGING, asserted directly rather than through a
 	## trophy count. `cups >= 3` was the old proxy and it passed for years on a
 	## world where the player happened to be knocked out of enough brackets; the

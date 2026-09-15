@@ -240,7 +240,7 @@ func _test_captains_reach_the_list() -> void:
 	})
 	var rail: Dictionary = sim._skill_of(sim.men[Tuning.Pos.RAIL_L])
 	var flank: Dictionary = sim._skill_of(sim.men[Tuning.Pos.FLANK_L])
-	var centre: Dictionary = sim._skill_of(sim.men[Tuning.Pos.CENTER])
+	var center: Dictionary = sim._skill_of(sim.men[Tuning.Pos.CENTER])
 
 	## Both captains on the same two jobs. The TIER still tops out at Hardened —
 	## that is the part that has never moved — but the doubled role is no longer
@@ -268,10 +268,10 @@ func _test_captains_reach_the_list() -> void:
 	if not hires.is_empty():
 		notes.append("  " + ", ".join(hires))
 	notes.append("one five-star teaching Rail and Center: Rail %s · Center %s · Flanker %s"
-		% [rail["name"], centre["name"], flank["name"]])
+		% [rail["name"], center["name"], flank["name"]])
 	notes.append("two five-stars on the same two jobs: tier still %s, and %s trains at x%.2f"
 		% [String(rail["name"]), Tuning.ROLE_NAME[spec_role], ClubOffice.SPECIALTY_XP])
-	_ok(hires.is_empty() and String(rail["name"]) == "Hardened" and String(centre["name"]) == "Hardened"
+	_ok(hires.is_empty() and String(rail["name"]) == "Hardened" and String(center["name"]) == "Hardened"
 			and String(flank["name"]) == "Rust" and no_elite
 			and spec_role >= 0 and paid == 1 and plain == 2 and no_spec,
 		"captains reach the list",
@@ -309,7 +309,7 @@ func _test_facilities_reach_something() -> void:
 	## AND A FULL BUS, which is a purchase like the training ground is.
 	##
 	## This check measures whether a maxed training ground moves the club forward
-	## over a winter, and it started failing the day a club's travelling party
+	## over a winter, and it started failing the day a club's traveling party
 	## became a thing it buys: a club taking six men develops six men, and six
 	## men improving while thirteen get a year older nets out slightly negative.
 	## That is the travel cap doing exactly its job, not the facilities failing —
@@ -326,7 +326,7 @@ func _test_facilities_reach_something() -> void:
 	## This used to assert `power_exact()` rose over the winter, and that stopped
 	## being a statement about the training ground the moment three other systems
 	## started pushing on the same number: harnesses wear toward an inspection
-	## line, a man can miss a weekend, the travelling party is a thing you buy,
+	## line, a man can miss a weekend, the traveling party is a thing you buy,
 	## and everybody still gets a year older. Club power now nets those against
 	## the training and can come out fractionally down in a year the ground did
 	## its job perfectly — which is a true fact about the club and tells you
@@ -337,7 +337,7 @@ func _test_facilities_reach_something() -> void:
 	for f in s.club.active_eight():
 		if Tuning.role_of(int(f.pos)) != Tuning.Role.CENTER:
 			before += f.overall()
-	var centre_before: int = s.club.starting_five()[Tuning.Pos.CENTER].overall()
+	var center_before: int = s.club.starting_five()[Tuning.Pos.CENTER].overall()
 	var rail_before: int = s.club.starting_five()[Tuning.Pos.RAIL_L].overall()
 
 	## AND THE KIT IS HELD STILL, for the same reason ageing is argued about
@@ -361,9 +361,9 @@ func _test_facilities_reach_something() -> void:
 		if kit.has(f):
 			f.armor = float(kit[f])
 	var rail: FighterCard = s.club.starting_five()[Tuning.Pos.RAIL_L]
-	var centre: FighterCard = s.club.starting_five()[Tuning.Pos.CENTER]
+	var center: FighterCard = s.club.starting_five()[Tuning.Pos.CENTER]
 	var rail_after: int = rail.overall()
-	var centre_after: int = centre.overall()
+	var center_after: int = center.overall()
 	## THIS USED TO ASSERT THE CENTER CAME OUT UNCHANGED, and the career layer
 	## (10 Sep 2026) made that false in the best possible way: an untaught man
 	## does not stand still over a winter, he gets a year older. He must not
@@ -375,15 +375,15 @@ func _test_facilities_reach_something() -> void:
 	## not spend a point of it, which proves the winter REFUSED him rather than
 	## having had nothing to offer.
 	notes.append("a winter with the Rail coached and nobody on the Center: Rail %d -> %d, Center %d -> %d (with %d XP he could not spend)"
-		% [rail_before, rail_after, centre_before, centre_after, centre.xp])
+		% [rail_before, rail_after, center_before, center_after, center.xp])
 	var after_coached := 0
 	for f in s.club.active_eight():
 		if Tuning.role_of(int(f.pos)) != Tuning.Role.CENTER:
 			after_coached += f.overall()
 	notes.append("the coached men rate %d against %d before the winter" % [after_coached, before])
 	_ok(maxed and capped and after_coached > before
-			and rail_after > rail_before and centre_after <= centre_before
-			and centre.xp > 0,
+			and rail_after > rail_before and center_after <= center_before
+			and center.xp > 0,
 		"facilities reach something",
 		"all three max out and refuse a sixth; the coached Rail improves over the winter and the uncoached Center banks XP he is never allowed to spend")
 
@@ -880,7 +880,7 @@ func _test_nothing_a_new_club_owns_is_pinned_at_zero() -> void:
 ##
 ##   CONDITION — `armor` multiplies straight into `eff_base()` and is taken off
 ##   every week by the HARD regime, and the ONLY thing in the entire game that
-##   put any of it back was the luck of the dilemma deck dealing the armourer's
+##   put any of it back was the luck of the dilemma deck dealing the armorer's
 ##   bill. A stat that can only fall unless the game deals you a card is the same
 ##   shape as the retainer that paid nothing: **a system the player cannot
 ##   reach.**
@@ -908,7 +908,7 @@ func _test_the_meeting_sells_what_it_offers() -> void:
 	man.level = 3
 	man.xp = 0
 
-	## ---- THE ARMOURER
+	## ---- THE ARMORER
 	man.armor = 0.40
 	var quoted := ClubOffice.kit_cost(man)
 	var purse := o.credits
@@ -917,23 +917,23 @@ func _test_the_meeting_sells_what_it_offers() -> void:
 	if err != "":
 		bad.append("a wrecked harness could not be worked on: " + err)
 	if man.armor <= before:
-		bad.append("the armourer took the money and the harness is the same")
+		bad.append("the armorer took the money and the harness is the same")
 	if purse - o.credits != quoted:
-		bad.append("the armourer quoted %d and charged %d" % [quoted, purse - o.credits])
+		bad.append("the armorer quoted %d and charged %d" % [quoted, purse - o.credits])
 	## ONE VISIT A WEEK. Without the throttle a club with credits walks a wrecked
 	## squad back to new in an afternoon, which is a vending machine, not a
 	## decision.
 	if o.repair_kit(man) == "":
-		bad.append("the armourer took the same harness twice in one week")
+		bad.append("the armorer took the same harness twice in one week")
 	o.new_week()
 	if o.repair_kit(man) != "":
-		bad.append("the armourer would not come back the following week")
+		bad.append("the armorer would not come back the following week")
 
 	## AND IT REFUSES THE TWO THINGS IT SHOULD. A whole harness is not work, and
 	## a club that cannot pay does not get the work done.
 	man.armor = 1.0
 	if o.repair_kit(man) == "":
-		bad.append("the armourer charged for a harness that was already whole")
+		bad.append("the armorer charged for a harness that was already whole")
 	man.armor = 0.20
 	o.new_week()
 	o.credits = 0
@@ -941,7 +941,7 @@ func _test_the_meeting_sells_what_it_offers() -> void:
 		bad.append("a club with no credits got its kit repaired anyway")
 
 	## ---- AND IT IS A ROAD THE PLAYER CAN TAKE AT THE BOTTOM. The whole point
-	## of adding it is that armour had exactly one repair path and it was the
+	## of adding it is that armor had exactly one repair path and it was the
 	## deck. A price a Backyard club cannot reach would leave it that way.
 	var worst := FighterCard.new()
 	worst.display_name = "Wrecked"
@@ -949,7 +949,7 @@ func _test_the_meeting_sells_what_it_offers() -> void:
 	worst.armor = 0.0
 	if ClubOffice.kit_cost(worst) > ClubOffice.KIT_COST_FULL:
 		bad.append("the worst harness in the game costs more than the cap")
-	notes.append("the armourer: %d CC at a scratch, %d at a wreck, +%.2f a visit"
+	notes.append("the armorer: %d CC at a scratch, %d at a wreck, +%.2f a visit"
 		% [ClubOffice.kit_cost(man) if man.armor > 0.9 else 1,
 			ClubOffice.kit_cost(worst), ClubOffice.KIT_STEP])
 
@@ -1039,7 +1039,7 @@ func _test_the_meeting_sells_what_it_offers() -> void:
 	## which does not actually move is worse than one that shows nothing, because
 	## the player spends credits on it.
 	##
-	## `effective_base` is `base x lerp(0.78, 1.0, armour)`, so a wrecked harness
+	## `effective_base` is `base x lerp(0.78, 1.0, armor)`, so a wrecked harness
 	## is a fifth off the one stat that keeps a man upright, and the club's rating
 	## reads it through `position_rating`. That last link is BELOW THE ROUNDING
 	## for one man out of five — a full repair moved a real club 37.227 to 37.463
@@ -1057,10 +1057,10 @@ func _test_the_meeting_sells_what_it_offers() -> void:
 	if base_high <= base_low:
 		bad.append("a repaired harness does not raise his base (%.1f then %.1f)"
 			% [base_low, base_high])
-	notes.append("what the armourer buys: base %.1f at a 40%% harness, %.1f at a whole one"
+	notes.append("what the armorer buys: base %.1f at a 40%% harness, %.1f at a whole one"
 		% [base_low, base_high])
 
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "the meeting sells what it offers",
-		"the armourer repairs a harness once a week at a price that scales with the damage, and extra reps buy the bar and leave the choice of stat alone")
+		"the armorer repairs a harness once a week at a price that scales with the damage, and extra reps buy the bar and leave the choice of stat alone")

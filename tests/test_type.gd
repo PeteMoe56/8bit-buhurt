@@ -4,8 +4,8 @@ extends SceneTree
 ##   godot --headless --path . --script res://tests/test_type.gd
 ##
 ## THIS FILE EXISTS BECAUSE THE FALLBACK IS SILENT. `UiKit._face()` hands back
-## `ThemeDB.fallback_font` when the load fails, which is the right behaviour for
-## a running game and the worst possible behaviour for a check: rename the file,
+## `ThemeDB.fallback_font` when the load fails, which is the right behavior for
+## a running game and the worst possible behavior for a check: rename the file,
 ## break the import, ship the wrong folder, and every screen still draws — in
 ## the engine's default sans, which is not a pixel face and is not 8-bit
 ## anything. Nobody notices in a headless log. So the first check below is that

@@ -65,7 +65,7 @@ func _initialize() -> void:
 		p.origin = Vector2(16.0 + float(i % 3) * 310.0, 46.0 + float(i / 3) * 246.0)
 		root.add_child(p)
 	var title := Label.new()
-	title.text = "    STRATEGIES  —  grey square is where he starts, red is where the plan sends him"
+	title.text = "    STRATEGIES  —  gray square is where he starts, red is where the plan sends him"
 	title.position = Vector2(12, 10)
 	root.add_child(title)
 

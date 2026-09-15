@@ -83,7 +83,7 @@ into an eight-row box for exactly this reason. So there is one ladder: **8, 16,
 
 Nothing at 11, 12, 13, 14, 15, 17, 18, 20, 21 or 26. Those are the sizes the
 codebase uses today and every one of them shows a row of pixels a fraction
-taller than its neighbours.
+taller than its neighbors.
 
 **Converting the UI is a real job** — the sixteen scenes still draw in
 `ThemeDB.fallback_font`, and the jump from 13 to either 8 or 16 is a re-layout
@@ -94,8 +94,8 @@ walking into its number.
 ### The palette
 
 A real 8-bit machine had a fixed palette and that constraint is most of why the
-look holds together. Adopt one: **16 colours, no more**, defined once in `UiKit`
-and never mixed outside it. The game already funnels colour through `UiKit.INK`,
+look holds together. Adopt one: **16 colors, no more**, defined once in `UiKit`
+and never mixed outside it. The game already funnels color through `UiKit.INK`,
 `DIM`, `UP`, `DOWN`, `YOU`, `EDGE` — that is the skeleton of a palette already.
 Finish it and forbid literals.
 

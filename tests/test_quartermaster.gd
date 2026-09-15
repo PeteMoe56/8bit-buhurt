@@ -24,7 +24,7 @@ func _initialize() -> void:
 	_test_better_kit_wears_slower()
 	_test_buying_a_harness_hands_over_a_fresh_one()
 	_test_the_ledger_is_the_squad()
-	_test_what_armour_is_actually_worth()
+	_test_what_armor_is_actually_worth()
 	_test_a_simmed_event_costs_a_week()
 	print("")
 	for n in notes:
@@ -108,19 +108,43 @@ func _test_a_grade_caps_what_a_repair_can_reach() -> void:
 	for i in 20:
 		o.repair_kit(f)
 		o.new_week()
-	_ok(abs(f.armor - Quartermaster.TOP[Quartermaster.Grade.BORROWED]) < 0.01,
-		"the armourer cannot polish a borrowed harness past its grade",
-		"twenty visits left it at %.2f, the grade caps at %.2f"
-			% [f.armor, Quartermaster.TOP[Quartermaster.Grade.BORROWED]])
+	## THE CAP IS A CEILING HE NEVER PASSES AND STOPS SHORT OF, and the second
+	## half of that is new on 16 Sep 2026.
+	##
+	## `topped_out()` used a tolerance of 0.001 — any scratch at all was work the
+	## armorer would take — and `kit_cost()` has a floor of one credit, so a club
+	## of thirteen paid a standing charge every season for polishing things that
+	## did not need polishing. `tools/probe_year1.gd` put the whole of a first
+	## season's maintenance against an income of 17.8 CC. The tolerance is now
+	## `WORTH_DOING`, about one hard week, and this check asserts BOTH ends: he
+	## never goes past the grade, and he stops within a week of it rather than
+	## chasing the last thousandth at a credit a go.
+	var top: float = Quartermaster.TOP[Quartermaster.Grade.BORROWED]
+	_ok(f.armor <= top + 0.001 and f.armor >= top - Quartermaster.WORTH_DOING
+			- ClubOffice.KIT_STEP,
+		"the armorer takes a borrowed harness up to its grade and no further",
+		"twenty visits left it at %.2f, the grade caps at %.2f, and he stops "
+			% [f.armor, top] + "within %.2f of it" % Quartermaster.WORTH_DOING)
 
-	## AND HE SAYS SO, naming the grade rather than claiming the harness is
-	## perfect — a refusal reading "as good as it gets" on a visibly worn harness
-	## reads as a bug, and it is the sales pitch for the next rung.
+	## AND THE REFUSAL SAYS WHICH OF THREE THINGS IT MEANS. Nothing worth doing,
+	## nothing more at this grade, or nothing better in the world — because
+	## "as good as borrowed gets" on a harness the screen beside it reads at 85%
+	## is a small lie, and a player who catches one stops trusting the rest.
 	var err := o.repair_kit(f)
-	_ok(err.contains("borrowed"), "and the refusal names the grade, not perfection",
+	_ok(err.contains("fine") or err.contains("borrowed"),
+		"and the refusal says which kind of refusal it is",
 		"'%s'" % err)
 
-	## THE BILL IS AGAINST HIS OWN CEILING TOO, or the armourer charges for work
+	## THE GRADE-NAMING REFUSAL IS STILL THERE, for a harness genuinely at its
+	## ceiling — that one is the sales pitch for the next rung and it would be
+	## easy to lose while widening the band above.
+	f.armor = top
+	var at_top := o.repair_kit(f)
+	_ok(at_top.contains("borrowed"),
+		"and a harness actually at its ceiling is still sold the next one",
+		"'%s'" % at_top)
+
+	## THE BILL IS AGAINST HIS OWN CEILING TOO, or the armorer charges for work
 	## he is about to refuse.
 	##
 	## MEASURED AT A READING BOTH GRADES CAN BE AT. The first cut compared a
@@ -205,13 +229,13 @@ func _test_the_ledger_is_the_squad() -> void:
 
 
 ## ------------------------------------------------- the number nobody checked
-func _test_what_armour_is_actually_worth() -> void:
+func _test_what_armor_is_actually_worth() -> void:
 	## THIS CHECK DOES NOT ASSERT A BALANCE. It asserts that the figure is
 	## WRITTEN DOWN, and prints it, because it is the one thing a shop built on
-	## armour has to be honest about.
+	## armor has to be honest about.
 	##
 	## `effective_base()` is `base * lerpf(0.78, 1.0, armor)` and base carries
-	## 0.24 of a man's rating. So the whole legal armour range — from one notch
+	## 0.24 of a man's rating. So the whole legal armor range — from one notch
 	## above failing inspection to a perfect harness — moves a man's rating by
 	## about a point and a half. Repairing thirteen men before every event for
 	## twenty-four events moved club power by zero (`tools/probe_kit.gd`).
@@ -227,7 +251,7 @@ func _test_what_armour_is_actually_worth() -> void:
 	var high := f.rating()
 	var worth := high - low
 	_ok(worth < 3.0,
-		"armour's whole legal range is still worth about a point and a half",
+		"armor's whole legal range is still worth about a point and a half",
 		"%.2f rating points from %.2f to 1.00 — if this fails, the balance moved and the docs are stale"
 			% [worth, FighterCard.INSPECTION_MIN])
 
@@ -235,12 +259,12 @@ func _test_what_armour_is_actually_worth() -> void:
 	f.armor = FighterCard.INSPECTION_MIN - 0.01
 	_ok(not f.fit(), "and below the line he is worth nothing at all, which is the real cap",
 		"a man who cannot pass inspection cannot go out, whatever he rates")
-	notes.append("armour: %.2f rating points across its whole range; inspection is binary"
+	notes.append("armor: %.2f rating points across its whole range; inspection is binary"
 		% worth)
 
 
 func _test_a_simmed_event_costs_a_week() -> void:
-	## FIGHTING WORE YOUR ARMOUR AND SIMMING DID NOT. `_apply_regime()` ran from
+	## FIGHTING WORE YOUR ARMOR AND SIMMING DID NOT. `_apply_regime()` ran from
 	## `post_bout` and not from `skip_event`, so twenty-four simmed events left a
 	## squad on exactly the kit it started with — a discount for not playing the
 	## game, and the kind of asymmetry a player finds by accident and then never

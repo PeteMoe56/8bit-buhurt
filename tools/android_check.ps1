@@ -53,7 +53,7 @@ if ($g.Version) {
             Say "FAIL" "Export templates" ("missing " + ($missing -join ", ") + " in $tpl")
         }
     } else {
-        # NAME THE NEIGHBOURS. Templates for the wrong patch version are the most
+        # NAME THE NEIGHBORS. Templates for the wrong patch version are the most
         # likely thing to be sitting there, and "no folder" alone does not say so.
         $have = Get-ChildItem "$env:APPDATA\Godot\export_templates" -Directory -ErrorAction SilentlyContinue |
                 ForEach-Object { $_.Name }

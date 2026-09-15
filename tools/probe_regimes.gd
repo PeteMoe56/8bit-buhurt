@@ -12,19 +12,19 @@ extends SceneTree
 ##
 ##     XP       Light 0.6   Normal 1.0   Hard 1.5
 ##     morale  +0.015        0.0        -0.020   a week
-##     armour  +0.10         0.0        -0.10    a week
+##     armor  +0.10         0.0        -0.10    a week
 ##     knocks   0.10         0.20        1.00    multiplier on a knock landing
 ##
 ## Hard is not "a bit riskier than Normal", it is **five times** riskier, and
 ## Light is the only thing in the game that puts condition BACK into a man's
-## armour outside a dilemma card. So the regime is the development decision, the
+## armor outside a dilemma card. So the regime is the development decision, the
 ## injury decision and the kit-maintenance decision, all on one control — and no
 ## measurement in this project had ever moved it.
 const SEASONS := 20
 
 func _run(regime: int) -> Array:
 	var s := Season.new(MeleeRosters.starting_club(), 31337)
-	var armour_first := 0.0
+	var armor_first := 0.0
 	for year in SEASONS:
 		## The thrifty policy, which is the one that climbs: keep, build, staff,
 		## then one signing. Trimmed to what matters here.
@@ -71,7 +71,7 @@ func _run(regime: int) -> Array:
 				break
 		s.sync_power()
 		if year == 0:
-			armour_first = _armour(s)
+			armor_first = _armor(s)
 		var guard := 0
 		while not s.season_complete() and guard < 40:
 			guard += 1
@@ -98,11 +98,11 @@ func _run(regime: int) -> Array:
 	for f in s.club.roster:
 		if f.fit():
 			fit += 1
-	return [s.club.power(), _armour(s), armour_first, knocks, best,
+	return [s.club.power(), _armor(s), armor_first, knocks, best,
 		s.world.player_tier(), s.office.morale, s.club.roster.size(), fit,
 		s.club.starting_five().size(), s.office.credits]
 
-func _armour(s: Season) -> float:
+func _armor(s: Season) -> float:
 	var t := 0.0
 	var n := 0
 	for f in s.club.active_eight():
@@ -113,7 +113,7 @@ func _armour(s: Season) -> float:
 func _init() -> void:
 	print("\n=== twenty seasons on each regime, same club, same seed ===\n")
 	print("%-8s  %5s  %7s  %7s  %5s  %9s  %6s  %s"
-		% ["regime", "power", "armour", "knocks", "best", "fit/books", "line", "morale"])
+		% ["regime", "power", "armor", "knocks", "best", "fit/books", "line", "morale"])
 	for r in [ClubOffice.Regime.LIGHT, ClubOffice.Regime.NORMAL, ClubOffice.Regime.HARD]:
 		var out := _run(r)
 		print("%-8s  %5d  %7.2f  %7d  %5d  %9s  %4d/5  %.2f"

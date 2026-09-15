@@ -151,7 +151,7 @@ func _test_a_button_runs_what_it_was_given() -> void:
 ## listening. The unit check above would pass on a `UiKit.button` that works while
 ## a screen wired its own `Button.new()` and forgot — and the sweep would pass on
 ## a suite where `UiKit.button` connects a tap sound and nothing else, which is
-## why both are here. Between them, a button with no behaviour has nowhere to
+## why both are here. Between them, a button with no behavior has nowhere to
 ## hide.
 func _test_every_button_is_wired_to_something() -> void:
 	_world()
@@ -231,7 +231,7 @@ func _test_the_sub_popup_is_not_a_pile() -> void:
 	## against each other put one's shadow along the other's top edge and the pair
 	## reads as one tall box with a line through it. **Zero gap is a collision to
 	## the eye even when it is not one to the arithmetic** — so the rule is a
-	## clear `DROP_PX` between neighbours, which is the only distance at which the
+	## clear `DROP_PX` between neighbors, which is the only distance at which the
 	## shadow has somewhere to fall.
 	var clash: Array[String] = []
 	for i in found.size():
@@ -454,7 +454,7 @@ func _test_no_control_overlaps_another() -> void:
 				## right inside its own rect. Two of them flush against each
 				## other put one's shadow along the other's edge and the pair
 				## reads as one box with a line through it. So the rule is a
-				## clear drop between neighbours, which is the only distance at
+				## clear drop between neighbors, which is the only distance at
 				## which the shadow has somewhere to fall — and it is checked by
 				## growing both rects half a drop, so a flush pair fails and a
 				## properly spaced one does not.
@@ -580,7 +580,30 @@ func _test_the_team_sheet_columns_do_not_touch() -> void:
 	_ok(bad.is_empty(), "no two columns on the team sheet touch",
 		"%d fields across %.0fpx" % [cols.size(), s.get("SQUAD_W")]
 			if bad.is_empty() else ", ".join(bad))
-	## AND THE WHOLE ROW HAS TO FIT. A field that clears its neighbours by
+
+	## AND NEITHER DO THE HEADINGS, which is a separate question and was a real
+	## bug the moment the headings existed.
+	##
+	## The four fields on the right hold `$3`, `3y`, `40`, `44`, so their rects
+	## are narrower than the WORDS that name them and the first screenshot read
+	## `WAGEDEALNOWMAX`. The data row clearing itself says nothing at all about
+	## whether the labels clear each other — **two tables sharing a set of stops
+	## are two tables, and only one of them was being measured.**
+	var heads: Array[String] = []
+	for i in cols.size():
+		for j in range(i + 1, cols.size()):
+			if not cols[i].has("head_rect") or not cols[j].has("head_rect"):
+				continue
+			var a: Rect2 = cols[i]["head_rect"]
+			var b: Rect2 = cols[j]["head_rect"]
+			var hit := a.intersection(b)
+			if hit.size.x > 0.0:
+				heads.append("'%s' and '%s' by %.0fpx" % [
+					String(cols[i]["head"]), String(cols[j]["head"]),
+					hit.size.x])
+	_ok(heads.is_empty(), "and neither do the words that name them",
+		"%d headings" % cols.size() if heads.is_empty() else ", ".join(heads))
+	## AND THE WHOLE ROW HAS TO FIT. A field that clears its neighbors by
 	## running off the end of the row is not fixed, it has moved.
 	var w: float = float(s.get("SQUAD_W"))
 	var over: Array[String] = []
@@ -602,7 +625,7 @@ func _test_the_team_sheet_columns_do_not_touch() -> void:
 ## THE TAB STRIP BELONGS TO THE TABS.
 ##
 ## Two buttons have now been parked on it. "Roster" covered the right 112 pixels
-## of HONOURS on the SQUAD tab; "The draw" covered the same region on every
+## of FINANCES (then HONORS) on the SQUAD tab; "The draw" covered the same region on every
 ## screen that had a cup to look at — and its comment says it was moved there
 ## deliberately, out of the action row, to stop it hiding a relegation place.
 ## It traded a visible fault for an invisible one.
@@ -654,8 +677,8 @@ func _test_nothing_stands_on_the_tab_strip() -> void:
 ## pushed FORMATIONS past its 124-pixel box on the chalkboard and it ran ten
 ## pixels into PLAYS.
 ##
-## The overlap sweep caught that one because the neighbour happened to be
-## another control. This catches it when the neighbour is drawn text, which the
+## The overlap sweep caught that one because the neighbor happened to be
+## another control. This catches it when the neighbor is drawn text, which the
 ## sweep cannot see — and it names the button rather than the collision, which
 ## is the difference between a fix and a hunt.
 func _test_no_button_is_smaller_than_its_label() -> void:

@@ -53,7 +53,7 @@ const POOL := 12
 # ------------------------------------------------------------------ the music
 ## ONE TRACK PER MOOD, and that is the whole point of doing this now rather than
 ## later. `UiKit.Mood` already decides what the shell looks like; the same value
-## decides what it sounds like, so a cup night is a different colour AND a
+## decides what it sounds like, so a cup night is a different color AND a
 ## different arrangement without a second piece of state to keep in step.
 ##
 ## Pete's plan, and it is the right one: **the same melody, differently

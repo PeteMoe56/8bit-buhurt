@@ -12,7 +12,7 @@ func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — kit and availability ===\n")
 	_test_a_failed_harness_keeps_a_man_off()
 	_test_the_bus_has_a_size()
-	_test_the_bench_is_the_travelling_party()
+	_test_the_bench_is_the_traveling_party()
 	_test_somebody_cannot_get_the_weekend_off()
 	_test_the_three_reasons_are_three_reasons()
 
@@ -40,8 +40,8 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 
 
 func _test_a_failed_harness_keeps_a_man_off() -> void:
-	## ARMOUR IS A GATE NOW, not a soft multiplier. DIRECTION §4: *"Bench depth is
-	## limited by armour, not payroll."* It was a 0.78-1.0 scale on a man's base
+	## ARMOR IS A GATE NOW, not a soft multiplier. DIRECTION §4: *"Bench depth is
+	## limited by armor, not payroll."* It was a 0.78-1.0 scale on a man's base
 	## and nothing else, so a harness at 0.1 was a slightly worse fighter rather
 	## than a man the marshals turn away.
 	var bad: Array[String] = []
@@ -60,23 +60,23 @@ func _test_a_failed_harness_keeps_a_man_off() -> void:
 	## AND IT REACHES THE LINE-UP, which is the half that matters. A club whose
 	## Center cannot pass inspection has to field somebody else there.
 	var club := MeleeRosters.starting_club()
-	var centre: FighterCard = club.starting_five()[Tuning.Pos.CENTER]
-	var was := centre.display_name
-	centre.armor = 0.05
+	var center: FighterCard = club.starting_five()[Tuning.Pos.CENTER]
+	var was := center.display_name
+	center.armor = 0.05
 	var after: Array = club.starting_five()
 	var still_there: bool = after[Tuning.Pos.CENTER] != null \
 		and (after[Tuning.Pos.CENTER] as FighterCard).display_name == was
 	if still_there:
 		bad.append("a man who failed inspection is still on the line")
 
-	## The margin has to move with the armour, or the bar on the card is a mood
+	## The margin has to move with the armor, or the bar on the card is a mood
 	## ring rather than a distance from the line.
 	var top := FighterCard.new()
 	top.armor = 1.0
 	var edge := FighterCard.new()
 	edge.armor = FighterCard.INSPECTION_MIN
 	if not (top.inspection_margin() > edge.inspection_margin()):
-		bad.append("the inspection margin does not fall with the armour")
+		bad.append("the inspection margin does not fall with the armor")
 	if not is_equal_approx(edge.inspection_margin(), 0.0):
 		bad.append("a harness on the line does not read as no margin")
 
@@ -85,7 +85,7 @@ func _test_a_failed_harness_keeps_a_man_off() -> void:
 	notes.append("the marshals pass a harness at %.2f and refuse one at %.2f; a failed Center is replaced on the line"
 		% [FighterCard.INSPECTION_MIN, FighterCard.INSPECTION_MIN - 0.01])
 	_ok(bad.is_empty(), "a failed harness keeps a man off",
-		"armour under the inspection line is a man who cannot fight, not a man who fights slightly worse")
+		"armor under the inspection line is a man who cannot fight, not a man who fights slightly worse")
 
 
 func _test_the_bus_has_a_size() -> void:
@@ -144,7 +144,7 @@ func _test_the_bus_has_a_size() -> void:
 			% [ClubOffice.TRAVEL_START, ClubOffice.TRAVEL_MAX])
 
 
-func _test_the_bench_is_the_travelling_party() -> void:
+func _test_the_bench_is_the_traveling_party() -> void:
 	## WHO CAN COME ON IN THE CORNER, and it was wrong in two ways at once.
 	##
 	## `MeleeSim.bench()` read the whole roster, so a RESERVE who never left the
@@ -185,7 +185,7 @@ func _test_the_bench_is_the_travelling_party() -> void:
 		notes.append("  " + ", ".join(bad))
 	notes.append("a party of %d leaves %d on the bench, and a knock or a failed harness takes a man off it"
 		% [party.size(), on_bench.size()])
-	_ok(bad.is_empty(), "the bench is the travelling party",
+	_ok(bad.is_empty(), "the bench is the traveling party",
 		"only men who travelled and can fight are available to come on, so a reserve at home cannot be swapped into a cup tie")
 
 

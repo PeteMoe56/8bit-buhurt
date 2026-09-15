@@ -11,6 +11,19 @@ const COL_W := 430.0
 const LEFT_X := 24.0
 const RIGHT_X := 500.0
 const TOP := 96.0
+## HOW FAR APART THE THREE VOLUME ROWS SIT. It was 64 and the panel was 262 tall,
+## which left the THIS CAREER panel starting at 378 — fine while that panel was a
+## two-line signpost and not fine the moment it grew a control, because 378 plus
+## a control is 498 and the Back button lives at 470.
+##
+## Named rather than nudged, and the panel's height is derived from it, so the
+## next row added to SOUND cannot silently push the panel under a button again.
+const ROW_STEP := 52.0
+const SOUND_H := 218.0
+## The career panel, and the Back button riding the bottom of whatever shape the
+## screen turned out to be rather than a literal 470.
+const CAREER_Y := TOP + 238.0
+const CAREER_H := 136.0
 
 var font: Font
 var ui: CanvasLayer
@@ -36,12 +49,45 @@ func _build() -> void:
 		c.queue_free()
 	for i in ROWS.size():
 		var key := String(ROWS[i]["key"])
-		var y := TOP + 64.0 + float(i) * 64.0
+		var y := TOP + 56.0 + float(i) * ROW_STEP
 		ui.add_child(UiKit.button("-", Vector2(LEFT_X + 214, y),
 			Vector2(44, 38), _nudge.bind(key, -1)))
 		ui.add_child(UiKit.button("+", Vector2(LEFT_X + COL_W - 68, y),
 			Vector2(44, 38), _nudge.bind(key, 1)))
-	ui.add_child(UiKit.button("Back", Vector2(LEFT_X, 470), Vector2(160, 46), _back))
+	## ------------------------------------------------------------ difficulty
+	## Pete, 16 Sep 2026: *"Difficulty should be changeable."*
+	##
+	## It was set once, on the club-creation screen, and this panel was a SIGNPOST
+	## saying so — which was an answer to item 14 of the 15 Sep playtest (*"Can't
+	## find difficulty settings"*) that told the player where it wasn't.
+	##
+	## The old argument was that a grade you can change between fixtures makes the
+	## table meaningless. That assumes the player is cheating the table. The actual
+	## player is four events into a losing season, has just been told by his own
+	## game that the way out is *"bringing the difficulty down"*, and cannot find
+	## the control — and **a difficulty setting you can only choose before you know
+	## what it means is not a difficulty setting, it is a quiz question.**
+	##
+	## The record stays honest because `Season.grade_history` writes down every
+	## change with the event it happened on, so a promotion won on FRIENDLY says so.
+	##
+	## ONE CYCLING BUTTON, like the reserve sort. Five grades is too many for a
+	## row of buttons in a 430-pixel panel and a dropdown is a control this game
+	## does not otherwise have; the button shows what it will change TO, which is
+	## the one thing a cycling control has to do to not be a guess.
+	if Session.season != null:
+		var order: Array[int] = Grade.ORDER
+		var at := order.find(Session.season.grade)
+		var next: int = order[(maxi(0, at) + 1) % order.size()]
+		ui.add_child(UiKit.button(Grade.name_of(next),
+			Vector2(LEFT_X + 18, CAREER_Y + 90.0), Vector2(COL_W - 36.0, 36), func():
+				Session.season.set_grade(next)
+				Session.autosave()
+				Audio.play("tap")
+				_build()))
+
+	ui.add_child(UiKit.button("Back", Vector2(LEFT_X, UiKit.bottom(58.0)),
+		Vector2(160, 46), _back))
 	queue_redraw()
 
 
@@ -63,11 +109,11 @@ func _draw() -> void:
 	UiKit.text(self, font, "SETTINGS", Vector2(LEFT_X, 54), 30, UiKit.INK)
 
 	# ---------------------------------------------------------------- volume
-	UiKit.panel(self, Rect2(LEFT_X, TOP, COL_W, 262))
+	UiKit.panel(self, Rect2(LEFT_X, TOP, COL_W, SOUND_H))
 	UiKit.text(self, font, "SOUND", Vector2(LEFT_X + 18, TOP + 30), 15, UiKit.DIM)
 	for i in ROWS.size():
 		var key := String(ROWS[i]["key"])
-		var y := TOP + 64.0 + float(i) * 64.0
+		var y := TOP + 56.0 + float(i) * ROW_STEP
 		UiKit.text(self, font, String(ROWS[i]["label"]),
 			Vector2(LEFT_X + 18, y + 26), 17, UiKit.INK)
 		var lvl := Settings.get_level(key)
@@ -92,21 +138,37 @@ func _draw() -> void:
 	## an absence with no explanation is indistinguishable from an omission, and
 	## that is exactly what it was mistaken for.
 	UiKit.text(self, font, "Saved as you set them.",
-		Vector2(LEFT_X + 2, TOP + 274), 13, UiKit.EDGE.lightened(0.5))
+		Vector2(LEFT_X + 2, TOP + SOUND_H + 12.0), 13, UiKit.EDGE.lightened(0.5))
 
 	## ITS OWN PANEL, because it is its own kind of thing. The first cut put it
 	## inside the SOUND box's last six pixels and it landed on "Saved as you set
 	## them" — which is what a row added to a panel sized for the rows it already
 	## had always does.
-	var gy := TOP + 282.0
-	UiKit.panel(self, Rect2(LEFT_X, gy, COL_W, 82))
+	## TALLER, because it holds a control now rather than a sentence explaining
+	## that the control is elsewhere. 82 was the height of the signpost.
+	var gy := CAREER_Y
+	UiKit.panel(self, Rect2(LEFT_X, gy, COL_W, CAREER_H))
 	UiKit.text(self, font, "THIS CAREER", Vector2(LEFT_X + 18, gy + 24), 15, UiKit.DIM)
 	if Session.season != null:
 		UiKit.pair(self, font, "Difficulty", Grade.name_of(Session.season.grade),
 			Vector2(LEFT_X + 18, gy + 48.0), LEFT_X + COL_W - 18.0, 17, 15,
 			UiKit.INK, UiKit.YOU)
-		UiKit.text(self, font, "Set per career, on the club screen.",
-			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.DIM)
+		## WHAT THE ONE HE IS ON ACTUALLY DOES, not what the next one does. The
+		## button below says where a tap goes; this line says where he is, and a
+		## panel where both the label and the blurb describe somewhere else is a
+		## panel that reads as already changed.
+		## WRAPPED, NOT CUT. `fit_px` records every cut it makes and `test_ink.gd`
+		## fails the suite on any of them, for the good reason that a clipped
+		## sentence the game wrote itself reads to a player as a broken game — and
+		## these blurbs were written for the club-creation screen's wider box, so
+		## the first draw here lost four words off "A properly sanctioned fight.
+		## Their numbers me." Two lines at 12px is the box being honest about how
+		## much room it has.
+		var lines := UiKit.wrap(font, Grade.blurb_of(Session.season.grade),
+			COL_W - 36.0, 12)
+		for li in mini(2, lines.size()):
+			UiKit.text(self, font, lines[li],
+				Vector2(LEFT_X + 18, gy + 66.0 + float(li) * 15.0), 12, UiKit.DIM)
 	else:
 		UiKit.text(self, font, "Difficulty", Vector2(LEFT_X + 18, gy + 48.0),
 			17, UiKit.DIM)

@@ -14,7 +14,7 @@ class_name Quartermaster
 ## all. `ClubOffice.repair_kit()` puts a step back into one harness. Direction §4
 ## has said since day one: *"The cap isn't money-per-player, it's how many bodies
 ## you can put on a plane and how many harnesses you own that pass inspection.
-## Bench depth is limited by armour, not payroll."*
+## Bench depth is limited by armor, not payroll."*
 ##
 ## All of it was reachable one man at a time, from a row on the fighter card,
 ## behind two taps from a tab. **There was no screen in the game that showed the
@@ -35,7 +35,7 @@ class_name Quartermaster
 ##
 ## 3. **And the tax is a rounding error anyway.** `effective_base()` is
 ##    `base * lerpf(0.78, 1.0, armor)` and base carries 0.24 of a man's rating,
-##    so at base 45 the WHOLE legal armour range — 0.35, one notch off failing
+##    so at base 45 the WHOLE legal armor range — 0.35, one notch off failing
 ##    inspection, to a perfect 1.00 — is worth **1.54 rating points**. The
 ##    0.90 → 1.00 a repair buys is worth 0.24. Repairing all thirteen men before
 ##    every event for twenty-four events moved club power by zero.
@@ -59,14 +59,14 @@ class_name Quartermaster
 ## A tier does two things, and both of them run down roads that already exist:
 ##
 ##   THE CEILING. A borrowed harness cannot be repaired past `TOP[tier]`. The
-##   armourer will tell you so. That makes the tier the only way to reach a full
+##   armorer will tell you so. That makes the tier the only way to reach a full
 ##   harness at all, which is what makes it worth buying.
 ##
 ##   THE WEAR. Better kit takes less damage, so a good harness pays for itself in
-##   repairs it does not need. That is the actual economy of armour in the sport
+##   repairs it does not need. That is the actual economy of armor in the sport
 ##   and it is the reason anybody buys a real one.
 ##
-## Nothing here touches `rating()`. If armour is to be worth more than 1.54
+## Nothing here touches `rating()`. If armor is to be worth more than 1.54
 ## points, that is one constant in `fighter_card.gd` and it is not mine to move.
 
 ## FOUR RUNGS, named for what they are rather than Poor/Fair/Good/Best. A player
@@ -88,7 +88,7 @@ const GRADE_BLURB := {
 	Grade.TOURNAMENT: "Tournament plate. Nothing on the list is better.",
 }
 
-## HOW GOOD A HARNESS AT THIS GRADE CAN EVER BE, and the armourer will not go
+## HOW GOOD A HARNESS AT THIS GRADE CAN EVER BE, and the armorer will not go
 ## past it. Every rung is comfortably clear of the 0.35 inspection line: a
 ## starting club is not in danger, it is just never quite right.
 ##
@@ -160,11 +160,36 @@ static func upgrade_cost(card: FighterCard) -> int:
 	return 0 if n < 0 else int(COST[n])
 
 
+## HOW WORN A HARNESS HAS TO BE BEFORE THE ARMORER WILL TAKE THE JOB.
+##
+## This was 0.001 — which is to say, any scratch at all — and that turned out to
+## be the largest avoidable cost in the early game.
+##
+## `ClubOffice.kit_cost` has a FLOOR OF ONE CREDIT, for the good reason that a
+## club should never be charged nothing for work. Put the two together across a
+## squad of thirteen and a club was paying **thirteen credits a season to fix
+## almost nothing**: every man came back from a week a fraction below his
+## ceiling, every one of them billed the floor, and `tools/probe_afford.gd` found
+## the whole of a first season's maintenance bill was this and nothing else —
+## against a first-season income of 23 CC.
+##
+## Pete, 16 Sep 2026: *"The income is either too low or costs are too high."*
+## This is the second one, and it is not a price that needed lowering: it is a
+## JOB THAT SHOULD NOT HAVE BEEN SOLD. The arena already has the rule in as many
+## words — *"a ground already spotless is refused rather than billed"* — and the
+## armorer was the one place in the game that would happily take a credit for
+## polishing something that did not need polishing.
+##
+## 0.08, which is about one hard week. Below that he tells you to come back when
+## there is something to do.
+const WORTH_DOING: float = 0.08
+
+
 ## IS HIS HARNESS AS GOOD AS IT CAN BE — at his grade, which is not the same
-## question as "is it at 1.00". The armourer's refusal has to say which of the
+## question as "is it at 1.00". The armorer's refusal has to say which of the
 ## two it means or a player reads "as good as it gets" as a bug.
 static func topped_out(card: FighterCard) -> bool:
-	return card.armor >= ceiling(card) - 0.001
+	return card.armor >= ceiling(card) - WORTH_DOING
 
 
 ## ---------------------------------------------------------------- the ledger
@@ -172,7 +197,7 @@ static func topped_out(card: FighterCard) -> bool:
 ## suite. A screen that computes its own totals and a check that computes them
 ## again are two answers to one question.
 ##
-## `who` is the list to read — the travelling eight for the bill that matters,
+## `who` is the list to read — the traveling eight for the bill that matters,
 ## the whole book for the table.
 static func ledger(who: Array) -> Dictionary:
 	var out := {

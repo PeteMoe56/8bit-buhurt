@@ -131,9 +131,9 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 	var d := {
 		"tag": f.pos_name(), "number": f.number, "name": f.display_name,
 		"rating": f.overall(), "dim": out,
-		"band": _pos_colour(f),
+		"band": _pos_color(f),
 		"face": {"rating": f.overall(), "name": f.display_name, "number": f.number},
-		## THE ARMOUR BAR IS NOW A PASS/FAIL, not a mood ring. It used to redden
+		## THE ARMOR BAR IS NOW A PASS/FAIL, not a mood ring. It used to redden
 		## below 0.4, which was a number picked to look about right; it reddens at
 		## the inspection line now, because that is where the harness stops being
 		## worn and starts being a reason he cannot fight.
@@ -150,7 +150,7 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 		d["right_note"] = "capped" if f.headroom() <= 0 else "to %d" % f.potential
 		d["right_col"] = UiKit.EDGE.lightened(0.5) if f.headroom() <= 0 else UiKit.UP
 	UiKit.card(self, font, r, d, big)
-	## THE INSPECTION LINE, drawn ON the armour bar. A threshold you cannot see is
+	## THE INSPECTION LINE, drawn ON the armor bar. A threshold you cannot see is
 	## a threshold the player discovers by being refused, and this one decides
 	## whether he has five men.
 	var bar := Rect2(r.position.x + 6, r.end.y - 18, r.size.x - 12, 12)
@@ -162,7 +162,7 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 	## already cost you the weekend — so the stripe is on every size. It runs down
 	## the left edge, which is the one part of this card nothing else uses.
 	if f.angry():
-		draw_rect(Rect2(r.position.x, r.position.y, 4.0, r.size.y), f.morale_colour())
+		draw_rect(Rect2(r.position.x, r.position.y, 4.0, r.size.y), f.morale_color())
 	## WHY HE IS NOT PLAYING, in his own words, rather than "OUT 2" for every
 	## reason there is. Three different problems with three different answers: a
 	## knock waits, a harness is a trip to the workshop, and a man who cannot get
@@ -172,9 +172,9 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 			Vector2(r.end.x - 8, r.end.y - 24), 11, UiKit.DOWN, 96)
 
 
-func _pos_colour(f: FighterCard) -> Color:
-	## Rail, Flanker, Center — three places, three colours, and they are the
-	## same three the melee's own strip uses so a man is the same colour on the
+func _pos_color(f: FighterCard) -> Color:
+	## Rail, Flanker, Center — three places, three colors, and they are the
+	## same three the melee's own strip uses so a man is the same color on the
 	## roster as he is in the fight.
 	match int(f.pos):
 		Tuning.Pos.CENTER: return UiKit.DOWN

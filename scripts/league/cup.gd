@@ -185,7 +185,7 @@ func player_alive() -> bool:
 	## only reads `rounds`, and a club that failed to qualify has no match in
 	## there at all — so it read as still alive, forever. `auto_resolve_cups`
 	## then refused to resolve the Worlds every summer: it never finished, never
-	## entered the honours, and `roll_over` replaced it with a fresh one while
+	## entered the honors, and `roll_over` replaced it with a fresh one while
 	## the old guests stayed on the books. Fourteen clubs a season, accumulating.
 	##
 	## The bracket's entrants are the qualifiers, so after the pools the question

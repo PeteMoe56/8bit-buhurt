@@ -63,7 +63,7 @@ var reputation: int = 1
 ## you before your third season, however good you are. The dream job is held
 ## back deliberately — offered in year one it is not a dream, it is a menu.
 var club_id: int = -1
-var favourite_club_id: int = -1
+var favorite_club_id: int = -1
 var years_here: int = 0
 
 ## THE BOOK THAT FOLLOWS YOU. Clubs are left behind; this is not.
@@ -189,7 +189,7 @@ func take_post(new_club_id: int, season_no: int) -> void:
 func to_dict() -> Dictionary:
 	return {
 		"name": display_name, "rep": reputation, "club": club_id,
-		"fav": favourite_club_id, "here": years_here, "seasons": seasons,
+		"fav": favorite_club_id, "here": years_here, "seasons": seasons,
 		"w": wins, "d": draws, "l": losses, "cups": cups,
 		"up": promotions, "down": relegations, "posts": posts.duplicate(true),
 	}
@@ -200,7 +200,7 @@ static func from_dict(d: Dictionary) -> Coach:
 	c.display_name = String(d.get("name", "Coach"))
 	c.reputation = int(d.get("rep", 1))
 	c.club_id = int(d.get("club", -1))
-	c.favourite_club_id = int(d.get("fav", -1))
+	c.favorite_club_id = int(d.get("fav", -1))
 	c.years_here = int(d.get("here", 0))
 	c.seasons = int(d.get("seasons", 0))
 	c.wins = int(d.get("w", 0))

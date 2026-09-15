@@ -80,7 +80,7 @@ class Card extends Node2D:
 				"verb": "Sit him down", "cc": ClubOffice.negotiate_cost(man),
 				"off": false},
 			{"label": "CONDITION", "value": "%d%%" % int(round(man.armor * 100.0)),
-				"verb": "The armourer", "cc": ClubOffice.kit_cost(man),
+				"verb": "The armorer", "cc": ClubOffice.kit_cost(man),
 				"off": man.armor >= 1.0},
 			{"label": "XP LEVEL", "value": str(man.level),
 				"verb": "Extra reps", "cc": Career.level_cost(man),

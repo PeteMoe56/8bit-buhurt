@@ -23,7 +23,7 @@ func _initialize() -> void:
 
 ## WHAT DOES NOTHING? An option with no cost at all is the bug; an option whose
 ## costs are all in one currency is a weaker version of the same bug, because
-## then it is comparable by arithmetic to its neighbours.
+## then it is comparable by arithmetic to its neighbors.
 func _audit() -> void:
 	var free_options: Array[String] = []
 	var one_currency: Array[String] = []

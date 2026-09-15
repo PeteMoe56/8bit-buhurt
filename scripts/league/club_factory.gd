@@ -13,7 +13,7 @@ extends RefCounted
 ## and nothing needs saving. Rebuild the club, get the same club.
 ##
 ## World rule inherited from Hedge Knight: real countries, fictional clubs,
-## fighters and armourers. Russia is excluded entirely.
+## fighters and armorers. Russia is excluded entirely.
 
 const SURNAMES := [
 	"Aldous", "Barrow", "Calder", "Dain", "Ewart", "Fenn", "Garrick", "Hale",
@@ -87,7 +87,7 @@ static func build(club_id: int, display_name: String, short_name: String, power:
 		no += 1
 
 	var club := MeleeClub.build(display_name, short_name,
-		_field(rng), _icon_colour(rng), _icon(rng), cards)
+		_field(rng), _icon_color(rng), _icon(rng), cards)
 	_tune_to(club, power)
 	return club
 
@@ -104,18 +104,18 @@ static func build(club_id: int, display_name: String, short_name: String, power:
 ## on its own books.
 ##
 ## A twenty-season walk turned that up as a starting eight averaging THIRTY-TWO
-## against a learning par of twenty-six: a club whose whole travelling party was
+## against a learning par of twenty-six: a club whose whole traveling party was
 ## already on the downslope in season one, with its future on the bench earning
 ## no bout XP. Nothing was wrong with any single number; the DISTRIBUTION was
 ## wrong, and a distribution is not something any assertion in the suite was
 ## ever going to look at.
 ##
-## The average of two draws is a triangle centred on the middle of the range
+## The average of two draws is a triangle centerd on the middle of the range
 ## rather than a flat line across it — one cheap extra roll, no table, no tuning
 ## constants. It keeps both tails: a nineteen-year-old and a thirty-nine-year-old
 ## are still possible, just no longer as likely as a man in his prime. The mean
 ## lands near twenty-nine, which is a year past peak strength and three short of
-## peak base — which is what a squad of grown men who fight in armour looks like.
+## peak base — which is what a squad of grown men who fight in armor looks like.
 static func roll_age(rng: RandomNumberGenerator) -> int:
 	var a := rng.randi_range(Career.AGE_MIN, Career.AGE_MAX)
 	var b := rng.randi_range(Career.AGE_MIN, Career.AGE_MAX)
@@ -176,7 +176,7 @@ static func _fighter(rng: RandomNumberGenerator, no: int, slot: int,
 ## "is he worth keeping" has no answer.
 ##
 ## It is also the safety net the career layer now needs. Men retire at the
-## winter, and a club that came out of a summer with seven travelling fighters
+## winter, and a club that came out of a summer with seven traveling fighters
 ## would simply be unable to field a line — a failure that does not surface until
 ## the player is standing at the next event.
 ##
@@ -249,14 +249,14 @@ static func _tune_to(club: MeleeClub, target: int) -> void:
 
 # ------------------------------------------------------------------ heraldry
 static func _field(rng: RandomNumberGenerator) -> Color:
-	return IconBank.KIT_COLOURS[rng.randi() % IconBank.KIT_COLOURS.size()]
+	return IconBank.KIT_COLORS[rng.randi() % IconBank.KIT_COLORS.size()]
 
 
 ## The contrast rule, enforced rather than hoped for. A mark that does not read
 ## at a glance is a mark that does not do its job, and the whole art direction
 ## rests on it.
-static func _icon_colour(rng: RandomNumberGenerator) -> Color:
-	return IconBank.MARK_COLOURS[rng.randi() % IconBank.MARK_COLOURS.size()]
+static func _icon_color(rng: RandomNumberGenerator) -> Color:
+	return IconBank.MARK_COLORS[rng.randi() % IconBank.MARK_COLORS.size()]
 
 
 ## CPU clubs wear anything in the bank. The bank is a shop for the PLAYER; the

@@ -534,8 +534,8 @@ func _tidy_the_eight(s: Season) -> void:
 ## dealt and never answered.
 ##
 ## That matters beyond tidiness. **A dilemma card is the only thing in the game
-## outside the workshop that puts condition back into a man's armour** — the
-## armourer's bill and its cousins are the kit economy — so a walk that never
+## outside the workshop that puts condition back into a man's armor** — the
+## armorer's bill and its cousins are the kit economy — so a walk that never
 ## answers one is a walk where kit only ever goes one way.
 func _drain_the_queue(s: Season) -> void:
 	var guard := 0
@@ -581,15 +581,15 @@ func _drain_the_queue(s: Season) -> void:
 ##
 ##     XP       Light 0.6   Normal 1.0   Hard 1.5
 ##     morale  +0.015        0.0        -0.020   a week
-##     armour  +0.10         0.0        -0.10    a week
+##     armor  +0.10         0.0        -0.10    a week
 ##     knocks   0.10         0.20        1.00    multiplier on a knock landing
 ##
 ## `tools/probe_regimes.gd` ran the same club and the same seed for twenty
 ## seasons on each, and the spread is not subtle:
 ##
-##     Light   power 30  armour 0.91  1 knock   line 5/5
-##     Normal  power 23  armour 0.64  2 knocks  line 5/5
-##     Hard    power  0  armour 0.43  5 knocks  line 4/5
+##     Light   power 30  armor 0.91  1 knock   line 5/5
+##     Normal  power 23  armor 0.64  2 knocks  line 5/5
+##     Hard    power  0  armor 0.43  5 knocks  line 4/5
 ##
 ## Hard for a whole career ends with a club that **cannot field five** — power
 ## reads 0 because `MeleeClub.power()` has nothing to average. That is the
@@ -600,7 +600,7 @@ func _set_the_regime(s: Season) -> void:
 	var want := ClubOffice.Regime.NORMAL
 	match policy:
 		Policy.THRIFTY:
-			## A THIN SQUAD RESTS. Light is the only setting that puts armour
+			## A THIN SQUAD RESTS. Light is the only setting that puts armor
 			## back and it cuts knocks to a tenth, so a club that cannot cover a
 			## knock trains light — which is what a real coach does in April.
 			var fit := 0

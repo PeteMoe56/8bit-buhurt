@@ -5,7 +5,7 @@ extends Resource
 ## A CLUB'S MARK IS LOAD-BEARING, not decoration. It has to be read across a
 ## field, through dust, at speed — which is the same problem as reading a 5v5 on
 ## a phone. The heraldry vocabulary this used to carry (charges, tinctures, the
-## metal-on-colour rule) was retired on 10 Sep 2026 at Pete's word; what survives
+## metal-on-color rule) was retired on 10 Sep 2026 at Pete's word; what survives
 ## is the reason it worked, as a measured contrast rule in IconBank.
 ##
 ## The mark itself is an id into `IconBank.ICONS`, not an enum, because the bank
@@ -14,7 +14,7 @@ extends Resource
 @export var display_name: String = "Club"
 @export var short_name: String = "CLB"
 @export var kit: Color = Color("2a5caa")
-@export var icon_colour: Color = Color("f4f4e8")
+@export var icon_color: Color = Color("f4f4e8")
 @export var icon: int = 4
 @export var roster: Array[FighterCard] = []
 
@@ -59,7 +59,7 @@ func starting_five() -> Array:
 ## Does the mark read against the kit? Asked of IconBank rather than answered
 ## here, so every club in the world is judged by one function.
 func contrast_legal() -> bool:
-	return IconBank.contrast_ok(kit, icon_colour)
+	return IconBank.contrast_ok(kit, icon_color)
 
 
 ## Every line position filled exactly once, and the badge readable.
@@ -89,7 +89,7 @@ static func build(
 	c.display_name = name_
 	c.short_name = short
 	c.kit = kit_
-	c.icon_colour = icon_col
+	c.icon_color = icon_col
 	c.icon = icon_
 	c.roster = cards
 	return c
@@ -181,7 +181,7 @@ func reserves() -> Array:
 ## The first pass let each verb do the locally reasonable thing, and both of the
 ## obvious ones were wrong: demoting the Center was allowed because the bench
 ## Center covers his slot, and cutting him was allowed for the same reason. Both
-## left seven men on the travelling list, which is not a club. **A rule about
+## left seven men on the traveling list, which is not a club. **A rule about
 ## the whole squad cannot be enforced one fighter at a time.**
 
 
@@ -265,7 +265,7 @@ func swap_squad(out_card: FighterCard, in_card: FighterCard) -> String:
 ## best Rail by signing somebody and could never promote him back.
 ##
 ## This is that reorder, and it is a swap rather than an insert for the same
-## reason the favourites list is: a swap needs two taps and no drag, and the
+## reason the favorites list is: a swap needs two taps and no drag, and the
 ## screen it lives on is a list the player is reading, not a board he is
 ## arranging. Both men keep whatever else is true about them — `active`, fitness,
 ## contract — because position in the list is the only thing being said here.
@@ -279,7 +279,7 @@ func swap_order(a: FighterCard, b: FighterCard) -> String:
 	roster[ia] = b
 	roster[ib] = a
 	## AND THE LINE MUST STILL FILL. Reordering cannot break the five the way a
-	## swap on and off the bus can — the same eight men are still travelling —
+	## swap on and off the bus can — the same eight men are still traveling —
 	## but `starting_five()` has a role fallback with real conditions in it, and
 	## a check that costs nothing is cheaper than the afternoon spent proving it
 	## cannot fail. Put back exactly as it was if it does.
@@ -297,10 +297,10 @@ func sign(card: FighterCard) -> String:
 	## ONE LIMIT ON THE BOOKS, AND IT IS THE LINE ABOVE.
 	##
 	## There was a second gate here — "the reserve is full at 5" — and it was a
-	## derived fact dressed up as a rule. With a full eight travelling, thirteen on
+	## derived fact dressed up as a rule. With a full eight traveling, thirteen on
 	## the books means five in reserve and the two statements agree; the day a
-	## club's travelling party became a thing it BUYS, they came apart. A club
-	## taking six has seven men not travelling, so it was permanently over a
+	## club's traveling party became a thing it BUYS, they came apart. A club
+	## taking six has seven men not traveling, so it was permanently over a
 	## reserve limit that no longer described anything, and could not sign a single
 	## man from any source at all — the free-agent list refused every signing.
 	##
@@ -310,7 +310,7 @@ func sign(card: FighterCard) -> String:
 	##
 	## And `active` is decided against what this club can actually TAKE. Against
 	## the constant eight, a club with six places marked its seventh and eighth
-	## signings as travelling — men flagged for a bus they can never board, which
+	## signings as traveling — men flagged for a bus they can never board, which
 	## surfaced as a trialist walking straight into a line he was not in.
 	card.active = active_eight().size() < party_size()
 	roster.append(card)

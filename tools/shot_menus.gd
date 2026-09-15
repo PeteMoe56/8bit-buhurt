@@ -3,7 +3,7 @@ extends SceneTree
 ## has never once been settled by reasoning about it on this project.
 ##
 ##   xvfb-run -a godot --path . --script res://tools/shot_menus.gd -- <what> <out.png>
-##   what: title | club | squad | honours
+##   what: title | club | squad | honors
 var what := "title"
 var out_path := "user://menu.png"
 var n := 0
@@ -46,7 +46,7 @@ func _process(_d: float) -> bool:
 		match what:
 			"squad": scene.tab = 1
 			"office": scene.tab = 2
-			"honours": scene.tab = 3
+			"honors": scene.tab = 3
 		if what == "office":
 			## A club a few seasons in, so the screen is showing something.
 			scene.season.office.credits = 30

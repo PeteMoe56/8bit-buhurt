@@ -124,7 +124,7 @@ func _standing(c: Coach) -> void:
 
 func _the_book(c: Coach) -> void:
 	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "THE BOOK", Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, "HIS RECORD", Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	var rows := [
 		["Seasons", "%d" % c.seasons],
 		["Record", c.record_line()],
@@ -162,7 +162,7 @@ func _offers(c: Coach) -> void:
 		var cid: int = offers[i]
 		var club: Dictionary = season.world.clubs[cid]
 		var y := offer_row_y(i) + OFFER_NAME_DY
-		var dream: bool = cid == c.favourite_club_id
+		var dream: bool = cid == c.favorite_club_id
 		## A hairline above every row but the first, so three offers read as three
 		## rows rather than as a column of names and a column of buttons.
 		if i > 0:

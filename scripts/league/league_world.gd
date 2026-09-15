@@ -57,10 +57,10 @@ var history: Array[Dictionary] = []
 
 ## Cups. Two Invitationals run inside the season and Worlds runs after it, both
 ## taken from ACRTW at Pete's instruction (10 Sep 2026). `cups` holds whatever
-## is live right now; `honours` is the trophy cabinet.
+## is live right now; `honors` is the trophy cabinet.
 var cups: Array = []
 var worlds: Cup = null
-var honours: Array[Dictionary] = []
+var honors: Array[Dictionary] = []
 
 ## THE CLUB'S RECORD BOOK, and it has to live here rather than on a fighter.
 ##
@@ -105,7 +105,7 @@ func tag_for_hall(f: FighterCard, at_season: int) -> String:
 	hall.append({
 		"name": f.display_name, "pos": f.pos_name(), "rating": f.overall(),
 		"age": f.age, "season": at_season, "bouts": f.bouts, "downs": f.downs,
-		"honours": f.honours,
+		"honors": f.honors,
 	})
 	return ""
 
@@ -554,11 +554,11 @@ func _close_the_season_cups() -> void:
 	var resolver := cup_resolver()
 	for c in cups:
 		c.run_all(resolver)
-		_record_honours(c)
+		_record_honors(c)
 	cups.clear()
 	if worlds != null:
 		worlds.run_all(resolver)
-		_record_honours(worlds)
+		_record_honors(worlds)
 		worlds = null
 
 
@@ -729,7 +729,7 @@ func _cup_run(id: String) -> bool:
 	for c in cups:
 		if String(c.get_meta("id", "")) == id:
 			return true
-	for h in honours:
+	for h in honors:
 		if String(h.get("id", "")) == id and int(h.get("season", -1)) == season:
 			return true
 	return false
@@ -835,11 +835,11 @@ func auto_resolve_cups() -> void:
 			held.append(c)
 			continue
 		c.run_all(resolver)
-		_record_honours(c)
+		_record_honors(c)
 	cups = held
 	if worlds != null and not (hold_player_cups and worlds.player_alive()):
 		worlds.run_all(resolver)
-		_record_honours(worlds)
+		_record_honors(worlds)
 		worlds = null
 
 
@@ -855,13 +855,13 @@ func open_cups() -> Array:
 	return out
 
 
-## A cup that is over gets its honours recorded and gets out of the way. Called
+## A cup that is over gets its honors recorded and gets out of the way. Called
 ## after the player finishes a round rather than on a timer, so a bracket cannot
 ## sit completed and still be asked for a fixture.
 func retire_cup(c: Cup) -> void:
 	if not c.is_over():
 		return
-	_record_honours(c)
+	_record_honors(c)
 	var i := cups.find(c)
 	if i != -1:
 		cups.remove_at(i)
@@ -871,12 +871,12 @@ func retire_cup(c: Cup) -> void:
 		_clear_guests()
 
 
-func _record_honours(c: Cup) -> void:
+func _record_honors(c: Cup) -> void:
 	if not c.is_over():
 		return
 	if c.champion >= 0 and c.champion < clubs.size():
 		clubs[c.champion]["titles"] = int(clubs[c.champion]["titles"]) + 1
-	honours.append({
+	honors.append({
 		"id": String(c.get_meta("id", "")),
 		"name": c.cup_name,
 		"season": season,

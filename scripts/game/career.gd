@@ -282,7 +282,7 @@ const RETIRE_PER_FADED_POINT: float = 0.012
 ## somewhere he is enjoying himself keeps going. That is the most ordinary true
 ## thing about the end of a career in this sport, and it costs one line.
 ##
-## Centred on 0.7, where a club starts, so a club that never thinks about morale
+## Centerd on 0.7, where a club starts, so a club that never thinks about morale
 ## is neither rewarded nor punished for it.
 const RETIRE_PER_MOOD: float = 0.22
 
@@ -631,7 +631,7 @@ static func winter(f: FighterCard, coached: bool, ground_points: int) -> Diction
 ## winter used before any of this existed. tools/probe_career.gd played a career
 ## out and the result was damning: by 32 the fighter read **68 / 68 / 68 / 67**.
 ## Training had sanded every fighter in the game into the same shape, the four
-## peaks cancelled out, and "an old fighter is a different fighter, not a worse
+## peaks canceled out, and "an old fighter is a different fighter, not a worse
 ## one" — the entire claim the career layer exists to make — was false in the
 ## only place it could be checked.
 ##

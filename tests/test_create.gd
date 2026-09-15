@@ -242,10 +242,10 @@ func _test_the_bank_is_bought_not_given() -> void:
 	var paid: int = IconBank.in_pack(IconBank.PACK_STEEL)[0]
 	var before := s.office.credits
 	var wearing_locked := s.workshop.rename(s.club, "Bonk Works", "BNK",
-		IconBank.KIT_COLOURS[0], IconBank.MARK_COLOURS[0], paid)
+		IconBank.KIT_COLORS[0], IconBank.MARK_COLORS[0], paid)
 	var bought := s.workshop.buy_icon(s.office, paid)
 	var now_ok := s.workshop.rename(s.club, "Bonk Works", "BNK",
-		IconBank.KIT_COLOURS[0], IconBank.MARK_COLOURS[0], paid)
+		IconBank.KIT_COLORS[0], IconBank.MARK_COLORS[0], paid)
 	var twice := s.workshop.buy_icon(s.office, paid)
 	_ok(starter.size() == 4 and s.workshop.owns(starter[0])
 			and wearing_locked != "" and bought == "" and now_ok == ""
@@ -281,29 +281,29 @@ func _test_every_mark_reads() -> void:
 	## And every kit/mark pairing the create screen can produce must pass the
 	## contrast rule — otherwise the screen offers a combination it then refuses.
 	var bad := 0
-	for kit in IconBank.KIT_COLOURS:
-		for mark in IconBank.MARK_COLOURS:
+	for kit in IconBank.KIT_COLORS:
+		for mark in IconBank.MARK_COLORS:
 			if not IconBank.contrast_ok(kit, mark):
 				bad += 1
 	_ok(dupes == 0 and unnamed == 0 and bad == 0 and IconBank.count() >= 20,
 		"every mark reads",
 		"%d marks, ids unique, and all %d kit/mark pairings clear the contrast rule" % [
-			IconBank.count(), IconBank.KIT_COLOURS.size() * IconBank.MARK_COLOURS.size()])
+			IconBank.count(), IconBank.KIT_COLORS.size() * IconBank.MARK_COLORS.size()])
 
 
 func _test_the_contrast_rule_holds() -> void:
 	## Create-A-Team's only real rule: the mark has to read on the kit.
 	var s := _season(20)
 	var light_on_light := s.workshop.rename(s.club, "Bonk Works", "BNK",
-		IconBank.MARK_COLOURS[0], IconBank.MARK_COLOURS[1], 4)
+		IconBank.MARK_COLORS[0], IconBank.MARK_COLORS[1], 4)
 	## A mark from the starter set, because `rename` also checks ownership now
 	## and this check is about contrast, not about the bank.
 	var good := s.workshop.rename(s.club, "Bonk Works", "bnk",
-		IconBank.KIT_COLOURS[2], IconBank.MARK_COLOURS[0], IconBank.starter()[2])
+		IconBank.KIT_COLORS[2], IconBank.MARK_COLORS[0], IconBank.starter()[2])
 	var no_name := s.workshop.rename(s.club, "  ", "BNK",
-		IconBank.KIT_COLOURS[2], IconBank.MARK_COLOURS[0], 4)
+		IconBank.KIT_COLORS[2], IconBank.MARK_COLORS[0], 4)
 	var bad_short := s.workshop.rename(s.club, "Bonk Works", "BONKER",
-		IconBank.KIT_COLOURS[2], IconBank.MARK_COLOURS[0], 4)
+		IconBank.KIT_COLORS[2], IconBank.MARK_COLORS[0], 4)
 	_ok(light_on_light != "" and good == "" and no_name != "" and bad_short != ""
 			and s.club.short_name == "BNK" and s.club.display_name == "Bonk Works"
 			and s.club.line_legal() == "",
@@ -317,7 +317,7 @@ func _test_the_workshop_saves() -> void:
 	s.workshop.create(s.office, s.club, _man(41, 40, 40, 40, 40, "Ord Tarrow"), _worst(s.club))
 	s.workshop.buy_icon(s.office, 12)
 	s.workshop.rename(s.club, "Bonk Works", "BNK",
-		IconBank.KIT_COLOURS[3], IconBank.MARK_COLOURS[1], 12)
+		IconBank.KIT_COLORS[3], IconBank.MARK_COLORS[1], 12)
 	SaveGame.save(s, 2)
 	var back := SaveGame.load_slot(2)
 	SaveGame.delete(2)

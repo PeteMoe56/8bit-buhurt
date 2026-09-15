@@ -66,7 +66,7 @@ func _season() -> Season:
 	s.board.unlock_play(s.office)
 	## A WEDGE, and every man behind the set-up line. `formation_legal` caps a
 	## starting spot at 15% up the list — the first draft of this shape had the
-	## Flankers at 16% and the Centre at 22%, which the board refused, correctly,
+	## Flankers at 16% and the Center at 22%, which the board refused, correctly,
 	## and the test then reported as "the book lists three shapes" rather than as
 	## the bad fixture it was.
 	var spots: Array = [
@@ -117,7 +117,7 @@ func _test_it_lists_what_the_club_owns() -> void:
 
 
 ## A PLAY TIED TO A SHAPE APPEARS UNDER THAT SHAPE AND NOWHERE ELSE. It is the
-## check mark Pete asked for, seen from the screen that has to honour it — and
+## check mark Pete asked for, seen from the screen that has to honor it — and
 ## `Chalkboard.plays_for` is where it lives, so this is really asserting the book
 ## asks the right question rather than filtering on its own.
 func _test_a_tied_play_stays_with_its_shape() -> void:
@@ -163,7 +163,7 @@ func _test_calling_a_drawn_shape_stands_the_men_in_it() -> void:
 	var stood_drawn: bool = sim.custom_spots[0] != null \
 		and sim.formation_spots(0)[2] == drawn["spots"][2]
 	_ok(stood_drawn, "calling a drawn shape stands them in it",
-		"centre spot %s" % str(sim.formation_spots(0)[2]))
+		"center spot %s" % str(sim.formation_spots(0)[2]))
 
 	scene.call("_call_from_book", built, {"kind": "push",
 		"id": Tuning.Strategy.RUSH_LEFT, "name": "Rush left"})

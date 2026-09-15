@@ -1,7 +1,7 @@
 extends SceneTree
 ## THE FOUR ON THE CORNER, and the one way they could go quietly wrong.
 ##
-##   godot --headless --path . --script res://tests/test_favourites.gd
+##   godot --headless --path . --script res://tests/test_favorites.gd
 ##
 ## PETE'S SPEC, since the playbook pass: *"on the right side you have your four
 ## favorited plays."* The corner shipped showing four and nothing chose which
@@ -13,7 +13,7 @@ var checks: int = 0
 
 
 func _initialize() -> void:
-	print("\n=== 8-Bit Buhurt — the favourites ===\n")
+	print("\n=== 8-Bit Buhurt — the favorites ===\n")
 	_test_a_star_goes_on_and_comes_off()
 	_test_four_is_the_lot()
 	_test_a_deleted_play_takes_its_star_with_it()
@@ -23,7 +23,7 @@ func _initialize() -> void:
 	_test_a_screen_can_actually_reorder_them()
 	print("")
 	if failures.is_empty():
-		print("THE FAVOURITES HOLD (%d checks)\n" % checks)
+		print("THE FAVORITES HOLD (%d checks)\n" % checks)
 		quit(0)
 	else:
 		for f in failures:
@@ -54,21 +54,21 @@ func _test_the_four_can_be_put_in_order() -> void:
 	var c := _board()
 	var sh := _shape()
 	for n in ["Hammer", "Anvil", "Wedge"]:
-		c.toggle_favourite(sh, "play", n)
+		c.toggle_favorite(sh, "play", n)
 	var before := _keys(c)
 	_ok(before == ["Hammer", "Anvil", "Wedge"],
 		"the list starts in the order they were starred", str(before))
 
-	c.promote_favourite(2)
+	c.promote_favorite(2)
 	_ok(_keys(c) == ["Hammer", "Wedge", "Anvil"],
 		"one moves up", str(_keys(c)))
-	c.demote_favourite(1)
+	c.demote_favorite(1)
 	_ok(_keys(c) == before, "and back down again is where it started", str(_keys(c)))
 
 	## THE ENDS DO NOT WALK OFF, and they do not error either — asking the top
 	## one to go up is a thing a player will do every time he reaches the top.
-	var top_err := c.promote_favourite(0)
-	var bottom_err := c.demote_favourite(c.favourites.size() - 1)
+	var top_err := c.promote_favorite(0)
+	var bottom_err := c.demote_favorite(c.favorites.size() - 1)
 	_ok(top_err == "" and bottom_err == "" and _keys(c) == before,
 		"the ends hold, quietly",
 		"top and bottom both refuse without a complaint and nothing moved")
@@ -78,9 +78,9 @@ func _test_the_four_can_be_put_in_order() -> void:
 	var moves := 0
 	for i in 12:
 		if i % 2 == 0:
-			c.promote_favourite(i % 3)
+			c.promote_favorite(i % 3)
 		else:
-			c.demote_favourite(i % 3)
+			c.demote_favorite(i % 3)
 		moves += 1
 	var after := _keys(c)
 	after.sort()
@@ -90,16 +90,16 @@ func _test_the_four_can_be_put_in_order() -> void:
 		"%s still holds the same three" % str(_keys(c)))
 	## AN INDEX OFF THE END IS REFUSED rather than clamped: the screen and the
 	## model are a frame apart and a play can be deleted between them.
-	_ok(c.promote_favourite(99) != "" and c.demote_favourite(-1) != "",
+	_ok(c.promote_favorite(99) != "" and c.demote_favorite(-1) != "",
 		"an index that is not on the list is refused",
 		"both come back with a sentence")
 	print("   the order: %s" % ", ".join(_keys(c)))
 
 
-## The favourites as keys, which is what the player sees in the corner.
+## The favorites as keys, which is what the player sees in the corner.
 func _keys(c: Chalkboard) -> Array:
 	var out: Array = []
-	for f in c.favourites:
+	for f in c.favorites:
 		out.append(String(f["key"]))
 	return out
 
@@ -133,14 +133,14 @@ func _shape() -> int:
 func _test_a_star_goes_on_and_comes_off() -> void:
 	var c := _board()
 	var sh := _shape()
-	_ok(not c.is_favourite(sh, "play", "Anvil"), "nothing is starred to begin with",
-		"%d favourites" % c.favourites.size())
-	_ok(c.toggle_favourite(sh, "play", "Anvil") == ""
-		and c.is_favourite(sh, "play", "Anvil"), "a star goes on",
-		"%d favourites" % c.favourites.size())
-	_ok(c.toggle_favourite(sh, "play", "Anvil") == ""
-		and not c.is_favourite(sh, "play", "Anvil"), "and the same tap takes it off",
-		"%d favourites" % c.favourites.size())
+	_ok(not c.is_favorite(sh, "play", "Anvil"), "nothing is starred to begin with",
+		"%d favorites" % c.favorites.size())
+	_ok(c.toggle_favorite(sh, "play", "Anvil") == ""
+		and c.is_favorite(sh, "play", "Anvil"), "a star goes on",
+		"%d favorites" % c.favorites.size())
+	_ok(c.toggle_favorite(sh, "play", "Anvil") == ""
+		and not c.is_favorite(sh, "play", "Anvil"), "and the same tap takes it off",
+		"%d favorites" % c.favorites.size())
 
 
 ## REFUSED, NOT ROTATED. A list that quietly drops the oldest thing you put in it
@@ -149,32 +149,32 @@ func _test_four_is_the_lot() -> void:
 	var c := _board()
 	var sh := _shape()
 	for st in Tuning.STRATEGIES.keys():
-		if c.favourites.size() >= Chalkboard.MAX_FAVOURITES:
+		if c.favorites.size() >= Chalkboard.MAX_FAVORITES:
 			break
-		c.toggle_favourite(sh, "push", str(int(st)))
-	while c.favourites.size() < Chalkboard.MAX_FAVOURITES:
-		c.toggle_favourite(sh, "play", "Hammer")
-	var err := c.toggle_favourite(sh, "play", "Wedge")
-	_ok(err != "" and c.favourites.size() == Chalkboard.MAX_FAVOURITES,
+		c.toggle_favorite(sh, "push", str(int(st)))
+	while c.favorites.size() < Chalkboard.MAX_FAVORITES:
+		c.toggle_favorite(sh, "play", "Hammer")
+	var err := c.toggle_favorite(sh, "play", "Wedge")
+	_ok(err != "" and c.favorites.size() == Chalkboard.MAX_FAVORITES,
 		"the fifth is refused rather than pushing the first out",
-		"'%s', still %d" % [err, c.favourites.size()])
+		"'%s', still %d" % [err, c.favorites.size()])
 
 
 func _test_a_deleted_play_takes_its_star_with_it() -> void:
 	var c := _board()
 	var sh := _shape()
-	c.toggle_favourite(sh, "play", "Wedge")
-	_ok(c.live_favourites().size() == 1, "a starred play shows up live",
-		"%d live" % c.live_favourites().size())
+	c.toggle_favorite(sh, "play", "Wedge")
+	_ok(c.live_favorites().size() == 1, "a starred play shows up live",
+		"%d live" % c.live_favorites().size())
 	## Find Wedge's index and remove it.
 	var idx := -1
 	for i in c.plays.size():
 		if String(c.plays[i]["name"]) == "Wedge":
 			idx = i
 	c.delete_play(idx)
-	_ok(c.live_favourites().is_empty() and c.favourites.is_empty(),
+	_ok(c.live_favorites().is_empty() and c.favorites.is_empty(),
 		"and a deleted play takes its star with it, pruned in place",
-		"%d live, %d stored" % [c.live_favourites().size(), c.favourites.size()])
+		"%d live, %d stored" % [c.live_favorites().size(), c.favorites.size()])
 
 
 ## THE BUG THIS DESIGN EXISTS TO PREVENT, demonstrated rather than asserted
@@ -182,7 +182,7 @@ func _test_a_deleted_play_takes_its_star_with_it() -> void:
 ##
 ## `plays_for` hands out each play's position in the list and `delete_play` uses
 ## `remove_at`, so deleting "Hammer" slides "Anvil" and "Wedge" down one. A
-## favourite holding index 1 pointed at Anvil before and points at Wedge after —
+## favorite holding index 1 pointed at Anvil before and points at Wedge after —
 ## no error, no empty slot, just a different play under the same star.
 ##
 ## The check runs that arithmetic out loud and then shows the name key surviving
@@ -192,14 +192,14 @@ func _test_an_index_would_have_pointed_at_the_wrong_play() -> void:
 	var sh := _shape()
 	var before := c.plays_for(sh)
 	var was_at_1 := String(before[1]["name"])
-	c.toggle_favourite(sh, "play", was_at_1)
+	c.toggle_favorite(sh, "play", was_at_1)
 	c.delete_play(0)
 	var after := c.plays_for(sh)
 	var now_at_1 := String(after[1]["name"]) if after.size() > 1 else "(gone)"
 	_ok(was_at_1 != now_at_1,
 		"an index really would have moved under the star",
 		"slot 1 was '%s', is now '%s'" % [was_at_1, now_at_1])
-	var live := c.live_favourites()
+	var live := c.live_favorites()
 	_ok(live.size() == 1 and String(live[0]["key"]) == was_at_1,
 		"and the name key still points at the play the player starred",
 		"'%s'" % String(live[0]["key"]))
@@ -208,57 +208,57 @@ func _test_an_index_would_have_pointed_at_the_wrong_play() -> void:
 func _test_they_survive_a_save() -> void:
 	var c := _board()
 	var sh := _shape()
-	c.toggle_favourite(sh, "play", "Anvil")
-	c.toggle_favourite(sh, "push", "0")
+	c.toggle_favorite(sh, "play", "Anvil")
+	c.toggle_favorite(sh, "push", "0")
 	var back := Chalkboard.from_dict(c.to_dict())
-	_ok(back.favourites.size() == 2
-		and back.is_favourite(sh, "play", "Anvil")
-		and back.is_favourite(sh, "push", "0"),
-		"they come back off a save", "%d favourites" % back.favourites.size())
+	_ok(back.favorites.size() == 2
+		and back.is_favorite(sh, "play", "Anvil")
+		and back.is_favorite(sh, "push", "0"),
+		"they come back off a save", "%d favorites" % back.favorites.size())
 	## A SAVE FROM BEFORE THEY EXISTED, which is every save anybody has.
 	var old := c.to_dict()
-	old.erase("favourites")
-	_ok(Chalkboard.from_dict(old).favourites.is_empty(),
-		"and a save written before favourites existed loads with none",
+	old.erase("favorites")
+	_ok(Chalkboard.from_dict(old).favorites.is_empty(),
+		"and a save written before favorites existed loads with none",
 		"no key, no crash")
 	## AND A HAND-EDITED ONE IS NOT TRUSTED.
 	var junk := c.to_dict()
-	junk["favourites"] = [{"shape": sh, "kind": "play", "key": "A"},
+	junk["favorites"] = [{"shape": sh, "kind": "play", "key": "A"},
 		{"nonsense": true}, {"shape": sh, "kind": "weird", "key": "B"},
 		{"shape": sh, "kind": "play", "key": "C"},
 		{"shape": sh, "kind": "play", "key": "D"},
 		{"shape": sh, "kind": "play", "key": "E"}]
 	var fixed := Chalkboard.from_dict(junk)
 	var kinds_ok := true
-	for f in fixed.favourites:
+	for f in fixed.favorites:
 		if String(f["kind"]) != "push" and String(f["kind"]) != "play":
 			kinds_ok = false
-	_ok(fixed.favourites.size() <= Chalkboard.MAX_FAVOURITES and kinds_ok,
+	_ok(fixed.favorites.size() <= Chalkboard.MAX_FAVORITES and kinds_ok,
 		"and a hand-edited save is coerced and capped, not trusted",
-		"%d favourites, every kind legal" % fixed.favourites.size())
+		"%d favorites, every kind legal" % fixed.favorites.size())
 
 
 ## AND THERE IS A CONTROL FOR IT.
 ##
-## `promote_favourite` and `demote_favourite` passed every check above for a week
+## `promote_favorite` and `demote_favorite` passed every check above for a week
 ## with nothing in the game calling either one — a tested verb no player can
 ## reach, which is the most convincing kind of dead code because the suite is
 ## green. **A function with no caller is not a feature, it is a question nobody
 ## answered.**
 ##
 ## The control is the strip under the playbook in starring mode, NOT the corner.
-## The corner runs on a clock and its favourites sit in a two-by-two grid, which
+## The corner runs on a clock and its favorites sit in a two-by-two grid, which
 ## has four positions and no up or down; the strip has no clock and reads left to
 ## right in the same order the grid fills. This check holds that a screen calls
 ## the verb at all — where it lives is a design decision and this is not the
 ## place to pin it.
 func _test_a_screen_can_actually_reorder_them() -> void:
 	var src := FileAccess.get_file_as_string("res://scripts/melee/melee_scene.gd")
-	_ok(src.contains("promote_favourite("),
+	_ok(src.contains("promote_favorite("),
 		"a screen calls the verb that moves one up the list",
 		"the strip under the playbook, in starring mode")
 	## AND THE STRIP IS ONLY THERE WHEN THERE IS SOMETHING TO ORDER. One chip
 	## that cannot move is a control a player cannot tell from a broken one.
 	_ok(src.contains("favs.size() < 2"),
 		"and it does not draw a list of one",
-		"ordering one favourite is not a thing that can be done")
+		"ordering one favorite is not a thing that can be done")

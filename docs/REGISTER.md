@@ -48,7 +48,7 @@ it is now suspect. Full spec in `docs/GAMEPLAY.md`.
 | 02.13 | **"Break" frees your own man** | **locked** — Pete, 10 Sep 2026. He gets out; the enemy is left standing but disengaged. The counter to their gang. |
 | 02.14 | **Strategy is locked for the round** | **locked** — Pete, 10 Sep 2026. Picked in the corner, lived with. |
 | 02.26 | **A strategy is an opening PLAN that expires, not a permanent modifier** | **locked** — Pete, 10 Sep 2026: *"more where the team wants the fight to go, but once those strategies run their course, the AI tries to make best guess."* Implemented as five plan zones per strategy, live for ~18 s or until the side is down to two men. **My multiplier model was wrong**: a strategy is a shape, not a stat bonus. |
-| 02.27 | **Difficulty is a behaviour, not a handicap** | **locked** — Pete, 10 Sep 2026, on the beginner tier: *"like a new kid going through a motion but then once his taught direction stops, he doesn't know what to do."* Three tiers — Green / Seasoned / Elite — differing only in what they do once the plan expires. **No tier changes anyone's numbers.** A Green side keeps standing on its plan zone, takes the nearest man, cannot read wear, never gangs, never rescues, never escapes. Measured: Seasoned beats Green 88.3% on identical rosters. |
+| 02.27 | **Difficulty is a behavior, not a handicap** | **locked** — Pete, 10 Sep 2026, on the beginner tier: *"like a new kid going through a motion but then once his taught direction stops, he doesn't know what to do."* Three tiers — Green / Seasoned / Elite — differing only in what they do once the plan expires. **No tier changes anyone's numbers.** A Green side keeps standing on its plan zone, takes the nearest man, cannot read wear, never gangs, never rescues, never escapes. Measured: Seasoned beats Green 88.3% on identical rosters. |
 | 02.15 | Formation list — Line / Spearhead / Refused flank / Rail-heavy | **REC** — **formation is a positioning tool** (Pete, 10 Sep 2026), distinct from strategy. Spearhead is the sport's own word (glossary #64). |
 | 02.16 | Strategy list — **Left rail push / Right rail push / Turtle / Strong left / Strong right** | **locked** — Pete's list, 10 Sep 2026. My four invented ones are retired. |
 | 02.17 | "Bullrush" or the dossier's "check"? | **locked** — **Bullrush.** Pete, 10 Sep 2026. His word beats the glossary's. |
@@ -67,7 +67,7 @@ it is now suspect. Full spec in `docs/GAMEPLAY.md`.
 | 03.2 | "Gas", not "conditioning" | **locked** — the sport's own word for the thing (glossary #110), and it is the sport's recognised limiter. |
 | 03.3 | ~~Seven roles: center, guard, flanker, grappler, striker, punisher, runner~~ | **void → replaced by 02.9.** The five positions are **Rail, Flanker, Center, Flanker, Rail** — a line, not a role taxonomy. The glossary list conflates *where you stand* with *what you do*; Pete's line is the first axis. Whether the second axis (grappler/striker/punisher/runner as functions) survives is **ASK**. |
 | 03.4 | Kit condition as a stat, and availability as a hard gate | **REC** — this is the salary-cap substitute (§4) expressed on the fighter. A fighter can be your best and unavailable. |
-| 03.5 | Does role affect stat growth and recruitment, or only field behaviour? | **ASK** — currently behaviour only. |
+| 03.5 | Does role affect stat growth and recruitment, or only field behavior? | **ASK** — currently behavior only. |
 
 ## 04 — Balance
 
@@ -90,8 +90,8 @@ it is now suspect. Full spec in `docs/GAMEPLAY.md`.
 
 | # | Item | Status |
 |---|---|---|
-| 05.1 | 8-bit, load-bearing rather than decorative | **locked** — heraldry is already low-res, it solves the grey-blob problem, and it makes the art scope survivable solo. |
-| 05.2 | Tincture rule enforced in code: never colour on colour, never metal on metal | **locked** — the rule exists because heraldry had to read at 200 yards through dust, which is the same problem as reading 5v5 on a phone. `Club.tincture_legal()`, asserted in the fixtures test. |
+| 05.1 | 8-bit, load-bearing rather than decorative | **locked** — heraldry is already low-res, it solves the gray-blob problem, and it makes the art scope survivable solo. |
+| 05.2 | Tincture rule enforced in code: never color on color, never metal on metal | **locked** — the rule exists because heraldry had to read at 200 yards through dust, which is the same problem as reading 5v5 on a phone. `Club.tincture_legal()`, asserted in the fixtures test. |
 | 05.3 | Fighter footprint 24×32 px on a 540-wide portrait screen | **REC** — arrived at by rendering, not by opinion. At 15×22 the heraldry did no work at all. |
 | 05.4 | Art outsourced (MLC Studio or similar) vs in-house | **ASK** — placeholder primitives are deliberately structured so sprites drop in without touching layout. |
 | 05.5 | The list has a lot of dead space at 5v5 | **REC** — leave it. Fighters converge; a framing camera would fight C-5. Revisit at 12v12. |
@@ -110,8 +110,8 @@ it is now suspect. Full spec in `docs/GAMEPLAY.md`.
 
 | # | Item | Status |
 |---|---|---|
-| 07.1 | Real countries, fictional federations, clubs, fighters and armourers | **locked** — inherited from Hedge Knight. |
-| 07.2 | Russia excluded from the game entirely | **locked** — inherited. Not a country, not on the calendar, not among clubs, opponents or armourers. The war and sanctions are never referenced. |
+| 07.1 | Real countries, fictional federations, clubs, fighters and armorers | **locked** — inherited from Hedge Knight. |
+| 07.2 | Russia excluded from the game entirely | **locked** — inherited. Not a country, not on the calendar, not among clubs, opponents or armorers. The war and sanctions are never referenced. |
 | 07.3 | Tone: grounded and warm | **locked, narrowed** — inherited, minus the selectable persona register and the storylet layer, per 01.1. |
 | 07.4 | Club split / schism as the "getting fired" substitute | **ASSUMED** — not built. Direction doc §4 calls it the one system people would talk about. |
 | 07.5 | Currency name "Marks" | **ASSUMED** — no economy built yet. |
@@ -162,7 +162,7 @@ this. Run it like reality and the leagues in soccer."* Full spec in `docs/LEAGUE
 | 10.2 | **Difficulty is `wear_read`, a threshold — not a set of booleans** | **locked** — see below. |
 | 10.3 | **Eight fighters travel — five on the line, three on the bench** | **locked, Pete 10 Sep 2026.** One backup per role, so every place on the line has cover and the bench is exactly big enough to be a decision. Asserted in `MeleeClub.line_legal()`. |
 | 10.3b | **Plus a reserve of five, who never appear at an event** | **locked, Pete 10 Sep 2026** — *"the Reserve can still hold 5 additional fighters. They will only appear outside of the fights/events in the roster menu. That way you may train/sign/cut into reserves, outfit them, and put them into active roster."* A squad is therefore at most 13. **Reserves do not count toward club power** — they are not at the event, so they cannot be what the league rates you on. The split is what makes a roster menu worth opening: a flat list makes every signing an immediate first-team decision, and a reserve lets you carry a man who is not ready yet. |
-| 10.3c | **The eight is always eight** | **locked** — every roster verb refuses rather than leaving a club that cannot travel or cannot field a line. You change a full eight only with `swap_squad`, and you cut from the reserve. The first pass let each verb do the locally reasonable thing and two of them were wrong the same way: demoting the Center was allowed *because the bench Center covers his slot*, and cutting him was allowed for the same reason — both leaving seven men on the travelling list. **A rule about the whole squad cannot be enforced one fighter at a time.** |
+| 10.3c | **The eight is always eight** | **locked** — every roster verb refuses rather than leaving a club that cannot travel or cannot field a line. You change a full eight only with `swap_squad`, and you cut from the reserve. The first pass let each verb do the locally reasonable thing and two of them were wrong the same way: demoting the Center was allowed *because the bench Center covers his slot*, and cutting him was allowed for the same reason — both leaving seven men on the traveling list. **A rule about the whole squad cannot be enforced one fighter at a time.** |
 | 10.3a | **Swap two men in from the bench each corner** | **locked, Pete 10 Sep 2026** — *"You should be able to swap fighters between rounds from the bench anyway. We'll be taking that from ACRTW."* A man who sat the round out recovers 62% of his tank; a man who fought recovers 30%. **That gap is the mechanic** — the bench is a way of buying wind. |
 | 10.4 | **Standing out of position costs 6% of base and technique** | **REC** — without it the bench is just "field your five best every round" and Rail, Flanker and Center stop meaning anything. Applied through `Man.eff_base()` / `Man.eff_tec()` so it cannot be remembered in one formula and forgotten in another. |
 | 10.5 | **ROLE is not SLOT.** Five places on the line, three jobs | **locked** — a Rail is a Rail whichever side of the list he stands on, so he covers the other Rail at full value and is *not* out of position there. `Tuning.POS_ROLE` / `Tuning.covers()`. Without the distinction a club of eight could not put five men out after losing one starter: the bench carries one man per role, not one per slot, and `starting_five()` quietly returned four men — which every caller downstream treats as a legal line. |
@@ -244,7 +244,7 @@ they're identical."*
 | # | Item | Status |
 |---|---|---|
 | 12.1 | **Title screen with three save slots**, each read by `SaveGame.peek()` | **REC** — Retro Bowl's shell is one save and a straight PLAY. Three slots instead, because this game's arc is a club climbing a pyramid over many seasons and people run more than one. `peek` pulls denormalised fields off the front of the file, so listing three slots does not mean rebuilding three worlds. |
-| 12.2 | **The clubhouse is three tabs and a primary action** — CLUB / SQUAD / HONOURS | **REC** — the shape a manager game settles on: the thing you came to do is one tap from opening the game, everything else is one tap from that. Loosely Retro Bowl's shell; deliberately not its layout and none of its vocabulary. |
+| 12.2 | **The clubhouse is three tabs and a primary action** — CLUB / SQUAD / HONORS | **REC** — the shape a manager game settles on: the thing you came to do is one tap from opening the game, everything else is one tap from that. Loosely Retro Bowl's shell; deliberately not its layout and none of its vocabulary. |
 | 12.3 | **The save stores the RNG STREAM, not just the seed** | **locked** — a world reloaded with a fresh generator resolves the rest of its season differently from the run that saved it: the fixtures you have not played yet quietly change. Same class as a table that re-sorts on reload, and invisible until a player reloads and notices the results moved. The test proves it has teeth by dropping the stream and checking the world *diverges*. |
 | 12.4 | **Only the player's club is stored** | **locked** — every other club is rebuilt by `ClubFactory` from its id and current rating, exactly as during play, so a save cannot disagree with a fresh session about who is on Iron Crown's line. |
 | 12.5 | **Hand-written serialisation, not `ResourceSaver`** | **REC** — fewer lines the other way, but it welds the save format to Godot's Resource serialisation, which changes between versions and is unreadable when a player's save breaks. |
@@ -286,7 +286,7 @@ the panel border.
 | 13.6a | **A CAPTAIN HAS TWO SPECIALIZATIONS. TOTAL.** | **locked, Pete 10 Sep 2026** — *"Rails, Flankers, and Center. They get TWO of those, not three, not elite, not whatever the hell."* A role a captain specializes in is **taught**; a role no captain specializes in is not. Two tiers, because there are two states. **Elite is not something a club buys** — it is what the sim reserves for opposition at the top of the pyramid. |
 | 13.6b | Two captains, four slots, three roles | **REC** — teach all three and the fourth slot is waste, or leave one untaught. The screen names the untaught role in red and says which role both captains are doubling up on. |
 | 13.7 | **Facilities: Home ground, Training ground, Infirmary** | **locked, Pete 10 Sep 2026.** Each has to move a number that already exists — a facility that only feeds another facility is a progress bar with a name on it. Gate credits, a winter's training points, events off a knock. |
-| 13.7a | Home ground does **not** create home fixtures | **REC** — 09.5 is locked: buhurt clubs travel and the league is a single round-robin. A travelling circuit still rotates who HOSTS, so your own ground is what lets you take a turn, and the level is the gate. No contradiction, but worth writing down before somebody "fixes" the fixture list. |
+| 13.7a | Home ground does **not** create home fixtures | **REC** — 09.5 is locked: buhurt clubs travel and the league is a single round-robin. A traveling circuit still rotates who HOSTS, so your own ground is what lets you take a turn, and the level is the gate. No contradiction, but worth writing down before somebody "fixes" the fixture list. |
 | 13.8 | **Injuries** | **locked** — the Infirmary needs something to heal. A man who goes down can take a knock and miss events; he stays on the eight and stays on the wage bill, so the bench covers, which is the whole point of carrying one. |
 | 13.9 | Morale | **REC** — a read-out, not a lever. It moves with results and a better ground takes the edge off a bad weekend. You cannot buy it, which is what keeps it honest. |
 | 13.10 | Credit and wage numbers | **ASSUMED** — a first pass. They want a tuning session of their own once somebody has played ten seasons. |
@@ -325,7 +325,7 @@ Two things fell out, both measured with `tools/probe_pace.gd` rather than guesse
 **A constraint expressed in the wrong units survives every test until the thing it depends on
 changes size.**
 
-3. **The difficulty curve inverted, and every one of Seasoned's behaviours turned out to be
+3. **The difficulty curve inverted, and every one of Seasoned's behaviors turned out to be
    the reason.** Green beat Seasoned 79%. Instrumenting it rather than reasoning about it
    showed Seasoned finishing bouts on 0.32 of a tank against Green's 0.51 and putting down
    half as many men — so the probe handed Green one Seasoned trait at a time, and **every
@@ -346,7 +346,7 @@ changes size.**
    difficulty curve alone and had to be spread from 0.40/0.55 to **0.14/0.55** to do it:
    Seasoned beats Green 67.1%.
 
-   The three handicapped behaviours are deliberately left in. They are Pete's own description
+   The three handicapped behaviors are deliberately left in. They are Pete's own description
    of a green fighter and an experienced one, they are what the tier MEANS, and the right fix
    is to make improvising cheap on a long list — not to delete the idea because the current
    implementation of it is expensive. That is a job of its own and it is open.
@@ -421,8 +421,8 @@ that it *"should encapsulate most if not all fights"*; at 60 seconds it was catc
 round in six, and at 120 with a 570 list it catches one in fifty.
 
 **Walking is free, and that changed what the tank is for.** It has been charged per second
-and then per metre, and both were wrong the same way — they made crossing the list the thing
-that empties a man, when what empties a man is being in a bind with somebody. Armour is
+and then per meter, and both were wrong the same way — they made crossing the list the thing
+that empties a man, when what empties a man is being in a bind with somebody. Armor is
 heavy to fight in, not heavy to stand up in.
 
 Removing it retired the tank a second time: only 3.7 men a bout ran out and the report could
@@ -790,7 +790,7 @@ First version stretched the 15% band across two-thirds of the screen because tha
 space available. A positioning tool that distorts distance is showing the player a shape he is
 not making. The field is now drawn at the list's real aspect and shows only as much of the
 charge axis as the mode can reach — a narrow strip for formations, the whole approach for
-plays. The ground past the line is greyed, so the clamp under the finger has a reason on
+plays. The ground past the line is grayed, so the clamp under the finger has a reason on
 screen before the finger finds it.
 
 ### Create-A-Player is capped twice, and neither cap is soft
@@ -821,7 +821,7 @@ walk onto the eight as a signed man, through the squad screen.
 
 ### Create-A-Team is free
 
-The credits buy fighters, not colours. It edits your club's name, short name and heraldry,
+The credits buy fighters, not colors. It edits your club's name, short name and heraldry,
 and the only rule is the sport's own tincture rule, which already existed on `MeleeClub` and
 is asked rather than reimplemented.
 
@@ -852,10 +852,10 @@ Pete, 10 Sep 2026:
 
 ### The vocabulary is gone at the source, not in the labels
 
-Charges, tinctures, fields, crests and the metal-on-colour rule are out of the
+Charges, tinctures, fields, crests and the metal-on-color rule are out of the
 codebase, the same way the nomenclature pass in 17 went — renamed where they are
 declared rather than translated at the UI. A club now has a **kit**, an
-**icon_colour** and an **icon**; `UiKit.crest` is `UiKit.badge`; `MeleeClub.Charge`
+**icon_color** and an **icon**; `UiKit.crest` is `UiKit.badge`; `MeleeClub.Charge`
 is gone entirely.
 
 **The mark is an id, not an enum.** `IconBank.ICONS` is an array of dictionaries
@@ -865,13 +865,13 @@ would silently repaint every club that ever bought a mark. Ids are append-only
 and the suite asserts they are unique.
 
 Save VERSION went 1 → 2. A version 1 file would decode into a club with no
-colours at all, so it is refused cleanly, which is the whole reason the version
+colors at all, so it is refused cleanly, which is the whole reason the version
 is in the file.
 
 ### What survived: the rule, not the taxonomy
 
-The metal/colour rule was always a *proxy* for "can you read this across a
-field", and a proxy stops being right the moment somebody adds a colour. It is
+The metal/color rule was always a *proxy* for "can you read this across a
+field", and a proxy stops being right the moment somebody adds a color. It is
 now a measurement — `IconBank.contrast_ok`, a luma delta of 0.34 — and the check
 that every kit × mark pairing the create screen can produce clears it is in the
 suite.
@@ -888,8 +888,8 @@ because the rule was right.
 anything used the bank**. First sheet:
 
 * **Axe** read as a flag on a pole. Twice more after that, too. A blade hanging
-  off one side of an off-centre haft *is* a pennant; it took moving the haft to
-  the centre, adding a back lug, and giving the blade a bearded fan before it
+  off one side of an off-center haft *is* a pennant; it took moving the haft to
+  the center, adding a back lug, and giving the blade a bearded fan before it
   read as an axe.
 * **Hammer** read as the letter T. A block on a stem is a letter at any size —
   it needed a spike off the back to become a weapon.
@@ -902,8 +902,8 @@ anything used the bank**. First sheet:
   paints nothing.
 
 That last one is the structural finding. Half these marks need a hole, and a
-hole is the **kit showing through** — so `draw_icon` takes the kit colour as well
-as the mark colour. No third colour, which would turn to mud at 13 pixels.
+hole is the **kit showing through** — so `draw_icon` takes the kit color as well
+as the mark color. No third color, which would turn to mud at 13 pixels.
 
 **Seven of twenty marks were wrong, and every one of them looked fine in the
 source.** The sheet cost ten minutes to write.
@@ -928,15 +928,15 @@ now an instance method for exactly this reason — refuses a mark the save has n
 bought. That check is deliberately not on the screen: a rule enforced at one call
 site is a rule with a hole in it.
 
-On screen the shelf shows locked marks **drawn in the club's own colours**, not
+On screen the shelf shows locked marks **drawn in the club's own colors**, not
 padlocked. The question a player is answering is "do I want to wear that", and
-he cannot answer it from a padlock. The first version dimmed both colours and
-produced dark grey on dark red; the kit goes back to full and the mark goes
+he cannot answer it from a padlock. The first version dimmed both colors and
+produced dark gray on dark red; the kit goes back to full and the mark goes
 translucent instead, so the shape still reads.
 
 ### One Create-A-Team per save
 
-Confirmed by Pete. The club, its colours and its collection of marks are all
+Confirmed by Pete. The club, its colors and its collection of marks are all
 per-save, and a new save starts the collection again. Create-A-Team stays
 **editable** rather than one-shot — locking it after a single edit would strand
 every mark bought afterwards. Say so if that is wrong; it is a one-line change.
@@ -1141,7 +1141,7 @@ Pete asked for the logo to go *"from really shitty quality to NFL level
 details"*, and it is the club's **own** mark that improves — a player who picked
 the Wolf watches his wolf get sharper. Four things make a cheap paint job look
 cheap, and each is worth something: off-register, a ghost of the first pass,
-thinned colour that spends the contrast the bank guarantees, and no keyline.
+thinned color that spends the contrast the bank guarantees, and no keyline.
 
 None of it is a second set of shapes. It is the same `draw_icon` the league table
 uses, drawn worse — so a mark added in a future asset pack gets the whole
@@ -1662,7 +1662,7 @@ The winter raised a fighter's **lowest** stat, which is the rule it had used
 since long before any of this. `tools/probe_career.gd` played a career out and
 the result was damning: by 32 a trained fighter read **68 / 68 / 68 / 67**.
 Training had sanded every man in the game into the same shape, the four peaks
-cancelled out, and the entire claim the layer exists to make was false in the
+canceled out, and the entire claim the layer exists to make was false in the
 only place it could be checked. The peaks were "reached" at 31, 31, 32 and 30 —
 four different design numbers producing one undifferentiated slide.
 
@@ -1727,7 +1727,7 @@ number on the roster a meaning: a 62-rated fighter is not worth 62, he is worth
 
 **A second bug, found by the same probe.** The refill signed walk-ons only while
 the club could not fill a *line*, so a squad that retired down to six men kept
-travelling with six — legal on the day, and one knock from being unable to fight.
+traveling with six — legal on the day, and one knock from being unable to fight.
 The 25-season run surfaced it as **a roster of five.** The eight now goes back to
 eight.
 
@@ -1997,7 +1997,7 @@ Trading credits for morale is a decision. Trading credits for credits is not.
 **Fifteen cards, thirty-eight options, and all of them about buhurt.** Harness
 condemned at the gate. Somebody fighting for two clubs. A brewery that wants its
 name on the rail. The marshal wanting a quiet word. A cool box in the back of the
-van that is not full of water. The armourer who has not been paid since spring and
+van that is not full of water. The armorer who has not been paid since spring and
 will not ask a third time. The generic version of this feature — *a player is
 unhappy, give him money or don't* — would have been half the work and none of the
 point.
@@ -2005,7 +2005,7 @@ point.
 The card the deck picks out a fighter for picks him **by rule where a rule reads
 better**: the harness card finds the man in the worst kit, the winter-abroad card
 finds the youngest, the paperwork card finds the best. A card about condemned
-armour landing on the best-kept fighter in the club reads as a game shuffling
+armor landing on the best-kept fighter in the club reads as a game shuffling
 cards rather than as something happening.
 
 ### Morale was a progress bar with a name on it
@@ -2194,13 +2194,13 @@ Three rules make it work:
 
 * **Only the ground and the ink move. `YOU` stays gold in every mood**, because
   it is how a player finds his own club on a table at a glance, and a highlight
-  that changes colour is one he has to re-learn five times.
+  that changes color is one he has to re-learn five times.
 * **It is keyed to the fight in front of you, not the calendar.** A mood that is
   on all season stops being a mood, so it is `cup_pending()` — one matchday at a
   time, a handful of times a year. The FINAL is checked before the competition,
   because a Worlds final is a final before it is a Worlds.
 * **The fight wears it too, and that is where a boss battle lands.** A menu
-  changing colour is a theme; a *list* changing colour is an occasion. The
+  changing color is a theme; a *list* changing color is an occasion. The
   surround goes all the way to the mood, the fighting surface moves about a
   third, because a player reads a man's position against it fifty times a round.
 
@@ -2215,9 +2215,9 @@ it was reporting on. `Session.bout_mood` is captured at handover.
 ### The check that earned itself immediately
 
 Every palette is measured against the same luma rule `IconBank` already uses to
-stop a club wearing a mark nobody can see — every text colour against both the
+stop a club wearing a mark nobody can see — every text color against both the
 ground and a panel, five moods. **It caught a mistyped hex on the first run:**
-`"2c3away"` is not a colour, and Godot's `Color(String)` accepts it without
+`"2c3away"` is not a color, and Godot's `Color(String)` accepts it without
 complaint and returns black. Tightest pair across all five palettes is now 0.39.
 
 ### The audio engine, ported
@@ -2497,7 +2497,7 @@ the source to prove every catalog entry appears at a real call site.
 | `final` | 172 BPM, **D Phrygian riff** | −13.1 LUFS, 44.7 s, loops |
 | `champion` | 152 BPM, D **major** | −13.5 LUFS, 28.9 s, one-shot |
 
-Still to write: `menu`, `hosted`, `fight` — all three borrowing a neighbour, and
+Still to write: `menu`, `hosted`, `fight` — all three borrowing a neighbor, and
 all three stop borrowing the moment their own file lands.
 
 ### Suite
@@ -2694,7 +2694,7 @@ time.
 `lay_form` built the counter-line from the *already-busied* phrase rather than
 the original:
 
-- `busy_shape=(0,2)` fills a held note with neighbour tones, some of them up.
+- `busy_shape=(0,2)` fills a held note with neighbor tones, some of them up.
 - `counter={"semis":7}` harmonises a fifth above.
 
 Applied in sequence, a G5 in the melody became B5 in the busy pass, and then
@@ -2980,7 +2980,7 @@ def ficta(phrase):   # only F->G, only ascending, only when adjacent in time
 
 It fires twice per phrase — `PHRASE_A` at beat 8, `PHRASE_B` at beat 3. Applied
 throughout the menu (which stands in for a licensed track, so it carries the
-colour) and at the **first and last slot only** of club, hosted, cup and worlds —
+color) and at the **first and last slot only** of club, hosted, cup and worlds —
 a cadential touch, not a wash.
 
 It has to run **before** the busy pass and before the counter, or the harmony
@@ -2999,7 +2999,7 @@ rather than a track at a different tempo.
 ### The gate held through all of it
 
 `check_no_two_tracks_are_twins` still reports **worst pair fight/cup 0.83**
-against a 0.88 gate, control twin 0.95. Adding a shared colour to five
+against a 0.88 gate, control twin 0.95. Adding a shared color to five
 arrangements is exactly the change that could have collapsed them together, and
 the check that would catch it was already there — which is the first time in
 this document that has been true in advance rather than after Pete said
@@ -3149,13 +3149,13 @@ and an `if`.
 
 ### The thing that was easy to get wrong
 
-The fight screen changes colour with the occasion, and it does that by
-**multiplying** the fighting surface by a mood colour. Hand that a brown texture
+The fight screen changes color with the occasion, and it does that by
+**multiplying** the fighting surface by a mood color. Hand that a brown texture
 and you get mud.
 
-So `list_surface` and `list_ground` are specified **greyscale, mid-value** —
-texture only, no colour of their own, colour supplied by the game. The arena
-slots are full colour because nothing tints them. That distinction is invisible
+So `list_surface` and `list_ground` are specified **grayscale, mid-value** —
+texture only, no color of their own, color supplied by the game. The arena
+slots are full color because nothing tints them. That distinction is invisible
 in the code and would have cost somebody two renders to discover, which is
 exactly the kind of thing a brief exists to say out loud.
 
@@ -3168,15 +3168,15 @@ in the bottom-right** of an arena (the badge lives there).
 ### What is deliberately not art, and why that is written down
 
 The fighters are not a placeholder waiting for sprites. Men are drawn as
-silhouettes carrying their club's kit colour and mark, and that **is** the answer
-to the problem the whole art direction exists to solve — two armoured clubs are
-two grey blobs, and a four-man pile on a phone is only readable because the
-colour and the mark are generated per club. A fixed sprite cannot carry a colour
+silhouettes carrying their club's kit color and mark, and that **is** the answer
+to the problem the whole art direction exists to solve — two armored clubs are
+two gray blobs, and a four-man pile on a phone is only readable because the
+color and the mark are generated per club. A fixed sprite cannot carry a color
 the player invented.
 
 Writing that into the brief matters more than it looks. Somebody handed "a
 medieval fighting game needs art" will draw fighters, and they would be
-beautiful and unusable. If sprites ever happen they need to be **colourable
+beautiful and unusable. If sprites ever happen they need to be **colorable
 masks**, not finished figures — a different and much larger job.
 
 ### The spec cannot drift from the code
@@ -3281,7 +3281,7 @@ sitting in this document. They have their own stream now, re-derived each season
   played bracket finished with an unplayed match in it.
 - **Losing the Worlds pools left you "alive" forever.** `player_alive()` reads
   the bracket, and a club that failed to qualify has no match in it — so the
-  Worlds was never resolved, never entered the honours, and `roll_over` replaced
+  Worlds was never resolved, never entered the honors, and `roll_over` replaced
   it each summer while fourteen guest clubs stayed on the books, accumulating.
 
 ### The training ground was burning most of its points
@@ -3444,7 +3444,7 @@ difference between a level and a career:
 | `best_downs` | the best single afternoon — a total says what he has done, a peak says what he is capable of |
 | `rounds_standing` | rounds he finished on his feet |
 | `knocks` | times he has been carried off |
-| `honours` | cups won while on the eight — **the eight, not the five who were on the line for the final**, because a cup is won by an eight |
+| `honors` | cups won while on the eight — **the eight, not the five who were on the line for the final**, because a cup is won by an eight |
 
 Save VERSION 9. Defaulted to zero on read rather than refused, unlike the career
 fields in version 5: a version 8 squad with no record is a squad whose book has
@@ -3458,7 +3458,7 @@ document has said that.
 **The club badge on every card.** The first version of the fighter card put the
 club's mark in the head band — the same badge, thirteen times, telling the
 player something he already knew. There is no fighter art and there is not going
-to be; the men are silhouettes carrying a kit colour, which is the art
+to be; the men are silhouettes carrying a kit color, which is the art
 direction. **His number** goes there instead: the thing that actually identifies
 one man at a glance, and the thing written on him in the fight.
 
@@ -3556,7 +3556,7 @@ roles he teaches. A role nobody teaches is trained nobody's way, which is Normal
 the man is turning up and doing what he has always done.
 
 All four effects are wired to paths that already existed — `_award_xp` for the
-multiplier, the week tick for morale and armour, and a gate in front of
+multiplier, the week tick for morale and armor, and a gate in front of
 `_apply_bout_injuries` for the knocks. That gate rolls on **its own stream**,
 because an injury that consumed the world's RNG would make a squad decision
 reshuffle the country, which is a bug this project has now fixed twice.
@@ -3589,14 +3589,14 @@ the moment it happened. A scan would quietly lose everything every retired man
 ever did, which is most of the history of any club worth having one.
 
 *Your record* is seasons run, promotions, relegations, best finish, cups won and
-cup runs — every one of them derived from `world.history` and `world.honours`,
+cup runs — every one of them derived from `world.history` and `world.honors`,
 both of which have been kept since section 20 and **never once added up**.
 
 **Free agents as cards.** The market was a row list: legible, and it made every
 man look like every other man. A signing is a comparison. Both prices are on the
 card, because both have to clear — the fee in credits you spend now, and the
 wage that then sits under your cap for as long as he does. A market showing one
-of them lies about half its refusals. The fee is coloured by whether you can
+of them lies about half its refusals. The fee is colored by whether you can
 actually pay it.
 
 ### The collision check moved
@@ -3615,7 +3615,7 @@ number is a slider with a label on it.
 ### Suite
 
 **154 of 154**, sixteen files. Save **VERSION 9** already covered the fighter
-book; the club's record book rides in the same world dictionary the honours do,
+book; the club's record book rides in the same world dictionary the honors do,
 so it needed no bump — a version 8 world with no records decodes into a club
 whose book has not been started, which is true.
 
@@ -3999,7 +3999,7 @@ DIRECTION §4 has said this since day one:
 
 > *"Salary cap → kit and availability. Nobody is paid. The cap isn't
 > money-per-player, it's how many bodies you can put on a plane and how many
-> harnesses you own that pass inspection. Bench depth is limited by armour, not
+> harnesses you own that pass inspection. Bench depth is limited by armor, not
 > payroll. This constraint has never been in a sports management game and it is
 > completely true to the sport."*
 
@@ -4012,7 +4012,7 @@ code anywhere that ever set it false**.
 Two numbers fix it:
 
 - **Inspection.** A harness below **0.35** does not pass the marshals, and a man
-  who does not pass does not fight. Armour is a gate now, so the Workshop stops
+  who does not pass does not fight. Armor is a gate now, so the Workshop stops
   being somewhere to put spare credits and becomes the difference between having
   five men and having four.
 - **Places on the bus.** A club starts with a line and one man — **six** — and
@@ -4294,7 +4294,7 @@ climb rather than a wall at the start.
 ### Three bugs, all the same bug
 
 Every one was a rule written against the constant eight, left behind when the
-travelling party became a thing a club buys last session.
+traveling party became a thing a club buys last session.
 
 **`MeleeClub.sign()` marked men active who could never travel.** It set
 `card.active = active_eight().size() < ACTIVE_SIZE`, so a club with six places
@@ -4302,8 +4302,8 @@ flagged its seventh and eighth signings for a bus they cannot board. It surfaced
 as a trialist walking straight into a line he was not in.
 
 **"The reserve is full at 5"** — a derived fact dressed up as a rule. With eight
-travelling, thirteen on the books means five in reserve and the two statements
-agree; with six travelling there are seven men not travelling, so the club was
+traveling, thirteen on the books means five in reserve and the two statements
+agree; with six traveling there are seven men not traveling, so the club was
 permanently over a limit that no longer described anything and **could not sign a
 single man from any source**. Trials, poaching and the free-agent list all
 refused. `SQUAD_MAX` is the real rule; how those men split between the bus and
@@ -4603,7 +4603,7 @@ roughly two-thirds the width, and reads as quieter than the heading above it.
 Four blocks were rendered — all Plate, all Rail, and the two mixed — and the mix
 is plainly the best of them. The contrast between a two-pixel display face and a
 one-pixel body face is a hierarchy we would otherwise have had to fake with
-colour. So:
+color. So:
 
 | role | face | drawn on | for |
 |---|---|---|---|
@@ -4789,16 +4789,16 @@ wrong quarter of it and he stopped me in one line.
 idea: it has no thickness, so at 960x540 it reads as a *division of space*
 rather than as an object, and the whole shell became regions instead of things.
 
-**The buttons were Godot's default theme** — grey rounded rectangles with a soft
+**The buttons were Godot's default theme** — gray rounded rectangles with a soft
 vertical gradient, the loudest engine-default signal on any screen, and one that
 no amount of pixel font covers.
 
 **Selection was a tint**, which is how a table highlights a row on the web.
 
-**And the palette was flat** — warm greys on warm browns, everything within a
+**And the palette was flat** — warm grays on warm browns, everything within a
 few steps of everything else.
 
-Three of those are *construction*. One is *colour*.
+Three of those are *construction*. One is *color*.
 
 ### The evidence, which came off disk rather than off the web
 
@@ -4823,10 +4823,10 @@ one — black grounds, saturated navy panels, NES primaries. So I put that palet
 in, converted all five moods, rendered sixteen screens, and showed him.
 
 > *"Oh dear god that is an eye sore. Revert that shit and let's mess with UI
-> instead of base colours."*
+> instead of base colors."*
 
 Reverted inside the hour, and the useful part is why he is right. **Turning the
-colour up to eleven fixed nothing that was broken and broke the thing that was
+color up to eleven fixed nothing that was broken and broke the thing that was
 not.** His grounds were never the problem — three of the four tells were
 construction, and the fourth was the only one I changed globally. A mockup at
 960x540 on a sheet of four is also not the same thing as sixteen real screens,
@@ -4855,13 +4855,13 @@ checkered grounds. Neither is called yet.
 
 ### EDGE was doing two jobs, and a wide frame proved it
 
-`EDGE` was both **the colour a box is drawn in** and **the quietest ink on the
+`EDGE` was both **the color a box is drawn in** and **the quietest ink on the
 screen**. Those want opposite things — a rule wants to be the brightest thing on
 a panel, a footnote the dimmest — and at one pixel wide nobody noticed. At three
 pixels of the same dark brown, a panel has no edge at all.
 
 Split, and **`FRAME` is derived rather than declared**: `EDGE.lightened(0.34)`,
-computed in `set_mood`. No new colour enters the palette, every mood gets its own
+computed in `set_mood`. No new color enters the palette, every mood gets its own
 frame for free, and Pete's grounds stay untouched. `FRAME_LIFT` is the single
 dial in the whole look.
 
@@ -4881,7 +4881,7 @@ now say the same sentence.
 
 ### And a check that earned its keep
 
-`test_dilemma.gd` has an `every mood stays readable` check — every text colour
+`test_dilemma.gd` has an `every mood stays readable` check — every text color
 measured against both the ground and a panel, across all five palettes, with a
 0.30 luma floor. The Tecmo palette failed it: `UP` and `DOWN` came out 0.21 from
 the lighter grounds. It was the only thing in the whole pass that caught a real
@@ -4915,14 +4915,14 @@ to mush; used at 96 they are three times the size of anything else on a 960×540
 screen.
 
 **But the list is the valuable half.** Fifty-two icon ideas already thought
-through — and the HUD half in particular (anvil, round shield, shoulder armour,
+through — and the HUD half in particular (anvil, round shield, shoulder armor,
 wolf, fist, grab, high punch) is a buhurt vocabulary written down by somebody who
 fights. That is worth more than the files.
 
 **The real find was one Pete made himself fourteen months ago.** Kenney's
 *Fantasy UI Borders*, CC0, 280 PNGs, imported into ACRTW in July with his own
 `KENNEY_PICKS.md` mapping seven categories. White line-art on transparent, so it
-multiply-tints to any colour and one file serves all five moods. And it is
+multiply-tints to any color and one file serves all five moods. And it is
 **geometric** — Greek-key, stepped and square corners, drawn on axis with hard
 edges — which is precisely why it survives the trip onto a pixel grid where a
 rounded ornament would not.
@@ -4936,7 +4936,7 @@ only `RetroBuhurt` and `ACRTW_Rebuild` were connected.
 This codebase already draws heraldry as pixel grids in `IconBank` and builds its
 typefaces the same way, so this is the existing pattern rather than a new one,
 and it buys four things an imported file never will: **no licence, no import
-step, perfect grid alignment, and it recolours with the mood for free.**
+step, perfect grid alignment, and it recolors with the mood for free.**
 
 **What makes a 16×16 icon read**, learned by drawing six that did not: a hard
 silhouette and one pixel of internal negative space. Two-pixel strokes fill the
@@ -4958,7 +4958,7 @@ rating.
 
 And it had a bug that had never been seen. A half star was drawn whole and then
 **painted out on the right with `PANEL`** — correct on a panel and wrong
-everywhere else. On the background, on a selected gold row, on a coloured card
+everywhere else. On the background, on a selected gold row, on a colored card
 band it drew a dark brown rectangle through the middle of the star. Invisible
 because half stars are rare and every screenshot that had one happened to have it
 on a panel.
@@ -5038,9 +5038,9 @@ way. No layout moved.
 
 ### Then the sweep found three more, and only one of them was new
 
-**"Roster" was sitting on the HONOURS tab.** At y=70 with the tab strip at 72,
+**"Roster" was sitting on the HONORS tab.** At y=70 with the tab strip at 72,
 it covered the right 112 pixels of the fifth tab — so on the SQUAD tab the label
-read HONOURS and the tap opened the roster. Shipped, invisible.
+read HONORS and the tap opened the roster. Shipped, invisible.
 
 **"The draw" was doing the same thing**, and its own comment explains why: it had
 been moved *out* of the action row because at National the table runs to sixteen
@@ -5135,7 +5135,7 @@ not truncate, the box grows and shoves itself into whatever is beside it.
 
 `FORMATIONS` on the chalkboard was 124 pixels and fitted only because its
 contents sat flush against the frame. With padding it needed 136, grew, and ran
-ten pixels into `PLAYS`. The overlap sweep caught that one because the neighbour
+ten pixels into `PLAYS`. The overlap sweep caught that one because the neighbor
 was another control — so a new check names the **button** rather than the
 collision, which is the difference between a fix and a hunt.
 
@@ -5200,7 +5200,7 @@ file.
 
 **Every button in the fight was a raw `Button.new()`.** Five of them, never
 touched, so the formation picker, the corner and the report wore **Godot's
-default theme** — grey rounded rectangles with a soft gradient — while every
+default theme** — gray rounded rectangles with a soft gradient — while every
 other screen in the game wore the game's. It also meant no tap sound in the one
 place a player taps under time pressure.
 
@@ -5213,7 +5213,7 @@ thing in the game and it was on the two screens with a timer on them.
 An opaque panel now sits under the box, derived from the container's own rect
 because the corner's height changes with how many men are on the bench — the
 report panel learned that lesson the expensive way in §13 and this is the same
-fix applied to its neighbour.
+fix applied to its neighbor.
 
 ### The number never gives way
 
@@ -5265,7 +5265,7 @@ be able to upgrade through either a rare coaching trait or facility upgrade. Not
 speed controls, but you should be able to speed skip a round at a time."*
 
 I had argued against a difficulty mode, citing a comment in `melee_sim.gd` about
-AI behaviour tiers as though it ruled out a global multiplier. It does not: the
+AI behavior tiers as though it ruled out a global multiplier. It does not: the
 leagues are how good the opposition **is**, and a difficulty mode is what its
 numbers **mean**. Those are orthogonal, and Total War ships them as two separate
 settings for exactly that reason.
@@ -5273,7 +5273,7 @@ settings for exactly that reason.
 ### The survey, and the one I missed
 
 Five games, for calibration: Total War (AI melee attack ×1.10 on Hard, ×1.15 on
-Very Hard, melee defence ×1.20), Civ VI (+4 combat strength at Deity, but the
+Very Hard, melee defense ×1.20), Civ VI (+4 combat strength at Deity, but the
 real load carried by +80% production and five free Warriors), XCOM 2 (hidden ×1.2
 on the *player's* shots at Rookie, and a Legend tier whose defining feature is
 that the lying stops), Fire Emblem (+4 to +16 hidden levels on every enemy), Slay
@@ -5434,7 +5434,7 @@ not a difficulty lever in disguise.
 ### A third tab, because a button in a gap was a button on the badge
 
 The grade went on the Create screen's club tab first, at (24, 310). The club
-badge is drawn centred at (116, 372) with a radius of 54 — spanning y 318 to 426.
+badge is drawn centerd at (116, 372) with a radius of 54 — spanning y 318 to 426.
 The button sat on top of it. `test_layout.gd` would have caught it; reading the
 numbers caught it first.
 
@@ -5569,7 +5569,7 @@ nobody has looked at since. `scripts/game/playbook.gd` is 180 lines and it is th
 highest-value-per-line thing built this week.
 
 The diagrams carry real information at a glance: Rush is a staggered echelon,
-Turtle visibly converges on a rail, Depth pulls the Centre back off the line.
+Turtle visibly converges on a rail, Depth pulls the Center back off the line.
 
 ### The axes match the fight
 
@@ -5662,7 +5662,7 @@ every other check in the suite opens the game in. `test_book.gd` builds a club
 that has bought its slots and used them.
 
 Its own fixture caught the point on the first run: the Wedge had Flankers at 16%
-and a Centre at 22%, `formation_legal` refused it correctly, and the test
+and a Center at 22%, `formation_legal` refused it correctly, and the test
 reported "the book lists three shapes" — a bad fixture wearing a failed
 assertion's clothes.
 
@@ -5684,7 +5684,7 @@ now; nine are held out of the roll.
 
 **Their mechanical trait list is the coach one, and we took it a week ago.**
 `coachtrait_0..9` is where Experience, Talent Spotter, Motivator, Negotiator,
-Fan Favourite, Physio, Likeable, Positive and Scout came from.
+Fan Favorite, Physio, Likeable, Positive and Scout came from.
 
 Their *player* traits are not in the build we decompiled. `s_get_random_trait`
 reads a list out of a `Traits_CO.txt` we do not have, and of the three functions
@@ -5941,7 +5941,7 @@ the same. `_raise_one` stays and is still right where it is used: the winter's
 **training ground** allocation is the club spending its own money on him, and the
 club is allowed an opinion.
 
-`raisable(f)` is the list, so a screen can grey a button instead of eating the
+`raisable(f)` is the list, so a screen can gray a button instead of eating the
 tap — a 38-year-old cannot buy his wind back, which was always the winter's rule
 and was never visible anywhere.
 
@@ -6014,7 +6014,7 @@ it, you'll have to pay more."*
 are deliberately two multiplications rather than one so a screen can show the
 player which half of the number he is looking at.
 
-Centred on 0.70 — where a club starts, and where `will_wait` is already centred —
+Centerd on 0.70 — where a club starts, and where `will_wait` is already centerd —
 so a club that never thinks about morale is neither rewarded nor punished, and a
 club that does is doing it for a reason visible on the wage bill. Measured: the
 same 72-rated 27-year-old asks **$2.8k glad and $4.3k grim**, a 1.51× spread, off
@@ -6046,7 +6046,7 @@ Our seven bands are their seven bands, so the table ported unchanged.
 `morale_shift` scales by the room left, so one meeting moves a struggling man
 **+0.105** and a contented one **+0.017**. Against a cost table that charges more
 for the former, that makes rescuing somebody the better buy — which is the
-behaviour worth rewarding, and it fell out of two systems that were written
+behavior worth rewarding, and it fell out of two systems that were written
 months apart agreeing with each other.
 
 One conversation a week per man, on the same throttle the facilities use. Without
@@ -6156,7 +6156,7 @@ thing to say — *past every peak* — and the row does not draw at all.
 
 ### What is on the fighter's screen now
 
-A row of `+1 Strength / Base / Skill / Gas`, each greyed when he is past that
+A row of `+1 Strength / Base / Skill / Gas`, each grayed when he is past that
 stat's peak, so the screen says **why** a man cannot buy his wind back instead of
 silently dropping the button — Pete, 13 Sep: *"Players should be able to upgrade
 fighters stats anytime the +1 level/level up is available."*
@@ -6341,8 +6341,8 @@ minimum stats (Takedowns/Assists) and if they were downed... their health/stamin
 
 What the engine builds is **five buttons across**, position and name and
 condition, the bench permanently on screen as a second row, and the full book
-underneath. No per-man stats, no SUB boxes, no favourites — there is no
-favourites concept in the codebase at all.
+underneath. No per-man stats, no SUB boxes, no favorites — there is no
+favorites concept in the codebase at all.
 
 The layout and the stats are one job, not two: five across leaves about twelve
 characters a man, and a vertical row leaves the width that "2 down · 1 assist"
@@ -6381,7 +6381,7 @@ the HTML mock the same afternoon:
   has now and — in a lighter band behind it — what the corner is about to give
   him back, the figures as `8% → 38%`, and his condition **in a word**.
 - A **SUB** box beside each man, opening a modal of the bench.
-- The **four favourites** two-by-two on the right, **FULL PLAYBOOK** under them,
+- The **four favorites** two-by-two on the right, **FULL PLAYBOOK** under them,
   the **CHOSEN** strip under that, and **FIGHT**.
 - Before round one it is the same screen with a fixture line instead of a score —
   Pete: *"Let's make 'After a round' be the 'Before first round' screen too."*
@@ -6439,7 +6439,7 @@ the one you are about to sub.
 
 ### Still owed
 
-**Favourites are not chosen by anybody.** `_fav_calls()` returns the four calls
+**Favorites are not chosen by anybody.** `_fav_calls()` returns the four calls
 out of the live shape — a real default, and the only function that changes when
 starring a play becomes a thing a player can do. Named here so it does not
 quietly become the feature.
@@ -6466,7 +6466,7 @@ other put one's shadow along the other's top edge and the pair reads as one tall
 box with a line through it. *Zero gap is a collision to the eye even when it is
 not one to the arithmetic.*
 
-So the rule is now a clear `DROP_PX` between neighbours — checked by growing both
+So the rule is now a clear `DROP_PX` between neighbors — checked by growing both
 rects half a drop — with one exception that matters: **a flat button has no
 shadow to fall on anything.** The squad screen's rows are invisible hit targets
 over drawn text, deliberately two pixels apart so every tap lands on somebody;
@@ -6514,11 +6514,11 @@ fourth man — the one thing it must not read as.
 
 ---
 
-## Pass 61 — the favourites, and the index that would have lied
+## Pass 61 — the favorites, and the index that would have lied
 
 14 Sep 2026, continuing.
 
-The thing the last pass named as owed: *"Favourites are not chosen by anybody."*
+The thing the last pass named as owed: *"Favorites are not chosen by anybody."*
 The corner had been showing four calls since it was built and nothing let a
 player pick which four. Pete's spec has said *"on the right side you have your
 four favorited plays"* since the playbook pass.
@@ -6527,16 +6527,16 @@ four favorited plays"* since the playbook pass.
 
 `plays_for` hands out each play's position in `plays`. `delete_play` uses
 `remove_at`. So deleting a play slides every index after it down by one — and a
-favourite holding index 1 would keep working, keep looking right, and **quietly
+favorite holding index 1 would keep working, keep looking right, and **quietly
 be a different play**. No error. No empty slot. The worst kind of bug there is.
 
-So a favourite is `{shape, kind, key}` where the key is a push's id or a play's
+So a favorite is `{shape, kind, key}` where the key is a push's id or a play's
 **name**, resolved against `_book_calls` at read time. A name can go stale; a
-stale favourite resolves to nothing and is pruned, which is a failure you can
+stale favorite resolves to nothing and is pruned, which is a failure you can
 see. Two plays sharing a name in one shape is possible and the first wins — a
 naming problem the player can see and fix, not a silent substitution.
 
-`test_favourites.gd` demonstrates the bug rather than asserting about it: it
+`test_favorites.gd` demonstrates the bug rather than asserting about it: it
 starres the play at slot 1, deletes slot 0, and prints what slot 1 became.
 
 ```
@@ -6555,7 +6555,7 @@ decision worth making.
 
 ### One grid, two jobs
 
-The book gets a mode switch — *Pick favourites for the corner* — rather than a
+The book gets a mode switch — *Pick favorites for the corner* — rather than a
 star floated over every card. The cards sit in a `GridContainer`, which owns the
 position of everything in it, so an overlay would have been a second positioning
 system on the one screen that already scrolls. In star mode the lit card is the
@@ -6574,7 +6574,7 @@ A club that has starred nothing still gets the four calls out of the shape its
 men are standing in. Every club begins with none, and an empty right-hand column
 on a screen with a clock is worse than a sensible default. The half-full column
 in `corner_faves.png` is the picture that can only have come from real
-favourites — the fallback is all-or-nothing.
+favorites — the fallback is all-or-nothing.
 
 ### And the panel ran off the bottom
 
@@ -6589,8 +6589,8 @@ exist**. Fourth time this project has had a tool photograph the empty case.
 
 ### Suite
 
-**434 across 30 files.** `test_favourites.gd` is new at eleven, and three of
-those are about a save: they come back, a save written before favourites existed
+**434 across 30 files.** `test_favorites.gd` is new at eleven, and three of
+those are about a save: they come back, a save written before favorites existed
 loads with none, and a hand-edited one is coerced and capped rather than trusted.
 
 ---
@@ -6671,7 +6671,7 @@ quotes. `HEAVY_HANDS`'s `harness` passed it with **no code anywhere**, because
 It matches the call shapes now — `tmod("k"`, `tflag("k"`, `mod(x, "k"` — and
 nothing else, verified by adding a key nothing reads and watching it fail. A gate
 an unrelated string can satisfy is a gate with a hole, and this one is the whole
-defence against the Scout.
+defense against the Scout.
 
 ### Homesick stays pending, on purpose
 
@@ -6823,7 +6823,7 @@ towns is not a number.
 
 `Cities` holds two maps — 48 American cities, 50 European — each with its area
 (the state or the country) and a real latitude and longitude to two decimals.
-Two decimals is about a kilometre, three orders of magnitude finer than anything
+Two decimals is about a kilometer, three orders of magnitude finer than anything
 that reads it; precision is free here and a wrong coordinate is the kind of thing
 a player from that city notices immediately.
 
@@ -6910,7 +6910,7 @@ during a season and wrong at the year's end: the season those ties belonged to i
 gone, and the held bracket carried into the next year still asking for a fixture.
 
 `test_season.gd` has asserted *"the cups resolved rather than left hanging"*
-since it was written — through a proxy, `honours >= 3`, which passed on a world
+since it was written — through a proxy, `honors >= 3`, which passed on a world
 where the player happened to be knocked out of enough of them. Changing the city
 list moved two generated names, the same seed kept him alive in both, and a bug
 that had been there the whole time surfaced.
@@ -6973,7 +6973,7 @@ was not clean:
   button** — the bill and its bar drawn underneath a control, invisible for the
   life of the screen.
 - The Create tab's town block, which *I* put in last pass, ran through the badge
-  and its label ran through the kit-colour button.
+  and its label ran through the kit-color button.
 - The mark bank's captions fell one pixel outside their own hit targets, so the
   bottom of each word was not clickable.
 
@@ -7005,7 +7005,7 @@ wage through an age and a rating through a contract. Its fix was to make the
 column stops **measured data** rather than nine magic numbers.
 
 Those stops were measured in the fallback font. The moment the face went in,
-`position` ran 6px into `armour` and `age` ran 7px into `wage` — and the check
+`position` ran 6px into `armor` and `age` ran 7px into `wage` — and the check
 named both, by field, on the first run. Re-cut at six pixels between every field
 with eight spare at the end; the name budget gave way from 130 to 100, because a
 clipped surname is a cosmetic loss and a wage printed through an age is a lie.
@@ -7311,7 +7311,7 @@ below.
 
 `_note()` also gained a guard it had always needed: a width of `-1` is
 `draw_string` for "no box", and an alignment inside no box is a left alignment.
-Without it the ledger placed every centred string at `x - (w + 1) * 0.5` and
+Without it the ledger placed every centerd string at `x - (w + 1) * 0.5` and
 reported ink in the margin.
 
 ### THE SWEEP FOUND FOUR THINGS, AND THREE OF THEM WERE THE SWEEP
@@ -7669,7 +7669,7 @@ a flat band looks like a perfectly ordinary squad.
 
 > **A distribution is not something a check on one instance can see.**
 
-`test_roster.gd` — *a squad is shaped like a squad*. 960 travelling men across
+`test_roster.gd` — *a squad is shaped like a squad*. 960 traveling men across
 120 generated clubs, split into thirds of the career span: a triangle puts most
 of them in the middle third, a flat line puts exactly a third there. It now reads
 **14% young / 69% prime / 17% old**; against the flat draw, 28 / 45 / 27 and a
@@ -7706,7 +7706,7 @@ five. Coaching beats squad churn.
 
 The policy order is now the order a person uses — keep, build, staff, then shop
 with what is left — and the shopping has a bar on it: a man worse than the worst
-man already travelling is a fee and a wage for nothing.
+man already traveling is a fee and a wage for nothing.
 
 ### WHAT IS STILL PETE'S TO CALL
 
@@ -7762,7 +7762,7 @@ project that ever asked.** `begin_bout()` does not check it, so every walk, prob
 and save test has fought straight past the queue since the day it was written.
 
 That is not only tidiness. **A dilemma card is the only thing in the game outside
-the workshop that puts condition back into a man's armour** — the armourer's bill
+the workshop that puts condition back into a man's armor** — the armorer's bill
 and its cousins are the kit economy — so a walk that never answers one is a walk
 where kit only ever goes one way.
 
@@ -7771,7 +7771,7 @@ where kit only ever goes one way.
 `tools/probe_regimes.gd` — same club, same seed, twenty seasons on each setting:
 
 ```
-regime    power   armour   knocks   best   fit/books   line
+regime    power   armor   knocks   best   fit/books   line
 Light        30     0.91        1     45        8/9     5/5
 Normal       23     0.64        2     49       9/10     5/5
 Hard          0     0.43        5     42        5/9     4/5
@@ -7782,7 +7782,7 @@ A whole career on Hard ends with a club that **cannot field five** — power rea
 doing exactly what it says (every knock lands, always, against one in five on
 Normal), and it is a dead end with no road back: the same shape as the economy
 spiral the retainer fix closed. Light is quietly the strongest over a long
-career, because it is the only setting that puts armour back and it cuts knocks
+career, because it is the only setting that puts armor back and it cuts knocks
 to a tenth.
 
 ## AND THEN THE MEASUREMENT TURNED ON ITSELF
@@ -8018,7 +8018,7 @@ the aggregate was right and every word of the explanation was not.
 
 And the replacement column is the other half. The club loses 36, then 102, then
 27 points and **signs back nothing at all**. `_fill_squad` tops up BODIES to the
-travelling party size, so a club with ten men left after losing its best three is
+traveling party size, so a club with ten men left after losing its best three is
 "full" and no replacement is triggered. **Quality is never replaced, only
 headcount.** That is defensible — signing the replacement is the player's job and
 that is the game — but it means every retirement is a permanent net loss unless
@@ -8113,7 +8113,7 @@ The two that were missing were not omissions. Both were holes.
 `armor` multiplies straight into `eff_base()` (`lerpf(0.78, 1.0, armor)`), it is
 taken off every week by the HARD regime, and the **only** thing in the entire
 game that put any of it back was the luck of the dilemma deck dealing the
-armourer's bill. Roll the wrong cards for five seasons and there is no road at
+armorer's bill. Roll the wrong cards for five seasons and there is no road at
 all.
 
 That is the same shape as the ground retainer that paid nothing and the pulling
@@ -8123,7 +8123,7 @@ a walk this time, but by holding the game up against another one.
 
 `ClubOffice.repair_kit()` — priced off the DAMAGE rather than off the man,
 exactly as `negotiate` is priced off his mood rather than his rating, because an
-armourer charges for the work in front of him and does not ask what the fighter
+armorer charges for the work in front of him and does not ask what the fighter
 is worth. 1 CC at a scratch, `KIT_COST_FULL` (5) at a wreck, `KIT_STEP` (+0.16) a
 visit — the same size as the deck's own best card, so the two roads to a repaired
 harness agree about what a repair IS. One visit a week per man, on the throttle
@@ -8160,7 +8160,7 @@ is a state the player clears on sight — it is a free point. So the band is emp
 almost always, and the two purchased rows live there when it is:
 
 ```
-Extra reps · 8 CC   |   Armourer · 3 CC   |   Sit him down · 4 CC
+Extra reps · 8 CC   |   Armorer · 3 CC   |   Sit him down · 4 CC
 Back  |  Stand down  |  Extend · $1/wk    |    <   >
 ```
 
@@ -8184,7 +8184,7 @@ sign of the two new buttons.
 It takes both now — `fighter.png` with a level waiting, `fighter_meeting.png`
 with the purchases — by clearing the man's XP and rebuilding between captures.
 
-`test_office.gd` — *the meeting sells what it offers*: the armourer raises the
+`test_office.gd` — *the meeting sells what it offers*: the armorer raises the
 harness, quotes what it charges, refuses a whole harness and a skint club, comes
 back the following week but not twice in one, and stays inside its cap at the
 very bottom of the scale; extra reps leave `overall()` untouched and leave
@@ -8310,7 +8310,7 @@ decision.
 
 | row | bar | and underneath |
 |---|---|---|
-| MORALE | his mood, in his mood's colour | Strength 41 → 47 · Gas 30 → 36 |
+| MORALE | his mood, in his mood's color | Strength 41 → 47 · Gas 30 → 36 |
 | CONDITION | the harness | Base 48 → 42 · Inspection passes |
 | XP LEVEL | xp against the next bar | To the next 32 xp · Ceiling 99 |
 | CONTRACT | the wage bill against the cap | Wage bill $23 of $200 · Years left 2 |
@@ -8333,7 +8333,7 @@ forgets to start — a value that snaps while the three beside it count, which
 reads as a bug in the ones that worked.
 
 `shot_fighter.gd` photographs the roll mid-flight, because *"you can actually see
-the effect"* is a claim about MOTION and a screenshot has one frame. The armourer
+the effect"* is a claim about MOTION and a screenshot has one frame. The armorer
 takes a harness 42% → 45% → 50% → **58%**, Base climbs 48→42 to 48→44 beside it,
 and the purse counts 60 down to 57. Five captures now: the +1 row, the door, the
 card, the roll and the roll landed — and the "finished" shot had to be moved 28
@@ -8406,10 +8406,10 @@ nothing. It reads 0 strings against the bug and 10 with the fix.
 
 ### A MIXED ANSWER IS THE ONLY KIND WORTH THINKING ABOUT
 
-`Dilemma.costs()` first returned strings and `tone()` painted the row one colour.
+`Dilemma.costs()` first returned strings and `tone()` painted the row one color.
 "Just the eight" spends four credits, annoys the room and **buys kit**, and the
 row printed `kit +8` in red because the other two fields outvoted it. Direction
-per figure now, off one read of one dictionary, so the words and the colours
+per figure now, off one read of one dictionary, so the words and the colors
 cannot disagree. `tone()` is gone rather than left lying around.
 
 ### THE SEASON REVIEW, AND WHAT IT COST TO FILL IT
@@ -8498,7 +8498,7 @@ The four-pixel edge stripe marks a row; it does not group one.
 
 It had to cost NO height — sixteen rows at 22 already end at 514 on a 540 screen,
 so captions or gaps between the bands would push the bottom club off the bottom
-of the division. A ten-percent wash of the band's own colour behind the whole
+of the division. A ten-percent wash of the band's own color behind the whole
 row groups them for nothing, and the stripe stays for the exact edge. The
 player's own row keeps its highlight and takes no wash: it has to read as HIS
 first and as a relegation place second.
@@ -8590,7 +8590,7 @@ The native app and the web build do **different things**, which is the finding:
   letterboxes top and bottom. Fixed virtual resolution, bars both ways.
 * The **shipped app** does not. App Store assets are 1286x594 (19.5:9) for
   iPhone and 1656x1241 (4:3) for iPad, and both fill edge to edge. Same screens,
-  two shapes: the draft grid sits in a centred band with ~220px of margin each
+  two shapes: the draft grid sits in a centerd band with ~220px of margin each
   side on the phone, and on the tablet the same screens grow VERTICALLY — the
   press-interview screen opens a huge gap between title and content while the
   currency stays pinned top-left and the answers stay pinned to the bottom
@@ -8624,7 +8624,7 @@ now, so the handset can be held either way up.
 So the design is never squeezed — it always gets at least 960x540 and gains the
 rest in one axis. But `UiKit.SCREEN` was `const Vector2(960, 540)` and every
 right edge in the game was a literal measured off it, so on a handset the
-background itself stopped at x=960 and a **210-pixel strip of raw clear colour**
+background itself stopped at x=960 and a **210-pixel strip of raw clear color**
 ran down the right of every screen, gold bottom bar included.
 
 `shots/aspect_1170x540.png` is the first frame this project ever rendered that
@@ -8665,7 +8665,7 @@ is not a canary.**
 But the ink sweep reads a ledger of `draw_string` calls, so it can tell you a
 label ran off the frame and never that the frame was unpainted. `test_shapes.gd`
 renders sixteen screens and looks at the pixels: five samples down the far right
-of each, failing on any that is still the clear colour.
+of each, failing on any that is still the clear color.
 
 It took two goes to be worth anything. The first cut failed a screen only when
 the WHOLE right column was bare, and pinning the season screen's background back
@@ -8691,8 +8691,8 @@ the fight screen's pixel scale:
    a handset exactly as the management screens did. The same
    `UiKit.screen()` / `right_edge()` / `span()` helpers are there when wanted.
 2. **The full-screen art slot.** `list_ground` is drawn at line 1036 into
-   `Rect2(Vector2.ZERO, SCREEN)`, and `ArtBank.fit()` scales-to-fit and CENTRES —
-   so a 960x540 backdrop on a 1170 canvas sits centred with ~105px bare each
+   `Rect2(Vector2.ZERO, SCREEN)`, and `ArtBank.fit()` scales-to-fit and CENTERS —
+   so a 960x540 backdrop on a 1170 canvas sits centerd with ~105px bare each
    side. Wider source art, tiling, or a crop: an art call, not a layout one.
    `art_bank.gd` has three 960x540 slots declared (`venue_away`, `venue_neutral`,
    `list_ground`).
@@ -8704,7 +8704,7 @@ the fight screen's pixel scale:
    non-integer device scale on almost every phone — 2532/1170 is 2.164 — so one
    art pixel does not land on a whole number of device pixels. `integer` gives a
    perfect grid and brings the bars back. Retro Bowl took the no-bars route. The
-   project already runs nearest-neighbour filtering with 2D transform and vertex
+   project already runs nearest-neighbor filtering with 2D transform and vertex
    snapping on, which is what keeps fractional crisp; whether that is good enough
    at the scale the art is authored to is the art chat's call, and changing it
    changes every screen in the game, not just the fight.
@@ -8724,7 +8724,7 @@ a lint warning.
 |---|---|
 | `events_this_season` | the same expression was written out inline in four places |
 | `over_cap` | both wage-bill footers said THAT you were over and never BY WHAT |
-| `can_afford_wage` | the market coloured the FEE by whether you could pay it and left the WAGE plain — *"a market that shows one of them lies about half its refusals"* was already written on that screen, about that card |
+| `can_afford_wage` | the market colored the FEE by whether you could pay it and left the WAGE plain — *"a market that shows one of them lies about half its refusals"* was already written on that screen, about that card |
 | `can_boost` | the night-out button looked live every week and spent a tap to say no |
 | `next_tier` | its own comment says *"the Clubhouse screen wants this"*; the screen never asked, so the division a build needs was only visible inside a refusal you had to earn by trying |
 | `is_flaw` | see below |
@@ -8745,9 +8745,9 @@ Wiring `is_flaw` turned up something bigger than the helper. `FighterTrait.name_
 `blurb_of()` had **no caller anywhere in `scripts/game/`** — nine wired hooks moving
 numbers the player could feel and could not name, on a screen that lists his weight.
 
-"Known for" is on the fighter card now, coloured by `is_flaw`, with the blurb under it.
-That colour is the whole reason the function exists: *a pool with no downside is a stat
-wearing a nicer hat*, and printing Prima Donna in the same colour as Talisman would hide
+"Known for" is on the fighter card now, colored by `is_flaw`, with the blurb under it.
+That color is the whole reason the function exists: *a pool with no downside is a stat
+wearing a nicer hat*, and printing Prima Donna in the same color as Talisman would hide
 the half that costs you something.
 
 It cost 30 pixels the panel did not have. The first fix grew `COL_H` by 14 and the panel's
@@ -8813,9 +8813,9 @@ before it runs anything. One second, and it covers what no test does: the instru
 
 ### FOUR SLOTS THE PLAYER CAN ORDER
 
-Favourites could be starred and unstarred and never arranged, which is the one thing four
+Favorites could be starred and unstarred and never arranged, which is the one thing four
 slots want: the corner offers them in list order, so the first is the one you reach for
-under a clock. `promote_favourite` / `demote_favourite` — a swap, not a drag, because a
+under a clock. `promote_favorite` / `demote_favorite` — a swap, not a drag, because a
 drag needs a pointer the corner has no time for and two taps on a list of four is the same
 job with one thumb. The control belongs on the corner screen, which is `melee_scene.gd`,
 so that half is in the arena hand-off.
@@ -8866,7 +8866,7 @@ what finishing them cost, and what finishing the other two turned up.
 
 ### A function inserted into the middle of another function
 
-The clubhouse tab rendered as a flat grey rectangle with no UI on it at all. The cause was
+The clubhouse tab rendered as a flat gray rectangle with no UI on it at all. The cause was
 a helper — `_role_col_w()` — that had been written into the body of `_draw_office()`
 rather than after it, splitting the function in two and orphaning everything below it.
 
@@ -8948,7 +8948,7 @@ stops saying "on a route".
 
 ### Where a reorder control does not go
 
-`promote_favourite` and `demote_favourite` had passed seventeen checks for a week with
+`promote_favorite` and `demote_favorite` had passed seventeen checks for a week with
 nothing calling either one — a tested verb no player could reach, which is the most
 convincing kind of dead code, because the suite is green. **A function with no caller is
 not a feature, it is a question nobody answered**, and a green suite is not an answer.
@@ -8959,14 +8959,14 @@ no up and down — it has four positions, so arrows on it would point in a direc
 not on the screen.
 
 The strip went under the playbook in starring mode instead: no clock, a mode already named
-"picking favourites", and a left-to-right order that is exactly the order the corner grid
+"picking favorites", and a left-to-right order that is exactly the order the corner grid
 fills. It cost 68 pixels, and those pixels came **out of the book's height, not out of the
 panel** — `panel_box` grows downward from a fixed y, so anything added to it comes off the
-bottom of a 540-pixel frame. The first cut pushed "Done picking favourites" half off the
+bottom of a 540-pixel frame. The first cut pushed "Done picking favorites" half off the
 screen. One constant, subtracted once.
 
-Both new controls are held by a source check as well as a behaviour check, because the
-thing that was missing for a month was not the behaviour. It was the caller.
+Both new controls are held by a source check as well as a behavior check, because the
+thing that was missing for a month was not the behavior. It was the caller.
 
 ### The toolchain disagreed with itself
 

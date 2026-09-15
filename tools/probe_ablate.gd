@@ -170,13 +170,13 @@ func _run(seed_v: int = 31337) -> Array:
 		tier_was = s.world.player_tier()
 
 	var fit2 := 0
-	var armour := 0.0
+	var armor := 0.0
 	var n := 0
 	for f in s.club.roster:
 		if f.fit():
 			fit2 += 1
 	for f in s.club.active_eight():
-		armour += f.armor
+		armor += f.armor
 		n += 1
 	## THE OUTCOME IS WINS, not the final power reading.
 	##
@@ -188,7 +188,7 @@ func _run(seed_v: int = 31337) -> Array:
 	## that can help a team WIN."* So count the wins: a hundred samples per career
 	## instead of one, which is worth about a factor of ten in noise on its own.
 	return [won, promotions, fought, s.office.credits,
-		0.0 if n == 0 else armour / float(n), s.club.power()]
+		0.0 if n == 0 else armor / float(n), s.club.power()]
 
 
 func _init() -> void:
@@ -250,7 +250,7 @@ func _init() -> void:
 ## PAIRED, which is the whole method.
 ##
 ## Comparing `mean(without X)` against `mean(with everything)` across five seeds
-## gives the right centre and a useless error bar, because most of the variance
+## gives the right center and a useless error bar, because most of the variance
 ## is not the system at all — it is the WORLD. Five seeds are five different
 ## countries with five different sets of rivals, and they win between 12% and 26%
 ## of their bouts with identical settings. A three-point effect cannot be seen

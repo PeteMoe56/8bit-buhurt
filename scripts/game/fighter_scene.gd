@@ -289,7 +289,7 @@ func _build() -> void:
 				Vector2(bw, ROW_H), func():
 					## It can still refuse — a stat at 99, or a level he has not
 					## finished earning — and it says which, because a button that
-					## goes grey without a reason is one the player argues with.
+					## goes gray without a reason is one the player argues with.
 					var r := Career.level_into(man, stat)
 					if bool(r.get("levelled", false)):
 						flash = "%s put a level into %s." % [man.display_name,
@@ -363,10 +363,10 @@ func _meeting_row(i: int) -> Dictionary:
 		0:
 			return {"key": "morale", "label": "MORALE", "verb": "Sit him down",
 				"cc": ClubOffice.negotiate_cost(man), "off": false,
-				"value": man.morale_word(), "col": man.morale_colour(),
-				"bar": _roll("morale", man.morale), "bar_col": man.morale_colour()}
+				"value": man.morale_word(), "col": man.morale_color(),
+				"bar": _roll("morale", man.morale), "bar_col": man.morale_color()}
 		1:
-			return {"key": "kit", "label": "CONDITION", "verb": "The armourer",
+			return {"key": "kit", "label": "CONDITION", "verb": "The armorer",
 				"cc": ClubOffice.kit_cost(man), "off": man.armor >= 1.0,
 				"value": "%d%%" % int(round(_roll("kit", man.armor) * 100.0)),
 				"col": UiKit.INK,
@@ -450,7 +450,7 @@ func _buy(which: String) -> void:
 		"kit":
 			err = season.office.repair_kit(man)
 			if err == "":
-				flash = "The armourer went over %s's harness." % man.display_name
+				flash = "The armorer went over %s's harness." % man.display_name
 		"level":
 			err = season.office.buy_level(man)
 			if err == "":
@@ -554,7 +554,7 @@ func _the_man() -> void:
 	## on the list that you can do something about this week.
 	UiKit.text(self, font, "Morale", Vector2(L_X + 16, y), 13, UiKit.DIM)
 	UiKit.right(self, font, man.morale_word(), Vector2(L_X + COL_W - 16, y), 13,
-		man.morale_colour(), 210)
+		man.morale_color(), 210)
 	y += ROW
 
 	## WHAT HE IS LIKE, AND THE GAME HAD NEVER SAID.
@@ -565,9 +565,9 @@ func _the_man() -> void:
 	## no caller anywhere in `scripts/game/`. Every one of them was moving
 	## numbers the player could feel and could not name.
 	##
-	## `is_flaw()` colours it, which is the whole reason that function exists:
+	## `is_flaw()` colors it, which is the whole reason that function exists:
 	## a pool with no downside is a stat wearing a nicer hat, and a screen that
-	## printed Prima Donna in the same colour as Talisman would be hiding the
+	## printed Prima Donna in the same color as Talisman would be hiding the
 	## half that costs you something.
 	if man.trait_id != FighterTrait.T.NONE:
 		var flaw := FighterTrait.is_flaw(man.trait_id)
@@ -737,7 +737,7 @@ func _draw_cell(i: int) -> void:
 		var y := at.y + (LINE_1 if k == 0 else LINE_2)
 		UiKit.text(self, font, String(row[0]), Vector2(at.x, y), 12, UiKit.DIM)
 		UiKit.right(self, font, String(row[1]), Vector2(at.x + cell_w(), y), 13,
-			man.morale_colour() if bool(row[2]) else UiKit.INK, 170.0)
+			man.morale_color() if bool(row[2]) else UiKit.INK, 170.0)
 
 
 func _line(label: String, value: String, y: float) -> void:
@@ -773,7 +773,7 @@ func _attributes() -> void:
 		UiKit.right(self, font,
 			("%d → %d" % [base, fights_at]) if chipped else ("%d" % base),
 			Vector2(M_X + COL_W - 16, y), 14,
-			man.morale_colour() if chipped else UiKit.INK, 110)
+			man.morale_color() if chipped else UiKit.INK, 110)
 		var track := Rect2(M_X + 16, y + 8, COL_W - 32, 13)
 		UiKit.bar(self, track, float(base) / 99.0, UiKit.YOU)
 		## The chip drawn past the fill, so you can see what the mood is buying.
@@ -781,7 +781,7 @@ func _attributes() -> void:
 			var x0 := track.position.x + track.size.x * (float(base) / 99.0)
 			var x1 := track.position.x + track.size.x * (float(fights_at) / 99.0)
 			draw_rect(Rect2(x0, track.position.y, maxf(2.0, x1 - x0), track.size.y),
-				man.morale_colour())
+				man.morale_color())
 		## NO CEILING TICK ON THESE BARS. The first version drew one at
 		## `potential` on every stat, which says a man has a ceiling per stat.
 		## He does not — `potential` is a ceiling on his OVERALL, and the winter
@@ -804,13 +804,13 @@ func _attributes() -> void:
 		("%s — he fights above his card." % man.morale_word()) if man.angry()
 			else "His ceiling is the overall, not one stat.",
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 11,
-		man.morale_colour() if man.angry() else UiKit.EDGE.lightened(0.4))
+		man.morale_color() if man.angry() else UiKit.EDGE.lightened(0.4))
 
 
 # ------------------------------------------------------------------- column 3
 func _the_book() -> void:
 	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "THE BOOK", Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, "HIS RECORD", Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	if man.bouts <= 0:
 		UiKit.text(self, font, "He has not fought for you yet.",
 			Vector2(R_X + 16, COL_Y + 64), 13, UiKit.DIM)
@@ -827,11 +827,11 @@ func _the_book() -> void:
 	_book("Best afternoon", "%d" % man.best_downs, y); y += 26.0
 	_book("Rounds standing", "%d" % man.rounds_standing, y); y += 26.0
 	_book("Carried off", "%d" % man.knocks, y); y += 34.0
-	UiKit.text(self, font, "HONOURS", Vector2(R_X + 16, y), 11, UiKit.DIM)
-	if man.honours <= 0:
+	UiKit.text(self, font, "HONORS", Vector2(R_X + 16, y), 11, UiKit.DIM)
+	if man.honors <= 0:
 		UiKit.text(self, font, "Nothing yet.", Vector2(R_X + 16, y + 22), 13, UiKit.DIM)
 	else:
-		UiKit.text(self, font, "%d cup%s" % [man.honours, "" if man.honours == 1 else "s"],
+		UiKit.text(self, font, "%d cup%s" % [man.honors, "" if man.honors == 1 else "s"],
 			Vector2(R_X + 16, y + 22), 16, UiKit.YOU)
 
 
