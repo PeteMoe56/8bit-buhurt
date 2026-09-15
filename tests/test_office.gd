@@ -21,7 +21,7 @@ func _initialize() -> void:
 	## Its own corner of user:// — these files run in parallel and there are
 	## only three slots between all of them.
 	SaveGame.set_namespace("office")
-	print("\n=== Retro Buhurt — the clubhouse ===\n")
+	print("\n=== 8-Bit Buhurt — the clubhouse ===\n")
 	_test_the_cap_bites()
 	_test_captains_cover_three_roles_with_two_men()
 	_test_captains_reach_the_list()

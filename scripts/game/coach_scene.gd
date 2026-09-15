@@ -80,7 +80,7 @@ func _draw() -> void:
 	if season == null:
 		return
 	UiKit.set_mood(season.mood())
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	var c := season.coach
 	UiKit.text(self, font, c.display_name.to_upper(), Vector2(24, 46), 26, UiKit.INK)
 	UiKit.right(self, font, "Season %d" % season.world.season,

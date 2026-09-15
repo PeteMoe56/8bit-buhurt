@@ -45,7 +45,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the shape of the screen ===\n")
+	print("\n=== 8-Bit Buhurt — the shape of the screen ===\n")
 	## THE WINDOW TAKES A FEW FRAMES TO BE THE SIZE IT WAS ASKED FOR, and the
 	## first run of this file read it on frame zero, got 960x960, and passed —
 	## a green tick for a shape no phone has and this file exists to test.

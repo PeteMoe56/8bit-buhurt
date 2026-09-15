@@ -19,7 +19,7 @@ const YEARS := 25
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — a career ===\n")
+	print("\n=== 8-Bit Buhurt — a career ===\n")
 	_one_man()
 	_turnover(0)
 	_turnover(1)

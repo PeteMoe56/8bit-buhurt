@@ -14,7 +14,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the two masters ===\n")
+	print("\n=== 8-Bit Buhurt — the two masters ===\n")
 	_test_the_federation_gates_the_cups()
 	_test_the_two_masters_pull_apart()
 

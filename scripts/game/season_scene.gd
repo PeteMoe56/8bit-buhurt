@@ -555,7 +555,7 @@ func _draw() -> void:
 	## occasion this is — which is the whole reason the music was worth wiring
 	## the same afternoon as the palette rather than later.
 	Audio.for_mood(m)
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	_header()
 	## THE RULE UNDER THE HEADER, and it is the cheapest piece of flair in the
 	## game — one CC0 strip, tiled from the middle so the gem lands centred, in

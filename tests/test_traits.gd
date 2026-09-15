@@ -30,7 +30,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — fighter traits ===\n")
+	print("\n=== 8-Bit Buhurt — fighter traits ===\n")
 	_test_every_trait_is_wired_or_openly_pending()
 	_test_a_pending_trait_can_never_be_rolled()
 	_test_every_effect_key_is_read_somewhere()

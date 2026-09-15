@@ -61,7 +61,7 @@ func _draw() -> void:
 	if season == null:
 		return
 	UiKit.set_mood(season.mood())
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	var o := season.office
 	UiKit.text(self, font, "TWO MASTERS", Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, o.credits, Vector2(UiKit.screen().x - 24, 46),

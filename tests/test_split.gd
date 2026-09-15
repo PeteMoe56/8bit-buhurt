@@ -9,7 +9,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the club splits ===\n")
+	print("\n=== 8-Bit Buhurt — the club splits ===\n")
 	_test_it_takes_a_bad_room_and_a_bad_season()
 	_test_the_men_who_go_are_the_men_you_left_out()
 	_test_you_are_always_left_with_a_line()

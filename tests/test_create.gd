@@ -22,7 +22,7 @@ func _initialize() -> void:
 	## Its own corner of user:// — these files run in parallel and there are
 	## only three slots between all of them.
 	SaveGame.set_namespace("create")
-	print("\n=== Retro Buhurt — create ===\n")
+	print("\n=== 8-Bit Buhurt — create ===\n")
 	_test_the_division_caps_a_made_man()
 	_test_a_lopsided_build_cannot_dodge_the_cap()
 	_test_the_ceiling_rises_with_you()

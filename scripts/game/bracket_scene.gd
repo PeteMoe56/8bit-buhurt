@@ -69,7 +69,7 @@ func _draw() -> void:
 	## and a backyard invitational should not look the same.
 	UiKit.set_mood(Session.season.mood() if Session.season != null else UiKit.Mood.NORMAL)
 	Audio.for_mood(UiKit.mood, false)
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	if cup == null:
 		UiKit.text(self, font, "NO CUP RUNNING", Vector2(24, 40), 22, UiKit.YOU)
 		UiKit.text(self, font, "Nothing is drawn yet.", Vector2(24, 72), 14, UiKit.DIM)

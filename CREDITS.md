@@ -1,4 +1,4 @@
-# Retro Buhurt — credits
+# 8-Bit Buhurt: Combat Club — credits
 
 > **The credits screen exists.** It is on the Settings screen and it generates
 > itself from `Audio.LICENSED` — see `scripts/game/settings.gd`, which walks that

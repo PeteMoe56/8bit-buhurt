@@ -27,7 +27,7 @@ func _initialize() -> void:
 	## Its own corner of user:// — these files run in parallel and there are
 	## only three slots between all of them.
 	SaveGame.set_namespace("chalkboard")
-	print("\n=== Retro Buhurt — the chalkboard ===\n")
+	print("\n=== 8-Bit Buhurt — the chalkboard ===\n")
 	_test_slots_cost_credits()
 	_test_the_setup_line_holds_against_the_player()
 	_test_a_drawn_formation_reaches_the_list()

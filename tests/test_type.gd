@@ -25,7 +25,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the type ===\n")
+	print("\n=== 8-Bit Buhurt — the type ===\n")
 	_test_the_face_is_the_face()
 	_test_narrow_letters_take_less_room()
 	_test_the_names_that_broke_it()

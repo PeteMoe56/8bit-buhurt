@@ -60,7 +60,7 @@ func _back() -> void:
 func _draw() -> void:
 	UiKit.set_mood(UiKit.Mood.NORMAL)
 	Audio.music("menu")
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	UiKit.text(self, font, "SETTINGS", Vector2(LEFT_X, 54), 30, UiKit.INK)
 
 	# ---------------------------------------------------------------- volume
@@ -127,6 +127,6 @@ func _draw() -> void:
 	y += 28.0
 	UiKit.text(self, font, "GAME", Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
 	y += 26.0
-	UiKit.text(self, font, "Retro Buhurt", Vector2(RIGHT_X + 18, y), 16, UiKit.INK)
+	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, y), 16, UiKit.INK)
 	y += 21.0
 	UiKit.text(self, font, "Built by BonkWorks.", Vector2(RIGHT_X + 18, y), 13, UiKit.DIM)

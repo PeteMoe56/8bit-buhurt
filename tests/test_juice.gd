@@ -22,7 +22,7 @@ const FRAME := 1.0 / 60.0
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the feel layer ===\n")
+	print("\n=== 8-Bit Buhurt — the feel layer ===\n")
 	_test_the_ladder_is_a_ladder()
 	_test_everything_lands_on_whole_pixels()
 	_test_the_budget_holds()

@@ -36,7 +36,7 @@ var notes: Array[String] = []
 
 func _initialize() -> void:
 	SaveGame.set_namespace("market")
-	print("\n=== Retro Buhurt — contracts and the market ===\n")
+	print("\n=== 8-Bit Buhurt — contracts and the market ===\n")
 	_test_a_deal_does_not_move_when_the_man_does()
 	_test_the_fork_is_a_real_choice()
 	_test_the_rookie_discount()

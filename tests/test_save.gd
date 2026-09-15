@@ -26,7 +26,7 @@ func _initialize() -> void:
 	## Its own corner of user:// — these files run in parallel and there are
 	## only three slots between all of them.
 	SaveGame.set_namespace("save")
-	print("\n=== Retro Buhurt — saving ===\n")
+	print("\n=== 8-Bit Buhurt — saving ===\n")
 	SaveGame.delete(SLOT)
 	_test_round_trip()
 	_test_the_world_continues_the_same()

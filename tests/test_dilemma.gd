@@ -28,7 +28,7 @@ var notes: Array[String] = []
 
 func _initialize() -> void:
 	SaveGame.set_namespace("dilemma")
-	print("\n=== Retro Buhurt — the deck ===\n")
+	print("\n=== 8-Bit Buhurt — the deck ===\n")
 	_test_every_option_costs_something()
 	_test_a_card_blocks_the_matchday()
 	_test_the_deck_does_not_repeat_itself()

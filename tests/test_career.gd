@@ -22,7 +22,7 @@ var notes: Array[String] = []
 
 func _initialize() -> void:
 	SaveGame.set_namespace("career")
-	print("\n=== Retro Buhurt — a career ===\n")
+	print("\n=== 8-Bit Buhurt — a career ===\n")
 	_test_an_old_fighter_is_a_different_fighter()
 	_test_you_cannot_train_what_you_are_past()
 	_test_a_veteran_holds_but_never_reverses()

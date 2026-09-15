@@ -25,7 +25,7 @@ const PLAY_TIED := "Wedge hook"
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the book ===\n")
+	print("\n=== 8-Bit Buhurt — the book ===\n")
 	await _test_it_lists_what_the_club_owns()
 	await _test_a_tied_play_stays_with_its_shape()
 	await _test_calling_a_drawn_shape_stands_the_men_in_it()

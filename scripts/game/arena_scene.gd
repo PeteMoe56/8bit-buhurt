@@ -126,7 +126,7 @@ func _demo() -> void:
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	UiKit.text(self, font, arena.arena_name().to_upper(), Vector2(24, 40), 22, UiKit.YOU)
 	UiKit.text(self, font, "%s  ·  %s  ·  %s fans  ·  %d CC" % [
 		office.note_word(), _capacity_word(), _fans_word(), office.credits],

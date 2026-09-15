@@ -26,7 +26,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — melee constraints (%d bouts per measure) ===\n" % N)
+	print("\n=== 8-Bit Buhurt — melee constraints (%d bouts per measure) ===\n" % N)
 	_test_fixtures()
 	_test_determinism()
 	_test_symmetry()

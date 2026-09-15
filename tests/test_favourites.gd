@@ -13,7 +13,7 @@ var checks: int = 0
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the favourites ===\n")
+	print("\n=== 8-Bit Buhurt — the favourites ===\n")
 	_test_a_star_goes_on_and_comes_off()
 	_test_four_is_the_lot()
 	_test_a_deleted_play_takes_its_star_with_it()

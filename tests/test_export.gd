@@ -44,7 +44,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — can it be built ===\n")
+	print("\n=== 8-Bit Buhurt — can it be built ===\n")
 	_test_the_presets_parse()
 	_test_the_presets_agree_with_the_project()
 	_test_nothing_in_here_is_a_secret()

@@ -15,7 +15,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the icon bank ===\n")
+	print("\n=== 8-Bit Buhurt — the icon bank ===\n")
 	_test_every_mark_is_on_the_grid()
 	_test_the_small_pair()
 	_test_every_name_a_screen_asks_for_exists()

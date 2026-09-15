@@ -27,7 +27,7 @@ func _initialize() -> void:
 	## Its own corner of user:// — these files run in parallel and there are
 	## only three slots between all of them.
 	SaveGame.set_namespace("cupplay")
-	print("\n=== Retro Buhurt — fighting your own cup ===\n")
+	print("\n=== 8-Bit Buhurt — fighting your own cup ===\n")
 	_test_a_cup_waits_for_you()
 	_test_the_tie_you_fight_is_the_tie_recorded()
 	_test_a_cup_tie_is_not_a_league_fixture()

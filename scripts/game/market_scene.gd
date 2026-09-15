@@ -95,7 +95,7 @@ func _draw() -> void:
 	if season == null:
 		return
 	UiKit.set_mood(season.mood())
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	UiKit.text(self, font, "FREE AGENTS", Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.screen().x - 24, 46), 18, UiKit.YOU, 200)

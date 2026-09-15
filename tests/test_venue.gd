@@ -16,7 +16,7 @@ var checks: int = 0
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the venue ===\n")
+	print("\n=== 8-Bit Buhurt — the venue ===\n")
 	_test_every_club_is_from_somewhere()
 	_test_the_schedule_says_who_hosts()
 	_test_hosts_are_shared_out()

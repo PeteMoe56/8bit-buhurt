@@ -449,7 +449,7 @@ func _draw() -> void:
 	if man == null or season == null:
 		return
 	UiKit.set_mood(season.mood())
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 
 	## HIS PORTRAIT, IN THE HEADER, and NOT inside the left panel where it went
 	## first — that panel's values are right-aligned into exactly the corner the

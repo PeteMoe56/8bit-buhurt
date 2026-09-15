@@ -24,7 +24,7 @@ func _initialize() -> void:
 	## Its own corner of user:// — these files run in parallel and there are
 	## only three slots between all of them.
 	SaveGame.set_namespace("season")
-	print("\n=== Retro Buhurt — the season loop ===\n")
+	print("\n=== 8-Bit Buhurt — the season loop ===\n")
 	_test_generated_clubs_are_real_clubs()
 	_test_a_fought_bout_reaches_the_table()
 	_test_a_whole_season_adds_up()

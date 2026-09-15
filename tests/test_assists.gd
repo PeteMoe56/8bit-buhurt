@@ -16,7 +16,7 @@ var checks: int = 0
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the assist ===\n")
+	print("\n=== 8-Bit Buhurt — the assist ===\n")
 	_test_the_ledger_records_who_did_the_work()
 	_test_the_second_man_gets_it_and_the_first_does_not()
 	_test_a_passing_shot_is_not_an_assist()

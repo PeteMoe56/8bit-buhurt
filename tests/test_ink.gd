@@ -81,7 +81,7 @@ static func frame() -> Rect2:
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the ink ===\n")
+	print("\n=== 8-Bit Buhurt — the ink ===\n")
 	await _test_nothing_is_drawn_off_the_screen()
 	await _test_no_text_lands_on_a_control()
 	_test_the_ledger_can_fail()

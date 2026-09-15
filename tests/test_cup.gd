@@ -20,7 +20,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — cups and club power ===\n")
+	print("\n=== 8-Bit Buhurt — cups and club power ===\n")
 	_test_bracket_conserves_clubs()
 	_test_pools_feed_the_bracket()
 	_test_seeding_favours_the_favourite()

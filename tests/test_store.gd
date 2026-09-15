@@ -18,7 +18,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the counter ===\n")
+	print("\n=== 8-Bit Buhurt — the counter ===\n")
 	_test_the_shelf_is_a_real_ladder()
 	_test_a_purchase_is_not_attached_to_a_save()
 	_test_the_wallet_survives_the_app()

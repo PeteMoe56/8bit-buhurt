@@ -247,7 +247,7 @@ func _draw() -> void:
 	## having broken rather than as a theme.
 	UiKit.set_mood(UiKit.Mood.NORMAL)
 	Audio.music("menu")
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self, false)
 	## ONE PIXEL, EVERY HALF SECOND, ON THE CREST AND THE SECOND WORD.
 	##
 	## `Juice.breathe()` is the whole of the idle-motion rule — *nothing in a
@@ -260,10 +260,32 @@ func _draw() -> void:
 	## breathe against each other rather than the whole block sliding, which is
 	## the difference between a logo with life in it and a logo that is loose.
 	var lift := Juice.breathe(30)
-	UiKit.badge(self, Vector2(60, 78 - lift), 38,
-		IconBank.KIT_COLOURS[0], IconBank.MARK_COLOURS[0], 5)
-	UiKit.text(self, font, "RETRO", Vector2(118, 72), 42, UiKit.INK)
-	UiKit.text(self, font, "BUHURT", Vector2(268, 72 - lift), 42, UiKit.YOU)
+	## THE CREST, NOT THE WHOLE LOCKUP. This is a header, not a splash.
+	##
+	## The full mark went here first, at 132 tall from y=18 — and ran straight
+	## through the Back button, which has sat at (24, 96) since the day it was
+	## added. The front door is where the lockup belongs and it has it; a screen
+	## with a list of save slots on it wants the mark at the size of a heading.
+	##
+	## So the shape of the old header is kept exactly — mark, then two words, at
+	## the same three x positions — and only the primitive badge is replaced by
+	## the real crest. The breathe still lifts the mark and the second word
+	## against a still first word, which is what made the pair read as alive.
+	if not Brand.draw_logo(self, Brand.CREST_SMALL, Vector2(26, 26 - lift)):
+		UiKit.badge(self, Vector2(60, 78 - lift), 38,
+			IconBank.KIT_COLOURS[0], IconBank.MARK_COLOURS[0], 5)
+	## THE SECOND WORD IS PLACED OFF THE FIRST, MEASURED.
+	##
+	## "RETRO" and "BUHURT" were at 118 and 268 — two literals that added up to a
+	## word gap only because somebody had looked at them. "8-BIT" is four glyphs
+	## and a hyphen where "RETRO" was five letters, so the day the name changed
+	## the pair printed as `8-BITBUHURT`. The font knows how wide the first word
+	## is; asking it is one call and it cannot go stale.
+	var one := "8-BIT"
+	UiKit.text(self, font, one, Vector2(118, 72), 42, UiKit.INK)
+	var two_x := 118.0 + font.get_string_size(one, HORIZONTAL_ALIGNMENT_LEFT,
+		-1.0, 42).x + 18.0
+	UiKit.text(self, font, "BUHURT", Vector2(two_x, 72 - lift), 42, UiKit.YOU)
 	## 180 AND NOT 120. The Back button sits at its usual (24, 96) and runs to
 	## x 164, so this line started underneath it — on every visit to this screen
 	## since the button was added, invisible to every check in the suite because

@@ -11,7 +11,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the roster ===\n")
+	print("\n=== 8-Bit Buhurt — the roster ===\n")
 	_test_every_man_has_exactly_one_card()
 	_test_no_card_overlaps_another()
 	_test_the_book_records_what_the_sim_counted()

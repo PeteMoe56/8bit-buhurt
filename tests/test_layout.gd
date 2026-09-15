@@ -59,7 +59,7 @@ const GUTTER := 16.0
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the layout ===\n")
+	print("\n=== 8-Bit Buhurt — the layout ===\n")
 	_test_a_control_occupies_the_rect_it_asked_for()
 	await _test_no_control_overlaps_another()
 	await _test_nothing_leaves_the_screen()

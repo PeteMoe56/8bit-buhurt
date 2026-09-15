@@ -96,7 +96,7 @@ func _draw() -> void:
 		return
 	UiKit.set_mood(season.mood())
 	Audio.for_mood(UiKit.mood, false)
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 
 	UiKit.text(self, font, "ROSTER", Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, season.office.credits,

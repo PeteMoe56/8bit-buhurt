@@ -372,7 +372,7 @@ func _release(_p: Vector2) -> void:
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	UiKit.text(self, font, "CHALKBOARD", Vector2(LEFT_X, 40), 22, UiKit.YOU)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(LEFT_X, 122), 14, UiKit.DIM)

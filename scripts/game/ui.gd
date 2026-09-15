@@ -667,6 +667,24 @@ static func fit_px(font: Font, s: String, px: int, width: float) -> String:
 	return out
 
 
+## THE GROUND EVERY SCREEN STANDS ON, plus the mark faded into it.
+##
+## Fifteen screens opened `_draw()` with the identical line —
+## `draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)` — which was fine
+## while the ground was one colour. It stopped being fine the moment the ground
+## gained a second layer: adding the watermark would have been the same edit
+## fifteen times, and the sixteenth screen written next month would have been
+## the one that forgot.
+##
+## The front door and the slot picker pass `false`. They already carry the logo
+## at full strength, and a mark behind a mark is not a background, it is a
+## printing error.
+static func ground(ci: CanvasItem, wash: bool = true) -> void:
+	ci.draw_rect(Rect2(Vector2.ZERO, screen()), BG)
+	if wash:
+		Brand.draw_wash(ci, screen())
+
+
 ## A LABEL ON THE LEFT AND A NOTE ON THE RIGHT, ON ONE LINE, THAT CANNOT MEET.
 ##
 ## Four rows of the clubhouse were drawn as a `text()` at the left edge and a

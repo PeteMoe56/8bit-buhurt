@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://peiap4auo16k"
+path="res://.godot/imported/HeatleyBros - HeatleyBros IV - 19 Game On.mp3-a2e9354f91ed3098e2e900cac6d75d33.mp3str"
+
+[deps]
+
+source_file="res://HeatleyBros - HeatleyBros IV - 19 Game On.mp3"
+dest_files=["res://.godot/imported/HeatleyBros - HeatleyBros IV - 19 Game On.mp3-a2e9354f91ed3098e2e900cac6d75d33.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

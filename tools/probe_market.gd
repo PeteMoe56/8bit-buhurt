@@ -18,7 +18,7 @@ const YEARS := 25
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the market ===\n")
+	print("\n=== 8-Bit Buhurt — the market ===\n")
 	_bands()
 	_run("ignores the market", false)
 	_run("signs the best man it can afford", true)

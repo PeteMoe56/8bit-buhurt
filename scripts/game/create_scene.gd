@@ -436,7 +436,7 @@ func _save_club() -> void:
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	UiKit.text(self, font, "CREATE", Vector2(24, 40), 22, UiKit.YOU)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.right_edge(120.0), 40), 16, UiKit.DIM, 200.0)

@@ -14,7 +14,7 @@ extends SceneTree
 ## the room.
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the deck ===\n")
+	print("\n=== 8-Bit Buhurt — the deck ===\n")
 	_audit()
 	_policies()
 	print("")

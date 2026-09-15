@@ -58,7 +58,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — C-6: the roster, the thumb and the tactics ===\n")
+	print("\n=== 8-Bit Buhurt — C-6: the roster, the thumb and the tactics ===\n")
 	var hole := _the_hole()
 	_test_thumb_beats_tactics(hole)
 	_test_the_roster_wall(hole)

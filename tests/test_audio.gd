@@ -24,7 +24,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the audio rig ===\n")
+	print("\n=== 8-Bit Buhurt — the audio rig ===\n")
 	_test_silence_is_the_default_state()
 	_test_every_mood_has_a_track()
 	_test_the_catalog_is_honest()

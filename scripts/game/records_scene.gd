@@ -70,7 +70,7 @@ func _draw() -> void:
 	if season == null:
 		return
 	UiKit.set_mood(season.mood())
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), UiKit.BG)
+	UiKit.ground(self)
 	UiKit.text(self, font, "THE BOOK", Vector2(24, 46), 26, UiKit.INK)
 	UiKit.right(self, font, "Season %d" % season.world.season,
 		Vector2(UiKit.screen().x - 24, 46), 14, UiKit.DIM, 220)

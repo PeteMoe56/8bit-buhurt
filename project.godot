@@ -1,10 +1,8 @@
-; Engine configuration file.
-; It's best edited using the editor UI and not directly,
-; since the parameters that go here are not all obvious.
-;
-; Format:
-;   [section] ; section goes between []
-;   param=value ; assign values to parameters
+; 8-Bit Buhurt: Combat Club — BonkWorks
+; Godot 4.6, Compatibility renderer, LANDSCAPE mobile — 960x540 with an
+; expanding canvas. "Portrait" stood on this line until 15 Sep 2026, when the
+; handheld orientation setting below turned out to say the same thing.
+; See docs/CONSTRAINTS.md before changing anything in scripts/melee.
 
 config_version=5
 
@@ -14,7 +12,7 @@ config/name="8-Bit Buhurt: Combat Club"
 config/description="8-bit buhurt club manager. Draw the route, he goes and does it."
 run/main_scene="res://scenes/Start.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://art/brand/crest_512.png"
 
 [display]
 
@@ -22,16 +20,26 @@ window/size/viewport_width=960
 window/size/viewport_height=540
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+; 4 = SCREEN_SENSOR_LANDSCAPE. Verified against the engine's own enum on
+; 15 Sep 2026, not against memory: 0 LANDSCAPE, 1 PORTRAIT, 2 REVERSE_LANDSCAPE,
+; 3 REVERSE_PORTRAIT, 4 SENSOR_LANDSCAPE, 5 SENSOR_PORTRAIT, 6 SENSOR.
+;
+; This was 1 — PORTRAIT — under a 960x540 landscape game. Retro Bowl is
+; landscape-only and its web build tells you outright to rotate the device;
+; every screen in this project is drawn wide. SENSOR_LANDSCAPE rather than
+; plain LANDSCAPE so the handset can be held either way up, which is what a
+; phone game does and what a left-handed player expects.
 window/handheld/orientation=4
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=0
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true
+anti_aliasing/quality/msaa_2d=0
 
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
-
-[rendering]
-
-textures/canvas_textures/default_texture_filter=0
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
-2d/snap/snap_2d_transforms_to_pixel=true
-2d/snap/snap_2d_vertices_to_pixel=true

@@ -26,7 +26,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the grade ===\n")
+	print("\n=== 8-Bit Buhurt — the grade ===\n")
 	_test_the_choke_point_has_no_holes()
 	_test_the_scale_reaches_every_contest_stat()
 	_test_your_own_men_are_never_scaled()

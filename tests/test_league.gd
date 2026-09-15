@@ -20,7 +20,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
-	print("\n=== Retro Buhurt — the pyramid (%d seasons) ===\n" % SEASONS)
+	print("\n=== 8-Bit Buhurt — the pyramid (%d seasons) ===\n" % SEASONS)
 	_test_pyramid_balances()
 	_test_fixtures_are_a_round_robin()
 	_test_table_maths()
