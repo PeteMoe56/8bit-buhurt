@@ -1,7 +1,7 @@
 extends SceneTree
 ## THE SQUAD TAB WITH A MAN PICKED, so the sale price on the Cut button is
 ## visible. Nothing else in the suite selects a fighter, so nothing else could
-## show this button at all — see `Market.sale_value`.
+## show this button at all — see `Market.trade_value`.
 var n := 0
 var stage := 0
 var sc: Node = null
@@ -28,8 +28,8 @@ func _process(_d: float) -> bool:
 					break
 			sc.call("_rebuild")
 		1:
-			root.get_texture().get_image().save_png("res://shots/sell.png")
-			print("wrote sell")
+			root.get_texture().get_image().save_png("res://shots/trade.png")
+			print("wrote trade")
 			return true
 	stage += 1
 	return false

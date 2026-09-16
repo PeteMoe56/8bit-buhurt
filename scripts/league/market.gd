@@ -145,9 +145,16 @@ static func band_name(rating: int, tier: int) -> String:
 	return BAND_NAME[band_of(rating, tier)]
 
 
-## ------------------------------------------------------------ selling him on
+## --------------------------------------------------------------- trading him
 ## WHAT ANOTHER CLUB WILL PAY FOR HIM, and this is Retro Bowl's answer rather
-## than a new one. Pete, 15 Sep 2026: *"let's go with Retro Bowl's answer."*
+## than a new one. Pete, 15 Sep 2026: *"let's go with Retro Bowl's answer"* and
+## then *"let's go with Trade instead of sell."*
+##
+## THEIR WORD, AND IT IS THE RIGHT ONE. "Sell" is a transaction and a trade is a
+## piece of squad business — the club is not liquidating an asset, it is moving a
+## man on to somewhere he will play. The code says `trade` everywhere the screen
+## does, because a codebase that calls a thing one word while the game calls it
+## another is a codebase where the next person renames the wrong half.
 ##
 ## Theirs, off the wiki: a traded player returns a future DRAFT PICK, and the
 ## pick is bucketed into exactly three tiers by his star rating — a third-rounder
@@ -168,17 +175,17 @@ static func band_name(rating: int, tier: int) -> String:
 ## Reusing the fee bands is the whole point. The player already reads them when
 ## he buys, the seam is already coarse, and a second scale for selling would be a
 ## second thing to learn that says nearly the same thing as the first.
-const SALE_TIERS: Array[String] = ["Squad man", "First team", "Marquee man"]
+const TRADE_TIERS: Array[String] = ["Squad man", "First team", "Marquee man"]
 
 
 ## Which of the three he is in. Read off the SAME `band_of` the fee uses, so the
 ## two halves of the market cannot drift apart on where an edge sits.
-static func sale_tier(rating: int, tier: int) -> int:
-	return mini(band_of(rating, tier) / 2, SALE_TIERS.size() - 1)
+static func trade_tier(rating: int, tier: int) -> int:
+	return mini(band_of(rating, tier) / 2, TRADE_TIERS.size() - 1)
 
 
-static func sale_tier_name(rating: int, tier: int) -> String:
-	return SALE_TIERS[sale_tier(rating, tier)]
+static func trade_tier_name(rating: int, tier: int) -> String:
+	return TRADE_TIERS[trade_tier(rating, tier)]
 
 
 ## AND WHAT THE TIER PAYS: a share of what the LOWER band in it costs to sign.
@@ -206,14 +213,14 @@ static func sale_tier_name(rating: int, tier: int) -> String:
 ## should have sold two seasons ago is in a lower bucket now and fetches less,
 ## without a line of code about age. Retro Bowl gets the same behaviour the same
 ## way: their value is by stars, and stars fall.
-const SALE_SHARE: float = 0.45
+const TRADE_SHARE: float = 0.45
 
 
-static func sale_value(rating: int, tier: int) -> int:
-	var low := mini(sale_tier(rating, tier) * 2, BAND_SHARE.size() - 1)
+static func trade_value(rating: int, tier: int) -> int:
+	var low := mini(trade_tier(rating, tier) * 2, BAND_SHARE.size() - 1)
 	var slack: int = int(League.TIERS[clampi(tier, 0,
 		League.TIERS.size() - 1)]["slack"])
-	var paid := int(round(SALE_SHARE * BAND_SHARE[low] * float(slack)))
+	var paid := int(round(TRADE_SHARE * BAND_SHARE[low] * float(slack)))
 	## AND NEVER AS MUCH AS HE COSTS, GUARANTEED HERE RATHER THAN TUNED.
 	##
 	## The share alone very nearly does it, and "very nearly" is how the first cut

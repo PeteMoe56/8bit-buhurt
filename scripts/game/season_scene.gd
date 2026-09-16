@@ -483,12 +483,26 @@ func _fight() -> void:
 ## position, one of them should be asking the other.**
 const SQUAD_ROW := 30.0
 const RESERVE_X := 490.0
+## Where the heading row's baseline goes below the section title.
+const SQUAD_HEAD_Y := 22.0
 ## HOW FAR THE FIRST MAN SITS BELOW THE SECTION TITLE. It was 26, which is the
 ## gap a list needs; a TABLE needs room for its heading as well, and both columns
 ## read this so neither can be moved without the other.
-const SQUAD_TOP := 40.0
-## Where the heading row's baseline goes inside that gap.
-const SQUAD_HEAD_Y := 22.0
+##
+## AND IT WAS 40, WHICH PUT THE FIRST MAN'S BOX ON TOP OF THE HEADING. Pete,
+## 15 Sep 2026: *"Both Calder and Norrey are pressing up heavy against the top of
+## the Fighter/Role."* He is naming row one of each column, and the arithmetic
+## says why it is exactly those two: a row's background is drawn at `y - 20` and
+## stands `SQUAD_ROW - 2` tall, so the first row's box began at `CONTENT_Y + 20`
+## — two pixels ABOVE the heading baseline at `SQUAD_HEAD_Y`. Every other row
+## has a row above it to sit against; row one had a heading, and it was sitting
+## on it.
+##
+## Fifty puts six pixels of air under the heading's baseline. The gap is DERIVED
+## from `SQUAD_HEAD_Y` rather than written down beside it, so the heading and the
+## first row cannot be moved apart by editing one of them — which is how they got
+## two pixels into each other in the first place.
+const SQUAD_TOP := SQUAD_HEAD_Y + 28.0
 
 
 ## WHERE THE KEY SITS: under the last man and clear of the action row, measured
@@ -623,14 +637,14 @@ func _squad_controls() -> void:
 	## THE ROW BELONGS TO THE PICKED MAN WHEN THERE IS ONE.
 	##
 	## `Reserve by` sits at x=24 and `Free agents` at x=544, and both were added
-	## UNCONDITIONALLY — while picking a fighter adds Sell at x=24 and the
+	## UNCONDITIONALLY — while picking a fighter adds Trade at x=24 and the
 	## contract fork at x=464. Two overlaps, and both were invisible for the life
-	## of the screen: Sell is added later so it wins the tap and draws on top, and
+	## of the screen: Trade is added later so it wins the tap and draws on top, and
 	## the only symptom was that **the reserve could not be re-sorted while a man
 	## was selected** and the right-hand button showed a bare "s" sticking out
 	## from under Extend.
 	##
-	## `shots/sell.png` is the first thing that ever rendered this tab with a
+	## `shots/trade.png` is the first thing that ever rendered this tab with a
 	## fighter picked. `test_layout.gd` measures controls against controls and
 	## would have caught it on sight — it drives every tab and never drove this
 	## STATE, which is the gap it has now closed.
@@ -693,7 +707,7 @@ func _squad_controls() -> void:
 		ui.add_child(UiKit.button(
 			"%s  ·  %s/wk" % ["Re-sign" if out_of_deal else "Extend",
 				ClubOffice.money(deal_cost)],
-			Vector2(464, action_y()), Vector2(240, 46), func():
+			Vector2(468, action_y()), Vector2(256, 46), func():
 				var err := season.resign(picked) if out_of_deal else season.extend(picked)
 				if err == "":
 					flash = "%s: %s a week for %d years." % [picked.display_name,
@@ -703,7 +717,7 @@ func _squad_controls() -> void:
 					flash = err
 				_rebuild()))
 		## AND THE BUTTON SAYS WHAT HE FETCHES, because letting a man go is a
-		## PRICE now and not just a decision — see `Market.sale_value`. The three
+		## PRICE now and not just a decision — see `Market.trade_value`. The three
 		## buckets are coarse on purpose and a player can only read the edges if
 		## the number is in front of him at the moment he is deciding; a sale
 		## whose value he discovers in the ledger afterwards is a mechanic he
@@ -712,16 +726,26 @@ func _squad_controls() -> void:
 		## Nothing for a man out of contract, and the label says "Cut" then rather
 		## than naming a price of zero — the distinction is real (his deal has run
 		## out and nobody is paying you for a man who can walk in the summer) and
-		## "Sell · 0 CC" reads as a bug.
-		var worth := season.sale_value(picked)
-		var sell_name := UiKit.clip(picked.display_name, 10 if worth > 0 else 14)
-		ui.add_child(UiKit.button(("Sell %s  ·  %d CC" % [sell_name, worth])
-				if worth > 0 else ("Cut " + sell_name),
-			Vector2(24, action_y()), Vector2(204, 46), func():
+		## "Trade · 0 CC" reads as a bug.
+		var worth := season.trade_value(picked)
+		## WIDER THAN THE ROW'S OTHER BUTTONS, and deliberately.
+		##
+		## "Trade Calder · 3 CC" is about 195 pixels of text and the row's standard
+		## button is 204, so it filled its own edges — and a National Marquee man
+		## with a long name and a 33-credit price would have run straight past
+		## them. `Prospect` and `Extend` do not name the man and do not need to;
+		## this one does, because it is the only control on the screen that both
+		## costs a fighter and pays money, and "which man" is the thing a player
+		## checks before pressing it. The 56 pixels of dead space between Extend
+		## and Roster paid for it.
+		var who := UiKit.clip(picked.display_name, 10 if worth > 0 else 14)
+		ui.add_child(UiKit.button(("Trade %s  ·  %d CC" % [who, worth])
+				if worth > 0 else ("Cut " + who),
+			Vector2(24, action_y()), Vector2(232, 46), func():
 				var gone := picked.display_name
 				var err := season.release(picked)
 				flash = UiKit.said(err) if err != "" else (
-					"%s sold on for %d CC." % [gone, worth] if worth > 0
+					"%s traded for %d CC." % [gone, worth] if worth > 0
 					else "%s released." % gone)
 				if err == "":
 					picked = null
@@ -735,7 +759,7 @@ func _squad_controls() -> void:
 		var ground := season.office.level(ClubOffice.Facility.TRAINING)
 		ui.add_child(UiKit.button(
 			"Clear" if season.prospect == picked else "Prospect",
-			Vector2(244, action_y()), Vector2(204, 46), func():
+			Vector2(272, action_y()), Vector2(180, 46), func():
 				if season.prospect == picked:
 					season.prospect = null
 					flash = "%s is no longer your prospect." % picked.display_name

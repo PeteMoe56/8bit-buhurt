@@ -1,8 +1,11 @@
-# Selling him on
+# Trading him on
 
 15 Sep 2026 · Retro Bowl's answer, ported
 
 > *"Alright, let's go with Retro Bowl's answer."*
+> *"Let's go with Trade instead of sell. Also let's format that a little better.
+> Both Calder and Norrey are pressing up heavy against the top of the
+> Fighter/Role."*
 
 The thread `THE-TIER-PIPELINE-15-SEP.md` left open: `Season.release()` paid
 nothing, so a promoted club's outclassed men were dead weight it could drop but
@@ -52,7 +55,13 @@ National   Journeyman       4       2
 ```
 
 A Strong man costs 11 to sign and fetches the same 3 as a Good man who cost 6.
-Read the edges, sell the bottom of a bucket.
+Read the edges, trade the bottom of a bucket.
+
+**Their word, and it is the right one.** "Sell" is a transaction; a trade is a
+piece of squad business — the club is not liquidating an asset, it is moving a
+man on to somewhere he will play. The code says `trade` everywhere the screen
+does, because a codebase that calls a thing one word while the game calls it
+another is a codebase where the next person renames the wrong half.
 
 **Age is in there already and that is why it is not a term.** A fighter's band is
 read off his *current* rating, and a rating falls as he ages — so the man you
@@ -69,7 +78,8 @@ a good man run down and you lose his fee as well as him.
 exists because a trade needs a partner who wants him, and ours is a league of
 clubs who always do. A man nobody wants is worth the bottom bucket, which at the
 Backyard Circuit is nothing — so "worthless" is a price rather than a second
-button doing nearly the same job.
+button doing nearly the same job, and the label reads **Cut** when there is no
+money in it.
 
 ---
 
@@ -102,7 +112,7 @@ will move.
 
 ## A layout bug the screenshot found
 
-`shots/sell.png` is the first thing that has ever rendered the squad tab **with a
+`shots/trade.png` is the first thing that has ever rendered the squad tab **with a
 fighter picked**. Picking one adds three buttons to a row that already had three,
 and two of them landed on top of two that were already there:
 
@@ -120,6 +130,33 @@ that is never built cannot be measured. It now builds it, and the check was
 verified by putting the bug back: red with it, green without.
 
 **Driving a tab is not driving a screen.**
+
+---
+
+## And the rows were sitting on their own heading
+
+> *"Both Calder and Norrey are pressing up heavy against the top of the
+> Fighter/Role."*
+
+He is naming row one of each column, and the arithmetic says why it is exactly
+those two. A row's background is drawn at `y - 20` and stands `SQUAD_ROW - 2`
+tall, so with `SQUAD_TOP` at 40 the first row's box began at `CONTENT_Y + 20` —
+**two pixels above the heading baseline** at `SQUAD_HEAD_Y = 22`. Every other row
+has a row above it to sit against. Row one had a heading, and it was sitting on
+it.
+
+`SQUAD_TOP` is now `SQUAD_HEAD_Y + 28`, which puts six pixels of air under the
+heading. **Derived rather than written down beside it**, so the heading and the
+first row cannot be moved apart by editing one of them — which is how they got
+two pixels into each other in the first place.
+
+The Trade button also grew from 204 to 232 pixels. "Trade Calder · 3 CC" is about
+195 pixels of text, so it filled its own edges, and a National Marquee man with a
+long name and a 33-credit price would have run past them. `Prospect` and `Extend`
+do not name the man and do not need to; this one does, because it is the only
+control on the screen that both costs a fighter and pays money, and *which man*
+is the thing a player checks before pressing it. The dead space between Extend
+and Roster paid for it.
 
 ---
 

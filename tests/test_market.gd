@@ -68,7 +68,7 @@ func _initialize() -> void:
 ## Retro Bowl's answer, ported: a traded player there returns a draft pick in one
 ## of exactly three tiers by star rating, wide enough that a 3.9-star and a
 ## 2.0-star fetch the same thing. Ours returns credits on the same three, made by
-## collapsing `BAND_NAME` in pairs — see `Market.sale_value`.
+## collapsing `BAND_NAME` in pairs — see `Market.trade_value`.
 ##
 ## THE FIRST CHECK IS THE ONE THAT MATTERS AND IT IS EXHAUSTIVE. The first cut of
 ## this feature read the TOP band of each pair and paid **19 credits for a man
@@ -82,7 +82,7 @@ func _test_selling_him_on() -> void:
 	var worst := {"gap": 99, "tier": -1, "rating": -1}
 	for t in League.TIERS.size():
 		for r in range(1, 100):
-			var gap: int = Market.fee(r, t) - Market.sale_value(r, t)
+			var gap: int = Market.fee(r, t) - Market.trade_value(r, t)
 			if gap < int(worst["gap"]):
 				worst = {"gap": gap, "tier": t, "rating": r}
 	notes.append("across every rating in every division the closest a sale comes to its own fee is %d CC (a %d in the %s)"
@@ -103,10 +103,10 @@ func _test_selling_him_on() -> void:
 	for t in League.TIERS.size():
 		var by_tier: Dictionary = {}
 		for r in range(int(Market.shelf_of(t)[0]), int(Market.shelf_of(t)[1]) + 1):
-			var k := Market.sale_tier(r, t)
-			if by_tier.has(k) and int(by_tier[k]) != Market.sale_value(r, t):
+			var k := Market.trade_tier(r, t)
+			if by_tier.has(k) and int(by_tier[k]) != Market.trade_value(r, t):
 				flat = false
-			by_tier[k] = Market.sale_value(r, t)
+			by_tier[k] = Market.trade_value(r, t)
 		seen += by_tier.size()
 	## The seam has to be worth gaming: somewhere in the game a man who costs
 	## MORE to sign must fetch the same as one who costs less, or the buckets are
@@ -114,12 +114,12 @@ func _test_selling_him_on() -> void:
 	var seam := false
 	for t in League.TIERS.size():
 		for r in range(int(Market.shelf_of(t)[0]), int(Market.shelf_of(t)[1])):
-			if Market.sale_value(r, t) == Market.sale_value(r + 1, t) \
+			if Market.trade_value(r, t) == Market.trade_value(r + 1, t) \
 					and Market.fee(r + 1, t) > Market.fee(r, t):
 				seam = true
 	notes.append("%d sale buckets across the four divisions, all flat, and a dearer man fetching the same as a cheaper one: %s"
 		% [seen, "yes" if seam else "no"])
-	_ok(flat and seam and Market.SALE_TIERS.size() == 3,
+	_ok(flat and seam and Market.TRADE_TIERS.size() == 3,
 		"three flat buckets, and the edges are worth reading",
 		"every man in a bucket fetches the same money however dear he was to sign")
 

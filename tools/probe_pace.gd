@@ -393,7 +393,7 @@ func _make_room(s: Season, want: FighterCard) -> void:
 			elif not over and _value(c) < _value(go):
 				go = c
 		## AND THE SALE FUNDS THE SIGNING. `Season.release` pays now — see
-		## `Market.sale_value` — so cutting the man the club has outgrown is part of
+		## `Market.trade_value` — so cutting the man the club has outgrown is part of
 		## how it affords the man it wants, which is the whole of Pete's *"if they're
 		## holding onto Tier one fighters, they're wrong"*. The order is already
 		## right and it matters: room is made BEFORE `sign_from_market` is called, so
