@@ -1592,11 +1592,43 @@ func ai_tier() -> int:
 ##
 ## The screens used to call `club.cut()` directly, which is why this reads as a
 ## new verb: the rule about what the room thinks had nowhere to live.
+## WHAT ANOTHER CLUB WOULD PAY FOR HIM TODAY. Zero for a man out of contract,
+## because a club with nothing to sell has nothing to sell — his deal has run out
+## and he can walk to whoever he likes in the summer, so nobody is paying you for
+## the privilege. That is the sharp end of the re-sign/extend fork the contracts
+## layer already has: let a good man run down and you lose his fee as well as
+## him.
+func sale_value(f: FighterCard) -> int:
+	if f.years <= 0:
+		return 0
+	return Market.sale_value(f.overall(), world.player_tier())
+
+
+func sale_tier_name(f: FighterCard) -> String:
+	return Market.sale_tier_name(f.overall(), world.player_tier())
+
+
+## LETTING HIM GO NOW PAYS. Pete, 15 Sep 2026, on the one thread the tier work
+## left open: *"let's go with Retro Bowl's answer."* Theirs returns a draft pick
+## in one of three coarse buckets; ours returns credits on the same three — see
+## `Market.sale_value` for why the buckets are the fee bands collapsed in pairs
+## rather than a second scale.
+##
+## ONE DOOR AND NOT TWO. Retro Bowl separates cutting a man from trading him, and
+## that split does not survive the trip: it only exists because a trade needs a
+## partner who wants him, and ours is a league of clubs who always do. A man
+## nobody wants is worth the bottom bucket, which at the Backyard Circuit is one
+## credit — so "worthless" is expressed as a price rather than as a second button
+## that does nearly the same thing.
 func release(f: FighterCard) -> String:
 	var was_toxic: bool = f.toxic()
+	var paid := sale_value(f)
 	var err := club.cut(f)
 	if err != "":
 		return err
+	if paid > 0:
+		office.take(paid, "%s sold on" % f.display_name,
+			"season %d" % world.season, ClubOffice.LINE_TRANSFER)
 	for other in club.active_eight():
 		other.morale_shift(CUT_TOXIC if was_toxic else CUT_LIKED)
 	office.sync_morale(club)

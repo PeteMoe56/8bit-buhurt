@@ -392,6 +392,20 @@ func _pages() -> Array:
 		if String(p).ends_with("Season.tscn"):
 			for t in 5:
 				out.append([String(p), t, ""])
+			## AND THE SQUAD TAB WITH A MAN PICKED, which is a different screen.
+			##
+			## This file drove every TAB and never a STATE, and picking a fighter
+			## on the squad tab adds three buttons to a row that already had
+			## three. Two of them landed on top of two that were already there —
+			## `Sell` exactly over `Reserve by` at x=24, and the contract fork
+			## over `Free agents` at x=544 — so the reserve could not be re-sorted
+			## while a man was selected, and the only visible symptom was a single
+			## letter "s" sticking out from under the Extend button.
+			##
+			## It lived through every run of this file because a control that is
+			## never built cannot be measured. **Driving a tab is not driving a
+			## screen.**
+			out.append([String(p), 1, "_pick_a_fighter"])
 		elif String(p).ends_with("Melee.tscn"):
 			for c in MELEE_PANELS:
 				out.append([String(p), -1, String(c)])
@@ -406,6 +420,17 @@ func _drive(s: Node, page: Array) -> void:
 		s.set("tab", int(page[1]))
 		s.call("_rebuild")
 	var c := String(page[2]) if page.size() > 2 else ""
+	if c == "_pick_a_fighter":
+		## A man with a deal still to run, so the row builds its dearest version:
+		## the sale price AND the contract fork, rather than the shorter labels an
+		## out-of-contract man gets.
+		var season = s.get("season")
+		for f in season.club.roster:
+			if f.years > 0:
+				s.set("picked", f)
+				break
+		s.call("_rebuild")
+		return
 	if c == "_on_bout_finished":
 		s.call(c, 0)
 	elif c == "_drawn_corner":

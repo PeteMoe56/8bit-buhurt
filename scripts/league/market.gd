@@ -145,6 +145,89 @@ static func band_name(rating: int, tier: int) -> String:
 	return BAND_NAME[band_of(rating, tier)]
 
 
+## ------------------------------------------------------------ selling him on
+## WHAT ANOTHER CLUB WILL PAY FOR HIM, and this is Retro Bowl's answer rather
+## than a new one. Pete, 15 Sep 2026: *"let's go with Retro Bowl's answer."*
+##
+## Theirs, off the wiki: a traded player returns a future DRAFT PICK, and the
+## pick is bucketed into exactly three tiers by his star rating — a third-rounder
+## under two stars, a second between two and four, a first at four and above.
+## Value is *"calculated according to their star ranking and attributes"*, and
+## the buckets are wide enough that a 3.9-star and a 2.0-star fetch the same
+## thing. That is the beloved arbitrage: you learn the edges and you sell the man
+## at the BOTTOM of a bucket.
+##
+## TWO THINGS CHANGE IN TRANSLATION AND NEITHER IS A CHOICE. We have no draft —
+## `pool()` says why at length, and buhurt clubs do not have one — so the return
+## is credits, which is the only currency a club here has. And our star system is
+## `BAND_NAME`, six buckets rather than their five-and-a-half stars, so the three
+## tiers are made by COLLAPSING PAIRS of it rather than by inventing a second
+## scale. A Good man and a Strong man fetch the same money; so do a Journeyman
+## and a Steady, and a Star and a Marquee.
+##
+## Reusing the fee bands is the whole point. The player already reads them when
+## he buys, the seam is already coarse, and a second scale for selling would be a
+## second thing to learn that says nearly the same thing as the first.
+const SALE_TIERS: Array[String] = ["Squad man", "First team", "Marquee man"]
+
+
+## Which of the three he is in. Read off the SAME `band_of` the fee uses, so the
+## two halves of the market cannot drift apart on where an edge sits.
+static func sale_tier(rating: int, tier: int) -> int:
+	return mini(band_of(rating, tier) / 2, SALE_TIERS.size() - 1)
+
+
+static func sale_tier_name(rating: int, tier: int) -> String:
+	return SALE_TIERS[sale_tier(rating, tier)]
+
+
+## AND WHAT THE TIER PAYS: a share of what the LOWER band in it costs to sign.
+##
+## The lower of the pair, and under half of it, and the first cut got the first
+## of those backwards. Reading the TOP made the bucket flat in the right way —
+## a Good man fetching Strong money is exactly the arbitrage — and it also made
+## the top bucket pay **19 against a Star's fee of 18**, because the top of that
+## pair is Marquee and a Marquee costs 42. Buy a Star, sell him the same
+## afternoon, bank a credit. *A market where a man can be bought and immediately
+## sold at a profit is not a market, it is a printer.*
+##
+## The lower band keeps the flatness and kills the loop: within a bucket every
+## man fetches what the CHEAPEST of them costs to sign, times a share under a
+## half, so the sale is strictly under the fee at every rating in the game —
+## `test_market` asserts exactly that, because a rule this easy to get backwards
+## should not be guarded by a comment.
+##
+## The arbitrage survives intact and is the whole point: a Strong man costs 11 to
+## sign and fetches the same 3 as a Good man who cost 6. Read the edges, sell the
+## bottom of a bucket, keep the top of it.
+##
+## **AGE IS IN HERE ALREADY AND THAT IS WHY IT IS NOT A TERM.** A fighter's band
+## is read off his CURRENT rating, and a rating falls as he ages — so the man you
+## should have sold two seasons ago is in a lower bucket now and fetches less,
+## without a line of code about age. Retro Bowl gets the same behaviour the same
+## way: their value is by stars, and stars fall.
+const SALE_SHARE: float = 0.45
+
+
+static func sale_value(rating: int, tier: int) -> int:
+	var low := mini(sale_tier(rating, tier) * 2, BAND_SHARE.size() - 1)
+	var slack: int = int(League.TIERS[clampi(tier, 0,
+		League.TIERS.size() - 1)]["slack"])
+	var paid := int(round(SALE_SHARE * BAND_SHARE[low] * float(slack)))
+	## AND NEVER AS MUCH AS HE COSTS, GUARANTEED HERE RATHER THAN TUNED.
+	##
+	## The share alone very nearly does it, and "very nearly" is how the first cut
+	## shipped a printer. It also leaves the bottom band tied: `fee` floors at one
+	## credit and so did this, so the cheapest man on any shelf could be bought
+	## and sold for the same coin forever. **A rule that holds because two numbers
+	## happen to land the right way round is a rule waiting for one of them to
+	## move** — and both of these are tuning figures that will move.
+	##
+	## Floored at zero rather than one, which is the honest reading: nobody pays
+	## for a man you could replace off the shelf for a single credit.
+	return clampi(paid, 0, maxi(0, fee(rating, tier) - 1))
+
+
 ## WHICH DIVISION'S STANDARD THIS MAN IS AT, read off his RATING against the
 ## division doing the signing — not remembered from `_band_step` at generation.
 ##

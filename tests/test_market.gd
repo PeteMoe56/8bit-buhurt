@@ -47,6 +47,7 @@ func _initialize() -> void:
 	_test_the_cap_raise_has_no_ceiling()
 	_test_a_refusal_names_a_door_that_opens()
 	_test_the_shelf_spans_three_divisions()
+	_test_selling_him_on()
 
 	print("")
 	for n in notes:
@@ -60,6 +61,67 @@ func _initialize() -> void:
 			print("FAIL: " + f)
 		print("\n%d FAILED\n" % failures.size())
 		quit(1)
+
+
+## SELLING A MAN ON — three coarse buckets, and never for what he cost.
+##
+## Retro Bowl's answer, ported: a traded player there returns a draft pick in one
+## of exactly three tiers by star rating, wide enough that a 3.9-star and a
+## 2.0-star fetch the same thing. Ours returns credits on the same three, made by
+## collapsing `BAND_NAME` in pairs — see `Market.sale_value`.
+##
+## THE FIRST CHECK IS THE ONE THAT MATTERS AND IT IS EXHAUSTIVE. The first cut of
+## this feature read the TOP band of each pair and paid **19 credits for a man
+## whose fee was 18** — buy a Star, sell him the same afternoon, bank a credit.
+## The second cut fixed the top bucket and left the bottom one TIED at one credit
+## each way, because `fee` and the sale both floored at 1. Neither was visible
+## from any single example; both are obvious the moment every rating in the game
+## is walked. **A market where a man can be bought and immediately sold at a
+## profit is not a market, it is a printer.**
+func _test_selling_him_on() -> void:
+	var worst := {"gap": 99, "tier": -1, "rating": -1}
+	for t in League.TIERS.size():
+		for r in range(1, 100):
+			var gap: int = Market.fee(r, t) - Market.sale_value(r, t)
+			if gap < int(worst["gap"]):
+				worst = {"gap": gap, "tier": t, "rating": r}
+	notes.append("across every rating in every division the closest a sale comes to its own fee is %d CC (a %d in the %s)"
+		% [int(worst["gap"]), int(worst["rating"]),
+			League.tier_name(int(worst["tier"]))])
+	_ok(int(worst["gap"]) >= 1,
+		"a man never sells for what he cost",
+		"walked all four divisions at every rating 1-99; the tightest margin is %d CC"
+			% int(worst["gap"]))
+
+	## AND THE BUCKETS ARE FLAT, which is the arbitrage rather than a rounding
+	## artifact. Within a tier every man fetches the same money however good he
+	## is, so the skill is selling the bottom of a bucket and keeping the top —
+	## and the check is that a dearer man really does fetch the SAME, not merely
+	## a similar amount.
+	var flat := true
+	var seen := 0
+	for t in League.TIERS.size():
+		var by_tier: Dictionary = {}
+		for r in range(int(Market.shelf_of(t)[0]), int(Market.shelf_of(t)[1]) + 1):
+			var k := Market.sale_tier(r, t)
+			if by_tier.has(k) and int(by_tier[k]) != Market.sale_value(r, t):
+				flat = false
+			by_tier[k] = Market.sale_value(r, t)
+		seen += by_tier.size()
+	## The seam has to be worth gaming: somewhere in the game a man who costs
+	## MORE to sign must fetch the same as one who costs less, or the buckets are
+	## decoration.
+	var seam := false
+	for t in League.TIERS.size():
+		for r in range(int(Market.shelf_of(t)[0]), int(Market.shelf_of(t)[1])):
+			if Market.sale_value(r, t) == Market.sale_value(r + 1, t) \
+					and Market.fee(r + 1, t) > Market.fee(r, t):
+				seam = true
+	notes.append("%d sale buckets across the four divisions, all flat, and a dearer man fetching the same as a cheaper one: %s"
+		% [seen, "yes" if seam else "no"])
+	_ok(flat and seam and Market.SALE_TIERS.size() == 3,
+		"three flat buckets, and the edges are worth reading",
+		"every man in a bucket fetches the same money however dear he was to sign")
 
 
 ## THE SHELF SPANS THREE DIVISIONS, AND A PLAYER CAN SEE WHICH.

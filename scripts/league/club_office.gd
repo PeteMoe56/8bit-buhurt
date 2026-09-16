@@ -1767,6 +1767,10 @@ const LINE_PRIZE := "Prize money"
 const LINE_DUES := "Members' dues"
 const LINE_CUP := "Tournaments"
 const LINE_STORE := "Bought credits"
+## WHAT ANOTHER CLUB PAID FOR A MAN. Its own line rather than a negative on "The
+## squad", because a club that sold two veterans to fund a signing and a club
+## that simply spent less are different stories and a net figure tells neither.
+const LINE_TRANSFER := "Transfers"
 ## THE BAR AND THE FOOD. Its own line and not folded into the gate, because the
 ## whole reason it exists is that it behaves differently — the gate swings with
 ## form and the counter does not — and a player who cannot see them apart cannot
@@ -1779,7 +1783,7 @@ const LINE_COUNTER := "The counter"
 const OUT_ORDER: Array[String] = [LINE_SQUAD, LINE_KIT, LINE_GROUND,
 	LINE_FACILITIES, LINE_TRAVEL, LINE_FEDERATION, LINE_CLUB]
 const IN_ORDER: Array[String] = [LINE_GATE, LINE_COUNTER, LINE_PRIZE,
-	LINE_GROUND, LINE_CUP, LINE_STORE]
+	LINE_GROUND, LINE_CUP, LINE_TRANSFER, LINE_STORE]
 
 
 static func _book(books: Dictionary, line: String, cc: int) -> void:

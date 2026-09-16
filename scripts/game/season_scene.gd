@@ -620,11 +620,30 @@ func _squad_controls() -> void:
 	## moment. The action row has three places on it and the sort is the least of
 	## them; a segmented control would cost the width of the roster button to say
 	## something the heading already says.
+	## THE ROW BELONGS TO THE PICKED MAN WHEN THERE IS ONE.
+	##
+	## `Reserve by` sits at x=24 and `Free agents` at x=544, and both were added
+	## UNCONDITIONALLY — while picking a fighter adds Sell at x=24 and the
+	## contract fork at x=464. Two overlaps, and both were invisible for the life
+	## of the screen: Sell is added later so it wins the tap and draws on top, and
+	## the only symptom was that **the reserve could not be re-sorted while a man
+	## was selected** and the right-hand button showed a bare "s" sticking out
+	## from under Extend.
+	##
+	## `shots/sell.png` is the first thing that ever rendered this tab with a
+	## fighter picked. `test_layout.gd` measures controls against controls and
+	## would have caught it on sight — it drives every tab and never drove this
+	## STATE, which is the gap it has now closed.
+	##
+	## Both come back the instant he is deselected. Sorting the reserve and going
+	## to the shelf are things you do when you are not in the middle of a decision
+	## about one man, which is why hiding them costs nothing.
 	var sw := String(RESERVE_SORTS[(reserve_sort + 1) % RESERVE_SORTS.size()]["word"])
-	ui.add_child(UiKit.button("Reserve by %s" % sw,
-		Vector2(24, action_y()), Vector2(200, 46), func():
-			reserve_sort = (reserve_sort + 1) % RESERVE_SORTS.size()
-			_rebuild(), "roster"))
+	if picked == null:
+		ui.add_child(UiKit.button("Reserve by %s" % sw,
+			Vector2(24, action_y()), Vector2(200, 46), func():
+				reserve_sort = (reserve_sort + 1) % RESERVE_SORTS.size()
+				_rebuild(), "roster"))
 
 	## THE FREE AGENTS LIVE HERE NOW.
 	##
@@ -637,10 +656,11 @@ func _squad_controls() -> void:
 	## Signing a man is a SQUAD decision, so it is reached from the squad, and the
 	## tab it vacated became the armorer's — the one mechanic in this game that
 	## Direction calls the cap and that had no screen at all.
-	ui.add_child(UiKit.button("Free agents", Vector2(UiKit.right_edge(416.0), action_y()),
-		Vector2(200, 46), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Market.tscn"), "coin"))
+	if picked == null:
+		ui.add_child(UiKit.button("Free agents",
+			Vector2(UiKit.right_edge(416.0), action_y()), Vector2(200, 46), func():
+				Session.autosave()
+				UiKit.go("res://scenes/Market.tscn"), "coin"))
 
 	## THE CLUB'S RECORD, which is where the HONORS tab went.
 	##
@@ -682,10 +702,27 @@ func _squad_controls() -> void:
 				else:
 					flash = err
 				_rebuild()))
-		ui.add_child(UiKit.button("Cut " + UiKit.clip(picked.display_name, 14),
+		## AND THE BUTTON SAYS WHAT HE FETCHES, because letting a man go is a
+		## PRICE now and not just a decision — see `Market.sale_value`. The three
+		## buckets are coarse on purpose and a player can only read the edges if
+		## the number is in front of him at the moment he is deciding; a sale
+		## whose value he discovers in the ledger afterwards is a mechanic he
+		## never games.
+		##
+		## Nothing for a man out of contract, and the label says "Cut" then rather
+		## than naming a price of zero — the distinction is real (his deal has run
+		## out and nobody is paying you for a man who can walk in the summer) and
+		## "Sell · 0 CC" reads as a bug.
+		var worth := season.sale_value(picked)
+		var sell_name := UiKit.clip(picked.display_name, 10 if worth > 0 else 14)
+		ui.add_child(UiKit.button(("Sell %s  ·  %d CC" % [sell_name, worth])
+				if worth > 0 else ("Cut " + sell_name),
 			Vector2(24, action_y()), Vector2(204, 46), func():
+				var gone := picked.display_name
 				var err := season.release(picked)
-				flash = UiKit.said(err) if err != "" else "%s released." % picked.display_name
+				flash = UiKit.said(err) if err != "" else (
+					"%s sold on for %d CC." % [gone, worth] if worth > 0
+					else "%s released." % gone)
 				if err == "":
 					picked = null
 					season.sync_power()
