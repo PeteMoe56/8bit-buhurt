@@ -17,6 +17,9 @@ extends SceneTree
 ##            on a hire card worth paying for?
 ##   PART C   the peaks themselves. Every fighter used to age to the same
 ##            schedule; this prints what a squad's curves now look like.
+##   PART E   the one that decides whether a pipeline is needed at all: does a
+##            YOUNG MAN FROM THE DIVISION ABOVE overtake an older starter from
+##            this one, and when?
 ##   PART D   Pete's claim, checked: *"if you stick with the same guys, everyone
 ##            gets a raise and they all hit their individual peaks."* One squad,
 ##            two captains, nobody signed, nobody dropped, twelve seasons.
@@ -28,6 +31,7 @@ func _initialize() -> void:
 	_pipeline()
 	_peaks()
 	_settled()
+	_catchup()
 	quit(0)
 
 
@@ -90,9 +94,14 @@ func _peaks() -> void:
 
 
 # ---------------------------------------------------------------- the fixture
-func _man(age: int, rating: int) -> FighterCard:
+func _rng(age: int, rating: int) -> RandomNumberGenerator:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash("growth:%d:%d" % [age, rating])
+	return rng
+
+
+func _man(age: int, rating: int) -> FighterCard:
+	var rng := _rng(age, rating)
 	var f := ClubFactory.free_agent(rng, Tuning.Pos.CENTER, rating)
 	f.age = age
 	f.armor = 1.0
@@ -183,4 +192,76 @@ func _settled() -> void:
 	print("")
 	print("%d of %d reached their own ceiling inside %d seasons. Club power %d."
 		% [at_it, club.roster.size(), SETTLED_SEASONS, club.power()])
+	print("")
+
+
+## ------------------------------------------------------------------ PART E
+## DOES THE TIER GAP DO THE WORK ON ITS OWN?
+##
+## Pete, 15 Sep 2026, turning down a youth slot: *"the age should already be an
+## under-23 or so boost anyway. What more boost would they need to eventually
+## catch up the old men and become starters if they're a higher tier? Like, the
+## same tier pipeline shouldn't matter much in the same tier, but training a new
+## guy from a higher tier should surpass the older lower tier guy."*
+##
+## That is a claim with a number in it and it has never been measured. `Market`
+## draws a sixth of every shelf from the division above, and a man from up there
+## carries that division's power band — so he arrives with a higher CEILING even
+## when his rating today is lower. If that alone carries him past the incumbent,
+## the pipeline needs no special pleading: it is just the market working, and a
+## youth slot would be solving a problem the tiering already solves.
+##
+## THE INCUMBENT IS THE CONTROL and he is not a statue: he practises too, he is
+## the one who starts, and he takes the fight XP. Both men are run through the
+## same seasons in the same club. The row that matters is the SAME-TIER one —
+## Pete's *"shouldn't matter much"* — because if the young man from your own
+## division also sails past, the tier is not what is doing it.
+const CATCHUP_SEASONS := 10
+
+
+func _catchup() -> void:
+	print("=== a young signing against the man he is behind ===\n")
+	print("%-34s %7s %7s %8s" % ["", "starts", "ends", "passes him"])
+	for grade in [0, 4]:
+		for step in [0, 1, 2]:
+			## THE INCUMBENT: thirty, at the top of the Backyard band, finished.
+			var old_man := _man(30, 45)
+			old_man.potential = old_man.overall() + 2
+			## THE SIGNING: twenty-two, drawn at the middle of his own division's
+			## band — his own for step 0, the one above for step 1 — with the
+			## ceiling that band's men carry.
+			## STEP 2 IS THE ONE THAT ISOLATES THE QUESTION. Steps 0 and 1 change
+			## the man's RATING as well as where he came from, so the row for the
+			## division above is partly just "he is better today". This one draws
+			## him at the SAME rating as the local boy while telling
+			## `roll_potential` he was drawn against the higher division's
+			## standard — so the only difference left is the ceiling the tier gave
+			## him, which is the half Pete's sentence is actually about.
+			var band: Array = League.TIERS[mini(step, 1)]["power"]
+			var mid := int(lerpf(float(band[0]), float(band[1]), 0.45))
+			var kid := _man(22, 39 if step == 2 else mid)
+			if step == 2:
+				kid.potential = Career.roll_potential(
+					_rng(22, 39), kid, int(League.TIERS[1]["power"][1]))
+			var was := kid.overall()
+			var passed := 0
+			for y in CATCHUP_SEASONS:
+				_season(old_man, grade, true)
+				_season(kid, grade, false)
+				if passed == 0 and kid.overall() > old_man.overall():
+					passed = y + 1
+			var who := "from his own division"
+			if step == 1:
+				who = "from the one above"
+			elif step == 2:
+				who = "raw, but reared one up"
+			var coach := "no captain" if grade == 0 else "a %d-star captain" % grade
+			print("%-34s %7d %7d %8s" % ["a 22-year-old %s, %s" % [who, coach],
+				was, kid.overall(),
+				("season %d" % passed) if passed > 0 else "never"])
+			print("%-34s %7d %7d" % ["   the 30-year-old he is behind",
+				45, old_man.overall()])
+	print("")
+	print("The signing sits in the RESERVE the whole time and the incumbent")
+	print("starts every week, so this is the hard version of the question.")
 	print("")

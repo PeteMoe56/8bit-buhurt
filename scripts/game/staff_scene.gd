@@ -88,6 +88,31 @@ func _build() -> void:
 			## is a bad crop for a year unless you pay to turn it over.
 			ui.add_child(UiKit.button("New names  ·  %d CC" % ClubOffice.REFRESH_COST,
 				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(CARD_W, 34), _refresh))
+	## AN EXTRA SESSION, AND IT BELONGS ON THIS SCREEN AND NOT THE CLUBHOUSE.
+	##
+	## Pete, 15 Sep 2026: *"we can go with a 'team training' CC sink that may
+	## work."* It is a thing the CAPTAINS do — what it buys is a week's work at
+	## the grade of whoever teaches each role, so its value is decided entirely by
+	## the two cards above it. Put on the Clubhouse action row it would have been
+	## a number with no explanation next to it, on the row Pete had already called
+	## too crowded; here the price and the men who set its worth are on one
+	## screen.
+	##
+	## It says why it cannot be pressed rather than spending a tap to refuse: a
+	## club with no captains buys almost nothing, which is the rule the practice
+	## is built on and the one thing this screen should never let a player
+	## discover by accident.
+	var cost := season.office.session_cost()
+	var idle: bool = season.office.captains.is_empty()
+	ui.add_child(UiKit.button("Extra session  ·  %d CC" % cost,
+		Vector2(UiKit.right_edge(280.0), UiKit.screen().y - 56), Vector2(280, 44),
+		func():
+			flash = UiKit.said(season.run_session()) if not idle \
+				else "Nobody is teaching. A session with no captain is a warm-up."
+			if flash == "":
+				flash = "A week's work in one afternoon."
+			Session.autosave()
+			_build()))
 	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))

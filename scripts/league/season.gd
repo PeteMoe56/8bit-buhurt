@@ -912,6 +912,19 @@ func _practice() -> void:
 		f.xp += maxi(1, int(round(got)))
 
 
+## AN EXTRA SESSION, PAID FOR. See `ClubOffice.charge_session` for the price and
+## the throttle; this is the work. One more week's practice for everybody, right
+## now, on the same function the matchday runs — so a bought session and a free
+## one cannot ever be worth different amounts, and every multiplier the club has
+## applies to both.
+func run_session() -> String:
+	var err := office.charge_session()
+	if err != "":
+		return err
+	_practice()
+	return ""
+
+
 func _award_sim_xp() -> void:
 	for f in club.starting_five():
 		f.xp += XP_SIMMED

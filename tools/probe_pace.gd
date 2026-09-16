@@ -392,6 +392,14 @@ func _season(s: Season) -> void:
 		## ten seasons of it and a point on a thirty-four-year-old is one — the
 		## same reasoning `Career.worth` uses on the shelf, applied to the squad
 		## already on the books.
+		## THE EXTRA SESSION, FIRST OF THE WEEKLY SPENDS. Two to eight credits for
+		## a full extra week's work on the whole squad is the best value in the
+		## game and it is the one thing here that recurs, so it goes before the
+		## ceilings rather than out of what they leave. Still behind the market's
+		## reserve — a signing is worth more than any amount of training.
+		if o.credits > keep + KITTY:
+			s.run_session()
+
 		## OUT OF THE TRUE SURPLUS, AND BEHIND THE MARKET.
 		##
 		## The first cut spent down to the bills here and the club got WORSE —

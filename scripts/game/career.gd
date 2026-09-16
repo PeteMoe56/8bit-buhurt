@@ -183,9 +183,53 @@ static func potential_room(age: int) -> int:
 ## Roll a potential for a freshly generated fighter. Never below his rating —
 ## a potential under the current overall would say a man is already finished,
 ## which is what DECLINE is for and would be a second system saying it.
-static func roll_potential(rng: RandomNumberGenerator, f: FighterCard) -> int:
+## AND THE STANDARD HE WAS REARED AGAINST, which this read nothing of until
+## 15 Sep 2026.
+##
+## Pete, turning down a youth slot: *"training a new guy from a higher tier
+## should surpass the older lower tier guy."* `tools/probe_growth.gd` says the
+## tier gap already does that — a twenty-two year old from the division above
+## passes a finished thirty year old **in season one, with no captain at all**,
+## and one from your own division never passes him without coaching and takes
+## seven seasons with it. That is exactly the weight he asked for.
+##
+## But it works through the man's RATING and not through his ceiling, because
+## this function read `potential_room(age)` and nothing else. **Two
+## twenty-two year olds rated 39 had identical prospects whether one of them had
+## spent his career training against National fighters or against a back field.**
+## So the rare case the market exists to create — the raw man from up the
+## pyramid, cheap because his rating is low, who becomes something your division
+## cannot produce — was not a thing that could happen.
+##
+## `standard` is the top of the band he was drawn from. A man already at it gets
+## nothing extra; a man well under it gets room to grow INTO the company he has
+## been keeping, up to `STANDARD_ROOM`, halved on the way in because being around
+## good fighters is evidence about a man rather than a promise.
+##
+## IT IS ADDED AFTER THE ROLL AND NOT INTO ITS RANGE, and that is the difference
+## between the rule meaning something and not. Widening the range leaves the draw
+## uniform, so a raw man reared a division up is only better ON AVERAGE and any
+## one of them can still roll a nothing ceiling — `probe_growth` had him passing
+## the incumbent in season six against the local boy's season seven, which is
+## noise wearing a rule's clothes. Evidence shifts an estimate; it does not
+## merely widen it.
+##
+## AND IT FADES WITH AGE ON THE SAME CURVE THE ROOM DOES. A thirty-four year old
+## rated 40 off a National shelf is a journeyman who was in the building, not a
+## prospect, and handing him nine points of ceiling he has no years left to reach
+## would make "reared up the pyramid" a laundering trick for old men.
+const STANDARD_ROOM: int = 10
+
+
+static func roll_potential(rng: RandomNumberGenerator, f: FighterCard,
+		standard: int = 0) -> int:
 	var room := potential_room(f.age)
-	return clampi(f.overall() + (rng.randi() % (room + 1)), 1, POTENTIAL_CEILING)
+	var bonus := 0
+	if standard > f.overall():
+		bonus = mini(STANDARD_ROOM, (standard - f.overall()) / 2) \
+			* room / maxi(1, POTENTIAL_GAP_MAX)
+	return clampi(f.overall() + (rng.randi() % (room + 1)) + bonus,
+		1, POTENTIAL_CEILING)
 
 
 ## WHAT HE WILL BE WORTH, WHICH IS NOT WHAT HE IS WORTH TODAY.

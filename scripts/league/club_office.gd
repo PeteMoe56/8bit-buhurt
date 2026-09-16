@@ -1104,6 +1104,46 @@ func practice_ground() -> float:
 	return 1.0 + GROUND_PRACTICE * float(level(Facility.TRAINING))
 
 
+## ------------------------------------------------------- an extra session
+## WHAT A TEAM TRAINING SESSION COSTS. Pete, 15 Sep 2026: *"we can go with a
+## 'team training' CC sink that may work."*
+##
+## `tools/probe_pace.gd` had a club ending every season with sixty to ninety
+## unspent credits — there is more money in this economy than there are things
+## worth buying with it — and the practice week gave the money somewhere to go
+## that it could not reach: the captains are hired once, the ground is built
+## once, and neither absorbs a surplus that arrives every week.
+##
+## A SHARE OF THE DIVISION'S SLACK, like the signing fee, so it means the same
+## thing at every rung: 2 / 4 / 4 / 8 credits against a season's 16 / 33 / 37 /
+## 67. Roughly a fifth of a season's spending money buys a full extra week's
+## work for the whole squad, and the throttle keeps a windfall from buying a
+## career — one session a matchday, the same rule every building here follows.
+const SESSION_SHARE: float = 0.12
+const SLOT_SESSION := "session"
+
+
+func session_cost() -> int:
+	return maxi(1, int(round(SESSION_SHARE
+		* float(League.TIERS[clampi(tier, 0, League.TIERS.size() - 1)]["slack"]))))
+
+
+## The money half only. `Season.run_session` does the work, because the squad is
+## the season's and because a session that banked a promise in `built_this_week`
+## would be a promise a reload loses — `built_this_week` is not saved, so a
+## player who paid on Tuesday and closed the game would have bought nothing.
+## Paying for a thing and having it happen is one step or it is a bug.
+func charge_session() -> String:
+	if _throttled(SLOT_SESSION):
+		return "The squad has already had its extra session this week."
+	var cost := session_cost()
+	if credits < cost:
+		return "A session costs %d CC and you have %d." % [cost, credits]
+	spend(cost, LINE_SQUAD)
+	_mark(SLOT_SESSION)
+	return ""
+
+
 func injury_relief() -> int:
 	return int(floor(float(level(Facility.INFIRMARY)) / 2.0))
 

@@ -80,7 +80,7 @@ static func build(club_id: int, display_name: String, short_name: String, power:
 		## so the ceiling is re-drawn against the younger age — clamping the age
 		## alone would have left a 20-year-old carrying a 36-year-old's room.
 		f.age = rng.randi_range(Career.AGE_MIN, Career.PEAK_STRENGTH)
-		f.potential = Career.roll_potential(rng, f)
+		f.potential = Career.roll_potential(rng, f, power)
 		f.morale = roll_morale(rng)
 		f.wage_agreed = Contracts.offer(ClubOffice.wage(f), f.age)
 		cards.append(f)
@@ -122,8 +122,12 @@ static func roll_age(rng: RandomNumberGenerator) -> int:
 	return int(round(float(a + b) * 0.5))
 
 
+## `standard` is the top of the band this man was drawn against — the company he
+## keeps, which `Career.roll_potential` now reads. Defaulted to his own target so
+## every existing caller behaves exactly as it did: a man drawn AT the standard
+## gets nothing extra, which is what "no standard given" has always meant.
 static func _fighter(rng: RandomNumberGenerator, no: int, slot: int,
-		target: int, armor: float) -> FighterCard:
+		target: int, armor: float, standard: int = 0) -> FighterCard:
 	var a: Dictionary = ARCHETYPE[Tuning.role_of(slot)]
 	var f := FighterCard.new()
 	f.display_name = SURNAMES[rng.randi() % SURNAMES.size()]
@@ -153,7 +157,7 @@ static func _fighter(rng: RandomNumberGenerator, no: int, slot: int,
 	## home. `roll_potential` then reads the age it was given, so a young man in
 	## the reserve comes out with room in front of him for free.
 	f.age = roll_age(rng)
-	f.potential = Career.roll_potential(rng, f)
+	f.potential = Career.roll_potential(rng, f, standard)
 	f.morale = roll_morale(rng)
 	## AND WHATEVER IS UNUSUAL ABOUT HIM, which for about half of them is nothing.
 	## Rolled off this club's own stream so a squad is reproducible from its id,
@@ -216,8 +220,13 @@ static func walk_on(rng: RandomNumberGenerator, slot: int, tier: int) -> Fighter
 ## and that is Contracts' business — writing a wage on him at generation would
 ## mean the rookie discount had already been applied by somebody who does not
 ## know how old the buyer thinks he is.
-static func free_agent(rng: RandomNumberGenerator, slot: int, target: int) -> FighterCard:
-	var f := _fighter(rng, 0, slot, target, rng.randf_range(0.70, 1.0))
+## `standard` is the top of the division's band he was drawn from — see
+## `Career.roll_potential`. The market passes it and nothing else does, because
+## the market is the only place a man appears who was reared somewhere other than
+## where he is being signed.
+static func free_agent(rng: RandomNumberGenerator, slot: int, target: int,
+		standard: int = 0) -> FighterCard:
+	var f := _fighter(rng, 0, slot, target, rng.randf_range(0.70, 1.0), standard)
 	f.active = false
 	f.years = 0
 	f.wage_agreed = 0

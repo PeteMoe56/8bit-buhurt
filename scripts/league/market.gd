@@ -244,7 +244,19 @@ static func pool(world_seed: int, season: int, tier: int, refreshes: int = 0,
 			target = int(lerpf(float(range_[0]) - 6.0, float(range_[1]) + 2.0,
 				rng.randf()))
 		var slot: int = rng.randi() % 5
-		var f := ClubFactory.free_agent(rng, slot, target)
+		## AND THE STANDARD HE WAS REARED AGAINST, which is the top of the band he
+		## was drawn FROM and not the one he is being sold into. This is the half of
+		## the tiering that was missing: `roll_potential` read his AGE and nothing
+		## else, so a raw twenty-two year old off a National shelf had exactly the
+		## prospects of a raw twenty-two year old off a back field. The cheap man
+		## from up the pyramid who becomes something your own division cannot produce
+		## is the whole reason the pool reaches outside your band at all — see
+		## `Career.STANDARD_ROOM`.
+		var reared := int(League.TIERS[clampi(tier + step, 0,
+			League.TIERS.size() - 1)]["power"][1])
+		if step > 0 and top_rung:
+			reared = FOREIGN_TOP
+		var f := ClubFactory.free_agent(rng, slot, target, reared)
 		out.append(f)
 	## BEST FIRST, AND "BEST" IS WHAT HE WILL BE. A list a player has to sort
 	## himself is a list he will misread once and then distrust — and a list
