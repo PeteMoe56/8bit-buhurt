@@ -63,14 +63,14 @@ func _initialize() -> void:
 ## ------------------------------------------------------------ the curve
 func _curve() -> void:
 	print("\n=== the competent manager, season by season ===\n")
-	print("%6s %6s %7s %7s %7s %7s %6s %6s %6s %6s %6s" % [
+	print("%6s %6s %7s %7s %7s %7s %6s %6s %6s %6s %6s %6s" % [
 		"season", "tier", "power", "leader", "mid", "finish", "up", "CC",
-		"signed", "age", "ceil"])
+		"signed", "age", "ceil", "under"])
 	var rows: Array = []
 	for _y in YEARS:
 		rows.append({"tier": 0.0, "power": 0.0, "lead": 0.0, "mid": 0.0,
 			"pos": 0.0, "up": 0.0, "cc": 0.0, "sign": 0.0, "age": 0.0,
-			"raise": 0.0, "n": 0.0})
+			"raise": 0.0, "under": 0.0, "n": 0.0})
 	for seed_v in SEEDS:
 		var s := Season.new(MeleeRosters.starting_club(), seed_v)
 		Session.season = s
@@ -84,6 +84,19 @@ func _curve() -> void:
 			r["cc"] += float(s.office.credits)
 			r["sign"] += float(took)
 			r["raise"] += float(raised)
+			## HOW MANY OF THE FIVE ARE BELOW THE DIVISION'S OWN FLOOR.
+			##
+			## Pete, 15 Sep 2026: *"When the team raises up a tier, so does the
+			## tier of fighters in the free agency. So if they're holding onto
+			## Tier one fighters, they're wrong."* `Season.market()` reads
+			## `world.player_tier()` live, so the shelf and the fees both move up
+			## the day a club is promoted — the mechanism is already there. This
+			## is the other half of the sentence: whether the manager ACTS on it,
+			## counted as men on the line who would not make the division's band.
+			var floor_: int = int(League.TIERS[t]["power"][0])
+			for c in s.club.starting_five():
+				if c.overall() < floor_:
+					r["under"] += 1.0
 			var years := 0.0
 			for f in s.club.starting_five():
 				years += float(f.age)
@@ -106,10 +119,10 @@ func _curve() -> void:
 	for y in YEARS:
 		var r: Dictionary = rows[y]
 		var n: float = maxf(1.0, float(r["n"]))
-		print("%6d %6.1f %7.1f %7.1f %7.1f %7.2f %6.1f %6.1f %6.1f %6.1f %6.1f" % [
+		print("%6d %6.1f %7.1f %7.1f %7.1f %7.2f %6.1f %6.1f %6.1f %6.1f %6.1f %6.1f" % [
 			y + 1, r["tier"] / n, r["power"] / n, r["lead"] / n, r["mid"] / n,
 			r["pos"] / n, r["up"] / n, r["cc"] / n, r["sign"] / n, r["age"] / n,
-			r["raise"] / n])
+			r["raise"] / n, r["under"] / n])
 	print("")
 	print("tier     0 Backyard, 3 National        power   the club's rating")
 	print("leader   the best club in the division  mid     the division's median")
@@ -118,6 +131,7 @@ func _curve() -> void:
 	print("signed   men taken off the shelf that winter")
 	print("age      mean age of the five who start")
 	print("ceil     ceiling points bought that season")
+	print("under    men ON THE LINE rating below the division's own floor")
 	print("")
 
 
@@ -213,13 +227,34 @@ func _mid(s: Season) -> int:
 ## THE SAME POLICY `probe_run.gd` PLAYS, trimmed to what this probe needs. Kept
 ## here rather than imported because the two probes answer different questions
 ## and a shared manager is a shared assumption neither one is checking.
+## THE SUMMER AFTER A PROMOTION IS NOT AN ORDINARY SUMMER.
+##
+## Pete, 15 Sep 2026: *"When the team raises up a tier, so does the tier of
+## fighters in the free agency. So if they're holding onto Tier one fighters,
+## they're wrong."* `Season.market()` reads `world.player_tier()` live, so the
+## shelf and the fees both move the day a club goes up — the mechanism is there
+## and the manager was not using it. `probe_pace` caught it plainly: at the
+## promotion in season 18 the club's signings **fell to 0.8** while its bank rose
+## to 68 credits. It went shopping LESS in the one summer it should have gone
+## most.
+##
+## Two things make an ordinary summer wrong here. The reserve is sized off the
+## dues, which just doubled, so the manager holds back more money at the moment
+## it is worth least; and the bar for a signing is "better than my weakest
+## starter", which is a bar set by the division he has just LEFT.
+var was_tier: int = -1
+
+
 func _winter(s: Season) -> int:
+	var now := s.world.player_tier()
+	var went_up: bool = was_tier >= 0 and now > was_tier
+	was_tier = now
 	for f in s.club.roster:
 		if Contracts.can_extend(f):
 			s.extend(f)
 		else:
 			s.resign(f)
-	var took := _market(s)
+	var took := _market(s, went_up)
 	_staff(s)
 	for f in s.club.roster:
 		_place_all(f)
@@ -250,7 +285,7 @@ static func _place_all(f: FighterCard) -> void:
 ## is FOR, and a manager who never presses it is a manager whose surplus does
 ## nothing. Bounded, because a probe that spins is a probe that hangs.
 const LOOKS := 14
-func _market(s: Season) -> int:
+func _market(s: Season, went_up: bool = false) -> int:
 	var took := 0
 	var guard := 0
 	while guard < LOOKS:
@@ -262,7 +297,14 @@ func _market(s: Season) -> int:
 		var lo := 999
 		for c in s.club.starting_five():
 			lo = mini(lo, _value(c))
-		var keep := s.office.upkeep_bill() + League.dues_for(s.office.tier) + 8
+		## AND AFTER A PROMOTION THE BAR IS THE NEW DIVISION, not the old squad.
+		## A man who beats your weakest starter is an upgrade on a club that has
+		## just been outclassed; the question in this summer is whether he can
+		## hold a place in the company you have joined.
+		if went_up:
+			lo = maxi(lo, int(League.TIERS[s.world.player_tier()]["power"][0]))
+		var keep := s.office.upkeep_bill() + League.dues_for(s.office.tier) \
+			+ (0 if went_up else 8)
 		var hit := false
 		for f in pool:
 			if s.office.credits <= keep + s.market_fee(f):

@@ -138,3 +138,61 @@ first time, and the finish column reaches 0.17 and 0.40 in the late seasons.
 
 Still ending seasons with ~68 credits in hand, so the sink absorbs real money and
 has not solved the surplus. That is the next thing to look at, not this one.
+
+
+---
+
+## Postscript: the summer after a promotion
+
+> *"When the team raises up a tier, so does the tier of fighters in the free
+> agency. So if they're holding onto Tier one fighters, they're wrong."*
+
+**The mechanism is already live.** `Season.market()` reads
+`world.player_tier()` every time it is called, so the shelf, the fee bands and
+the standard a man was reared against all move up the day a club is promoted.
+Nothing had to be built.
+
+**The manager was not using it.** `probe_pace` caught it plainly: at the
+promotion in season 18 the club's signings **fell to 0.8** while its bank climbed
+to 68 credits. It went shopping *less* in the one summer it should have gone
+most.
+
+Two things make an ordinary summer wrong there, and both are self-inflicted:
+
+- **The reserve is sized off the dues**, which just doubled — so the manager
+  holds back more money at the moment money is worth least.
+- **The bar for a signing is "better than my weakest starter"**, which is a bar
+  set by the division he has just *left*. In this one summer the question is not
+  whether a man beats the worst of last year's team; it is whether he can hold a
+  place in the company the club has joined. The bar is the new division's floor.
+
+```
+season  power  leader   mid  signed   age  under      before
+     7   40.8    49.8  47.0     0.2  30.6    1.0     40.8 / 0.2
+    15   48.6    58.8  50.2     2.8  28.4    0.0     46.0 / 3.0
+    19   55.8    63.0  55.8     1.0  30.4    0.2     52.8 / 0.8
+```
+
+`under` is men **on the line** rating below their own division's floor. It falls
+to zero from season 11 on.
+
+The club now finishes on **55.8 against 52.8**, reaches the second division by
+**season 15 rather than 19**, and — the line that matters most — its rating sits
+exactly on its division's median (55.8 against 55.8) instead of in the bottom
+half. A median club is one good summer from a promotion place. A bottom-half one
+is not.
+
+### The thread this leaves open
+
+`Season.release()` pays **nothing**. So a promoted club's outclassed men are dead
+weight it can drop but cannot liquidate, and the churn Pete is describing has to
+be funded entirely out of a bank that just met doubled dues and doubled fees.
+
+Retro Bowl has the other half: trade value, in three coarse tiers, which the
+teardown called *"a beloved arbitrage"*. A man you should have sold two years ago
+being worth less than the man you should sell now is the sentence that makes
+"holding tier-one fighters is wrong" cost something rather than merely being true.
+
+Not built — it adds an income stream to an economy that is already ending seasons
+with seventy unspent credits, and that surplus should be understood before
+anything else pours into it.
