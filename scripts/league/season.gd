@@ -790,16 +790,10 @@ func _award_xp(sim: MeleeSim) -> void:
 			m.card.display_name, world.season)
 		world.note_record("rating", m.card.overall(), m.card.display_name, world.season)
 
-	## AND THE MEN WHO DID NOT FIGHT. Paid off what the afternoon was actually
-	## worth to the five who did, so a hammering and a walkover are not the same
-	## week on the bench either — see `_award_squad_xp`. Averaged rather than
-	## totalled, because `base` there means "what a starter got".
-	var paid := 0.0
-	var starters := 0
-	for f in club.starting_five():
-		paid += float(Career.xp_for(0, 0, f.overall()))
-		starters += 1
-	_award_squad_xp(paid / float(maxi(1, starters)))
+	## AND THE WEEK THAT LED UP TO IT. Every man on the books, starters included
+	## — they get a quarter of a practice on top of what the afternoon paid them.
+	## See `_practice`.
+	_practice()
 
 	## ------------------------------------------------------- who sat, and who
 	## PRIMA DONNA — *"Sours every event he does not start."*
@@ -888,45 +882,34 @@ const XP_SIMMED: int = 8
 const TOXIC_DRAG: float = -0.06
 
 
-## WHAT THE MEN WHO DID NOT FIGHT GET, and until 15 Sep 2026 the answer was
-## NOTHING — ever, at any age, in any division.
+## A WEEK'S PRACTICE, FOR EVERY MAN ON THE BOOKS.
 ##
-## `_award_sim_xp` paid the starting five and `_after_melee` paid whoever was on
-## the list. Eight men travel, five fight: the other three and the five in
-## reserve earned no XP, took no levels and never improved, for their whole
-## careers. **A club could not develop a player it was not already starting**,
-## which means it could not build a pipeline at all — the only way to bring a
-## twenty-year-old on was to play him instead of a better man and lose the season
-## for it.
+## Until 15 Sep 2026 only `starting_five()` earned anything. Eight men travel and
+## five fight: the other three and the five in reserve improved by exactly zero
+## for their whole careers, so the only way to bring a twenty-year-old on was to
+## start him instead of a better man and lose the season for it. There was no
+## such thing as a pipeline.
 ##
-## `tools/probe_pace.gd` measured what that costs at the club level: a competent
-## manager's starting five stuck at a mean age of 29.5 for twenty seasons and
-## club power climbing 0.48 a season, while a young man who DID start climbed
-## 1.8. The squad could not get younger, so it could not get better.
+## The first patch paid the bench a SHARE OF THE STARTERS' fight XP. That fixed
+## the arithmetic and said something untrue — that a man who did not play is paid
+## a fraction of an afternoon he did not have — and it left the number the club
+## actually controls, the captain's stars, reaching nothing. Pete's reading is
+## the right one: **the coaches hold practices.** See `Career.practice_xp`.
 ##
-## He trains all week either way. The bench warms up, takes the same regime, and
-## watches from ten feet; the reserve trains at the club and does not travel.
-## Neither is worth an afternoon in the list, and neither is worth nothing.
-const XP_BENCH: float = 0.60      ## travelled, did not start
-const XP_RESERVE: float = 0.30    ## did not travel
-
-
-## Pay everyone who was not in the five. `base` is what the afternoon was worth
-## to a starter, so the two callers below cannot drift apart on the ratio even
-## though they arrive at `base` completely differently — one from a simmed
-## event's flat figure, one from what the men in the list actually did.
-func _award_squad_xp(base: float) -> void:
-	if base <= 0.0:
-		return
+## Everything a club can do about development multiplies here and nowhere else:
+## the captain's grade for the role the man stands in, the training ground, the
+## regime, and the traits that touch XP. A club with two five-star captains, a
+## built ground and a Hard regime develops men several times faster than a club
+## with none of it — which is what a staff is FOR, and what the grade on a hire
+## card has never until now been worth.
+func _practice() -> void:
 	var five := club.starting_five()
-	var eight := club.active_eight()
 	for f in club.roster:
-		if five.has(f):
-			continue
-		var share: float = XP_BENCH if eight.has(f) else XP_RESERVE
 		var role := Tuning.role_of(int(f.pos))
-		f.xp += maxi(1, int(round(base * share * office.regime_xp(role)
-			* office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0))))
+		var got := Career.practice_xp(office.coaching(role), five.has(f)) \
+			* office.practice_ground() * office.regime_xp(role) \
+			* office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
+		f.xp += maxi(1, int(round(got)))
 
 
 func _award_sim_xp() -> void:
@@ -935,7 +918,7 @@ func _award_sim_xp() -> void:
 		## A simmed event is still an event he turned up to. It pays no downs,
 		## because nobody watched him cause any.
 		f.bouts += 1
-	_award_squad_xp(float(XP_SIMMED))
+	_practice()
 
 
 ## Play the matchday without fighting it — a bye, or the player choosing to sim.

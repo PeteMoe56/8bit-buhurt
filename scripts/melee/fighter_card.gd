@@ -47,6 +47,26 @@ extends Resource
 ## reason — see the header of `fighter_trait.gd`.
 @export var trait_id: int = 0
 
+## HIS OWN CURVE. Pete, 15 Sep 2026: *"make sure these guys have varying peaks
+## on them. We don't want/need every fighter to have the exactly same stats."*
+##
+## Every fighter in this game aged to the same schedule: gas at 24, strength at
+## 28, base at 32, skill at 35, for everyone, forever. Two traits moved the whole
+## set for one man and nothing else varied at all — so a twenty-four-year-old was
+## a twenty-four-year-old and a scouting report could only ever say what his
+## birthday said.
+##
+## This is the seed his peak OFFSETS are drawn from — see `Career.peak_for`. One
+## integer rather than four, because four fields would be four things a save can
+## disagree with itself about, and because they want to be drawn together: a man
+## is early or late, he is not independently early at one thing.
+##
+## ZERO MEANS THE SPORT'S OWN SCHEDULE, which is what a fighter out of a save
+## written before this existed actually has — he was generated without a curve of
+## his own, so decoding him as average is true rather than a default standing in
+## for something missing.
+@export var peak_seed: int = 0
+
 ## WHAT LEVEL HE IS. Starts at one and climbs whenever his banked XP reaches
 ## `level * Career.LEVEL_XP` — see the header of `career.gd` for why that stopped
 ## being a winter-only thing.
@@ -344,6 +364,7 @@ func copy() -> FighterCard:
 	c.armor = armor
 	c.harness = harness
 	c.trait_id = trait_id
+	c.peak_seed = peak_seed
 	c.level = level
 	c.active = active
 	c.available = available

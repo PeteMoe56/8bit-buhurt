@@ -529,6 +529,12 @@ static func fighter_to_dict(f: FighterCard) -> Dictionary:
 		## can never improve and never retires anybody — which is why VERSION
 		## moved rather than these being defaulted in quietly.
 		"age": f.age, "potential": f.potential, "xp": f.xp, "trait": f.trait_id, "level": f.level,
+		## HIS OWN AGEING CURVE. Defaulted to 0 on read rather than refused, and
+		## that is the same distinction the two blocks around it draw: a fighter
+		## from a file written before peaks varied really does have the sport's
+		## average schedule, so 0 decodes into something TRUE. See
+		## `FighterCard.peak_seed`.
+		"peaks": f.peak_seed,
 		"deal": f.wage_agreed, "years": f.years,
 		## THE BOOK. Defaulted to zero on read rather than refused, because a
 		## version 8 squad with no record is a squad that simply has not had one
@@ -576,6 +582,7 @@ static func fighter_from_dict(d: Dictionary) -> FighterCard:
 	## and their banked XP comes back with them, so the first time anybody opens
 	## the squad they level up for the seasons they already earned.
 	f.level = maxi(1, int(d.get("level", 1)))
+	f.peak_seed = int(d.get("peaks", 0))
 	f.wage_agreed = int(d.get("deal", 0))
 	f.years = int(d.get("years", Contracts.YEARS_NEW))
 	f.bouts = int(d.get("bouts", 0))

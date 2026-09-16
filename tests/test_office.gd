@@ -298,93 +298,96 @@ func _test_facilities_reach_something() -> void:
 	o.new_week()
 	var capped := o.upgrade(ClubOffice.Facility.TRAINING) != ""
 
-	## The training ground has to actually improve somebody over a winter, and
-	## the captains have to decide who — an uncovered role must not train.
-	var s := Season.new(MeleeRosters.player_club(), 21)
-	s.office.credits = 200
-	for _i in ClubOffice.FACILITY_MAX:
-		s.office.new_week()
-		s.office.upgrade(ClubOffice.Facility.TRAINING)
-	## AND A FULL BUS, which is a purchase like the training ground is.
+	## THE TRAINING GROUND, MEASURED AGAINST A CLUB THAT HAS NONE.
 	##
-	## This check measures whether a maxed training ground moves the club forward
-	## over a winter, and it started failing the day a club's traveling party
-	## became a thing it buys: a club taking six men develops six men, and six
-	## men improving while thirteen get a year older nets out slightly negative.
-	## That is the travel cap doing exactly its job, not the facilities failing —
-	## so the fixture buys the places rather than the assertion being softened.
+	## This used to play one club with a maxed ground and a five-star captain and
+	## assert that its coached men came out of the winter rated higher than they
+	## went in. That check was true for months and stopped being a statement about
+	## the facility on 15 Sep 2026, for two reasons that both arrived at once.
+	##
+	## The PRACTICE WEEK now pays every man every matchday, so a squad reaches the
+	## winter having already spent what it earned and the ground's allocation
+	## lands on men with no room left. And PEAKS NOW VARY PER MAN
+	## (`Career.peak_offset`), so the Rail this check named — `starting_five()[0]`,
+	## whoever that is — turned out to be an early decliner whose strength peaks at
+	## twenty-five and gas at twenty-two. It came back reporting **Rail 64 -> 64
+	## and the coached men on 386 against 386**: a true fact about ageing, and
+	## nothing whatever about the training ground.
+	##
+	## **An absolute check on one fixture's luck is a check waiting for the
+	## fixture to change.** Two clubs now, same seed, same men, same season — one
+	## with the maxed ground and the captain and one with neither. Decline takes
+	## the same points off both, the practice pays both, and what is left between
+	## them is the facility. That is the thing the check is named after.
+	var with_it := _played(true)
+	var without := _played(false)
+	notes.append("a season and a winter, the coached men: %d with a maxed ground and a five-star captain, %d with neither"
+		% [with_it["coached"], without["coached"]])
+	notes.append("the untaught Center: %d against %d, and he banked %d XP the winter would not spend"
+		% [with_it["center"], without["center"], with_it["center_xp"]])
+	## AND THE UNTAUGHT MAN IS THE OTHER HALF. A ground with nobody teaching his
+	## role must do nothing for him, so his two numbers have to MATCH — the club
+	## that bought everything and the club that bought nothing treat him
+	## identically. That is the captain rule, and it is sharper stated as an
+	## equality than as "he must not improve".
+	_ok(maxed and capped
+			and with_it["coached"] > without["coached"]
+			and with_it["center"] == without["center"]
+			and with_it["center_xp"] > 0,
+		"facilities reach something",
+		"all three max out and refuse a sixth; a maxed ground and a five-star captain leave the coached men %d clear of the same men without them, and the untaught Center identical either way"
+			% (int(with_it["coached"]) - int(without["coached"])))
+
+
+## ONE CLUB, ONE SEASON, ONE WINTER — with the ground and the captain, or with
+## neither. Everything else is identical, including the seed, so the two runs are
+## comparable and the difference is the purchase.
+func _played(equipped: bool) -> Dictionary:
+	var s := Season.new(MeleeRosters.player_club(), 21)
+	Session.season = s
+	s.office.credits = 400
+	## THE BUS IS BOUGHT IN BOTH, and it is not part of what is being measured: a
+	## club taking six men develops six men, and six improving while thirteen get
+	## a year older nets out negative for reasons that have nothing to do with the
+	## training ground.
 	for _i in ClubOffice.TRAVEL_COST.size():
 		s.office.new_week()
 		s.office.buy_travel_slot()
+	if equipped:
+		for _i in ClubOffice.FACILITY_MAX:
+			s.office.new_week()
+			s.office.upgrade(ClubOffice.Facility.TRAINING)
+		## Teaching the Rail and the Flanker, so the Center is untaught and must
+		## not train.
+		s.office.hire(ClubOffice.captain("Vaughn", Tuning.Role.RAIL,
+			Tuning.Role.FLANK, 5))
 	s.sync_power()
-	## Teaching the Rail and the Flanker, so the Center is untaught and must not
-	## train.
-	s.office.hire(ClubOffice.captain("Vaughn", Tuning.Role.RAIL, Tuning.Role.FLANK, 5))
-	## MEASURED ON THE COACHED MEN, not on club power.
-	##
-	## This used to assert `power_exact()` rose over the winter, and that stopped
-	## being a statement about the training ground the moment three other systems
-	## started pushing on the same number: harnesses wear toward an inspection
-	## line, a man can miss a weekend, the traveling party is a thing you buy,
-	## and everybody still gets a year older. Club power now nets those against
-	## the training and can come out fractionally down in a year the ground did
-	## its job perfectly — which is a true fact about the club and tells you
-	## nothing about the facility.
-	##
-	## So the check measures what it is named after: the men the captain coaches.
-	var before := 0
-	for f in s.club.active_eight():
-		if Tuning.role_of(int(f.pos)) != Tuning.Role.CENTER:
-			before += f.overall()
-	var center_before: int = s.club.starting_five()[Tuning.Pos.CENTER].overall()
-	var rail_before: int = s.club.starting_five()[Tuning.Pos.RAIL_L].overall()
 
-	## AND THE KIT IS HELD STILL, for the same reason ageing is argued about
-	## twenty lines up: this check is named after the facility and it must
-	## measure the facility.
-	##
-	## `skip_event()` began applying the training week on 15 Sep 2026 — it had
-	## not, which meant a simmed event cost no morale drift and no kit wear and
-	## was a straight discount for not fighting your bouts. Correct fix, and it
-	## put a SECOND variable inside this check: a club that sims a whole season
-	## now reaches the winter in worn harness, `effective_base()` reads that, and
-	## the coached men's gain was being netted against it. The check went red
-	## having found something true about the club and nothing about the ground.
+	## AND THE KIT IS HELD STILL. `skip_event()` applies the training week, so a
+	## club that sims a season reaches the winter in worn harness and
+	## `effective_base()` reads that — a second variable inside a check that is
+	## about a facility.
 	var kit := {}
 	for f in s.club.roster:
 		kit[f] = f.armor
 	while not s.season_complete():
 		s.skip_event()
+	## AND ROOM TO TRAIN INTO, lifted after the season and before the winter. The
+	## practice spends whatever headroom it is given during the season, so a lift
+	## applied beforehand arrives at the winter already gone.
+	for f in s.club.roster:
+		f.potential = mini(99, f.overall() + 20)
 	s.roll_over()
 	for f in s.club.roster:
 		if kit.has(f):
 			f.armor = float(kit[f])
-	var rail: FighterCard = s.club.starting_five()[Tuning.Pos.RAIL_L]
-	var center: FighterCard = s.club.starting_five()[Tuning.Pos.CENTER]
-	var rail_after: int = rail.overall()
-	var center_after: int = center.overall()
-	## THIS USED TO ASSERT THE CENTER CAME OUT UNCHANGED, and the career layer
-	## (10 Sep 2026) made that false in the best possible way: an untaught man
-	## does not stand still over a winter, he gets a year older. He must not
-	## IMPROVE — that is the captain rule and it is what this check is for — but
-	## he is allowed to decline, and equality would now be asserting that age
-	## does not exist.
-	##
-	## The sharper half is the XP. He earned it on the line all season and could
-	## not spend a point of it, which proves the winter REFUSED him rather than
-	## having had nothing to offer.
-	notes.append("a winter with the Rail coached and nobody on the Center: Rail %d -> %d, Center %d -> %d (with %d XP he could not spend)"
-		% [rail_before, rail_after, center_before, center_after, center.xp])
-	var after_coached := 0
+
+	var coached := 0
 	for f in s.club.active_eight():
 		if Tuning.role_of(int(f.pos)) != Tuning.Role.CENTER:
-			after_coached += f.overall()
-	notes.append("the coached men rate %d against %d before the winter" % [after_coached, before])
-	_ok(maxed and capped and after_coached > before
-			and rail_after > rail_before and center_after <= center_before
-			and center.xp > 0,
-		"facilities reach something",
-		"all three max out and refuse a sixth; the coached Rail improves over the winter and the uncoached Center banks XP he is never allowed to spend")
+			coached += f.overall()
+	var center: FighterCard = s.club.starting_five()[Tuning.Pos.CENTER]
+	return {"coached": coached, "center": center.overall(), "center_xp": center.xp}
 
 
 func _test_a_knock_costs_you_a_man() -> void:

@@ -190,17 +190,18 @@ average one.
 
 ---
 
-## One cost worth knowing about
+## One cost worth knowing about — ~~and it was not real~~
 
-`test_melee.gd` went from **8m20s to 21m19s**, and the suite's 900s cap silently
-timed it out on the first clean run after these changes. Nothing about the melee
-changed — `LEVEL_XP` did. A shorter bar fills far more often and `gain_for` now
-spends up to five stat points on each level instead of one, so every one of the
-file's 40-bouts-a-measure does more work.
-
-The cap is now 2400s and it is a stopwatch reading rather than a guess with
-headroom bolted on. *A cap that is not measured is a cap that will silently drop
-this test again the next time the economy moves.*
+> **Retracted 15 Sep 2026.** This section reported that `test_melee.gd` went from
+> 8m20s to **21m19s** because the shorter XP bar fires more level-ups, and the
+> suite cap was raised from 900s to 2400s to match. The stopwatch reading was
+> real; the conclusion was not. Four runaway `probe_growth` processes, left
+> spinning by an infinite loop found later the same day, were still burning CPU
+> and the machine was sitting at a load average of **thirteen**. Killed, the same
+> file runs in **500 seconds** — 8m20s, to the second what it always took.
+>
+> The cap is back to 900s. *A stopwatch reading is not a measurement until you
+> know what else was running.* See `docs/THE-PRACTICE-15-SEP.md`.
 
 ---
 

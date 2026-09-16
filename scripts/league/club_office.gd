@@ -1085,6 +1085,25 @@ func training_points() -> int:
 	return level(Facility.TRAINING) * 3
 
 
+## WHAT THE TRAINING GROUND IS WORTH TO A WEEK'S PRACTICE, as a multiplier.
+##
+## The facility already hands out `training_points` at the winter — the club's
+## one lump of directed coaching a year. Retro Bowl's equivalent does something
+## else entirely and does it every week: *"Improving training facilities means
+## players gain XP faster."* Both are worth having and they are not the same
+## thing, so the ground now does both — a lump in the summer and a rate all
+## season.
+##
+## Modest per level on purpose. At level 5 a week's practice is worth half again
+## what it is in a shed, which is a reason to build and not a reason to build
+## before anything else.
+const GROUND_PRACTICE: float = 0.10
+
+
+func practice_ground() -> float:
+	return 1.0 + GROUND_PRACTICE * float(level(Facility.TRAINING))
+
+
 func injury_relief() -> int:
 	return int(floor(float(level(Facility.INFIRMARY)) / 2.0))
 
@@ -1500,6 +1519,26 @@ func release(i: int) -> void:
 		fans = maxf(0.0, fans * FANS_LOST_FAVORITE)
 		_clamp_fans()
 	captains.remove_at(i)
+
+
+## HOW GOOD THE MAN TEACHING THIS ROLE IS — 0 if nobody does, otherwise his
+## stars. Pete, 15 Sep 2026: *"The Coaches hold practices, the better the
+## coaches, the more you get out of practice."*
+##
+## `taught()` below has answered this question as a BOOL since the day captains
+## were written, and every caller inherited that: a one-star and a five-star
+## taught a role identically, and the grade a player paid for reached nothing at
+## all except how many roles the man covered. Retro Bowl's Training Facility is
+## *"players gain XP faster"* — a multiplier, not a switch — and the grade is
+## ours. The best of them wins rather than the sum: two captains on one role is
+## already worth something (see `club_specialty`), and adding their stars would
+## make doubling up the dominant move on every hire screen.
+func coaching(role: int) -> int:
+	var best := 0
+	for c in captains:
+		if specialties_of(c).has(role):
+			best = maxi(best, int(c.get("grade", 1)))
+	return best
 
 
 ## Is anybody teaching this role? That is the only question there is.

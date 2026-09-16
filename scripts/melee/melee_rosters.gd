@@ -51,6 +51,12 @@ static func _c(
 	## are FIXTURES, and a fixture that changes between runs is not one.
 	f.years = 1 + (no % Contracts.YEARS_NEW)
 	f.wage_agreed = Contracts.offer(ClubOffice.wage(f), f.age)
+	## AND HIS OWN AGEING CURVE, derived from the card rather than rolled, for the
+	## same reason the age above is: these are FIXTURES, and a fixture that comes
+	## out differently between runs is not one. Seeded off the name and shirt
+	## number so no two men in a hand-written club share a curve and the same club
+	## reproduces exactly.
+	f.peak_seed = 1 + absi(hash("%s#%d" % [nm, no])) % 1_000_000
 	return f
 
 

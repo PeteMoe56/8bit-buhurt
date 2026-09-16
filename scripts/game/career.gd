@@ -42,8 +42,46 @@ const AGE_MAX: int = 39
 ## starts for one man, and every question about his age has to go through here or
 ## a Late Peak would stop declining in one calculation and keep declining in
 ## another — `decline_for` and `_raise_one` both read it.
+## HOW MANY YEARS EITHER SIDE OF THE SPORT'S SCHEDULE ONE MAN CAN SIT.
+##
+## Four. Wide enough that a scouting report says something a birthday does not —
+## gas can arrive anywhere from twenty to twenty-eight, skill from thirty-one to
+## thirty-nine.
+##
+## THE ORDER MOSTLY SURVIVES AND SOMETIMES DOES NOT, and that is worth stating
+## plainly rather than claiming otherwise: the sport's own peaks sit three or
+## four years apart, so a spread of four lets an unusual man's base arrive after
+## his skill. `probe_growth` prints one on the starting squad. That is a fighter
+## whose hands came good before his footing, which is a real thing and reads as
+## one — what a wider spread would produce is gas peaking after skill, and THAT
+## would not be variation, it would be noise.
+const PEAK_SPREAD: int = 4
+
+
+## Drawn from his seed and the stat together, so one man is not uniformly early
+## at everything — he is early at some of it, which is what a real fighter is.
+## Derived rather than stored, so there is one number on the card instead of four
+## that can disagree with each other.
+static func peak_offset(f: FighterCard, stat: int) -> int:
+	if f.peak_seed == 0:
+		return 0
+	## MIXED, NOT `hash() % 9`. The first cut formatted a string and took the
+	## modulo of its hash, and `probe_growth` printed a thirteen-man squad in
+	## which FOUR fighters carried the identical 22/32/28/32 and three more shared
+	## 26/27/32/36. The low bits of a string hash on inputs that differ by a few
+	## digits are not independent, and a modulo reads only the low bits.
+	##
+	## `LeagueWorld._hash2` exists for exactly this and says why in its own
+	## header. Same shape here, and the shift throws away the bits that were
+	## correlating. **A hash is not a random number until it has been mixed.**
+	var x: int = (f.peak_seed * 2654435761) ^ ((stat + 1) * 40503)
+	x = (x ^ (x >> 13)) * 1274126177
+	return absi(x ^ (x >> 16)) % (PEAK_SPREAD * 2 + 1) - PEAK_SPREAD
+
+
 static func peak_for(f: FighterCard, stat: int) -> int:
-	return peak_of(stat) + int(FighterTrait.mod(f.trait_id, "peak", 0.0))
+	return peak_of(stat) + peak_offset(f, stat) \
+		+ int(FighterTrait.mod(f.trait_id, "peak", 0.0))
 
 
 static func peak_of(stat: int) -> int:
@@ -758,7 +796,36 @@ static func level_up(f: FighterCard) -> Dictionary:
 		return {"levelled": false, "reason": "ceiling"}
 	var before := f.overall()
 	if not _raise_one(f, {}, report):
-		return {"levelled": false, "reason": "nothing to grow"}
+		## NOTHING UNPEAKED LEFT — AND A LEVEL STILL HAS TO LAND SOMEWHERE.
+		##
+		## `_raise_one` only grows a stat a man is not yet past, so a fighter past
+		## all four peaks and still under his potential used to come back "nothing
+		## to grow" WITHOUT SPENDING THE BAR, while `can_level` went on saying
+		## yes. `tools/probe_growth.gd` found it the hard way: a twenty-eight year
+		## old sat in a `while can_level(f)` loop forever and hung the probe.
+		##
+		## WHERE THE FALLBACK GOES IS THE WHOLE POINT, and it took two attempts.
+		## Putting it inside `_raise_one` broke `test_career`'s rule that **a
+		## veteran holds but never reverses** — the winter would have handed a
+		## forty-year-old training points that lifted him above where the season
+		## started, which makes age optional. But `_raise_one` serves two callers
+		## with genuinely different rules, and Pete settled the other one on 13
+		## Sep 2026: *"leave the ability to gain all stats still. He's just slower
+		## at leveling."* `level_into` has let a player put a level anywhere at any
+		## age ever since.
+		##
+		## So the automatic path now matches the manual one — a level lands on his
+		## lowest stat with room — and the WINTER, which is the club's training
+		## and not his level, keeps refusing. Two rules, two places, neither
+		## pretending to be the other.
+		var open_ := raisable(f)
+		if open_.is_empty():
+			return {"levelled": false, "reason": "nothing to grow"}
+		var pick: int = open_[0]
+		for stat in open_:
+			if read_stat(f, stat) < read_stat(f, pick):
+				pick = stat
+		write_stat(f, pick, read_stat(f, pick) + 1)
 	## THE REST OF THE LEVEL'S WORTH. Re-checking `at_ceiling` between points
 	## rather than counting them out in advance, because the first point can be
 	## the one that finishes him and a level must never carry a man past his own
@@ -905,7 +972,14 @@ static func winter(f: FighterCard, coached: bool, ground_points: int) -> Diction
 	## stat because the climb below is allowed to push back against them.
 	var fell := {}
 	for stat in STATS:
-		var want := decline_for(f.age, stat)
+		## HIS PEAK, NOT THE SPORT'S — and `decline_for_man` has said so in its own
+		## comment (*"the one the winter uses"*) since the day it was written,
+		## while the winter called `decline_for` and nothing noticed. A Late Peak
+		## fighter was refused training on a stat he was past by his own schedule
+		## and declined on it by everybody else's, which is the worst of both and
+		## exactly backwards. **A comment that says where a function is called is
+		## not a check that it is.**
+		var want := decline_for_man(f, stat)
 		if want <= 0:
 			continue
 		var before := read_stat(f, stat)
@@ -1050,6 +1124,61 @@ static func _raise_one(f: FighterCard, fell: Dictionary, report: Dictionary) -> 
 ## makes the rich richer, and a steep one would turn a career into a runaway.
 const XP_RATING_BASE: float = 50.0
 const XP_RATING_PULL: float = 0.60
+
+
+## ---------------------------------------------------------------- practice
+## THE WEEK BETWEEN FIGHTS, WHICH THIS GAME DID NOT HAVE.
+##
+## Pete, 15 Sep 2026: *"The Coaches hold practices, the better the coaches, the
+## more you get out of practice. Benched guys get more out of practices, but the
+## fighters get a little practice and the fight XP... Let's not give them a lot,
+## but if you stick with the same guys, everyone gets a raise and they all hit
+## their individual peaks."*
+##
+## `tools/probe_pace.gd` had found the hole from the other side: only the
+## starting five earned anything, so the three on the bench and the five in
+## reserve improved by exactly zero for their whole careers and a club could not
+## build a pipeline at all. The first patch handed the bench a share of the
+## STARTERS' fight XP, which fixed the arithmetic and said something untrue —
+## that a man on the bench is paid a fraction of an afternoon he did not have.
+##
+## A practice is its own source and it belongs to the coach. That reading also
+## matches the reference: Retro Bowl's Training Facility is *"players gain XP
+## faster"* and its `Likeable` coordinator is a flat +5% XP a game — development
+## there is a rate the staff sets, not a reward for the men who played.
+##
+## THE BENCH GETS MORE, AND THAT IS THE WHOLE MECHANIC. A starter spends his
+## week recovering and his Saturday fighting; a reserve spends the week in the
+## hall with the captain. So the reserve out-practises him four to one and the
+## starter still finishes ahead on the day — which is what makes a squad a
+## pipeline rather than a queue. Leave a young man on the bench for three
+## seasons and he arrives; leave him there for eight and he has passed the man
+## in front of him.
+## THE STARS ARE THE WHOLE NUMBER, AND THE FLOOR IS DELIBERATELY NEARLY NOTHING.
+##
+## `probe_growth` sized these. A starter banks about twenty-five XP a week — a
+## quarter practice plus an afternoon — so the question is what fraction of that
+## a reserve should see. At 1.4 a star the answer was a fifth, and twelve seasons
+## on the bench under the best captain in the game left a man on 53 while the men
+## in front of him reached 73. **A pipeline that produces fighters twenty points
+## short is not a pipeline, it is a waiting room.**
+##
+## At 2.6 a five-star captain gets a reserve to roughly sixty per cent of a
+## starter's week: enough that a young man kept for four or five seasons arrives
+## able to play, never enough that sitting him is better than playing him. And
+## the floor stays at two, which is close to nothing on purpose — **a club with
+## nobody teaching develops nobody**, and that is the sentence that makes the
+## grade on a hire card worth paying for.
+const PRACTICE_BASE: float = 2.0        ## a week with nobody teaching him
+const PRACTICE_PER_GRADE: float = 2.6   ## and what each of a captain's stars adds
+const PRACTICE_STARTER: float = 0.25    ## his week is mostly Saturday
+
+
+## What one week is worth to one man. `grade` is his captain's stars for the role
+## he stands in, 0 if nobody teaches it — see `ClubOffice.coaching`.
+static func practice_xp(grade: int, starts: bool) -> float:
+	var raw := PRACTICE_BASE + PRACTICE_PER_GRADE * float(maxi(0, grade))
+	return raw * (PRACTICE_STARTER if starts else 1.0)
 
 
 static func xp_for(downs_caused: int, rounds_standing: int,

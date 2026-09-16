@@ -139,6 +139,10 @@ static func _fighter(rng: RandomNumberGenerator, no: int, slot: int,
 	f.skill = _stat(rng, target + int(a["skl"]))
 	f.gas = _stat(rng, target + int(a["gas"]))
 	f.aggression = _stat(rng, target + int(a["agg"]))
+	## AND HIS OWN AGEING CURVE. Never zero — zero is reserved for a fighter out
+	## of a save written before peaks varied, and it means "the sport's own
+	## schedule", so a freshly generated man must not be handed it by accident.
+	f.peak_seed = 1 + rng.randi() % 1_000_000
 	var lb: Array = a["lb"]
 	f.weight = rng.randi_range(int(lb[0]), int(lb[1]))
 	f.armor = clampf(armor, 0.0, 1.0)

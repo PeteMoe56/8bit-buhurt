@@ -220,6 +220,7 @@ func _winter(s: Season) -> int:
 		else:
 			s.resign(f)
 	var took := _market(s)
+	_staff(s)
 	for f in s.club.roster:
 		_place_all(f)
 	## AND PUT THE BEST MEN ON THE LINE. Roster order is the depth chart and a
@@ -286,6 +287,41 @@ func _market(s: Season) -> int:
 		if s.office.credits > keep + ClubOffice.REFRESH_COST * 6:
 			s.office.refresh_market()
 	return took
+
+
+## THE CAPTAINS, WHICH THIS PROBE DID NOT HIRE FOR TWENTY SEASONS.
+##
+## Pete's practice week — *"the better the coaches, the more you get out of
+## practice"* — is a staff investment, and `ClubOffice.coaching()` returns 0 for
+## a club with nobody on the payroll. So the first run after the practice was
+## built measured a club that develops nobody and reported almost no change: the
+## manager was doing none of the one thing the new system is entirely about.
+## **A probe that does not use a system is not a measurement of that system.**
+##
+## Two captains, best grade the club can afford, covering different roles — five
+## to seventeen credits each against a season's sixteen at the bottom, so it is a
+## real early-career decision and not free.
+func _staff(s: Season) -> void:
+	var o := s.office
+	while o.captains.size() < ClubOffice.MAX_CAPTAINS:
+		var best: Dictionary = {}
+		for slot in 4:
+			var c := ClubOffice.offer(s.seed_value, s.world.season, slot)
+			if ClubOffice.cost_of(c) > o.credits - League.dues_for(o.tier):
+				continue
+			## Prefer the man who teaches something nobody here teaches. A second
+			## captain doubled onto the first one's roles leaves a third of the
+			## squad with no coaching at all, which is the shape of squad this
+			## probe spent twenty seasons proving does not develop.
+			var fresh := 0
+			for r in ClubOffice.specialties_of(c):
+				if not o.taught(int(r)):
+					fresh += 1
+			var score: int = int(c.get("grade", 1)) + fresh * 3
+			if best.is_empty() or score > int(best.get("score", -1)):
+				best = {"cap": c, "score": score}
+		if best.is_empty() or o.hire(Dictionary(best["cap"])) != "":
+			return
 
 
 ## WHAT A MAN IS WORTH TO THIS MANAGER. The competent one asks what he gives
