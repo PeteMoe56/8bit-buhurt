@@ -121,3 +121,86 @@ structural. That exclusion is now the finding rather than an assumption.
 search walked to it would be balancing by optimiser, and the optimiser has just
 told us, by sitting on every boundary at once, that it was asked the wrong
 question.
+
+
+---
+
+# Part 2 — the target, sharpened
+
+> *"The balance we're looking for is promotion out of backyard by season 2, and
+> championship win by season 10-12."*
+
+Two requirements and a **band**, and the band is the important part. Aiming at a
+single number is what made the first search peg every lever; anything inside 10
+to 12 now scores a hit, so a setting that wins in season eight is worse than one
+that wins in eleven. `tools/tune.py` scores them summed rather than ranked — a
+setting that nails the title and leaves the first promotion at season six has not
+done the job.
+
+## The first promotion is one number
+
+`START_POWER` — the rating of the club you inherit — was a bare `38` in the middle
+of a constructor call, which is a tunable no instrument can see. Named, and swept:
+
+```
+START_POWER   38     41     44     47     50
+first promo   6.0    ~4     ~3    2.4    2.2
+```
+
+**Promotion out of the Backyard Circuit by season 2 is a statement about the
+distance between the club you inherit and the club leading the division you
+inherit it in**, and nothing else moves it nearly as much. At 44 the club starts
+near the top of a 30–46 band — a good Backyard side ready to move up, which is
+what "you are passing through here" should feel like.
+
+## The wall is the middle of the ladder, not the top
+
+With a strong start and moderate development settings, seasons to each rung:
+
+```
+Backyard Circuit    2.6
+State League        7.2      <- seven seasons
+Regional League    10.0      <- ten seasons
+```
+
+The National Division was never the problem. **State and Regional are**, and the
+shape the target implies — roughly two seasons a division, six to arrive and four
+to win — needs those two rungs cut by a factor of four.
+
+## The obvious lever is barred, and the game says why
+
+Promoting three from State and Regional instead of two:
+
+```
+                  before    after
+National at        19.8      never
+club power         67.0      46.4
+final division     3.00      1.20
+```
+
+Catastrophically worse — and the cause is a rule this codebase already wrote
+down. `League.TIERS` carries `up` and `down` per rung with a comment that says
+*"a ladder where one rung has different arithmetic from the others is a rung that
+will silently leak or gain a club."* Moving `up` without moving the division
+above's `down` does exactly that: divisions change size, the schedule and tables
+malform, and the collapse in club power is the symptom.
+
+**The measurement caught it, and the measurement is the only reason it was
+caught** — the run does not error, it just quietly produces a worse game. Any
+future pass at the promotion slots has to move `up` and the neighbouring `down`
+together, as a pair.
+
+## Still not shipped
+
+The same reasoning as Part 1. The search has a good diagnosis and has not
+converged: coordinate descent keeps plateauing because these levers need to move
+**together**, and warm-starting it from a known-good region did not rescue that.
+What is now known and worth carrying forward:
+
+- the first promotion is `START_POWER`, and 44 looks right
+- the title is gated by State and Regional, not National
+- promotion slots must move in `up`/`down` pairs or the pyramid leaks
+- `NAT_CLUBS` 16 → 12 and the National ceiling 86 → 78 both help and are safe
+
+The next pass wants a search that moves several levers at once over those four,
+rather than one at a time.

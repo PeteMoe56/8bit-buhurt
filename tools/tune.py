@@ -54,9 +54,50 @@ LEVERS = [
     ("DECLINE_RATE",      "scripts/game/career.gd",        [0.15, 0.3, 0.45, 0.6]),
     ("STANDARD_ROOM",     "scripts/game/career.gd",        [10, 16, 22]),
     ("PEAK_SPREAD",       "scripts/game/career.gd",        [2, 4, 6, 8]),
+    ## AND THE FIRST PROMOTION, which is a different problem from the title and
+    ## has its own levers. "Out of the Backyard Circuit by season 2" is a
+    ## statement about the distance between the club you inherit and the club
+    ## leading the division you inherit it in — so both ends of that gap are in
+    ## scope, and neither was in the first sweep.
+    ("START_POWER",       "scripts/melee/melee_rosters.gd", [38, 41, 44, 47, 50]),
+]
+
+## AND THE LADDER, which the first sweep excluded as structural and which the
+## first sweep's own result then pointed straight at: with every development
+## lever pegged, a club reached the National Division at season 9.2 and needed
+## nearly three more years to win it. Those years are not in development.
+##
+## These are not `const NAME = value` declarations — they are fields inside the
+## `TIERS` table — so they need a patch by pattern rather than by name. The
+## pattern carries its own value in a group, which keeps the rest of the line
+## (and the table's shape) untouched.
+PATCHES = [
+    ("NAT_CLUBS",  "scripts/league/league.gd",
+     r'("id": Tier\.NATIONAL,(?:.|\n)*?"clubs": )(\d+)', ["16", "12", "10", "8"]),
+    ("NAT_TOP",    "scripts/league/league.gd",
+     r'("id": Tier\.NATIONAL,(?:.|\n)*?"power": \[\d+, )(\d+)', ["86", "78", "72"]),
+    ("REG_TOP",    "scripts/league/league.gd",
+     r'("id": Tier\.REGIONAL,(?:.|\n)*?"power": \[\d+, )(\d+)', ["70", "64", "60"]),
+    ("BYC_UP",     "scripts/league/league.gd",
+     r'("id": Tier\.BACKYARD,(?:.|\n)*?"up": )(\d+)', ["2", "3"]),
 ]
 
 DECL = re.compile(r"^(const [A-Z_]+(?:: *[A-Za-z\[\]]+)? *:?= *)([^#]*)(.*)$")
+
+
+def set_patch(pat, path, value):
+    f = os.path.join(LANE, path)
+    src = open(f).read()
+    new, n = re.subn(pat, lambda m: m.group(1) + str(value), src, count=1)
+    if not n:
+        raise SystemExit("patch did not match: %s" % pat[:40])
+    open(f, "w").write(new)
+
+
+def get_patch(pat, path):
+    src = open(os.path.join(LANE, path)).read()
+    m = re.search(pat, src)
+    return m.group(2) if m else None
 
 
 def set_const(name, path, value):
@@ -83,7 +124,17 @@ def score():
     return {k: float(v) for k, v in d.items()}
 
 
-TARGET = float(os.environ.get("TARGET", "10"))
+## THE TARGET, and it is a BAND plus a deadline rather than a single number.
+##
+## Pete, 15 Sep 2026: *"promotion out of backyard by season 2, and championship
+## win by season 10-12."* Two separate requirements, and the band matters as much
+## as the numbers: anything inside 10 to 12 is a hit, so a setting that wins in
+## season eight is now WORSE than one that wins in eleven. That alone is what
+## stops the search walking to a corner — the previous objective aimed at a point
+## and every lever pegged trying to reach it.
+TITLE_LO = float(os.environ.get("TITLE_LO", "10"))
+TITLE_HI = float(os.environ.get("TITLE_HI", "12"))
+PROMO_BY = float(os.environ.get("PROMO_BY", "2"))
 MISSED = float(YEARS) + 1.0
 
 
@@ -123,10 +174,26 @@ def drift(cur, ship):
     return round(total, 3)
 
 
+def miss(s):
+    """How far the two requirements are from being met. Zero is a hit.
+
+    Summed rather than ranked, because they are not a priority order — Pete asked
+    for both, and a setting that nails the title while leaving the first
+    promotion at season six has not done the job. Summing also means the search
+    can trade a little of one for a lot of the other, which a lexicographic key
+    forbids and which is exactly how a balance gets found.
+    """
+    r = reach(s)
+    title = 0.0 if TITLE_LO <= r <= TITLE_HI else min(abs(r - TITLE_LO),
+                                                      abs(r - TITLE_HI))
+    promo = max(0.0, s["t1"] - PROMO_BY)
+    return round(title + promo, 4)
+
+
 def key(s, cur=None, ship=None):
-    """Lower is better. See the header for why the first term is a distance."""
+    """Lower is better. See `miss` for the two requirements it is measuring."""
     d = drift(cur, ship) if cur and ship else 0.0
-    return (round(abs(reach(s) - TARGET), 4), d, -s["power"])
+    return (miss(s), d, -s["power"])
 
 
 def main():
@@ -140,6 +207,8 @@ def main():
             if ln.startswith("const %s" % name):
                 cur[name] = DECL.match(ln.rstrip("\n")).group(2).strip()
                 break
+    for label, path, pat, cands in PATCHES:
+        cur[label] = get_patch(pat, path)
     for name, path, _ in LEVERS:
         set_const(name, path, cur[name])
     ship = dict(cur)
@@ -148,6 +217,22 @@ def main():
 
     for rnd in range(4):
         moved = False
+        for label, path, pat, cands in PATCHES:
+            here = cur[label]
+            for c in cands:
+                if str(c) == str(here):
+                    continue
+                set_patch(pat, path, c)
+                s = score()
+                trial = dict(cur)
+                trial[label] = str(c)
+                if s and key(s, trial, ship) < key(best, cur, ship):
+                    best, cur[label], here, moved = s, str(c), str(c), True
+                    print("  %-20s -> %-6s  %s  title=%.1f t1=%.1f t3=%.1f"
+                          % (label, c, key(s, cur, ship), s["title"], s["t1"],
+                             s["t3"]), flush=True)
+                else:
+                    set_patch(pat, path, here)
         for name, path, cands in LEVERS:
             here = cur[name]
             for c in cands:
@@ -170,6 +255,8 @@ def main():
     print("\nBEST %s  title=%.1f t3=%.1f t2=%.1f power=%.1f"
           % (key(best, cur, ship), best["title"], best["t3"], best["t2"],
              best["power"]))
+    print("  target: promotion by %g (got %.1f), title in %g-%g (got %.1f)"
+          % (PROMO_BY, best["t1"], TITLE_LO, TITLE_HI, best["title"]))
     for k, v in cur.items():
         mark = "" if str(v) == str(ship[k]) else "   <- was %s" % ship[k]
         print("  %-22s %-8s%s" % (k, v, mark))

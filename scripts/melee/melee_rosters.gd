@@ -149,8 +149,17 @@ static func validate() -> String:
 ## measured on it, and the season starts you with a club that belongs in the
 ## division you start in. Built by ClubFactory like everybody else's, so your
 ## club and the twelve you are playing against come out of the same machine.
+## WHAT THE CLUB YOU INHERIT IS RATED, and it was a bare 38 in the middle of a
+## constructor call. Pete, 15 Sep 2026: *"promotion out of backyard by season
+## 2"* — which is a statement about the distance between this number and the
+## Backyard Circuit's leader, so it is a balance figure and it belongs where the
+## sweep can find it. `tools/sweep_plan.py` reads `const` declarations; a literal
+## buried in an argument list is a tunable no instrument can see.
+const START_POWER: int = 38
+
+
 static func starting_club() -> MeleeClub:
-	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", 38)
+	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", START_POWER)
 	c.kit = IconBank.KIT_COLORS[0]
 	c.icon_color = IconBank.MARK_COLORS[0]
 	c.icon = 5
