@@ -108,6 +108,8 @@ class Man extends RefCounted:
 	## rounds that never happened. The career layer reads it for XP.
 	var rounds_standing: int = 0
 	var gassed_at: float = -1.0
+	## WHICH ROUND he first gassed in — the report printed the last round.
+	var gassed_round: int = 0
 	var orders_given: int = 0
 
 	func gas_frac() -> float:
@@ -202,6 +204,13 @@ class Man extends RefCounted:
 	## him less fit.
 	func eff_tank() -> float:
 		return card.tank() * scale * tmod("tank", 1.0)
+
+	## WHERE THIS MAN COUNTS AS GASSED. ENGINE lowers it; every rule that asks
+	## "is he gassed" asks here. The grind and the injury risk read the raw
+	## constant before, so Engine's "never really gasses" half only reached the
+	## report and the trait was pure downside in the fight.
+	func gassed_line() -> float:
+		return Tuning.GASSED_BELOW * tmod("gassed_below", 1.0)
 
 
 var men: Array[Man] = []
@@ -319,6 +328,37 @@ func _init(club_a, club_b, seed_value: int = 0, opposition_scale: float = 1.0) -
 	_set_the_line()
 
 
+## WHAT THE FIXTURE DOES TO A MAN: the occasion, a grudge against this club, and
+## homesickness at this distance. Read off `big_occasion`, `opponent_club_id`,
+## `venue` and `miles`.
+##
+## THOSE ARE SET AFTER THE CONSTRUCTOR — `Season._dress_sim` hands them over once
+## `MeleeSim.new()` has returned — and this used to run only inside `_build()`,
+## so in every real season and cup bout all four traits read 1.0. The dressing
+## now calls `dress()` when it is done, and a man subbed on is dressed on entry.
+func _fixture_mods(m: Man) -> void:
+	m.occasion = m.tmod("occasion", 1.0) if big_occasion else 1.0
+	## GRUDGE. The card names one club and it is the club across from him or it
+	## is not. Team 1's men never carry one: the opposition is generated per bout.
+	m.grudge = 1.0
+	if m.team == 0 and m.card != null and m.card.grudge_club >= 0 \
+			and m.card.grudge_club == opponent_club_id:
+		m.grudge = m.tmod("grudge", 1.0)
+	## HOMESICK. Your men only.
+	m.away = 1.0
+	if m.team == 0:
+		m.away = Venue.homesick_scale(m.card, venue, miles)
+
+
+## Re-apply the fixture to every man, after the season has said what the fixture
+## is. Before the first tick the tank is refilled too, since it reads the mods.
+func dress() -> void:
+	for m in men:
+		_fixture_mods(m)
+		if round_no == 1 and round_t <= 0.0:
+			m.tank = m.eff_tank()
+
+
 func _build() -> void:
 	men.clear()
 	for team in 2:
@@ -345,21 +385,7 @@ func _build() -> void:
 			m.slot = i
 			m.out_of_pos = _out_of_pos(m.card, i)
 			m.scale = opp_scale if team == 1 else 1.0
-			m.occasion = m.tmod("occasion", 1.0) if big_occasion else 1.0
-			## GRUDGE. The card names one club and it is the club across from
-			## him or it is not — decided here, once, rather than asked every
-			## tick. Team 1's men never carry one: the opposition is generated
-			## per bout and a grudge that only your own men can hold is the
-			## honest version of a trait about a career.
-			if team == 0 and m.card != null and m.card.grudge_club >= 0 \
-					and m.card.grudge_club == opponent_club_id:
-				m.grudge = m.tmod("grudge", 1.0)
-			## HOMESICK. Your men only — the opposition is at home or on neutral
-			## ground by construction in every fixture the player fights, and a
-			## generated club carrying a homesickness nobody can see is a number
-			## doing nothing.
-			if team == 0:
-				m.away = Venue.homesick_scale(m.card, venue, miles)
+			_fixture_mods(m)
 			m.tank = m.eff_tank()
 			men.append(m)
 	# partners are line-adjacent, resolved once
@@ -452,7 +478,16 @@ func _set_the_line() -> void:
 		## Re-read the line. A corner swap changed nothing until this ran.
 		var line: Array = lineups[m.team]
 		if m.slot < line.size() and line[m.slot] != null:
-			m.card = line[m.slot]
+			## THE AFTERNOON BELONGS TO THE MAN, NOT THE SLOT. A swap put the new
+			## card into the same `Man`, so the sub inherited the other man's
+			## downs, assists, XP, worn harness and knock. Now the outgoing man's
+			## bout is set aside and the incoming man's (fresh, or his own from
+			## earlier) is picked up.
+			if line[m.slot] != m.card:
+				_stash(m)
+				m.card = line[m.slot]
+				_unstash(m)
+				_fixture_mods(m)
 			m.out_of_pos = _out_of_pos(m.card, m.slot)
 		m.tank = m.eff_tank() * float(conditions.get(m.card, 1.0))
 		## The formation says where every man starts, laterally as well as in depth —
@@ -621,7 +656,10 @@ func condition_of(card) -> float:
 ## at 94% of his base and skill. Without that the bench is just "field your
 ## five best every round" and the line positions stop meaning anything.
 func swap_in(team: int, slot: int, card) -> bool:
-	if phase != Phase.CORNER:
+	## THE CORNER, OR BEFORE THE FIRST CHARGE. The pre-fight screen has the same
+	## SUB boxes, and they refused every tap with no word as to why.
+	var before_first := round_no == 1 and round_t <= 0.0 and phase == Phase.CHARGE
+	if phase != Phase.CORNER and not before_first:
 		return false
 	if slot < 0 or slot >= 5 or card == null:
 		return false
@@ -631,7 +669,54 @@ func swap_in(team: int, slot: int, card) -> bool:
 		return false
 	lineups[team][slot] = card
 	swaps_used[team] += 1
+	## Before the charge there is no corner to leave, so the line is re-read now.
+	if before_first:
+		_set_the_line()
 	return true
+
+
+## ---------------------------------------------------- the per-man ledger
+## What a man did this bout, kept against his CARD when he leaves the line.
+const BOUT_STATS := {"downs_caused": 0, "assists": 0, "times_downed": 0,
+	"rounds_standing": 0, "harness": 1.0, "wind_used": false, "gassed_at": -1.0,
+	"gassed_round": 0, "orders_given": 0}
+var _ledger: Dictionary = {}
+
+
+func _stash(m: Man) -> void:
+	if m.card == null:
+		return
+	var d := {"team": m.team, "slot": m.slot}
+	for k in BOUT_STATS:
+		d[k] = m.get(k)
+	_ledger[m.card] = d
+
+
+func _unstash(m: Man) -> void:
+	var d: Dictionary = _ledger.get(m.card, {})
+	for k in BOUT_STATS:
+		m.set(k, d.get(k, BOUT_STATS[k]))
+	_ledger.erase(m.card)
+
+
+## EVERYONE WHO FOUGHT, the men on the line now AND the men subbed off, each
+## carrying his own afternoon. Anything that pays a man for the bout (XP, the
+## book, the report) reads this rather than `men`, which only knows who is on
+## the line at the end.
+func fought() -> Array[Man]:
+	var out: Array[Man] = []
+	out.append_array(men)
+	for card in _ledger:
+		var d: Dictionary = _ledger[card]
+		var m := Man.new()
+		m.card = card
+		m.team = int(d["team"])
+		m.slot = int(d["slot"])
+		m.idx = -1
+		for k in BOUT_STATS:
+			m.set(k, d[k])
+		out.append(m)
+	return out
 
 
 ## Who is on the line, as cards, in Rail/Flanker/Center/Flanker/Rail order.
@@ -647,7 +732,14 @@ func lineup(team: int) -> Array:
 ## He becomes the AI's again rather than reverting to the play, which is the same
 ## thing that happens when a drawn route runs out on its own.
 func cancel_order(idx: int) -> void:
-	men[idx].order = null
+	var m := men[idx]
+	m.order = null
+	## And the question that order raised. A prompt left open after the order
+	## was taken back was answered against whoever the AI picked next — a
+	## THIRD_MAN act landing on a different man from the one it was asked about.
+	_close_prompt(m)
+	if m.state != State.GRAPPLED:
+		m.target = -1
 
 
 # -------------------------------------------------------------------- clock
@@ -699,8 +791,9 @@ func _tick_timers(m: Man) -> void:
 		var rec := Tuning.GAS_RECOVER * (m.eff_gas() / Tuning.GAS_STAT_DIV)
 		m.tank = minf(m.eff_tank(), m.tank + rec
 			* (1.0 if m.state == State.RECOVER else 0.35) * Tuning.TICK)
-	if m.gassed_at < 0.0 and m.gas_frac() < Tuning.GASSED_BELOW * m.tmod("gassed_below", 1.0):
+	if m.gassed_at < 0.0 and m.gas_frac() < m.gassed_line():
 		m.gassed_at = round_t
+		m.gassed_round = round_no
 		log_lines.append({"t": round_t, "round": round_no, "kind": "gassed", "who": m.idx})
 	## SECOND WIND — *"Once a bout, refills to half the moment he empties."*
 	##
@@ -814,7 +907,9 @@ func _skill_of(m: Man) -> Dictionary:
 func _dim(m: Man, row: Dictionary) -> Dictionary:
 	if not m.tflag("ai_tier_down"):
 		return row
-	var tier: int = Tuning.AI_SKILL.keys().find(row)
+	## VALUES, not keys. `keys().find(row)` looked for a Dictionary among the int
+	## keys, always got -1, and handed the row back unchanged — the flaw was inert.
+	var tier: int = Tuning.AI_SKILL.values().find(row)
 	if tier <= 0:
 		return row
 	return Tuning.AI_SKILL[Tuning.AI_SKILL.keys()[tier - 1]]
@@ -1047,6 +1142,12 @@ func _step_closing(m: Man) -> void:
 	if m.prompt == null and m.team == 0 and m.under_orders() \
 			and not m.order.from_play and d <= Tuning.PROMPT_RANGE:
 		_open_prompt(m, menu, tgt.idx)
+		## A PROMPT JUST OPENED IS A QUESTION, NOT AN ANSWER. `waiting` was worked
+		## out above, before the prompt existed — so a man sent onto somebody
+		## already inside contact range opened his options and resolved them with
+		## the AI's pick in the same tick, and it counted as timed out.
+		if m.prompt != null and m.prompt.menu != Tuning.Menu.GRAPPLED:
+			return
 	if waiting:
 		return
 	if d <= Tuning.CONTACT_RANGE and m.next_act <= 0.0:
@@ -1217,7 +1318,7 @@ func _tick_grapples() -> void:
 			var foe := men[m.target]
 			var grind := Tuning.GRAPPLE_GRIND * foe.tmod("grapple_grind", 1.0) * (
 				0.6 + 0.8 * foe.eff_strength() / maxf(1.0, m.eff_base()))
-			if m.gas_frac() < Tuning.GASSED_BELOW:
+			if m.gas_frac() < m.gassed_line():
 				grind *= Tuning.GRAPPLE_GRIND_GASSED
 			_wear(m, foe, grind * Tuning.TICK)
 		if m.next_act <= 0.0:
@@ -1352,7 +1453,8 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	c -= d.eff_base() * Tuning.BR_PER_BASE * d.tmod("br_against", 1.0)
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
 	if d.exposed_t > 0.0:
-		c += Tuning.EXPOSED_BONUS
+		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
+		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
 	c *= lerpf(0.60, 1.0, a.gas_frac())
 	return clampf(c, Tuning.BR_MIN, Tuning.BR_MAX)
 
@@ -1423,8 +1525,11 @@ func _resolve(m: Man, act: int, target: int) -> void:
 
 		Tuning.Act.ESCAPE:
 			m.tank = maxf(0.0, m.tank - Tuning.ESCAPE_GAS * m.eff_tank())
-			var c := Tuning.ESCAPE_BASE + (m.eff_skill()
-				- t.eff_strength()) * Tuning.ESCAPE_PER_SKL * m.tmod("escape", 1.0)
+			## SLIPPERY SCALES THE WHOLE CHANCE. It multiplied only the skill-vs-
+			## strength term, which is negative against a stronger man — so the
+			## trait made a slippery man EASIER to hold exactly when it mattered.
+			var c := (Tuning.ESCAPE_BASE + (m.eff_skill()
+				- t.eff_strength()) * Tuning.ESCAPE_PER_SKL) * m.tmod("escape", 1.0)
 			if rng.randf() < clampf(c, 0.1, 0.9):
 				_ungrapple(t)
 				_ungrapple(m)
@@ -1505,19 +1610,26 @@ func _put_down(loser: Man, winner: Man) -> void:
 	loser.wear.clear()
 	_rally()
 	_close_prompt(loser)
-	if loser.target != -1 and men[loser.target].state == State.GRAPPLED:
-		_ungrapple(men[loser.target])
+	## RELEASE ONLY HIS OWN CLINCH. This let go of whoever his TARGET was, clinch
+	## partner or not — a man walking toward E, who was clinched with F, went down
+	## and freed E while F stayed locked onto him and kept grinding and taking
+	## him down from across the list. Now: anyone clinched with HIM is let go.
+	for o in men:
+		if o != loser and o.state == State.GRAPPLED and o.target == loser.idx:
+			_ungrapple(o)
 	loser.target = -1
 	loser.order = null
 	## A knock, occasionally, and much more often to a man with nothing left —
 	## which is the sport's own folklore and the only part of this the player can
 	## do something about.
 	var risk := Tuning.INJURY_CHANCE
-	if loser.gas_frac() < Tuning.GASSED_BELOW:
+	if loser.gas_frac() < loser.gassed_line():
 		risk *= Tuning.INJURY_GASSED
 	if rng.randf() < risk:
 		var n: int = Tuning.INJURY_LENGTH[rng.randi() % Tuning.INJURY_LENGTH.size()]
-		injuries.append({ "idx": loser.idx, "events": n })
+		## THE CARD, not just the index: the index is a slot, and by the time the
+		## season reads this a sub may be standing in it.
+		injuries.append({ "idx": loser.idx, "events": n, "card": loser.card })
 		log_lines.append({ "t": round_t, "round": round_no, "kind": "injury",
 			"who": loser.idx, "events": n })
 	log_lines.append({

@@ -75,6 +75,9 @@ enum Screen { SPLASH, PREFIGHT, FIGHT, CORNER, REPORT }
 
 var sim: MeleeSim
 var screen: int = Screen.PREFIGHT
+## THE APP WENT AWAY (home button, a call, alt-tab). The fight and the corner
+## clock stop until it comes back; nothing is owed on return.
+var paused: bool = false
 var font: Font
 var accum := 0.0
 var marshal_text := ""
@@ -233,7 +236,7 @@ func _new_bout(seed_value: int) -> void:
 	## not a sound call that somebody later forgets to keep in step.
 	sim.fighter_downed.connect(_on_downed)
 	sim.action_resolved.connect(func(_i, _a, _t, ok):
-		if ok:
+		if ok and not skipping:
 			Audio.play("clash"))
 	sim.bout_finished.connect(_on_bout_finished)
 	screen = Screen.PREFIGHT
@@ -330,12 +333,22 @@ func _process(delta: float) -> void:
 	## still owed when the fight restarts and nothing is quietly lost. A hold
 	## that dropped ticks would be a difficulty setting pretending to be a
 	## control.
-	if held:
+	if held and not paused:
 		hold_t -= delta
 		if hold_t <= 0.0 or sim.orders_issued + sim.prompts_answered > hold_mark:
 			_release_hold()
-	if screen == Screen.FIGHT and not Juice.frozen() and not held:
-		accum += delta
+	## THE CORNER CLOCK. The sim only ticks on the FIGHT screen, so `corner_t`
+	## never moved and the grade's corner time (24 s vs 16 s) did nothing — the
+	## corner waited forever. It runs here, on real time, and when it is out the
+	## men go back in on whatever was last chosen (or the push they were on).
+	if screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER and not paused:
+		sim.corner_t -= delta
+		if sim.corner_t <= 0.0:
+			_corner_time_up()
+	if screen == Screen.FIGHT and not Juice.frozen() and not held and not paused:
+		## NO CATCH-UP AFTER A STALL. A hitch or an app resume handed the loop a
+		## huge delta, and the fight fast-forwarded until it caught up.
+		accum = minf(accum + delta, 0.25)
 		var guard := 8
 		while accum >= Tuning.TICK and guard > 0 and not sim.is_over():
 			accum -= Tuning.TICK
@@ -386,7 +399,15 @@ func _skip_round() -> void:
 	if screen != Screen.FIGHT or sim.is_over():
 		return
 	_release_hold()
+	## QUIET WHILE IT RUNS. A skipped round played every down's freeze, shake and
+	## sound and every clash in the same frame — a wall of noise for a button
+	## that means "I don't need to watch this". One knock at the end instead.
+	skipping = true
+	var downs_before: int = sim.downs[0] + sim.downs[1]
 	sim.skip_round()
+	skipping = false
+	if sim.downs[0] + sim.downs[1] > downs_before:
+		Audio.play("clash")
 	accum = 0.0
 	queue_redraw()
 
@@ -408,7 +429,12 @@ func _sync_controls() -> void:
 ## Read off the sim rather than counted here, because a count kept in the scene
 ## is a count that goes wrong the first time somebody reloads a bout mid-fight —
 ## and this game reloads bouts mid-fight.
+var skipping: bool = false
+
+
 func _on_downed(idx: int, _by: int) -> void:
+	if skipping:
+		return
 	var team: int = sim.men[idx].team
 	var left := sim.standing_count(team)
 	Juice.down(left <= 1, left <= 0)
@@ -457,9 +483,15 @@ func _on_bout_finished(_w: int) -> void:
 ## decided in every other application, and the only way that needs no extra
 ## control on a screen that already has one.
 func _report_wheel(at: Vector2, up: bool) -> bool:
+	return _report_scroll(at, 24.0 * (-1.0 if up else 1.0))
+
+
+## Scroll whichever report pane is under `at` by `step` pixels. The wheel and a
+## finger drag both come here — the panes only answered the wheel, so on a phone
+## the "more v" content could never be reached.
+func _report_scroll(at: Vector2, step: float) -> bool:
 	if screen != Screen.REPORT:
 		return false
-	var step := 24.0 * (-1.0 if up else 1.0)
 	if Rect2(REP_RX, QUIP_TOP, REP_RW, QUIP_H).has_point(at):
 		quip_scroll = clampf(quip_scroll + step, 0.0, quip_over)
 		queue_redraw()
@@ -471,7 +503,20 @@ func _report_wheel(at: Vector2, up: bool) -> bool:
 	return false
 
 
+## THE FINGER THAT IS DRAWING, by touch index. A second finger used to call
+## `_press` and hijack the route; lifting the first then gave the second man a
+## route ending where the first finger left. Only this finger draws now.
+var draw_finger: int = -1
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	## PAUSED: the next tap resumes, and does nothing else.
+	if paused:
+		if (event is InputEventScreenTouch and event.pressed) \
+				or (event is InputEventMouseButton and event.pressed):
+			_set_paused(false)
+			get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_WHEEL_UP \
@@ -479,15 +524,58 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _report_wheel(mb.position,
 					mb.button_index == MOUSE_BUTTON_WHEEL_UP):
 				return
+	if screen == Screen.REPORT and event is InputEventScreenDrag:
+		_report_scroll(event.position, -(event as InputEventScreenDrag).relative.y)
+		return
 	if screen != Screen.FIGHT:
 		return
 	if event is InputEventScreenTouch:
-		if event.pressed:
-			_press(event.position)
-		else:
-			_release(event.position)
-	elif event is InputEventScreenDrag and drawing != -1:
+		var st := event as InputEventScreenTouch
+		if st.pressed:
+			if drawing != -1:
+				return
+			draw_finger = st.index
+			_press(st.position)
+		elif st.index == draw_finger:
+			draw_finger = -1
+			## A CANCELLED TOUCH IS NOT A RELEASE. The OS taking the gesture away
+			## (a notification shade, a palm) must not issue an order.
+			if st.canceled:
+				drawing = -1
+				hover_enemy = -1
+				draw_screen.clear()
+				return
+			_release(st.position)
+	elif event is InputEventScreenDrag and drawing != -1 \
+			and (event as InputEventScreenDrag).index == draw_finger:
 		_extend(event.position)
+
+
+## BACK, from the app's one back handler (AppLife). In a fight it pauses — it
+## used to quit the whole app. On the report it is the report's own way out.
+func go_back() -> bool:
+	if screen == Screen.REPORT:
+		if again_button != null and again_button.visible:
+			again_button.pressed.emit()
+		return true
+	_set_paused(not paused)
+	return true
+
+
+func _set_paused(on: bool) -> void:
+	paused = on
+	accum = 0.0
+	if on:
+		drawing = -1
+		draw_finger = -1
+	queue_redraw()
+
+
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT:
+			if screen != Screen.REPORT and screen != Screen.SPLASH:
+				_set_paused(true)
 
 
 func _press(p: Vector2) -> void:
@@ -717,6 +805,13 @@ func _draw() -> void:
 		UiKit.raw(self, font, Vector2(0, SCREEN.y * 0.46), marshal_text,
 			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 40,
 			Tuning.COL_MARSHAL * Color(1, 1, 1, clampf(marshal_t / 1.6, 0, 1)))
+	if paused:
+		var sz := UiKit.screen()
+		draw_rect(Rect2(Vector2.ZERO, sz), Color(0, 0, 0, 0.6))
+		UiKit.raw(self, font, Vector2(0, sz.y * 0.46), "PAUSED",
+			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 40, UiKit.YOU)
+		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36), "Tap to carry on",
+			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 16, COL_DIM)
 
 
 # ----------------------------------------------------------- the report
@@ -768,7 +863,7 @@ func _draw_report_table() -> void:
 			Vector2(REP_LX + float(REP_COL[h[1]]), 130), 9, COL_DIM, 90.0)
 	_rule(REP_LX, 136.0, REP_LW)
 	var i := 0
-	for m in sim.men:
+	for m in sim.fought():
 		if m.team != 0 or m.card == null:
 			continue
 		var y := REP_ROW_Y + float(i) * REP_ROW_H
@@ -785,7 +880,12 @@ func _draw_report_table() -> void:
 		_cell("%d" % int(m.rounds_standing), "up", y, 11, COL_INK)
 		_cell("%d" % int(m.times_downed), "off", y, 11,
 			COL_HOT if m.times_downed >= 2 else COL_DIM)
-		var got := Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall())
+		## WHAT WAS BANKED, not the raw figure: the season multiplies it by the
+		## regime, the captain and the man's own trait before it lands.
+		var got: int = int(Session.season.last_xp.get(m.card, -1)) \
+			if Session.season != null else -1
+		if got < 0:
+			got = Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall())
 		_cell("+%d" % got, "xp", y, 10, COL_GOOD)
 		_cell("%d" % m.card.level, "lv", y, 11,
 			UiKit.YOU if Career.can_place(m.card) else COL_INK)
@@ -950,7 +1050,7 @@ func _draw_corner() -> void:
 			if m.team == 0 and m.standing():
 				standing += 1
 		var head := [
-			["STANDING", "%d - %d" % [standing, 5 - standing],
+			["STANDING", "%d - %d" % [standing, _line_size(0) - standing],
 				COL_GOOD if standing >= 3 else COL_HOT],
 			["TOOK", "%d:%02d" % [int(sim.round_t) / 60, int(sim.round_t) % 60], COL_INK],
 			["ROUNDS", "%d - %d" % [sim.rounds_won[0], sim.rounds_won[1]], COL_INK],
@@ -994,14 +1094,17 @@ func _draw_corner() -> void:
 		## off `sim.corner_preview` rather than being recomputed here, so the
 		## preview cannot promise a number the recovery does not deliver.
 		var now_e: float = sim.condition_of(f)
-		var back: float = sim.corner_preview(m) if (m != null and not first) else now_e
+		## The preview is the OUTGOING man's recovery; a man just swapped in is
+		## shown as he is, not with somebody else's rest added on.
+		var back: float = sim.corner_preview(m) \
+			if (m != null and not first and m.card == f) else now_e
 		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 17), "ENERGY",
 			HORIZONTAL_ALIGNMENT_LEFT, 80, 7, COL_DIM)
 		draw_rect(Rect2(C_LX + C_BAR_X, ry + 21, C_BAR_W, 8), Color(0, 0, 0, 0.45))
 		draw_rect(Rect2(C_LX + C_BAR_X, ry + 21, C_BAR_W * back, 8),
 			COL_GOOD.lightened(0.32))
 		draw_rect(Rect2(C_LX + C_BAR_X, ry + 21, C_BAR_W * now_e, 8),
-			COL_HOT if now_e < Tuning.GASSED_BELOW else COL_GOOD)
+			COL_HOT if now_e < Tuning.GASSED_BELOW * FighterTrait.mod(f.trait_id, "gassed_below", 1.0) else COL_GOOD)
 		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 43),
 			"%d%%" % int(round(now_e * 100.0)) if is_equal_approx(back, now_e)
 				else "%d%% → %d%%" % [int(round(now_e * 100.0)), int(round(back * 100.0))],
@@ -1163,7 +1266,7 @@ func _draw_man(m) -> void:
 	var y0 := p.y + h * 0.5 + 7.0
 	draw_rect(Rect2(Vector2(x0, y0), Vector2(bw, 3.0)), Color(0, 0, 0, 0.40))
 	draw_rect(Rect2(Vector2(x0, y0), Vector2(bw * m.gas_frac(), 3.0)),
-		COL_HOT if m.gas_frac() < Tuning.GASSED_BELOW else COL_GOOD)
+		COL_HOT if m.gas_frac() < m.gassed_line() else COL_GOOD)
 	draw_rect(Rect2(Vector2(x0, y0 + 4.0), Vector2(bw, 2.0)), Color(0, 0, 0, 0.40))
 	draw_rect(Rect2(Vector2(x0, y0 + 4.0), Vector2(bw * m.stability, 2.0)), Tuning.COL_STEEL)
 
@@ -1281,7 +1384,7 @@ func _draw_banner(team: int, x: float, club) -> void:
 	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 250.0), "%d" % up,
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 34,
 		COL_INK if up > 1 else COL_HOT)
-	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 272.0), "of 5",
+	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 272.0), "of %d" % _line_size(team),
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 12, COL_DIM)
 
 	## What this side has put down THIS round — the round's actual score, and the
@@ -1298,9 +1401,24 @@ func _card_rect(i: int) -> Rect2:
 		Vector2(CARD_W, CARD_H))
 
 
+## How many men a side actually put on the line (a short line fields four).
+func _line_size(team: int) -> int:
+	var n := 0
+	for mm in sim.men:
+		if mm.team == team:
+			n += 1
+	return n
+
+
 func _draw_strip() -> void:
-	for i in 5:
-		var m = sim.men[i]
+	## YOUR MEN ONLY, however many there are. A short line of four made card five
+	## the opposition's first fighter.
+	var mine: Array[MeleeSim.Man] = []
+	for mm in sim.men:
+		if mm.team == 0:
+			mine.append(mm)
+	for i in mini(5, mine.size()):
+		var m: MeleeSim.Man = mine[i]
 		var r := _card_rect(i)
 		var live: bool = m.standing()
 		draw_rect(r, COL_PANEL if live else Color("1a1714"))
@@ -1336,7 +1454,7 @@ func _draw_strip() -> void:
 		var g := m.gas_frac()
 		draw_rect(Rect2(r.position + Vector2(10, 68), Vector2(CARD_W - 20, 7)), Color(0, 0, 0, 0.45))
 		draw_rect(Rect2(r.position + Vector2(10, 68), Vector2((CARD_W - 20) * g, 7)),
-			(COL_HOT if g < Tuning.GASSED_BELOW else COL_GOOD) if live else Color("3a3630"))
+			(COL_HOT if g < m.gassed_line() else COL_GOOD) if live else Color("3a3630"))
 
 
 ## WHAT HE HAS DONE, IN AS FEW WORDS AS IT TAKES.
@@ -1705,6 +1823,21 @@ func _rebuild_book() -> void:
 		_show_playbook()
 
 
+## Time is up in the corner: go back in on what was chosen, or on the push the
+## side was already running if nothing was.
+func _corner_time_up() -> void:
+	if chosen_call.is_empty():
+		corner_done_for_round = sim.round_no
+		sim.leave_corner()
+		screen = Screen.FIGHT
+		sub_open = -1
+		_clear_corner()
+		_hide_panel()
+		Audio.play("confirm")
+		return
+	_apply_chosen()
+
+
 ## CHOOSE AND CALL IN ONE, which is what a tool or a probe driving the screen
 ## from outside wants — `tools/shot_melee.gd`, the balance probes and
 ## `test_book.gd` all pick a play and expect the fight to start. A player gets
@@ -1746,8 +1879,13 @@ func _apply_chosen() -> void:
 		sim.strategies[0] = int(call_["id"])
 	## The opposition picks its own and you do not get told which until you see
 	## the line. Formation is the one decision made blind.
-	sim.formations[1] = Tuning.FORMATIONS.keys()[randi() % Tuning.FORMATIONS.size()]
-	sim.strategies[1] = Tuning.STRATEGIES.keys()[randi() % Tuning.STRATEGIES.size()]
+	##
+	## SEEDED, off the bout's own seed and the round. It was the global `randi()`,
+	## so the same save gave different opposition every time FIGHT was pressed.
+	var opp := RandomNumberGenerator.new()
+	opp.seed = hash("opp-plan:%d:%d" % [sim.rng.seed, sim.round_no])
+	sim.formations[1] = Tuning.FORMATIONS.keys()[opp.randi() % Tuning.FORMATIONS.size()]
+	sim.strategies[1] = Tuning.STRATEGIES.keys()[opp.randi() % Tuning.STRATEGIES.size()]
 
 	if sim.phase == MeleeSim.Phase.CORNER:
 		corner_done_for_round = sim.round_no

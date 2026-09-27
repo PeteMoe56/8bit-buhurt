@@ -837,7 +837,7 @@ func _test_a_grudge_is_carried_on_the_card() -> void:
 	s2.opponent_club_id = 7
 	s2.clubs[0].starting_five()[0].trait_id = FighterTrait.T.GRUDGE
 	s2.clubs[0].starting_five()[0].grudge_club = 7
-	s2._build()
+	s2.dress()
 	_ok(s2.men[0].grudge > 1.0,
 		"and against the club he named he fights above himself",
 		"x%.2f" % s2.men[0].grudge)

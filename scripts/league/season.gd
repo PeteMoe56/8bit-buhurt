@@ -328,6 +328,8 @@ func _dress_sim(sim: MeleeSim, opp_id: int, kind: int, dist: float) -> void:
 	sim.miles = dist
 	sim.corner_time = Grade.corner_time(grade)
 	sim.big_occasion = int(Session.bout_mood) != UiKit.Mood.NORMAL
+	## And now that the sim knows the fixture, let the fixture reach the men.
+	sim.dress()
 	## The opposition is coached to its division, on the six-rung ladder Pete
 	## named on 10 Sep 2026. A Backyard club is nobody's idea of well drilled;
 	## the National Division is, and Worlds guests are better than that.
@@ -682,8 +684,13 @@ func _apply_bout_injuries(sim: MeleeSim) -> void:
 	var line := sim.lineup(0)
 	for k in sim.injuries:
 		var i := int(k["idx"])
-		if i < 5 and i < line.size():
-			var card: FighterCard = line[i]
+		## The card that was hurt, recorded at the moment it happened — the slot
+		## may hold a different man by the end of the bout.
+		var hurt = k.get("card", null)
+		if hurt is FighterCard and not club.roster.has(hurt):
+			continue
+		if hurt is FighterCard or (i < 5 and i < line.size()):
+			var card: FighterCard = hurt if hurt is FighterCard else line[i]
 			## THE REGIME'S SHARPEST EDGE. Retro Bowl lets a knock through 10% of
 			## the time on Light, 20% on Normal and ALWAYS on Hard — so Hard is
 			## not a bit riskier than Normal, it is five times riskier. That
@@ -747,10 +754,17 @@ func _note_change(kind: String, who: String, text_: String, good: int = 0) -> vo
 	last_changes.append({"kind": kind, "who": who, "text": text_, "good": good})
 
 
+## What each man actually banked from the last bout, for the report's XP column.
+var last_xp: Dictionary = {}
+
+
 func _award_xp(sim: MeleeSim) -> void:
 	last_levels.clear()
 	last_changes.clear()
-	for m in sim.men:
+	last_xp.clear()
+	## `fought()`, not `men`: a man subbed off at the corner earned his own
+	## afternoon and keeps it; the man who replaced him starts from nothing.
+	for m in sim.fought():
 		if m.team != 0 or m.card == null:
 			continue
 		if not club.roster.has(m.card):
@@ -762,9 +776,11 @@ func _award_xp(sim: MeleeSim) -> void:
 		## SPONGE and PLATEAUED ride on the same multiplier the regime and the
 		## captain already use, which is the point of them being multipliers: one
 		## man who learns faster is the same shape as a hard winter, at the man.
-		m.card.xp += int(round(float(Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall()))
+		var earned := int(round(float(Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall()))
 			* office.regime_xp(role) * office.specialty_xp(role)
 			* FighterTrait.mod(m.card.trait_id, "xp", 1.0)))
+		m.card.xp += earned
+		last_xp[m.card] = earned
 		## CEILING RAISER. A three-down afternoon is the best thing a man does all
 		## season; on him it moves what he could become, not just what he is.
 		if m.downs_caused >= 3 and FighterTrait.flag(m.card.trait_id, "ceiling_on_big"):
@@ -818,7 +834,7 @@ func _award_xp(sim: MeleeSim) -> void:
 	## never find who did not, which is the shape of the bug this trait would
 	## otherwise have had.
 	var played := {}
-	for m in sim.men:
+	for m in sim.fought():
 		if m.team == 0 and m.card != null:
 			played[m.card] = true
 	for f in club.active_eight():

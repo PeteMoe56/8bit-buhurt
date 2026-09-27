@@ -78,7 +78,7 @@ static func quips(sim: MeleeSim, season) -> Array:
 	## blowing AND that the shape was wrong, one card above the other.
 	var spoke := {}
 	var played := {}
-	for m in sim.men:
+	for m in sim.fought():
 		if m.team != 0 or m.card == null:
 			continue
 		played[m.card] = true
@@ -278,7 +278,7 @@ static func build(sim: MeleeSim) -> Array:
 
 	# --- the tank
 	var gassed: Array = []
-	for m in sim.men:
+	for m in sim.fought():
 		if m.team == us and m.gassed_at >= 0.0:
 			gassed.append(m)
 	gassed.sort_custom(func(a, b): return a.gassed_at < b.gassed_at)
@@ -286,12 +286,12 @@ static func build(sim: MeleeSim) -> Array:
 		out.append(Line.new(2 if not won else 1,
 			"%s (#%d, %s) gassed at %d:%02d of round %d. He went in with %d gas against a %d-second round — the tank is a stat, and it is the one you did not buy." % [
 				m.card.display_name, m.card.number, m.card.pos_name(),
-				int(m.gassed_at) / 60, int(m.gassed_at) % 60, sim.round_no,
+				int(m.gassed_at) / 60, int(m.gassed_at) % 60, maxi(1, m.gassed_round),
 				m.card.gas, int(Tuning.ROUND_TIME),
 			]))
 
 	# --- harness
-	for m in sim.men:
+	for m in sim.fought():
 		if m.team != us:
 			continue
 		if m.card.armor < 0.9 and m.times_downed >= 2:
@@ -303,7 +303,7 @@ static func build(sim: MeleeSim) -> Array:
 
 	# --- the line: which position lost you the round
 	var worst = null
-	for m in sim.men:
+	for m in sim.fought():
 		if m.team != us:
 			continue
 		if worst == null or m.times_downed > worst.times_downed:
@@ -316,7 +316,7 @@ static func build(sim: MeleeSim) -> Array:
 
 	# --- who did the work
 	var top = null
-	for m in sim.men:
+	for m in sim.fought():
 		if m.team != us:
 			continue
 		if top == null or m.downs_caused > top.downs_caused:
