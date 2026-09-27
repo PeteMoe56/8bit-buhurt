@@ -10,7 +10,11 @@ extends SceneTree
 ## Nothing here is allowed to be skipped. A test that cannot run gets fixed or
 ## deleted, never printed as SKIP and left green.
 
-const N := 40
+## RB_TIER (exported by tools/run_tests.sh): "fast" runs the structural checks on
+## a small sample; "balance" runs only the statistical measures at full size;
+## unset (run by hand) runs everything at full size.
+var TIER := OS.get_environment("RB_TIER")
+var N: int = 10 if TIER == "fast" else 40
 
 ## Measured by _test_symmetry over four hundred bouts and read by C-3, which
 ## used to measure the identical thing over forty and get a different answer.
@@ -27,20 +31,25 @@ var notes: Array[String] = []
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — melee constraints (%d bouts per measure) ===\n" % N)
-	_test_fixtures()
-	_test_determinism()
-	_test_symmetry()
-	_test_autoplay_competent()
-	_test_orchestration_matters_but_roster_matters_more()
-	_test_prompts_are_only_for_men_you_sent()
-	_test_pace()
-	_test_stop_rule()
-	_test_best_of_three()
-	_test_the_difficulty_ladder_points_up()
-	_test_the_endings_look_like_buhurt()
-	_test_report_blames_the_roster()
-	_test_the_corner_pays_the_men_who_sat()
-	_test_a_route_can_be_taken_back()
+	var fast := TIER != "balance"
+	var stats := TIER != "fast"
+	if fast:
+		_test_fixtures()
+		_test_determinism()
+		_test_prompts_are_only_for_men_you_sent()
+		_test_stop_rule()
+		_test_best_of_three()
+		_test_report_blames_the_roster()
+		_test_the_corner_pays_the_men_who_sat()
+		_test_a_route_can_be_taken_back()
+	## THE STATISTICAL MEASURES — balance targets, not invariants. Balance tier.
+	if stats:
+		_test_symmetry()
+		_test_autoplay_competent()
+		_test_orchestration_matters_but_roster_matters_more()
+		_test_pace()
+		_test_the_difficulty_ladder_points_up()
+		_test_the_endings_look_like_buhurt()
 
 	print("")
 	for n in notes:

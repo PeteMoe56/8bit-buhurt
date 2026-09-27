@@ -1,0 +1,2 @@
+# Engine ERROR: lines that are known and harmless. One fixed substring per line.
+# Every entry needs a reason on the line above it. An empty file is the goal.

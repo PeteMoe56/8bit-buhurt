@@ -1,4 +1,5 @@
 extends SceneTree
+## RB_TIER: balance-only — every check here is a statistical band.
 ## C-6, restated and measured.
 ##
 ##   godot --headless --path . --script res://tests/test_c6.gd

@@ -85,9 +85,13 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 		failures.append("%s: %s" % [label, detail])
 
 
+var world_season: Season = null
+
+
 func _world() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 4242)
 	Session.season = s
+	world_season = s
 	s.world.season = 3
 	s.office.credits = 60
 	var man: FighterCard = s.club.starting_five()[0]
@@ -116,7 +120,12 @@ func _test_every_screen_paints_to_its_edges() -> void:
 	for page in SCREENS:
 		var path := String(page[0])
 		var tab := int(page[1])
+		## Put the fixture back first — Title's _ready() nulls it — and a missing
+		## screen is a failure, not a skip.
+		Session.season = world_season
+		Session.viewing_fighter = world_season.club.starting_five()[0]
 		if not ResourceLoader.exists(path):
+			_ok(false, "screen exists", path)
 			continue
 		var n: Node = (load(path) as PackedScene).instantiate()
 		root.add_child(n)

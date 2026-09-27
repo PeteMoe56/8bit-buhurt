@@ -259,9 +259,13 @@ func _test_the_sub_popup_is_not_a_pile() -> void:
 ##
 ## Anything a screen only draws in a particular state has to be put into the
 ## state, or the check is measuring the empty case and calling it green.
+var world_season: Season = null
+
+
 func _world() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 4242)
 	Session.season = s
+	world_season = s
 	s.world.season = 3
 	s.office.credits = 60
 	s.hire_captain(ClubOffice.captain("Vaughn", Tuning.Role.RAIL, Tuning.Role.CENTER,
@@ -284,11 +288,22 @@ func _world() -> void:
 
 ## Build a screen the way the game builds it, let it run its `_ready` and one
 ## frame so deferred work lands, then look at what it made.
+##
+## THE FIXTURE IS PUT BACK BEFORE EVERY SCREEN. `Title.tscn` is first in the list
+## and its `_ready()` sets `Session.season = null`; without this every later screen
+## fell back to `Season.new(..., randi())` — a random, unseeded world — and the
+## sweep never saw the fixture built above. And a screen that is missing or will
+## not load is a FAILURE, not a quiet `continue`.
 func _open(path: String) -> Node:
+	if world_season != null:
+		Session.season = world_season
+		Session.viewing_fighter = world_season.club.starting_five()[0]
 	if not ResourceLoader.exists(path):
+		_ok(false, "screen exists", path)
 		return null
 	var packed: PackedScene = load(path)
 	if packed == null:
+		_ok(false, "screen loads", path)
 		return null
 	var n: Node = packed.instantiate()
 	root.add_child(n)

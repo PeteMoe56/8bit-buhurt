@@ -246,6 +246,7 @@ static func _ready_rig() -> bool:
 	## freed on every scene change, which would cut the music every time somebody
 	## opened the Chalkboard.
 	tree.root.add_child(_rig)
+	_rig.tree_exiting.connect(_release)
 	_music = AudioStreamPlayer.new()
 	_music.name = "Music"
 	_music.bus = BUS_MUSIC
@@ -258,6 +259,26 @@ static func _ready_rig() -> bool:
 		_rig.add_child(p)
 		_pool.append(p)
 	return true
+
+
+## Let go of every stream when the rig leaves the tree (app exit). The players
+## are freed with it, but a stream still assigned at that moment was reported by
+## the engine as "resources still in use at exit" on every run that played audio.
+static func _release() -> void:
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	_tween = null
+	for p in _pool:
+		if is_instance_valid(p):
+			p.stop()
+			p.stream = null
+	if is_instance_valid(_music):
+		_music.stop()
+		_music.stream = null
+	_pool.clear()
+	_music = null
+	_rig = null
+	_playing = ""
 
 
 ## Built here rather than stored in a `default_bus_layout.tres`, which is

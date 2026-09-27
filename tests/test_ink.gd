@@ -84,7 +84,7 @@ func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the ink ===\n")
 	await _test_nothing_is_drawn_off_the_screen()
 	await _test_no_text_lands_on_a_control()
-	_test_the_ledger_can_fail()
+	await _test_the_ledger_can_fail()
 	await _test_the_report_columns_hold_their_widest_token()
 	await _test_the_fight_screens_hold_their_ink()
 	await _test_the_card_prints_itself()
@@ -395,17 +395,25 @@ func _test_the_report_columns_hold_their_widest_token() -> void:
 ## passes both sweeps above in perfect silence. So: draw one string that is
 ## obviously off the screen and prove the instrument notices.
 func _test_the_ledger_can_fail() -> void:
+	## Drawn inside a real draw pass — called from here the engine refuses the
+	## draw (an engine error per call) even though the ledger still records it.
 	var probe := Node2D.new()
+	var got := {"on": [], "off": true}
+	probe.draw.connect(func() -> void:
+		UiKit.ledger_start()
+		## PLACED RELATIVE TO THE LIVE EDGE, not at 920: at 1170 wide a canary
+		## pinned to 920 is comfortably on screen and proves nothing.
+		UiKit.text(probe, UiKit.body(), "off the edge entirely",
+			Vector2(frame().size.x - 40.0, 60), 16, UiKit.INK)
+		got["on"] = UiKit.ledger_stop()
+		## And records nothing when it is off, which is how it behaves in the game.
+		UiKit.text(probe, UiKit.body(), "not recorded", Vector2(10, 10), 16, UiKit.INK)
+		got["off"] = UiKit._ledger.is_empty())
 	root.add_child(probe)
-	UiKit.ledger_start()
-	## PLACED RELATIVE TO THE LIVE EDGE, not at 920. The canary was written when
-	## every frame was 960 wide; run at 1170 it drew a string that was comfortably
-	## ON the screen, the sweep correctly reported nothing wrong, and the only
-	## check that failed was the one asserting the alarm works. **A canary pinned
-	## to a number the frame no longer has is not a canary.**
-	UiKit.text(probe, UiKit.body(), "off the edge entirely",
-		Vector2(frame().size.x - 40.0, 60), 16, UiKit.INK)
-	var ink := UiKit.ledger_stop()
+	probe.queue_redraw()
+	await process_frame
+	await process_frame
+	var ink: Array = got["on"]
 	var caught := false
 	for row in ink:
 		var r: Rect2 = row["rect"]
@@ -414,9 +422,7 @@ func _test_the_ledger_can_fail() -> void:
 	_ok(ink.size() == 1 and caught,
 		"the ledger sees a string that runs off the frame",
 		"%d recorded, caught: %s" % [ink.size(), str(caught)])
-	## And records nothing when it is off, which is how it behaves in the game.
-	UiKit.text(probe, UiKit.body(), "not recorded", Vector2(10, 10), 16, UiKit.INK)
-	_ok(UiKit._ledger.is_empty(), "and records nothing with the flag down",
+	_ok(bool(got["off"]), "and records nothing with the flag down",
 		"the game pays nothing for it")
 	probe.queue_free()
 

@@ -26,6 +26,9 @@ const PLAY_TIED := "Wedge hook"
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the book ===\n")
+	## The root is still setting up its children during _initialize; adding a
+	## scene now fails with "parent node is busy". One frame first.
+	await process_frame
 	await _test_it_lists_what_the_club_owns()
 	await _test_a_tied_play_stays_with_its_shape()
 	await _test_calling_a_drawn_shape_stands_the_men_in_it()
@@ -212,23 +215,31 @@ func _test_a_play_does_not_replace_the_push() -> void:
 ## panel with it. Cheap to run, and it is the only check that touches the drawing.
 func _test_every_card_draws() -> void:
 	var s := _season()
+	## PAINTED INSIDE A REAL DRAW PASS. Calling the painter from here, outside
+	## `_draw`, made the engine refuse every draw call (700 engine errors a run)
+	## while the test counted the cards as painted.
 	var img := Control.new()
+	img.size = Vector2(220, 140)
+	var drawn := {"n": 0}
+	img.draw.connect(func() -> void:
+		for sh in s.board.formation_choices():
+			var spots: Array = s.board.spots_for(int(sh["id"]))
+			Playbook.card_face(img, Rect2(0, 0, 200, 120), spots, Playbook.Mode.SHAPE,
+				null, false, String(sh["name"]), UiKit.body())
+			drawn["n"] += 1
+			for st in Tuning.STRATEGIES.keys():
+				Playbook.card_face(img, Rect2(0, 0, 200, 120), spots,
+					Playbook.Mode.STRATEGY, st, true, "x", UiKit.body())
+				drawn["n"] += 1
+			for p in s.board.plays_for(int(sh["id"])):
+				Playbook.card_face(img, Rect2(0, 0, 200, 120), spots, Playbook.Mode.PLAY,
+					p["routes"], false, String(p["name"]), UiKit.body())
+				drawn["n"] += 1)
 	root.add_child(img)
+	img.queue_redraw()
 	await process_frame
-	var drawn_ok := 0
-	for sh in s.board.formation_choices():
-		var spots: Array = s.board.spots_for(int(sh["id"]))
-		Playbook.card_face(img, Rect2(0, 0, 200, 120), spots, Playbook.Mode.SHAPE,
-			null, false, String(sh["name"]), UiKit.body())
-		drawn_ok += 1
-		for st in Tuning.STRATEGIES.keys():
-			Playbook.card_face(img, Rect2(0, 0, 200, 120), spots,
-				Playbook.Mode.STRATEGY, st, true, "x", UiKit.body())
-			drawn_ok += 1
-		for p in s.board.plays_for(int(sh["id"])):
-			Playbook.card_face(img, Rect2(0, 0, 200, 120), spots, Playbook.Mode.PLAY,
-				p["routes"], false, String(p["name"]), UiKit.body())
-			drawn_ok += 1
+	await process_frame
+	var drawn_ok: int = drawn["n"]
 	_ok(drawn_ok >= 20, "every card in the book paints without throwing",
 		"%d cards across %d shapes" % [drawn_ok, s.board.formation_choices().size()])
 	notes.append("a full book is %d shapes and %d cards"
