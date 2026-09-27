@@ -1766,10 +1766,6 @@ const LINE_CLUB := "The club"
 
 const LINE_GATE := "The gate"
 const LINE_PRIZE := "Prize money"
-## Kept only so an old save's books still have a heading for the line they
-## were written with. Nothing produces it any more — the federation bills the
-## club now and that lands under `LINE_FEDERATION`.
-const LINE_DUES := "Members' dues"
 const LINE_CUP := "Tournaments"
 const LINE_STORE := "Bought credits"
 ## WHAT ANOTHER CLUB PAID FOR A MAN. Its own line rather than a negative on "The

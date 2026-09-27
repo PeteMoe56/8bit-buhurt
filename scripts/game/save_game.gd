@@ -369,6 +369,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"tables": w.tables.duplicate(true),
 		"history": w.history.duplicate(true),
 		"honors": w.honors.duplicate(true),
+		"honors_counted": true,
 		"records": w.records.duplicate(true),
 		"hall": w.hall.duplicate(true),
 		"cups": cups,
@@ -445,6 +446,11 @@ static func from_dict(d: Dictionary) -> Season:
 	w.tables = (d["tables"] as Dictionary).duplicate(true)
 	w.history = _dicts(d["history"])
 	w.honors = _dicts(d["honors"])
+	## A file from before honours carried `counted`: everything already in the
+	## cabinet was paid for (or missed) by that build — do not pay it again.
+	if not d.has("honors_counted"):
+		for h in w.honors:
+			h["counted"] = true
 	w.records = (d.get("records", {}) as Dictionary).duplicate(true)
 	w.hall.clear()
 	for h in d.get("hall", []):

@@ -56,6 +56,11 @@ static func interested(coach: Coach, world, club_id: int) -> bool:
 	if club_id == coach.club_id:
 		return false
 	var club: Dictionary = world.clubs[club_id]
+	## A WORLDS GUEST IS NOT A CLUB YOU CAN RUN. Guests are tier -1 and live only
+	## for one tournament — taking one put `player_tier()` at -1 and every table
+	## lookup after it off the end of the pyramid.
+	if bool(club.get("guest", false)) or int(club.get("tier", 0)) < 0:
+		return false
 	if coach.reputation < standing_of(int(club["power"])):
 		return false
 	if club_id == coach.favorite_club_id and world.season < DREAM_HELD_UNTIL_SEASON:

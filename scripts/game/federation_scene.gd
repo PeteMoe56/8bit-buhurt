@@ -128,10 +128,13 @@ func _members(o: ClubOffice) -> void:
 		Vector2(R_X + COL_W - 16, COL_Y + 114), 12, UiKit.DIM, 160)
 
 	var y := COL_Y + 148.0
-	_line("Dues a year", "%d CC" % o.dues(), y); y += 26.0
-	_line("The federation asks", "%d CC" % o.federation_upkeep(), y); y += 26.0
-	var net := o.dues() - o.federation_upkeep()
-	UiKit.text(self, font, "Left over", Vector2(R_X + 16, y), 13, UiKit.DIM)
+	## DUES ARE A BILL, not income. They are charged at the roll-over for the
+	## division the club is about to enter; this screen still printed them as
+	## "Dues a year" coming in and "Left over" as dues minus upkeep.
+	_line("League dues a year", "-%d CC" % o.dues(), y); y += 26.0
+	_line("Paperwork upkeep", "-%d CC" % o.federation_upkeep(), y); y += 26.0
+	var net := -(o.dues() + o.federation_upkeep())
+	UiKit.text(self, font, "The federation costs", Vector2(R_X + 16, y), 13, UiKit.DIM)
 	UiKit.right(self, font, "%s%d CC" % ["+" if net >= 0 else "", net],
 		Vector2(R_X + COL_W - 16, y), 14, UiKit.UP if net >= 0 else UiKit.DOWN, 180)
 	y += 40.0

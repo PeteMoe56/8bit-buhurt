@@ -164,7 +164,18 @@ func player_match() -> Dictionary:
 	for m in current_round():
 		if not bool(m["played"]) and (int(m["a"]) == player_club or int(m["b"]) == player_club):
 			return m
+	## THE BRONZE IS HIS TO FIGHT TOO. It lives outside `current_round()`, so the
+	## player's third-place match was never offered — always auto-simmed.
+	if player_in_third():
+		return third_place
 	return {}
+
+
+## Is the player owed an unplayed third-place match?
+func player_in_third() -> bool:
+	return player_club != -1 and not third_place.is_empty() \
+		and not bool(third_place.get("played", false)) \
+		and (int(third_place["a"]) == player_club or int(third_place["b"]) == player_club)
 
 
 ## IS THE PLAYER STILL IN IT? Asked by everything that decides whether a cup
@@ -175,6 +186,8 @@ func player_match() -> Dictionary:
 ## rounds are what `record` writes. Pools are different: nobody is out of a pool
 ## until the pool is over, so being an entrant is enough while the pools run.
 func player_alive() -> bool:
+	if player_in_third():
+		return true
 	if player_club == -1 or stage == Stage.DONE:
 		return false
 	if not entrants.has(player_club):
@@ -236,6 +249,11 @@ func record(m: Dictionary, ra: int, rb: int, ma: int, mb: int) -> void:
 	## The moment the player goes out, in the round he went out in. Written here
 	## rather than at the end of the cup because by then the bracket no longer
 	## remembers how far he got.
+	if m == third_place:
+		third = int(m.get("winner", -1))
+		if player_club != -1 and (int(m["a"]) == player_club or int(m["b"]) == player_club):
+			player_finish = "third" if third == player_club else "fourth"
+		return
 	if player_club != -1 and stage == Stage.KNOCKOUT \
 			and (int(m["a"]) == player_club or int(m["b"]) == player_club) \
 			and int(m.get("winner", -1)) != player_club:
@@ -305,8 +323,13 @@ func advance() -> bool:
 ## bronze in `ClubEvent.PODIUM[2]` was unreachable, `finish_label()` could never
 ## say "third", and every interactively played bracket finished with an unplayed
 ## match sitting in it.
-func settle_third(resolver: Callable) -> void:
+##
+## `hold_player`: leave the player's own bronze match for him to fight (the season
+## path). `run_all` — a forfeit at the roll-over — plays it on paper.
+func settle_third(resolver: Callable, hold_player: bool = false) -> void:
 	if third_place.is_empty() or bool(third_place.get("played", false)):
+		return
+	if hold_player and player_in_third():
 		return
 	var res: Array = resolver.call(int(third_place["a"]), int(third_place["b"]))
 	## `record` reads the stage when it decides what it is recording, and a
@@ -416,6 +439,7 @@ func to_dict() -> Dictionary:
 		"third_place": third_place.duplicate(true),
 		"champion": champion, "runner_up": runner_up, "third": third,
 		"id": String(get_meta("id", "")),
+		"season": int(get_meta("season", -1)),
 		## The stream, not just the seed. A cup reloaded with a fresh RNG would
 		## resolve its remaining rounds differently from the run that saved it,
 		## which is the same class of bug as a table that re-sorts on reload.
@@ -437,6 +461,8 @@ static func from_dict(d: Dictionary) -> Cup:
 	c.runner_up = int(d["runner_up"])
 	c.third = int(d["third"])
 	c.set_meta("id", String(d["id"]))
+	if int(d.get("season", -1)) >= 0:
+		c.set_meta("season", int(d["season"]))
 	c.rng.seed = int(d["rng_seed"])
 	c.rng.state = int(d["rng_state"])
 	return c

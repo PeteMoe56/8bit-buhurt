@@ -97,6 +97,12 @@ func _ready() -> void:
 	if Session.season == null:
 		Session.season = Season.new(MeleeRosters.starting_club(), randi())
 	season = Session.season
+	## Anything the club had to do to put five men on the list — said once.
+	if not season.last_emergency.is_empty():
+		flash = "Short of fit men: " + season.last_emergency[0] + (
+			" and %d more." % (season.last_emergency.size() - 1)
+				if season.last_emergency.size() > 1 else ".")
+		season.last_emergency = []
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_rebuild()
@@ -408,7 +414,8 @@ func _sim_controls() -> void:
 			sim_asking = false
 			season.skip_event()
 			Session.autosave()
-			flash = "Event simulated."
+			flash = "Event simulated." if season.last_emergency.is_empty() \
+				else "Event simulated. " + season.last_emergency[0] + "."
 			_rebuild(), "clock"))
 	ui.add_child(UiKit.button("Go back", Vector2(SIM_CARD.position.x
 		+ SIM_CARD.size.x - 248.0, SIM_CARD.position.y + SIM_CARD.size.y - 62.0),

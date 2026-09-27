@@ -634,8 +634,11 @@ func _the_man() -> void:
 			Vector2(L_X + 16, y + 56), 12, UiKit.DOWN)
 	else:
 		UiKit.text(self, font, "Asks next", Vector2(L_X + 16, y + 56), 11, UiKit.DIM)
+		## The price the club would actually pay (a Negotiator captain included),
+		## from the same function `Season.resign` charges.
+		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])
 		UiKit.right(self, font, "%s/wk · %dy" % [
-			ClubOffice.money(int(asks["wage"])), int(asks["years"])],
+			ClubOffice.money(wage_asked), int(asks["years"])],
 			Vector2(L_X + COL_W - 16, y + 56), 12,
 			UiKit.DOWN if float(asks["mood"]) > 1.02 else (
 				UiKit.UP if float(asks["mood"]) < 0.98 else UiKit.INK), 200)

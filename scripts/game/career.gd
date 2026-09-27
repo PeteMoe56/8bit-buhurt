@@ -683,10 +683,19 @@ static func cashes_in(f: FighterCard) -> bool:
 static func cash_in(f: FighterCard) -> int:
 	if not cashes_in(f):
 		return 0
-	var paid := level_cost(f)
+	var paid := cash_value(f)
 	f.xp -= next_level_at(f)
 	f.level += 1
 	return paid
+
+
+## WHAT ONE CASH-IN PAYS: the level cost, with the level capped where the bar is
+## capped. It paid the raw `level_cost`, and `level` goes up by one on every
+## cash-in while the bar stops rising at LEVEL_BAR_CAP — so a squad of maxed
+## veterans paid more every single winter, forever.
+static func cash_value(f: FighterCard) -> int:
+	return maxi(1, int(round(float(clampi(f.level, 1, LEVEL_BAR_CAP))
+		* float(LEVEL_COST_PER) * learn_rate(f))))
 
 
 ## AT HIS CEILING HE STOPS. Retro Bowl says it in a sentence —

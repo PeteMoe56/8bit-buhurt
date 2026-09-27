@@ -534,6 +534,7 @@ func begin_bout() -> MeleeSim:
 	var opp := opponent_id()
 	if opp == -1:
 		return null
+	ensure_a_line()
 	opponent = club_for(opp)
 	## Seeded off the season and matchday, so replaying a save replays the bout.
 	var s := hash("bout:%d:%d:%d" % [seed_value, world.season, world.event])
@@ -565,10 +566,14 @@ func post_bout(sim: MeleeSim) -> void:
 	## AND WHERE IT WAS PLAYED, captured here with the opponent and for the same
 	## reason: everything below this line happens after the week has ticked.
 	var was_home: bool = venue_kind() == Venue.Kind.HOME
+	## AND WHAT THE GATE WAS WORTH, for the same reason. `_after_event` used to
+	## ask `gate_now()` after the week had ticked, which described the NEXT
+	## fixture — the last matchday of a season always paid as away with no counter.
+	var gate := gate_now()
 	var before := _my_row()
 	_award_xp(sim)
 	world.play_event(last_result)
-	_after_event(int(last_result[0]), int(last_result[1]))
+	_after_event(int(last_result[0]), int(last_result[1]), gate)
 	## INJURIES LAND AFTER THE WEEK TICKS, and the order is the whole fix.
 	##
 	## They used to be applied first, and `_after_event` then decremented every
@@ -945,9 +950,11 @@ func _award_sim_xp() -> void:
 
 ## Play the matchday without fighting it — a bye, or the player choosing to sim.
 func skip_event() -> void:
+	ensure_a_line()
 	_award_sim_xp()
 	var opp := opponent_id()
 	var was_home: bool = venue_kind() == Venue.Kind.HOME
+	var gate := gate_now()
 	var before := _my_row()
 	var was := _my_row()
 	## THE GRADE APPLIES TO A SIMMED FIXTURE TOO. See the note in
@@ -959,7 +966,7 @@ func skip_event() -> void:
 	world.play_event()
 	world.player_scale = 1.0
 	var now := _my_row()
-	_after_event(int(now["rf"]) - int(was["rf"]), int(now["ra"]) - int(was["ra"]))
+	_after_event(int(now["rf"]) - int(was["rf"]), int(now["ra"]) - int(was["ra"]), gate)
 	## AND THE WEEK STILL HAPPENED.
 	##
 	## `_apply_regime()` ran from `post_bout` and not from here, so a SIMMED event
@@ -975,7 +982,7 @@ func skip_event() -> void:
 
 ## Everything that happens to the club because an event happened: credits for
 ## the result, morale, and a week off the treatment table.
-func _after_event(rf: int, ra: int) -> void:
+func _after_event(rf: int, ra: int, gate: Dictionary = {}) -> void:
 	## THE CROWD IS PAID FIRST, and it is paid whatever the result. A fight in
 	## front of a house that knows who you are is worth money because it was
 	## watched, not because it was won — that is the whole point of banding it.
@@ -996,7 +1003,7 @@ func _after_event(rf: int, ra: int) -> void:
 	## multiplied by the ground it was fought in. It used to be home-only, which
 	## made two thirds of a season's fixtures worth nothing at all — see the long
 	## note over `Venue.gate_share`.
-	var g := gate_now()
+	var g := gate if not gate.is_empty() else gate_now()
 	office.take(int(g["cc"]), "The gate  ·  %s" % String(g["where"]), "event",
 		ClubOffice.LINE_GATE)
 	## AND THE COUNTER, AT HOME ONLY. It is your bar or it is not.
@@ -1011,7 +1018,7 @@ func _after_event(rf: int, ra: int) -> void:
 	## at a well-attended ground is a bad season rather than a crisis — which is
 	## exactly what Retro Bowl's stadium does for them, in a shape that belongs to
 	## this sport instead of theirs.
-	if venue_kind() == Venue.Kind.HOME:
+	if int(g["kind"]) == Venue.Kind.HOME:
 		var heads := office.attendance()
 		office.take(Arena.counter_take(office.arena.level, heads),
 			"The counter  ·  %s" % Arena.sells(office.arena.level), "event",
@@ -1340,6 +1347,7 @@ func cup_opponent() -> int:
 ## same captains and the same drawn plan — a cup match is a bout, not a special
 ## case, and the moment it stops being one the two paths start to drift.
 func begin_cup_bout() -> MeleeSim:
+	ensure_a_line()
 	var c := pending_cup()
 	if c == null:
 		return null
@@ -1378,6 +1386,7 @@ func post_cup_bout(sim: MeleeSim) -> void:
 
 ## Or hand it to the AI. Same road afterwards.
 func sim_cup_tie() -> void:
+	ensure_a_line()
 	var c := pending_cup()
 	if c == null:
 		return
@@ -1393,7 +1402,9 @@ func sim_cup_tie() -> void:
 ## retired — with the gate settled if it was his own show.
 func _finish_cup_round(c: Cup, won: bool) -> void:
 	c.sim_others(world.cup_resolver())
-	while c.round_complete() and not c.is_over():
+	## NOT PAST THE PLAYER'S BRONZE. If he lost a semi he is owed the third-place
+	## match, and finishing the cup around him would auto-sim it.
+	while c.round_complete() and not c.is_over() and not c.player_in_third():
 		if not c.advance():
 			break
 		c.sim_others(world.cup_resolver())
@@ -1402,7 +1413,7 @@ func _finish_cup_round(c: Cup, won: bool) -> void:
 	## The bronze match, on the path the player actually walks. `run_all` played
 	## it; this route never did, so third place did not exist in a cup anybody
 	## fought through.
-	c.settle_third(world.cup_resolver())
+	c.settle_third(world.cup_resolver(), true)
 	if c.is_over():
 		## YOU WON SOMETHING. The fanfare is played here rather than left to the
 		## mood system, because a mood is a state you are in and this is a moment
@@ -1529,6 +1540,12 @@ func _settle_gate(e: ClubEvent, c: Cup) -> void:
 	booked = null
 
 
+## Worlds guests are deleted when their Worlds ends; a show that invited one
+## would hold an id that stops existing mid-bracket.
+func _is_guest(id: int) -> bool:
+	return bool(world.clubs[id].get("guest", false)) or int(world.clubs[id].get("tier", 0)) < 0
+
+
 ## Who turns up. Eight clubs of roughly your own standard, because a tournament
 ## you cannot place in is not a tournament you would put money into — and a
 ## bigger budget reaches further up the list for names.
@@ -1537,7 +1554,7 @@ func _invite_field(e: ClubEvent) -> Array:
 	var reach: int = 4 + e.budget * 7
 	var pool: Array = []
 	for id in world.clubs.size():
-		if id == world.player_club:
+		if id == world.player_club or _is_guest(id):
 			continue
 		if absi(int(world.clubs[id]["power"]) - mine) <= reach:
 			pool.append(id)
@@ -1551,7 +1568,7 @@ func _invite_field(e: ClubEvent) -> Array:
 	## numbers rather than the bracket being short.
 	var i := 0
 	while field.size() < ClubEvent.FIELD and i < world.clubs.size():
-		if i != world.player_club and not field.has(i):
+		if i != world.player_club and not field.has(i) and not _is_guest(i):
 			field.append(i)
 		i += 1
 	field.sort_custom(func(a, b): return int(world.clubs[a]["power"]) > int(world.clubs[b]["power"]))
@@ -1935,13 +1952,23 @@ func roll_over() -> void:
 	## AND WHAT THE CUPS DID. Every bracket that resolved this year and had you in
 	## it pays by how far you went — the size of the round you went out in, which
 	## is the key `Coach.REP_BY_CUP_EXIT` is written on.
+	##
+	## EACH CUP IS COUNTED ONCE, WHENEVER IT ENDED. This used to ask for honours
+	## labelled `world.season` — but `world.roll_over()` above has already moved
+	## the season on, so no Invitational was ever counted and a Worlds (which
+	## ends in the following year) was counted a year late. Now every honour
+	## carries a `counted` flag and the summer pays for the ones not yet paid.
+	var won_cup := false
 	for h in honors():
-		if int(h.get("season", -1)) != world.season:
+		if bool(h.get("counted", false)):
 			continue
+		h["counted"] = true
 		var exit_size := int(h.get("exit", -1))
 		if exit_size > 0:
 			coach.after_cup(exit_size)
-	coach.note_season(after > before, after < before, _won_a_cup_this_year())
+		if int(h.get("champion", -1)) == world.player_club:
+			won_cup = true
+	coach.note_season(after > before, after < before, won_cup)
 
 	## AND THEN THE CLUB MAY COME APART. Last, after everything else the summer
 	## does, because a squad that is about to lose half its men should still have
@@ -1966,6 +1993,9 @@ func roll_over() -> void:
 		finished <= int(League.club_count(before) / 2), office.morale, bench_full)
 	last_members = {"was": was_fans, "now": office.fans}
 
+	## THE BREAKAWAYS HAVE A WINTER TOO — before a new one can form, so a club
+	## founded this summer starts as the men who walked.
+	_winter_the_splinters()
 	last_split = _maybe_split(finished, before, after)
 
 	## AND THE BOOKS CLOSE. LAST, after every summer payment and every summer
@@ -2120,27 +2150,62 @@ func _maybe_split(place: int, tier_before: int, tier_after: int) -> Dictionary:
 	}
 
 
-## Which line slot a club cannot currently fill. Used when a breakaway is short.
+## Which line slot a club is thinnest at. Used when a breakaway is short.
+##
+## It used to look for a null in `starting_five()` — which never holds one (it
+## returns a SHORT array instead) — so every walk-on it asked for was a Center.
 func _missing_slot(c: MeleeClub) -> int:
-	var five := c.starting_five()
-	for slot in five.size():
-		if five[slot] == null:
-			return slot
-	return Tuning.Pos.CENTER
+	return _thinnest_slot(c)
 
 
-## Did we lift anything this year? Read off the honors the world already keeps
-## rather than counted separately as the cups resolve — one source, so the
-## coach's cup count and the trophy cabinet cannot disagree.
-func _won_a_cup_this_year() -> bool:
-	for h in honors():
-		## BOTH HALVES. The cabinet records EVERY cup the world resolved, not only
-		## the ones you were in, so a season check alone would have credited you
-		## with every trophy anybody lifted that year.
-		if int(h.get("season", -1)) == world.season \
-				and int(h.get("champion", -1)) == world.player_club:
-			return true
-	return false
+func _thinnest_slot(c: MeleeClub) -> int:
+	var eight := c.active_eight()
+	var worst := int(Tuning.Pos.CENTER)
+	var fewest := 99
+	for slot in 5:
+		var n := 0
+		for f in eight:
+			if f.fit() and Tuning.covers(int(f.pos), slot):
+				n += 1
+		if n < fewest:
+			fewest = n
+			worst = slot
+	return worst
+
+
+## A BREAKAWAY IS MADE OF MEN, AND MEN AGE. Every other CPU club is a rating that
+## drifts; a splinter is a stored roster, and it sat frozen — nobody aged,
+## trained or retired, while `_drift_ratings` moved the number the table sims
+## used. Its table results and its bouts against you slowly stopped describing
+## the same club. Now it has the same winter as yours (coached, no ground), loses
+## its retirees, tops its line up with walk-ons at its own division's level, and
+## its power is read back off the men.
+func _winter_the_splinters() -> void:
+	for key in splinter_rosters.keys():
+		var id := int(key)
+		if id < 0 or id >= world.clubs.size() or id == world.player_club:
+			continue
+		var rival := club_for(id)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash("splinter-winter:%d:%d:%d" % [seed_value, world.season, id])
+		for f in rival.roster.duplicate():
+			Career.winter(f, true, 0)
+			if rng.randf() < Career.retire_chance(f, 0.7):
+				rival.roster.erase(f)
+		var guard := 0
+		while rival.starting_five().size() < MeleeClub.LINE_SIZE and guard < MeleeClub.SQUAD_MAX:
+			guard += 1
+			var w := ClubFactory.walk_on(rng, _thinnest_slot(rival),
+				maxi(0, int(world.clubs[id]["tier"])))
+			if rival.sign(w) != "":
+				break
+			w.active = true
+		var whole: Array[FighterCard] = []
+		for f in rival.roster:
+			whole.append(f)
+		splinter_rosters[id] = whole
+		world.clubs[id]["power"] = rival.power()
+		_clubs[id] = {"club": rival, "power": rival.power()}
 
 
 ## THE WINTER. Everybody gets a year older, the ones who are done go home, and
@@ -2345,22 +2410,67 @@ func _fill_squad() -> Array[String]:
 	return took
 
 
+## A CLUB THAT CANNOT FIELD FIVE MID-SEASON IS NOT LEFT TO FORFEIT ITS YEAR.
+##
+## A club under five fit men in the travelling party is rated 0 — every sim a
+## loss — and walk-ons only arrived in the winter. Two injuries and one man out,
+## with no money for the market (the dues can put a club in the red), was a
+## season of forfeits with no way out. So before any bout or sim:
+##   1. a fit man in the reserve travels in place of an injured one;
+##   2. if that is still not five, a free walk-on is signed (room permitting).
+## Returns what it did, for the status line; empty when the line was already whole.
+var last_emergency: Array[String] = []
+
+
+func ensure_a_line() -> Array[String]:
+	last_emergency = []
+	## The travel cap first: the party is the first N active men in roster
+	## order, and N is the office's, not whatever the club was last built with.
+	sync_power()
+	if club.starting_five().size() >= MeleeClub.LINE_SIZE:
+		return last_emergency
+	for f in club.reserves():
+		if club.starting_five().size() >= MeleeClub.LINE_SIZE:
+			break
+		if not f.fit():
+			continue
+		var out_man: FighterCard = null
+		for a in club.active_eight():
+			if not a.fit():
+				out_man = a
+				break
+		if out_man != null:
+			out_man.active = false
+		f.active = true
+		last_emergency.append("%s travels in place of the injured" % f.display_name)
+	## Its own stream, keyed on the matchday: the roster stream is not saved, and
+	## a mid-season draw from it would come out differently after a reload.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash("emergency:%d:%d:%d" % [seed_value, world.season, world.event])
+	var guard := 0
+	while club.starting_five().size() < MeleeClub.LINE_SIZE and guard < MeleeClub.LINE_SIZE:
+		guard += 1
+		var w := ClubFactory.walk_on(rng, _uncovered_slot(), world.player_tier())
+		if club.sign(w) != "":
+			break
+		## If the party is full of injured men, one of them stays home for him.
+		if club.active_eight().size() >= club.party_size():
+			for a in club.active_eight():
+				if not a.fit():
+					a.active = false
+					break
+		w.active = true
+		last_emergency.append("%s signed as an emergency walk-on" % w.display_name)
+	if not last_emergency.is_empty():
+		sync_power()
+	return last_emergency
+
+
 ## Which place on the line the eight cannot fill. Counted by who COVERS the slot
 ## rather than who is listed for it, so a club short of a Center is not handed a
 ## second Rail on the grounds that the Rail slot has one man in it.
 func _uncovered_slot() -> int:
-	var eight := club.active_eight()
-	var worst := int(Tuning.Pos.CENTER)
-	var fewest := 99
-	for slot in 5:
-		var n := 0
-		for f in eight:
-			if f.fit() and Tuning.covers(int(f.pos), slot):
-				n += 1
-		if n < fewest:
-			fewest = n
-			worst = slot
-	return worst
+	return _thinnest_slot(club)
 
 
 # ------------------------------------------------------------------- the mood
@@ -2571,8 +2681,15 @@ func answer_dilemma(option_i: int) -> String:
 		## available and simply takes what there is — refusing the choice because
 		## the club is skint would make the dilemma a quiz with the answers
 		## grayed out, which is worse than the cost.
-		var real: int = d if d >= 0 else -mini(-d, office.credits)
-		office.credits += real
+		## A CLUB ALREADY IN DEBT PAYS NOTHING MORE, it is not PAID. The old
+		## `-mini(-d, credits)` went positive below zero: at -10 a "-6 CC" card
+		## handed the club +10. And it goes through the books like every other
+		## credit, so the finances page can see it.
+		var real: int = d if d >= 0 else -mini(-d, maxi(0, office.credits))
+		if real > 0:
+			office.take(real, "The club's decision", "", ClubOffice.LINE_CLUB)
+		elif real < 0:
+			office.spend(-real, ClubOffice.LINE_CLUB)
 		said.append("%+d CC" % real)
 	if fx.has("morale"):
 		## Through `morale_shift`, not by writing the field — the logistic is the
@@ -2739,6 +2856,12 @@ func resign(f: FighterCard) -> String:
 		if f.years >= Contracts.YEARS_MAX:
 			return "%s is already on the longest deal the club can offer." % f.display_name
 		return "%s has %d years left. Extend him instead." % [f.display_name, f.years]
+	## WHAT THE FIGHTER CARD PROMISED IS WHAT HAPPENS. The card reads
+	## `Contracts.demand()` — the refusal, the mood-priced wage, two years for a
+	## man of 33 — and this used to ignore all three and sign everybody for three
+	## years at the unpriced rate.
+	if Contracts.refuses(f):
+		return Contracts.refusal(f)
 	var wage := resign_cost(f)
 	var bill := ClubOffice.wage_bill(club) - ClubOffice.billed(f) + wage
 	if bill > office.cap():
@@ -2746,7 +2869,7 @@ func resign(f: FighterCard) -> String:
 			f.display_name, ClubOffice.money(wage),
 			ClubOffice.money(bill - office.cap())]
 	f.wage_agreed = wage
-	f.years = Contracts.YEARS_NEW
+	f.years = int(Contracts.demand(f)["years"])
 	return ""
 
 
@@ -2771,7 +2894,7 @@ func extend_cost(f: FighterCard) -> int:
 
 
 func resign_cost(f: FighterCard) -> int:
-	return _negotiated(f, Contracts.offer(ClubOffice.wage(f), f.age))
+	return _negotiated(f, int(Contracts.demand(f)["wage"]))
 
 
 # ----------------------------------------------------------------- read-outs

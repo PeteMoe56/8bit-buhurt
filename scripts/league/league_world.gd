@@ -710,6 +710,9 @@ func _close_the_season_cups() -> void:
 		worlds.run_all(resolver)
 		_record_honors(worlds)
 		worlds = null
+		## The finished Worlds' guests go home before the next field is invited,
+		## or they piled up behind it year on year.
+		_clear_guests()
 
 
 func roll_over() -> void:
@@ -744,6 +747,10 @@ func roll_over() -> void:
 	## from the National table BEFORE anybody is promoted out of it. The line
 	## above has already retired last year's.
 	worlds = _build_worlds(table(League.Tier.NATIONAL))
+	## THE SEASON IT BELONGS TO. It is fought over the summer and into next year,
+	## so recording it under `season` at the time it ends labelled it a year late.
+	if worlds != null:
+		worlds.set_meta("season", season)
 
 	var moves_up: Dictionary = {}
 	var moves_down: Dictionary = {}
@@ -802,6 +809,11 @@ func _drift_ratings() -> void:
 		var lo := int(band[0]) - 6
 		var hi := int(band[1]) + 6
 		var drift := rng.randi_range(-3, 3)
+		## A BREAKAWAY'S POWER IS ITS MEN, set by the season's winter for them.
+		## The draw above still happens so the stream is the same with or without
+		## one in the world.
+		if bool(c.get("splinter", false)) or bool(c.get("guest", false)):
+			continue
 		## A club that has just gone up or come down converges toward its new
 		## division rather than snapping to it.
 		var mid := float(int(band[0]) + int(band[1])) * 0.5
@@ -1033,7 +1045,7 @@ func _record_honors(c: Cup) -> void:
 	honors.append({
 		"id": String(c.get_meta("id", "")),
 		"name": c.cup_name,
-		"season": season,
+		"season": int(c.get_meta("season", season)),
 		"champion": c.champion,
 		"runner_up": c.runner_up,
 		"player": c.finish_label(),
