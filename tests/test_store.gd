@@ -19,6 +19,8 @@ var notes: Array[String] = []
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the counter ===\n")
+	## Its own wallet file: this test zeroes and rewrites the wallet.
+	Store.wallet_prefix = "test_store_"
 	_test_the_shelf_is_a_real_ladder()
 	_test_a_purchase_is_not_attached_to_a_save()
 	_test_the_wallet_survives_the_app()
@@ -107,8 +109,22 @@ func _test_a_purchase_is_not_attached_to_a_save() -> void:
 	Store.save_wallet()
 
 	var a := Season.new(MeleeRosters.starting_club(), 11)
+	var saved := func() -> bool: return true
+	var failed := func() -> bool: return false
+
+	## A CLAIM WHOSE SEASON DID NOT REACH DISK IS UNDONE. The office goes back to
+	## what it was and the wallet still holds the money, so a failed save cannot
+	## lose a purchase. And a claim with no save at all claims nothing.
+	var before0: int = a.office.credits
+	var none := Store.claim(a.office, failed)
+	var unsaved := Store.claim(a.office)
+	_ok(none == 0 and unsaved == 0 and a.office.credits == before0 and Store.owed == 40
+		and int(a.office.books_in.get(ClubOffice.LINE_STORE, 0)) == 0,
+		"a claim whose season was not saved is undone",
+		"office %d -> %d, wallet still owes %d" % [before0, a.office.credits, Store.owed])
+
 	var before: int = a.office.credits
-	var moved := Store.claim(a.office)
+	var moved := Store.claim(a.office, saved)
 	_ok(moved == 40 and a.office.credits == before + 40,
 		"credits bought with no career land in the next one opened",
 		"%d moved, office went %d -> %d" % [moved, before, a.office.credits])
@@ -116,13 +132,13 @@ func _test_a_purchase_is_not_attached_to_a_save() -> void:
 	## AND THEY DO NOT LAND TWICE. A claim empties the wallet; a second club
 	## opened afterwards gets nothing, because nothing is owed.
 	var b := Season.new(MeleeRosters.starting_club(), 12)
-	var second := Store.claim(b.office)
+	var second := Store.claim(b.office, saved)
 	_ok(second == 0, "and they are not paid out again to the next club",
 		"second claim moved %d" % second)
 
 	## AND A CLAIM WITH NOTHING OWED IS NOT AN ERROR — it is the normal case,
 	## run every time a career is opened.
-	_ok(Store.claim(a.office) == 0 and Store.claim(null) == 0,
+	_ok(Store.claim(a.office, saved) == 0 and Store.claim(null, saved) == 0,
 		"claiming nothing, or claiming into nothing, is quiet",
 		"both return 0 rather than throwing")
 

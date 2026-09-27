@@ -61,18 +61,41 @@ func _build() -> void:
 	var shown: int = mini(offers.size(), OFFERS_SHOWN)
 	for i in shown:
 		var cid: int = offers[i]
-		ui.add_child(UiKit.button("Take it",
+		ui.add_child(UiKit.button("Sign and leave it all" if confirm_take == cid else "Take it",
 			Vector2(R_X + 16, offer_row_y(i) + OFFER_BUTTON_DY),
 			Vector2(COL_W - 32, OFFER_BUTTON_H), _take.bind(cid)))
+	if confirm_take >= 0:
+		ui.add_child(UiKit.button("Stay", Vector2(190, UiKit.screen().y - 56),
+			Vector2(150, 44), func():
+				confirm_take = -1
+				flash = ""
+				_build()))
 	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
 	queue_redraw()
 
 
+## TWO TAPS, AND THE SECOND ONE SAYS WHAT IT COSTS. Taking a job hands back the
+## whole club — credits, buildings, captains, playbook — and it was one tap with
+## no warning, autosaved on the spot.
+var confirm_take: int = -1
+
+
 func _take(club_id: int) -> void:
-	flash = UiKit.said(season.take_job(club_id))
-	Session.autosave()
+	if confirm_take != club_id:
+		confirm_take = club_id
+		var carry: int = mini(season.office.credits, season.office.bought) if season.office.bought > 0 else 0
+		flash = "You leave the squad, %d CC, the buildings, captains and playbook behind%s. Tap again to sign." % [
+			maxi(0, season.office.credits - carry),
+			(" (your %d bought CC come with you)" % carry) if carry > 0 else ""]
+		_build()
+		return
+	confirm_take = -1
+	var err := season.take_job(club_id)
+	flash = UiKit.said(err)
+	if err == "":
+		Session.autosave()
 	_build()
 
 

@@ -67,7 +67,18 @@ const PRODUCTS: Array[Dictionary] = [
 ## The Android plugin's singleton name. Absent until the plugin is in the build.
 const BILLING_SINGLETON := "GodotGooglePlayBilling"
 
-const WALLET_PATH := "user://wallet.dat"
+const WALLET_PATH := "user://%swallet.dat"
+## Tests set this so they never touch a developer's real wallet (same idea as
+## SaveGame.set_namespace). Empty in the game.
+static var wallet_prefix: String = ""
+
+
+static func wallet_path() -> String:
+	## Under the test runner (which exports RB_TIER) every file gets a test wallet
+	## even if it forgot to ask for one.
+	if wallet_prefix == "" and OS.get_environment("RB_TIER") != "":
+		return WALLET_PATH % "test_"
+	return WALLET_PATH % wallet_prefix
 ## Bumped if the wallet's shape ever changes. It is one integer today.
 const WALLET_VERSION: int = 1
 
@@ -167,9 +178,9 @@ static func _sellable_here() -> bool:
 ## save file is a wallet that disappears when the player starts a second club.
 static func load_wallet() -> void:
 	owed = 0
-	if not FileAccess.file_exists(WALLET_PATH):
+	if not FileAccess.file_exists(wallet_path()):
 		return
-	var f := FileAccess.open(WALLET_PATH, FileAccess.READ)
+	var f := FileAccess.open(wallet_path(), FileAccess.READ)
 	if f == null:
 		return
 	var d = f.get_var()
@@ -178,29 +189,52 @@ static func load_wallet() -> void:
 		owed = maxi(0, int(d.get("owed", 0)))
 
 
+## Written to a temp file and moved into place, so a phone killed mid-write
+## leaves the old wallet rather than a torn one (which read back as zero owed).
 static func save_wallet() -> bool:
-	var f := FileAccess.open(WALLET_PATH, FileAccess.WRITE)
+	var path := wallet_path()
+	var tmp := path + ".tmp"
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		return false
 	f.store_var({"version": WALLET_VERSION, "owed": maxi(0, owed)}, false)
+	var err := f.get_error()
 	f.close()
-	return true
+	if err != OK:
+		DirAccess.remove_absolute(tmp)
+		return false
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(path)
+	return DirAccess.rename_absolute(tmp, path) == OK
 
 
 ## HAND WHAT IS OWED TO THE CLUB THAT IS OPEN. Returns how many credits moved.
 ##
-## The wallet is emptied only after the office has the money and the wallet has
-## been written — if the app dies between the two, the player is credited twice
-## rather than not at all, and being credited twice is a bug that costs BonkWorks
-## nothing while the other one costs a customer.
-static func claim(office) -> int:
-	if office == null or owed <= 0:
+## ORDER: credit the office, WRITE THE SEASON (`persist`), and only then empty the
+## wallet. It used to empty the wallet first, so an app killed between the two —
+## or a season save that failed — lost credits somebody paid for. Now the worst
+## case is the one that costs BonkWorks and not the customer: the season is on
+## disk with the credits AND the wallet still holds them, and they land twice.
+##
+## `persist` must write the season and return true. If it returns false the
+## credit is taken back out of the office and the wallet keeps it for next time.
+## Without a `persist` nothing is claimed: a claim nobody saves is a claim that
+## can be lost.
+static func claim(office, persist: Callable = Callable()) -> int:
+	if office == null or owed <= 0 or not persist.is_valid():
 		return 0
 	var moved := owed
 	## THROUGH `take()`, not straight at the balance. Bought credits are the one
-	## line on the finances page that is not the club earning, and a player
-	## looking at a good year has every right to know how much of it he paid for.
+	## line on the finances page that is not the club earning.
 	office.take(moved, "Credits bought", "store", ClubOffice.LINE_STORE)
+	office.bought += moved
+	if not bool(persist.call()):
+		office.credits -= moved
+		office.bought -= moved
+		office.books_in[ClubOffice.LINE_STORE] = int(office.books_in.get(ClubOffice.LINE_STORE, 0)) - moved
+		if not office.purse_log.is_empty():
+			office.purse_log.pop_front()
+		return 0
 	owed = 0
 	save_wallet()
 	return moved

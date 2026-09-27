@@ -543,6 +543,11 @@ static func arm() -> Node:
 	var art := JuiceArt.new()
 	art.name = "JuiceArt"
 	layer.add_child(art)
+	## The app's lifecycle node rides with the layer: it has to exist on every
+	## screen, and this is the one thing every screen already arms.
+	var life := AppLife.new()
+	life.name = "AppLife"
+	layer.add_child(life)
 	## DEFERRED, AND THAT IS NOT A STYLE CHOICE.
 	##
 	## Every screen arms this from its own `_ready()`, which runs *while the

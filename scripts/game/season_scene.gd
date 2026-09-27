@@ -2257,10 +2257,9 @@ func _shop_controls() -> void:
 						## The grant is the store's callback, not this tap — a
 						## shop that credits on the REQUEST credits a canceled
 						## purchase. What lands now is whatever is already owed.
-						var got := Store.claim(season.office)
+						var got := Store.claim(season.office, Session.autosave)
 						flash = ("%d credits." % got) if got > 0 \
 							else "Asked the store. Credits land when it answers."
-						Session.autosave()
 					_rebuild()))
 		## THE BUTTON A PLAYER WHOSE MONEY WENT MISSING WILL LOOK FOR. For a
 		## consumable there is nothing to re-own — the credits were spent — so
@@ -2268,10 +2267,9 @@ func _shop_controls() -> void:
 		ui.add_child(UiKit.button("Restore a purchase",
 			Vector2(SHOP_CARD.position.x + 24.0, y), Vector2(240, 44), func():
 				Store.resolve_pending()
-				var got := Store.claim(season.office)
+				var got := Store.claim(season.office, Session.autosave)
 				flash = ("%d credits." % got) if got > 0 \
 					else "Asked the store for anything outstanding."
-				Session.autosave()
 				_rebuild()))
 	ui.add_child(UiKit.button("Back",
 		Vector2(SHOP_CARD.end.x - 184.0, y), Vector2(160, 44), func():

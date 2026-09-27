@@ -235,8 +235,17 @@ func take_job(club_id: int) -> String:
 	## its own: no credits banked, no facilities, no captains, no following. This
 	## is the cost of the move and it is deliberately not softened — a coach who
 	## carries his arena across town is not changing jobs.
+	##
+	## EXCEPT MONEY THE PLAYER PAID FOR. Credits bought in the store follow the
+	## coach — `min(credits, bought)`, so what he takes is never more than he
+	## bought or more than he has. Leaving it behind turned a job offer into a
+	## way to lose a purchase.
+	var carried: int = mini(office.credits, office.bought) if office.bought > 0 else 0
 	office = ClubOffice.new()
 	office.tier = int(world.clubs[club_id]["tier"])
+	if carried > 0:
+		office.take(carried, "Bought credits, brought with you", "move", ClubOffice.LINE_STORE)
+		office.bought = carried
 	office.sync_morale(club)
 	board = Chalkboard.new()
 	workshop = Workshop.new()

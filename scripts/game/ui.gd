@@ -1257,6 +1257,10 @@ static func said(err: String) -> String:
 ## twice over because the player only ever waits for half of it before the new
 ## screen is already there.
 static func go(path: String) -> void:
+	## One screen change at a time. A second tap during the wipe restarted it and
+	## pushed the trail twice.
+	if Juice.wiping():
+		return
 	Audio.play("wipe")
 	_push_here()
 	Juice.go(path)
@@ -1329,6 +1333,8 @@ static func _push_here() -> void:
 ## `tap` transposed down a fifth — the same sound, the other direction, which is
 ## a thing a player understands the first time he hears it without being told.
 static func back(fallback: String) -> void:
+	if Juice.wiping():
+		return
 	Audio.play("back")
 	var to := fallback
 	if _trail.size() > 0:

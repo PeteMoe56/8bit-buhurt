@@ -35,6 +35,7 @@ func _initialize() -> void:
 	_test_a_broken_save_is_refused()
 	_test_a_deep_career_survives_a_reload()
 	_test_an_old_save_is_carried_forward()
+	_test_every_golden_file_opens()
 	SaveGame.delete(SLOT)
 
 	print("")
@@ -176,8 +177,15 @@ func _fingerprint(s: Season) -> String:
 ## save.
 func _career_print(s: Season) -> String:
 	var o := s.office
-	var out := " office:%d/%d/%d/%d/%d/%d" % [o.credits, o.travel_slots,
-		o.cap_level, o.arena.level, o.members, o.market_refreshes]
+	var out := " office:%d/%d/%d/%d/%.3f/%.3f/%d/%d" % [o.credits, o.travel_slots,
+		o.cap_level, o.arena.level, o.fans, o.morale, o.market_refreshes,
+		o.staff_refreshes]
+	## The week's limits, the purse log, bought credits and the promotion answer —
+	## all four were missing from the save until 27 Sep 2026.
+	var wk: Array = o.built_this_week.keys()
+	wk.sort()
+	out += " week:%s purse:%d bought:%d stay:%s/%s" % [",".join(wk), o.purse_log.size(),
+		o.bought, str(s.world.stay_down), str(s.promotion_answered)]
 	for f in ClubOffice.Facility.values():
 		out += ":f%d=%d" % [int(f), o.level(int(f))]
 	for r in Federation.rules():
@@ -213,6 +221,12 @@ func _test_round_trip() -> void:
 	## could have rebuilt from nothing.
 	var s := _mid_season(1234, 2)
 	s.club.roster[0].armor = 0.41
+	## State a fresh club never has, so the round trip has to carry it.
+	s.office.mark_this_week(ClubOffice.SLOT_BOOST)
+	s.office.bought = 20
+	s.office.take(3, "Test money", "test")
+	s.world.stay_down = true
+	s.promotion_answered = true
 	var extra := FighterCard.new()
 	extra.display_name = "Testman"
 	extra.pos = Tuning.Pos.CENTER
@@ -303,6 +317,9 @@ func _test_a_broken_save_is_refused() -> void:
 	## A truncated or foreign file must come back null, not half a world. A save
 	## system that loads garbage is worse than one that loses the game, because
 	## the player carries on playing something corrupt.
+	## A clean slot first: an earlier check's good file would otherwise be sitting
+	## in `.bak`, and the junk below would (correctly) open from it.
+	SaveGame.delete(SLOT)
 	var f := FileAccess.open(SaveGame.path_for(SLOT), FileAccess.WRITE)
 	f.store_string("this is not a save")
 	f.close()
@@ -319,9 +336,37 @@ func _test_a_broken_save_is_refused() -> void:
 	var truncated := SaveGame.load_slot(SLOT)
 	SaveGame.delete(SLOT)
 	var gone := not SaveGame.has_save(SLOT) and SaveGame.load_slot(SLOT) == null
-	_ok(junk == null and junk_peek.is_empty() and truncated == null and gone,
+	## A broken slot says so — "broken", not empty — so the title screen offers to
+	## set it aside instead of offering to write a new club over it.
+	_ok(junk == null and bool(junk_peek.get("broken", false)) and truncated == null and gone,
 		"a broken save is refused",
-		"garbage and a half-written file both load as null rather than as half a world, and a deleted slot is gone")
+		"garbage and a half-written file both load as null rather than as half a world, the slot reads as broken rather than empty, and a deleted slot is gone")
+
+	## THE BACKUP IS THE SECOND DOOR. Two good saves, then the newest torn in
+	## half: the slot opens from the one before, one event behind.
+	var a := _mid_season(4, 1)
+	SaveGame.save(a, SLOT)
+	a.skip_event()
+	SaveGame.save(a, SLOT)
+	var newest := FileAccess.get_file_as_bytes(SaveGame.path_for(SLOT))
+	var h := FileAccess.open(SaveGame.path_for(SLOT), FileAccess.WRITE)
+	h.store_buffer(newest.slice(0, newest.size() - 100))
+	h.close()
+	var back := SaveGame.load_slot(SLOT)
+	_ok(back != null and back.world.event == a.world.event - 1,
+		"a torn save opens from its backup",
+		"newest torn; came back at event %d (the save before it)"
+			% (back.world.event if back != null else -1))
+
+	## SET ASIDE, NOT DELETED. Quarantine frees the slot and keeps the bytes.
+	var moved := SaveGame.quarantine(SLOT)
+	_ok(moved != "" and FileAccess.file_exists(moved) and not SaveGame.has_save(SLOT),
+		"a slot that will not open is set aside, not deleted",
+		"moved to %s" % moved.get_file())
+	if moved != "":
+		DirAccess.remove_absolute(moved)
+		if FileAccess.file_exists(moved.replace(".dat.bad", ".dat.bak.bad")):
+			DirAccess.remove_absolute(moved.replace(".dat.bad", ".dat.bak.bad"))
 
 
 ## ------------------------------------------------- five seasons, then a reload
@@ -520,3 +565,44 @@ func _test_a_deep_career_survives_a_reload() -> void:
 	_ok(bad.is_empty(), "a deep career survives a reload",
 		"%d seasons fought, saved, and %d more played out the same on both sides"
 			% [DEEP_SEASONS, AFTER_SEASONS])
+
+
+## EVERY GOLDEN FILE OPENS. `tests/fixtures/save_vN.dat` are real files written by
+## real builds (tools/make_save_fixture.gd, run just before each VERSION bump).
+## Each is copied into a slot and opened through the game's own door, then played
+## on — so a migration is proven on a file an old build wrote, not on today's
+## dictionary with its version number edited.
+func _test_every_golden_file_opens() -> void:
+	var dir := DirAccess.open("res://tests/fixtures")
+	var found := 0
+	if dir == null:
+		_ok(false, "golden saves", "tests/fixtures is missing")
+		return
+	for fname in dir.get_files():
+		if not fname.begins_with("save_v") or not fname.ends_with(".dat"):
+			continue
+		found += 1
+		var bytes := FileAccess.get_file_as_bytes("res://tests/fixtures/" + fname)
+		var f := FileAccess.open(SaveGame.path_for(SLOT), FileAccess.WRITE)
+		f.store_buffer(bytes)
+		f.close()
+		var want := FileAccess.get_file_as_string(
+			"res://tests/fixtures/" + fname.replace(".dat", ".txt")).strip_edges().split("|")
+		var s := SaveGame.load_slot(SLOT)
+		if s == null:
+			_ok(false, "golden save opens", fname + " came back null")
+			continue
+		var same: bool = s.club.display_name == want[0] \
+			and ("s%d" % s.world.season) == want[1] and ("e%d" % s.world.event) == want[2] \
+			and ("%d men" % s.club.roster.size()) == want[4]
+		var played := 0
+		for i in 3:
+			if s.season_complete():
+				break
+			s.skip_event()
+			played += 1
+		_ok(same and played > 0, "golden save opens and plays on",
+			"%s -> %s, season %d event %d, %d men, %d events played after the load"
+				% [fname, s.club.display_name, s.world.season, s.world.event,
+					s.club.roster.size(), played])
+	_ok(found > 0, "there is at least one golden save", "%d in tests/fixtures" % found)

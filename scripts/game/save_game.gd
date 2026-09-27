@@ -119,22 +119,45 @@ static func path_for(slot: int) -> String:
 	return PATH % [slot_prefix, slot]
 
 
+## The backup counts: an app killed between moving the old file aside and moving
+## the new one in leaves only `<slot>.bak`, and that is still a career.
 static func has_save(slot: int) -> bool:
-	return FileAccess.file_exists(path_for(slot))
+	return FileAccess.file_exists(path_for(slot)) \
+		or FileAccess.file_exists(path_for(slot) + ".bak")
 
 
 static func delete(slot: int) -> void:
-	if has_save(slot):
-		DirAccess.remove_absolute(path_for(slot))
+	for p in [path_for(slot), path_for(slot) + ".bak", path_for(slot) + ".tmp"]:
+		if FileAccess.file_exists(p):
+			DirAccess.remove_absolute(p)
+
+
+## SET A FILE ASIDE instead of deleting it. A slot that will not open is moved to
+## `<slot>.bad-<unix time>` (and its backup with it), which frees the slot and
+## keeps the bytes — a save that failed because of a bug in THIS build can be
+## recovered by the next one, and a deleted one cannot.
+static func quarantine(slot: int) -> String:
+	var stamp := int(Time.get_unix_time_from_system())
+	var moved := ""
+	for p in [path_for(slot), path_for(slot) + ".bak"]:
+		if FileAccess.file_exists(p):
+			var to := "%s.bad-%d" % [p, stamp]
+			if DirAccess.rename_absolute(p, to) == OK and moved == "":
+				moved = to
+	return moved
 
 
 ## A one-line description for the title screen, without loading the whole world.
+##
+## A slot that has a file but will not open says so — `{"broken": true}` — rather
+## than coming back empty. Empty would put "Start a club" on it, and the first
+## tap would write a new club over a career that might still be recoverable.
 static func peek(slot: int) -> Dictionary:
 	if not has_save(slot):
 		return {}
 	var d = _migrate(_read(slot))
 	if d == null:
-		return {}
+		return {"broken": true}
 	return {
 		"club": String(d.get("club_name", "?")),
 		"season": int(d.get("season", 1)),
@@ -145,14 +168,48 @@ static func peek(slot: int) -> Dictionary:
 	}
 
 
+## WRITTEN SAFELY. The file is built in `<slot>.tmp`, checked, and only then put
+## in place, with the previous good file kept as `<slot>.bak`. Writing straight
+## over the slot meant a phone killed mid-write left a truncated file — and a
+## truncated file was the one thing the loader could not open.
+##
+## THE CONTAINER: "RBH2", a 4-byte length, a 16-byte MD5, then the encoded
+## dictionary. The length and the hash are checked BEFORE anything is decoded, so
+## a torn or foreign file is refused cleanly instead of reaching the decoder.
+## Files written before this ("RBHT" + a raw var) still open.
+const MAGIC2 := "RBH2"
+
+
 static func save(season: Season, slot: int) -> bool:
-	var f := FileAccess.open(path_for(slot), FileAccess.WRITE)
+	var body := var_to_bytes(to_dict(season))
+	var path := path_for(slot)
+	var tmp := path + ".tmp"
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		return false
-	f.store_buffer(MAGIC.to_ascii_buffer())
-	f.store_var(to_dict(season), false)
+	f.store_buffer(MAGIC2.to_ascii_buffer())
+	f.store_32(body.size())
+	f.store_buffer(_digest(body))
+	f.store_buffer(body)
+	var err := f.get_error()
 	f.close()
-	return true
+	if err != OK or FileAccess.get_file_as_bytes(tmp).size() != body.size() + 24:
+		DirAccess.remove_absolute(tmp)
+		return false
+	## Keep the last good file. Remove the old backup first: renaming onto an
+	## existing file fails on Windows.
+	if FileAccess.file_exists(path):
+		if FileAccess.file_exists(path + ".bak"):
+			DirAccess.remove_absolute(path + ".bak")
+		DirAccess.rename_absolute(path, path + ".bak")
+	return DirAccess.rename_absolute(tmp, path) == OK
+
+
+static func _digest(body: PackedByteArray) -> PackedByteArray:
+	var h := HashingContext.new()
+	h.start(HashingContext.HASH_MD5)
+	h.update(body)
+	return h.finish()
 
 
 static func load_slot(slot: int) -> Season:
@@ -239,15 +296,46 @@ static func _v11_to_v12(d: Dictionary) -> void:
 static func _read(slot: int):
 	if not has_save(slot):
 		return null
-	var f := FileAccess.open(path_for(slot), FileAccess.READ)
+	var d = _read_file(path_for(slot))
+	## THE BACKUP IS THE SECOND DOOR. A slot whose newest file is torn opens from
+	## the one before it — one event behind is a lot better than gone.
+	if d == null or not (d is Dictionary) or _migrate(d) == null:
+		var b = _read_file(path_for(slot) + ".bak")
+		if b is Dictionary and _migrate(b) != null:
+			return b
+	return d
+
+
+static func _read_file(path: String):
+	if not FileAccess.file_exists(path):
+		return null
+	var f := FileAccess.open(path, FileAccess.READ)
 	if f == null:
 		return null
-	if f.get_length() < MAGIC.length() + 4:
+	var n := f.get_length()
+	if n < MAGIC.length() + 4:
 		f.close()
 		return null
-	if f.get_buffer(MAGIC.length()).get_string_from_ascii() != MAGIC:
+	var magic := f.get_buffer(MAGIC.length()).get_string_from_ascii()
+	if magic == MAGIC2:
+		if n < 24:
+			f.close()
+			return null
+		var size := f.get_32()
+		var sum := f.get_buffer(16)
+		if size != n - 24:
+			f.close()
+			return null
+		var body := f.get_buffer(size)
+		f.close()
+		if _digest(body) != sum:
+			return null
+		return bytes_to_var(body)
+	if magic != MAGIC:
 		f.close()
 		return null
+	## The old container: no length, so a torn old file can still trip the
+	## decoder. Only files written before RBH2 take this road.
 	var d = f.get_var()
 	f.close()
 	return d
@@ -261,7 +349,9 @@ static func to_dict(season: Season) -> Dictionary:
 		cups.append(c.to_dict())
 	return {
 		"version": VERSION,
-		"saved": Time.get_datetime_string_from_system(true),
+		## LOCAL time — it is shown as-is on the slot card, and a player reads a
+		## clock in his own time zone, not in UTC.
+		"saved": Time.get_datetime_string_from_system(false),
 		## Denormalised for the title screen, so listing three slots does not
 		## mean rebuilding three worlds.
 		"club_name": season.club.display_name,
@@ -323,6 +413,10 @@ static func to_dict(season: Season) -> Dictionary:
 		## row across a save, which is the one thing the memory exists to stop.
 		"dilemma": season.dilemma.duplicate(),
 		"dilemma_recent": season.dilemma_recent.duplicate(),
+		## THE PROMOTION ANSWER. Unsaved, a club that chose to stay down was asked
+		## again after a reload — and the world forgot the answer it had acted on.
+		"stay_down": season.world.stay_down,
+		"promotion_answered": season.promotion_answered,
 	}
 
 
@@ -401,6 +495,8 @@ static func from_dict(d: Dictionary) -> Season:
 	s.dilemma_recent.clear()
 	for k in d.get("dilemma_recent", []):
 		s.dilemma_recent.append(String(k))
+	s.world.stay_down = bool(d.get("stay_down", false))
+	s.promotion_answered = bool(d.get("promotion_answered", false))
 	s.market_taken.clear()
 	for k in d.get("market_taken", []):
 		s.market_taken.append(String(k))

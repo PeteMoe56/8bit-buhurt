@@ -25,6 +25,11 @@ extends RefCounted
 ## reason about than a bank balance, and it keeps the club's books out of the
 ## way of the fight.
 var credits: int = 8
+## CREDITS BOUGHT WITH REAL MONEY, lifetime, for this office. Spending does not
+## lower it — money is money once it is in the bank — but a coach who changes jobs
+## takes `min(credits, bought)` with him, because a job change must never be the
+## thing that makes a purchase vanish. See `Season.take_job`.
+var bought: int = 0
 
 # ------------------------------------------------------------- the salary cap
 ## A LITERAL CAP, Pete's call — and almost no money in it, which is his second
@@ -2193,6 +2198,12 @@ func to_dict() -> Dictionary:
 		## the current week, which is not a year and is not what it is for.
 		"books_in": books_in.duplicate(), "books_out": books_out.duplicate(),
 		"books_last": books_last.duplicate(true),
+		## THE WEEK'S LIMITS AND THE PURSE LOG. Neither was saved, so force-quitting
+		## and reopening reset every once-a-week limit — free demos, reps and builds
+		## as often as the app could be restarted.
+		"built_this_week": built_this_week.duplicate(),
+		"purse_log": purse_log.duplicate(true),
+		"bought": bought,
 	}
 
 
@@ -2223,6 +2234,11 @@ static func from_dict(d: Dictionary) -> ClubOffice:
 	o.books_out = (d.get("books_out", {}) as Dictionary).duplicate()
 	o.books_last = (d.get("books_last", {}) as Dictionary).duplicate(true)
 	o.fans = maxf(0.0, float(d.get("fans", 12.0)))
+	## SOFT KEYS: a file written before these were saved had them empty on load
+	## anyway, so empty is exactly what it would have been.
+	o.built_this_week = (d.get("built_this_week", {}) as Dictionary).duplicate()
+	o.purse_log = (d.get("purse_log", []) as Array).duplicate(true)
+	o.bought = maxi(0, int(d.get("bought", 0)))
 	for k in d.get("facilities", {}):
 		## Only the two that still exist. A stored HOME_GROUND level from an
 		## older shape is dropped rather than added back as a key nothing reads.

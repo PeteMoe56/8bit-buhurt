@@ -16,6 +16,7 @@ func _initialize() -> void:
 	_test_the_dream_job_is_held_back()
 	_test_the_list_does_not_reshuffle()
 	_test_taking_a_job_leaves_everything_behind()
+	_test_bought_credits_follow_the_coach()
 	_test_the_book_outlives_the_club()
 	_test_traits_reach_only_the_roles_their_man_covers()
 
@@ -505,3 +506,24 @@ func _test_traits_reach_only_the_roles_their_man_covers() -> void:
 		% [covered_avg, bare_avg])
 	_ok(bad.is_empty(), "traits reach only the roles their man covers",
 		"a captain's trait is scoped to the jobs he teaches, so a one-star's trait reaches nobody and the stars stay the thing you are buying")
+
+
+## MONEY THE PLAYER PAID FOR IS NOT PART OF THE CLUB. Everything else stays
+## behind; `min(credits, bought)` comes with the coach, so a job change can never
+## be the thing that makes a purchase vanish.
+func _test_bought_credits_follow_the_coach() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 777)
+	s.world.season = 8
+	s.coach.reputation = Coach.REP_MAX
+	s.office.credits = 90
+	s.office.bought = 25
+	var targets := Jobs.offers(s.coach, s.world)
+	if targets.is_empty():
+		_ok(false, "bought credits follow the coach", "no offers to test with")
+		return
+	var fresh := ClubOffice.new()
+	s.take_job(int(targets[0]))
+	_ok(s.office.credits == fresh.credits + 25 and s.office.bought == 25,
+		"bought credits follow the coach",
+		"90 CC at the old club, 25 of them bought: arrived with %d (a new club starts on %d)"
+			% [s.office.credits, fresh.credits])

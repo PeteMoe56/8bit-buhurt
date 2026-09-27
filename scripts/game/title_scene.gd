@@ -24,6 +24,8 @@ var font: Font
 var ui: CanvasLayer
 var slots: Array = []
 var confirm_delete := -1
+## One line under the slots — what happened to a save that would not open.
+var notice: String = ""
 
 
 func _ready() -> void:
@@ -149,6 +151,9 @@ func _build() -> void:
 		if info.is_empty():
 			ui.add_child(UiKit.button("Start a club", Vector2(x + 20, SLOT_Y + 216),
 				Vector2(SLOT_W - 40, 52), _new_club.bind(i)))
+		elif info.get("broken", false):
+			ui.add_child(UiKit.button("Set it aside", Vector2(x + 20, SLOT_Y + 216),
+				Vector2(SLOT_W - 40, 52), _set_aside.bind(i)))
 		else:
 			ui.add_child(UiKit.button("Continue", Vector2(x + 20, SLOT_Y + 216),
 				Vector2(SLOT_W - 40, 52), _continue.bind(i)))
@@ -193,13 +198,19 @@ func _new_club(slot: int) -> void:
 func _continue(slot: int) -> void:
 	var s := SaveGame.load_slot(slot)
 	if s == null:
-		## A slot that will not load is not a slot you should be able to press
-		## twice. Clear it and redraw rather than dropping the player into a
-		## half-built world.
-		SaveGame.delete(slot)
-		_build()
+		## SET ASIDE, NEVER DELETED. This used to delete the file — so a save from
+		## a newer build, a torn write or a decoder bug erased a career on one
+		## tap. The file is moved to `.bad-<time>`, the slot is freed, and the
+		## player is told.
+		_set_aside(slot)
 		return
 	_enter(s, slot)
+
+
+func _set_aside(slot: int) -> void:
+	SaveGame.quarantine(slot)
+	notice = "Slot %d could not be opened. The file was kept aside, not deleted." % (slot + 1)
+	_build()
 
 
 func _delete(slot: int) -> void:
@@ -226,8 +237,8 @@ func _delete(slot: int) -> void:
 func _enter(s: Season, slot: int) -> void:
 	Session.season = s
 	Session.slot = slot
-	if Store.claim(s.office) > 0 and slot >= 0:
-		SaveGame.save(s, slot)
+	if slot >= 0:
+		Store.claim(s.office, func() -> bool: return SaveGame.save(s, slot))
 	## A CAREER OPENING CUTS THE TRAIL. Everything before this belongs to the
 	## menus, and Back inside a club must never walk out of it into a slot list.
 	UiKit.trail_reset()
@@ -323,6 +334,12 @@ func _draw() -> void:
 		var x := SLOT_X + float(i) * (SLOT_W + SLOT_GAP)
 		UiKit.panel(self, Rect2(x, SLOT_Y, SLOT_W, SLOT_H))
 		var info: Dictionary = slots[i]
+		if info.get("broken", false):
+			UiKit.text(self, font, "SLOT %d" % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
+			UiKit.text(self, font, "Can't open", Vector2(x + 20, SLOT_Y + 70), 24, UiKit.DOWN)
+			UiKit.text(self, font, "This file is damaged or from", Vector2(x + 20, SLOT_Y + 106), 14, UiKit.DIM)
+			UiKit.text(self, font, "a newer version of the game.", Vector2(x + 20, SLOT_Y + 126), 14, UiKit.DIM)
+			continue
 		if info.is_empty():
 			UiKit.text(self, font, "SLOT %d" % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
 			UiKit.text(self, font, "Empty", Vector2(x + 20, SLOT_Y + 70), 24, UiKit.DIM)
@@ -343,3 +360,5 @@ func _draw() -> void:
 			Vector2(x + 20, SLOT_Y + 152), 15, UiKit.DIM)
 		UiKit.text(self, font, String(info["saved"]).replace("T", "  "),
 			Vector2(x + 20, SLOT_Y + 186), 12, UiKit.EDGE.lightened(0.4))
+	if notice != "":
+		UiKit.text(self, font, notice, Vector2(SLOT_X, SLOT_Y + SLOT_H + 28), 14, UiKit.DOWN)
