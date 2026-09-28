@@ -582,8 +582,12 @@ static func _fixture(v: SeasonScene) -> void:
 	var o: Dictionary = v.season.world.clubs[opp]
 	UiKit.text(v, v.font, UiKit.clip(String(o["name"]), 26), Vector2(44, y + 52), 22, UiKit.INK)
 	var gap := int(v.season.world.clubs[v.season.world.player_club]["power"]) - int(o["power"])
-	var word := "even" if absi(gap) <= 2 else ("favorites" if gap > 0 else "underdogs")
-	UiKit.text(v, v.font, UiKit.t("rating %d  ·  you are %s by %d") % [int(o["power"]), word, absi(gap)],
+	## Three whole sentences, not one with an English word dropped into it: a
+	## translation cannot agree with a word it never sees.
+	var line: String = (UiKit.t("rating %d  ·  an even fight") % int(o["power"])) if absi(gap) <= 2 \
+		else ((UiKit.t("rating %d  ·  you are favorites by %d") if gap > 0
+			else UiKit.t("rating %d  ·  you are underdogs by %d")) % [int(o["power"]), absi(gap)])
+	UiKit.text(v, v.font, line,
 		Vector2(44, y + 80), 14,
 		UiKit.DIM if absi(gap) <= 2 else (UiKit.UP if gap > 0 else UiKit.DOWN))
 	## HOW WELL THEY THINK, which the rating does not tell you.

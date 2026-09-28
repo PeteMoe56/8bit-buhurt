@@ -844,7 +844,7 @@ func _the_book() -> void:
 	if man.honors <= 0:
 		UiKit.text(self, font, UiKit.t("Nothing yet."), Vector2(R_X + 16, y + 22), 13, UiKit.DIM)
 	else:
-		UiKit.text(self, font, UiKit.t("%d cup%s") % [man.honors, "" if man.honors == 1 else "s"],
+		UiKit.text(self, font, (UiKit.t("%d cup") if man.honors == 1 else UiKit.t("%d cups")) % man.honors,
 			Vector2(R_X + 16, y + 22), 16, UiKit.YOU)
 
 

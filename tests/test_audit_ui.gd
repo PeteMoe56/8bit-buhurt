@@ -18,6 +18,7 @@ func _initialize() -> void:
 	await _test_back_on_the_title_backs_out_of_the_picker()
 	await _test_a_typed_club_name_survives_a_rebuild()
 	await _test_every_root_screen_answers_back()
+	_test_the_string_table_is_whole()
 
 	print("")
 	for n in notes:
@@ -135,3 +136,39 @@ func _test_every_root_screen_answers_back() -> void:
 		n.free()
 	_ok(missing.is_empty(), "the screens where back must not simply go back answer it themselves",
 		"missing go_back: %s" % (", ".join(missing) if not missing.is_empty() else "none"))
+
+
+## THE STRING TABLE MATCHES THE GAME. The first extractor read UTF-8 as Latin-1,
+## so every key with a dash or a middle dot was mojibake and could never match
+## the string the game asks for. And a translation that drops or reorders a
+## placeholder crashes the `%` that formats it.
+func _test_the_string_table_is_whole() -> void:
+	var f := FileAccess.open("res://locale/strings.csv", FileAccess.READ)
+	if f == null:
+		_ok(false, "the string table is whole", "locale/strings.csv did not open")
+		return
+	var head := f.get_csv_line()
+	var re := RegEx.create_from_string("%[-+ 0#]*\\d*(?:\\.\\d+)?[a-zA-Z%]")
+	var rows := 0
+	var mangled: Array[String] = []
+	var broken: Array[String] = []
+	var dashed := false
+	while not f.eof_reached():
+		var r := f.get_csv_line()
+		if r.size() < head.size() or r[0] == "":
+			continue
+		rows += 1
+		if r[0].contains("\u00e2") or r[0].contains("\u00c2"):
+			mangled.append(r[0])
+		if r[0] == "Have it seen to \u2014 %d CC":
+			dashed = true
+		var want := re.search_all(r[0]).map(func(m): return m.get_string())
+		for i in range(2, head.size()):
+			if r[i] == "":
+				continue
+			if re.search_all(r[i]).map(func(m): return m.get_string()) != want:
+				broken.append("%s: %s" % [head[i], r[0].left(30)])
+	_ok(rows > 400 and dashed and mangled.is_empty() and broken.is_empty(),
+		"the string table matches the game, placeholder for placeholder",
+		"%d keys, %d mangled, %d translations with the wrong placeholders%s" % [rows,
+			mangled.size(), broken.size(), "" if broken.is_empty() else ": " + ", ".join(broken.slice(0, 3))])

@@ -17,12 +17,24 @@ LOCALES = ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]
 OUT = "locale/strings.csv"
 LIT = re.compile(r'UiKit\.t\("((?:[^"\\\n]|\\.)*)"\)')
 
+## GDScript's escapes, and only those. `bytes(..).decode("unicode_escape")`
+## read the UTF-8 as Latin-1 and turned every dash and middle dot into mojibake,
+## so a key with a "—" in it could never match the string the game asks for.
+ESC = re.compile(r'\\(u[0-9a-fA-F]{4}|.)')
+def unescape(s):
+    def one(m):
+        c = m.group(1)
+        if c[0] == "u" and len(c) == 5:
+            return chr(int(c[1:], 16))
+        return {"n": "\n", "t": "\t", '"': '"', "\\": "\\", "r": "\r"}.get(c, "\\" + c)
+    return ESC.sub(one, s)
+
 def keys():
     found = []
     seen = set()
     for f in sorted(glob.glob("scripts/**/*.gd", recursive=True)):
         for m in LIT.finditer(open(f, encoding="utf-8").read()):
-            k = bytes(m.group(1), "utf-8").decode("unicode_escape")
+            k = unescape(m.group(1))
             if k not in seen:
                 seen.add(k); found.append(k)
     return found

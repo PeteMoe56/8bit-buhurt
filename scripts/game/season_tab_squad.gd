@@ -223,11 +223,11 @@ static func _squad_controls(v: SeasonScene) -> void:
 		## and Roster paid for it.
 		var who := UiKit.clip(v.picked.display_name, 10 if worth > 0 else 14)
 		v.ui.add_child(UiKit.button((UiKit.t("Trade %s  ·  %d CC") % [who, worth])
-				if worth > 0 else ("Cut " + who),
+				if worth > 0 else (UiKit.t("Cut %s") % who),
 			Vector2(24, SeasonScene.action_y()), Vector2(232, 46), func():
 				if not UiKit.confirm("release:" + v.picked.display_name):
-					v.flash = UiKit.t("Tap again to %s %s. He does not come back.") % [
-						"trade" if worth > 0 else "cut", v.picked.display_name]
+					v.flash = (UiKit.t("Tap again to trade %s. He does not come back.") if worth > 0
+						else UiKit.t("Tap again to cut %s. He does not come back.")) % v.picked.display_name
 					v._rebuild()
 					return
 				var gone := v.picked.display_name
