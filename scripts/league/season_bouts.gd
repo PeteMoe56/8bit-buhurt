@@ -325,6 +325,12 @@ static func _apply_regime(s: Season, hosted: bool) -> void:
 	## ground that only wore out when you pressed FIGHT would be the harness bug
 	## again in a second costume: skipping the week would keep your arena clean.
 	s.office.arena.take_a_week(hosted, s.world.events_this_season())
+	## AND THE RATING THE TABLE READS, AFTER ALL OF IT. The week's kit wear and
+	## morale move the club's power, and `_after_event` synced it before they ran —
+	## so every matchday left the next fixture played at last week's rating, up to
+	## a point off, and a reload (which re-syncs) changed the result. Found by
+	## tests/test_invariants.gd, 27 Sep 2026.
+	s.sync_power()
 
 
 

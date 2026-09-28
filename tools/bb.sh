@@ -9,6 +9,7 @@
 ##   bash tools/bb.sh probe <name> [args...]          tools/probe_<name>.gd
 ##   bash tools/bb.sh shot <name> [WxH] [args...]     tools/shot_<name>.gd under xvfb
 ##   bash tools/bb.sh soak [args...]                  tools/soak.gd
+##   bash tools/bb.sh invariants [careers] [seasons] every-matchday world checks
 ##   bash tools/bb.sh monkey [steps] [seeds...]       random taps through the real screens
 ##   bash tools/bb.sh fixture                         write tests/fixtures/save_v<N>.dat
 ##   bash tools/bb.sh strings                         refresh locale/strings.csv
@@ -63,6 +64,7 @@ case "$cmd" in
     xvfb-run -a "$G" --audio-driver Dummy --path . --resolution "$res" --script "res://$f" -- "${@:3}" 2>&1 \
       | grep -v '^Godot Engine\|^$\|ALSA' ;;
   soak)    run tools/soak.gd "$@" ;;
+  invariants) run tests/test_invariants.gd "${1:-6}" "${2:-25}" ;;
   monkey)
     need_godot
     steps="${1:-4000}"; shift || true
