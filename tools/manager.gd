@@ -30,7 +30,15 @@ var youth: bool = false
 ## a scout nobody can hire. ORACLE keeps that for the pacing baseline;
 ## `tools/probe_scouting.gd` plays the other three to measure what reading the
 ## range well is worth.
-enum Read { ORACLE, MIDPOINT, OPTIMIST, PESSIMIST, IGNORE }
+enum Read { ORACLE, MIDPOINT, OPTIMIST, PESSIMIST, IGNORE, BLIND }
+## BLIND reads the range a club with no scouting eye sees (the one the market
+## prices on), whatever captains this club has — the difference between it and
+## MIDPOINT is what a scout is worth.
+##
+## BARGAIN: rank the shelf by value for money rather than value alone, the way a
+## player with a purse does. Off by default so the pacing baseline is unchanged.
+var bargain: bool = false
+const BARGAIN_PER_CC := 0.35
 var reading: int = Read.ORACLE
 var _s: Season = null
 var was_tier: int = -1
@@ -82,7 +90,10 @@ func market(s: Season, went_up: bool = false) -> int:
 		var pool: Array = s.market()
 		if pool.is_empty():
 			return took
-		pool.sort_custom(func(a, b): return value(a) > value(b))
+		if bargain:
+			pool.sort_custom(func(a, b): return _for_money(s, a) > _for_money(s, b))
+		else:
+			pool.sort_custom(func(a, b): return value(a) > value(b))
 		var lo := 999
 		for c in s.club.starting_five():
 			lo = mini(lo, value(c))
@@ -158,10 +169,16 @@ func staff(s: Season) -> void:
 ## WHAT A MAN IS WORTH TO THIS MANAGER. The competent one asks what he gives
 ## over the next six years; the youth one asks what he will BE and lets the club
 ## wait for it — which is the whole difference between the two careers below.
+func _for_money(s: Season, f: FighterCard) -> float:
+	return float(value(f)) - BARGAIN_PER_CC * float(s.market_fee(f))
+
+
 func value(f: FighterCard) -> int:
 	if reading == Read.ORACLE or _s == null:
 		return Career.projected(f) if youth else Career.worth(f)
 	var r := _s.potential_range(f)
+	if reading == Read.BLIND and not _s.club.roster.has(f):
+		r = _s.ceiling_range(f, ClubOffice.SCOUT_BLIND)
 	## IGNORE reads no range at all: a stranger is what he is today.
 	if reading == Read.IGNORE and not _s.club.roster.has(f):
 		r = Vector2i(f.overall(), f.overall())

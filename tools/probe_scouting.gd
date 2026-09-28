@@ -12,18 +12,23 @@ extends SceneTree
 ##   optimist   takes the top — believes every scout's best case
 ##   pessimist  takes the bottom
 ##   ignore     reads no range: a stranger is worth what he is today
+##   blind      reads the public range, as a club with no scout would
+##
+## `-- [seeds] [years] bargain` ranks the shelf by value for money.
 ##
 ## The skill edge is midpoint minus optimist; the price of the fog is oracle
 ## minus midpoint. If both are inside the noise the range is decoration.
 
 const BASES := [9001, 5150, 2718, 6060, 8123]
-const NAMES := ["oracle", "midpoint", "optimist", "pessimist", "ignore"]
+var bargain := false
+const NAMES := ["oracle", "midpoint", "optimist", "pessimist", "ignore", "blind"]
 
 
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	var seeds: int = int(args[0]) if args.size() > 0 else 4
 	var years: int = int(args[1]) if args.size() > 1 else 20
+	bargain = "bargain" in args
 	print("\n=== reading the scouting range: %d bases x %d seeds x %d seasons ===\n" % [BASES.size(), seeds, years])
 	print("%-10s %-10s %8s %8s %8s %8s" % ["manager", "reader", "title", "t3", "power", "signed"])
 	for youth in [false, true]:
@@ -53,6 +58,7 @@ func _one(seed_v: int, years: int, youth: bool, mode: int) -> Dictionary:
 	var m := ProbeManager.new()
 	m.youth = youth
 	m.reading = mode
+	m.bargain = bargain
 	var title := years + 1
 	var t3 := years + 1
 	var signed := 0

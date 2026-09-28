@@ -470,7 +470,11 @@ func potential_range(f: FighterCard) -> Vector2i:
 		return Vector2i.ZERO
 	if club.roster.has(f):
 		return Vector2i(f.potential, f.potential)
-	var w := office.scout_width()
+	return ceiling_range(f, office.scout_width())
+
+
+## The same read at any width. `width` 0 is the truth.
+func ceiling_range(f: FighterCard, w: int) -> Vector2i:
 	if w <= 0:
 		return Vector2i(f.potential, f.potential)
 	var off: int = absi(hash("scout:%s:%d:%d:%d" % [f.display_name, f.age, f.potential,
@@ -478,6 +482,7 @@ func potential_range(f: FighterCard) -> Vector2i:
 	var lo: int = maxi(f.overall(), f.potential - off)
 	var hi: int = mini(Career.POTENTIAL_CEILING, lo + w)
 	return Vector2i(lo, hi)
+
 
 
 ## The range in words, for a card: "to 64" when it is known, "to 58-66" when not.
