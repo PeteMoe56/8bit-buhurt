@@ -285,6 +285,13 @@ func boost_morale() -> String:
 ## place that has both. Every screen that hires goes through here rather than
 ## calling `office.hire` directly, which is what stops a captain being hired
 ## somewhere his trait never fires.
+## THE CAPTAIN IN SLOT `slot` OF THIS SUMMER'S STAFF LIST. One door: the staff
+## room and the clubhouse each built this call themselves, and a list read two
+## ways is a list that can offer two different men.
+func staff_offer(slot: int) -> Dictionary:
+	return ClubOffice.offer(seed_value, world.season, slot, office.staff_refreshes)
+
+
 func hire_captain(c: Dictionary) -> String:
 	var err := office.hire(c)
 	if err != "":

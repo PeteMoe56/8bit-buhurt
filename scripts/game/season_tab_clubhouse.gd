@@ -118,8 +118,7 @@ static func _office_controls(v: SeasonScene) -> void:
 ## Who is available — one list, in ClubOffice, read by both screens that sell
 ## captains. It used to be a second copy of the same hash here.
 static func _offer(v: SeasonScene, slot: int) -> Dictionary:
-	return ClubOffice.offer(v.season.seed_value, v.season.world.season, slot,
-		v.season.office.staff_refreshes)
+	return v.season.staff_offer(slot)
 
 
 

@@ -77,9 +77,7 @@ func _ready() -> void:
 func _build() -> void:
 	for c in ui.get_children():
 		c.queue_free()
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
-		Vector2(150, 44), func():
-			UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	## THREE TABS NOW, and they have to fit the row rather than the row being
 	## assumed to fit them. The two were placed at a hand-written x of 400 and 610
 	## with a width of 200; a third at 820 would have run 84px off a 960 screen.

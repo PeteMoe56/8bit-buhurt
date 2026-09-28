@@ -476,9 +476,10 @@ func _staff_the_room(s: Season) -> void:
 	for slot in 3:
 		if s.office.captains.size() >= ClubOffice.MAX_CAPTAINS:
 			return
-		var c := ClubOffice.offer(s.world.seed_value if "seed_value" in s.world
-			else 31337, s.world.season, slot, s.office.staff_refreshes
-			if "staff_refreshes" in s.office else 0)
+		## The season's own list. This read `s.world.seed_value`, which the world
+		## does not have, so it hired from seed 31337's list — men the player of
+		## this career could never be offered.
+		var c := s.staff_offer(slot)
 		if c.is_empty():
 			continue
 		if ClubOffice.cost_of(c) > s.office.credits:

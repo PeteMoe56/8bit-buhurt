@@ -128,7 +128,7 @@ func staff(s: Season) -> void:
 	while o.captains.size() < ClubOffice.MAX_CAPTAINS:
 		var best: Dictionary = {}
 		for slot in 4:
-			var c := ClubOffice.offer(s.seed_value, s.world.season, slot)
+			var c := s.staff_offer(slot)
 			if ClubOffice.cost_of(c) > o.credits - League.dues_for(o.tier):
 				continue
 			## Prefer the man who teaches something nobody here teaches. A second

@@ -146,9 +146,7 @@ func _rebuild() -> void:
 		flash = ""
 		_load_slot(0)
 		_rebuild()))
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
-		Session.autosave()
-		UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.corner_back("res://scenes/Season.tscn"))
 
 	var owned := _slots_owned()
 	for i in Chalkboard.SLOTS:

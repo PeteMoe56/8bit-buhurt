@@ -55,9 +55,7 @@ func _ready() -> void:
 func _rebuild() -> void:
 	for c in ui.get_children():
 		c.queue_free()
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
-		Session.autosave()
-		UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.corner_back("res://scenes/Season.tscn"))
 
 	if not arena.at_top():
 		var err := arena.can_build(office.tier, office.credits)

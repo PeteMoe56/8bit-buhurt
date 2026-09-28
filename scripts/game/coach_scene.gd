@@ -36,6 +36,10 @@ var font: Font
 var ui: CanvasLayer
 var season: Season
 var flash: String = ""
+## WHAT KIND OF LINE IT IS. Everything here was drawn in the refusal color, so
+## "A week's work in one afternoon." read as an error. 0 a refusal, 1 good news,
+## 2 a question (a two-tap confirm).
+var flash_tone: int = 0
 
 
 func _ready() -> void:
@@ -70,9 +74,7 @@ func _build() -> void:
 				confirm_take = -1
 				flash = ""
 				_build()))
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
-		Vector2(150, 44), func():
-			UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	## THE DIFFICULTY LIVES WITH THE CAREER, and Settings can only change it while
 	## a career is open — which it never was, because Settings was reachable only
 	## from the title screen, where no career is. This is the door from inside.
@@ -93,6 +95,7 @@ func _take(club_id: int) -> void:
 	if confirm_take != club_id:
 		confirm_take = club_id
 		var carry: int = mini(season.office.credits, season.office.bought) if season.office.bought > 0 else 0
+		flash_tone = 2
 		flash = UiKit.t("You leave the squad, %d CC, the buildings, captains and playbook behind%s. Tap again to sign.") % [
 			maxi(0, season.office.credits - carry),
 			(UiKit.t(" (your %d bought CC come with you)") % carry) if carry > 0 else ""]
@@ -100,6 +103,7 @@ func _take(club_id: int) -> void:
 		return
 	confirm_take = -1
 	var err := season.take_job(club_id)
+	flash_tone = 0
 	flash = UiKit.said(err)
 	if err == "":
 		Session.autosave()
@@ -121,7 +125,8 @@ func _draw() -> void:
 	_offers(c)
 
 	if flash != "":
-		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13, UiKit.DOWN)
+		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13,
+			[UiKit.DOWN, UiKit.UP, UiKit.YOU][flash_tone])
 
 
 ## REPUTATION, drawn as a meter out of twenty rather than as a number, because

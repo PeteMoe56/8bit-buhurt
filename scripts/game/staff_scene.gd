@@ -18,6 +18,10 @@ var font: Font
 var ui: CanvasLayer
 var season: Season
 var flash: String = ""
+## WHAT KIND OF LINE IT IS. Everything here was drawn in the refusal color, so
+## "A week's work in one afternoon." read as an error. 0 a refusal, 1 good news,
+## 2 a question (a two-tap confirm).
+var flash_tone: int = 0
 
 
 func _ready() -> void:
@@ -33,8 +37,7 @@ func _ready() -> void:
 ## Who is available — one list, in ClubOffice, read by both screens that sell
 ## captains.
 func _offer(slot: int) -> Dictionary:
-	return ClubOffice.offer(season.seed_value, season.world.season, slot,
-		season.office.staff_refreshes)
+	return season.staff_offer(slot)
 
 
 func _build() -> void:
@@ -107,37 +110,41 @@ func _build() -> void:
 	ui.add_child(UiKit.button(UiKit.t("Extra session  ·  %d CC") % cost,
 		Vector2(UiKit.right_edge(280.0), UiKit.screen().y - 56), Vector2(280, 44),
 		func():
+			flash_tone = 0
 			flash = UiKit.said(season.run_session()) if not idle \
-				else "Nobody is teaching. A session with no captain is a warm-up."
+				else UiKit.t("Nobody is teaching. A session with no captain is a warm-up.")
 			if flash == "":
 				flash = UiKit.t("A week's work in one afternoon.")
+				flash_tone = 1
 			Session.autosave()
 			_build()))
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
-		Vector2(150, 44), func():
-			UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 
 
 func _set_regime(i: int, r: int) -> void:
+	flash_tone = 0
 	flash = UiKit.said(season.office.set_regime(i, r))
 	Session.autosave()
 	_build()
 
 
 func _hire(slot: int) -> void:
+	flash_tone = 0
 	flash = UiKit.said(season.hire_captain(_offer(slot)))
 	Session.autosave()
 	_build()
 
 
 func _extend(i: int) -> void:
+	flash_tone = 0
 	flash = UiKit.said(season.office.extend_captain(i))
 	Session.autosave()
 	_build()
 
 
 func _refresh() -> void:
+	flash_tone = 0
 	flash = UiKit.said(season.office.refresh_staff())
 	Session.autosave()
 	_build()
@@ -146,6 +153,7 @@ func _refresh() -> void:
 func _release(i: int) -> void:
 	if not UiKit.confirm("captain:%d" % i):
 		flash = UiKit.t("Tap Release again to let him go.")
+		flash_tone = 2
 		_build()
 		return
 	season.office.release(i)
@@ -202,7 +210,8 @@ func _draw() -> void:
 	_coverage()
 	_trait_word()
 	if flash != "":
-		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13, UiKit.DOWN)
+		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13,
+			[UiKit.DOWN, UiKit.UP, UiKit.YOU][flash_tone])
 
 
 func _roles_of(c: Dictionary) -> String:

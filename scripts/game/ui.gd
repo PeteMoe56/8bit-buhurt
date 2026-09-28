@@ -1023,7 +1023,7 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	b.add_theme_font_override("font", body())
 	b.add_theme_font_size_override("font_size", GRID * 2)
 	b.add_theme_color_override("font_color", INK)
-	b.add_theme_color_override("font_hover_color", BG)
+	b.add_theme_color_override("font_hover_color", INK if touch_ui() else BG)
 	b.add_theme_color_override("font_pressed_color", BG)
 	b.add_theme_color_override("font_focus_color", INK)
 	b.add_theme_color_override("font_disabled_color", EDGE)
@@ -1040,10 +1040,38 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	## a league table and the reason it is the one color the mood swap never
 	## touches.
 	b.add_theme_stylebox_override("normal", _sb(SELECT, FRAME, DROP_PX, pad))
-	b.add_theme_stylebox_override("hover", _sb(YOU, FRAME, DROP_PX, pad))
+	## NO HOVER ON A THUMB. A tap leaves the emulated mouse sitting on the
+	## button, so on a phone the last thing tapped stayed gold — "this is
+	## happening" — until something else was touched.
+	b.add_theme_stylebox_override("hover", _sb(SELECT if touch_ui() else YOU, FRAME, DROP_PX, pad))
 	b.add_theme_stylebox_override("pressed", _sb(YOU, FRAME, 0.0, pad))
 	b.add_theme_stylebox_override("focus", _sb(SELECT, YOU, DROP_PX, pad))
 	b.add_theme_stylebox_override("disabled", _sb(TRACK, EDGE, 0.0, pad))
+
+
+## THE TWO PLACES BACK LIVES, and only two.
+##
+##   back_button   bottom left, 150 x 44 — every list and office screen
+##   corner_back   top right, 78 x 36, where the season screen's Menu sits —
+##                 the canvas editors (arena, chalkboard, create), whose bottom
+##                 edge is the work surface; it saves on the way out
+##
+## A thumb learns where Back is. Named here so a new screen picks one of the two
+## rather than inventing a third.
+static func back_button(fallback: String) -> Button:
+	return button(t("Back"), Vector2(24, screen().y - 56), Vector2(150, 44), func():
+		back(fallback))
+
+
+static func corner_back(fallback: String) -> Button:
+	return button(t("Back"), Vector2(right_edge(98.0), 14), Vector2(78, 36), func():
+		Session.autosave()
+		back(fallback))
+
+
+## A phone or a tablet: no pointer to hover with.
+static func touch_ui() -> bool:
+	return OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
 
 
 static func _sb(fill: Color, line: Color, drop: float, pad: float = ICON_PAD) -> StyleBoxFlat:

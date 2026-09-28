@@ -127,9 +127,7 @@ func _rebuild() -> void:
 		tab = Tab.GRADE
 		flash = ""
 		_rebuild()))
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
-		Session.autosave()
-		UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.corner_back("res://scenes/Season.tscn"))
 	if tab == Tab.FIGHTER:
 		_fighter_controls()
 	elif tab == Tab.CLUB:

@@ -17,6 +17,10 @@ var font: Font
 var ui: CanvasLayer
 var season: Season
 var flash: String = ""
+## WHAT KIND OF LINE IT IS. Everything here was drawn in the refusal color, so
+## "A week's work in one afternoon." read as an error. 0 a refusal, 1 good news,
+## 2 a question (a two-tap confirm).
+var flash_tone: int = 0
 
 
 func _ready() -> void:
@@ -47,13 +51,12 @@ func _build() -> void:
 			continue
 		ui.add_child(UiKit.button(UiKit.t("%d CC") % cost,
 			Vector2(L_X + COL_W - 104.0, _row_y(i) + 8.0), Vector2(92, 34), func(rule = r):
+				flash_tone = 0
 				flash = UiKit.said(o.raise_rule(rule))
 				season.sync_power()
 				Session.autosave()
 				_build()))
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
-		Vector2(150, 44), func():
-			UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 
 
@@ -69,7 +72,8 @@ func _draw() -> void:
 	_federation(o)
 	_members(o)
 	if flash != "":
-		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13, UiKit.DOWN)
+		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13,
+			[UiKit.DOWN, UiKit.UP, UiKit.YOU][flash_tone])
 
 
 func _federation(o: ClubOffice) -> void:

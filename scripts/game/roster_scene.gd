@@ -53,9 +53,7 @@ func _build() -> void:
 		b.flat = true
 		b.modulate = Color(1, 1, 1, 0)
 		ui.add_child(b)
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
-		Vector2(150, 44), func():
-			UiKit.back("res://scenes/Season.tscn")))
+	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 
 
