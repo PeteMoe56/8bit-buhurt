@@ -518,7 +518,11 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 		text(ci, font, String(d["note"]), Vector2(r.position.x + 8, y + 70.0), 12,
 			d.get("note_col", DIM))
 	if big and d.has("right_note"):
-		right(ci, font, String(d["right_note"]), Vector2(r.end.x - 8, y + 70.0), 11,
+		## `right_note_up` puts it on the star row, whose right side is empty: the
+		## market's ceiling range ("to 55-61") ran into the age and wage on the
+		## note line once its cards narrowed to six a row.
+		var ny: float = y + (47.0 if bool(d.get("right_note_up", false)) else 70.0)
+		right(ci, font, String(d["right_note"]), Vector2(r.end.x - 8, ny), 11,
 			Color(d.get("right_col", UP)), 90)
 
 	var frac := float(d.get("bar", -1.0))

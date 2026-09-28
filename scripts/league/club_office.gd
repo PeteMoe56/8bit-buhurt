@@ -1180,7 +1180,7 @@ const TRAIT_BLURB := {
 	Trait.PHYSIO: "His men come out of the corner with more left.",
 	Trait.LIKEABLE: "A toxic man of his drags nobody down.",
 	Trait.POSITIVE: "His men train faster.",
-	Trait.SCOUT: "More names on the free-agent list.",
+	Trait.SCOUT: "More names on the free-agent list: one a star, plus one.",
 	Trait.TACTICIAN: "One more call from the corner, every bout.",
 }
 
@@ -1201,6 +1201,22 @@ const TRAIT_POSITIVE_XP: float = 1.15   ## Positive, on training
 ## the only inflow there is and is the better place for it anyway: the thing a
 ## scout is actually good at is finding a name nobody else has looked at.
 const TRAIT_SCOUT_EXTRA: int = 3
+## AND A BETTER SCOUT FINDS MORE (28 Sep 2026). A flat three made his grade
+## irrelevant to the one thing he does. `tools/probe_coverage.gd`: the first
+## three extra names are worth ~+4.6 club power over a career and returns
+## flatten after six, so one name a star plus one — three at two stars (the
+## old flat number), six at five. A one-star man teaches nothing and, like every
+## trait, scouts nothing (`has_trait` asks for a specialty).
+const SCOUT_NAMES_BASE: int = 1
+
+
+## How many extra names this club's best Scout finds. 0 with no Scout.
+func scout_names() -> int:
+	var best := 0
+	for c in captains:
+		if trait_of(c) == Trait.SCOUT and not specialties_of(c).is_empty():
+			best = maxi(best, int(c.get("grade", 1)))
+	return 0 if best == 0 else SCOUT_NAMES_BASE + best
 
 ## ---------------------------------------------------------------- TACTICIAN
 ## THE UPGRADE PATH FOR TACTICAL CALLS — Pete, 13 Sep 2026: *"you should be able

@@ -35,6 +35,7 @@ func _initialize() -> void:
 		_test_the_shelf_is_wide()
 		_test_the_range_holds_the_truth()
 		_test_room_is_speed()
+		_test_a_better_scout_finds_more()
 	if TIER != "fast":
 		_test_reading_the_range_pays()
 	print("")
@@ -168,3 +169,24 @@ func _careers(mode: int) -> Dictionary:
 			power += float(s.club.power())
 			n += 1.0
 	return {"title": title / n, "power": power / n}
+
+
+## A BETTER SCOUT FINDS MORE (28 Sep 2026): the Scout trait's extra names are
+## one a star plus one, and they really are on the shelf.
+func _test_a_better_scout_finds_more() -> void:
+	var sizes: Array[int] = []
+	var names: Array[int] = []
+	var s := Season.new(MeleeRosters.starting_club(), 6262)
+	s.office.captains.clear()
+	names.append(s.office.scout_names())
+	sizes.append(s.market().size())
+	for g in [2, 3, 5]:
+		s.office.captains.clear()
+		var c := ClubOffice.captain("Eyes", Tuning.Role.RAIL, Tuning.Role.CENTER, g)
+		c["trait"] = ClubOffice.Trait.SCOUT
+		s.office.captains.append(c)
+		names.append(s.office.scout_names())
+		sizes.append(s.market().size())
+	_ok(names == [0, 3, 4, 6] and sizes[1] == sizes[0] + 3 and sizes[3] == sizes[0] + 6,
+		"a better scout puts more names on the shelf",
+		"extra names by grade (none, 2, 3, 5 stars): %s; shelf %s" % [str(names), str(sizes)])

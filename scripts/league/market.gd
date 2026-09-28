@@ -303,8 +303,13 @@ static func step_word(rating: int, tier: int) -> String:
 ## `ClubOffice.TRAIT_SCOUT_EXTRA`. Added to the draw rather than filtered in
 ## afterwards, so the men a scout finds are genuinely additional and not the same
 ## list with the bottom shown.
+## Probes only: extra names on every shelf, to measure what coverage is worth.
+static var probe_extra: int = 0
+
+
 static func pool(world_seed: int, season: int, tier: int, refreshes: int = 0,
 		extra: int = 0) -> Array:
+	extra += probe_extra
 	var rng := RandomNumberGenerator.new()
 	## Mixed rather than added, so season 2 of one save and season 1 of the next
 	## do not collide into the same list.

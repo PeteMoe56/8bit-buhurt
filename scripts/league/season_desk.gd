@@ -303,7 +303,7 @@ static func market(s: Season) -> Array:
 	var out: Array = []
 	for f in Market.pool(s.world.rng.seed, s.world.season, s.world.player_tier(),
 			s.office.market_refreshes,
-			ClubOffice.TRAIT_SCOUT_EXTRA if s.office.has_trait(ClubOffice.Trait.SCOUT) else 0):
+			s.office.scout_names()):
 		if not s.market_taken.has(Market.taken_key(f)):
 			out.append(f)
 	return out

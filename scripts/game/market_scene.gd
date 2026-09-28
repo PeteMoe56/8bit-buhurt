@@ -12,11 +12,11 @@ extends Node2D
 ## does. A market that shows one of them is a market that lies about half its
 ## refusals.
 
-const CARD_W := 172.0
+const CARD_W := 146.0
 const CARD_H := 158.0
 const GAP := 12.0
 const TOP := 96.0
-const PER_ROW := 5
+const PER_ROW := 6
 
 var font: Font
 var ui: CanvasLayer
@@ -157,12 +157,15 @@ func _draw() -> void:
 			## already does.
 			"head_right_col": UiKit.UP if step == "step up" \
 				else UiKit.INK * Color(1, 1, 1, 0.62),
-			"note": "age %d  ·  %s/wk%s" % [f.age,
-				ClubOffice.money(season.market_wage(f)), "" if room else "  over cap"],
+			## OVER THE CAP REPLACES THE WAGE rather than trailing it: six cards a
+			## row leave no room for both, and the red says why he cannot come.
+			"note": ("age %d · %s/wk" % [f.age, ClubOffice.money(season.market_wage(f))]) if room
+				else (UiKit.t("age %d · over cap") % f.age),
 			"note_col": UiKit.DIM if room else UiKit.DOWN,
 			## A RANGE, NOT HIS NUMBER: the club reads a stranger's ceiling only as
 			## well as its best captain can (ClubOffice.scout_width).
 			"right_note": season.potential_word(f),
+			"right_note_up": true,
 			"right_col": UiKit.UP,
 			"foot_left": Market.band_name(f.overall(), tier),
 			"foot": "%d CC" % fee,
