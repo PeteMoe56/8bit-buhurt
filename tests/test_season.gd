@@ -282,9 +282,13 @@ func _test_the_after_action_report() -> void:
 	## the source rather than off this one bout, because a kind that only fires
 	## on an injury or a Talisman would not appear in a sample and would ship
 	## unprintable.
-	var src := FileAccess.get_file_as_string("res://scripts/league/season.gd")
+	## The season and the helper files it was split into on 27 Sep 2026.
+	var src := ""
+	for f in DirAccess.get_files_at("res://scripts/league"):
+		if f.begins_with("season") and f.ends_with(".gd"):
+			src += FileAccess.get_file_as_string("res://scripts/league/" + f)
 	var re := RegEx.new()
-	re.compile('_note_change\\(\\s*"([a-z]+)"')
+	re.compile('_note_change\\(\\s*(?:\\w+,\\s*)?"([a-z]+)"')
 	var kinds := {}
 	for m in re.search_all(src):
 		kinds[m.get_string(1)] = true
@@ -384,17 +388,15 @@ func _test_one_queue_one_order() -> void:
 	##
 	## The screen is in `blocked_by()`'s order now, and this reads the source to
 	## make sure it stays there: a comment cannot hold two files in step.
-	var src := ""
-	var f := FileAccess.open("res://scripts/game/season_scene.gd", FileAccess.READ)
-	if f != null:
-		src = f.get_as_text()
-		f.close()
+	## The club tab's controls live in season_tab_club.gd since the 27 Sep split;
+	## the scene passes itself as `v`.
+	var src := FileAccess.get_file_as_string("res://scripts/game/season_tab_club.gd")
 	var bad: Array[String] = []
 	if src == "":
-		bad.append("could not read season_scene.gd")
-	var i_bid := src.find("if season.bid_open():")
-	var i_cup := src.find("if season.cup_pending():")
-	var i_dil := src.find("if not season.dilemma.is_empty():")
+		bad.append("could not read season_tab_club.gd")
+	var i_bid := src.find("if v.season.bid_open():")
+	var i_cup := src.find("if v.season.cup_pending():")
+	var i_dil := src.find("if not v.season.dilemma.is_empty():")
 	if i_bid < 0 or i_cup < 0 or i_dil < 0:
 		bad.append("one of the three gates is no longer where the screen drains them")
 	elif not (i_bid < i_cup and i_cup < i_dil):

@@ -296,65 +296,11 @@ func hire_captain(c: Dictionary) -> String:
 ## What the last hire did, for the screen to report. A trait that fires silently
 ## is a trait the player never learns he bought.
 var last_arrival: Dictionary = {}
-
-
-## EVERYTHING YOUR CAPTAINS PUT ON THE LINE, in one place.
-##
-## This was two copies of the same four lines — one in `begin_bout`, one in
-## `begin_cup_bout` — and the day the Physio trait needed a second injection
-## beside the tiers, only one of them would have got it. That is the fifth time
-## this document has recorded the same shape: a rule applied at two call sites is
-## a rule with a hole in it. There is now one caller-facing verb, and a cup tie
-## and a league fixture are dressed identically by construction rather than by
-## somebody remembering.
-## EVERYTHING A SIM NEEDS TO KNOW ABOUT THE FIXTURE IT IS ABOUT TO BE, in one
-## place, because the two bout paths have now disagreed about the fixture THREE
-## TIMES: the injury tick, the grade, and this.
-##
-## `begin_cup_bout` was a copy of `begin_bout` with the roles block factored out,
-## and a copy drifts. It set the corner clock, the occasion and the skills by
-## hand and never set `opponent_club_id`, `venue` or `miles` at all — so on a cup
-## night GRUDGE could not fire against the club the man was actually fighting,
-## HOMESICK could not fire on a trip nobody was at home for, and the splash
-## before the charge drew the HOME arena for a tie on neutral ground. Three
-## traits and a screen, silently off, on the biggest fixtures in the game.
-##
-## The roles block is not the shared part. THE FIXTURE is the shared part.
+## -> SeasonBouts (season_bouts.gd)
 func _dress_sim(sim: MeleeSim, opp_id: int, kind: int, dist: float) -> void:
-	## WHO, WHERE, HOW FAR. Handed over rather than looked up, for the same
-	## reason `big_occasion` is: the fixture knows, the sim should not have to ask.
-	sim.opponent_club_id = opp_id
-	sim.venue = kind
-	sim.miles = dist
-	sim.corner_time = Grade.corner_time(grade)
-	sim.big_occasion = int(Session.bout_mood) != UiKit.Mood.NORMAL
-	## And now that the sim knows the fixture, let the fixture reach the men.
-	sim.dress()
-	## The opposition is coached to its division, on the six-rung ladder Pete
-	## named on 10 Sep 2026. A Backyard club is nobody's idea of well drilled;
-	## the National Division is, and Worlds guests are better than that.
-	var ot := -1
-	if opp_id >= 0 and opp_id < world.clubs.size():
-		ot = int(world.clubs[opp_id]["tier"])
-	sim.skills[1] = GUEST_TIER if ot < 0 else CPU_TIER[clampi(ot, 0, CPU_TIER.size() - 1)]
-	## YOUR CHALKBOARD GOES OUT WITH THEM TOO. The shape is always resolved
-	## through the board, so a built-in and a drawn formation reach the list by
-	## the same road; the play only goes on if it is still legal for the shape
-	## you actually picked, which is what Pete's formation-dependent check mark
-	## means at the point it matters.
-	sim.set_plan(0, board.spots_for(formation_id).duplicate(), called_play())
+	SeasonBouts._dress_sim(self, sim, opp_id, kind, dist)
 
-	var roles := [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]
-	var tiers := {}
-	var corner := {}
-	for role in roles:
-		tiers[role] = office.tier_for(role)
-		## PHYSIO. His men come out of the corner with more left in them, which is
-		## a trait you feel in the fifth round of a bout you are losing.
-		if office.trait_covers(ClubOffice.Trait.PHYSIO, role):
-			corner[role] = ClubOffice.TRAIT_PHYSIO
-	sim.set_role_skills(0, tiers)
-	sim.set_corner_bonus(0, corner)
+
 
 
 ## Your rating is your roster. Call it after anything that changes the squad —
@@ -412,91 +358,41 @@ func miles_travelled() -> float:
 	match venue_kind():
 		Venue.Kind.HOME: return 0.0
 		_: return world.miles_between(world.player_club, opp)
-
-
-## ----------------------------------------------------------- whose ground
-## THE GROUND A GIVEN CLUB PLAYS ON, and the player's own is the exception.
-##
-## `LeagueWorld.ground_of()` derives a level and a condition for any club from
-## its id, its tier and the season — which is right for the other fifteen clubs
-## in the division and WRONG for the player, whose ground is a thing he bought,
-## keeps and lets go. Asking the world about your own club would tell you a hash
-## about an arena you are looking at on another screen.
-##
-## **A derived answer that overrides a real one is a screen lying about something
-## the player can see.** So one door, and it knows which is which.
+## -> SeasonBouts (season_bouts.gd)
 func ground_of(id: int) -> Dictionary:
-	if id == world.player_club:
-		return {"level": office.arena.level, "condition": office.arena.condition}
-	return world.ground_of(id)
+	return SeasonBouts.ground_of(self, id)
 
 
-## THE FEDERATION'S GROUND, for a cup tie on neutral turf.
-##
-## It scales with the division the tie is being fought in rather than being one
-## fixed room, because a Backyard invitational and the Worlds final are not the
-## same afternoon — and it is always immaculate, because the federation is the
-## one body in this game with a groundsman.
+## -> SeasonBouts (season_bouts.gd)
 func neutral_ground() -> Dictionary:
-	return {"level": clampi(world.player_tier() + 2, 0, Arena.MAX_LEVEL),
-		"condition": 1.0}
+	return SeasonBouts.neutral_ground(self)
 
 
-## THE GROUND THIS WEEK'S FIGHT IS IN, whoever owns it.
+## -> SeasonBouts (season_bouts.gd)
 func fight_ground() -> Dictionary:
-	match venue_kind():
-		Venue.Kind.NEUTRAL: return neutral_ground()
-		Venue.Kind.HOME: return ground_of(world.player_club)
-		_:
-			var opp := opponent_id()
-			return ground_of(opp) if opp >= 0 else neutral_ground()
+	return SeasonBouts.fight_ground(self)
 
 
-## WHAT THIS WEEK'S GATE IS WORTH, and where it is. One function, because the
-## pre-fight panel, the report and the payment itself all want it and three
-## copies of this arithmetic is three answers to one question — which is the
-## failure mode that put a second league table on the ticker.
-##
-## Returns `{cc, where, level, condition, kind}`.
+## -> SeasonBouts (season_bouts.gd)
 func gate_now() -> Dictionary:
-	var kind := venue_kind()
-	var g := fight_ground()
-	return {
-		"cc": office.gate_for(kind, int(g["level"]), float(g["condition"])),
-		"where": String(Venue.NAME[kind]),
-		"level": int(g["level"]),
-		"condition": float(g["condition"]),
-		"kind": kind,
-	}
+	return SeasonBouts.gate_now(self)
 
 
-## AND WHAT A NAMED FIXTURE WOULD BE WORTH, for the schedule. Same arithmetic,
-## a stated opponent and a stated venue rather than this week's.
+## -> SeasonBouts (season_bouts.gd)
 func gate_for_fixture(opp: int, home: bool) -> int:
-	var kind: int = Venue.Kind.HOME if home else Venue.Kind.AWAY
-	var g: Dictionary = ground_of(world.player_club) if home else (
-		ground_of(opp) if opp >= 0 else neutral_ground())
-	return office.gate_for(kind, int(g["level"]), float(g["condition"]))
+	return SeasonBouts.gate_for_fixture(self, opp, home)
 
 
-## WHERE THE NEXT BOUT IS. A cup tie is neutral ground whoever is in it; a league
-## fixture is home or away as the schedule says.
+## -> SeasonBouts (season_bouts.gd)
 func venue_kind() -> int:
-	## A CUP TIE IS NEUTRAL GROUND, whoever is in it, and `pending_cup` is how the
-	## rest of the season already asks that question — a second way of asking it
-	## here would be a second answer waiting to disagree.
-	if pending_cup() != null:
-		return Venue.Kind.NEUTRAL
-	return Venue.Kind.HOME if world.player_hosts() else Venue.Kind.AWAY
+	return SeasonBouts.venue_kind(self)
 
 
-## Who is hosting, as a club id — the player, or the other lot, or -1 on neutral
-## ground where nobody is.
+## -> SeasonBouts (season_bouts.gd)
 func host_id() -> int:
-	match venue_kind():
-		Venue.Kind.HOME: return world.player_club
-		Venue.Kind.AWAY: return opponent_id()
-		_: return -1
+	return SeasonBouts.host_id(self)
+
+
 
 
 ## The other club, as eight men rather than as a rating. Built on demand and
@@ -528,195 +424,41 @@ func club_for(id: int) -> MeleeClub:
 	var built := ClubFactory.build(id, String(c["name"]), String(c["short"]), int(c["power"]))
 	_clubs[id] = { "club": built, "power": int(c["power"]) }
 	return built
-
-
-## Start the next fixture. Returns a MeleeSim ready to tick, or null on a bye or
-## at the end of a season.
+## -> SeasonBouts (season_bouts.gd)
 func begin_bout() -> MeleeSim:
-	var opp := opponent_id()
-	if opp == -1:
-		return null
-	ensure_a_line()
-	opponent = club_for(opp)
-	## Seeded off the season and matchday, so replaying a save replays the bout.
-	var s := hash("bout:%d:%d:%d" % [seed_value, world.season, world.event])
-	var sim := MeleeSim.new(club, opponent, s, opposition_scale(opp))
-	## YOUR CAPTAINS AND THE FIXTURE GO OUT WITH THEM. One door, shared with the
-	## cup, so the two paths cannot know different things about the same night.
-	_dress_sim(sim, opp, venue_kind(), miles_travelled())
-	return sim
+	return SeasonBouts.begin_bout(self)
 
 
-## The routes the line will open with, or null. A play tied to a formation you
-## are not in is not an error and not a warning — it simply is not called.
+## -> SeasonBouts (season_bouts.gd)
 func called_play():
-	if play_index < 0 or play_index >= board.plays.size():
-		return null
-	var p: Dictionary = board.plays[play_index]
-	var f := int(p["formation"])
-	if f != Chalkboard.UNIVERSAL and f != formation_id:
-		return null
-	return p["routes"]
+	return SeasonBouts.called_play(self)
 
 
-## Post a finished bout to the table and move the matchday on. The four numbers
-## are the sim's own — rounds won and the standing differential Pete asked for —
-## so a fought fixture and a simulated one reach the table through one shape.
+## -> SeasonBouts (season_bouts.gd)
 func post_bout(sim: MeleeSim) -> void:
-	last_result = [sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1]]
-	var opp := opponent_id()
-	## AND WHERE IT WAS PLAYED, captured here with the opponent and for the same
-	## reason: everything below this line happens after the week has ticked.
-	var was_home: bool = venue_kind() == Venue.Kind.HOME
-	## AND WHAT THE GATE WAS WORTH, for the same reason. `_after_event` used to
-	## ask `gate_now()` after the week had ticked, which described the NEXT
-	## fixture — the last matchday of a season always paid as away with no counter.
-	var gate := gate_now()
-	var before := _my_row()
-	_award_xp(sim)
-	world.play_event(last_result)
-	_after_event(int(last_result[0]), int(last_result[1]), gate)
-	## INJURIES LAND AFTER THE WEEK TICKS, and the order is the whole fix.
-	##
-	## They used to be applied first, and `_after_event` then decremented every
-	## injury on the roster — including the one just written. `INJURY_LENGTH` is
-	## [1,1,1,1,2,2,3], so FOUR OF SEVEN KNOCKS COST NOTHING at any Infirmary
-	## level, and at `injury_relief() == 2` the floor of 1 was decremented to 0
-	## as well: no knock ever kept anybody out, while the Clubhouse went on
-	## advertising "-2 events off a knock". The post-bout report said a man was
-	## hurt and the squad screen showed him fit.
-	##
-	## A cup tie took the same knock and cost a week, because `post_cup_bout`
-	## does not tick the week — so the identical injury was free in the league
-	## and expensive in a cup. Applying after the tick makes both paths agree.
-	_apply_bout_injuries(sim)
-	_apply_regime(was_home)
-	_log(opp, before, true, was_home)
-	_grade_bout(int(last_result[0]), int(last_result[1]))
-	event_played.emit(opp, last_result)
+	SeasonBouts.post_bout(self, sim)
 
 
-## ----------------------------------------------------------------- the grade
-## WHAT THE GRADE IS WORTH AGAINST THIS PARTICULAR CLUB.
-##
-## One function, called by both bout paths, so a cup tie and a league fixture
-## cannot end up on different difficulties — which is the same class of bug as
-## `post_cup_bout` not ticking the week, and that one hid for a fortnight.
+## -> SeasonBouts (season_bouts.gd)
 func opposition_scale(opp_id: int) -> float:
-	## `clubs` is an ARRAY indexed by club id, not a dictionary keyed by one.
-	## It was guarded with `.has(opp_id)` for a fortnight, which on a typed array
-	## is a type error that returns false — so every bout in the game, against
-	## every club, was graded against the same invented power-50 tier-0 nobody.
-	## A guard that can only fail is no more a guard than one that cannot.
-	if opp_id < 0 or opp_id >= world.clubs.size():
-		return Grade.scale_for(grade, matched_step, 50, 0)
-	var c: Dictionary = world.clubs[opp_id]
-	return Grade.scale_for(grade, matched_step, int(c["power"]), int(c["tier"]))
+	return SeasonBouts.opposition_scale(self, opp_id)
 
 
-## MATCHED MOVES, and only MATCHED. Read off rounds rather than the result alone,
-## because a 2-0 and a 2-1 are not the same afternoon — Retro Bowl reads margin
-## the same way, taking a second step off the scale for a win by more than
-## fourteen. The trophy gate is theirs too: the top of the ladder stays shut
-## until the cabinet has something in it.
+## -> SeasonBouts (season_bouts.gd)
 func _grade_bout(rounds_for: int, rounds_against: int) -> void:
-	if grade != Grade.G.MATCHED:
-		return
-	matched_step = Grade.matched_next(matched_step, rounds_for, rounds_against,
-		not world.honors.is_empty())
+	SeasonBouts._grade_bout(self, rounds_for, rounds_against)
 
 
-
-## Knocks land here rather than inside the sim: the fight records who went down
-## badly, the season decides whose books it lands on. Only your own men carry
-## injuries — the other fourteen fixtures are numbers on a page.
-## THE REGIME'S OTHER THREE, once a week: what it costs in morale, in armor,
-## and in men.
-##
-## Morale and wear are club-wide sums of per-man effects, because a club running
-## two captains on two different regimes is running two different weeks at once
-## and the average is the honest answer.
-## `hosted` IS PASSED IN, NOT READ HERE, and that is not fussiness. Both callers
-## run `world.play_event()` before this — so by the time this function is on the
-## stack, `venue_kind()` is answering about NEXT week's fixture. A function that
-## asks the world what happened after the world has moved on is a function that
-## is reliably one week wrong, which is exactly the class of bug `post_cup_bout`
-## not ticking the week already cost this project a fortnight of.
+## -> SeasonBouts (season_bouts.gd)
 func _apply_regime(hosted: bool) -> void:
-	## WHO TRAVELLED, for the gate. A DRAW only pulls people in on a day he is
-	## actually there — read off the eight rather than the squad, because a man in
-	## the reserves sells nobody a ticket.
-	office.set_draws(club.active_eight())
-	for f in club.active_eight():
-		var role := Tuning.role_of(int(f.pos))
-		## EVERY MAN FEELS HIS OWN WEEK. The regime belongs to the captain who
-		## teaches his role, so two men on the same eight under two captains on
-		## two different regimes have two different weeks — which is the whole
-		## reason the regime is set per captain rather than per club.
-		f.morale_shift(office.regime_morale(role))
-		## A captain who teaches nothing still lifts the room.
-		f.morale_shift(office.presence())
-		## Armor takes the wear whether or not he fought — that is what a hard
-		## week means.
-		## KIT MINDER and ROUGH ON KIT. `regime_wear` is negative, so a multiplier
-		## under one is less damage and over one is more — the sign stays with the
-		## regime and the trait only scales it.
-		## AND THE HARNESS DECIDES HOW MUCH OF THAT WEEK THE KIT ABSORBS. The
-		## regime says how hard it was, the trait scales it, and the grade of
-		## harness he is wearing scales it again — tournament plate takes a third
-		## less than club spares. That is the actual economy of armor in the
-		## sport: good kit pays for itself in repairs it does not need.
-		f.armor = clampf(f.armor + office.regime_wear(role)
-			* FighterTrait.mod(f.trait_id, "wear", 1.0)
-			* Quartermaster.wear_scale(f), 0.0, Quartermaster.ceiling(f))
-	office.sync_morale(club)
-	## AND THE GROUND HAS THE SAME WEEK THE MEN DID.
-	##
-	## Here rather than in `_after_event`, because this is the ONE place the fought
-	## path and the simmed path already converge — and the kit wear sitting two
-	## lines above it is the proof that this is where a per-week cost belongs. A
-	## ground that only wore out when you pressed FIGHT would be the harness bug
-	## again in a second costume: skipping the week would keep your arena clean.
-	office.arena.take_a_week(hosted, world.events_this_season())
+	SeasonBouts._apply_regime(self, hosted)
 
 
+## -> SeasonBouts (season_bouts.gd)
 func _apply_bout_injuries(sim: MeleeSim) -> void:
-	var line := sim.lineup(0)
-	for k in sim.injuries:
-		var i := int(k["idx"])
-		## The card that was hurt, recorded at the moment it happened — the slot
-		## may hold a different man by the end of the bout.
-		var hurt = k.get("card", null)
-		if hurt is FighterCard and not club.roster.has(hurt):
-			continue
-		if hurt is FighterCard or (i < 5 and i < line.size()):
-			var card: FighterCard = hurt if hurt is FighterCard else line[i]
-			## THE REGIME'S SHARPEST EDGE. Retro Bowl lets a knock through 10% of
-			## the time on Light, 20% on Normal and ALWAYS on Hard — so Hard is
-			## not a bit riskier than Normal, it is five times riskier. That
-			## asymmetry is what stops Hard being a free 1.5x on development.
-			##
-			## The roll is its own stream: an injury that consumed the world's
-			## RNG would make a squad decision reshuffle the country, which is a
-			## bug this project has already fixed twice.
-			var roll := RandomNumberGenerator.new()
-			roll.seed = hash("knock:%d:%d:%d:%s" % [world.rng.seed, world.season,
-				world.event, card.display_name])
-			if roll.randf() > office.regime_injury(Tuning.role_of(int(card.pos))):
-				continue
-			var was := card.injury
-			card.injury = maxi(card.injury,
-				maxi(1, int(k["events"]) - office.injury_relief()
-					+ int(FighterTrait.mod(card.trait_id, "injury_events", 0.0))))
-			if card.injury > was:
-				card.knocks += 1
-				## Recorded here rather than counted off the roster afterwards:
-				## `_apply_bout_injuries` is the only place that knows this knock
-				## is new, and a later pass over the squad cannot tell a man hurt
-				## today from a man hurt last week.
-				_note_change("knock", card.display_name,
-					"carried off — out for %d event%s" % [card.injury,
-						"" if card.injury == 1 else "s"], -1)
+	SeasonBouts._apply_bout_injuries(self, sim)
+
+
 
 
 ## XP FOR WHAT HE ACTUALLY DID. Harvested straight off the sim's own bookkeeping
@@ -748,152 +490,20 @@ var last_levels: Array[Dictionary] = []
 ##
 ## `kind` orders the list and colors it; nothing reads the text but the screen.
 var last_changes: Array[Dictionary] = []
-
-
+## -> SeasonBouts (season_bouts.gd)
 func _note_change(kind: String, who: String, text_: String, good: int = 0) -> void:
-	last_changes.append({"kind": kind, "who": who, "text": text_, "good": good})
+	SeasonBouts._note_change(self, kind, who, text_, good)
+
+
 
 
 ## What each man actually banked from the last bout, for the report's XP column.
 var last_xp: Dictionary = {}
-
-
+## -> SeasonBouts (season_bouts.gd)
 func _award_xp(sim: MeleeSim) -> void:
-	last_levels.clear()
-	last_changes.clear()
-	last_xp.clear()
-	## `fought()`, not `men`: a man subbed off at the corner earned his own
-	## afternoon and keeps it; the man who replaced him starts from nothing.
-	for m in sim.fought():
-		if m.team != 0 or m.card == null:
-			continue
-		if not club.roster.has(m.card):
-			continue
-		## THE REGIME'S FIRST EFFECT. Hard develops a man half again as fast and
-		## Light at three fifths — Retro Bowl's own 1.5 and 0.6, applied to the
-		## role he stands in because our captains cover roles.
-		var role := Tuning.role_of(int(m.card.pos))
-		## SPONGE and PLATEAUED ride on the same multiplier the regime and the
-		## captain already use, which is the point of them being multipliers: one
-		## man who learns faster is the same shape as a hard winter, at the man.
-		var earned := int(round(float(Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall()))
-			* office.regime_xp(role) * office.specialty_xp(role)
-			* FighterTrait.mod(m.card.trait_id, "xp", 1.0)))
-		m.card.xp += earned
-		last_xp[m.card] = earned
-		## CEILING RAISER. A three-down afternoon is the best thing a man does all
-		## season; on him it moves what he could become, not just what he is.
-		if m.downs_caused >= 3 and FighterTrait.flag(m.card.trait_id, "ceiling_on_big"):
-			m.card.potential = mini(99, m.card.potential + 1)
-			_note_change("trait", m.card.display_name,
-				"Ceiling Raiser — a three-down afternoon moved what he could become", 1)
-		## AND IF HE HAS EARNED A LEVEL, IT WAITS FOR YOU. It used to be taken here
-		## automatically, into whatever stat he was worst at — which quietly made
-		## it impossible to build a specialist, because every point a man earned
-		## went into his weakness. The report names him; the spending is a
-		## decision, and it can be made any time after.
-		if Career.levels_waiting(m.card) > 0:
-			last_levels.append({"name": m.card.display_name, "waiting": true,
-				"level": m.card.level, "overall": m.card.overall()})
-			_note_change("level", m.card.display_name,
-				"has a level waiting — spend it on his card", 1)
-		if int(m.assists) > 0:
-			_note_change("work", m.card.display_name,
-				"%d assist%s — second man on somebody else's takedown" % [
-					int(m.assists), "" if int(m.assists) == 1 else "s"], 1)
-		## THE BOOK, kept from the same two numbers the XP is paid on. They were
-		## already being counted and already being discarded; writing them down
-		## costs nothing and is the difference between a level and a career.
-		m.card.bouts += 1
-		m.card.downs += int(m.downs_caused)
-		m.card.rounds_standing += int(m.rounds_standing)
-		m.card.best_downs = maxi(m.card.best_downs, int(m.downs_caused))
-		m.card.assists += int(m.assists)
-		## AND THE CLUB'S BOOK, written at the moment it happens. A record
-		## computed by scanning the roster would lose everything a retired man
-		## ever did, which is most of the history of any club worth having one.
-		world.note_record("downs_event", int(m.downs_caused),
-			m.card.display_name, world.season)
-		world.note_record("downs_career", m.card.downs, m.card.display_name, world.season)
-		world.note_record("events", m.card.bouts, m.card.display_name, world.season)
-		world.note_record("standing", m.card.rounds_standing,
-			m.card.display_name, world.season)
-		world.note_record("rating", m.card.overall(), m.card.display_name, world.season)
+	SeasonBouts._award_xp(self, sim)
 
-	## AND THE WEEK THAT LED UP TO IT. Every man on the books, starters included
-	## — they get a quarter of a practice on top of what the afternoon paid them.
-	## See `_practice`.
-	_practice()
 
-	## ------------------------------------------------------- who sat, and who
-	## PRIMA DONNA — *"Sours every event he does not start."*
-	##
-	## Everybody on the eight who was not one of the five. It runs over the club's
-	## own roster and not over `sim.men`, because the men who did not play are
-	## exactly the ones `sim.men` has never heard of — a loop over who fought can
-	## never find who did not, which is the shape of the bug this trait would
-	## otherwise have had.
-	var played := {}
-	for m in sim.fought():
-		if m.team == 0 and m.card != null:
-			played[m.card] = true
-	for f in club.active_eight():
-		if played.has(f):
-			continue
-		var sour := FighterTrait.mod(f.trait_id, "benched_morale", 0.0)
-		if sour != 0.0:
-			f.morale_shift(sour)
-			_note_change("trait", f.display_name,
-				"Prima Donna — sat out and did not take it well", -1)
-
-	## TALISMAN — *"Lifts the room while he is here. Guts it when he goes."*
-	##
-	## The dressing room and not the field. Every in-fight version of this was
-	## measured and every one was either enormous or nothing — the figures are in
-	## the note on `MeleeSim._rally`. Morale is where a room trait belongs anyway:
-	## it is bounded by construction, it already has measured effects all through
-	## the club layer, and "lifts the room" is a sentence about a squad rather
-	## than about a clinch.
-	##
-	## AND THE SECOND HALF IS THE POINT OF IT. While he is fit and on the eight,
-	## everybody else lifts. While he is on the books and cannot go out, the same
-	## men drop by half as much — that is what *guts it when he goes* means on a
-	## week a club can actually see.
-	for t in club.active_eight():
-		var lift := FighterTrait.mod(t.trait_id, "room_morale", 0.0)
-		if lift == 0.0:
-			continue
-		var here: bool = t.fit()
-		for f in club.active_eight():
-			if f == t:
-				continue
-			f.morale_shift(lift if here else -lift * 0.5)
-		_note_change("trait", t.display_name,
-			"Talisman — the room is better for him being out there" if here
-			else "Talisman — the room felt him missing", 1 if here else -1)
-
-	## GRUDGE — *"Fights above himself against one named club, forever."*
-	##
-	## Named by the first club that beats him while he is on your eight, which is
-	## a thing that actually happens to people and needs no new screen. Set once
-	## and never cleared: a grudge that expires is a preference.
-	## WHO HE IS ANGRY AT IS WHO HE JUST FOUGHT, and that is a fact about the
-	## BOUT, so the bout is what is asked. It used to ask `opponent_id()`, the
-	## next name on the LEAGUE fixture list — correct on a Saturday and wrong on
-	## a cup night, when `post_cup_bout` calls this same function: lose a tie to
-	## Bristol and your man swore lifelong revenge on whoever you happened to
-	## play next, by name, on the report.
-	var beat_us := sim.opponent_club_id
-	if sim.bout_winner() == 1 and beat_us >= 0 and beat_us < world.clubs.size():
-		for m in sim.men:
-			if m.team != 0 or m.card == null or m.card.grudge_club >= 0:
-				continue
-			if FighterTrait.mod(m.card.trait_id, "grudge", 1.0) == 1.0:
-				continue
-			m.card.grudge_club = beat_us
-			_note_change("trait", m.card.display_name,
-				"Grudge — he will not forget %s" % String(
-					world.clubs[beat_us]["name"]), -1)
 
 
 ## What a matchday is worth to a man when nobody fought it — a bye, or the player
@@ -910,209 +520,31 @@ const XP_SIMMED: int = 8
 ## Small on its own and compounding when there are two of him, which is the
 ## right shape: one difficult man is a character, three is a dressing room.
 const TOXIC_DRAG: float = -0.06
-
-
-## A WEEK'S PRACTICE, FOR EVERY MAN ON THE BOOKS.
-##
-## Until 15 Sep 2026 only `starting_five()` earned anything. Eight men travel and
-## five fight: the other three and the five in reserve improved by exactly zero
-## for their whole careers, so the only way to bring a twenty-year-old on was to
-## start him instead of a better man and lose the season for it. There was no
-## such thing as a pipeline.
-##
-## The first patch paid the bench a SHARE OF THE STARTERS' fight XP. That fixed
-## the arithmetic and said something untrue — that a man who did not play is paid
-## a fraction of an afternoon he did not have — and it left the number the club
-## actually controls, the captain's stars, reaching nothing. Pete's reading is
-## the right one: **the coaches hold practices.** See `Career.practice_xp`.
-##
-## Everything a club can do about development multiplies here and nowhere else:
-## the captain's grade for the role the man stands in, the training ground, the
-## regime, and the traits that touch XP. A club with two five-star captains, a
-## built ground and a Hard regime develops men several times faster than a club
-## with none of it — which is what a staff is FOR, and what the grade on a hire
-## card has never until now been worth.
+## -> SeasonBouts (season_bouts.gd)
 func _practice() -> void:
-	var five := club.starting_five()
-	for f in club.roster:
-		var role := Tuning.role_of(int(f.pos))
-		var got := Career.practice_xp(office.coaching(role), five.has(f)) \
-			* office.practice_ground() * office.regime_xp(role) \
-			* office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
-		f.xp += maxi(1, int(round(got)))
+	SeasonBouts._practice(self)
 
 
-## AN EXTRA SESSION, PAID FOR. See `ClubOffice.charge_session` for the price and
-## the throttle; this is the work. One more week's practice for everybody, right
-## now, on the same function the matchday runs — so a bought session and a free
-## one cannot ever be worth different amounts, and every multiplier the club has
-## applies to both.
+## -> SeasonBouts (season_bouts.gd)
 func run_session() -> String:
-	var err := office.charge_session()
-	if err != "":
-		return err
-	_practice()
-	return ""
+	return SeasonBouts.run_session(self)
 
 
+## -> SeasonBouts (season_bouts.gd)
 func _award_sim_xp() -> void:
-	for f in club.starting_five():
-		f.xp += XP_SIMMED
-		## A simmed event is still an event he turned up to. It pays no downs,
-		## because nobody watched him cause any.
-		f.bouts += 1
-	_practice()
+	SeasonBouts._award_sim_xp(self)
 
 
-## Play the matchday without fighting it — a bye, or the player choosing to sim.
+## -> SeasonBouts (season_bouts.gd)
 func skip_event() -> void:
-	ensure_a_line()
-	_award_sim_xp()
-	var opp := opponent_id()
-	var was_home: bool = venue_kind() == Venue.Kind.HOME
-	var gate := gate_now()
-	var before := _my_row()
-	var was := _my_row()
-	## THE GRADE APPLIES TO A SIMMED FIXTURE TOO. See the note in
-	## `LeagueWorld.play_event` — until 15 Sep 2026 the difficulty setting was
-	## read only by `MeleeSim`, so pressing SIM IT fought the season at no
-	## difficulty at all and five twenty-season careers at five different grades
-	## came back identical.
-	world.player_scale = opposition_scale(opp)
-	world.play_event()
-	world.player_scale = 1.0
-	var now := _my_row()
-	_after_event(int(now["rf"]) - int(was["rf"]), int(now["ra"]) - int(was["ra"]), gate)
-	## AND THE WEEK STILL HAPPENED.
-	##
-	## `_apply_regime()` ran from `post_bout` and not from here, so a SIMMED event
-	## cost no morale drift and no kit wear at all: `tools/probe_kit.gd` walked
-	## twenty-four simmed events and the squad finished on exactly the harness it
-	## started with. Fighting your bouts wore your armor out and skipping them
-	## did not, which is a discount for not playing the game — and it is the kind
-	## of asymmetry a player finds by accident and then never fights again.
-	_apply_regime(was_home)
-	_log(opp, before, false, was_home)
-	event_played.emit(opp, [])
+	SeasonBouts.skip_event(self)
 
 
-## Everything that happens to the club because an event happened: credits for
-## the result, morale, and a week off the treatment table.
+## -> SeasonBouts (season_bouts.gd)
 func _after_event(rf: int, ra: int, gate: Dictionary = {}) -> void:
-	## THE CROWD IS PAID FIRST, and it is paid whatever the result. A fight in
-	## front of a house that knows who you are is worth money because it was
-	## watched, not because it was won — that is the whole point of banding it.
-	## The result then pays on top, so a win in a big year is worth a great deal
-	## more than the same win was worth in a small one.
-	##
-	## Note the ORDER: the pay is read BEFORE `after_event` moves the following, so
-	## the fight pays the band the club had when it walked out. Paying after
-	## would let a single win push a club over a gate and then pay the new band
-	## for the fight that crossed it, which is a half-band of free money on every
-	## crossing and reads as a bug the first time a player notices it.
-	## AND THE GATE IS ONLY YOURS AT HOME — Pete, 14 Sep 2026. A club that took
-	## its gate on the road is a club with no reason to build an arena, which is
-	## the whole of the Arena screen. `Venue.pays_the_gate` is the one place that
-	## rule lives, so a second earner added next year cannot quietly disagree
-	## with it.
-	## THE GATE IS PAID WHEREVER THE FIGHT WAS, at a share set by the venue and
-	## multiplied by the ground it was fought in. It used to be home-only, which
-	## made two thirds of a season's fixtures worth nothing at all — see the long
-	## note over `Venue.gate_share`.
-	var g := gate if not gate.is_empty() else gate_now()
-	office.take(int(g["cc"]), "The gate  ·  %s" % String(g["where"]), "event",
-		ClubOffice.LINE_GATE)
-	## AND THE COUNTER, AT HOME ONLY. It is your bar or it is not.
-	##
-	## Pete, 15 Sep 2026: *"Stadium damper could be food sales. Lemonade, bakery,
-	## brownies for back yard, progressing to real NFL beer sales and stuff at
-	## higher tiers."*
-	##
-	## THIS IS THE DAMPER AND THE DAMPING IS THE POINT. The gate reads the band and
-	## swings with form; the counter reads the turnstile and does not. A club that
-	## loses in front of a full house still sold them all a pint, so a bad season
-	## at a well-attended ground is a bad season rather than a crisis — which is
-	## exactly what Retro Bowl's stadium does for them, in a shape that belongs to
-	## this sport instead of theirs.
-	if int(g["kind"]) == Venue.Kind.HOME:
-		var heads := office.attendance()
-		office.take(Arena.counter_take(office.arena.level, heads),
-			"The counter  ·  %s" % Arena.sells(office.arena.level), "event",
-			ClubOffice.LINE_COUNTER)
-	if rf > ra:
-		office.take(CREDITS_WIN, "Won the event", "event", ClubOffice.LINE_PRIZE)
-		office.morale_after(true, false)
-	elif rf == ra:
-		office.take(CREDITS_DRAW, "Drew the event", "event", ClubOffice.LINE_PRIZE)
-		office.morale_after(false, true)
-	else:
-		office.morale_after(false, false)
-	## THE RESULT LANDS ON EVERY MAN, and then the difficult ones land on
-	## everybody else.
-	##
-	## Retro Bowl's own tip: *"Toxic players bring down the attitudes of team
-	## mates after a loss."* That is what makes a toxic man a decision rather
-	## than a bad stat — he is fine while you are winning.
-	var won: bool = rf > ra
-	var drew: bool = rf == ra
-	var swing := ClubOffice.MORALE_WIN if won else (0.0 if drew else ClubOffice.MORALE_LOSS)
-	swing += office.ground_morale()
-	## THE MOOD, BEFORE AND AFTER, PER MAN. The swing is the same for everybody
-	## and the WORD is not — `morale_shift` is a logistic, so the same nudge moves
-	## a contented man a little and a struggling one a lot, and the report is
-	## about the men who crossed a band rather than about the number.
-	var before := {}
-	for f in club.active_eight():
-		before[f] = f.morale_word()
-	for f in club.active_eight():
-		f.morale_shift(swing)
-	for f in club.active_eight():
-		if f.morale_word() != String(before[f]):
-			_note_change("mood", f.display_name,
-				"%s to %s" % [String(before[f]).to_lower(),
-					f.morale_word().to_lower()],
-				1 if f.morale > 0.5 else -1)
-	if not won and not drew:
-		## LIKEABLE. *"Toxic players ($pos) have no negative impact on teammates."*
-		## A captain who is good to be around does not fix the difficult man — he
-		## still fights angry, he still costs you nothing on a win — he just stops
-		## him taking the room down with him. So the trait is read PER TOXIC MAN,
-		## against the role that man stands in, rather than as a club-wide switch:
-		## your Rail captain cannot cover for a poisonous Center.
-		## POISON counts double and THICK SKIN does not count at all — one on each
-		## side of the same sum, which is the same shape as Bear against Anchor and
-		## for the same reason: a club can field both and have them cancel.
-		var poison := 0.0
-		for f in club.active_eight():
-			if f.toxic() and not office.trait_covers(
-					ClubOffice.Trait.LIKEABLE, Tuning.role_of(int(f.pos))):
-				poison += FighterTrait.mod(f.trait_id, "toxic_weight", 1.0)
-		if poison > 0.0:
-			for f in club.active_eight():
-				if f.toxic() or FighterTrait.flag(f.trait_id, "immune_toxic"):
-					continue
-				f.morale_shift(TOXIC_DRAG * poison)
-	office.sync_morale(club)
-	for f in club.roster:
-		if f.injury > 0:
-			f.injury -= 1
-	## The following moves with the result, and then the show goes on if it is
-	## due. In that order, because a tournament is drawn against the standing you
-	## have on the day of it.
-	office.after_event(rf > ra, rf == ra)
-	## AND IT GOES IN YOUR BOOK TOO. The club's record is the club's; this one
-	## follows you out of the door when you take another job, which is the only
-	## reason to keep a second copy of the same three numbers.
-	coach.note_result(rf > ra, rf == ra)
-	if _event_due():
-		_settle_event()
-	_draw_dilemma()
-	## A NEW WEEK. The throttle that lets a club work on each building once per
-	## matchday is cleared here, so "a week" means the same thing to the Clubhouse
-	## as it does to the fixture list — see ClubOffice.new_week.
-	office.new_week()
-	_roll_availability()
-	sync_power()
+	SeasonBouts._after_event(self, rf, ra, gate)
+
+
 
 
 ## WHO CANNOT MAKE IT THIS WEEKEND, and it is the half of DIRECTION §4 that has
@@ -1145,455 +577,131 @@ const AVAILABILITY_CHANCE: float = 0.055
 ## telling you that you cannot field a line, which is not a decision, it is a
 ## wall.
 const AVAILABILITY_MAX: int = 1
-
-
+## -> SeasonBouts (season_bouts.gd)
 func _roll_availability() -> void:
-	## A FRESH STREAM PER WEEK, seeded on the week, rather than a draw from the
-	## season-long roster stream.
-	##
-	## It used `_roster_rng()` at first, which is a stateful stream whose POSITION
-	## is not saved — it is rebuilt from the world seed and the season number on
-	## demand. The winter drew from it once a year and nothing noticed. Drawing
-	## from it every week meant a reloaded save restarted the stream from the
-	## beginning, rolled different men unavailable, and the two worlds came apart:
-	## `the world continues the same` went red, which is exactly the check that
-	## exists to catch a save carrying less state than the game is using.
-	##
-	## Seeding on (season, event) removes the state instead of saving it. Same
-	## answer every time, no position to keep.
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash("avail:%d:%d:%d" % [world.rng.seed, world.season, world.event])
-	var gone := 0
-	for f in club.roster:
-		## LAST WEEK'S EXCUSE IS OVER. Cleared for everybody first, including the
-		## men who were out, so this is a state of one weekend and not a flag that
-		## accumulates until the squad is all crosses.
-		f.available = true
-	for f in club.active_eight():
-		if gone >= AVAILABILITY_MAX:
-			break
-		## A man already out with a knock does not also need the weekend off. The
-		## two would read as one problem on the screen and cost twice.
-		if f.injury > 0:
-			continue
-		if rng.randf() < AVAILABILITY_CHANCE:
-			f.available = false
-			gone += 1
+	SeasonBouts._roll_availability(self)
 
 
-## THE YEAR ADDED UP — every week fought, not the handful a screen has room for.
-##
-## It lives here rather than in the review page because a total computed inside a
-## `_draw()` is a total nothing can check, and because the page shows the last
-## nine rows: *a total of what happens to be on screen is not a total.* The
-## screen slices; the season counts.
+## -> SeasonBouts (season_bouts.gd)
 func year_summary() -> Dictionary:
-	var fought := 0
-	var simmed := 0
-	var rf := 0
-	var ra := 0
-	var diff := 0
-	var byes := 0
-	for r in results:
-		if bool(r.get("bye", false)):
-			byes += 1
-			continue
-		if bool(r.get("fought", true)):
-			fought += 1
-		else:
-			simmed += 1
-		rf += int(r.get("rf", 0))
-		ra += int(r.get("ra", 0))
-		diff += int(r.get("margin", 0))
-	return {
-		"events": fought + simmed, "fought": fought, "simmed": simmed,
-		"byes": byes, "rf": rf, "ra": ra, "diff": diff,
-	}
+	return SeasonBouts.year_summary(self)
 
 
+## -> SeasonBouts (season_bouts.gd)
 func _my_row() -> Dictionary:
-	return (world.tables[world.player_tier()][world.player_club] as Dictionary).duplicate()
+	return SeasonBouts._my_row(self)
 
 
-## `at_home` IS PASSED IN, NOT ASKED FOR, and that is not fussiness.
-##
-## Both callers run this AFTER `world.play_event()` has ticked the week, so
-## `venue_kind()` in here would answer about the NEXT fixture — the club would
-## log every away day as a home one whenever the following week happened to be
-## at home. It is the identical mistake `post_bout` already carries a note about
-## for `opponent_id()`, three lines further up the same function, and it would
-## have been invisible until somebody read a season review and wondered why the
-## club never travelled.
+## -> SeasonBouts (season_bouts.gd)
 func _log(opp: int, before: Dictionary, fought: bool, at_home: bool) -> void:
-	if opp == -1:
-		results.append({ "opponent": -1, "bye": true, "fought": false })
-		return
-	var now := _my_row()
-	results.append({
-		"opponent": opp, "bye": false, "fought": fought,
-		"rf": int(now["rf"]) - int(before["rf"]),
-		"ra": int(now["ra"]) - int(before["ra"]),
-		"margin": League.margin_diff(now) - League.margin_diff(before),
-		## HOW IT WAS FOUGHT, not just that it was.
-		##
-		## Pete, 14 Sep 2026, on a losing career: *"which can be turned around by
-		## spending CC currency, bringing the difficulty down, or just fighting
-		## better/smarter."* He is right, and dropping the grade when a season
-		## goes bad is a real lever that should stay — Retro Bowl's own season
-		## review carries a `Diff` column on every week for exactly that reason.
-		##
-		## So the record remembers. A row that says the club won its division
-		## while fighting FRIENDLY is a different row from one that says it won
-		## the same division on THE HARD LIST, and a cabinet that cannot tell
-		## them apart is a cabinet that is not really keeping score.
-		##
-		## MATCHED carries its step too, because MATCHED is not one difficulty —
-		## it is a dial the season moves under the player, and "Matched 7" and
-		## "Matched 2" are further apart than two of the fixed grades.
-		"grade": grade,
-		"step": matched_step,
-		"home": at_home,
-	})
+	SeasonBouts._log(self, opp, before, fought, at_home)
 
 
-# ----------------------------------------------------------------- the bid
-## Is the federation waiting on you? Answered before the season starts, the same
-## way a cup tie is answered before the next matchday — a decision the game
-## stops and asks for is a decision the player notices making.
+## -> SeasonCups (season_cups.gd)
 func bid_open() -> bool:
-	return not bid_offers.is_empty()
+	return SeasonCups.bid_open(self)
 
 
-## Put the year's dates on the table. Called at the start of every season,
-## including the first, and only when the club has no tournament already running.
+## -> SeasonCups (season_cups.gd)
 func open_bids() -> void:
-	if booked != null:
-		return
-	bid_offers = ClubEvent.offers(world.events_this_season(),
-		world.player_tier())
+	SeasonCups.open_bids(self)
 
 
-## Take a date. The bid and the budget are both spent NOW, a season before the
-## show — which is the whole shape of it. What you do to your ground and your
-## following between here and there is what decides whether it comes back.
+## -> SeasonCups (season_cups.gd)
 func take_bid(offer_i: int, budget_i: int) -> String:
-	if not bid_open():
-		return "There is nothing on the table."
-	if offer_i < 0 or offer_i >= bid_offers.size():
-		return "No such date."
-	var offer: Dictionary = bid_offers[offer_i]
-	var b: Dictionary = ClubEvent.BUDGETS[clampi(budget_i, 0, ClubEvent.BUDGETS.size() - 1)]
-	var total := int(offer["bid"]) + int(b["cost"])
-	if office.credits < total:
-		return "The date and the budget come to %d CC and you have %d." % [
-			total, office.credits]
-	office.spend(total, ClubOffice.LINE_CUP)
-	booked = ClubEvent.tournament(offer, office.arena, budget_i)
-	bid_offers.clear()
-	return ""
+	return SeasonCups.take_bid(self, offer_i, budget_i)
 
 
-## Or pass on the year. Free, and it has to be — a club that cannot afford a
-## date must still be able to get on with its season.
+## -> SeasonCups (season_cups.gd)
 func decline_bid() -> void:
-	bid_offers.clear()
+	SeasonCups.decline_bid(self)
 
 
+## -> SeasonCups (season_cups.gd)
 func bid_preview(offer_i: int, budget_i: int) -> Dictionary:
-	if offer_i < 0 or offer_i >= bid_offers.size():
-		return {}
-	var offer: Dictionary = bid_offers[offer_i]
-	return ClubEvent.preview(office.arena.capacity(), office.fans,
-		budget_i, int(offer["bid"]))
+	return SeasonCups.bid_preview(self, offer_i, budget_i)
 
 
-# --------------------------------------------------------------------- cups
-## THE TIE IN FRONT OF YOU, or null. One at a time and in a fixed order — the
-## domestic cups before the Worlds — so a player never has two brackets asking
-## him for a result and no way to say which is which.
+## -> SeasonCups (season_cups.gd)
 func pending_cup() -> Cup:
-	for c in world.open_cups():
-		if not c.player_match().is_empty():
-			return c
-	return null
+	return SeasonCups.pending_cup(self)
 
 
-## ANY CUP WORTH LOOKING AT, whether or not it is waiting on you.
-##
-## `pending_cup()` only answers while a tie of yours is unplayed, and the draw
-## screen was reachable from nowhere else — so the moment you were knocked out,
-## the bracket you had just been knocked out of became unviewable, and the
-## CHAMPION line on that screen was code no player could reach. A cup is most
-## interesting in the ten seconds after you lose.
-##
-## Prefers one you are still in, then any running cup, then the last one that
-## finished this season.
+## -> SeasonCups (season_cups.gd)
 func viewable_cup() -> Cup:
-	var mine := pending_cup()
-	if mine != null:
-		return mine
-	for c in world.open_cups():
-		return c
-	var best: Cup = null
-	for c in world.cups:
-		if c.entrants.has(world.player_club):
-			best = c
-	if best != null:
-		return best
-	if world.worlds != null and world.worlds.entrants.has(world.player_club):
-		return world.worlds
-	return null
+	return SeasonCups.viewable_cup(self)
 
 
-## Is a bracket waiting on the player? The season cannot roll over while one is,
-## and the Club screen shows the tie instead of the league fixture.
+## -> SeasonCups (season_cups.gd)
 func cup_pending() -> bool:
-	return pending_cup() != null
+	return SeasonCups.cup_pending(self)
 
 
+## -> SeasonCups (season_cups.gd)
 func cup_opponent() -> int:
-	var c := pending_cup()
-	if c == null:
-		return -1
-	var m := c.player_match()
-	return int(m["b"]) if int(m["a"]) == world.player_club else int(m["a"])
+	return SeasonCups.cup_opponent(self)
 
 
-## Fight your own cup tie. The same MeleeSim a league fixture builds, with the
-## same captains and the same drawn plan — a cup match is a bout, not a special
-## case, and the moment it stops being one the two paths start to drift.
+## -> SeasonCups (season_cups.gd)
 func begin_cup_bout() -> MeleeSim:
-	ensure_a_line()
-	var c := pending_cup()
-	if c == null:
-		return null
-	opponent = club_for(cup_opponent())
-	var s := hash("cup:%d:%d:%d:%d" % [seed_value, world.season, world.event, cup_opponent()])
-	var sim := MeleeSim.new(club, opponent, s, opposition_scale(cup_opponent()))
-	## NEUTRAL GROUND AND A REAL TRIP. `venue_kind()` already answers NEUTRAL
-	## while a tie is pending, so it is asked rather than re-decided here; the
-	## distance is to the club you are actually fighting, which on a cup night is
-	## not the one the league has you down for.
-	_dress_sim(sim, cup_opponent(), venue_kind(),
-		world.miles_between(world.player_club, cup_opponent()))
-	return sim
+	return SeasonCups.begin_cup_bout(self)
 
 
-## Post a fought cup tie, then play the rest of the round out around it.
+## -> SeasonCups (season_cups.gd)
 func post_cup_bout(sim: MeleeSim) -> void:
-	var c := pending_cup()
-	if c == null:
-		return
-	var m := c.player_match()
-	var mine: bool = int(m["a"]) == world.player_club
-	last_result = [sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1]]
-	## A CUP TIE IS A FIGHT. It moves MATCHED exactly as a league fixture does —
-	## the grade describes how hard the country is fighting you, and the country
-	## does not stop on a Tuesday night.
-	_grade_bout(int(last_result[0]), int(last_result[1]))
-	_apply_injuries(sim)
-	_award_xp(sim)
-	if mine:
-		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
-	else:
-		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
-	_finish_cup_round(c, int(m.get("winner", -1)) == world.player_club)
+	SeasonCups.post_cup_bout(self, sim)
 
 
-## Or hand it to the AI. Same road afterwards.
+## -> SeasonCups (season_cups.gd)
 func sim_cup_tie() -> void:
-	ensure_a_line()
-	var c := pending_cup()
-	if c == null:
-		return
-	var m := c.player_match()
-	var res: Array = world.quick_bout(int(world.clubs[int(m["a"])]["power"]),
-		int(world.clubs[int(m["b"])]["power"]))
-	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
-	_finish_cup_round(c, int(m.get("winner", -1)) == world.player_club)
+	SeasonCups.sim_cup_tie(self)
 
 
-## Everything that happens once the player's tie is in the book: the rest of the
-## round is played around him, the bracket moves on, and a finished cup is
-## retired — with the gate settled if it was his own show.
+## -> SeasonCups (season_cups.gd)
 func _finish_cup_round(c: Cup, won: bool) -> void:
-	c.sim_others(world.cup_resolver())
-	## NOT PAST THE PLAYER'S BRONZE. If he lost a semi he is owed the third-place
-	## match, and finishing the cup around him would auto-sim it.
-	while c.round_complete() and not c.is_over() and not c.player_in_third():
-		if not c.advance():
-			break
-		c.sim_others(world.cup_resolver())
-	office.morale_after(won, false)
-	office.after_event(won, false)
-	## The bronze match, on the path the player actually walks. `run_all` played
-	## it; this route never did, so third place did not exist in a cup anybody
-	## fought through.
-	c.settle_third(world.cup_resolver(), true)
-	if c.is_over():
-		## YOU WON SOMETHING. The fanfare is played here rather than left to the
-		## mood system, because a mood is a state you are in and this is a moment
-		## that has just passed — by the time the screen redraws, the tie is
-		## resolved and `mood()` has already gone back to normal.
-		if c.champion == world.player_club:
-			Audio.champion()
-			## Everybody who travelled gets the honor, not only the five who
-			## were on the line for the final — a cup is won by an eight.
-			for f in club.active_eight():
-				f.honors += 1
-		if booked != null and booked.cup == c:
-			_settle_gate(booked, c)
-		else:
-			world.retire_cup(c)
-	sync_power()
+	SeasonCups._finish_cup_round(self, c, won)
 
 
-## The cup path uses the same rule as the league path, because it was two copies
-## of one rule and that is how the two ended up disagreeing about what an injury
-## costs.
+## -> SeasonCups (season_cups.gd)
 func _apply_injuries(sim: MeleeSim) -> void:
-	_apply_bout_injuries(sim)
+	SeasonCups._apply_injuries(self, sim)
 
 
-# ------------------------------------------------------------------- events
-## Book a demo. Instant, unplayed, small and it cannot lose — this is what a
-## club with no following and an empty week does.
+## -> SeasonCups (season_cups.gd)
 func run_demo() -> String:
-	if booked != null:
-		return "You already have %s in the diary." % booked.kind_name().to_lower()
-	## ONCE A WEEK, and without this the game has no economy.
-	##
-	## `run_demo` never set `booked`, and the button's only guard was
-	## `booked == null`, so it came back on every rebuild of the screen. Forty
-	## taps on a Backyard club is forty credits — both facilities, two captains,
-	## the arena and four cap raises, in one sitting, from a button meant to pay
-	## one credit for an empty week. Every price in the game was a suggestion.
-	##
-	## It goes through the same per-week throttle as an upgrade rather than
-	## getting its own flag, because a second throttle is a second thing to
-	## forget to reset.
-	if office.done_this_week("demo"):
-		return "You have already put a demo on this week."
-	var pay: int = ClubEvent.DEMO_PAY[clampi(office.arena.level, 0, ClubEvent.DEMO_PAY.size() - 1)]
-	office.take(pay, "A demo at the ground", "event", ClubOffice.LINE_GROUND)
-	## A demo keeps you on the calendar. Barely — a quarter of the turnout a real
-	## event would pull, and no promotion behind it.
-	var heads := int(float(ClubEvent.attendance(office.arena.capacity(),
-		office.fans)) * 0.25)
-	office.crowd_came(heads)
-	office.mark_this_week("demo")
-	last_show = {
-		"kind": "Demo", "heads": heads,
-		"gate": pay, "cost": 0, "net": pay, "finish": "", "podium": 0,
-	}
-	return ""
+	return SeasonCups.run_demo(self)
 
 
-## Does the booked event land on this matchday? Called as the event advances.
+## -> SeasonCups (season_cups.gd)
 func _event_due() -> bool:
-	return booked != null and not booked.settled and world.event >= booked.due
+	return SeasonCups._event_due(self)
 
 
-## PUT THE SHOW ON. The field is drawn from clubs near your own strength, the
-## Cup machinery runs it exactly as it runs an Invitational, and the gate is
-## settled against the following you had on the day rather than the one you had
-## when you booked it.
-## PUT THE SHOW ON. The field is drawn from clubs near your own strength and the
-## Cup machinery runs it exactly as it runs an Invitational — and YOU ARE IN IT,
-## so the bracket waits for you the same way a King's Cup does. The gate is not
-## counted until the cup is finished, because the podium is part of the payout
-## and there is no podium until somebody has won it.
+## -> SeasonCups (season_cups.gd)
 func _settle_event() -> void:
-	var e := booked
-	var field := _invite_field(e)
-	e.cup = Cup.new("%s Invitational" % club.short_name, field,
-		hash("show:%d:%d" % [seed_value, e.due]), world.player_club, false)
-	## AN ID, so a save can find its way back to this cup. Every other cup in
-	## the world gets one from `league_world.gd`; the one the player pays for
-	## was the only one without, which is why a reload orphaned it.
-	e.cup.set_meta("id", "show:%d" % e.due)
-	world.cups.append(e.cup)
-	## Everything that is not yours in the opening round, so the bracket is
-	## ready to ask you for a result the moment the screen opens.
-	e.cup.sim_others(world.cup_resolver())
-	if not e.cup.player_alive():
-		_settle_gate(e, e.cup)
+	SeasonCups._settle_event(self)
 
 
-## The money, once the bracket is done. Attendance is read against the
-## following you have ON THE DAY rather than the one you had when you booked —
-## two matchdays is long enough for that to have moved, and the gamble is the
-## whole point of the feature.
+## -> SeasonCups (season_cups.gd)
 func _settle_gate(e: ClubEvent, c: Cup) -> void:
-	var heads := ClubEvent.attendance(office.arena.capacity(), office.fans,
-		float(ClubEvent.BUDGETS[e.budget]["draw"]))
-	var g := ClubEvent.gate(heads, float(ClubEvent.BUDGETS[e.budget]["take"]))
-	var podium := 0
-	if c.champion == world.player_club:
-		podium = ClubEvent.PODIUM[0]
-	elif c.runner_up == world.player_club:
-		podium = ClubEvent.PODIUM[1]
-	elif c.third == world.player_club:
-		podium = ClubEvent.PODIUM[2]
-	office.take(g + podium, "The cup", "event", ClubOffice.LINE_CUP)
-	## A crowd is the loudest thing that can happen to a club, and everyone who
-	## came is half a fan afterwards. An empty house is not punished twice — the
-	## lost credits are punishment enough — so this only ever adds.
-	office.crowd_came(heads)
-	## A PODIUM AT YOUR OWN SHOW IS WORTH A CROWD. It used to be `note_shift(2.0)`
-	## on a fame scale that no longer exists; a fifteenth of the room left is the
-	## same size of nudge against the one number that is.
-	if podium > 0:
-		office.fans += (office.fan_cap() - office.fans) * 0.067
-		office.crowd_came(0)
-	e.settled = true
-	last_show = {
-		"kind": e.kind_name(), "heads": heads, "gate": g, "cost": e.cost(),
-		"net": g + podium - e.cost(), "finish": c.player_finish, "podium": podium,
-	}
-	e.report = last_show.duplicate()
-	world.retire_cup(c)
-	booked = null
+	SeasonCups._settle_gate(self, e, c)
 
 
-## Worlds guests are deleted when their Worlds ends; a show that invited one
-## would hold an id that stops existing mid-bracket.
+## -> SeasonCups (season_cups.gd)
 func _is_guest(id: int) -> bool:
-	return bool(world.clubs[id].get("guest", false)) or int(world.clubs[id].get("tier", 0)) < 0
+	return SeasonCups._is_guest(self, id)
 
 
-## Who turns up. Eight clubs of roughly your own standard, because a tournament
-## you cannot place in is not a tournament you would put money into — and a
-## bigger budget reaches further up the list for names.
+## -> SeasonCups (season_cups.gd)
 func _invite_field(e: ClubEvent) -> Array:
-	var mine: int = int(world.clubs[world.player_club]["power"])
-	var reach: int = 4 + e.budget * 7
-	var pool: Array = []
-	for id in world.clubs.size():
-		if id == world.player_club or _is_guest(id):
-			continue
-		if absi(int(world.clubs[id]["power"]) - mine) <= reach:
-			pool.append(id)
-	pool.sort_custom(func(a, b): return int(world.clubs[a]["power"]) > int(world.clubs[b]["power"]))
-	var field: Array = [world.player_club]
-	for id in pool:
-		if field.size() >= ClubEvent.FIELD:
-			break
-		field.append(id)
-	## A thin country still gets a full draw; the weakest clubs make up the
-	## numbers rather than the bracket being short.
-	var i := 0
-	while field.size() < ClubEvent.FIELD and i < world.clubs.size():
-		if i != world.player_club and not field.has(i) and not _is_guest(i):
-			field.append(i)
-		i += 1
-	field.sort_custom(func(a, b): return int(world.clubs[a]["power"]) > int(world.clubs[b]["power"]))
-	return field
+	return SeasonCups._invite_field(self, e)
 
 
-## The last event, or {} at the start of a season.
+## -> SeasonCups (season_cups.gd)
 func last_event() -> Dictionary:
-	return results[results.size() - 1] if not results.is_empty() else {}
+	return SeasonCups.last_event(self)
+
+
 
 
 func season_complete() -> bool:
@@ -1648,36 +756,11 @@ func trade_value(f: FighterCard) -> int:
 
 func trade_tier_name(f: FighterCard) -> String:
 	return Market.trade_tier_name(f.overall(), world.player_tier())
-
-
-## LETTING HIM GO NOW PAYS. Pete, 15 Sep 2026, on the one thread the tier work
-## left open: *"let's go with Retro Bowl's answer"* — and then *"let's go with
-## Trade instead of sell."* Theirs returns a draft pick in one of three coarse
-## buckets; ours returns credits on the same three — see `Market.trade_value` for
-## why the buckets are the fee bands collapsed in pairs rather than a second
-## scale, and for why the word is theirs.
-##
-## ONE DOOR AND NOT TWO. Retro Bowl separates cutting a man from trading him, and
-## that split does not survive the trip: it only exists because a trade needs a
-## partner who wants him, and ours is a league of clubs who always do. A man
-## nobody wants is worth the bottom bucket, which at the Backyard Circuit is
-## nothing — so "worthless" is expressed as a price rather than as a second
-## button that does nearly the same thing, and the label reads "Cut" when there
-## is no money in it.
+## -> SeasonDesk (season_desk.gd)
 func release(f: FighterCard) -> String:
-	var was_toxic: bool = f.toxic()
-	var paid := trade_value(f)
-	var err := club.cut(f)
-	if err != "":
-		return err
-	if paid > 0:
-		office.take(paid, "%s traded" % f.display_name,
-			"season %d" % world.season, ClubOffice.LINE_TRANSFER)
-	for other in club.active_eight():
-		other.morale_shift(CUT_TOXIC if was_toxic else CUT_LIKED)
-	office.sync_morale(club)
-	sync_power()
-	return ""
+	return SeasonDesk.release(self, f)
+
+
 
 
 ## Letting a menace go clears the air; letting a good man go does not.
@@ -1722,46 +805,26 @@ func blocked_by() -> String:
 ## matchday: **a decision the player can walk past is a decision he walks past**,
 ## and this one is the biggest of the year.
 var promotion_answered: bool = false
-
-
-## Did the club finish in a promotion place, with somewhere to be promoted to?
+## -> SeasonDesk (season_desk.gd)
 func promotion_place() -> bool:
-	if not season_complete():
-		return false
-	var t := world.player_tier()
-	if t >= League.TIERS.size() - 1:
-		return false                      ## nothing above the National Division
-	var p := position()
-	return p >= 1 and p <= int(League.TIERS[t]["up"])
+	return SeasonDesk.promotion_place(self)
 
 
+## -> SeasonDesk (season_desk.gd)
 func promotion_offered() -> bool:
-	return promotion_place() and not promotion_answered
+	return SeasonDesk.promotion_offered(self)
 
 
-## WHAT IT WOULD COST TO GO UP, for the screen — the two bills side by side,
-## because that is the whole decision and a player should not have to go and find
-## the number on another page.
+## -> SeasonDesk (season_desk.gd)
 func promotion_terms() -> Dictionary:
-	var t := world.player_tier()
-	var up := mini(t + 1, League.TIERS.size() - 1)
-	return {
-		"from": League.tier_name(t),
-		"to": League.tier_name(up),
-		"dues_now": League.dues_for(t),
-		"dues_up": League.dues_for(up),
-		"in_hand": office.credits,
-	}
+	return SeasonDesk.promotion_terms(self)
 
 
-## Take it or leave it. Returns "" like every other verb here.
+## -> SeasonDesk (season_desk.gd)
 func answer_promotion(take: bool) -> String:
-	if not promotion_place():
-		return "There is nothing to decide."
-	promotion_answered = true
-	world.stay_down = not take
-	last_promotion_choice = take
-	return ""
+	return SeasonDesk.answer_promotion(self, take)
+
+
 
 
 ## What he said, for the summer report. `true` is went up, `false` is stayed.
@@ -1867,165 +930,11 @@ static func purse(place: int, field: int, tier: int) -> int:
 	var down: float = 0.0 if field <= 1 else \
 		float(clampi(place, 1, field) - 1) / float(field - 1)
 	return maxi(1, int(round(top * lerpf(1.0, PURSE_TAIL, down))))
-
-
+## -> SeasonWinter (season_winter.gd)
 func roll_over() -> void:
-	results.clear()
-	last_winter = {"gained": 0, "lost": 0, "retired": [], "prospect": "",
-		"walked": [], "signed": []}
-	## A NEW SUMMER IS A NEW MARKET. The pool is keyed on the season number, so
-	## clearing this is what opens it — and it has to happen before `world.season`
-	## advances or the list the player was looking at yesterday stays closed.
-	market_taken.clear()
-	var before := world.player_tier()
-	var finished := position()
-	world.roll_over()
-	## THE ANSWER IS SPENT. Both flags reset here rather than at the start of the
-	## next season, because `roll_over()` is the only thing that consumes them and
-	## a flag cleared anywhere else is a flag that survives a save and declines a
-	## promotion nobody was offered.
-	world.stay_down = false
-	promotion_answered = false
-	sync_power()
-	var after := world.player_tier()
-	## The summer: prize money, the gate from hosting, and the winter's training.
-	## THE PURSE IS PAID ON THE DIVISION THE CLUB JUST LEFT, not the one it is
-	## about to join. `finished` and `before` were both taken above `world.roll_over()`
-	## for exactly this reason: a promoted club that was paid at its NEW tier
-	## would take a champion's share of a division it has not played a fight in.
-	if finished >= 1:
-		office.take(purse(finished, League.club_count(before), before),
-			"Finished %s" % UiKit.ordinal(finished), "season", ClubOffice.LINE_PRIZE)
-	if after > before:
-		office.take(CREDITS_PROMOTED, "Went up", "season", ClubOffice.LINE_PRIZE)
-		office.after_move(true)
-	elif after < before:
-		office.after_move(false)
-	office.take(office.gate_income(), "A season of gates", "season",
-		ClubOffice.LINE_GROUND)
-	## THE DUES. Banked before the bills, because that is what they are for — the
-	## members' money is the income that does not move with results, and it is
-	## the money the federation's bill is actually competing for.
-	## THE FEDERATION'S BILL, AND IT GOES THE OTHER WAY NOW.
-	##
-	## This line used to READ `office.take(office.dues(), "Members' dues")` and it
-	## was the biggest single earner in the game — 24.4 credits a season across a
-	## career, 58% of everything the club made, from a standing subscription. Pete,
-	## 15 Sep 2026: *"I'm not liking the dues portion, that should more be a league
-	## dues at the start of a season, one in which you CAN go negative but it's a
-	## good bite."*
-	##
-	## CHARGED HERE, at the roll-over, rather than at the first fixture — because
-	## the roll-over is where the division is decided and the bill is for the
-	## division you are about to enter. `office.tier` has already been set by
-	## `_apply_regime`'s caller below; this runs after the promotion choice is
-	## settled, so a club that stayed down pays the cheaper bill it stayed down for.
-	##
-	## AND IT IS ALLOWED TO GO NEGATIVE. `spend()` does not check, deliberately —
-	## every other caller checks first and this one must not, because a bill you
-	## can decline is not a bill. See `ClubOffice.in_the_red()`.
-	office.spend(League.dues_for(office.tier), ClubOffice.LINE_FEDERATION)
-	## AND THEN THE BILLS. Deliberately after the retainer and the prize money and
-	## deliberately before the training: a club should be paid for the year it had
-	## and then asked what it costs to keep what it owns, in that order, because
-	## that is the order a player reasons about it in. Anything it cannot cover
-	## sheds a level — see ClubOffice.pay_upkeep.
-	last_upkeep = office.pay_upkeep()
-	## The summer: people forget, and a following bleeds if it is not fed.
-	office.winter()
-	## THE STAFF ARE ON DEALS TOO, and a captain whose contract ran out has gone
-	## before the winter's training rather than after it — the roles he taught are
-	## untaught for that winter, which is the cost of having let it lapse.
-	last_staff_left = office.age_captains()
-	_train()
-	## AND THE MEN AT THEIR CEILING CASH IN. Retro Bowl's rule — *"maxed players
-	## convert further level-ups into credits"* — and the reason to take it is
-	## that the alternative is throwing away every point of XP a veteran earns
-	## for the rest of his career. See `Career.cash_in`.
-	last_cashed = 0
-	for f in club.roster:
-		var got := Career.cash_in(f)
-		if got > 0:
-			last_cashed += office.take(got, "%s passing it on" % f.display_name,
-				"season", ClubOffice.LINE_SQUAD)
-	for f in club.roster:
-		f.injury = 0            ## nobody carries a knock across a winter
-	sync_power()
+	SeasonWinter.roll_over(self)
 
-	## THE BID IS PART OF THE SUMMER. New division, new calendar, new dates — and
-	## a promoted club is offered a longer season with later, dearer slots in it.
-	open_bids()
 
-	## WHAT THE YEAR DID TO YOUR NAME. After the club's summer, because a
-	## reputation is read off where the club finished and the club has to have
-	## finished first.
-	##
-	## `finished` was taken before `world.roll_over()` — the table is rebuilt in
-	## there — so it is the position you actually came, not the one you start the
-	## new season in. Getting those two the wrong way round would have paid a
-	## promoted club for finishing first in a division it had already left.
-	coach.after_division(finished, before)
-	## AND WHAT THE CUPS DID. Every bracket that resolved this year and had you in
-	## it pays by how far you went — the size of the round you went out in, which
-	## is the key `Coach.REP_BY_CUP_EXIT` is written on.
-	##
-	## EACH CUP IS COUNTED ONCE, WHENEVER IT ENDED. This used to ask for honours
-	## labelled `world.season` — but `world.roll_over()` above has already moved
-	## the season on, so no Invitational was ever counted and a Worlds (which
-	## ends in the following year) was counted a year late. Now every honour
-	## carries a `counted` flag and the summer pays for the ones not yet paid.
-	var won_cup := false
-	for h in honors():
-		if bool(h.get("counted", false)):
-			continue
-		h["counted"] = true
-		var exit_size := int(h.get("exit", -1))
-		if exit_size > 0:
-			coach.after_cup(exit_size)
-		if int(h.get("champion", -1)) == world.player_club:
-			won_cup = true
-	coach.note_season(after > before, after < before, won_cup)
-
-	## AND THEN THE CLUB MAY COME APART. Last, after everything else the summer
-	## does, because a squad that is about to lose half its men should still have
-	## been paid, trained and aged first — the men who walk take the winter they
-	## earned with them, which is what makes the rival dangerous rather than a
-	## collection of last year's numbers.
-	## WHO STAYED AND WHO WALKED, and it moves the FOLLOWING now rather than a
-	## membership roll of its own.
-	##
-	## `members` is gone — the third of three populations all answering the same
-	## question, and the one whose only output was a subscription the club no
-	## longer collects. What it reacted to was always right, though: a season in
-	## the top half, a room worth being in, a club that can fill its own bus. So
-	## those three keep moving people; they move the one population that is left.
-	##
-	## NOT compliance — see the note at the top of `Federation`. People leaving
-	## over paperwork would make both masters want the same thing and collapse the
-	## pillar into one slider.
-	var bench_full: bool = club.active_eight().size() >= office.travel_slots
-	var was_fans := office.fans
-	office.fans = Federation.following_after(office.fans, office.fan_cap(),
-		finished <= int(League.club_count(before) / 2), office.morale, bench_full)
-	last_members = {"was": was_fans, "now": office.fans}
-
-	## THE BREAKAWAYS HAVE A WINTER TOO — before a new one can form, so a club
-	## founded this summer starts as the men who walked.
-	_winter_the_splinters()
-	last_split = _maybe_split(finished, before, after)
-
-	## AND THE BOOKS CLOSE. LAST, after every summer payment and every summer
-	## bill, so `books_last` is a WHOLE year — the gate, the prize money, the
-	## retainer, the dues, the upkeep and the paperwork — rather than the twelve
-	## matchdays plus whichever half of the summer happened to run first.
-	##
-	## The finances page reads it against the year in progress, and **a column
-	## made of two halves of two different years is the most misleading number a
-	## ledger can print.**
-	office.close_books()
-
-	var h: Dictionary = world.history[world.history.size() - 1] if not world.history.is_empty() else {}
-	season_finished.emit(int(h.get("position", -1)), after > before, after < before)
 
 
 ## What the fracture did, for the summer report. Empty in a year the club held.
@@ -2043,185 +952,26 @@ var last_members: Dictionary = {}
 ## you used to pick. Rebuilt from a seed it would be strangers with a grudge,
 ## which is a different and much worse idea.
 var splinter_rosters: Dictionary = {}
-
-
+## -> SeasonWinter (season_winter.gd)
 func _maybe_split(place: int, tier_before: int, tier_after: int) -> Dictionary:
-	var field: int = League.club_count(tier_before)
-	if not ClubSplit.fractures(office.morale, place, field, tier_after < tier_before,
-			world.season):
-		return {}
-
-	## WHO THEY TAKE. The men who have actually been fighting are the ones with a
-	## reason to stay, so the lineup the player has been picking all season is
-	## half of the input — see `ClubSplit.who_walks`.
-	var picked: Array = club.active_eight()
-	var leaving: Array = ClubSplit.who_walks(club.roster, picked)
-	if leaving.is_empty():
-		return {}
-
-	## WHERE THEY GO. The pyramid has a fixed number of clubs per division and
-	## the fixture list is built off that count, so a breakaway cannot simply be
-	## appended — a seventh club in a six-club division breaks every table in the
-	## world. They take over the weakest club in your own division instead, which
-	## is also what actually happens: a breakaway group does not build a club from
-	## nothing, it absorbs one that was already dying.
-	##
-	## And it has to be YOUR division, because the direction document is specific
-	## about the payoff: *"a rival club across town that you now have to fight."*
-	var victim := -1
-	var worst := 1 << 30
-	for cid in world.clubs_in(world.player_tier()):
-		if cid == world.player_club:
-			continue
-		var p := int(world.clubs[cid]["power"])
-		if p < worst:
-			worst = p
-			victim = cid
-	if victim < 0:
-		return {}
-
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash("split:%d:%d" % [seed_value, world.season])
-	var parent := String(world.clubs[world.player_club]["name"])
-	var new_name := ClubSplit.name_for(parent, rng)
-
-	## Move the men. `cut` is not used: they are not being released, they are
-	## walking, and the morale consequences of a cut would be nonsense here — the
-	## room they would lift is the room that just emptied.
-	var took: Array[String] = []
-	var carried: Array = []
-	for f in leaving:
-		club.roster.erase(f)
-		## THEY ALL TRAVEL NOW. The men who walk are, by construction, the ones who
-		## were not being picked — so most of them arrive carrying `active = false`
-		## from the squad they just left. Founding the rival without clearing that
-		## produced a club whose entire line was WALK-ONS while the five men who
-		## actually walked sat in its reserve: a breakaway that fielded strangers,
-		## which is the one thing this system exists not to do.
-		##
-		## It passed every check I had written, because "can the rival field five"
-		## was true — it just was not fielding any of them. What caught it was a
-		## note printing `active_eight().size()` as 0 next to a sentence saying the
-		## club was made of these men.
-		f.active = true
-		carried.append(f)
-		took.append(f.display_name)
-
-	## THE RIVAL IS THOSE MEN. Any slots they cannot fill are walk-ons at the
-	## division's floor, so a breakaway of six is a real club and not a forfeit.
-	var typed: Array[FighterCard] = []
-	for f in carried:
-		typed.append(f)
-	var rival := MeleeClub.build(new_name, ClubSplit.short_for(new_name),
-		Color(0.55, 0.16, 0.16), Color(0.9, 0.85, 0.7), 0, typed)
-	rival.travel_cap = MeleeClub.ACTIVE_SIZE
-	var guard := 0
-	## `starting_five()` does not pad with nulls when it comes up short — it
-	## returns a SHORT array and says so by its size. Asking it `.has(null)` is a
-	## question it can never answer yes to, so this loop never ran and the
-	## breakaway club was whatever the split left it, line or no line.
-	while rival.starting_five().size() < MeleeClub.LINE_SIZE and guard < MeleeClub.SQUAD_MAX:
-		guard += 1
-		var w := ClubFactory.walk_on(rng, _missing_slot(rival), world.player_tier())
-		if rival.sign(w) != "":
-			break
-		w.active = true
-
-	world.clubs[victim]["name"] = new_name
-	world.clubs[victim]["short"] = ClubSplit.short_for(new_name)
-	world.clubs[victim]["power"] = rival.power()
-	world.clubs[victim]["splinter"] = true
-	_clubs[victim] = { "club": rival, "power": rival.power() }
-	## THE WHOLE CLUB, NOT THE MEN WHO WALKED.
-	##
-	## `carried` is the breakaway itself — the men who left you — and storing
-	## only those was right up until the loop above started running. It fills the
-	## line with walk-ons, and those walk-ons are part of the club from that
-	## moment on: they are in `rival`, they are in `rival.power()`, and that power
-	## is what the whole league table is built on.
-	##
-	## They were not in the save. So a reloaded career rebuilt the breakaway from
-	## the carried men ALONE — and a breakaway of three cannot field five, which
-	## made its power zero and handed the player a walkover he had not earned. The
-	## bout that decided his season came out 0-2 in a game played straight
-	## through and 2-1 in the same game reloaded, and the divergence spread from
-	## there through the table, the drift and his own development.
-	##
-	## What the save has to carry is the CLUB, because the club is what plays.
-	var whole: Array[FighterCard] = []
-	for f in rival.roster:
-		whole.append(f)
-	splinter_rosters[victim] = whole
-
-	## And the club you have left has to be able to field five. `_fill_squad`
-	## already knows how to sign walk-ons at the position that is actually
-	## missing, so the recovery goes through the same road as a bad winter.
-	var replacements := _fill_squad()
-	sync_power()
-	office.sync_morale(club)
-
-	return {
-		"club": new_name, "id": victim, "took": took,
-		"replacements": replacements, "season": world.season,
-	}
+	return SeasonWinter._maybe_split(self, place, tier_before, tier_after)
 
 
-## Which line slot a club is thinnest at. Used when a breakaway is short.
-##
-## It used to look for a null in `starting_five()` — which never holds one (it
-## returns a SHORT array instead) — so every walk-on it asked for was a Center.
+## -> SeasonWinter (season_winter.gd)
 func _missing_slot(c: MeleeClub) -> int:
-	return _thinnest_slot(c)
+	return SeasonWinter._missing_slot(self, c)
 
 
+## -> SeasonWinter (season_winter.gd)
 func _thinnest_slot(c: MeleeClub) -> int:
-	var eight := c.active_eight()
-	var worst := int(Tuning.Pos.CENTER)
-	var fewest := 99
-	for slot in 5:
-		var n := 0
-		for f in eight:
-			if f.fit() and Tuning.covers(int(f.pos), slot):
-				n += 1
-		if n < fewest:
-			fewest = n
-			worst = slot
-	return worst
+	return SeasonWinter._thinnest_slot(self, c)
 
 
-## A BREAKAWAY IS MADE OF MEN, AND MEN AGE. Every other CPU club is a rating that
-## drifts; a splinter is a stored roster, and it sat frozen — nobody aged,
-## trained or retired, while `_drift_ratings` moved the number the table sims
-## used. Its table results and its bouts against you slowly stopped describing
-## the same club. Now it has the same winter as yours (coached, no ground), loses
-## its retirees, tops its line up with walk-ons at its own division's level, and
-## its power is read back off the men.
+## -> SeasonWinter (season_winter.gd)
 func _winter_the_splinters() -> void:
-	for key in splinter_rosters.keys():
-		var id := int(key)
-		if id < 0 or id >= world.clubs.size() or id == world.player_club:
-			continue
-		var rival := club_for(id)
-		var rng := RandomNumberGenerator.new()
-		rng.seed = hash("splinter-winter:%d:%d:%d" % [seed_value, world.season, id])
-		for f in rival.roster.duplicate():
-			Career.winter(f, true, 0)
-			if rng.randf() < Career.retire_chance(f, 0.7):
-				rival.roster.erase(f)
-		var guard := 0
-		while rival.starting_five().size() < MeleeClub.LINE_SIZE and guard < MeleeClub.SQUAD_MAX:
-			guard += 1
-			var w := ClubFactory.walk_on(rng, _thinnest_slot(rival),
-				maxi(0, int(world.clubs[id]["tier"])))
-			if rival.sign(w) != "":
-				break
-			w.active = true
-		var whole: Array[FighterCard] = []
-		for f in rival.roster:
-			whole.append(f)
-		splinter_rosters[id] = whole
-		world.clubs[id]["power"] = rival.power()
-		_clubs[id] = {"club": rival, "power": rival.power()}
+	SeasonWinter._winter_the_splinters(self)
+
+
 
 
 ## THE WINTER. Everybody gets a year older, the ones who are done go home, and
@@ -2239,191 +989,21 @@ func _winter_the_splinters() -> void:
 ## the ceiling now refuses them: points offered to a man who has reached his
 ## potential go to the next man instead of being spent on nothing.
 var _ground_used: int = 0
-
+## -> SeasonWinter (season_winter.gd)
 func _train() -> void:
-	_ground_used = 0
-	var points := office.training_points()
-	var pool: Array = club.roster.duplicate()
-	pool.sort_custom(func(a, b): return a.overall() < b.overall())
-
-	## THE PROSPECT, banked during the season and cashed here. One man, once a
-	## year, and only with a Training ground built up to take it — the one scarce
-	## way a ceiling moves.
-	if prospect != null and club.roster.has(prospect) \
-			and office.level(ClubOffice.Facility.TRAINING) >= Career.PROSPECT_GROUND:
-		prospect.potential = mini(Career.POTENTIAL_CEILING,
-			prospect.potential + Career.PROSPECT_GAIN)
-		last_winter["prospect"] = prospect.display_name
-	prospect = null
-
-	## The ground's points are handed out round-robin from the bottom, and this
-	## is the share each man may take out of the pool. Working out the share
-	## first rather than looping a shared counter keeps `Career.winter` a pure
-	## function of one fighter — it was a shared counter, and a lambda capturing
-	## it by value was exactly the kind of bug this codebase has already paid
-	## for twice.
-	## CAPPED BY HEADROOM, AND THE REMAINDER COMES BACK.
-	##
-	## This used to hand points round-robin with no regard for how much room a
-	## man had left, so a Training ground advertising "15 points a winter" with
-	## three eligible men each one point under potential allotted five each,
-	## spent three, and SILENTLY BURNED TWELVE — while the winter report said
-	## "gained 3" and the Clubhouse went on promising fifteen.
-	##
-	## A man already at his ceiling is also included now if age is about to take
-	## something off him: the decline happens inside `Career.winter`, after this
-	## share is worked out, and it opens room that the old filter had already
-	## refused him.
-	var budget := points
-	var eligible: Array = []
-	for f in pool:
-		if not office.taught(Tuning.role_of(int(f.pos))):
-			continue
-		if f.overall() < f.potential or Career.will_decline(f):
-			eligible.append(f)
-	var share := {}
-	var i := 0
-	var guard := 0
-	while points > 0 and not eligible.is_empty() and guard < 4096:
-		guard += 1
-		var f: FighterCard = eligible[i % eligible.size()]
-		i += 1
-		var room: int = maxi(0, f.potential - f.overall())
-		if Career.will_decline(f):
-			room += 1
-		if int(share.get(f, 0)) >= room:
-			## Everyone full? Stop rather than spin.
-			var any := false
-			for g in eligible:
-				var r2: int = maxi(0, g.potential - g.overall())
-				if Career.will_decline(g):
-					r2 += 1
-				if int(share.get(g, 0)) < r2:
-					any = true
-					break
-			if not any:
-				break
-			continue
-		share[f] = int(share.get(f, 0)) + 1
-		points -= 1
-
-	var retired: Array[String] = []
-	var gained := 0
-	var lost := 0
-	for f in club.roster.duplicate():
-		var coached := office.taught(Tuning.role_of(int(f.pos)))
-		var r := Career.winter(f, coached, int(share.get(f, 0)))
-		gained += int(r["gained"])
-		lost += int(r["lost"])
-		_ground_used += int(r["ground"])
-		## RETIREMENT IS ROLLED AFTER THE WINTER, on the man he has become. A
-		## fighter who just lost three points to age is likelier to go than the
-		## one he was in October, which is the order it happens in real life and
-		## the only order in which `retire_chance` can read a current card.
-		if _roster_rng().randf() < Career.retire_chance(f, office.morale):
-			retired.append("%s (%d)" % [f.display_name, f.age])
-			club.roster.erase(f)
-	## WHAT THE GROUND DID NOT MANAGE TO SPEND goes round again, among the men
-	## still on the books after the retirements — post-decline, so the room the
-	## winter just opened is usable.
-	var spare := budget - _ground_used
-	var pass_guard := 0
-	while spare > 0 and pass_guard < 64:
-		pass_guard += 1
-		var spent_this_pass := 0
-		for f in club.roster:
-			if spare <= 0:
-				break
-			if not office.taught(Tuning.role_of(int(f.pos))):
-				continue
-			var used := Career.train_only(f, 1)
-			spare -= used
-			spent_this_pass += used
-			gained += used
-		if spent_this_pass == 0:
-			break
-	last_winter["points"] = budget
-	last_winter["unspent"] = maxi(0, spare)
-	last_winter["gained"] = gained
-	last_winter["lost"] = lost
-	last_winter["retired"] = retired
-	last_winter["walked"] = _settle_contracts()
-	last_winter["signed"] = _fill_squad()
-	sync_power()
+	SeasonWinter._train(self)
 
 
-## EVERY DEAL LOSES A YEAR, AND THE MEN WHO RAN OUT LAST SUMMER WALK.
-##
-## The two-stage shape is the whole feature. A deal reaching zero does not remove
-## anybody — it puts him OUT OF CONTRACT, which is a state the player can see on
-## the team sheet and do something about for a whole season. Only a man who was
-## already out of contract, and whom nobody re-signed, actually leaves.
-##
-## Without that stage the player loses fighters to a number he was never shown
-## changing, which is the same class of failure as a squad that quietly shrinks
-## over a summer. With it, losing somebody is a decision he made by not making
-## one — which is a fair thing for a game to do to you.
-##
-## WHETHER HE WAITS is rolled rather than certain, and rolled against the club's
-## NOTORIETY: a fighter will hang on for a club people have heard of, and a good
-## fighter at a club nobody has heard of will not. That is the arena system
-## reaching a roster decision, which is the kind of connection that makes two
-## features into one game.
+## -> SeasonWinter (season_winter.gd)
 func _settle_contracts() -> Array[String]:
-	var walked: Array[String] = []
-	var band: Array = League.TIERS[world.player_tier()]["power"]
-	## Anyone who spent the whole of last season out of contract is decided
-	## first, on the deal he had BEFORE this summer's tick — otherwise a man
-	## signed in year one would be given a year of grace he never earned.
-	for f in club.roster.duplicate():
-		if f.years > 0:
-			continue
-		var wait := Contracts.will_wait(f, office.pull(), int(band[1]), office.morale)
-		if _roster_rng().randf() > wait:
-			walked.append("%s (%d)" % [f.display_name, f.overall()])
-			club.roster.erase(f)
-	Contracts.age_deals(club.roster)
-	return walked
+	return SeasonWinter._settle_contracts(self)
 
 
-## NOBODY TURNS UP TO AN EVENT WITH SEVEN MEN. Retirements land at the winter and
-## they can leave the traveling eight short, or — after a bad run of them — leave
-## the club unable to cover all five positions at all. That failure would not
-## surface until the player was standing at the next event wondering why the
-## Fight button was refusing him.
-##
-## Reserves come up first, because a club promotes from within before it phones
-## round. Only when the books themselves are short does a walk-on get signed, and
-## he is signed at the position that is actually missing rather than at whatever
-## the generator felt like — see ClubFactory.walk_on.
-##
-## Returns the names taken on, so the summer can say so out loud.
+## -> SeasonWinter (season_winter.gd)
 func _fill_squad() -> Array[String]:
-	var took: Array[String] = []
-	while club.active_eight().size() < club.party_size():
-		var up: FighterCard = null
-		for f in club.reserves():
-			up = f
-			break
-		if up == null:
-			break
-		up.active = true
+	return SeasonWinter._fill_squad(self)
 
-	## THE PARTY GOES BACK TO FULL, not just to a line. The first pass signed
-	## walk-ons only while the club could not fill a line, so a squad that
-	## retired down to six men kept traveling with six: legal on the day, and a
-	## club whose bench was one knock from being unable to fight. A 25-season
-	## probe run found it as a roster of FIVE, which is the state that rule
-	## allows and nobody would ever choose.
-	var guard := 0
-	while club.active_eight().size() < club.party_size() and guard < MeleeClub.SQUAD_MAX:
-		guard += 1
-		var w := ClubFactory.walk_on(_roster_rng(), _uncovered_slot(), world.player_tier())
-		if club.sign(w) != "":
-			break
-		w.active = true
-		took.append("%s (%s, %d)" % [w.display_name, w.pos_name(), w.overall()])
-	return took
+
 
 
 ## A CLUB THAT CANNOT FIELD FIVE MID-SEASON IS NOT LEFT TO FORFEIT ITS YEAR.
@@ -2436,57 +1016,16 @@ func _fill_squad() -> Array[String]:
 ##   2. if that is still not five, a free walk-on is signed (room permitting).
 ## Returns what it did, for the status line; empty when the line was already whole.
 var last_emergency: Array[String] = []
-
-
+## -> SeasonWinter (season_winter.gd)
 func ensure_a_line() -> Array[String]:
-	last_emergency = []
-	## The travel cap first: the party is the first N active men in roster
-	## order, and N is the office's, not whatever the club was last built with.
-	sync_power()
-	if club.starting_five().size() >= MeleeClub.LINE_SIZE:
-		return last_emergency
-	for f in club.reserves():
-		if club.starting_five().size() >= MeleeClub.LINE_SIZE:
-			break
-		if not f.fit():
-			continue
-		var out_man: FighterCard = null
-		for a in club.active_eight():
-			if not a.fit():
-				out_man = a
-				break
-		if out_man != null:
-			out_man.active = false
-		f.active = true
-		last_emergency.append("%s travels in place of the injured" % f.display_name)
-	## Its own stream, keyed on the matchday: the roster stream is not saved, and
-	## a mid-season draw from it would come out differently after a reload.
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash("emergency:%d:%d:%d" % [seed_value, world.season, world.event])
-	var guard := 0
-	while club.starting_five().size() < MeleeClub.LINE_SIZE and guard < MeleeClub.LINE_SIZE:
-		guard += 1
-		var w := ClubFactory.walk_on(rng, _uncovered_slot(), world.player_tier())
-		if club.sign(w) != "":
-			break
-		## If the party is full of injured men, one of them stays home for him.
-		if club.active_eight().size() >= club.party_size():
-			for a in club.active_eight():
-				if not a.fit():
-					a.active = false
-					break
-		w.active = true
-		last_emergency.append("%s signed as an emergency walk-on" % w.display_name)
-	if not last_emergency.is_empty():
-		sync_power()
-	return last_emergency
+	return SeasonWinter.ensure_a_line(self)
 
 
-## Which place on the line the eight cannot fill. Counted by who COVERS the slot
-## rather than who is listed for it, so a club short of a Center is not handed a
-## second Rail on the grounds that the Rail slot has one man in it.
+## -> SeasonWinter (season_winter.gd)
 func _uncovered_slot() -> int:
-	return _thinnest_slot(club)
+	return SeasonWinter._uncovered_slot(self)
+
+
 
 
 # ------------------------------------------------------------------- the mood
@@ -2563,354 +1102,76 @@ func _roster_rng() -> RandomNumberGenerator:
 	return _roster_stream
 var _roster_stream: RandomNumberGenerator = null
 var _roster_season: int = -1
-
-
+## -> SeasonDesk (season_desk.gd)
 func _draw_dilemma() -> void:
-	if not dilemma.is_empty() or club.roster.is_empty():
-		return
-	## THE DECK HAS ITS OWN STREAM, and this is not a detail.
-	##
-	## The first version drew from `world.rng`, which is the stream every fixture,
-	## every cup draw and every quick bout in the country comes out of. Three
-	## draws per matchday — the chance, the card, the man — and the entire world
-	## downstream of it shifted: `test_cupplay` went from seven green checks to
-	## five failures reading *"no cup came up"*, because the Invitational's draw
-	## had been reshuffled by a card about a brewery.
-	##
-	## A cosmetic system must never move the competitive one. So the deck derives
-	## its own generator from the world seed and the matchday, exactly the way the
-	## tournament bid dates and the free-agent pool already do: deterministic,
-	## identical across a reload, and costing the world's stream nothing.
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash("deck:%d:%d:%d" % [world.rng.seed, world.season, world.event])
-	if rng.randf() > DILEMMA_CHANCE:
-		return
-	## THE DECK IS THE COACH'S, and it is weighted.
-	##
-	## Pete, 15 Sep 2026: *"make Coaches reputation a driving factor on what
-	## appears for the conflicts or choices. Better reputations mean better
-	## choices, but bad reputations can also mean more choices that have chances
-	## for cheating or subversion."* `Dilemma.deck_for` does the filtering; the
-	## weighted draw below is what makes the armorer's van rare without a second
-	## deck to keep in step.
-	var deck: Array = Dilemma.deck_for(coach.reputation)
-	var options: Array = []
-	for c in deck:
-		if not dilemma_recent.has(String(c["id"])):
-			options.append(c)
-	if options.is_empty():
-		options = deck.duplicate()
-	if options.is_empty():
-		return
-	var total := 0
-	for c in options:
-		total += Dilemma.weight_of(c)
-	var roll := rng.randi() % maxi(1, total)
-	var card: Dictionary = options[options.size() - 1]
-	for c in options:
-		roll -= Dilemma.weight_of(c)
-		if roll < 0:
-			card = c
-			break
-	var man := Dilemma.pick(int(card["who"]), club.roster, rng)
-	dilemma = {
-		"id": String(card["id"]),
-		"man": club.roster.find(man),
-		"rival": _last_opponent_name(),
-	}
-	dilemma_recent.append(String(card["id"]))
-	while dilemma_recent.size() > DILEMMA_MEMORY:
-		dilemma_recent.remove_at(0)
+	SeasonDesk._draw_dilemma(self)
 
 
+## -> SeasonDesk (season_desk.gd)
 func _last_opponent_name() -> String:
-	if results.is_empty():
-		return "the other lot"
-	var last: Dictionary = results[results.size() - 1]
-	var id: int = int(last.get("opponent", -1))
-	if id < 0 or id >= world.clubs.size():
-		return "the other lot"
-	return String(world.clubs[id]["name"])
+	return SeasonDesk._last_opponent_name(self)
 
 
-## The card as the screen needs it: the text already filled in, and each option
-## with its label and blurb. Empty when there is nothing to answer.
+## -> SeasonDesk (season_desk.gd)
 func dilemma_card() -> Dictionary:
-	if dilemma.is_empty():
-		return {}
-	var card := Dilemma.by_id(String(dilemma["id"]))
-	if card.is_empty():
-		return {}
-	var man := dilemma_man()
-	var out := card.duplicate(true)
-	var who := man.display_name if man != null else "somebody"
-	var rival := String(dilemma.get("rival", "the other lot"))
-	out["body"] = Dilemma.fill(String(card["text"]), who, club.display_name, rival)
-	## AND THE OPTIONS TOO. Only the body was filled, so a card whose ANSWERS
-	## named the club printed the token: *"{club} is not an advert."* — caught in
-	## a screenshot on 15 Sep 2026, on the one card in the deck whose blurbs use
-	## the tokens at all, which is why it had survived.
-	##
-	## **A substitution applied to some of the strings is a substitution nobody
-	## can rely on**, and the cheapest version of that bug is the one where the
-	## unfilled field is the one a player is reading when he decides.
-	var opts: Array = []
-	for o in out.get("options", []):
-		var c: Dictionary = (o as Dictionary).duplicate(true)
-		c["label"] = Dilemma.fill(String(c.get("label", "")), who,
-			club.display_name, rival)
-		c["blurb"] = Dilemma.fill(String(c.get("blurb", "")), who,
-			club.display_name, rival)
-		opts.append(c)
-	out["options"] = opts
-	out["man"] = man
-	return out
+	return SeasonDesk.dilemma_card(self)
 
 
+## -> SeasonDesk (season_desk.gd)
 func dilemma_man() -> FighterCard:
-	var i: int = int(dilemma.get("man", -1))
-	return club.roster[i] if i >= 0 and i < club.roster.size() else null
+	return SeasonDesk.dilemma_man(self)
 
 
-## ANSWER IT. Returns what happened, in the club's own words, because a choice
-## whose consequence is invisible is a choice the player stops making carefully.
-##
-## Every effect is applied through the office's own functions rather than by
-## writing its fields — `note_shift` clamps, `_clamp_fans` exists for a reason,
-## and a card that set `notoriety` directly would be the one place in the game
-## that could push it past 125.
+## -> SeasonDesk (season_desk.gd)
 func answer_dilemma(option_i: int) -> String:
-	var card := Dilemma.by_id(String(dilemma.get("id", "")))
-	if card.is_empty():
-		dilemma = {}
-		return ""
-	var opts: Array = card["options"]
-	if option_i < 0 or option_i >= opts.size():
-		return "Pick one."
-	var fx: Dictionary = (opts[option_i] as Dictionary).get("fx", {})
-	var man := dilemma_man()
-	var said: Array[String] = []
-
-	if fx.has("cc"):
-		var d := int(fx["cc"])
-		## A club cannot be taken below nothing by a card. The option stays
-		## available and simply takes what there is — refusing the choice because
-		## the club is skint would make the dilemma a quiz with the answers
-		## grayed out, which is worse than the cost.
-		## A CLUB ALREADY IN DEBT PAYS NOTHING MORE, it is not PAID. The old
-		## `-mini(-d, credits)` went positive below zero: at -10 a "-6 CC" card
-		## handed the club +10. And it goes through the books like every other
-		## credit, so the finances page can see it.
-		var real: int = d if d >= 0 else -mini(-d, maxi(0, office.credits))
-		if real > 0:
-			office.take(real, "The club's decision", "", ClubOffice.LINE_CLUB)
-		elif real < 0:
-			office.spend(-real, ClubOffice.LINE_CLUB)
-		said.append("%+d CC" % real)
-	if fx.has("morale"):
-		## Through `morale_shift`, not by writing the field — the logistic is the
-		## only thing stopping a run of hard choices pinning a club at the floor,
-		## and a card that set morale directly would be the one place in the game
-		## that could do it.
-		office.morale_shift(float(fx["morale"]))
-		said.append("morale %s" % ("up" if float(fx["morale"]) > 0.0 else "down"))
-	## THE DECK'S `note` CURRENCY IS NOW THE FOLLOWING TOO.
-	##
-	## Fifteen cards were written against five currencies — credits, morale,
-	## notoriety, fans and a man — and two of those five were the same population
-	## seen twice. Rather than rewrite thirty-eight options, `note` is read as a
-	## move on the one number that is left, scaled: the old scale ran to 125 and
-	## the cards spend two or three of it, so a point of `note` is a fiftieth of
-	## the room left. **A currency that no longer exists is not a currency the
-	## deck should keep spending.**
-	if fx.has("note"):
-		var n := float(fx["note"])
-		if n > 0.0:
-			office.fans += (office.fan_cap() - office.fans) * (n * 0.02)
-		else:
-			office.fans += office.fans * (n * 0.02)
-		office.crowd_came(0)
-		said.append("talked about %s" % ("more" if n > 0.0 else "less"))
-	if fx.has("fans"):
-		office.crowd_came(int(office.fans * float(fx["fans"]) * 2.0))
-		said.append("%d%% more following" % int(round(float(fx["fans"]) * 100.0)))
-	if fx.has("kit"):
-		for f in club.roster:
-			f.armor = clampf(f.armor + float(fx["kit"]), 0.0, 1.0)
-		said.append("harness %s across the club" % ("mended" if float(fx["kit"]) > 0.0 else "worse"))
-	if man != null:
-		if fx.has("armor"):
-			man.armor = clampf(man.armor + float(fx["armor"]), 0.0, 1.0)
-			said.append("%s's harness %s" % [man.display_name,
-				"mended" if float(fx["armor"]) > 0.0 else "worse"])
-		if fx.has("injury"):
-			man.injury = maxi(man.injury, int(fx["injury"]))
-			said.append("%s out %d" % [man.display_name, int(fx["injury"])])
-		if fx.has("xp"):
-			man.xp += int(fx["xp"])
-		if fx.has("potential"):
-			man.potential = clampi(man.potential + int(fx["potential"]), 1,
-				Career.POTENTIAL_CEILING)
-			said.append("%s's ceiling up %d" % [man.display_name, int(fx["potential"])])
-		if fx.has("years"):
-			man.years = clampi(man.years + int(fx["years"]), 0, Contracts.YEARS_MAX)
-			said.append("%s on %d year%s" % [man.display_name, man.years,
-				"" if man.years == 1 else "s"])
-		if fx.has("wage"):
-			man.wage_agreed = maxi(1, int(round(float(ClubOffice.billed(man))
-				* float(fx["wage"]))))
-
-	dilemma = {}
-	sync_power()
-	return "Done." if said.is_empty() else "  ".join(said) + "."
+	return SeasonDesk.answer_dilemma(self, option_i)
 
 
-# ------------------------------------------------------------------ the market
-## This summer's free agents, minus anyone already signed out of it.
+## -> SeasonDesk (season_desk.gd)
 func market() -> Array:
-	var out: Array = []
-	for f in Market.pool(world.rng.seed, world.season, world.player_tier(),
-			office.market_refreshes,
-			ClubOffice.TRAIT_SCOUT_EXTRA if office.has_trait(ClubOffice.Trait.SCOUT) else 0):
-		if not market_taken.has(Market.taken_key(f)):
-			out.append(f)
-	return out
+	return SeasonDesk.market(self)
 
 
+## -> SeasonDesk (season_desk.gd)
 func market_fee(f: FighterCard) -> int:
-	return Market.fee(f.overall(), world.player_tier())
+	return SeasonDesk.market_fee(self, f)
 
 
-## What this club would have to put him on. The rookie discount is applied here
-## rather than at generation, because it depends on the man's age and not on who
-## is selling him.
+## -> SeasonDesk (season_desk.gd)
 func market_wage(f: FighterCard) -> int:
-	return Contracts.offer(ClubOffice.wage(f), f.age)
+	return SeasonDesk.market_wage(self, f)
 
 
-## SIGN HIM. Two prices and both have to clear: credits for the fee, and room
-## under the cap for the wage — which is the whole reason the cap is worth
-## raising and the reason a Star in the list is often not a signing at all.
-##
-## The refusals are in the order the player would hit them, and each one says the
-## number, because "you cannot afford him" without a figure is a screen telling
-## you to go and do arithmetic somewhere else.
+## -> SeasonDesk (season_desk.gd)
 func sign_from_market(f: FighterCard) -> String:
-	var fee := market_fee(f)
-	if office.credits < fee:
-		return "%s costs %d CC and you have %d." % [f.display_name, fee, office.credits]
-	var wage := market_wage(f)
-	if ClubOffice.wage_bill(club) + wage > office.cap():
-		return "%s wants %s a week. That puts you %s over the cap." % [
-			f.display_name, ClubOffice.money(wage),
-			ClubOffice.money(ClubOffice.wage_bill(club) + wage - office.cap())]
-	var card := f.copy()
-	card.years = Contracts.YEARS_NEW
-	card.wage_agreed = wage
-	## LATE BLOOMER banks a winter's training the day he walks in — the Experience
-	## arrival one-shot, at the man rather than at the captain. It fires HERE and
-	## nowhere else, so it cannot fire twice: an arrival trait applied wherever a
-	## card is touched would pay out again on every re-sign.
-	card.xp += int(FighterTrait.mod(card.trait_id, "arrival_xp", 0.0))
-	var err := club.sign(card)
-	if err != "":
-		return err
-	office.spend(fee, ClubOffice.LINE_SQUAD)
-	market_taken.append(Market.taken_key(f))
-	sync_power()
-	return ""
+	return SeasonDesk.sign_from_market(self, f)
 
 
-# -------------------------------------------------------------- the contracts
-## EXTEND. Priced off what he is worth today, discounted by how much of the old
-## deal the club is tearing up — so extending a man who has improved costs more
-## than his old wage and should. The discount is for taking the risk early, not
-## for pretending he is the fighter he was three years ago.
+## -> SeasonDesk (season_desk.gd)
 func extend(f: FighterCard) -> String:
-	if not club.roster.has(f):
-		return "%s is not on this club's books." % f.display_name
-	if f.years <= 0:
-		return "%s is out of contract. Re-sign him." % f.display_name
-	if not Contracts.can_extend(f):
-		if f.years >= Contracts.YEARS_MAX:
-			return "%s is on the longest deal the club can offer." % f.display_name
-		return "%s is in the last year of his deal. Let it run out, then re-sign him." % f.display_name
-	var was := ClubOffice.billed(f)
-	var wage := extend_cost(f)
-	var bill := ClubOffice.wage_bill(club) - was + wage
-	if bill > office.cap():
-		return "That deal puts you %s over the cap." % ClubOffice.money(bill - office.cap())
-	f.wage_agreed = wage
-	f.years = Contracts.YEARS_MAX
-	return ""
+	return SeasonDesk.extend(self, f)
 
 
-## RE-SIGN. Full market rate, no discount, and it is the only thing that saves a
-## man whose deal has run out.
+## -> SeasonDesk (season_desk.gd)
 func resign(f: FighterCard) -> String:
-	if not club.roster.has(f):
-		return "%s is not on this club's books." % f.display_name
-	## AND THE ADVICE HAS TO BE TRUE.
-	##
-	## This said "Extend him instead" to every man still under contract — and
-	## `can_extend` refuses the man on his LAST year, on purpose, so the one
-	## fighter a manager thinks about most got sent to a door that would not
-	## open, and the door he came from sent him back. Neither refusal looked like
-	## a fault; they read like advice, and following either one did nothing.
-	##
-	## **A refusal that names another door is a promise about that door.** The
-	## last year has its own sentence now, and it names the thing that actually
-	## works: let the deal run out, re-sign him out of contract, which is a state
-	## he sits in visibly for a whole season.
-	if f.years > 0:
-		if f.years == 1:
-			return "%s is in his last year. Let it run out, then re-sign him." % f.display_name
-		## AND THE OTHER END OF THE SAME FAULT. A man already on the longest deal
-		## the club can write cannot be extended either, so "Extend him instead"
-		## was a dead end there too — one the check below found the moment it was
-		## asked about every length rather than about the one that had gone wrong.
-		if f.years >= Contracts.YEARS_MAX:
-			return "%s is already on the longest deal the club can offer." % f.display_name
-		return "%s has %d years left. Extend him instead." % [f.display_name, f.years]
-	## WHAT THE FIGHTER CARD PROMISED IS WHAT HAPPENS. The card reads
-	## `Contracts.demand()` — the refusal, the mood-priced wage, two years for a
-	## man of 33 — and this used to ignore all three and sign everybody for three
-	## years at the unpriced rate.
-	if Contracts.refuses(f):
-		return Contracts.refusal(f)
-	var wage := resign_cost(f)
-	var bill := ClubOffice.wage_bill(club) - ClubOffice.billed(f) + wage
-	if bill > office.cap():
-		return "%s wants %s a week. That puts you %s over the cap." % [
-			f.display_name, ClubOffice.money(wage),
-			ClubOffice.money(bill - office.cap())]
-	f.wage_agreed = wage
-	f.years = int(Contracts.demand(f)["years"])
-	return ""
+	return SeasonDesk.resign(self, f)
 
 
-## WHAT A MAN ASKS FOR, and there is exactly one function per question because
-## the screen that PRINTS the number and the code that TAKES it were separate
-## before, agreeing only because both happened to call the same helper with the
-## same two arguments. The day a trait started discounting one of them, they
-## would have stopped agreeing and the button would have quoted a price the club
-## did not charge.
-##
-## NEGOTIATOR. *"His men re-sign for less."* Read against the role the man
-## stands in, like every other trait, so the captain who covers the Rail cannot
-## talk down a Center.
+## -> SeasonDesk (season_desk.gd)
 func _negotiated(f: FighterCard, raw: int) -> int:
-	if office.trait_covers(ClubOffice.Trait.NEGOTIATOR, Tuning.role_of(int(f.pos))):
-		return maxi(1, int(round(float(raw) * ClubOffice.TRAIT_NEGOTIATOR)))
-	return raw
+	return SeasonDesk._negotiated(self, f, raw)
 
 
+## -> SeasonDesk (season_desk.gd)
 func extend_cost(f: FighterCard) -> int:
-	return _negotiated(f, Contracts.extension(ClubOffice.wage(f), f.age, f.years))
+	return SeasonDesk.extend_cost(self, f)
 
 
+## -> SeasonDesk (season_desk.gd)
 func resign_cost(f: FighterCard) -> int:
-	return _negotiated(f, int(Contracts.demand(f)["wage"]))
+	return SeasonDesk.resign_cost(self, f)
+
+
 
 
 # ----------------------------------------------------------------- read-outs

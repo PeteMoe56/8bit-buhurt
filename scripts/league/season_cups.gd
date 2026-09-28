@@ -1,0 +1,387 @@
+class_name SeasonCups
+extends RefCounted
+## Methods of `Season`, moved out of season.gd so that file is not one
+## three-thousand-line object. Every function takes the Season as `s`; `Season`
+## keeps a one-line wrapper for each, so callers did not change.
+
+
+
+
+# ----------------------------------------------------------------- the bid
+## Is the federation waiting on you? Answered before the season starts, the same
+## way a cup tie is answered before the next matchday — a decision the game
+## stops and asks for is a decision the player notices making.
+static func bid_open(s: Season) -> bool:
+	return not s.bid_offers.is_empty()
+
+
+
+
+## Put the year's dates on the table. Called at the start of every season,
+## including the first, and only when the club has no tournament already running.
+static func open_bids(s: Season) -> void:
+	if s.booked != null:
+		return
+	s.bid_offers = ClubEvent.offers(s.world.events_this_season(),
+		s.world.player_tier())
+
+
+
+
+## Take a date. The bid and the budget are both spent NOW, a season before the
+## show — which is the whole shape of it. What you do to your ground and your
+## following between here and there is what decides whether it comes back.
+static func take_bid(s: Season, offer_i: int, budget_i: int) -> String:
+	if not s.bid_open():
+		return "There is nothing on the table."
+	if offer_i < 0 or offer_i >= s.bid_offers.size():
+		return "No such date."
+	var offer: Dictionary = s.bid_offers[offer_i]
+	var b: Dictionary = ClubEvent.BUDGETS[clampi(budget_i, 0, ClubEvent.BUDGETS.size() - 1)]
+	var total := int(offer["bid"]) + int(b["cost"])
+	if s.office.credits < total:
+		return "The date and the budget come to %d CC and you have %d." % [
+			total, s.office.credits]
+	s.office.spend(total, ClubOffice.LINE_CUP)
+	s.booked = ClubEvent.tournament(offer, s.office.arena, budget_i)
+	s.bid_offers.clear()
+	return ""
+
+
+
+
+## Or pass on the year. Free, and it has to be — a club that cannot afford a
+## date must still be able to get on with its season.
+static func decline_bid(s: Season) -> void:
+	s.bid_offers.clear()
+
+
+
+
+static func bid_preview(s: Season, offer_i: int, budget_i: int) -> Dictionary:
+	if offer_i < 0 or offer_i >= s.bid_offers.size():
+		return {}
+	var offer: Dictionary = s.bid_offers[offer_i]
+	return ClubEvent.preview(s.office.arena.capacity(), s.office.fans,
+		budget_i, int(offer["bid"]))
+
+
+
+
+# --------------------------------------------------------------------- cups
+## THE TIE IN FRONT OF YOU, or null. One at a time and in a fixed order — the
+## domestic cups before the Worlds — so a player never has two brackets asking
+## him for a result and no way to say which is which.
+static func pending_cup(s: Season) -> Cup:
+	for c in s.world.open_cups():
+		if not c.player_match().is_empty():
+			return c
+	return null
+
+
+
+
+## ANY CUP WORTH LOOKING AT, whether or not it is waiting on you.
+##
+## `pending_cup()` only answers while a tie of yours is unplayed, and the draw
+## screen was reachable from nowhere else — so the moment you were knocked out,
+## the bracket you had just been knocked out of became unviewable, and the
+## CHAMPION line on that screen was code no player could reach. A cup is most
+## interesting in the ten seconds after you lose.
+##
+## Prefers one you are still in, then any running cup, then the last one that
+## finished this season.
+static func viewable_cup(s: Season) -> Cup:
+	var mine := s.pending_cup()
+	if mine != null:
+		return mine
+	for c in s.world.open_cups():
+		return c
+	var best: Cup = null
+	for c in s.world.cups:
+		if c.entrants.has(s.world.player_club):
+			best = c
+	if best != null:
+		return best
+	if s.world.worlds != null and s.world.worlds.entrants.has(s.world.player_club):
+		return s.world.worlds
+	return null
+
+
+
+
+## Is a bracket waiting on the player? The season cannot roll over while one is,
+## and the Club screen shows the tie instead of the league fixture.
+static func cup_pending(s: Season) -> bool:
+	return s.pending_cup() != null
+
+
+
+
+static func cup_opponent(s: Season) -> int:
+	var c := s.pending_cup()
+	if c == null:
+		return -1
+	var m := c.player_match()
+	return int(m["b"]) if int(m["a"]) == s.world.player_club else int(m["a"])
+
+
+
+
+## Fight your own cup tie. The same MeleeSim a league fixture builds, with the
+## same captains and the same drawn plan — a cup match is a bout, not a special
+## case, and the moment it stops being one the two paths start to drift.
+static func begin_cup_bout(s_: Season) -> MeleeSim:
+	s_.ensure_a_line()
+	var c := s_.pending_cup()
+	if c == null:
+		return null
+	s_.opponent = s_.club_for(s_.cup_opponent())
+	var s := hash("cup:%d:%d:%d:%d" % [s_.seed_value, s_.world.season, s_.world.event, s_.cup_opponent()])
+	var sim := MeleeSim.new(s_.club, s_.opponent, s, s_.opposition_scale(s_.cup_opponent()))
+	## NEUTRAL GROUND AND A REAL TRIP. `venue_kind()` already answers NEUTRAL
+	## while a tie is pending, so it is asked rather than re-decided here; the
+	## distance is to the club you are actually fighting, which on a cup night is
+	## not the one the league has you down for.
+	s_._dress_sim(sim, s_.cup_opponent(), s_.venue_kind(),
+		s_.world.miles_between(s_.world.player_club, s_.cup_opponent()))
+	return sim
+
+
+
+
+## Post a fought cup tie, then play the rest of the round out around it.
+static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
+	var c := s.pending_cup()
+	if c == null:
+		return
+	var m := c.player_match()
+	var mine: bool = int(m["a"]) == s.world.player_club
+	s.last_result = [sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1]]
+	## A CUP TIE IS A FIGHT. It moves MATCHED exactly as a league fixture does —
+	## the grade describes how hard the country is fighting you, and the country
+	## does not stop on a Tuesday night.
+	s._grade_bout(int(s.last_result[0]), int(s.last_result[1]))
+	s._apply_injuries(sim)
+	s._award_xp(sim)
+	if mine:
+		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
+	else:
+		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
+	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club)
+
+
+
+
+## Or hand it to the AI. Same road afterwards.
+static func sim_cup_tie(s: Season) -> void:
+	s.ensure_a_line()
+	var c := s.pending_cup()
+	if c == null:
+		return
+	var m := c.player_match()
+	var res: Array = s.world.quick_bout(int(s.world.clubs[int(m["a"])]["power"]),
+		int(s.world.clubs[int(m["b"])]["power"]))
+	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
+	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club)
+
+
+
+
+## Everything that happens once the player's tie is in the book: the rest of the
+## round is played around him, the bracket moves on, and a finished cup is
+## retired — with the gate settled if it was his own show.
+static func _finish_cup_round(s: Season, c: Cup, won: bool) -> void:
+	c.sim_others(s.world.cup_resolver())
+	## NOT PAST THE PLAYER'S BRONZE. If he lost a semi he is owed the third-place
+	## match, and finishing the cup around him would auto-sim it.
+	while c.round_complete() and not c.is_over() and not c.player_in_third():
+		if not c.advance():
+			break
+		c.sim_others(s.world.cup_resolver())
+	s.office.morale_after(won, false)
+	s.office.after_event(won, false)
+	## The bronze match, on the path the player actually walks. `run_all` played
+	## it; this route never did, so third place did not exist in a cup anybody
+	## fought through.
+	c.settle_third(s.world.cup_resolver(), true)
+	if c.is_over():
+		## YOU WON SOMETHING. The fanfare is played here rather than left to the
+		## mood system, because a mood is a state you are in and this is a moment
+		## that has just passed — by the time the screen redraws, the tie is
+		## resolved and `mood()` has already gone back to normal.
+		if c.champion == s.world.player_club:
+			Audio.champion()
+			## Everybody who travelled gets the honor, not only the five who
+			## were on the line for the final — a cup is won by an eight.
+			for f in s.club.active_eight():
+				f.honors += 1
+		if s.booked != null and s.booked.cup == c:
+			s._settle_gate(s.booked, c)
+		else:
+			s.world.retire_cup(c)
+	s.sync_power()
+
+
+
+
+## The cup path uses the same rule as the league path, because it was two copies
+## of one rule and that is how the two ended up disagreeing about what an injury
+## costs.
+static func _apply_injuries(s: Season, sim: MeleeSim) -> void:
+	s._apply_bout_injuries(sim)
+
+
+
+
+# ------------------------------------------------------------------- events
+## Book a demo. Instant, unplayed, small and it cannot lose — this is what a
+## club with no following and an empty week does.
+static func run_demo(s: Season) -> String:
+	if s.booked != null:
+		return "You already have %s in the diary." % s.booked.kind_name().to_lower()
+	## ONCE A WEEK, and without this the game has no economy.
+	##
+	## `run_demo` never set `booked`, and the button's only guard was
+	## `booked == null`, so it came back on every rebuild of the screen. Forty
+	## taps on a Backyard club is forty credits — both facilities, two captains,
+	## the arena and four cap raises, in one sitting, from a button meant to pay
+	## one credit for an empty week. Every price in the game was a suggestion.
+	##
+	## It goes through the same per-week throttle as an upgrade rather than
+	## getting its own flag, because a second throttle is a second thing to
+	## forget to reset.
+	if s.office.done_this_week("demo"):
+		return "You have already put a demo on this week."
+	var pay: int = ClubEvent.DEMO_PAY[clampi(s.office.arena.level, 0, ClubEvent.DEMO_PAY.size() - 1)]
+	s.office.take(pay, "A demo at the ground", "event", ClubOffice.LINE_GROUND)
+	## A demo keeps you on the calendar. Barely — a quarter of the turnout a real
+	## event would pull, and no promotion behind it.
+	var heads := int(float(ClubEvent.attendance(s.office.arena.capacity(),
+		s.office.fans)) * 0.25)
+	s.office.crowd_came(heads)
+	s.office.mark_this_week("demo")
+	s.last_show = {
+		"kind": "Demo", "heads": heads,
+		"gate": pay, "cost": 0, "net": pay, "finish": "", "podium": 0,
+	}
+	return ""
+
+
+
+
+## Does the booked event land on this matchday? Called as the event advances.
+static func _event_due(s: Season) -> bool:
+	return s.booked != null and not s.booked.settled and s.world.event >= s.booked.due
+
+
+
+
+## PUT THE SHOW ON. The field is drawn from clubs near your own strength, the
+## Cup machinery runs it exactly as it runs an Invitational, and the gate is
+## settled against the following you had on the day rather than the one you had
+## when you booked it.
+## PUT THE SHOW ON. The field is drawn from clubs near your own strength and the
+## Cup machinery runs it exactly as it runs an Invitational — and YOU ARE IN IT,
+## so the bracket waits for you the same way a King's Cup does. The gate is not
+## counted until the cup is finished, because the podium is part of the payout
+## and there is no podium until somebody has won it.
+static func _settle_event(s: Season) -> void:
+	var e := s.booked
+	var field := s._invite_field(e)
+	e.cup = Cup.new("%s Invitational" % s.club.short_name, field,
+		hash("show:%d:%d" % [s.seed_value, e.due]), s.world.player_club, false)
+	## AN ID, so a save can find its way back to this cup. Every other cup in
+	## the world gets one from `league_world.gd`; the one the player pays for
+	## was the only one without, which is why a reload orphaned it.
+	e.cup.set_meta("id", "show:%d" % e.due)
+	s.world.cups.append(e.cup)
+	## Everything that is not yours in the opening round, so the bracket is
+	## ready to ask you for a result the moment the screen opens.
+	e.cup.sim_others(s.world.cup_resolver())
+	if not e.cup.player_alive():
+		s._settle_gate(e, e.cup)
+
+
+
+
+## The money, once the bracket is done. Attendance is read against the
+## following you have ON THE DAY rather than the one you had when you booked —
+## two matchdays is long enough for that to have moved, and the gamble is the
+## whole point of the feature.
+static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
+	var heads := ClubEvent.attendance(s.office.arena.capacity(), s.office.fans,
+		float(ClubEvent.BUDGETS[e.budget]["draw"]))
+	var g := ClubEvent.gate(heads, float(ClubEvent.BUDGETS[e.budget]["take"]))
+	var podium := 0
+	if c.champion == s.world.player_club:
+		podium = ClubEvent.PODIUM[0]
+	elif c.runner_up == s.world.player_club:
+		podium = ClubEvent.PODIUM[1]
+	elif c.third == s.world.player_club:
+		podium = ClubEvent.PODIUM[2]
+	s.office.take(g + podium, "The cup", "event", ClubOffice.LINE_CUP)
+	## A crowd is the loudest thing that can happen to a club, and everyone who
+	## came is half a fan afterwards. An empty house is not punished twice — the
+	## lost credits are punishment enough — so this only ever adds.
+	s.office.crowd_came(heads)
+	## A PODIUM AT YOUR OWN SHOW IS WORTH A CROWD. It used to be `note_shift(2.0)`
+	## on a fame scale that no longer exists; a fifteenth of the room left is the
+	## same size of nudge against the one number that is.
+	if podium > 0:
+		s.office.fans += (s.office.fan_cap() - s.office.fans) * 0.067
+		s.office.crowd_came(0)
+	e.settled = true
+	s.last_show = {
+		"kind": e.kind_name(), "heads": heads, "gate": g, "cost": e.cost(),
+		"net": g + podium - e.cost(), "finish": c.player_finish, "podium": podium,
+	}
+	e.report = s.last_show.duplicate()
+	s.world.retire_cup(c)
+	s.booked = null
+
+
+
+
+## Worlds guests are deleted when their Worlds ends; a show that invited one
+## would hold an id that stops existing mid-bracket.
+static func _is_guest(s: Season, id: int) -> bool:
+	return bool(s.world.clubs[id].get("guest", false)) or int(s.world.clubs[id].get("tier", 0)) < 0
+
+
+
+
+## Who turns up. Eight clubs of roughly your own standard, because a tournament
+## you cannot place in is not a tournament you would put money into — and a
+## bigger budget reaches further up the list for names.
+static func _invite_field(s: Season, e: ClubEvent) -> Array:
+	var mine: int = int(s.world.clubs[s.world.player_club]["power"])
+	var reach: int = 4 + e.budget * 7
+	var pool: Array = []
+	for id in s.world.clubs.size():
+		if id == s.world.player_club or s._is_guest(id):
+			continue
+		if absi(int(s.world.clubs[id]["power"]) - mine) <= reach:
+			pool.append(id)
+	pool.sort_custom(func(a, b): return int(s.world.clubs[a]["power"]) > int(s.world.clubs[b]["power"]))
+	var field: Array = [s.world.player_club]
+	for id in pool:
+		if field.size() >= ClubEvent.FIELD:
+			break
+		field.append(id)
+	## A thin country still gets a full draw; the weakest clubs make up the
+	## numbers rather than the bracket being short.
+	var i := 0
+	while field.size() < ClubEvent.FIELD and i < s.world.clubs.size():
+		if i != s.world.player_club and not field.has(i) and not s._is_guest(i):
+			field.append(i)
+		i += 1
+	field.sort_custom(func(a, b): return int(s.world.clubs[a]["power"]) > int(s.world.clubs[b]["power"]))
+	return field
+
+
+
+
+## The last event, or {} at the start of a season.
+static func last_event(s: Season) -> Dictionary:
+	return s.results[s.results.size() - 1] if not s.results.is_empty() else {}
