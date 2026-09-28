@@ -21,6 +21,7 @@ func _initialize() -> void:
 	_test_the_bronze_is_the_players_to_fight()
 	_test_a_breakaway_ages()
 	_test_rulings()
+	_test_the_summer_bill_is_the_summer()
 
 	print("")
 	for n in notes:
@@ -260,3 +261,51 @@ func _test_rulings() -> void:
 		and own.x == own.y and own.x == m.club.roster[0].potential,
 		"a stranger's ceiling is a range; a five-star captain reads it exactly; your own men are exact",
 		"no staff %d-%d (true %d); five-star %d-%d" % [blind.x, blind.y, f.potential, sharp.x, sharp.y])
+
+
+## THE SUMMER BILL SHOWN IS THE SUMMER CHARGED (28 Sep 2026). A club holding
+## exactly `summer_bill()` pays its dues and every bill and ends on zero with
+## nothing lost; one credit short and something falls. The warning comes once,
+## in the last two matchdays, and only to a club that is short.
+func _test_the_summer_bill_is_the_summer() -> void:
+	var s := _season(2024)
+	var o := s.office
+	if o.credits >= o.arena.next_cost():
+		o.build_arena()
+	for r in Federation.rules():
+		o.compliance[r] = maxi(1, Federation.required(o.tier, r))
+	var bill := o.summer_bill()
+	o.credits = bill
+	o.spend(League.dues_for(o.tier), ClubOffice.LINE_FEDERATION)
+	var paid := o.pay_upkeep()
+	var clean: bool = (paid["lost"] as Array).is_empty() and (paid["lapsed"] as Array).is_empty()
+	var s2 := _season(2024)
+	for r in Federation.rules():
+		s2.office.compliance[r] = maxi(1, Federation.required(s2.office.tier, r))
+	s2.office.credits = s2.office.summer_bill() - 1
+	s2.office.spend(League.dues_for(s2.office.tier), ClubOffice.LINE_FEDERATION)
+	var p2 := s2.office.pay_upkeep()
+	var fell: int = (p2["lost"] as Array).size() + (p2["lapsed"] as Array).size()
+	_ok(bill > 0 and clean and o.credits == 0 and fell > 0,
+		"the summer bill shown is exactly what the summer charges",
+		"bill %d: holding it ends on %d with nothing lost; one short loses %d" % [bill, o.credits, fell])
+
+	var w := _season(2025)
+	w.office.credits = 0
+	var early := w.summer_warning()
+	var guard := 0
+	while w.world.events_this_season() - w.world.event > 2 and guard < 40:
+		guard += 1
+		if w.cup_pending():
+			w.sim_cup_tie()
+		else:
+			w.skip_event()
+	w.office.credits = 0
+	var late := w.summer_warning()
+	var again := w.summer_warning()
+	w.office.credits = w.office.summer_bill() + 50
+	w._summer_warned = -1
+	var flush := w.summer_warning()
+	_ok(early == "" and late != "" and again == "" and flush == "",
+		"a short club is warned once, in the last two matchdays",
+		"early '%s', late '%s', again '%s', with money '%s'" % [early, late.left(40), again, flush])

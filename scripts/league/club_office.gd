@@ -611,6 +611,18 @@ func upkeep_bill() -> int:
 
 
 
+## EVERYTHING THE SUMMER WILL ASK FOR, in one number: the division's dues, every
+## building's upkeep and every certificate's renewal, at today's division. Not
+## shown anywhere until 28 Sep 2026, so a club could spend to the bone in May
+## and find out in June what it had cost. `probe_upkeep`: a club that keeps this
+## in hand loses nothing, at any grade.
+func summer_bill() -> int:
+	var t := League.dues_for(tier) + upkeep_bill()
+	for r in Federation.rules():
+		t += int(Federation.UPKEEP[r]) * rule_level(r)
+	return t
+
+
 ## The summer bill. Returns what happened so the screen can say it plainly —
 ## a decay the player is not told about is a bug he will report as one.
 ##

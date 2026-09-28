@@ -109,6 +109,8 @@ func _ready() -> void:
 			UiKit.t(" and %d more.") % (season.last_emergency.size() - 1)
 				if season.last_emergency.size() > 1 else ".")
 		season.last_emergency = []
+	if flash == "":
+		flash = season.summer_warning()
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_rebuild()
@@ -229,6 +231,9 @@ func _sim_controls() -> void:
 			Session.autosave()
 			flash = UiKit.t("Event simulated.") if season.last_emergency.is_empty() \
 				else "Event simulated. " + season.last_emergency[0] + "."
+			var warn := season.summer_warning()
+			if warn != "":
+				flash = warn
 			_rebuild(), "clock"))
 	ui.add_child(UiKit.button(UiKit.t("Go back"), Vector2(SIM_CARD.position.x
 		+ SIM_CARD.size.x - 248.0, SIM_CARD.position.y + SIM_CARD.size.y - 62.0),

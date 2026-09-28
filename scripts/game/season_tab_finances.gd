@@ -146,8 +146,15 @@ static func _fin_ground(v: SeasonScene) -> void:
 			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DOWN)
 	y += 22.0
 
-	UiKit.pair(v, v.font, UiKit.t("Upkeep each summer"), UiKit.t("%d CC") % o.arena_upkeep(),
-		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+	## THE WHOLE SUMMER, not just the ground's share of it: dues, every building
+	## and every certificate. Red with the shortfall when the purse will not
+	## cover it, because whatever goes unpaid falls a level.
+	var bill := o.summer_bill()
+	var short := bill - o.credits
+	UiKit.pair(v, v.font, UiKit.t("The summer bill"),
+		(UiKit.t("%d CC") % bill) if short <= 0 else (UiKit.t("%d CC  ·  %d short") % [bill, short]),
+		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM,
+		UiKit.DIM if short <= 0 else UiKit.DOWN)
 	y += 22.0
 	if a.condition < 0.999 and a.level >= Arena.WEARS_FROM_LEVEL:
 		UiKit.pair(v, v.font, UiKit.t("Putting it right"), UiKit.t("%d CC") % a.upkeep_cost(),

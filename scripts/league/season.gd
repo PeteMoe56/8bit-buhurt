@@ -485,6 +485,22 @@ func ceiling_range(f: FighterCard, w: int) -> Vector2i:
 
 
 
+## THE WARNING, late enough to be about THIS summer and early enough to act on:
+## two matchdays or fewer left and the purse short of the summer bill. Said once
+## a season. "" when there is nothing to say.
+var _summer_warned: int = -1
+
+
+func summer_warning() -> String:
+	var left := world.events_this_season() - world.event
+	var bill := office.summer_bill()
+	if left > 2 or season_complete() or office.credits >= bill or _summer_warned == world.season:
+		return ""
+	_summer_warned = world.season
+	return UiKit.t("The summer bill is %d CC and you hold %d. Whatever goes unpaid falls a level.") % [
+		bill, office.credits]
+
+
 ## The range in words, for a card: "to 64" when it is known, "to 58-66" when not.
 func potential_word(f: FighterCard) -> String:
 	var r := potential_range(f)

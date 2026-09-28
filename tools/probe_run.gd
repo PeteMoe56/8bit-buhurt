@@ -86,6 +86,7 @@ func _run(grade: int) -> void:
 	var spent := 0.0
 	var bank := 0.0
 	var lost := 0.0
+	var lost_up := 0.0
 	var gaps: Array[float] = []
 	var cups := 0.0
 	var years := 0
@@ -111,7 +112,8 @@ func _run(grade: int) -> void:
 			## it and the tier changes inside it.
 			s.roll_over()
 			var now := s.world.player_tier()
-			if now > was:
+			var went_up := now > was
+			if went_up:
 				promotions += 1
 			was = now
 			top = maxi(top, now)
@@ -119,8 +121,11 @@ func _run(grade: int) -> void:
 			income += float(ClubOffice.book_total(last.get("in", {})))
 			spent += float(ClubOffice.book_total(last.get("out", {})))
 			bank += float(s.office.credits)
-			lost += float((s.last_upkeep.get("lost", []) as Array).size())
-			lost += float((s.last_upkeep.get("lapsed", []) as Array).size())
+			var gone := float((s.last_upkeep.get("lost", []) as Array).size()) \
+				+ float((s.last_upkeep.get("lapsed", []) as Array).size())
+			lost += gone
+			if went_up:
+				lost_up += gone
 			years += 1
 		tops.append(float(top))
 		ups.append(float(promotions))
@@ -134,6 +139,7 @@ func _run(grade: int) -> void:
 		"—" if up_total <= 0.0 else "%.1f" % (float(YEARS) * runs / up_total),
 		place / n, income / n, spent / n, bank / n, lost / runs,
 		_sum(gaps) / runs, cups / runs])
+	print("%-13s   of the %.1f lost, %.1f in a promotion summer" % ["", lost / runs, lost_up / runs])
 
 
 ## ---------------------------------------------------------------- the manager
