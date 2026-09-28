@@ -223,8 +223,23 @@ static func _face(file: String) -> Font:
 	## problem than a project that opens looking wrong.
 	if f == null:
 		f = ThemeDB.fallback_font
+	## AND BEHIND EVERY FACE, A PIXEL FONT THAT HAS EVERYTHING. The Buhurt faces
+	## carry 43-222 glyphs; the dash, "=" and "|" the ENGLISH text already uses
+	## were missing from the body face and drew in whatever smooth font the
+	## phone had. LanaPixel (OFL, eishiya — fonts/fallback/LanaPixel-OFL.txt) is
+	## built for localizing pixel games: Latin, Greek, Cyrillic and Japanese. It
+	## draws only what the face in front of it lacks.
+	elif f is FontFile and ResourceLoader.exists(FALLBACK_FACE):
+		var fb := load(FALLBACK_FACE) as Font
+		if fb != null and not (f as FontFile).fallbacks.has(fb):
+			var list := (f as FontFile).fallbacks.duplicate()
+			list.append(fb)
+			(f as FontFile).fallbacks = list
 	_faces[file] = f
 	return f
+
+
+const FALLBACK_FACE := "res://fonts/fallback/LanaPixel.ttf"
 
 
 static func body() -> Font:

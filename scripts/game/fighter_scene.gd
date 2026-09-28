@@ -244,7 +244,8 @@ func _build() -> void:
 	## a decision you make about a man while he is still playing, which is what
 	## separates it from a leaderboard the game fills in for you.
 	var tagged: bool = season.world.in_hall(man.display_name)
-	ui.add_child(UiKit.button(UiKit.t("★  In the Hall") if tagged else UiKit.t("☆  Tag for the Hall"),
+	## THE STAR IS AN ICON, not a character: no face this game ships draws ★.
+	ui.add_child(UiKit.button(UiKit.t("In the Hall") if tagged else UiKit.t("Tag for the Hall"),
 		Vector2(330, 14), Vector2(210, 34), func():
 			if tagged:
 				season.world.untag_from_hall(man.display_name)
@@ -253,7 +254,7 @@ func _build() -> void:
 				var err := season.world.tag_for_hall(man, season.world.season)
 				flash = UiKit.said(err) if err != "" else UiKit.t("%s tagged for the Hall.") % man.display_name
 			Session.autosave()
-			_build()))
+			_build(), "star" if tagged else "hall"))
 	ui.add_child(UiKit.button(UiKit.t("%s · %s/wk") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
 		ClubOffice.money(cost)], Vector2(376, y), Vector2(250, 44), func():
 			flash = UiKit.said(season.resign(man) if out_of_deal else season.extend(man))

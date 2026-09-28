@@ -45,8 +45,9 @@ What is **not** built:
 - **Translations, switched on.** Every UI string goes through `UiKit.t()`; `locale/strings.csv`
   (`bash tools/bb.sh strings`) holds 427 of them with **draft** translations in eight
   languages (es fr de it pt_BR pl ru ja, 28 Sep — unreviewed). None is registered in
-  `project.godot` yet: the BuhurtRail font has no accented, Cyrillic or Japanese glyphs,
-  and the squad table's pixel-fitted column heads are still English.
+  `project.godot` yet. LanaPixel (`fonts/fallback/`, OFL) now draws every letter the
+  Buhurt faces lack, so the glyphs are there; left: native review, and the squad table's
+  pixel-fitted column heads (NOW, MAX, PAY, YR), still English.
 
 ## The shape of the screen
 

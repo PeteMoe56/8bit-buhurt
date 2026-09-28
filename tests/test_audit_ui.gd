@@ -19,6 +19,7 @@ func _initialize() -> void:
 	await _test_a_typed_club_name_survives_a_rebuild()
 	await _test_every_root_screen_answers_back()
 	_test_the_string_table_is_whole()
+	_test_every_language_has_its_letters()
 
 	print("")
 	for n in notes:
@@ -172,3 +173,33 @@ func _test_the_string_table_is_whole() -> void:
 		"the string table matches the game, placeholder for placeholder",
 		"%d keys, %d mangled, %d translations with the wrong placeholders%s" % [rows,
 			mangled.size(), broken.size(), "" if broken.is_empty() else ": " + ", ".join(broken.slice(0, 3))])
+
+
+## EVERY LETTER EVERY LANGUAGE NEEDS IS A PIXEL LETTER. The body face had 81
+## glyphs and no dash, so English itself drew its dashes in the phone's own smooth
+## font. With LanaPixel behind every face, each column of the string table must
+## be drawable by the body and title faces without the system's help.
+func _test_every_language_has_its_letters() -> void:
+	var f := FileAccess.open("res://locale/strings.csv", FileAccess.READ)
+	var head := f.get_csv_line()
+	var seen := {}
+	while not f.eof_reached():
+		var r := f.get_csv_line()
+		if r.size() < head.size():
+			continue
+		for i in range(1, head.size()):
+			for c in r[i]:
+				seen[head[i] + c] = true
+	var missing := {}
+	for key in seen:
+		var lang: String = String(key).left(-1)
+		var ch: String = String(key).right(1)
+		if ch.unicode_at(0) <= 32:
+			continue
+		for face in [UiKit.body(), UiKit.title()]:
+			if not face.has_char(ch.unicode_at(0)):
+				missing[lang] = String(missing.get(lang, "")) + ch
+				break
+	var langs := head.slice(1)
+	_ok(missing.is_empty(), "every language's letters are in the game's pixel fonts",
+		"%d languages checked%s" % [langs.size(), "" if missing.is_empty() else ": missing " + str(missing)])
