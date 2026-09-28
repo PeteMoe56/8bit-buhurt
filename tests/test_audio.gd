@@ -262,24 +262,21 @@ func _test_the_sounds_are_actually_called() -> void:
 	## a missing file: silence. So every id in the catalog has to be reachable
 	## from somewhere in the game, and this check reads the source to prove it
 	## rather than trusting that somebody remembered.
+	## EVERY SCRIPT, found rather than listed: a fixed list went stale the day
+	## the season screen was split into five files. And the CALL, not the word —
+	## `play("x"`, a Juice event's `"sound": "x"` or `music("x"` — so a dictionary key that happens to share a
+	## sound's name cannot stand in for somebody playing it.
 	var src := ""
-	for path in ["res://scripts/game/ui.gd", "res://scripts/game/season_scene.gd",
-			"res://scripts/game/arena_scene.gd", "res://scripts/game/title_scene.gd",
-			"res://scripts/game/chalkboard_scene.gd", "res://scripts/game/audio.gd",
-			"res://scripts/melee/melee_scene.gd", "res://scripts/league/season.gd"]:
-		var f := FileAccess.open(path, FileAccess.READ)
-		if f != null:
-			src += f.get_as_text()
-			f.close()
-
+	for path in _scripts("res://scripts"):
+		src += FileAccess.get_file_as_string(path) + "\n"
 	var orphans: Array[String] = []
 	for id in Audio.SOUNDS.keys():
-		if not src.contains('"%s"' % id):
+		if not RegEx.create_from_string('(?:play\\(|"sound":)\\s*"%s"' % id).search(src):
 			orphans.append(String(id))
 	## Music is reached through `for_mood` rather than by name, so only the two
 	## that are played explicitly are checked here.
 	for id in ["menu", "champion"]:
-		if not src.contains('"%s"' % id):
+		if not RegEx.create_from_string('music\\(\\s*"%s"' % id).search(src):
 			orphans.append(id)
 
 	notes.append("%d one-shots, all reachable from a screen or the sim" % Audio.SOUNDS.size())
@@ -354,3 +351,13 @@ func _test_every_licensed_track_is_credited() -> void:
 		% lines.size())
 	_ok(missing.is_empty(), "every licensed track is credited",
 		"the credits screen is generated from the same catalog the fallback walks")
+
+
+func _scripts(dir: String) -> Array[String]:
+	var out: Array[String] = []
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(".gd"):
+			out.append(dir + "/" + f)
+	for d in DirAccess.get_directories_at(dir):
+		out.append_array(_scripts(dir + "/" + d))
+	return out

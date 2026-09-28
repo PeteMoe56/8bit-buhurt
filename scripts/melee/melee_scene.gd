@@ -472,6 +472,10 @@ func _on_downed(idx: int, _by: int) -> void:
 
 
 func _on_bout_finished(_w: int) -> void:
+	## THE HOUSE, when the bout is yours. `crowd` was in the catalog with nothing
+	## calling it; a win is the one moment the whole game agrees it belongs to.
+	if _w == 0:
+		Audio.play("crowd")
 	## Post it to the table before anything is drawn, so the season screen is
 	## already correct by the time the player gets back to it.
 	if Session.in_season():

@@ -499,7 +499,14 @@ static func tick(delta: float) -> void:
 		var t: Dictionary = _typers[id]
 		var full := String(t["full"])
 		if int(t["n"]) < full.length():
+			var was := int(t["n"])
 			t["n"] = minf(float(t["n"]) + 1.0 / float(TYPE_FRAMES), float(full.length()))
+			## THE TYPE SOUND, every third letter that lands. It was recorded
+			## and catalogued and nothing ever played it. Every letter would be
+			## a buzz; every third is a machine printing. Spaces are silent.
+			var now := int(t["n"])
+			if now != was and now % 3 == 0 and full[now - 1] != " ":
+				Audio.play("type")
 
 	if not _wipe.is_empty():
 		_wipe["t"] = float(_wipe["t"]) + delta

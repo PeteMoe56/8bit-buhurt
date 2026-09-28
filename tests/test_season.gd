@@ -30,7 +30,7 @@ func _initialize() -> void:
 	_test_a_whole_season_adds_up()
 	_test_the_summer()
 	_test_the_table_reads_your_roster()
-	_test_one_queue_one_order()
+	await _test_one_queue_one_order()
 	_test_the_after_action_report()
 	_test_the_opponent_is_a_club()
 	_test_the_record_remembers_how_it_was_fought()
@@ -386,30 +386,79 @@ func _test_one_queue_one_order() -> void:
 	## table — at which point the season says "deal with the cup" and the buttons
 	## offer you the dilemma.
 	##
-	## The screen is in `blocked_by()`'s order now, and this reads the source to
-	## make sure it stays there: a comment cannot hold two files in step.
-	## The club tab's controls live in season_tab_club.gd since the 27 Sep split;
-	## the scene passes itself as `v`.
-	var src := FileAccess.get_file_as_string("res://scripts/game/season_tab_club.gd")
+	## Asked of the real screen: the season is put in each double-booked state
+	## and the club tab must offer what `blocked_by()` names, and nothing else.
+	await process_frame
+	Juice.set_enabled(false)
 	var bad: Array[String] = []
-	if src == "":
-		bad.append("could not read season_tab_club.gd")
-	var i_bid := src.find("if v.season.bid_open():")
-	var i_cup := src.find("if v.season.cup_pending():")
-	var i_dil := src.find("if not v.season.dilemma.is_empty():")
-	if i_bid < 0 or i_cup < 0 or i_dil < 0:
-		bad.append("one of the three gates is no longer where the screen drains them")
-	elif not (i_bid < i_cup and i_cup < i_dil):
-		bad.append("the screen drains the queue in a different order from blocked_by()")
-	## And the season's own order, asserted directly rather than read off a file.
 	var s := Season.new(MeleeRosters.starting_club(), 606)
-	if s.bid_open() and s.blocked_by() != "bid":
-		bad.append("blocked_by does not put the bid first")
+	Session.season = s
+	Session.slot = -1
+	change_scene_to_file("res://scenes/Season.tscn")
+	for i in 10:
+		await process_frame
+		if current_scene != null and current_scene.scene_file_path.ends_with("Season.tscn"):
+			break
+	var v := current_scene
+	## A bid and a card on the table together.
+	s.dilemma = {"id": "van", "man": 0}
+	var seen := await _offered(v)
+	if s.bid_open():
+		if s.blocked_by() != "bid":
+			bad.append("blocked_by does not put the bid first")
+		if not seen.has("Tournament bid"):
+			bad.append("bid + card: the screen does not offer the bid (%s)" % ", ".join(seen))
+		s.decline_bid()
+	else:
+		bad.append("seed 606 no longer opens with a bid, so the bid half was not asked")
+	## A bracket waiting and a card on the table together.
+	s.dilemma = {}
+	var guard := 0
+	while not s.cup_pending() and not s.season_complete() and guard < 40:
+		guard += 1
+		while s.blocked_by() != "" and not s.cup_pending():
+			match s.blocked_by():
+				"bid": s.decline_bid()
+				"dilemma": s.answer_dilemma(0)
+				"promotion": s.answer_promotion(true)
+		if not s.cup_pending():
+			s.skip_event()
+	if s.cup_pending():
+		s.dilemma = {"id": "van", "man": 0}
+		seen = await _offered(v)
+		if s.blocked_by() != "cup":
+			bad.append("with a tie and a card waiting, blocked_by says '%s'" % s.blocked_by())
+		if not seen.has("Fight the tie") or seen.has("Fight it"):
+			bad.append("tie + card: the screen offers %s" % ", ".join(seen))
+		s.sim_cup_tie()
+		while s.cup_pending():
+			s.sim_cup_tie()
+		seen = await _offered(v)
+		if seen.has("Fight the tie") or seen.has("Fight it") or s.blocked_by() != "dilemma":
+			bad.append("card alone: blocked_by '%s', the screen offers %s" % [s.blocked_by(), ", ".join(seen)])
+	else:
+		bad.append("no cup tie came up in a season, so the cup half was not asked")
+	Session.season = null
 	notes.append("the bid, the cup and the card are drained in one order on both sides")
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "one queue, one order",
-		"the club tab drains bid then cup then card, which is what blocked_by() says")
+		"the club tab offers bid, then the tie, then the card — what blocked_by() says")
+
+
+## What the club tab offers right now, as button labels.
+func _offered(v: Node) -> Array[String]:
+	v.call("_rebuild")
+	await process_frame
+	var out: Array[String] = []
+	var stack: Array = [v]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		for c in n.get_children():
+			if c is Button and not c.is_queued_for_deletion() and c.is_visible_in_tree():
+				out.append(String(c.text))
+			stack.append(c)
+	return out
 
 
 ## --------------------------------------------------- the opponent is a club

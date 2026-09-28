@@ -176,18 +176,25 @@ func _test_a_release_build_cannot_mint_credits() -> void:
 	## and `grant` directly, which is the one an over-helpful future caller would
 	## reach for.
 	var debug := OS.is_debug_build()
-	var src := FileAccess.get_file_as_string("res://scripts/game/store.gd")
-	var guards := src.count("OS.is_debug_build()")
-	_ok(guards >= 2, "both doors into a free credit ask whether this is a debug build",
-		"%d guards in store.gd (need the stub AND the grant)" % guards)
-
-	## AND THE GRANT REFUSES WITHOUT A BACKEND when it is not a debug build.
-	## The condition is read out of the source rather than simulated, because a
-	## release build cannot be produced inside a debug one — stating that plainly
-	## is better than a check that pretends otherwise.
-	_ok(src.contains("if not OS.is_debug_build() and _backend() == null:"),
-		"and the grant refuses outright with no store behind it",
-		"the guard is in `grant`, where money is created")
+	## RELEASE RULES, ASKED OF THE REAL FUNCTIONS. `Store.release_rules` makes
+	## the fence answer as an exported build's would; nothing else changes.
+	Store.release_rules = true
+	Store.owed = 0
+	Store.save_wallet()
+	Store.state = Store.State.READY
+	var bought := Store.buy("cc_small")
+	var granted := Store.grant("cc_small")
+	Store.state = Store.State.COLD
+	Store.connect_backend()
+	var shut := Store.state
+	Store.release_rules = false
+	var guards := 2 if (bought != "" and granted != "") else 0
+	_ok(bought != "" and granted != "" and Store.owed == 0,
+		"under release rules neither door creates a credit without a real store",
+		"buy: '%s', grant: '%s', wallet %d" % [bought.left(40), granted.left(40), Store.owed])
+	_ok(shut != Store.State.READY,
+		"and the shop does not open with no store behind it",
+		"state %s" % str(shut))
 
 	if debug:
 		## In this build the stub works, which is what makes the flow walkable.

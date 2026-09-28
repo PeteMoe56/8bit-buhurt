@@ -42,6 +42,7 @@ func _initialize() -> void:
 		_test_report_blames_the_roster()
 		_test_the_corner_pays_the_men_who_sat()
 		_test_a_route_can_be_taken_back()
+		await _test_the_tap_on_the_screen()
 	## THE STATISTICAL MEASURES — balance targets, not invariants. Balance tier.
 	if stats:
 		_test_symmetry()
@@ -63,6 +64,48 @@ func _initialize() -> void:
 			print("FAIL: " + f)
 		print("\n%d FAILED\n" % failures.size())
 		quit(1)
+
+
+## THE TAP, ON THE REAL SCREEN. The rule that only a route the player drew can be
+## tapped away lives in the scene, so the scene is what is asked — a thumb's
+## press and release on the man, not a read of the source.
+func _test_the_tap_on_the_screen() -> void:
+	await process_frame
+	## Driven through the real screen: a tap on the man, the same gesture a thumb
+	## makes. The rule lives in the scene, so the scene is what is asked.
+	var tap := _melee_scene()
+	var ts: MeleeSim = tap.get("sim")
+	var who := -1
+	for m in ts.men:
+		if m.team == 0 and m.standing():
+			who = m.idx
+			break
+	var at: Vector2 = tap.call("_to_screen", ts.men[who].pos)
+	ts.give_order(who, [ts.men[who].pos + Vector2(4, 0)] as Array[Vector2])
+	tap.call("_press", at)
+	tap.call("_release", at)
+	var drawn_gone := not ts.men[who].under_orders()
+	ts._order(ts.men[who], [ts.men[who].pos + Vector2(4, 0)], -1, true)
+	tap.call("_press", at)
+	tap.call("_release", at)
+	var play_kept := ts.men[who].under_orders()
+	tap.queue_free()
+	await process_frame
+	Session.clear_bout()
+	_ok(drawn_gone, "and a tap on the man on the real screen takes his route back",
+		"a route you drew, tapped: %s" % ("gone" if drawn_gone else "still on"))
+	_ok(play_kept, "and only a route the PLAYER drew can be taken back",
+		"a called play's route, tapped: %s" % ("kept" if play_kept else "cancelled"))
+
+
+## The real fight screen on a real bout, in the tree, without its wipe.
+func _melee_scene() -> Node:
+	Juice.set_enabled(false)
+	Session.season = null
+	Session.bout = MeleeSim.new(MeleeRosters.player_club(), MeleeRosters.rival_club(), 31)
+	var n: Node = (load("res://scenes/Melee.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	return n
 
 
 func _ok(cond: bool, label: String, detail: String) -> void:
@@ -736,11 +779,4 @@ func _test_a_route_can_be_taken_back() -> void:
 	## rather than the sim — the sim's verb is deliberately blunt — so the rule is
 	## read where it lives. A screen that stopped asking would silently let a tap
 	## pull one fighter out of the line's plan.
-	var src := FileAccess.get_file_as_string("res://scripts/melee/melee_scene.gd")
-	_ok(src.contains("sim.cancel_order("),
-		"and a screen actually calls it — it had no caller at all until 15 Sep",
-		"the tap is in melee_scene._release()")
-	_ok(src.contains("not man.order.from_play"),
-		"and only a route the PLAYER drew can be taken back",
-		"a called play's routes are the plan, and the corner is where you change it")
 	notes.append("the cancel: given, withdrawn, and withdrawn again with no order on him")

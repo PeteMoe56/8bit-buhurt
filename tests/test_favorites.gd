@@ -20,7 +20,7 @@ func _initialize() -> void:
 	_test_an_index_would_have_pointed_at_the_wrong_play()
 	_test_they_survive_a_save()
 	_test_the_four_can_be_put_in_order()
-	_test_a_screen_can_actually_reorder_them()
+	await _test_a_screen_can_actually_reorder_them()
 	print("")
 	if failures.is_empty():
 		print("THE FAVORITES HOLD (%d checks)\n" % checks)
@@ -253,12 +253,55 @@ func _test_they_survive_a_save() -> void:
 ## the verb at all — where it lives is a design decision and this is not the
 ## place to pin it.
 func _test_a_screen_can_actually_reorder_them() -> void:
-	var src := FileAccess.get_file_as_string("res://scripts/melee/melee_scene.gd")
-	_ok(src.contains("promote_favorite("),
-		"a screen calls the verb that moves one up the list",
-		"the strip under the playbook, in starring mode")
-	## AND THE STRIP IS ONLY THERE WHEN THERE IS SOMETHING TO ORDER. One chip
-	## that cannot move is a control a player cannot tell from a broken one.
-	_ok(src.contains("favs.size() < 2"),
-		"and it does not draw a list of one",
-		"ordering one favorite is not a thing that can be done")
+	await process_frame
+	Juice.set_enabled(false)
+	var season := Season.new(MeleeRosters.starting_club(), 4242)
+	season.board = _board()
+	var sh := season.formation_id
+	for n in ["Hammer", "Anvil"]:
+		season.board.save_play(season.board.plays.size(), n, _routes(), sh)
+	season.board.favorites.clear()
+	for n in ["Hammer", "Anvil"]:
+		season.board.toggle_favorite(sh, "play", n)
+	Session.season = season
+	Session.bout = season.begin_bout()
+	var scene: Node = (load("res://scenes/Melee.tscn") as PackedScene).instantiate()
+	root.add_child(scene)
+	await process_frame
+	scene.set("starring", true)
+	scene.call("_show_playbook")
+	var chip: Button = null
+	for b in _all_buttons(scene):
+		if String(b.text).begins_with("\u25c0") and String(b.text).contains("Anvil"):
+			chip = b
+	var before := _keys(season.board)
+	if chip != null:
+		chip.pressed.emit()
+	_ok(chip != null and before == ["Hammer", "Anvil"] and _keys(season.board) == ["Anvil", "Hammer"],
+		"a tap on the second chip in the starring strip moves it to the front",
+		"%s -> %s%s" % [str(before), str(_keys(season.board)), "" if chip != null else " (no chip on screen)"])
+	## AND ONE FAVORITE DRAWS NO STRIP. One chip that cannot move is a control a
+	## player cannot tell from a broken one.
+	season.board.toggle_favorite(sh, "play", "Hammer")
+	scene.call("_show_playbook")
+	await process_frame
+	var strip := 0
+	for b in _all_buttons(scene):
+		if String(b.text).contains("1  ") and b.is_visible_in_tree() and not b.is_queued_for_deletion():
+			strip += 1
+	_ok(season.board.live_favorites().size() == 1 and strip == 0,
+		"and a list of one draws no strip",
+		"%d favorite, %d chips" % [season.board.live_favorites().size(), strip])
+	scene.queue_free()
+	Session.clear_bout()
+	Session.season = null
+	await process_frame
+
+
+func _all_buttons(n: Node) -> Array:
+	var out: Array = []
+	for c in n.get_children():
+		if c is Button and not c.is_queued_for_deletion():
+			out.append(c)
+		out.append_array(_all_buttons(c))
+	return out

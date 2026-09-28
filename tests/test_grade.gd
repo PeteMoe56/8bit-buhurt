@@ -20,6 +20,7 @@ extends SceneTree
 ## way of knowing which of his results came from which code path, and the honest
 ## thing would be to delete the button.
 
+## RB_TIER: fast runs the rules; balance runs only the win-rate measure.
 var failures: Array[String] = []
 var checks: int = 0
 var notes: Array[String] = []
@@ -27,20 +28,25 @@ var notes: Array[String] = []
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the grade ===\n")
-	_test_the_choke_point_has_no_holes()
-	_test_the_scale_reaches_every_contest_stat()
-	_test_your_own_men_are_never_scaled()
-	_test_the_table_is_ordered()
-	_test_the_hard_list_is_never_softer()
-	_test_a_guest_has_no_rung()
-	_test_calls_and_the_corner()
-	_test_the_tactician_needs_reach()
-	_test_matched_moves_on_margin()
-	_test_matched_is_gated_on_a_trophy()
-	_test_a_v12_save_loads_sanctioned()
-	_test_a_skipped_round_is_the_round_you_would_have_watched()
-	_test_the_skip_stops_at_the_corner()
-	_test_the_grade_moves_the_win_rate()
+	var tier := OS.get_environment("RB_TIER")
+	if tier != "balance":
+		_test_the_choke_point_has_no_holes()
+		_test_the_scale_reaches_every_contest_stat()
+		_test_your_own_men_are_never_scaled()
+		_test_the_table_is_ordered()
+		_test_the_hard_list_is_never_softer()
+		_test_a_guest_has_no_rung()
+		_test_calls_and_the_corner()
+		_test_the_tactician_needs_reach()
+		_test_matched_moves_on_margin()
+		_test_matched_is_gated_on_a_trophy()
+		_test_a_v12_save_loads_sanctioned()
+		_test_a_skipped_round_is_the_round_you_would_have_watched()
+		_test_the_skip_stops_at_the_corner()
+	## THE STATISTICAL MEASURE — a balance target, not an invariant, and 320
+	## bouts long. Balance tier (and by hand); the fast tier skips it by design.
+	if tier != "fast":
+		_test_the_grade_moves_the_win_rate()
 
 	print("")
 	for n in notes:

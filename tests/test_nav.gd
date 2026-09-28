@@ -35,6 +35,7 @@ func _initialize() -> void:
 	_test_it_cannot_grow_for_ever()
 	_test_a_screen_that_reloads_itself_is_not_a_step()
 	_test_the_fallback_still_works_with_no_trail()
+	await _test_back_never_points_at_the_screen_you_are_on()
 	print("")
 	for n in notes:
 		print("   " + n)
@@ -169,12 +170,34 @@ func _test_the_fallback_still_works_with_no_trail() -> void:
 	_ok(UiKit.trail_depth() == 0, "an empty trail is the normal state on a fresh load",
 		"nothing to pop, so `back(fallback)` goes to the fallback")
 
-	## AND THE ARGUMENT IS STILL THERE TO BE USED. Read out of the source,
-	## because the alternative is a headless test pretending to change scenes.
-	var src := FileAccess.get_file_as_string("res://scripts/game/ui.gd")
-	_ok(src.contains("static func back(fallback: String) -> void:"),
-		"and the parameter is named for what it now is",
-		"`fallback`, not `path` — the name is half the documentation")
-	_ok(src.contains("if to == _here():"),
-		"and a trail pointing at the current screen falls back instead",
-		"a dead Back button is the worst outcome of a fix for Back buttons")
+	## The rest of this check needs a real current screen, so it runs after a
+	## frame in `_test_back_never_points_at_the_screen_you_are_on`.
+
+
+## A TRAIL POINTING AT THE SCREEN YOU ARE ON falls back rather than going
+## nowhere. Asked of a real screen in the tree: Settings is loaded the way a
+## scene loaded "any other way" would be, the trail is left pointing at it, and
+## Back must still leave.
+func _test_back_never_points_at_the_screen_you_are_on() -> void:
+	await process_frame
+	Juice.set_enabled(false)
+	change_scene_to_file("res://scenes/Settings.tscn")
+	for i in 10:
+		await process_frame
+		if current_scene != null and current_scene.scene_file_path.ends_with("Settings.tscn"):
+			break
+	_clear()
+	UiKit._trail.append("res://scenes/Settings.tscn")
+	Juice.take_pending_scene()
+	UiKit.back(TITLE)
+	var went := Juice.take_pending_scene()
+	_ok(went == TITLE, "a trail pointing at the current screen falls back instead",
+		"on %s with the trail pointing at it, Back went to '%s'" % [
+			current_scene.scene_file_path.get_file() if current_scene else "-", went])
+	_clear()
+	UiKit._trail.append(ROSTER)
+	UiKit.back(TITLE)
+	went = Juice.take_pending_scene()
+	_ok(went == ROSTER, "and a trail pointing elsewhere is followed",
+		"Back went to '%s'" % went)
+	_clear()

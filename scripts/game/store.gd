@@ -158,7 +158,7 @@ static func connect_backend() -> void:
 	if b == null:
 		## No plugin. In a debug build that is a stub worth having; in a release
 		## build it is a shop that must stay shut.
-		state = State.READY if OS.is_debug_build() and _sellable_here() else State.UNAVAILABLE
+		state = State.READY if _debug() and _sellable_here() else State.UNAVAILABLE
 		return
 	state = State.CONNECTING
 	## The plugin's own handshake. Left as the one line it is, because anything
@@ -266,8 +266,19 @@ static func buy(id: String) -> String:
 ## A debug build needs to be able to walk the whole flow — buy, kill the app,
 ## reopen, claim — without a card. A release build must not have this path at
 ## all, and `OS.is_debug_build()` is the fence the exporter itself sets.
+## THE FENCE, in one place. `OS.is_debug_build()` is set by the exporter and a
+## debug test run cannot change it, so a test that wants to know how a RELEASE
+## build behaves sets `release_rules` and asks the real functions — rather than
+## reading this file for the words.
+static var release_rules: bool = false
+
+
+static func _debug() -> bool:
+	return OS.is_debug_build() and not release_rules
+
+
 static func _stub_buy(p: Dictionary) -> String:
-	if not OS.is_debug_build():
+	if not _debug():
 		return "The store is not available on this device."
 	_stub_purchases.append(String(p["id"]))
 	return grant(String(p["id"]))
@@ -283,7 +294,7 @@ static func grant(id: String) -> String:
 	var p := product(id)
 	if p.is_empty():
 		return "There is no such pack."
-	if not OS.is_debug_build() and _backend() == null:
+	if not _debug() and _backend() == null:
 		## Nothing may create credits in a release build without a real store
 		## behind it. This is the line `test_store.gd` exists to hold.
 		return "The store is not available on this device."
