@@ -190,6 +190,14 @@ static func _place_all(f: FighterCard) -> void:
 ## AND THE WEEK, run before every event: the things a club does between fights.
 func _week(s: Season) -> void:
 	var o := s.office
+	## THE PAPERWORK FIRST. Until 28 Sep 2026 this manager never answered the
+	## federation, so every career it ran was barred from every cup and Worlds
+	## (see tools/manager.gd). One rule a week, the one furthest behind.
+	if not o.compliant():
+		for r in Federation.rules():
+			if o.rule_level(r) < Federation.required(o.tier, r):
+				o.raise_rule(r)
+				break
 	## THE HARNESSES, worst first — a man who cannot pass inspection cannot go
 	## out, which is worth more than any other credit on this list.
 	var men: Array = s.club.roster.duplicate()
