@@ -192,6 +192,7 @@ func _ready() -> void:
 	Juice.arm()
 	font = UiKit.body()
 	_build_ui()
+	_fit_width()
 	_new_bout(randi())
 
 
@@ -287,7 +288,30 @@ func _new_bout(seed_value: int) -> void:
 
 
 # ------------------------------------------------------------------ the loop
+## THE 960-WIDE FIGHT, CENTRED ON WHATEVER CANVAS THE PHONE HANDS US.
+##
+## The project stretches with aspect "expand", so a 20:9 phone gives a canvas
+## about 1200 wide. Everything on this screen is laid out on the 960x540 design
+## frame; it was drawn from x=0 and the right ~240px was bare. The frame is now
+## centred — the node and its control layer are shifted by `off_x`, the gutters
+## are painted with the ground, and input is mapped back into the frame.
+var off_x: float = 0.0
+var _quips_cache: Array = []
+var _news_cache: Array = []
+
+
+func _fit_width() -> void:
+	var want := floorf(maxf(0.0, UiKit.screen().x - SCREEN.x) * 0.5)
+	if is_equal_approx(want, off_x) and position.x == off_x:
+		return
+	off_x = want
+	position.x = off_x
+	if ui != null:
+		ui.offset = Vector2(off_x, 0.0)
+
+
 func _process(delta: float) -> void:
+	_fit_width()
 	marshal_t = maxf(0.0, marshal_t - delta)
 	## THE THREE THAT DO NOT TICK. The splash joins the report and the pre-fight
 	## panel: the sim must not advance behind a screen the player has not
@@ -445,7 +469,7 @@ func _on_downed(idx: int, _by: int) -> void:
 	## whole game and does not know this screen has a camera; handing it a sim
 	## coordinate would put "DOWN" in the top-left corner of the world.
 	Juice.pop("down%d" % idx, "DOWN",
-		_to_screen(sim.men[idx].pos) + Vector2(0.0, -16.0), col)
+		_to_screen(sim.men[idx].pos) + Vector2(off_x, -16.0), col)
 
 
 func _on_bout_finished(_w: int) -> void:
@@ -459,6 +483,8 @@ func _on_bout_finished(_w: int) -> void:
 		Session.clear_bout()
 		Session.autosave()
 		again_button.text = "Back to the clubhouse"
+	_quips_cache = []
+	_news_cache = []
 	screen = Screen.REPORT
 	_hide_panel()
 	quip_scroll = 0.0
@@ -510,6 +536,8 @@ var draw_finger: int = -1
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	## Into the design frame (see `_fit_width`).
+	event = make_input_local(event)
 	## PAUSED: the next tap resumes, and does nothing else.
 	if paused:
 		if (event is InputEventScreenTouch and event.pressed) \
@@ -586,7 +614,8 @@ func _press(p: Vector2) -> void:
 			continue
 		var acts: Array = Tuning.acts_for(m.prompt.menu)
 		for i in acts.size():
-			if _prompt_rect(m, i).has_point(p):
+			## The drawn option is 30 tall; the thumb gets a few pixels more.
+			if _prompt_rect(m, i).grow_individual(2, 6, 2, 6).has_point(p):
 				sim.answer_prompt(m.idx, acts[i])
 				return
 
@@ -727,6 +756,10 @@ func _to_list(v: Vector2) -> Vector2:
 func _draw() -> void:
 	if sim == null:
 		return
+	## THE GUTTERS. Whatever is wider than the design frame gets the ground.
+	if off_x > 0.0:
+		var full := Rect2(Vector2(-off_x, 0.0), UiKit.screen())
+		draw_rect(full, UiKit.tint(Tuning.COL_GROUND, 1.0))
 	## THE SPLASH IS A WHOLE SCREEN, like the report, so it returns before the
 	## fight is drawn rather than after.
 	##
@@ -784,7 +817,7 @@ func _draw() -> void:
 	## changes with how many men are on the bench — the report panel already
 	## learned that lesson the expensive way and this is the same fix.
 	if screen == Screen.CORNER or screen == Screen.PREFIGHT:
-		draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0, 0, 0, 0.72))
+		draw_rect(Rect2(Vector2(-off_x, 0.0), UiKit.screen()), Color(0, 0, 0, 0.72))
 		## EVERYTHING ABOVE IS NOW UNDER THE SCRIM. The fight is drawn in full and
 		## then deliberately made unreadable — that is what the scrim is for — so
 		## the ink sweep has to be told, or it reports the scoreboard's own
@@ -806,8 +839,8 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 40,
 			Tuning.COL_MARSHAL * Color(1, 1, 1, clampf(marshal_t / 1.6, 0, 1)))
 	if paused:
-		var sz := UiKit.screen()
-		draw_rect(Rect2(Vector2.ZERO, sz), Color(0, 0, 0, 0.6))
+		var sz := SCREEN
+		draw_rect(Rect2(Vector2(-off_x, 0.0), UiKit.screen()), Color(0, 0, 0, 0.6))
 		UiKit.raw(self, font, Vector2(0, sz.y * 0.46), "PAUSED",
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 40, UiKit.YOU)
 		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36), "Tap to carry on",
@@ -909,7 +942,10 @@ func _cell(s: String, col: String, y: float, px: int, c: Color) -> void:
 ## not, which for uniform-width cards is the same picture and needs no transform
 ## stack.
 func _draw_quips() -> void:
-	var rows: Array = MeleeReport.quips(sim, _season())
+	## Built once per report, not 60 times a second.
+	if _quips_cache.is_empty():
+		_quips_cache = MeleeReport.quips(sim, _season())
+	var rows: Array = _quips_cache
 	var y := QUIP_TOP - quip_scroll
 	var total := 0.0
 	for q in rows:
@@ -987,7 +1023,9 @@ func _news_layout(rows: Array) -> Dictionary:
 
 
 func _draw_news() -> void:
-	var rows: Array = MeleeReport.news(_season())
+	if _news_cache.is_empty():
+		_news_cache = MeleeReport.news(_season())
+	var rows: Array = _news_cache
 	var plan := _news_layout(rows)
 	news_over = maxf(0.0, float(plan["height"]) - 8.0 - NEWS_H)
 	news_scroll = clampf(news_scroll, 0.0, news_over)
@@ -1134,7 +1172,7 @@ func _draw_corner() -> void:
 
 	## AND THE SUB POPUP'S FLOOR, over everything.
 	if sub_open >= 0 and sub_box.size.x > 0.0:
-		draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0, 0, 0, 0.7))
+		draw_rect(Rect2(Vector2(-off_x, 0.0), UiKit.screen()), Color(0, 0, 0, 0.7))
 		UiKit.panel(self, sub_box)
 		UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD, 32),
 			"WHO COMES ON FOR", HORIZONTAL_ALIGNMENT_LEFT,

@@ -185,6 +185,20 @@ func _build() -> void:
 	queue_redraw()
 
 
+## BACK: out of the town picker, out of a delete confirm, else to the front door.
+func go_back() -> bool:
+	if picking >= 0:
+		picking = -1
+		_build()
+		return true
+	if confirm_delete != -1:
+		confirm_delete = -1
+		_build()
+		return true
+	UiKit.go("res://scenes/Start.tscn")
+	return true
+
+
 func _settings() -> void:
 	UiKit.go("res://scenes/Settings.tscn")
 
@@ -249,9 +263,17 @@ func _enter(s: Season, slot: int) -> void:
 ## `Juice` ticks whether or not anybody is watching, but a CanvasItem only
 ## redraws when something asks — the same fault the dilemma card's typewriter
 ## sat under for months. One screen, one line, and only while it is on top.
+## Only when the breathing pixel actually moves (twice a second), not every
+## frame — a still menu redrawing at the display's refresh rate costs battery.
+var _last_lift: float = -999.0
+
+
 func _process(_delta: float) -> void:
 	if picking < 0:
-		queue_redraw()
+		var lift := Juice.breathe(30)
+		if lift != _last_lift:
+			_last_lift = lift
+			queue_redraw()
 
 
 func _draw() -> void:

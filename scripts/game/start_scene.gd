@@ -52,7 +52,7 @@ func _build() -> void:
 		if SaveGame.has_save(i):
 			has_any = true
 	var y := 300.0
-	ui.add_child(UiKit.button("Play" if not has_any else "Play", Vector2(center() - 130, y),
+	ui.add_child(UiKit.button("Play", Vector2(center() - 130, y),
 		Vector2(260, 54), _play))
 	ui.add_child(UiKit.button("Settings", Vector2(center() - 130, y + 66),
 		Vector2(260, 46), _settings))
@@ -78,9 +78,28 @@ func _settings() -> void:
 	UiKit.go("res://scenes/Settings.tscn")
 
 
+## BACK AT THE FRONT DOOR ASKS BEFORE IT QUITS. Android's back gesture closed
+## the app from anywhere; here, at the root, it is allowed to — on the second
+## press within three seconds, with a line saying so after the first.
+var quit_armed_until: float = -1.0
+
+
+func go_back() -> bool:
+	if t < quit_armed_until:
+		get_tree().quit()
+		return true
+	quit_armed_until = t + 3.0
+	queue_redraw()
+	return true
+
+
+## NOTHING HERE MOVES, so nothing is redrawn 60 times a second — except while
+## the "press back again" line is up, which has to disappear on time.
 func _process(delta: float) -> void:
 	t += delta
-	queue_redraw()
+	if quit_armed_until > 0.0 and t > quit_armed_until:
+		quit_armed_until = -1.0
+		queue_redraw()
 
 
 func _draw() -> void:
@@ -119,6 +138,9 @@ func _draw() -> void:
 	## idle motion they carried lives on the slot screen now, where a player
 	## actually sits still and looks at something.
 
+	if t < quit_armed_until:
+		UiKit.mid(self, font, "Press back again to quit",
+			Vector2(0.0, UiKit.screen().y - 60), 14, UiKit.YOU, UiKit.screen().x)
 	UiKit.text(self, font, "BonkWorks", Vector2(24, UiKit.screen().y - 24), 13,
 		UiKit.EDGE.lightened(0.4))
 	## The credit the licence asks for, on the screen the music is playing on.

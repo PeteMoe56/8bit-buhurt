@@ -144,6 +144,10 @@ func _refresh() -> void:
 
 
 func _release(i: int) -> void:
+	if not UiKit.confirm("captain:%d" % i):
+		flash = "Tap Release again to let him go."
+		_build()
+		return
 	season.office.release(i)
 	Audio.play("confirm")
 	Session.autosave()

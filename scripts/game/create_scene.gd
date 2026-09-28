@@ -51,6 +51,12 @@ var card: FighterCard
 var name_edit: LineEdit
 var club_name_edit: LineEdit
 var club_short_edit: LineEdit
+## WHAT HAS BEEN TYPED AND NOT SAVED. Every other button rebuilds the screen,
+## and the rebuilt boxes used to be filled from the saved values — so a name
+## typed and then followed by a tap on a kit colour was thrown away. The boxes
+## write here as they are typed and read from here when rebuilt.
+var draft_club_name = null
+var draft_club_short = null
 var kit_i := 0
 var mark_col_i := 0
 var icon_i := 0
@@ -146,6 +152,8 @@ func _fighter_controls() -> void:
 	name_edit.max_length = 20
 	name_edit.placeholder_text = "His name"
 	name_edit.text = card.display_name
+	## The card is the working copy of the new man, so typing goes straight on it.
+	name_edit.text_changed.connect(func(t: String): card.display_name = t)
 	ui.add_child(name_edit)
 
 	var lim := _limits()
@@ -153,8 +161,10 @@ func _fighter_controls() -> void:
 		var y := STAT_Y + float(i) * STAT_ROW
 		var key: String = STATS[i]
 		var sl := HSlider.new()
-		sl.position = Vector2(SLIDER_X, y + 8)
-		sl.size = Vector2(SLIDER_W, 20)
+		## 28 tall, not 20: the track draws in the middle either way, and the
+		## extra height is the part a thumb actually lands on.
+		sl.position = Vector2(SLIDER_X, y + 6)
+		sl.size = Vector2(SLIDER_W, 28)
 		sl.min_value = 1
 		sl.max_value = int(lim["stat"])
 		sl.step = 1
@@ -167,8 +177,8 @@ func _fighter_controls() -> void:
 	## Weight is not a stat you spend on — it is a build decision with a cost on
 	## both sides, so it sits with the sliders but outside the cap.
 	var w := HSlider.new()
-	w.position = Vector2(SLIDER_X, STAT_Y + 5.0 * STAT_ROW + 8.0)
-	w.size = Vector2(SLIDER_W, 20)
+	w.position = Vector2(SLIDER_X, STAT_Y + 5.0 * STAT_ROW + 6.0)
+	w.size = Vector2(SLIDER_W, 28)
 	w.min_value = 130
 	w.max_value = 340
 	w.step = 1
@@ -269,7 +279,8 @@ func _club_controls() -> void:
 	club_name_edit.size = Vector2(380, 36)
 	club_name_edit.max_length = 30
 	club_name_edit.placeholder_text = "Club name"
-	club_name_edit.text = season.club.display_name
+	club_name_edit.text = draft_club_name if draft_club_name != null else season.club.display_name
+	club_name_edit.text_changed.connect(func(t: String): draft_club_name = t)
 	ui.add_child(club_name_edit)
 
 	club_short_edit = LineEdit.new()
@@ -277,7 +288,8 @@ func _club_controls() -> void:
 	club_short_edit.size = Vector2(120, 36)
 	club_short_edit.max_length = 4
 	club_short_edit.placeholder_text = "CLB"
-	club_short_edit.text = season.club.short_name
+	club_short_edit.text = draft_club_short if draft_club_short != null else season.club.short_name
+	club_short_edit.text_changed.connect(func(t: String): draft_club_short = t)
 	ui.add_child(club_short_edit)
 
 	## ------------------------------------------------------------ the town
@@ -297,6 +309,10 @@ func _club_controls() -> void:
 		var town: String = town_offers[0]
 		ui.add_child(UiKit.button("Move to %s" % Cities.full_name(town),
 			Vector2(STAT_X, TOWN_Y), TOWN_CARD, func(t = town):
+				if not UiKit.confirm("move:" + t):
+					flash = "Tap again to move the club to %s." % Cities.full_name(t)
+					_rebuild()
+					return
 				var was := season.city()
 				var err := season.set_city(t)
 				flash = UiKit.said(err) if err != "" \
@@ -434,6 +450,8 @@ func _save_club() -> void:
 		flash = err
 		_rebuild()
 		return
+	draft_club_name = null
+	draft_club_short = null
 	## The world carries the club's name for the table, so it has to be told.
 	season.world.clubs[season.world.player_club]["name"] = season.club.display_name
 	Session.autosave()

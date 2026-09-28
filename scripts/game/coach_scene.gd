@@ -73,6 +73,13 @@ func _build() -> void:
 	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
+	## THE DIFFICULTY LIVES WITH THE CAREER, and Settings can only change it while
+	## a career is open — which it never was, because Settings was reachable only
+	## from the title screen, where no career is. This is the door from inside.
+	ui.add_child(UiKit.button("Settings", Vector2(356, UiKit.screen().y - 56),
+		Vector2(150, 44), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Settings.tscn"), "cog"))
 	queue_redraw()
 
 

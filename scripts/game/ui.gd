@@ -78,7 +78,35 @@ static func screen() -> Vector2:
 ## thing is that starts at `m` and ends at `right_edge(m)`. `bottom(m)` is the
 ## same for the other axis, which a tablet needs and a handset never does.
 static func right_edge(margin: float = 24.0) -> float:
-	return screen().x - margin
+	return screen().x - margin - safe_right()
+
+
+## THE RIGHT-HAND SAFE INSET, in canvas units — a punch-hole camera or a rounded
+## corner on the right of a landscape phone. Zero on desktop and on any phone
+## whose OS already keeps the app out of the cutout. Everything right-aligned
+## goes through `right_edge`, so this is the one place that needs to know.
+static var _safe_frame: int = -1
+static var _safe_r: float = 0.0
+
+
+static func safe_right() -> float:
+	var f := Engine.get_process_frames()
+	if f == _safe_frame:
+		return _safe_r
+	_safe_frame = f
+	_safe_r = 0.0
+	## Phones only: on a desktop the "safe area" is the monitor minus the
+	## taskbar, in monitor coordinates, and means nothing to a window.
+	if not OS.has_feature("mobile"):
+		return 0.0
+	var win := DisplayServer.window_get_size()
+	var safe := DisplayServer.get_display_safe_area()
+	if win.x <= 0 or safe.size.x <= 0:
+		return 0.0
+	var right_px := float(win.x - safe.end.x)
+	if right_px > 0.0:
+		_safe_r = right_px * screen().x / float(win.x)
+	return _safe_r
 
 
 static func span(margin: float = 24.0) -> float:
@@ -933,7 +961,39 @@ static func button(text_: String, at: Vector2, size: Vector2, on_press: Callable
 	b.pressed.connect(func() -> void:
 		Audio.play("tap")
 		on_press.call())
+	_add_slop(b, inner)
 	return b
+
+
+## A THUMB IS BIGGER THAN A 34-PIXEL BUTTON. On a 6" phone one design pixel is
+## about an eighth of a millimetre, so the 30-36 px buttons this game is full of
+## were 4-5 mm tall — well under the ~7 mm a finger wants. Redrawing every screen
+## bigger would re-open every layout in the game; instead a short button gets
+## invisible strips above and below it (up to `SLOP_MAX` each) that count as a tap
+## on it. Only strips, never over the button itself, so hover and pressed states
+## still come from the button. Where two buttons' strips meet in a gap, the one
+## added later wins it, which is the nearer-drawn one.
+const HIT_MIN: float = 44.0
+const SLOP_MAX: float = 6.0
+
+
+static func _add_slop(b: Button, inner: Vector2) -> void:
+	var slop := clampf((HIT_MIN - inner.y) * 0.5, 0.0, SLOP_MAX)
+	if slop <= 0.0:
+		return
+	for top in [true, false]:
+		var strip := Control.new()
+		strip.name = "HitSlopTop" if top else "HitSlopBottom"
+		strip.mouse_filter = Control.MOUSE_FILTER_STOP
+		strip.position = Vector2(0.0, -slop if top else inner.y)
+		strip.size = Vector2(inner.x, slop)
+		strip.gui_input.connect(func(ev: InputEvent) -> void:
+			if b.disabled or not b.is_visible_in_tree():
+				return
+			if ev is InputEventMouseButton and ev.button_index == MOUSE_BUTTON_LEFT \
+					and not ev.pressed:
+				b.pressed.emit())
+		b.add_child(strip)
 
 
 ## GODOT'S DEFAULT BUTTON IS THE LOUDEST TELL ON THE SCREEN.
@@ -1256,11 +1316,34 @@ static func said(err: String) -> String:
 ## comes off — 260ms end to end, which is inside the 200ms-per-transition budget
 ## twice over because the player only ever waits for half of it before the new
 ## screen is already there.
+## TWO TAPS FOR ANYTHING YOU CANNOT TAKE BACK. `confirm(key)` is false the first
+## time a key is asked for (and arms it) and true if the same key is asked again
+## within four seconds. Changing screen, or tapping a different armed button,
+## disarms it. The call site says what the first tap means in its status line.
+static var _armed: String = ""
+static var _armed_at: int = 0
+
+
+static func confirm(key: String) -> bool:
+	var now := Time.get_ticks_msec()
+	if _armed == key and now - _armed_at <= 4000:
+		_armed = ""
+		return true
+	_armed = key
+	_armed_at = now
+	return false
+
+
+static func disarm() -> void:
+	_armed = ""
+
+
 static func go(path: String) -> void:
 	## One screen change at a time. A second tap during the wipe restarted it and
 	## pushed the trail twice.
 	if Juice.wiping():
 		return
+	disarm()
 	Audio.play("wipe")
 	_push_here()
 	Juice.go(path)
@@ -1335,6 +1418,7 @@ static func _push_here() -> void:
 static func back(fallback: String) -> void:
 	if Juice.wiping():
 		return
+	disarm()
 	Audio.play("back")
 	var to := fallback
 	if _trail.size() > 0:

@@ -108,6 +108,28 @@ func _ready() -> void:
 	_rebuild()
 
 
+## BACK (Android back / Esc), via AppLife. A modal closes first; then back to
+## the Club tab; then out to the title, the same as Menu.
+func go_back() -> bool:
+	if shop_open:
+		shop_open = false
+		_rebuild()
+		return true
+	if sim_asking:
+		sim_asking = false
+		_rebuild()
+		return true
+	if tab != Tab.CLUB:
+		tab = Tab.CLUB
+		picked = null
+		_rebuild()
+		return true
+	Session.autosave()
+	UiKit.trail_reset()
+	UiKit.go("res://scenes/Title.tscn")
+	return true
+
+
 # ------------------------------------------------------------------ controls
 ## WHO LEFT. A squad that quietly loses two men over a summer and signs two
 ## strangers is the single most alarming thing that can happen without a message,
@@ -173,6 +195,7 @@ func _upkeep_word() -> String:
 
 
 func _rebuild() -> void:
+	_centre_modals()
 	for c in ui.get_children():
 		c.queue_free()
 	## THE SHOP REPLACES THE SCREEN'S CONTROLS WHEN IT IS OPEN, rather than
@@ -218,7 +241,9 @@ func _rebuild() -> void:
 	## it down and nothing has to remember to.
 	_tape_label = null
 	_tape_clip = null
-	if tab == Tab.CLUB and season.blocked_by() == "":
+	## NOT ON AN OCCASION: the tape sits on the bottom strip, and on a cup or boss
+	## night that strip is the ribbon naming the occasion — the tape hid it.
+	if tab == Tab.CLUB and season.blocked_by() == "" and season.mood() == UiKit.Mood.NORMAL:
 		_tape_build()
 	match tab:
 		Tab.CLUB: _club_controls()
@@ -288,6 +313,10 @@ func _club_controls() -> void:
 		ui.add_child(UiKit.button("Stay down  ·  save %d CC"
 				% (int(pt["dues_up"]) - int(pt["dues_now"])),
 			Vector2(240, action_y()), Vector2(260, 46), func():
+				if not UiKit.confirm("stay_down"):
+					flash = "Tap again to turn promotion down for this year."
+					_rebuild()
+					return
 				season.answer_promotion(false)
 				flash = "Staying in the %s another year." % String(pt["from"])
 				Session.autosave()
@@ -313,6 +342,11 @@ func _club_controls() -> void:
 		## could say who you were fighting and never who else was left, which is
 		## the one thing a cup has that a league does not.
 		ui.add_child(UiKit.button("Sim it", Vector2(244, action_y()), Vector2(204, 46), func():
+			## Two taps, like the league's sim: a cup tie simmed is a cup tie gone.
+			if not UiKit.confirm("sim_cup"):
+				flash = "Tap Sim it again to hand the tie to the AI."
+				_rebuild()
+				return
 			var c := season.pending_cup()
 			var nm := c.cup_name
 			var rnd := c.round_name()
@@ -749,6 +783,11 @@ func _squad_controls() -> void:
 		ui.add_child(UiKit.button(("Trade %s  ·  %d CC" % [who, worth])
 				if worth > 0 else ("Cut " + who),
 			Vector2(24, action_y()), Vector2(232, 46), func():
+				if not UiKit.confirm("release:" + picked.display_name):
+					flash = "Tap again to %s %s. He does not come back." % [
+						"trade" if worth > 0 else "cut", picked.display_name]
+					_rebuild()
+					return
 				var gone := picked.display_name
 				var err := season.release(picked)
 				flash = UiKit.said(err) if err != "" else (
@@ -899,7 +938,13 @@ func _draw() -> void:
 	## Button's own styling is the one thing here that is not mine to draw.
 	draw_rect(Rect2(24 + float(tab) * (TAB_W + 6.0), TAB_Y + TAB_H, TAB_W, 3), UiKit.YOU)
 	if flash != "":
-		UiKit.text(self, font, UiKit.clip(flash, 58), Vector2(24, FLASH_Y), 15, UiKit.YOU)
+		## BY PIXELS, ACROSS THE WHOLE WIDTH, and smaller when it is long. It was
+		## cut at 58 characters, which dropped the winter report off the end of
+		## the season message and "who are in your division" off the split
+		## warning — the two messages that most need reading.
+		var room := UiKit.span()
+		var px := 15 if font.get_string_size(flash, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15).x <= room else 12
+		UiKit.text(self, font, UiKit.clip_px(font, flash, px, room), Vector2(24, FLASH_Y), px, UiKit.YOU)
 	match tab:
 		Tab.CLUB: _draw_club()
 		Tab.SQUAD: _draw_squad()
@@ -1131,7 +1176,7 @@ func _tape_build() -> void:
 
 
 func _tape_draw_ground() -> void:
-	if _tape == "":
+	if _tape == "" or _tape_label == null:
 		return
 	var y := UiKit.screen().y - TAPE_H
 	draw_rect(Rect2(0, y, UiKit.screen().x, TAPE_H), UiKit.PANEL)
@@ -1839,7 +1884,9 @@ func _squad_head(x: float, y: float) -> void:
 var sim_asking: bool = false
 ## The confirm's own box. Same width as the shop's, because they are the same
 ## kind of thing and two modals at two sizes reads as two programs.
-const SIM_CARD := Rect2(200.0, 150.0, 560.0, 240.0)
+## Centred on the live canvas by `_centre_modals()` — fixed at x=200 they sat
+## about 100 px left of centre on a 19.5:9 phone.
+var SIM_CARD := Rect2(200.0, 150.0, 560.0, 240.0)
 
 ## HOW THE RESERVE COLUMN IS ORDERED. See `_reserve_sorted()`.
 var reserve_sort: int = 0
@@ -2120,7 +2167,13 @@ const NAV_BUTTONS: int = 4
 const NAV_BTN_H := 36.0
 ## Where the counter sits: under the four nav buttons, above the action row.
 ## The shop is a modal; this is the panel it draws in.
-const SHOP_CARD := Rect2(200.0, 120.0, 560.0, 300.0)
+var SHOP_CARD := Rect2(200.0, 120.0, 560.0, 300.0)
+
+
+func _centre_modals() -> void:
+	var w := UiKit.screen().x
+	SIM_CARD.position.x = floorf((w - SIM_CARD.size.x) * 0.5)
+	SHOP_CARD.position.x = floorf((w - SHOP_CARD.size.x) * 0.5)
 
 
 func _office_row_y(i: int) -> float:

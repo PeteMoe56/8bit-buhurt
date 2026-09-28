@@ -14,6 +14,8 @@ config/quit_on_go_back=false
 run/main_scene="res://scenes/Start.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://art/brand/crest_512.png"
+run/max_fps=60
+run/low_processor_mode=true
 
 [display]
 

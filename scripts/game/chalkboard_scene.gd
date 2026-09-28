@@ -41,6 +41,9 @@ var season: Season
 var board: Chalkboard
 var ui: CanvasLayer
 var name_edit: LineEdit
+## The name typed for the slot being edited, kept across rebuilds (Runs from,
+## Unlock and Revert all rebuild the screen). Cleared when a slot is loaded.
+var draft_name = null
 
 var mode: int = Mode.FORMATION
 var slot: int = 0
@@ -73,6 +76,7 @@ func _ready() -> void:
 # ------------------------------------------------------------- working copy
 func _load_slot(i: int) -> void:
 	slot = i
+	draft_name = null
 	dragging = -1
 	drawing = -1
 	raw = PackedVector2Array()
@@ -190,7 +194,8 @@ func _rebuild() -> void:
 		name_edit.size = Vector2(300, 34)
 		name_edit.max_length = 18
 		name_edit.placeholder_text = "Name it"
-		name_edit.text = _current_name()
+		name_edit.text = draft_name if draft_name != null else _current_name()
+		name_edit.text_changed.connect(func(t: String): draft_name = t)
 		ui.add_child(name_edit)
 
 		ui.add_child(UiKit.button("Save", Vector2(BOARD.position.x, 486),

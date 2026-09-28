@@ -172,7 +172,7 @@ func _draw() -> void:
 	else:
 		UiKit.text(self, font, "Difficulty", Vector2(LEFT_X + 18, gy + 48.0),
 			17, UiKit.DIM)
-		UiKit.text(self, font, "Belongs to a career, not to the game.",
+		UiKit.text(self, font, "Open it from Clubhouse, Your career.",
 			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.EDGE)
 
 	# --------------------------------------------------------------- credits
