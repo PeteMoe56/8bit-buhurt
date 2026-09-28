@@ -50,6 +50,13 @@ func _init() -> void:
 		owned.append(int(id))
 
 
+## The mark a club is wearing when he arrives is his: the Saltire every career
+## starts in costs 1 CC, and a new job inherits whatever the club wore.
+func keep_worn(club: MeleeClub) -> void:
+	if not owned.has(int(club.icon)):
+		owned.append(int(club.icon))
+
+
 func owns(id: int) -> bool:
 	return IconBank.is_free(id) or owned.has(id)
 
@@ -243,7 +250,11 @@ func rename(club: MeleeClub, nm: String, short: String,
 	var bad := identity_legal(nm, short, kit, icon_col)
 	if bad != "":
 		return bad
-	if not owns(mark):
+	## THE MARK ON THE SHIRT ALREADY IS HIS. Every new career starts in the
+	## Saltire, which is a 1 CC mark, and a new job inherits whatever the club
+	## wore — so renaming the club without touching the badge was refused until
+	## he bought the mark he was already wearing. Found by tests/test_flows.gd.
+	if not owns(mark) and mark != club.icon:
 		return "You do not own the %s yet." % IconBank.icon_name(mark)
 	club.display_name = nm.strip_edges()
 	club.short_name = short.strip_edges().to_upper()

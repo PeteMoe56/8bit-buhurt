@@ -500,6 +500,7 @@ static func from_dict(d: Dictionary) -> Season:
 		Grade.STEP_MIN, Grade.STEP_MAX)
 	s.play_index = int(d.get("play_index", -1))
 	s.workshop = Workshop.from_dict(d.get("workshop", {}))
+	s.workshop.keep_worn(s.club)
 	s.booked = _event_from_dict(d.get("booked", {}))
 	_relink_event(s)
 	s.last_show = (d.get("last_show", {}) as Dictionary).duplicate()

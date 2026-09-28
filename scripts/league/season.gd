@@ -147,6 +147,7 @@ func _init(player_club: MeleeClub, seed_v: int = 0,
 		region: int = Cities.Region.US) -> void:
 	seed_value = seed_v
 	club = player_club
+	workshop.keep_worn(club)
 	office.tier = 0
 	world = LeagueWorld.new(seed_v, player_club.power(), region)
 	world.clubs[world.player_club]["name"] = player_club.display_name
@@ -249,6 +250,7 @@ func take_job(club_id: int) -> String:
 	office.sync_morale(club)
 	board = Chalkboard.new()
 	workshop = Workshop.new()
+	workshop.keep_worn(club)
 	booked = null
 	bid_offers.clear()
 	dilemma.clear()
