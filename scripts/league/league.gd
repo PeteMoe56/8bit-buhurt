@@ -40,7 +40,11 @@ enum Tier { BACKYARD, STATE, REGIONAL, NATIONAL }
 ##            division had the cheapest shelf. Measured by `probe_shelf`.
 ##
 ##   "slack"  what a season leaves for the squad after the bills and the dues —
-##            16 / 33 / 37 / 67 credits, measured by `tools/probe_wallet.gd`.
+##            21 / 22 / 42 / 89 credits, measured by `tools/probe_wallet.gd`
+##            on 27 Sep 2026 after the pacing package moved the dues (it was
+##            16 / 33 / 37 / 67, and had already drifted before that). The shelf
+##            tops moved by the same amount the list's 98th percentile moved
+##            when the power bands came down (-3 / -4 / -4 / -2).
 ##            `Market.BAND_SHARE` is a fraction OF this, which is the whole point:
 ##            **a cost that is not derived from the thing it is a cost of will
 ##            eventually exceed it, or stop mattering.** A flat 18-credit Star
@@ -80,8 +84,8 @@ const TIERS := [
 		"up": 2,
 		"down": 0,        ## the floor of the pyramid; nowhere to fall
 		"power": [30, 46],
-		"shelf": [26, 52],
-		"slack": 16,
+		"shelf": [26, 49],
+		"slack": 21,
 		"blurb": "Six clubs, a field and a rail. Win it and somebody notices.",
 	},
 	{
@@ -91,9 +95,9 @@ const TIERS := [
 		"clubs": 8,
 		"up": 2,
 		"down": 2,        ## two, to match the two the Backyard Circuit sends up
-		"power": [40, 58],
-		"shelf": [33, 64],
-		"slack": 33,
+		"power": [40, 54],
+		"shelf": [33, 60],
+		"slack": 22,
 		"blurb": "Proper marshals, proper armor inspection, and clubs that travel.",
 	},
 	{
@@ -103,9 +107,9 @@ const TIERS := [
 		"clubs": 12,
 		"up": 2,
 		"down": 2,
-		"power": [52, 70],
-		"shelf": [39, 76],
-		"slack": 37,
+		"power": [52, 66],
+		"shelf": [39, 72],
+		"slack": 42,
 		"blurb": "The grind. Twelve clubs, eleven events, no easy weekends.",
 	},
 	{
@@ -115,12 +119,12 @@ const TIERS := [
 		"clubs": 16,
 		"up": 2,          ## not promoted — these are the Worlds berths
 		"down": 2,
-		"power": [64, 86],
+		"power": [64, 80],
 		## THE TOP OF THE PYRAMID, AND THE TOP OF ITS SHELF IS THE DIVISION'S OWN
 		## CEILING. There is nothing above National, so anything over 86 on this
 		## shelf is the foreign man — see `Market.FOREIGN_CHANCE`.
-		"shelf": [52, 86],
-		"slack": 67,
+		"shelf": [51, 84],
+		"slack": 89,
 		"blurb": "The top flight. Finish top two and the federation sends you to Worlds.",
 	},
 ]
@@ -166,7 +170,9 @@ static func tier_name(t: int) -> String:
 ## Priced against what `tools/probe_run.gd` measured a division earning, at
 ## roughly a fifth of it: a bite that is felt every year and is not, on its own,
 ## the thing that ends a club.
-const DUES := [6, 14, 24, 38]
+## [6, 14, 24, 38] until 27 Sep 2026 — the pacing package. The State-to-Regional
+## squeeze was the second wall after the age one.
+const DUES := [4, 9, 16, 26]
 
 
 static func dues_for(t: int) -> int:

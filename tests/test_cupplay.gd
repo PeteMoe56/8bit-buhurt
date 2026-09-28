@@ -224,16 +224,26 @@ func _test_your_own_show_waits_for_you_too() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 77)
 	s.office.credits = 60
 	s.take_bid(1, 1)
+	## THE SHOW, NOT WHICHEVER CUP IS FIRST. A club good enough to be invited to
+	## an Invitational has that tie pending too, and this used to take the first
+	## pending cup to be its own show.
 	var guard := 0
-	while s.booked != null and not s.cup_pending() and guard < 6:
+	var c: Cup = null
+	while s.booked != null and guard < 12:
 		guard += 1
-		s.skip_event()
-	var waiting := s.cup_pending()
-	var c := s.pending_cup()
+		var p := s.pending_cup()
+		if p != null and s.booked.cup == p:
+			c = p
+			break
+		if p != null:
+			s.sim_cup_tie()
+		else:
+			s.skip_event()
+	var waiting := c != null and s.cup_pending()
 	var credits_before := s.office.credits
 	## Fight it out.
 	var g2 := 0
-	while s.cup_pending() and g2 < 10:
+	while s.booked != null and s.cup_pending() and g2 < 12:
 		g2 += 1
 		s.sim_cup_tie()
 	_ok(waiting and c != null and s.booked == null and not s.last_show.is_empty(),

@@ -650,6 +650,10 @@ static func fighter_to_dict(f: FighterCard) -> Dictionary:
 		## on the roster — which would quietly CURE the toxic fighter you have
 		## been managing round him all season, the moment the player reloaded.
 		"morale": f.morale,
+		## The weapon, and two fields the save had been dropping: the club he
+		## holds a grudge against (a trait fact about his career) and his career
+		## assists. All soft keys.
+		"weapon": f.weapon, "grudge": f.grudge_club, "assists": f.assists,
 	}
 
 
@@ -694,4 +698,7 @@ static func fighter_from_dict(d: Dictionary) -> FighterCard:
 	f.knocks = int(d.get("knocks", 0))
 	f.honors = int(d.get("honors", 0))
 	f.morale = float(d["morale"])
+	f.weapon = int(d.get("weapon", Tuning.Weapon.SWORD_SHIELD))
+	f.grudge_club = int(d.get("grudge", -1))
+	f.assists = int(d.get("assists", 0))
 	return f

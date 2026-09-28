@@ -55,10 +55,13 @@ func _shelf() -> void:
 		var carriable := 0
 		var seen := 0
 		var bands: Dictionary = {}
+		var all: Array = []
 		for season in range(1, SEASONS + 1):
 			var pool: Array = Market.pool(4242, season, t)
 			if pool.is_empty():
 				continue
+			for f in pool:
+				all.append(f.overall())
 			best += float(pool[0].overall())
 			worst += float(pool[pool.size() - 1].overall())
 			ceil_ += float(pool[0].potential)
@@ -70,6 +73,14 @@ func _shelf() -> void:
 				if _can_carry(f, t):
 					carriable += 1
 		var n := float(SEASONS)
+		## THE SPAN, which is what League.TIERS[t]["shelf"] records: the 2nd and
+		## 98th percentile of every man the list showed, so one freak does not
+		## set the scale.
+		all.sort()
+		if not all.is_empty():
+			print("   span  min %d  p2 %d  p98 %d  max %d   (shelf now %s)" % [all[0],
+				all[int(all.size() * 0.02)], all[int(all.size() * 0.98)], all[-1],
+				str(League.TIERS[t]["shelf"])])
 		print("%-19s %6.1f %6.1f %6.1f %6.0f%% %6.0f%% %6.0f%% %7.0f%%" % [
 			League.tier_name(t), best / n, worst / n, ceil_ / n,
 			100.0 * float(origin[0]) / float(maxi(1, seen)),

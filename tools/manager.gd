@@ -207,6 +207,15 @@ func season(s: Season) -> void:
 			o.repair_kit(f)
 		if o.arena.shabby() and o.credits > o.arena.upkeep_cost() * 3:
 			o.tidy_arena()
+		## THE PAPERWORK, BEFORE ANYTHING DISCRETIONARY. The federation screen
+		## says BARRED on the clubhouse button; an average player answers it. The
+		## manager never did, so every pacing number up to 27 Sep 2026 was a club
+		## locked out of every cup and every Worlds for its whole career.
+		if not o.compliant():
+			for r in Federation.rules():
+				if o.rule_level(r) < Federation.required(o.tier, r):
+					o.raise_rule(r)
+					break
 		var keep := o.upkeep_bill() + League.dues_for(o.tier) + KITTY
 		if o.credits > keep + o.arena.next_cost():
 			o.build_arena()

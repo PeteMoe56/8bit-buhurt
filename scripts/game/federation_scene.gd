@@ -45,13 +45,13 @@ func _build() -> void:
 		var cost := o.rule_cost(r)
 		if cost <= 0:
 			continue
-		ui.add_child(UiKit.button("%d CC" % cost,
+		ui.add_child(UiKit.button(UiKit.t("%d CC") % cost,
 			Vector2(L_X + COL_W - 104.0, _row_y(i) + 8.0), Vector2(92, 34), func(rule = r):
 				flash = UiKit.said(o.raise_rule(rule))
 				season.sync_power()
 				Session.autosave()
 				_build()))
-	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
 	queue_redraw()
@@ -63,7 +63,7 @@ func _draw() -> void:
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
 	var o := season.office
-	UiKit.text(self, font, "TWO MASTERS", Vector2(24, 46), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("TWO MASTERS"), Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, o.credits, Vector2(UiKit.screen().x - 24, 46),
 		18, UiKit.YOU, 200)
 	_federation(o)
@@ -74,13 +74,13 @@ func _draw() -> void:
 
 func _federation(o: ClubOffice) -> void:
 	UiKit.panel(self, Rect2(L_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "THE FEDERATION", Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THE FEDERATION"), Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	## NAMED OFF `o.tier`, which is the number `Federation.required()` is keyed
 	## on — not off `season.tier_name()`, which reads the world. The two are kept
 	## equal by `sync_power()` and a screen that reads the other one is a screen
 	## that will one day print "Backyard Circuit rules" over a Regional
 	## requirement and be believed.
-	UiKit.right(self, font, "%s rules" % League.tier_name(o.tier),
+	UiKit.right(self, font, UiKit.t("%s rules") % League.tier_name(o.tier),
 		Vector2(L_X + COL_W - 16, COL_Y + 26), 11, UiKit.EDGE.lightened(0.5), 240)
 
 	var rules := Federation.rules()
@@ -101,30 +101,30 @@ func _federation(o: ClubOffice) -> void:
 			var w := COL_W - 140.0
 			var tick := L_X + 16.0 + w * (float(want) / float(Federation.MAX_LEVEL))
 			draw_rect(Rect2(tick - 1.0, y + 15.0, 2.0, 20.0), UiKit.INK)
-		UiKit.text(self, font, "%d of %d needed" % [have, want], Vector2(L_X + 16, y + 50),
+		UiKit.text(self, font, UiKit.t("%d of %d needed") % [have, want], Vector2(L_X + 16, y + 50),
 			11, UiKit.DOWN if short else UiKit.EDGE.lightened(0.5))
 
 	var y2 := COL_Y + COL_H - 46.0
 	var shorts := o.shortfalls()
 	if shorts.is_empty():
-		UiKit.text(self, font, "In good standing. You may be entered for the cups.",
+		UiKit.text(self, font, UiKit.t("In good standing. You may be entered for the cups."),
 			Vector2(L_X + 16, y2), 12, UiKit.UP)
 	else:
-		UiKit.text(self, font, "NOT ENTERED FOR THE CUPS", Vector2(L_X + 16, y2), 13, UiKit.DOWN)
-		UiKit.text(self, font, UiKit.clip("Short on: " + ", ".join(shorts), 52),
+		UiKit.text(self, font, UiKit.t("NOT ENTERED FOR THE CUPS"), Vector2(L_X + 16, y2), 13, UiKit.DOWN)
+		UiKit.text(self, font, UiKit.clip(UiKit.t("Short on: ") + ", ".join(shorts), 52),
 			Vector2(L_X + 16, y2 + 18.0), 11, UiKit.DOWN)
-	UiKit.right(self, font, "%d CC a year to hold" % o.federation_upkeep(),
+	UiKit.right(self, font, UiKit.t("%d CC a year to hold") % o.federation_upkeep(),
 		Vector2(L_X + COL_W - 16, y2), 12, UiKit.DIM, 220)
 
 
 func _members(o: ClubOffice) -> void:
 	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "THE MEMBERS", Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THE MEMBERS"), Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	UiKit.text(self, font, Federation.following_word(o.fans, o.fan_cap()),
 		Vector2(R_X + 16, COL_Y + 64), 22, UiKit.YOU)
 	UiKit.meter(self, Rect2(R_X + 16, COL_Y + 78, COL_W - 32, 16),
 		int(round(o.fans)), int(round(o.fan_cap())), UiKit.YOU)
-	UiKit.right(self, font, "%d following" % int(round(o.fans)),
+	UiKit.right(self, font, UiKit.t("%d following") % int(round(o.fans)),
 		Vector2(R_X + COL_W - 16, COL_Y + 114), 12, UiKit.DIM, 160)
 
 	var y := COL_Y + 148.0
@@ -134,8 +134,8 @@ func _members(o: ClubOffice) -> void:
 	_line("League dues a year", "-%d CC" % o.dues(), y); y += 26.0
 	_line("Paperwork upkeep", "-%d CC" % o.federation_upkeep(), y); y += 26.0
 	var net := -(o.dues() + o.federation_upkeep())
-	UiKit.text(self, font, "The federation costs", Vector2(R_X + 16, y), 13, UiKit.DIM)
-	UiKit.right(self, font, "%s%d CC" % ["+" if net >= 0 else "", net],
+	UiKit.text(self, font, UiKit.t("The federation costs"), Vector2(R_X + 16, y), 13, UiKit.DIM)
+	UiKit.right(self, font, UiKit.t("%s%d CC") % ["+" if net >= 0 else "", net],
 		Vector2(R_X + COL_W - 16, y), 14, UiKit.UP if net >= 0 else UiKit.DOWN, 180)
 	y += 40.0
 
@@ -144,9 +144,9 @@ func _members(o: ClubOffice) -> void:
 	## Two pixels over the panel's right edge at the old three-pixel slop, so it
 	## passed; at one pixel it does not, and two pixels of a dim line hanging off
 	## a frame is still a line hanging off a frame.
-	UiKit.text(self, font, "They stay for a good room, a full bus, a good year.",
+	UiKit.text(self, font, UiKit.t("They stay for a good room, a full bus, a good year."),
 		Vector2(R_X + 16, y), 12, UiKit.EDGE.lightened(0.5))
-	UiKit.text(self, font, "They do not care about your paperwork.",
+	UiKit.text(self, font, UiKit.t("They do not care about your paperwork."),
 		Vector2(R_X + 16, y + 18.0), 12, UiKit.EDGE.lightened(0.5))
 
 	var bench_full: bool = season.club.active_eight().size() >= o.travel_slots

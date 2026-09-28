@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_test_a_sub_brings_his_own_afternoon()
 	_test_a_sub_before_the_charge_is_allowed()
 	_test_taking_back_an_order_takes_back_its_question()
+	_test_two_weapons()
 
 	print("")
 	for n in notes:
@@ -160,3 +161,34 @@ func _test_taking_back_an_order_takes_back_its_question() -> void:
 	s.cancel_order(0)
 	_ok(m.prompt == null and m.target == -1, "taking back an order closes its question",
 		"prompt %s, target %d" % ["open" if m.prompt != null else "closed", m.target])
+
+
+## SWORD-AND-SHIELD AND POLEARM: the two classes, what each does, and that the
+## weapon is part of the man (saved, copied, generated without moving the stream).
+func _test_two_weapons() -> void:
+	var s := _sim(5)
+	var m := s.men[0]
+	m.card.weapon = Tuning.Weapon.SWORD_SHIELD
+	var sword_reach := m.contact_range()
+	var sword_td := m.tmod("td_for", 0.0)
+	m.card.weapon = Tuning.Weapon.POLEARM
+	_ok(m.contact_range() > sword_reach and m.tmod("td_for", 0.0) > sword_td
+		and m.tmod("br_against", 1.0) < 1.0,
+		"a polearm reaches further and hooks better, and has no shield to brace",
+		"reach %.1f vs %.1f, takedown %+.2f vs %+.2f" % [m.contact_range(), sword_reach,
+			m.tmod("td_for", 0.0), sword_td])
+	var f := FighterCard.new()
+	f.weapon = Tuning.Weapon.POLEARM
+	f.grudge_club = 7
+	f.morale = 0.7
+	var back := SaveGame.fighter_from_dict(SaveGame.fighter_to_dict(f))
+	_ok(back.weapon == Tuning.Weapon.POLEARM and back.grudge_club == 7 and f.copy().weapon == f.weapon,
+		"the weapon (and his grudge) survive a save and a copy",
+		"weapon %d, grudge %d" % [back.weapon, back.grudge_club])
+	var club := MeleeRosters.starting_club()
+	var poles := 0
+	for c in club.roster:
+		if c.weapon == Tuning.Weapon.POLEARM:
+			poles += 1
+	_ok(poles > 0 and poles < club.roster.size(), "a generated club carries both",
+		"%d of %d carry a pole" % [poles, club.roster.size()])

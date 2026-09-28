@@ -52,15 +52,15 @@ func _build() -> void:
 		if SaveGame.has_save(i):
 			has_any = true
 	var y := 300.0
-	ui.add_child(UiKit.button("Play", Vector2(center() - 130, y),
+	ui.add_child(UiKit.button(UiKit.t("Play"), Vector2(center() - 130, y),
 		Vector2(260, 54), _play))
-	ui.add_child(UiKit.button("Settings", Vector2(center() - 130, y + 66),
+	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(center() - 130, y + 66),
 		Vector2(260, 46), _settings))
 	## QUIT IS NOT OFFERED ON A PHONE. Mobile platforms have their own way out
 	## and a Quit button in a mobile game reads as a bug; on desktop its absence
 	## reads as one.
 	if not OS.has_feature("mobile"):
-		ui.add_child(UiKit.button("Quit", Vector2(center() - 130, y + 124),
+		ui.add_child(UiKit.button(UiKit.t("Quit"), Vector2(center() - 130, y + 124),
 			Vector2(260, 40), func(): get_tree().quit()))
 	queue_redraw()
 
@@ -127,9 +127,9 @@ func _draw() -> void:
 		tag_y = 16.0 + float(logo.get_height()) + 26.0
 	else:
 		## No art, no invented layout: the wordmark it always drew.
-		UiKit.text(self, font, "8-BIT", Vector2(center() - 236, 176), 62, UiKit.INK)
-		UiKit.text(self, font, "BUHURT", Vector2(center() - 8, 176), 62, UiKit.YOU)
-	UiKit.text(self, font, "Run a club.  Take the list.  Climb.",
+		UiKit.text(self, font, UiKit.t("8-BIT"), Vector2(center() - 236, 176), 62, UiKit.INK)
+		UiKit.text(self, font, UiKit.t("BUHURT"), Vector2(center() - 8, 176), 62, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("Run a club.  Take the list.  Climb."),
 		Vector2(center() - 134, tag_y), 16, UiKit.DIM)
 
 	## THE TWO DRIFTING BADGES ARE GONE. They were the game's heraldry on a screen
@@ -139,12 +139,12 @@ func _draw() -> void:
 	## actually sits still and looks at something.
 
 	if t < quit_armed_until:
-		UiKit.mid(self, font, "Press back again to quit",
+		UiKit.mid(self, font, UiKit.t("Press back again to quit"),
 			Vector2(0.0, UiKit.screen().y - 60), 14, UiKit.YOU, UiKit.screen().x)
-	UiKit.text(self, font, "BonkWorks", Vector2(24, UiKit.screen().y - 24), 13,
+	UiKit.text(self, font, UiKit.t("BonkWorks"), Vector2(24, UiKit.screen().y - 24), 13,
 		UiKit.EDGE.lightened(0.4))
 	## The credit the licence asks for, on the screen the music is playing on.
 	## The full list is in Settings; this is the one that is a condition.
-	UiKit.right(self, font, "Music: HeatleyBros — heatleybros.com",
+	UiKit.right(self, font, UiKit.t("Music: HeatleyBros — heatleybros.com"),
 		Vector2(UiKit.screen().x - 24, UiKit.screen().y - 24), 13,
 		UiKit.EDGE.lightened(0.4), 420)

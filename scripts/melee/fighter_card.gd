@@ -46,6 +46,8 @@ extends Resource
 ## list would break the day one is added. The enum is append-only for the same
 ## reason — see the header of `fighter_trait.gd`.
 @export var trait_id: int = 0
+## `Tuning.Weapon`. Sword-and-shield unless he carries a pole.
+@export var weapon: int = 0
 
 ## HIS OWN CURVE. Pete, 15 Sep 2026: *"make sure these guys have varying peaks
 ## on them. We don't want/need every fighter to have the exactly same stats."*
@@ -364,6 +366,7 @@ func copy() -> FighterCard:
 	c.armor = armor
 	c.harness = harness
 	c.trait_id = trait_id
+	c.weapon = weapon
 	c.peak_seed = peak_seed
 	c.level = level
 	c.active = active

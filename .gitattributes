@@ -1,0 +1,26 @@
+# Line endings are decided here, not by whichever machine did the checkout.
+# Everything text in this project is LF (Godot writes LF; the suite and the
+# tools run under bash) except the PowerShell helpers, which Windows wants CRLF.
+*.gd      text eol=lf
+*.tscn    text eol=lf
+*.tres    text eol=lf
+*.godot   text eol=lf
+*.cfg     text eol=lf
+*.import  text eol=lf
+*.uid     text eol=lf
+*.sh      text eol=lf
+*.py      text eol=lf
+*.csv     text eol=lf
+*.md      text eol=lf
+*.ps1     text eol=crlf
+
+# Binaries: never diffed, never converted.
+*.png  binary
+*.ogg  binary
+*.mp3  binary
+*.wav  binary
+*.ttf  binary
+*.otf  binary
+*.pdf  binary
+*.zip  binary
+*.dat  binary

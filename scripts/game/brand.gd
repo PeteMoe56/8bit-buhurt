@@ -86,29 +86,6 @@ static func draw_logo(ci: CanvasItem, path: String, at: Vector2,
 	return true
 
 
-## THE SAME MARK, CENTERD IN A BOX. For a header that is centerd on a canvas
-## whose width is not known until it is drawn.
-static func draw_logo_mid(ci: CanvasItem, path: String, box: Rect2,
-		modulate := Color.WHITE) -> bool:
-	var t := tex(path)
-	if t == null:
-		return false
-	var s := Vector2(t.get_width(), t.get_height())
-	ci.draw_texture(t, (box.position + (box.size - s) * 0.5).floor(), modulate)
-	return true
-
-
-## THE FADED GROUND, bottom-right, bled off both edges.
-##
-## BOTTOM-RIGHT AND NOT CENTERD, because the screens this sits behind all read
-## left-to-right from the top: the season table, the roster, the market list and
-## the clubhouse all put their densest type in the top-left quadrant and their
-## action row across the foot. The one region of a 960x540 frame that is
-## reliably quiet is the right-hand side above the buttons.
-##
-## BLED OFF THE EDGE on purpose as well. A watermark with air around it is a
-## picture somebody placed; a watermark running off the corner is a texture the
-## screen is printed on, and only one of those survives being 5% opaque.
 static func draw_wash(ci: CanvasItem, screen: Vector2, strength := WASH) -> void:
 	var t := tex(WATERMARK)
 	if t == null:

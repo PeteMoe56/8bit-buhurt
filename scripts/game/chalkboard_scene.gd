@@ -136,17 +136,17 @@ func _rebuild() -> void:
 	## padding pushed FORMATIONS past its own box and Godot grew the control to
 	## suit, straight through PLAYS beside it. A button narrower than its label
 	## is now a test failure rather than a silent overlap.
-	ui.add_child(UiKit.button("FORMATIONS", Vector2(LEFT_X, 72), Vector2(152, 34), func():
+	ui.add_child(UiKit.button(UiKit.t("FORMATIONS"), Vector2(LEFT_X, 72), Vector2(152, 34), func():
 		mode = Mode.FORMATION
 		flash = ""
 		_load_slot(0)
 		_rebuild()))
-	ui.add_child(UiKit.button("PLAYS", Vector2(LEFT_X + 158, 72), Vector2(100, 34), func():
+	ui.add_child(UiKit.button(UiKit.t("PLAYS"), Vector2(LEFT_X + 158, 72), Vector2(100, 34), func():
 		mode = Mode.PLAY
 		flash = ""
 		_load_slot(0)
 		_rebuild()))
-	ui.add_child(UiKit.button("Back", Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
 		Session.autosave()
 		UiKit.back("res://scenes/Season.tscn")))
 
@@ -185,7 +185,7 @@ func _rebuild() -> void:
 			## Only the NEXT slot is for sale. Four buy buttons in a column
 			## would read as four separate things to want.
 			var cost := board.slot_cost(owned)
-			ui.add_child(UiKit.button("Unlock — %d CC" % cost,
+			ui.add_child(UiKit.button(UiKit.t("Unlock — %d CC") % cost,
 				Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), _unlock))
 
 	if slot < owned:
@@ -198,15 +198,15 @@ func _rebuild() -> void:
 		name_edit.text_changed.connect(func(t: String): draft_name = t)
 		ui.add_child(name_edit)
 
-		ui.add_child(UiKit.button("Save", Vector2(BOARD.position.x, 486),
+		ui.add_child(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
 			Vector2(150, 42), _save))
-		ui.add_child(UiKit.button("Revert", Vector2(BOARD.position.x + 158, 486),
+		ui.add_child(UiKit.button(UiKit.t("Revert"), Vector2(BOARD.position.x + 158, 486),
 			Vector2(130, 42), func():
 				_load_slot(slot)
 				flash = ""
 				_rebuild()))
 		if slot < _drawn():
-			ui.add_child(UiKit.button("Delete", Vector2(BOARD.position.x + 296, 486),
+			ui.add_child(UiKit.button(UiKit.t("Delete"), Vector2(BOARD.position.x + 296, 486),
 				Vector2(130, 42), _delete))
 		if mode == Mode.PLAY:
 			ui.add_child(UiKit.button(_bind_label(), Vector2(BOARD.position.x + 434, 486),
@@ -241,7 +241,7 @@ func _cycle_binding() -> void:
 func _unlock() -> void:
 	var err := board.unlock_formation(season.office) if mode == Mode.FORMATION \
 		else board.unlock_play(season.office)
-	flash = UiKit.said(err) if err != "" else "Slot unlocked."
+	flash = UiKit.said(err) if err != "" else UiKit.t("Slot unlocked.")
 	if err == "":
 		Session.autosave()
 		_load_slot(_slots_owned() - 1)
@@ -260,7 +260,7 @@ func _save() -> void:
 		_rebuild()
 		return
 	Session.autosave()
-	flash = "Saved."
+	flash = UiKit.t("Saved.")
 	_rebuild()
 
 
@@ -290,7 +290,7 @@ func _delete() -> void:
 		if season.play_index >= board.plays.size():
 			season.play_index = -1
 	Session.autosave()
-	flash = "Deleted."
+	flash = UiKit.t("Deleted.")
 	_load_slot(mini(slot, maxi(0, _slots_owned() - 1)))
 	_rebuild()
 
@@ -400,7 +400,7 @@ func _release(_p: Vector2) -> void:
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	UiKit.ground(self)
-	UiKit.text(self, font, "PLAYBOOK", Vector2(LEFT_X, 40), 22, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("PLAYBOOK"), Vector2(LEFT_X, 40), 22, UiKit.YOU)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(LEFT_X, 122), 14, UiKit.DIM)
 	_draw_slots()
@@ -417,7 +417,7 @@ func _draw_slots() -> void:
 		if i >= owned:
 			UiKit.panel(self, r, false)
 			if i > owned:
-				UiKit.text(self, font, "Locked", Vector2(LEFT_X + 12, y + 26), 14, UiKit.EDGE)
+				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 12, y + 26), 14, UiKit.EDGE)
 			continue
 		UiKit.panel(self, r, i == slot)
 		var nm := ""
@@ -448,11 +448,11 @@ func _draw_board() -> void:
 	draw_line(Vector2(lx, f.position.y), Vector2(lx, f.end.y),
 		Color(Tuning.COL_MARSHAL, 0.55), 2.0)
 	UiKit.text(self, font, "15%", Vector2(lx + 6, f.position.y + 16), 12, Tuning.COL_MARSHAL)
-	UiKit.right(self, font, "toward them →",
+	UiKit.right(self, font, UiKit.t("toward them →"),
 		Vector2(f.end.x - 8, f.end.y - 10), 12, UiKit.DIM, 160.0)
 
 	if slot >= _slots_owned():
-		UiKit.text(self, font, "Unlock a slot to start drawing.",
+		UiKit.text(self, font, UiKit.t("Unlock a slot to start drawing."),
 			f.position + Vector2(16, 40), 16, UiKit.DIM)
 		return
 

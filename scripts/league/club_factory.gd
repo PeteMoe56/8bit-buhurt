@@ -59,7 +59,8 @@ const RESERVE_DROP: int = 16
 
 ## `power` is the club rating the league carries. The club that comes back rates
 ## within a point or two of it — see `_tune_to`.
-static func build(club_id: int, display_name: String, short_name: String, power: int) -> MeleeClub:
+static func build(club_id: int, display_name: String, short_name: String, power: int,
+		young: bool = false) -> MeleeClub:
 	var rng := RandomNumberGenerator.new()
 	## Derived from the id alone, so this is stable across sessions and needs no
 	## save data of its own.
@@ -68,13 +69,13 @@ static func build(club_id: int, display_name: String, short_name: String, power:
 	var cards: Array[FighterCard] = []
 	var no := 1
 	for slot in LINE_SLOTS:
-		cards.append(_fighter(rng, no, int(slot), power, 1.0))
+		cards.append(_fighter(rng, no, int(slot), power, 1.0, 0, young))
 		no += 1
 	for slot in BACKUP_SLOTS:
-		cards.append(_fighter(rng, no, int(slot), power - BACKUP_DROP, 0.94))
+		cards.append(_fighter(rng, no, int(slot), power - BACKUP_DROP, 0.94, 0, young))
 		no += 1
 	for slot in RESERVE_SLOTS:
-		var f := _fighter(rng, no, int(slot), power - RESERVE_DROP, rng.randf_range(0.62, 0.86))
+		var f := _fighter(rng, no, int(slot), power - RESERVE_DROP, rng.randf_range(0.62, 0.86), 0, young)
 		f.active = false
 		## The reserve is where the young men are. Re-rolled rather than clamped
 		## so the ceiling is re-drawn against the younger age — clamping the age
@@ -90,6 +91,17 @@ static func build(club_id: int, display_name: String, short_name: String, power:
 		_field(rng), _icon_color(rng), _icon(rng), cards)
 	_tune_to(club, power)
 	return club
+
+
+## ------------------------------------------------------------- his weapon
+## DERIVED FROM WHO HE IS, NOT DRAWN FROM THE STREAM. A draw here would shift
+## every number generated after it and re-roll every club in the world; a hash of
+## his name, number and slot gives the same man the same weapon every time and
+## leaves the generation stream exactly as it was.
+static func weapon_for(name_: String, no: int, slot: int) -> int:
+	var share: int = int(Tuning.POLEARM_SHARE.get(Tuning.role_of(slot), 0))
+	return Tuning.Weapon.POLEARM if absi(hash("weapon:%s:%d:%d" % [name_, no, slot])) % 100 < share \
+		else Tuning.Weapon.SWORD_SHIELD
 
 
 ## ----------------------------------------------------------------- his age
@@ -116,9 +128,19 @@ static func build(club_id: int, display_name: String, short_name: String, power:
 ## are still possible, just no longer as likely as a man in his prime. The mean
 ## lands near twenty-nine, which is a year past peak strength and three short of
 ## peak base — which is what a squad of grown men who fight in armor looks like.
-static func roll_age(rng: RandomNumberGenerator) -> int:
+##
+## THE PIPELINE (16 Sep 2026 measurement, applied 27 Sep). With every free agent
+## and the inherited squad centred on 29, a career aged into a wall by season
+## eight — there was no youth anywhere in the game. `young` draws the YOUNGER of
+## the two instead of their mean: mean ~26, same range, same two draws (so the
+## RNG stream is identical). Used for the free-agent shelf and the club you start
+## with; the rest of the world keeps the triangle, which is cosmetic today since
+## `_tune_to` walks every CPU club to its power whatever its ages.
+static func roll_age(rng: RandomNumberGenerator, young: bool = false) -> int:
 	var a := rng.randi_range(Career.AGE_MIN, Career.AGE_MAX)
 	var b := rng.randi_range(Career.AGE_MIN, Career.AGE_MAX)
+	if young:
+		return mini(a, b)
 	return int(round(float(a + b) * 0.5))
 
 
@@ -127,12 +149,13 @@ static func roll_age(rng: RandomNumberGenerator) -> int:
 ## every existing caller behaves exactly as it did: a man drawn AT the standard
 ## gets nothing extra, which is what "no standard given" has always meant.
 static func _fighter(rng: RandomNumberGenerator, no: int, slot: int,
-		target: int, armor: float, standard: int = 0) -> FighterCard:
+		target: int, armor: float, standard: int = 0, young: bool = false) -> FighterCard:
 	var a: Dictionary = ARCHETYPE[Tuning.role_of(slot)]
 	var f := FighterCard.new()
 	f.display_name = SURNAMES[rng.randi() % SURNAMES.size()]
 	f.number = no
 	f.pos = slot
+	f.weapon = weapon_for(f.display_name, no, slot)
 	## Strength and base stay in the same band on purpose. The takedown formula
 	## reads `attacker.strength - defender.base`, so a generator that wrote base
 	## consistently above strength would make that term negative for nearly every
@@ -156,7 +179,7 @@ static func _fighter(rng: RandomNumberGenerator, no: int, slot: int,
 	## reserve full of thirty-five-year-olds is not a reserve, it is a retirement
 	## home. `roll_potential` then reads the age it was given, so a young man in
 	## the reserve comes out with room in front of him for free.
-	f.age = roll_age(rng)
+	f.age = roll_age(rng, young)
 	f.potential = Career.roll_potential(rng, f, standard)
 	f.morale = roll_morale(rng)
 	## AND WHATEVER IS UNUSUAL ABOUT HIM, which for about half of them is nothing.
@@ -226,7 +249,7 @@ static func walk_on(rng: RandomNumberGenerator, slot: int, tier: int) -> Fighter
 ## where he is being signed.
 static func free_agent(rng: RandomNumberGenerator, slot: int, target: int,
 		standard: int = 0) -> FighterCard:
-	var f := _fighter(rng, 0, slot, target, rng.randf_range(0.70, 1.0), standard)
+	var f := _fighter(rng, 0, slot, target, rng.randf_range(0.70, 1.0), standard, true)
 	f.active = false
 	f.years = 0
 	f.wage_agreed = 0

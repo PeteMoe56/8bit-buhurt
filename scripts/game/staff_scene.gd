@@ -76,17 +76,17 @@ func _build() -> void:
 			## because a captain you cannot re-sign is a captain you are only ever
 			## losing.
 			var half := (CARD_W - 6.0) / 2.0
-			ui.add_child(UiKit.button("+1yr · %d" % ClubOffice.CAPTAIN_EXTEND,
+			ui.add_child(UiKit.button(UiKit.t("+1yr · %d") % ClubOffice.extend_cost(season.office.captains[i]),
 				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(half, 34), _extend.bind(i)))
-			ui.add_child(UiKit.button("Release", Vector2(x + half + 6.0, CUR_Y + CARD_H + 50.0),
+			ui.add_child(UiKit.button(UiKit.t("Release"), Vector2(x + half + 6.0, CUR_Y + CARD_H + 50.0),
 				Vector2(half, 34), _release.bind(i)))
 		else:
-			ui.add_child(UiKit.button("Hire  ·  %d CC" % ClubOffice.cost_of(_offer(i)),
+			ui.add_child(UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
 				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 36), _hire.bind(i)))
 			## PUT THE WORD OUT AGAIN. The list is deterministic from the season so
 			## it does not reshuffle while you read it — which also means a bad crop
 			## is a bad crop for a year unless you pay to turn it over.
-			ui.add_child(UiKit.button("New names  ·  %d CC" % ClubOffice.REFRESH_COST,
+			ui.add_child(UiKit.button(UiKit.t("New names  ·  %d CC") % ClubOffice.REFRESH_COST,
 				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(CARD_W, 34), _refresh))
 	## AN EXTRA SESSION, AND IT BELONGS ON THIS SCREEN AND NOT THE CLUBHOUSE.
 	##
@@ -104,16 +104,16 @@ func _build() -> void:
 	## discover by accident.
 	var cost := season.office.session_cost()
 	var idle: bool = season.office.captains.is_empty()
-	ui.add_child(UiKit.button("Extra session  ·  %d CC" % cost,
+	ui.add_child(UiKit.button(UiKit.t("Extra session  ·  %d CC") % cost,
 		Vector2(UiKit.right_edge(280.0), UiKit.screen().y - 56), Vector2(280, 44),
 		func():
 			flash = UiKit.said(season.run_session()) if not idle \
 				else "Nobody is teaching. A session with no captain is a warm-up."
 			if flash == "":
-				flash = "A week's work in one afternoon."
+				flash = UiKit.t("A week's work in one afternoon.")
 			Session.autosave()
 			_build()))
-	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
 	queue_redraw()
@@ -145,7 +145,7 @@ func _refresh() -> void:
 
 func _release(i: int) -> void:
 	if not UiKit.confirm("captain:%d" % i):
-		flash = "Tap Release again to let him go."
+		flash = UiKit.t("Tap Release again to let him go.")
 		_build()
 		return
 	season.office.release(i)
@@ -160,10 +160,10 @@ func _draw() -> void:
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
 	var o := season.office
-	UiKit.text(self, font, "THE STAFF", Vector2(24, 46), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("THE STAFF"), Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, o.credits, Vector2(UiKit.screen().x - 24, 46),
 		18, UiKit.YOU, 200)
-	UiKit.text(self, font, "YOUR CAPTAINS", Vector2(24, 78), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("YOUR CAPTAINS"), Vector2(24, 78), 12, UiKit.DIM)
 
 	for i in ClubOffice.MAX_CAPTAINS:
 		var x := 24.0 + float(i) * (CARD_W + 16.0)
@@ -191,7 +191,7 @@ func _draw() -> void:
 			## one captain teaches at most two of the three jobs, and the third
 			## is a role nobody on your line is being shown how to fight.
 			UiKit.panel(self, r)
-			UiKit.text(self, font, "NO CAPTAIN", r.position + Vector2(14, 34), 13, UiKit.DOWN)
+			UiKit.text(self, font, UiKit.t("NO CAPTAIN"), r.position + Vector2(14, 34), 13, UiKit.DOWN)
 			var off := _offer(i)
 			UiKit.text(self, font, String(off["name"]), r.position + Vector2(14, 66), 17, UiKit.INK)
 			UiKit.text(self, font, _roles_of(off), r.position + Vector2(14, 88), 12, UiKit.DIM)
@@ -226,7 +226,7 @@ func _roles_of(c: Dictionary) -> String:
 func _trait_word() -> void:
 	var o := season.office
 	var y := CUR_Y + CARD_H + 110.0
-	UiKit.text(self, font, "WHAT ELSE THEY BRING", Vector2(OFFER_X, y), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("WHAT ELSE THEY BRING"), Vector2(OFFER_X, y), 12, UiKit.DIM)
 	y += 24.0
 	var said := 0
 	for i in ClubOffice.MAX_CAPTAINS:
@@ -235,13 +235,13 @@ func _trait_word() -> void:
 		if t == ClubOffice.Trait.NONE:
 			continue
 		said += 1
-		UiKit.text(self, font, "%s  ·  %s" % [String(c.get("name", "?")),
+		UiKit.text(self, font, UiKit.t("%s  ·  %s") % [String(c.get("name", "?")),
 			String(ClubOffice.TRAIT_NAME[t])], Vector2(OFFER_X, y), 13, UiKit.UP)
 		UiKit.text(self, font, String(ClubOffice.TRAIT_BLURB[t]),
 			Vector2(OFFER_X, y + 16.0), 11, UiKit.EDGE.lightened(0.5))
 		y += 40.0
 	if said == 0:
-		UiKit.text(self, font, "Neither of them brings anything but the coaching.",
+		UiKit.text(self, font, UiKit.t("Neither of them brings anything but the coaching."),
 			Vector2(OFFER_X, y), 11, UiKit.EDGE.lightened(0.5))
 
 
@@ -256,7 +256,7 @@ func _regime_color(r: int) -> Color:
 ## A decision whose consequences are in a wiki is not a decision.
 func _what_it_costs() -> void:
 	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, CARD_H + 86.0))
-	UiKit.text(self, font, "WHAT A REGIME COSTS", Vector2(OFFER_X + 16, CUR_Y + 26),
+	UiKit.text(self, font, UiKit.t("WHAT A REGIME COSTS"), Vector2(OFFER_X + 16, CUR_Y + 26),
 		12, UiKit.DIM)
 	var cols := ["", "TRAINING", "MORALE", "ARMOR", "KNOCKS"]
 	var xs := [16.0, 140.0, 226.0, 306.0, 386.0]
@@ -282,7 +282,7 @@ func _what_it_costs() -> void:
 	## real face that column ran to x 971 of a 960 frame — and it was the only
 	## cell in the table not written as a multiplier anyway. The row reads ×5 like
 	## every other figure on it; the line under it is where the shouting belongs.
-	UiKit.text(self, font, "Hard is not a bit riskier than Normal. It is FIVE TIMES.",
+	UiKit.text(self, font, UiKit.t("Hard is not a bit riskier than Normal. It is FIVE TIMES."),
 		Vector2(OFFER_X + 16, y + 8), 11, UiKit.EDGE.lightened(0.5))
 
 
@@ -301,15 +301,15 @@ func _coverage() -> void:
 	## the rule it now follows is simple enough to keep: **the left column ends at
 	## 480 and the right begins at 496**, and nothing reaches across.
 	var y := 378.0
-	UiKit.text(self, font, "WHAT IS BEING TAUGHT", Vector2(24, y), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("WHAT IS BEING TAUGHT"), Vector2(24, y), 12, UiKit.DIM)
 	y += 20.0
 	var spec := o.club_specialty()
 	if spec >= 0:
-		UiKit.text(self, font, "Club specialty: %s, training ×%.2f"
+		UiKit.text(self, font, UiKit.t("Club specialty: %s, training ×%.2f")
 			% [Tuning.ROLE_NAME[spec], ClubOffice.SPECIALTY_XP],
 			Vector2(24, y), 12, UiKit.UP)
 	elif o.presence() > 0.0:
-		UiKit.text(self, font, "No specialty — but the room is a happier one.",
+		UiKit.text(self, font, UiKit.t("No specialty — but the room is a happier one."),
 			Vector2(24, y), 12, UiKit.YOU)
 	y += 24.0
 	var roles := [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]

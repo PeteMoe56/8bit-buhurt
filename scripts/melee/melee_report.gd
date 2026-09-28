@@ -85,10 +85,10 @@ static func quips(sim: MeleeSim, season) -> Array:
 		var name := m.card.display_name
 		## A BIG AFTERNOON, and he wants you to know it.
 		if m.downs_caused >= 3:
-			_say(out, spoke, name, "%d down and I never left my feet. Put me back on."
+			_say(out, spoke, name, UiKit.t("%d down and I never left my feet. Put me back on.")
 				% m.downs_caused, 1)
 		elif m.downs_caused >= 2:
-			_say(out, spoke, name, "Two of theirs on the floor. I could go again now.", 1)
+			_say(out, spoke, name, UiKit.t("Two of theirs on the floor. I could go again now."), 1)
 		## EMPTY. He blames the winter, which is the honest read — the tank is a
 		## stat the club did or did not buy him.
 		if m.gassed_at >= 0.0 and m.gassed_at < 45.0:
@@ -265,12 +265,12 @@ static func build(sim: MeleeSim) -> Array:
 	var won := sim.bout_winner() == us
 	var verb := "Won" if won else ("Drew" if sim.bout_winner() == -1 else "Lost")
 
-	out.append(Line.new(0, "%s %d-%d on rounds, %d-%d on the ground. %s vs %s." % [
+	out.append(Line.new(0, UiKit.t("%s %d-%d on rounds, %d-%d on the ground. %s vs %s.") % [
 		verb, sim.rounds_won[us], sim.rounds_won[them], sim.downs[us], sim.downs[them],
 		sim.clubs[us].short_name, sim.clubs[them].short_name,
 	]))
 
-	out.append(Line.new(0, "You fought it in %s on \"%s\". They came out in %s." % [
+	out.append(Line.new(0, UiKit.t("You fought it in %s on \"%s\". They came out in %s.") % [
 		Tuning.FORMATIONS[sim.formations[us]]["name"],
 		Tuning.STRATEGIES[sim.strategies[us]]["name"],
 		Tuning.FORMATIONS[sim.formations[them]]["name"],
@@ -322,7 +322,7 @@ static func build(sim: MeleeSim) -> Array:
 		if top == null or m.downs_caused > top.downs_caused:
 			top = m
 	if top != null and top.downs_caused > 0:
-		out.append(Line.new(0, "%s put %d on the ground." % [
+		out.append(Line.new(0, UiKit.t("%s put %d on the ground.") % [
 			top.card.display_name, top.downs_caused]))
 
 	# --- and the small, honest note about how much you actually touched it

@@ -10,8 +10,9 @@ extends Node2D
 ##   SQUAD    the eight who travel, the reserve, and the moves between them
 ##   FINANCES where the money came from, where it went, and the ground
 ##
-## Drawn with primitives on the same portrait 540x960 as the melee, so sprites
-## drop in later without touching layout.
+## Drawn with primitives on the same landscape 960x540 design frame as the melee
+## (wider on phones — see UiKit.screen), so sprites drop in later without
+## touching layout.
 
 enum Tab { CLUB, SQUAD, MARKET, OFFICE, FINANCES }
 
@@ -99,8 +100,8 @@ func _ready() -> void:
 	season = Session.season
 	## Anything the club had to do to put five men on the list — said once.
 	if not season.last_emergency.is_empty():
-		flash = "Short of fit men: " + season.last_emergency[0] + (
-			" and %d more." % (season.last_emergency.size() - 1)
+		flash = UiKit.t("Short of fit men: ") + season.last_emergency[0] + (
+			UiKit.t(" and %d more.") % (season.last_emergency.size() - 1)
 				if season.last_emergency.size() > 1 else ".")
 		season.last_emergency = []
 	ui = CanvasLayer.new()
@@ -233,7 +234,7 @@ func _rebuild() -> void:
 	## MENU IS NOT BACK. It leaves the career, which is the end of a path rather
 	## than a step back along one — a trail that survived it would send Back from
 	## the front door into somebody's half-finished season.
-	ui.add_child(UiKit.button("Menu", Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
+	ui.add_child(UiKit.button(UiKit.t("Menu"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
 		Session.autosave()
 		UiKit.trail_reset()
 		UiKit.go("res://scenes/Title.tscn"), "cog"))
@@ -279,7 +280,7 @@ func _club_controls() -> void:
 	## The genuinely free band is under the schedule and above the action row:
 	## five rows of fixtures end at 418 and the action row starts at 476.
 	if season.viewable_cup() != null:
-		ui.add_child(UiKit.button("The draw", Vector2(24, action_y() - 52.0),
+		ui.add_child(UiKit.button(UiKit.t("The draw"), Vector2(24, action_y() - 52.0),
 			Vector2(200, 44), func():
 				Session.viewing_cup = season.viewable_cup()
 				Session.autosave()
@@ -304,47 +305,47 @@ func _club_controls() -> void:
 		## buttons, and both spilled over their own edges on the first render. The
 		## division names are on the card six lines above; the buttons only have to
 		## say which way.
-		ui.add_child(UiKit.button("Take it",
+		ui.add_child(UiKit.button(UiKit.t("Take it"),
 			Vector2(24, action_y()), Vector2(200, 46), func():
 				season.answer_promotion(true)
-				flash = "Up to the %s." % String(pt["to"])
+				flash = UiKit.t("Up to the %s.") % String(pt["to"])
 				Session.autosave()
 				_rebuild(), "up"))
-		ui.add_child(UiKit.button("Stay down  ·  save %d CC"
+		ui.add_child(UiKit.button(UiKit.t("Stay down  ·  save %d CC")
 				% (int(pt["dues_up"]) - int(pt["dues_now"])),
 			Vector2(240, action_y()), Vector2(260, 46), func():
 				if not UiKit.confirm("stay_down"):
-					flash = "Tap again to turn promotion down for this year."
+					flash = UiKit.t("Tap again to turn promotion down for this year.")
 					_rebuild()
 					return
 				season.answer_promotion(false)
-				flash = "Staying in the %s another year." % String(pt["from"])
+				flash = UiKit.t("Staying in the %s another year.") % String(pt["from"])
 				Session.autosave()
 				_rebuild(), "shield"))
 		return
 
 	if season.bid_open():
-		ui.add_child(UiKit.button("Tournament bid", Vector2(24, action_y()),
+		ui.add_child(UiKit.button(UiKit.t("Tournament bid"), Vector2(24, action_y()),
 			Vector2(204, 46), func():
 				Session.autosave()
 				UiKit.go("res://scenes/Arena.tscn"), "gate"))
-		ui.add_child(UiKit.button("Pass this year", Vector2(244, action_y()),
+		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(244, action_y()),
 			Vector2(204, 46), func():
 				season.decline_bid()
 				Session.autosave()
-				flash = "No tournament this year."
+				flash = UiKit.t("No tournament this year.")
 				_rebuild()))
 		return
 	if season.cup_pending():
-		ui.add_child(UiKit.button("Fight the tie", Vector2(24, action_y()),
+		ui.add_child(UiKit.button(UiKit.t("Fight the tie"), Vector2(24, action_y()),
 			Vector2(204, 46), _fight_cup))
 		## THE DRAW, next to the tie. Carried open since section 22: the screen
 		## could say who you were fighting and never who else was left, which is
 		## the one thing a cup has that a league does not.
-		ui.add_child(UiKit.button("Sim it", Vector2(244, action_y()), Vector2(204, 46), func():
+		ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(244, action_y()), Vector2(204, 46), func():
 			## Two taps, like the league's sim: a cup tie simmed is a cup tie gone.
 			if not UiKit.confirm("sim_cup"):
-				flash = "Tap Sim it again to hand the tie to the AI."
+				flash = UiKit.t("Tap Sim it again to hand the tie to the AI.")
 				_rebuild()
 				return
 			var c := season.pending_cup()
@@ -352,7 +353,7 @@ func _club_controls() -> void:
 			var rnd := c.round_name()
 			season.sim_cup_tie()
 			Session.autosave()
-			flash = "%s %s simulated." % [nm, rnd.to_lower()]
+			flash = UiKit.t("%s %s simulated.") % [nm, rnd.to_lower()]
 			_rebuild()))
 		return
 	## THE CARD ON THE TABLE, AFTER THE CUP. It used to be drawn before it, so
@@ -379,7 +380,7 @@ func _club_controls() -> void:
 					_rebuild()))
 		return
 	if season.season_complete():
-		ui.add_child(UiKit.button("End the season", Vector2(24, action_y()),
+		ui.add_child(UiKit.button(UiKit.t("End the season"), Vector2(24, action_y()),
 			Vector2(424, 46), func():
 				var was := season.position()
 				var tier := season.tier_name()
@@ -397,7 +398,7 @@ func _club_controls() -> void:
 				## The split goes FIRST when there is one, because a squad walking
 				## out is not a footnote to where you finished.
 				var broke := _split_word()
-				flash = broke if broke != "" else "%s, finished %s. Now in the %s.%s%s" % [
+				flash = broke if broke != "" else UiKit.t("%s, finished %s. Now in the %s.%s%s") % [
 					tier, UiKit.ordinal(was), season.tier_name(),
 					_winter_word(), _upkeep_word()]
 				_rebuild()))
@@ -426,12 +427,12 @@ func _club_controls() -> void:
 	## **A decision offered twice is a decision the player makes once and then
 	## has to remember he already made.** The pre-fight screen keeps it, because
 	## that is where the evidence is.
-	ui.add_child(UiKit.button("Fight it", Vector2(24, action_y()),
+	ui.add_child(UiKit.button(UiKit.t("Fight it"), Vector2(24, action_y()),
 		Vector2(204, 46), _fight, "crossed"))
 	## AND SIM ASKS FIRST. It is the one button on this screen that spends a
 	## fixture and cannot be undone — the result is written, the week ticks, kit
 	## wears — and it sat one accidental thumb away from the button beside it.
-	ui.add_child(UiKit.button("Sim it", Vector2(244, action_y()), Vector2(204, 46),
+	ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(244, action_y()), Vector2(204, 46),
 		func():
 			sim_asking = true
 			_rebuild(), "clock"))
@@ -443,15 +444,15 @@ func _club_controls() -> void:
 ## over them, because a scrim cannot cover a Button and this project has paid for
 ## that five times.
 func _sim_controls() -> void:
-	ui.add_child(UiKit.button("Sim it", Vector2(SIM_CARD.position.x + 28.0,
+	ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(SIM_CARD.position.x + 28.0,
 		SIM_CARD.position.y + SIM_CARD.size.y - 62.0), Vector2(220, 46), func():
 			sim_asking = false
 			season.skip_event()
 			Session.autosave()
-			flash = "Event simulated." if season.last_emergency.is_empty() \
+			flash = UiKit.t("Event simulated.") if season.last_emergency.is_empty() \
 				else "Event simulated. " + season.last_emergency[0] + "."
 			_rebuild(), "clock"))
-	ui.add_child(UiKit.button("Go back", Vector2(SIM_CARD.position.x
+	ui.add_child(UiKit.button(UiKit.t("Go back"), Vector2(SIM_CARD.position.x
 		+ SIM_CARD.size.x - 248.0, SIM_CARD.position.y + SIM_CARD.size.y - 62.0),
 		Vector2(220, 46), func():
 			sim_asking = false
@@ -462,27 +463,20 @@ func _draw_sim_ask() -> void:
 	UiKit.panel(self, SIM_CARD)
 	var o := String(season.world.clubs[season.opponent_id()]["name"]) \
 		if season.opponent_id() >= 0 else "nobody yet"
-	UiKit.text(self, font, "SIM THIS ONE?", Vector2(SIM_CARD.position.x + 28.0,
+	UiKit.text(self, font, UiKit.t("SIM THIS ONE?"), Vector2(SIM_CARD.position.x + 28.0,
 		SIM_CARD.position.y + 46.0), 20, UiKit.YOU)
-	UiKit.text(self, font, "The marshals run it without you. The result stands.",
+	UiKit.text(self, font, UiKit.t("The marshals run it without you. The result stands."),
 		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 76.0), 14, UiKit.INK)
-	UiKit.text(self, font, "Your men still take the week: kit wears, the room moves.",
+	UiKit.text(self, font, UiKit.t("Your men still take the week: kit wears, the room moves."),
 		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 98.0), 13, UiKit.DIM)
-	UiKit.text(self, font, "Against %s." % o,
+	UiKit.text(self, font, UiKit.t("Against %s.") % o,
 		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 124.0), 13, UiKit.EDGE)
-
-
-## What the play button says. "None" is a real choice and reads as one.
-func _play_label() -> String:
-	if season.called_play() == null:
-		return "none"
-	return UiKit.clip(String(season.board.plays[season.play_index]["name"]), 12)
 
 
 func _fight_cup() -> void:
 	var sim := season.begin_cup_bout()
 	if sim == null:
-		flash = "Nothing to fight."
+		flash = UiKit.t("Nothing to fight.")
 		_rebuild()
 		return
 	Session.autosave()
@@ -499,7 +493,7 @@ func _fight() -> void:
 	if sim == null:
 		season.skip_event()
 		Session.autosave()
-		flash = "Bye this event."
+		flash = UiKit.t("Bye this event.")
 		_rebuild()
 		return
 	## Save BEFORE handing over. The bout is a scene change and a few minutes of
@@ -667,7 +661,7 @@ func _squad_controls() -> void:
 	## label read "HONORS" and the tap opened the roster. Shipped, invisible,
 	## and found by `test_layout.gd` the first time it drove every tab instead of
 	## only the default one.
-	ui.add_child(UiKit.button("Roster", Vector2(UiKit.right_edge(200.0), action_y()),
+	ui.add_child(UiKit.button(UiKit.t("Roster"), Vector2(UiKit.right_edge(200.0), action_y()),
 		Vector2(200, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Roster.tscn"), "roster"))
@@ -695,7 +689,7 @@ func _squad_controls() -> void:
 	## about one man, which is why hiding them costs nothing.
 	var sw := String(RESERVE_SORTS[(reserve_sort + 1) % RESERVE_SORTS.size()]["word"])
 	if picked == null:
-		ui.add_child(UiKit.button("Reserve by %s" % sw,
+		ui.add_child(UiKit.button(UiKit.t("Reserve by %s") % sw,
 			Vector2(24, action_y()), Vector2(200, 46), func():
 				reserve_sort = (reserve_sort + 1) % RESERVE_SORTS.size()
 				_rebuild(), "roster"))
@@ -712,7 +706,7 @@ func _squad_controls() -> void:
 	## tab it vacated became the armorer's — the one mechanic in this game that
 	## Direction calls the cap and that had no screen at all.
 	if picked == null:
-		ui.add_child(UiKit.button("Free agents",
+		ui.add_child(UiKit.button(UiKit.t("Free agents"),
 			Vector2(UiKit.right_edge(416.0), action_y()), Vector2(200, 46), func():
 				Session.autosave()
 				UiKit.go("res://scenes/Market.tscn"), "coin"))
@@ -729,7 +723,7 @@ func _squad_controls() -> void:
 	## state already wants all three for Cut, Prospect and Extend; a fourth button
 	## underneath one of those is a button that works until it does not.
 	if picked == null:
-		ui.add_child(UiKit.button("Club record", Vector2(244, action_y()),
+		ui.add_child(UiKit.button(UiKit.t("Club record"), Vector2(244, action_y()),
 			Vector2(204, 46), func():
 				Session.autosave()
 				Session.records_page = Records.Page.HISTORY
@@ -751,7 +745,7 @@ func _squad_controls() -> void:
 			Vector2(468, action_y()), Vector2(256, 46), func():
 				var err := season.resign(picked) if out_of_deal else season.extend(picked)
 				if err == "":
-					flash = "%s: %s a week for %d years." % [picked.display_name,
+					flash = UiKit.t("%s: %s a week for %d years.") % [picked.display_name,
 						ClubOffice.money(ClubOffice.billed(picked)), picked.years]
 					Session.autosave()
 				else:
@@ -780,19 +774,19 @@ func _squad_controls() -> void:
 		## checks before pressing it. The 56 pixels of dead space between Extend
 		## and Roster paid for it.
 		var who := UiKit.clip(picked.display_name, 10 if worth > 0 else 14)
-		ui.add_child(UiKit.button(("Trade %s  ·  %d CC" % [who, worth])
+		ui.add_child(UiKit.button((UiKit.t("Trade %s  ·  %d CC") % [who, worth])
 				if worth > 0 else ("Cut " + who),
 			Vector2(24, action_y()), Vector2(232, 46), func():
 				if not UiKit.confirm("release:" + picked.display_name):
-					flash = "Tap again to %s %s. He does not come back." % [
+					flash = UiKit.t("Tap again to %s %s. He does not come back.") % [
 						"trade" if worth > 0 else "cut", picked.display_name]
 					_rebuild()
 					return
 				var gone := picked.display_name
 				var err := season.release(picked)
 				flash = UiKit.said(err) if err != "" else (
-					"%s traded for %d CC." % [gone, worth] if worth > 0
-					else "%s released." % gone)
+					UiKit.t("%s traded for %d CC.") % [gone, worth] if worth > 0
+					else UiKit.t("%s released.") % gone)
 				if err == "":
 					picked = null
 					season.sync_power()
@@ -808,13 +802,13 @@ func _squad_controls() -> void:
 			Vector2(272, action_y()), Vector2(180, 46), func():
 				if season.prospect == picked:
 					season.prospect = null
-					flash = "%s is no longer your prospect." % picked.display_name
+					flash = UiKit.t("%s is no longer your prospect.") % picked.display_name
 				elif ground < Career.PROSPECT_GROUND:
-					flash = "A prospect needs a Training ground at %d. Yours is %d." % [
+					flash = UiKit.t("A prospect needs a Training ground at %d. Yours is %d.") % [
 						Career.PROSPECT_GROUND, ground]
 				else:
 					season.prospect = picked
-					flash = "%s is your prospect — +%d ceiling at the winter." % [
+					flash = UiKit.t("%s is your prospect — +%d ceiling at the winter.") % [
 						picked.display_name, Career.PROSPECT_GAIN]
 					Session.autosave()
 				_rebuild()))
@@ -834,7 +828,7 @@ func _man_button(f: FighterCard, y: float, x: float) -> Button:
 func _tap(f: FighterCard) -> void:
 	if picked == null:
 		picked = f
-		flash = "Pick who %s trades places with." % f.display_name
+		flash = UiKit.t("Pick who %s trades places with.") % f.display_name
 		_rebuild()
 		return
 	if picked == f:
@@ -891,10 +885,10 @@ func _tap(f: FighterCard) -> void:
 			if not five_after.has(m):
 				came_off.append(String(m.display_name))
 		if came_on.is_empty():
-			flash = "%s and %s swapped. The five is unchanged." % [
+			flash = UiKit.t("%s and %s swapped. The five is unchanged.") % [
 				picked.display_name, f.display_name]
 		else:
-			flash = "On: %s.  Off: %s." % [", ".join(came_on), ", ".join(came_off)]
+			flash = UiKit.t("On: %s.  Off: %s.") % [", ".join(came_on), ", ".join(came_off)]
 		season.sync_power()
 		Session.autosave()
 	else:
@@ -959,7 +953,7 @@ func _header() -> void:
 	UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
 		season.club.icon_color, int(season.club.icon))
 	UiKit.text(self, font, UiKit.clip(String(w["name"]), 28), Vector2(68, 28), 20, UiKit.INK)
-	UiKit.text(self, font, "%s  ·  Season %d  ·  rating %d" % [
+	UiKit.text(self, font, UiKit.t("%s  ·  Season %d  ·  rating %d") % [
 		season.tier_name(), season.world.season, int(w["power"])],
 		Vector2(68, 50), 14, UiKit.DIM)
 	## The credit balance rides in the header on every tab, the way Retro Bowl
@@ -1066,7 +1060,7 @@ func _schedule() -> void:
 	## neither of which knew the other's height. Same shape as the clubhouse,
 	## twice, today.
 	var y := CONTENT_Y + 186.0
-	UiKit.text(self, font, "WHAT IS LEFT", Vector2(24, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("WHAT IS LEFT"), Vector2(24, y), 13, UiKit.DIM)
 	y += 24.0
 	for i in rest.size():
 		var r: Dictionary = rest[i]
@@ -1087,7 +1081,7 @@ func _schedule() -> void:
 		## fixture list is for: **a fact you have to hunt for on a five-row list
 		## is a fact that is not on the list.**
 		if opp >= 0:
-			UiKit.text(self, font, "H" if home else "A", Vector2(28, y), 13,
+			UiKit.text(self, font, UiKit.t("H") if home else UiKit.t("A"), Vector2(28, y), 13,
 				UiKit.YOU if home else UiKit.EDGE.lightened(0.4))
 		## AND WHAT THE AFTERNOON IS WORTH, which is the new half. The gate is
 		## multiplied by the ground it is fought in, so a trip to somebody's
@@ -1110,7 +1104,7 @@ func _schedule() -> void:
 				season.world.player_club if home else opp)
 			tail = "%s  ·  %d CC" % [Arena.arena_name_of(int(gr["level"])),
 				season.gate_for_fixture(opp, home)]
-		UiKit.pair(self, font, "%d.  %s" % [int(r["event"]),
+		UiKit.pair(self, font, UiKit.t("%d.  %s") % [int(r["event"]),
 			UiKit.clip_px(font, nm, 13, 150.0)], tail,
 			Vector2(46, y), fixture_w() - 16.0, 13, 12, col, UiKit.EDGE)
 		y += 20.0
@@ -1314,7 +1308,7 @@ func _draw_dilemma() -> void:
 	## SHORT ENOUGH FOR THE RULE IT SITS ON. The first wording ran to 440 pixels
 	## in the 420 it was given and printed "how well you are kn" — a legend that
 	## needs its own legend.
-	UiKit.right(self, font, "%s = the squad's mood   ·   %s = your renown"
+	UiKit.right(self, font, UiKit.t("%s = the squad's mood   ·   %s = your renown")
 		% [Dilemma.FX_WORD["morale"], Dilemma.FX_WORD["note"]],
 		Vector2(UiKit.right_edge(48.0), action_y() - 110.0), 12, UiKit.EDGE, 400.0)
 	for i in opts.size():
@@ -1332,7 +1326,7 @@ func _draw_dilemma() -> void:
 		## have figures reads as a card the game forgot to price, which is the
 		## opposite of what a free choice should feel like.
 		if bill.is_empty():
-			UiKit.text(self, font, "costs nothing", Vector2(x + 10.0, by + 2.0), 13, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("costs nothing"), Vector2(x + 10.0, by + 2.0), 13, UiKit.DIM)
 			continue
 		## EACH FIGURE IN ITS OWN COLOR, laid out by measuring what has already
 		## been drawn rather than by joining a string — a single color for the
@@ -1417,14 +1411,14 @@ func _fixture() -> void:
 		## division is a thing you pay to be in now, so "stay down" is a saving
 		## with a figure on it rather than a button that wastes a year.
 		var t: Dictionary = season.promotion_terms()
-		UiKit.text(self, font, "Up to the %s" % String(t["to"]),
+		UiKit.text(self, font, UiKit.t("Up to the %s") % String(t["to"]),
 			Vector2(44, y + 52), 22, UiKit.UP)
 		## FITTED TO THE CARD. "You finished 1st. The place is yours if you want
 		## it." is 430 pixels at 14px against a 436-pixel panel, and the first
 		## render lost the last two words — copy the game wrote itself is not
 		## allowed to lose its tail.
 		UiKit.text(self, font, UiKit.fit_px(font,
-			"Finished %s. The place is yours if you want it."
+			UiKit.t("Finished %s. The place is yours if you want it.")
 				% UiKit.ordinal(season.position()), 13, fixture_w() - 40.0),
 			Vector2(44, y + 80), 13, UiKit.DIM)
 		UiKit.pair(self, font,
@@ -1435,7 +1429,7 @@ func _fixture() -> void:
 			UiKit.UP if int(t["in_hand"]) >= int(t["dues_up"]) else UiKit.DOWN)
 		return
 	if season.bid_open():
-		UiKit.text(self, font, "Three dates on offer", Vector2(44, y + 52), 22, UiKit.INK)
+		UiKit.text(self, font, UiKit.t("Three dates on offer"), Vector2(44, y + 52), 22, UiKit.INK)
 		## WRAPPED TO THE CARD. This ran 53 pixels past the fixture panel's right
 		## edge — it is in the very first screenshot in `shots/`, clipped
 		## mid-sentence, and nobody read it as a fault because a sentence that
@@ -1453,25 +1447,25 @@ func _fixture() -> void:
 		UiKit.text(self, font, UiKit.clip(String(o["name"]), 26),
 			Vector2(44, y + 52), 22, UiKit.INK)
 		var gap := int(season.world.clubs[season.world.player_club]["power"]) - int(o["power"])
-		UiKit.text(self, font, "rating %d  ·  win or you are out" % int(o["power"]),
+		UiKit.text(self, font, UiKit.t("rating %d  ·  win or you are out") % int(o["power"]),
 			Vector2(44, y + 80), 14, UiKit.UP if gap > 0 else UiKit.DOWN)
 		return
 	if season.season_complete():
-		UiKit.text(self, font, "Finished %s of %d in the %s." % [
+		UiKit.text(self, font, UiKit.t("Finished %s of %d in the %s.") % [
 			UiKit.ordinal(season.position()), season.table().size(), season.tier_name()],
 			Vector2(44, y + 52), 15, UiKit.DIM)
-		UiKit.text(self, font, "The cups and the summer are next.",
+		UiKit.text(self, font, UiKit.t("The cups and the summer are next."),
 			Vector2(44, y + 80), 14, UiKit.DIM)
 		return
 	var opp := season.opponent_id()
 	if opp == -1:
-		UiKit.text(self, font, "Bye", Vector2(44, y + 52), 22, UiKit.INK)
+		UiKit.text(self, font, UiKit.t("Bye"), Vector2(44, y + 52), 22, UiKit.INK)
 		return
 	var o: Dictionary = season.world.clubs[opp]
 	UiKit.text(self, font, UiKit.clip(String(o["name"]), 26), Vector2(44, y + 52), 22, UiKit.INK)
 	var gap := int(season.world.clubs[season.world.player_club]["power"]) - int(o["power"])
 	var word := "even" if absi(gap) <= 2 else ("favorites" if gap > 0 else "underdogs")
-	UiKit.text(self, font, "rating %d  ·  you are %s by %d" % [int(o["power"]), word, absi(gap)],
+	UiKit.text(self, font, UiKit.t("rating %d  ·  you are %s by %d") % [int(o["power"]), word, absi(gap)],
 		Vector2(44, y + 80), 14,
 		UiKit.DIM if absi(gap) <= 2 else (UiKit.UP if gap > 0 else UiKit.DOWN))
 	## HOW WELL THEY THINK, which the rating does not tell you.
@@ -1519,15 +1513,15 @@ func _last_event() -> void:
 		return
 	var y := CONTENT_Y + 152.0
 	if bool(e.get("bye", false)):
-		UiKit.text(self, font, "Last event: bye", Vector2(28, y), 14, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Last event: bye"), Vector2(28, y), 14, UiKit.DIM)
 		return
 	var rf := int(e["rf"])
 	var ra := int(e["ra"])
 	var word := "beat" if rf > ra else ("lost to" if rf < ra else "drew with")
 	var col := UiKit.UP if rf > ra else (UiKit.DOWN if rf < ra else UiKit.DIM)
-	UiKit.text(self, font, "Last: %s %s %d-%d (%+d)%s" % [word,
+	UiKit.text(self, font, UiKit.t("Last: %s %s %d-%d (%+d)%s") % [word,
 		UiKit.clip(String(season.world.clubs[int(e["opponent"])]["name"]), 22), rf, ra,
-		int(e["margin"]), "" if bool(e["fought"]) else "  ·  simmed"],
+		int(e["margin"]), "" if bool(e["fought"]) else UiKit.t("  ·  simmed")],
 		Vector2(28, y), 14, col)
 
 
@@ -1545,7 +1539,7 @@ func _table() -> void:
 	var stat_w := font.get_string_size("P  W  D  L   RD   MG  PTS",
 		HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
 	var stat_x := UiKit.right_edge(24.0) - stat_w
-	UiKit.text(self, font, "P  W  D  L   RD   MG  PTS",
+	UiKit.text(self, font, UiKit.t("P  W  D  L   RD   MG  PTS"),
 		Vector2(stat_x, TABLE_Y - 6), 12, UiKit.DIM)
 	draw_rect(Rect2(table_x(), TABLE_Y, UiKit.screen().x - table_x() - 24, 1), UiKit.EDGE)
 	for i in rows.size():
@@ -1588,7 +1582,7 @@ func _table() -> void:
 		UiKit.text(self, font, "%2d" % (i + 1), Vector2(table_x() + 12, y), 13, UiKit.DIM)
 		UiKit.text(self, font, UiKit.clip(String(season.world.clubs[cid]["name"]), 24),
 			Vector2(table_x() + 38, y), 13, col)
-		UiKit.text(self, font, "%2d %2d %2d %2d  %+3d  %+3d  %2d" % [
+		UiKit.text(self, font, UiKit.t("%2d %2d %2d %2d  %+3d  %+3d  %2d") % [
 			int(r["played"]), int(r["won"]), int(r["drawn"]), int(r["lost"]),
 			League.round_diff(r), League.margin_diff(r), int(r["points"])],
 			Vector2(stat_x, y), 13, col)
@@ -1603,17 +1597,17 @@ func _draw_squad() -> void:
 	## invisible. The heading line has three hundred spare pixels between the end
 	## of the words and the reserve column, and a summary belongs beside the thing
 	## it summarises anyway.
-	UiKit.pair(self, font, "THE EIGHT WHO TRAVEL", _squad_spread(),
+	UiKit.pair(self, font, UiKit.t("THE EIGHT WHO TRAVEL"), _squad_spread(),
 		Vector2(24, CONTENT_Y), RESERVE_X - 16.0, 13, 12, UiKit.DIM, UiKit.EDGE)
 	## THE RESERVE SAYS HOW IT IS ORDERED, because it is the only list on this
 	## screen whose order is a choice rather than a fact.
-	UiKit.text(self, font, "RESERVE — by %s" % String(
+	UiKit.text(self, font, UiKit.t("RESERVE — by %s") % String(
 		RESERVE_SORTS[reserve_sort % RESERVE_SORTS.size()]["word"]),
 		Vector2(RESERVE_X, CONTENT_Y), 13, UiKit.DIM)
 	## The cap, where the decision is: every man on this screen costs against it.
 	var bill := ClubOffice.wage_bill(season.club)
 	var cap := season.office.cap()
-	UiKit.right(self, font, "%s of %s" % [ClubOffice.money(bill), ClubOffice.money(cap)],
+	UiKit.right(self, font, UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
 		Vector2(UiKit.right_edge(), CONTENT_Y), 13, UiKit.DOWN if bill > cap else UiKit.DIM, 300)
 	## THE HEADINGS, over both columns, before any man is drawn.
 	_squad_head(24.0, CONTENT_Y + SQUAD_HEAD_Y)
@@ -1630,12 +1624,12 @@ func _draw_squad() -> void:
 		## which is not a label. Five men fight and three wait, and the screen
 		## should say which is which.
 		if kind == "bench" and last_kind == "on the line":
-			UiKit.text(self, font, "BENCH — two may come on each corner",
+			UiKit.text(self, font, UiKit.t("BENCH — two may come on each corner"),
 				Vector2(24, y - 24), 12, UiKit.DIM)
 		_man_row(row["card"], y, kind, x)
 		last_kind = kind
 	if season.club.reserves().is_empty():
-		UiKit.text(self, font, "Nobody.",
+		UiKit.text(self, font, UiKit.t("Nobody."),
 			Vector2(RESERVE_X + 16, CONTENT_Y + SQUAD_TOP), 15, UiKit.DIM)
 
 	## AND THE KEY, for the three things a column heading cannot say.
@@ -1649,7 +1643,7 @@ func _draw_squad() -> void:
 	## (a green kit percentage, a dimmed reserve name) mean "this is fine" and
 	## "this man is not in the eight", and a key that explains the absence of a
 	## problem is a key nobody finishes reading.
-	UiKit.text(self, font, "NOW is what he is, MAX what he could be  ·  "
+	UiKit.text(self, font, UiKit.t("NOW is what he is, MAX what he could be  ·  ")
 		+ "red = deal with it  ·  green = room to grow",
 		Vector2(24, _squad_key_y()), 11, UiKit.EDGE.lightened(0.25))
 
@@ -1714,7 +1708,7 @@ func _man_row(f: FighterCard, y: float, role: String, x: float) -> void:
 	## An injury is the most important thing on a team sheet, so it goes where a
 	## position would and takes the color that means "deal with this".
 	if f.injury > 0:
-		UiKit.text(self, font, "OUT %d" % f.injury, Vector2(x + COL_POS, y), 13, UiKit.DOWN)
+		UiKit.text(self, font, UiKit.t("OUT %d") % f.injury, Vector2(x + COL_POS, y), 13, UiKit.DOWN)
 	else:
 		UiKit.text(self, font, Tuning.pos_name(int(f.pos)), Vector2(x + COL_POS, y), 13, UiKit.DIM)
 	## Kit is this game's salary cap and already costs him base, so it belongs on
@@ -1741,7 +1735,7 @@ func _man_row(f: FighterCard, y: float, role: String, x: float) -> void:
 		deal_col = UiKit.UP
 	UiKit.right(self, font, ClubOffice.money(ClubOffice.billed(f)),
 		Vector2(x + COL_WAGE_TO, y), 13, UiKit.DIM, COL_WAGE_BOX)
-	UiKit.text(self, font, ("OUT" if f.years <= 0 else "%dy" % f.years),
+	UiKit.text(self, font, (UiKit.t("OUT") if f.years <= 0 else "%dy" % f.years),
 		Vector2(x + COL_YEARS, y), 12, deal_col)
 	## THE TWO NUMBERS, together. Retro Bowl's roster screen is read almost
 	## entirely off rating-and-potential, and the pairing is why: neither one
@@ -1973,7 +1967,7 @@ func _draw_market() -> void:
 	var eight := season.club.active_eight()
 	var led := Quartermaster.ledger(eight)
 
-	UiKit.pair(self, font, "THE ARMORER", "%d CC in hand" % o.credits,
+	UiKit.pair(self, font, UiKit.t("THE ARMORER"), UiKit.t("%d CC in hand") % o.credits,
 		Vector2(24, CONTENT_Y), UiKit.right_edge(), 16, 13, UiKit.YOU, UiKit.DIM)
 
 	## THE HEADLINE IS THE MARSHALS, not the average. A club whose mean harness
@@ -1996,9 +1990,9 @@ func _draw_market() -> void:
 		Vector2(24, CONTENT_Y + 26), UiKit.right_edge(), 14, 13, head_col, UiKit.DIM)
 
 	var cell := _qm_cell()
-	UiKit.text(self, font, "ON THE BUS", Vector2(24, CONTENT_Y + QM_TOP - 22),
+	UiKit.text(self, font, UiKit.t("ON THE BUS"), Vector2(24, CONTENT_Y + QM_TOP - 22),
 		12, UiKit.EDGE)
-	UiKit.text(self, font, "IN THE CLUBHOUSE",
+	UiKit.text(self, font, UiKit.t("IN THE CLUBHOUSE"),
 		Vector2(24 + cell + QM_GAP, CONTENT_Y + QM_TOP - 22), 12, UiKit.EDGE)
 
 	for row in _qm_rows():
@@ -2074,7 +2068,7 @@ func _market_controls() -> void:
 	## I afford the bus this week", and that is one button with the answer on it.
 	var third := (UiKit.span() - 16.0) / 3.0
 	if int(led["bill"]) > 0:
-		ui.add_child(UiKit.button("Fix the bus  ·  %d CC" % led["bill"],
+		ui.add_child(UiKit.button(UiKit.t("Fix the bus  ·  %d CC") % led["bill"],
 			Vector2(24, action_y()), Vector2(third, 46), func():
 				var fixed := 0
 				var spent := 0
@@ -2085,8 +2079,8 @@ func _market_controls() -> void:
 					if o.repair_kit(f) == "":
 						fixed += 1
 						spent += c
-				flash = ("Nothing the armorer could do this week." if fixed == 0
-					else "%d harnesses seen to, %d CC." % [fixed, spent])
+				flash = (UiKit.t("Nothing the armorer could do this week.") if fixed == 0
+					else UiKit.t("%d harnesses seen to, %d CC.") % [fixed, spent])
 				season.sync_power()
 				Session.autosave()
 				_rebuild(), "armor"))
@@ -2094,7 +2088,7 @@ func _market_controls() -> void:
 	if qm_pick != null:
 		var nm := UiKit.clip(qm_pick.display_name, 9)
 		if not Quartermaster.topped_out(qm_pick):
-			ui.add_child(UiKit.button("Repair %s · %d CC" % [nm,
+			ui.add_child(UiKit.button(UiKit.t("Repair %s · %d CC") % [nm,
 				ClubOffice.kit_cost(qm_pick)],
 				Vector2(24 + third + 8.0, action_y()), Vector2(third, 46), func():
 					var err := o.repair_kit(qm_pick)
@@ -2105,7 +2099,7 @@ func _market_controls() -> void:
 					_rebuild()))
 		var nxt := Quartermaster.next_grade(qm_pick)
 		if nxt >= 0:
-			ui.add_child(UiKit.button("%s · %d CC" % [
+			ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [
 				String(Quartermaster.GRADE_NAME[nxt]),
 				Quartermaster.upgrade_cost(qm_pick)],
 				Vector2(24 + (third + 8.0) * 2.0, action_y()), Vector2(third, 46), func():
@@ -2186,11 +2180,11 @@ func _office_controls() -> void:
 	## cards used to fill. They were at y=70, 116 and 162 — straight through the
 	## HONORS tab and then through the captain panel underneath it, which a
 	## screenshot shows instantly and reasoning about coordinates never does.
-	ui.add_child(UiKit.button("The staff", Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 0),
+	ui.add_child(UiKit.button(UiKit.t("The staff"), Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 0),
 		Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Staff.tscn"), "helm"))
-	ui.add_child(UiKit.button("Records", Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 1),
+	ui.add_child(UiKit.button(UiKit.t("Records"), Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 1),
 		Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Records.tscn"), "book"))
@@ -2198,7 +2192,7 @@ func _office_controls() -> void:
 	## a mark when somebody wants you — a job offer the player never notices is
 	## the same as no job offer.
 	var wanted: int = Jobs.offers(season.coach, season.world).size()
-	ui.add_child(UiKit.button("Your career%s" % ("  ·  %d" % wanted if wanted > 0 else ""),
+	ui.add_child(UiKit.button(UiKit.t("Your career%s") % (UiKit.t("  ·  %d") % wanted if wanted > 0 else ""),
 		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 2), Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Coach.tscn"), "ladder"))
@@ -2206,7 +2200,7 @@ func _office_controls() -> void:
 	## cups is the most expensive thing that can happen to a club without a
 	## message, and the player earns his place on the table where he can see it.
 	var shorts := season.office.shortfalls()
-	ui.add_child(UiKit.button("The federation%s" % ("  ·  BARRED" if not shorts.is_empty() else ""),
+	ui.add_child(UiKit.button(UiKit.t("The federation%s") % (UiKit.t("  ·  BARRED") if not shorts.is_empty() else ""),
 		Vector2(NAV_X + NAV_PAD, CONTENT_Y + 28 + NAV_ROW * 3), Vector2(NAV_W - NAV_PAD * 2.0, NAV_BTN_H), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Federation.tscn"), "banner"))
@@ -2236,11 +2230,11 @@ func _office_controls() -> void:
 		if cost <= 0:
 			continue
 		var kind = row["kind"]
-		ui.add_child(UiKit.button("%d CC" % cost,
+		ui.add_child(UiKit.button(UiKit.t("%d CC") % cost,
 			Vector2(BAR_X + BAR_W + 14.0, _office_row_y(i) + 10.0), Vector2(92, 34), func():
 				var err: String = o.raise_cap() if is_cap else (
 					o.buy_travel_slot() if is_travel else o.upgrade(int(kind)))
-				flash = UiKit.said(err) if err != "" else "Improved."
+				flash = UiKit.said(err) if err != "" else UiKit.t("Improved.")
 				Session.autosave()
 				_rebuild(), "coin"))
 
@@ -2266,11 +2260,11 @@ func _office_controls() -> void:
 	##
 	## The ones that are left are all places you GO. That is a coherent row.
 	var third := (UiKit.span() - 16.0) / 3.0
-	ui.add_child(UiKit.button("Playbook", Vector2(24, action_y()),
+	ui.add_child(UiKit.button(UiKit.t("Playbook"), Vector2(24, action_y()),
 		Vector2(third, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Chalkboard.tscn"), "board"))
-	ui.add_child(UiKit.button("Create", Vector2(24 + third + 8.0, action_y()),
+	ui.add_child(UiKit.button(UiKit.t("Create"), Vector2(24 + third + 8.0, action_y()),
 		Vector2(third, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Create.tscn"), "anvil"))
@@ -2306,7 +2300,7 @@ func _shop_controls() -> void:
 		var pw: float = (SHOP_CARD.size.x - pad * 2.0 - 16.0) / float(maxi(1, packs.size()))
 		for i in packs.size():
 			var pk: Dictionary = packs[i]
-			ui.add_child(UiKit.button("%d  ·  %s" % [int(pk["credits"]), String(pk["price"])],
+			ui.add_child(UiKit.button(UiKit.t("%d  ·  %s") % [int(pk["credits"]), String(pk["price"])],
 				Vector2(SHOP_CARD.position.x + pad + float(i) * (pw + 8.0),
 					SHOP_CARD.position.y + 150.0), Vector2(pw, 46),
 				func(id = String(pk["id"])):
@@ -2318,20 +2312,20 @@ func _shop_controls() -> void:
 						## shop that credits on the REQUEST credits a canceled
 						## purchase. What lands now is whatever is already owed.
 						var got := Store.claim(season.office, Session.autosave)
-						flash = ("%d credits." % got) if got > 0 \
+						flash = (UiKit.t("%d credits.") % got) if got > 0 \
 							else "Asked the store. Credits land when it answers."
 					_rebuild()))
 		## THE BUTTON A PLAYER WHOSE MONEY WENT MISSING WILL LOOK FOR. For a
 		## consumable there is nothing to re-own — the credits were spent — so
 		## this asks the store for anything it charged for and never delivered.
-		ui.add_child(UiKit.button("Restore a purchase",
+		ui.add_child(UiKit.button(UiKit.t("Restore a purchase"),
 			Vector2(SHOP_CARD.position.x + 24.0, y), Vector2(240, 44), func():
 				Store.resolve_pending()
 				var got := Store.claim(season.office, Session.autosave)
-				flash = ("%d credits." % got) if got > 0 \
+				flash = (UiKit.t("%d credits.") % got) if got > 0 \
 					else "Asked the store for anything outstanding."
 				_rebuild()))
-	ui.add_child(UiKit.button("Back",
+	ui.add_child(UiKit.button(UiKit.t("Back"),
 		Vector2(SHOP_CARD.end.x - 184.0, y), Vector2(160, 44), func():
 			shop_open = false
 			_rebuild()))
@@ -2340,15 +2334,15 @@ func _shop_controls() -> void:
 func _draw_shop() -> void:
 	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
 	UiKit.panel(self, SHOP_CARD)
-	UiKit.mid(self, font, "COACHING CREDITS",
+	UiKit.mid(self, font, UiKit.t("COACHING CREDITS"),
 		Vector2(SHOP_CARD.position.x, SHOP_CARD.position.y + 34.0), 19, UiKit.INK,
 		SHOP_CARD.size.x)
-	UiKit.mid(self, font, "Spent on levels, kit, the cap and the bus.",
+	UiKit.mid(self, font, UiKit.t("Spent on levels, kit, the cap and the bus."),
 		Vector2(SHOP_CARD.position.x, SHOP_CARD.position.y + 60.0), 12, UiKit.DIM,
 		SHOP_CARD.size.x)
-	UiKit.text(self, font, "In hand", Vector2(SHOP_CARD.position.x + 24.0,
+	UiKit.text(self, font, UiKit.t("In hand"), Vector2(SHOP_CARD.position.x + 24.0,
 		SHOP_CARD.position.y + 104.0), 13, UiKit.DIM)
-	UiKit.right(self, font, "%d CC" % season.office.credits,
+	UiKit.right(self, font, UiKit.t("%d CC") % season.office.credits,
 		Vector2(SHOP_CARD.end.x - 24.0, SHOP_CARD.position.y + 104.0), 15, UiKit.YOU, 200)
 	if not Store.available():
 		## The reason, in the middle, where the packs would have been.
@@ -2356,7 +2350,7 @@ func _draw_shop() -> void:
 			Vector2(SHOP_CARD.position.x, SHOP_CARD.position.y + 170.0), 14,
 			UiKit.EDGE.lightened(0.5), SHOP_CARD.size.x)
 	elif Store.owed > 0:
-		UiKit.right(self, font, "%d waiting" % Store.owed,
+		UiKit.right(self, font, UiKit.t("%d waiting") % Store.owed,
 			Vector2(SHOP_CARD.end.x - 24.0, SHOP_CARD.position.y + 128.0), 12,
 			UiKit.YOU, 200)
 
@@ -2391,7 +2385,7 @@ func _draw_office() -> void:
 			for f2 in season.club.roster:
 				if f2.fit():
 					fit_men += 1
-			UiKit.pair(self, font, label, "%d fit on books" % fit_men,
+			UiKit.pair(self, font, label, UiKit.t("%d fit on books") % fit_men,
 				Vector2(BAR_X, y), BAR_X + BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
 			UiKit.meter(self, Rect2(BAR_X, y + 8, BAR_W, BAR_H),
 				o.travel_slots - ClubOffice.TRAVEL_MIN,
@@ -2411,7 +2405,7 @@ func _draw_office() -> void:
 				UiKit.DOWN if o.travel_slots <= ClubOffice.TRAVEL_MIN else UiKit.DIM)
 			continue
 		if is_cap:
-			UiKit.pair(self, font, label, "%s rules" % season.tier_name(),
+			UiKit.pair(self, font, label, UiKit.t("%s rules") % season.tier_name(),
 				Vector2(BAR_X, y), BAR_X + BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
 			var bill := ClubOffice.wage_bill(season.club)
 			var cap := o.cap()
@@ -2516,14 +2510,14 @@ func _draw_office() -> void:
 	## on a screen that is one tap away and is not full. **A summary that repeats
 	## the screen it points at is two screens disagreeing about which of them is
 	## the authority.** So: the headline, and the sentence that says what to do.
-	UiKit.text(self, font, "ON THE LIST", Vector2(NAV_X, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("ON THE LIST"), Vector2(NAV_X, y), 13, UiKit.DIM)
 	var bare := o.untaught()
 	if bare.is_empty():
 		var best := ""
 		for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
 			best = String(Tuning.AI_SKILL[o.tier_for(role)]["name"])
 			break
-		UiKit.pair(self, font, "Every role taught.", "going out %s" % best.to_lower(),
+		UiKit.pair(self, font, UiKit.t("Every role taught."), UiKit.t("going out %s") % best.to_lower(),
 			Vector2(NAV_X, y + 20), UiKit.right_edge(), 13, 13, UiKit.UP, UiKit.DIM)
 	else:
 		## ONE LINE, and the column is the reason. There are 132 pixels between
@@ -2534,58 +2528,8 @@ func _draw_office() -> void:
 		for r in bare:
 			names += ("" if names == "" else " and ") + String(Tuning.ROLE_NAME[r])
 		UiKit.text(self, font, UiKit.fit_px(font,
-			"%s untaught — see the staff room." % names,
+			UiKit.t("%s untaught — see the staff room.") % names,
 			13, UiKit.right_edge() - NAV_X), Vector2(NAV_X, y + 20), 13, UiKit.DOWN)
-
-## The widest role name at the size the list draws them, so the skill column
-## clears all three rather than clearing the first one.
-func _role_col_w() -> float:
-	var w := 0.0
-	for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
-		w = maxf(w, font.get_string_size(String(Tuning.ROLE_NAME[role]),
-			HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15).x)
-	return w
-
-
-# ------------------------------------------------------------- FINANCES tab
-## WHERE THE MONEY CAME FROM AND WHERE IT WENT.
-##
-## Pete, 15 Sep 2026: *"Make Honors a finances page to show balance breakdowns
-## and you can use that to advertise/buy CC. Might be a place to put the arena."*
-##
-## ---------------------------------------------------------------------------
-## THIS TAB REPLACED THE TROPHY CABINET AND THAT IS THE RIGHT TRADE.
-##
-## What HONORS drew was two lists — the cups the club has won and the seasons it
-## has had — and neither of them is a decision. A player looks at a trophy
-## cabinet once a career; he looks at the books every time he is deciding whether
-## he can afford something, which on this screen is most weeks. A tab is the most
-## expensive piece of real estate the game has and it was spent on a scrapbook.
-##
-## The cabinet is not gone: both lists moved to a HISTORY page on the Records
-## screen, which is where the club's other records already live and which is
-## reached from the Squad tab. See `records_scene.gd`.
-##
-## ---------------------------------------------------------------------------
-## AND IT IS HERE BECAUSE OF WHAT `tools/probe_afford.gd` FOUND.
-##
-## Pete: *"The income is either too low or costs are too high. 84 in one year
-## will not maintain enough, you'll decline."* The probes say something more
-## specific and much more interesting than "income is low", and a player can only
-## act on the specific version:
-##
-##   A Backyard club's first five seasons take 17.8, 23.4, 23.8, 26.2 and 25.2
-##   credits. **Of that, the gate is 1.4 a season and the membership subs are
-##   8 to 19.** The money does not come from fighting; it comes from people
-##   paying to belong to the club. The whole crowd-and-notoriety apparatus —
-##   five screens' worth of bands, meters and turnout percentages — is worth
-##   under two credits a year in the division a new player spends his first
-##   hours in.
-##
-## No screen in the game said so, because money left the club in twenty-three
-## separate places and nothing added it up. Now it does, and this draws it.
-## Whether the shape is RIGHT is Pete's call and a separate commit; this is the
-## instrument that makes the call possible.
 
 const FIN_LEFT := 24.0
 const FIN_RIGHT := 500.0
@@ -2608,14 +2552,14 @@ func _finances_controls() -> void:
 	## the arena to live here and it half does: the numbers are on this screen and
 	## the building is one tap away, which is better than a sixth copy of the
 	## build button.
-	ui.add_child(UiKit.button("The ground", Vector2(FIN_RIGHT, FIN_BUTTONS_Y),
+	ui.add_child(UiKit.button(UiKit.t("The ground"), Vector2(FIN_RIGHT, FIN_BUTTONS_Y),
 		Vector2(200, 44), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Arena.tscn"), "gate"))
 	## AND THE COUNTER. It was on the Clubhouse, which is Pete's *"Clubhouse is
 	## too crowded"* — and it belongs on the page about money rather than the page
 	## about buildings.
-	ui.add_child(UiKit.button("Buy credits", Vector2(FIN_RIGHT + 216.0, FIN_BUTTONS_Y),
+	ui.add_child(UiKit.button(UiKit.t("Buy credits"), Vector2(FIN_RIGHT + 216.0, FIN_BUTTONS_Y),
 		Vector2(200, 44), func():
 			shop_open = true
 			_rebuild(), "coin"))
@@ -2628,8 +2572,8 @@ func _draw_finances() -> void:
 	var was_in: Dictionary = last.get("in", {})
 	var was_out: Dictionary = last.get("out", {})
 
-	UiKit.text(self, font, "COMING IN", Vector2(FIN_LEFT, CONTENT_Y), 13, UiKit.DIM)
-	UiKit.right(self, font, "this year", Vector2(FIN_NOW, CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
+	UiKit.text(self, font, UiKit.t("COMING IN"), Vector2(FIN_LEFT, CONTENT_Y), 13, UiKit.DIM)
+	UiKit.right(self, font, UiKit.t("this year"), Vector2(FIN_NOW, CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
 	UiKit.right(self, font, "last", Vector2(FIN_WAS, CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
 	var y := CONTENT_Y + 26.0
 	y = _fin_block(o.books_in, was_in, ClubOffice.IN_ORDER, y, UiKit.UP)
@@ -2639,7 +2583,7 @@ func _draw_finances() -> void:
 	_fin_row("Everything in", in_now, in_was, y, UiKit.INK, 15)
 
 	y += 38.0
-	UiKit.text(self, font, "GOING OUT", Vector2(FIN_LEFT, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("GOING OUT"), Vector2(FIN_LEFT, y), 13, UiKit.DIM)
 	y += 26.0
 	y = _fin_block(o.books_out, was_out, ClubOffice.OUT_ORDER, y, UiKit.DOWN)
 	var out_now := ClubOffice.book_total(o.books_out)
@@ -2690,7 +2634,7 @@ func _fin_block(now: Dictionary, was: Dictionary, order: Array[String],
 		if not seen.has(String(r["line"])):
 			rows.append({"line": String(r["line"]), "cc": 0})
 	if rows.is_empty():
-		UiKit.text(self, font, "Nothing yet.", Vector2(FIN_LEFT + 14.0, y), 13,
+		UiKit.text(self, font, UiKit.t("Nothing yet."), Vector2(FIN_LEFT + 14.0, y), 13,
 			UiKit.EDGE.lightened(0.3))
 		return y + FIN_ROW
 	for r in rows:
@@ -2711,7 +2655,7 @@ func _fin_block(now: Dictionary, was: Dictionary, order: Array[String],
 func _fin_ground() -> void:
 	var o := season.office
 	var a := o.arena
-	UiKit.text(self, font, "THE GROUND", Vector2(FIN_RIGHT, CONTENT_Y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THE GROUND"), Vector2(FIN_RIGHT, CONTENT_Y), 13, UiKit.DIM)
 	var y := CONTENT_Y + 28.0
 	UiKit.pair(self, font, a.arena_name(), a.condition_word(),
 		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 16, 13, UiKit.INK,
@@ -2723,25 +2667,25 @@ func _fin_ground() -> void:
 	var pays := a.retainer()
 	var full := a.retainer_full()
 	if pays >= full:
-		UiKit.pair(self, font, "Pays a year", "%d CC" % full,
+		UiKit.pair(self, font, UiKit.t("Pays a year"), UiKit.t("%d CC") % full,
 			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
 	else:
 		## SHORTER THAN IT WAS. "%d CC — %d lost to the state of it" finished at
 		## 958 of a 960 canvas and `UiKit.pair` right-aligns, so on any narrower
 		## shape the sentence walked back over its own label.
-		UiKit.pair(self, font, "Pays a year",
+		UiKit.pair(self, font, UiKit.t("Pays a year"),
 			"%d CC  ·  %d lost to neglect" % [pays, full - pays],
 			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DOWN)
 	y += 22.0
 
-	UiKit.pair(self, font, "Upkeep each summer", "%d CC" % o.arena_upkeep(),
+	UiKit.pair(self, font, UiKit.t("Upkeep each summer"), UiKit.t("%d CC") % o.arena_upkeep(),
 		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
 	y += 22.0
 	if a.condition < 0.999 and a.level >= Arena.WEARS_FROM_LEVEL:
-		UiKit.pair(self, font, "Putting it right", "%d CC" % a.upkeep_cost(),
+		UiKit.pair(self, font, UiKit.t("Putting it right"), UiKit.t("%d CC") % a.upkeep_cost(),
 			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.YOU)
 	else:
-		UiKit.pair(self, font, "Putting it right", "nothing to do",
+		UiKit.pair(self, font, UiKit.t("Putting it right"), UiKit.t("nothing to do"),
 			Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM,
 			UiKit.EDGE.lightened(0.35))
 
@@ -2749,14 +2693,14 @@ func _fin_ground() -> void:
 	## is the half the probes found nobody was being told about: at the bottom of
 	## the pyramid the gate is worth about a credit and a half a SEASON.
 	y += 34.0
-	UiKit.text(self, font, "THE CROWD", Vector2(FIN_RIGHT, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THE CROWD"), Vector2(FIN_RIGHT, y), 13, UiKit.DIM)
 	y += 26.0
-	UiKit.pair(self, font, "They put through the door",
+	UiKit.pair(self, font, UiKit.t("They put through the door"),
 		"%s  ·  %d%% full" % [UiKit.crowd_word(o.attendance()),
 			int(round(o.fill() * 100.0))],
 		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
 	y += 22.0
-	UiKit.pair(self, font, "A home fight pays", "%d CC" % o.crowd_pay(),
+	UiKit.pair(self, font, UiKit.t("A home fight pays"), UiKit.t("%d CC") % o.crowd_pay(),
 		Vector2(FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
 	y += 22.0
 	## AND THE BAR, which is the half that does not swing with the results. It is

@@ -478,6 +478,16 @@ func _test_a_deep_career_survives_a_reload() -> void:
 		f.morale = 0.02
 	s.office.sync_morale(s.club)
 	_play_a_season(s)
+	## AND IF THE CLUB DID TOO WELL TO FRACTURE, THE SPLIT IS CALLED DIRECTLY with
+	## a bottom finish. `fractures()` also wants the bottom half, which a stronger
+	## starting club (27 Sep pacing package) no longer arrives at on its own —
+	## the world stopped doing the thing this check was relying on it to do.
+	if s.splinter_rosters.is_empty():
+		var t := s.world.player_tier()
+		for f in s.club.roster:
+			f.morale = 0.02
+		s.office.sync_morale(s.club)
+		s.last_split = s._maybe_split(League.club_count(t), t, t)
 	if s.splinter_rosters.is_empty():
 		bad.append("no club broke away, so the one saved CPU roster is not in this save")
 	else:

@@ -103,18 +103,18 @@ func _build_city_picker() -> void:
 			_offer_cities()
 			_build()))
 	var y := CITY_AT.y + float(CITY_ROWS) * (CITY_CARD.y + CITY_GAP.y) + 16.0
-	ui.add_child(UiKit.button("Show me others", Vector2(CITY_AT.x, y),
+	ui.add_child(UiKit.button(UiKit.t("Show me others"), Vector2(CITY_AT.x, y),
 		Vector2(280, 46), func():
 			_offer_cities()
 			_build()))
-	ui.add_child(UiKit.button("Anywhere will do", Vector2(CITY_AT.x + 296, y),
+	ui.add_child(UiKit.button(UiKit.t("Anywhere will do"), Vector2(CITY_AT.x + 296, y),
 		Vector2(280, 46), func():
 			_take_city(offered[randi() % offered.size()])))
 	## NOT AT (24, 96). That is the back button's home on every other screen and
 	## on this one the title block is already there — it drew straight through
 	## "Run a club. Take the list. Climb." A shared position is only shared where
 	## the thing behind it is.
-	ui.add_child(UiKit.button("Back", Vector2(CITY_AT.x + 592.0, y),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(CITY_AT.x + 592.0, y),
 		Vector2(200, 46), func():
 			picking = -1
 			_build()))
@@ -149,28 +149,28 @@ func _build() -> void:
 		slots.append(info)
 		var x := SLOT_X + float(i) * (SLOT_W + SLOT_GAP)
 		if info.is_empty():
-			ui.add_child(UiKit.button("Start a club", Vector2(x + 20, SLOT_Y + 216),
+			ui.add_child(UiKit.button(UiKit.t("Start a club"), Vector2(x + 20, SLOT_Y + 216),
 				Vector2(SLOT_W - 40, 52), _new_club.bind(i)))
 		elif info.get("broken", false):
-			ui.add_child(UiKit.button("Set it aside", Vector2(x + 20, SLOT_Y + 216),
+			ui.add_child(UiKit.button(UiKit.t("Set it aside"), Vector2(x + 20, SLOT_Y + 216),
 				Vector2(SLOT_W - 40, 52), _set_aside.bind(i)))
 		else:
-			ui.add_child(UiKit.button("Continue", Vector2(x + 20, SLOT_Y + 216),
+			ui.add_child(UiKit.button(UiKit.t("Continue"), Vector2(x + 20, SLOT_Y + 216),
 				Vector2(SLOT_W - 40, 52), _continue.bind(i)))
 			## The destructive half moves UP when armed, so the finger that
 			## tapped Delete is not resting on the button that confirms it.
 			if confirm_delete == i:
-				ui.add_child(UiKit.button("Delete it for good",
+				ui.add_child(UiKit.button(UiKit.t("Delete it for good"),
 					Vector2(x + 20, SLOT_Y + 216), Vector2(SLOT_W - 40, 46), _delete.bind(i)))
 			else:
-				ui.add_child(UiKit.button("Delete", Vector2(x + 20, SLOT_Y + 276),
+				ui.add_child(UiKit.button(UiKit.t("Delete"), Vector2(x + 20, SLOT_Y + 276),
 					Vector2(SLOT_W - 40, 40), _delete.bind(i)))
 	## Settings lives on the title screen rather than inside a season, because
 	## the credits are in there and the licence for the menu music wants them
 	## reachable without starting a club.
-	ui.add_child(UiKit.button("Settings", Vector2(UiKit.screen().x - 180, 96),
+	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(UiKit.screen().x - 180, 96),
 		Vector2(156, 44), _settings))
-	ui.add_child(UiKit.button("Back", Vector2(24, 96), Vector2(140, 44), func():
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 96), Vector2(140, 44), func():
 		UiKit.go("res://scenes/Start.tscn")))
 	## A CANCEL, NOT A SECOND TAP ON THE SAME PIXEL. "Delete" became "Sure?" in
 	## place, same rect, no way out — so a double-tap destroyed a career, which
@@ -178,7 +178,7 @@ func _build() -> void:
 	## and brings a Keep it with it.
 	if confirm_delete != -1:
 		var cx := SLOT_X + float(confirm_delete) * (SLOT_W + SLOT_GAP)
-		ui.add_child(UiKit.button("Keep it", Vector2(cx + 20, SLOT_Y + 276),
+		ui.add_child(UiKit.button(UiKit.t("Keep it"), Vector2(cx + 20, SLOT_Y + 276),
 			Vector2(SLOT_W - 40, 40), func():
 				confirm_delete = -1
 				_build()))
@@ -223,7 +223,7 @@ func _continue(slot: int) -> void:
 
 func _set_aside(slot: int) -> void:
 	SaveGame.quarantine(slot)
-	notice = "Slot %d could not be opened. The file was kept aside, not deleted." % (slot + 1)
+	notice = UiKit.t("Slot %d could not be opened. The file was kept aside, not deleted.") % (slot + 1)
 	_build()
 
 
@@ -320,12 +320,12 @@ func _draw() -> void:
 	UiKit.text(self, font, one, Vector2(118, 72), 42, UiKit.INK)
 	var two_x := 118.0 + font.get_string_size(one, HORIZONTAL_ALIGNMENT_LEFT,
 		-1.0, 42).x + 18.0
-	UiKit.text(self, font, "BUHURT", Vector2(two_x, 72 - lift), 42, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("BUHURT"), Vector2(two_x, 72 - lift), 42, UiKit.YOU)
 	## 180 AND NOT 120. The Back button sits at its usual (24, 96) and runs to
 	## x 164, so this line started underneath it — on every visit to this screen
 	## since the button was added, invisible to every check in the suite because
 	## none of them could see drawn text. `test_ink.gd` named it on its first run.
-	UiKit.text(self, font, "Run a club. Take the list. Climb.",
+	UiKit.text(self, font, UiKit.t("Run a club. Take the list. Climb."),
 		Vector2(180, 104), 16, UiKit.DIM)
 
 	if picking >= 0:
@@ -335,7 +335,7 @@ func _draw() -> void:
 		var rows := float(CITY_ROWS) * (CITY_CARD.y + CITY_GAP.y)
 		UiKit.panel(self, Rect2(CITY_AT - Vector2(24, 64),
 			Vector2(UiKit.screen().x - (CITY_AT.x - 24) * 2.0, 64 + rows + 82)))
-		UiKit.text(self, font, "WHERE ARE YOU FROM?",
+		UiKit.text(self, font, UiKit.t("WHERE ARE YOU FROM?"),
 			Vector2(CITY_AT.x, CITY_AT.y - 34), 20, UiKit.YOU)
 		UiKit.text(self, font,
 			"Your town names the club, and it is where you play at home.",
@@ -357,18 +357,18 @@ func _draw() -> void:
 		UiKit.panel(self, Rect2(x, SLOT_Y, SLOT_W, SLOT_H))
 		var info: Dictionary = slots[i]
 		if info.get("broken", false):
-			UiKit.text(self, font, "SLOT %d" % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
-			UiKit.text(self, font, "Can't open", Vector2(x + 20, SLOT_Y + 70), 24, UiKit.DOWN)
-			UiKit.text(self, font, "This file is damaged or from", Vector2(x + 20, SLOT_Y + 106), 14, UiKit.DIM)
-			UiKit.text(self, font, "a newer version of the game.", Vector2(x + 20, SLOT_Y + 126), 14, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("SLOT %d") % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("Can't open"), Vector2(x + 20, SLOT_Y + 70), 24, UiKit.DOWN)
+			UiKit.text(self, font, UiKit.t("This file is damaged or from"), Vector2(x + 20, SLOT_Y + 106), 14, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("a newer version of the game."), Vector2(x + 20, SLOT_Y + 126), 14, UiKit.DIM)
 			continue
 		if info.is_empty():
-			UiKit.text(self, font, "SLOT %d" % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
-			UiKit.text(self, font, "Empty", Vector2(x + 20, SLOT_Y + 70), 24, UiKit.DIM)
-			UiKit.text(self, font, "A new club starts in the", Vector2(x + 20, SLOT_Y + 106), 14, UiKit.DIM)
-			UiKit.text(self, font, "Backyard Circuit.", Vector2(x + 20, SLOT_Y + 126), 14, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("SLOT %d") % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("Empty"), Vector2(x + 20, SLOT_Y + 70), 24, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("A new club starts in the"), Vector2(x + 20, SLOT_Y + 106), 14, UiKit.DIM)
+			UiKit.text(self, font, UiKit.t("Backyard Circuit."), Vector2(x + 20, SLOT_Y + 126), 14, UiKit.DIM)
 			continue
-		UiKit.text(self, font, "SLOT %d" % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("SLOT %d") % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
 		## CLIPPED BY PIXELS, into a box that is measured in pixels. It was
 		## twenty characters, and "Detroit Free Company" is exactly twenty — 291
 		## of them at this size, into a card that has 280.
@@ -376,11 +376,11 @@ func _draw() -> void:
 			UiKit.clip_px(font, String(info["club"]), 21, SLOT_W - 40.0),
 			Vector2(x + 20, SLOT_Y + 72), 21, UiKit.INK)
 		UiKit.text(self, font, String(info["tier"]), Vector2(x + 20, SLOT_Y + 102), 15, UiKit.YOU)
-		UiKit.text(self, font, "Season %d" % int(info["season"]),
+		UiKit.text(self, font, UiKit.t("Season %d") % int(info["season"]),
 			Vector2(x + 20, SLOT_Y + 130), 15, UiKit.DIM)
-		UiKit.text(self, font, "Event %d of %d" % [int(info["event"]), int(info["events"])],
+		UiKit.text(self, font, UiKit.t("Event %d of %d") % [int(info["event"]), int(info["events"])],
 			Vector2(x + 20, SLOT_Y + 152), 15, UiKit.DIM)
-		UiKit.text(self, font, String(info["saved"]).replace("T", "  "),
+		UiKit.text(self, font, String(info["saved"]).replace(UiKit.t("T"), "  "),
 			Vector2(x + 20, SLOT_Y + 186), 12, UiKit.EDGE.lightened(0.4))
 	if notice != "":
 		UiKit.text(self, font, notice, Vector2(SLOT_X, SLOT_Y + SLOT_H + 28), 14, UiKit.DOWN)

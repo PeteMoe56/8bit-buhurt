@@ -46,7 +46,7 @@ func _ready() -> void:
 	## the bottom — so Back moves to the top right rather than the tables being
 	## squeezed to make room for it.
 	var pools_mode: bool = cup != null and cup.has_pools and cup.stage == Cup.Stage.POOLS
-	ui.add_child(UiKit.button("Back",
+	ui.add_child(UiKit.button(UiKit.t("Back"),
 		Vector2(w() - 172, 26) if pools_mode else Vector2(ROAD_X, h() - 56),
 		Vector2(148 if pools_mode else ROAD_W, 40 if pools_mode else 44), _back))
 	queue_redraw()
@@ -71,8 +71,8 @@ func _draw() -> void:
 	Audio.for_mood(UiKit.mood, false)
 	UiKit.ground(self)
 	if cup == null:
-		UiKit.text(self, font, "NO CUP RUNNING", Vector2(24, 40), 22, UiKit.YOU)
-		UiKit.text(self, font, "Nothing is drawn yet.", Vector2(24, 72), 14, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("NO CUP RUNNING"), Vector2(24, 40), 22, UiKit.YOU)
+		UiKit.text(self, font, UiKit.t("Nothing is drawn yet."), Vector2(24, 72), 14, UiKit.DIM)
 		return
 	if cup.has_pools and cup.stage == Cup.Stage.POOLS:
 		_pools()
@@ -114,7 +114,7 @@ func _bracket_rounds() -> int:
 # --------------------------------------------------------------------- tree
 func _tree() -> void:
 	var first := _bracket_field()
-	UiKit.text(self, font, "%d clubs  ·  seeded  ·  one leg" % first,
+	UiKit.text(self, font, UiKit.t("%d clubs  ·  seeded  ·  one leg") % first,
 		Vector2(24, 64), 13, UiKit.DIM)
 	## EVERY ROUND THE CUP WILL HAVE, not just the ones it has opened.
 	##
@@ -174,11 +174,11 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 func _road() -> void:
 	UiKit.panel(self, Rect2(ROAD_X, 96, ROAD_W, 366))
 	if me < 0:
-		UiKit.text(self, font, "NOT YOUR CUP", Vector2(ROAD_X + 16, 126), 12, UiKit.DIM)
-		UiKit.text(self, font, "You were not", Vector2(ROAD_X + 16, 160), 14, UiKit.DIM)
-		UiKit.text(self, font, "invited this year.", Vector2(ROAD_X + 16, 180), 14, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("NOT YOUR CUP"), Vector2(ROAD_X + 16, 126), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("You were not"), Vector2(ROAD_X + 16, 160), 14, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("invited this year."), Vector2(ROAD_X + 16, 180), 14, UiKit.DIM)
 		return
-	UiKit.text(self, font, "YOUR ROAD", Vector2(ROAD_X + 16, 126), 12, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("YOUR ROAD"), Vector2(ROAD_X + 16, 126), 12, UiKit.YOU)
 	var y := 152.0
 	var done := false   ## set the moment a tie of yours is lost
 	var total := _bracket_rounds()
@@ -197,7 +197,7 @@ func _road() -> void:
 			## being knocked out of rounds you were never in. The round you
 			## actually lost says so, with the score; everything after it is
 			## simply not your business any more.
-			UiKit.text(self, font, "—" if done else "not there yet",
+			UiKit.text(self, font, "—" if done else UiKit.t("not there yet"),
 				Vector2(ROAD_X + 16, y + 24), 14, UiKit.EDGE.lightened(0.4))
 			y += 64.0
 			continue
@@ -207,15 +207,15 @@ func _road() -> void:
 			var mine: int = int(m["ra"]) if int(m["a"]) == me else int(m["rb"])
 			var his: int = int(m["rb"]) if int(m["a"]) == me else int(m["ra"])
 			var won: bool = int(m.get("winner", -1)) == me
-			UiKit.text(self, font, "%s  %d-%d" % ["WON" if won else "OUT", mine, his],
+			UiKit.text(self, font, UiKit.t("%s  %d-%d") % [UiKit.t("WON") if won else UiKit.t("OUT"), mine, his],
 				Vector2(ROAD_X + 16, y + 44), 13, UiKit.UP if won else UiKit.DOWN)
 			if not won:
 				done = true
 		else:
-			UiKit.text(self, font, "to fight", Vector2(ROAD_X + 16, y + 44), 13, UiKit.YOU)
+			UiKit.text(self, font, UiKit.t("to fight"), Vector2(ROAD_X + 16, y + 44), 13, UiKit.YOU)
 		y += 64.0
 	if cup.champion >= 0:
-		UiKit.text(self, font, "CHAMPION", Vector2(ROAD_X + 16, 430), 11, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("CHAMPION"), Vector2(ROAD_X + 16, 430), 11, UiKit.DIM)
 		UiKit.text(self, font, UiKit.clip(_name(cup.champion), 17),
 			Vector2(ROAD_X + 16, 452), 15,
 			UiKit.YOU if cup.champion == me else UiKit.INK)
@@ -225,17 +225,17 @@ func _road() -> void:
 ## WORLDS. Sixteen clubs is the one shape a tree cannot hold on this screen, so
 ## the group stage gets a mode rather than a layout.
 func _pools() -> void:
-	UiKit.text(self, font, "%s  ·  GROUP STAGE" % cup.cup_name.to_upper(),
+	UiKit.text(self, font, UiKit.t("%s  ·  GROUP STAGE") % cup.cup_name.to_upper(),
 		Vector2(24, 40), 22, UiKit.YOU)
-	UiKit.text(self, font, "%d clubs  ·  %d pools  ·  top %d go through"
+	UiKit.text(self, font, UiKit.t("%d clubs  ·  %d pools  ·  top %d go through")
 		% [cup.entrants.size(), cup.pools.size(), Cup.POOLS_ADVANCE],
 		Vector2(24, 64), 13, UiKit.DIM)
 	for p in cup.pools.size():
 		var px := 24.0 + float(p % 2) * 468.0
 		var py := 100.0 + float(p / 2) * 212.0
 		UiKit.panel(self, Rect2(px, py, 444, 192))
-		UiKit.text(self, font, "POOL %s" % char(65 + p), Vector2(px + 18, py + 28), 13, UiKit.DIM)
-		UiKit.right(self, font, "P   W   D   L   MARGIN", Vector2(px + 426, py + 28),
+		UiKit.text(self, font, UiKit.t("POOL %s") % char(65 + p), Vector2(px + 18, py + 28), 13, UiKit.DIM)
+		UiKit.right(self, font, UiKit.t("P   W   D   L   MARGIN"), Vector2(px + 426, py + 28),
 			12, UiKit.EDGE, 240)
 		## REAL ROWS. The mockup made these up and printed a club on minus one
 		## win; these come off the cup's own table.
@@ -250,7 +250,7 @@ func _pools() -> void:
 				draw_rect(Rect2(px + 12, ry - 16, 3, 22), UiKit.UP)
 			UiKit.text(self, font, "%d" % (i + 1), Vector2(px + 24, ry), 12, UiKit.DIM)
 			UiKit.text(self, font, UiKit.clip(_name(id), 20), Vector2(px + 44, ry), 14, col)
-			UiKit.right(self, font, "%d   %d   %d   %d   %+d"
+			UiKit.right(self, font, UiKit.t("%d   %d   %d   %d   %+d")
 				% [int(row.get("played", 0)), int(row.get("won", 0)),
 					int(row.get("drawn", 0)), int(row.get("lost", 0)),
 					## Margin is kept as for/against, like the league table —
@@ -258,5 +258,5 @@ func _pools() -> void:
 					## returned zero for every club in every pool.
 					int(row.get("mf", 0)) - int(row.get("ma", 0))],
 				Vector2(px + 426, ry), 13, col, 240)
-	UiKit.text(self, font, "Top %d of each pool make the knockout." % Cup.POOLS_ADVANCE,
+	UiKit.text(self, font, UiKit.t("Top %d of each pool make the knockout.") % Cup.POOLS_ADVANCE,
 		Vector2(24, UiKit.bottom(16.0)), 12, UiKit.DIM)

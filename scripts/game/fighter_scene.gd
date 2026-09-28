@@ -189,7 +189,7 @@ func _build() -> void:
 		_meeting_controls()
 		queue_redraw()
 		return
-	ui.add_child(UiKit.button("Back", Vector2(24, y), Vector2(130, 44), func():
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, y), Vector2(130, 44), func():
 		Session.viewing_fighter = null
 		UiKit.back("res://scenes/Roster.tscn")))
 
@@ -244,17 +244,17 @@ func _build() -> void:
 	## a decision you make about a man while he is still playing, which is what
 	## separates it from a leaderboard the game fills in for you.
 	var tagged: bool = season.world.in_hall(man.display_name)
-	ui.add_child(UiKit.button("★  In the Hall" if tagged else "☆  Tag for the Hall",
+	ui.add_child(UiKit.button(UiKit.t("★  In the Hall") if tagged else UiKit.t("☆  Tag for the Hall"),
 		Vector2(330, 14), Vector2(210, 34), func():
 			if tagged:
 				season.world.untag_from_hall(man.display_name)
-				flash = "%s taken out of the Hall." % man.display_name
+				flash = UiKit.t("%s taken out of the Hall.") % man.display_name
 			else:
 				var err := season.world.tag_for_hall(man, season.world.season)
-				flash = UiKit.said(err) if err != "" else "%s tagged for the Hall." % man.display_name
+				flash = UiKit.said(err) if err != "" else UiKit.t("%s tagged for the Hall.") % man.display_name
 			Session.autosave()
 			_build()))
-	ui.add_child(UiKit.button("%s · %s/wk" % ["Re-sign" if out_of_deal else "Extend",
+	ui.add_child(UiKit.button(UiKit.t("%s · %s/wk") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
 		ClubOffice.money(cost)], Vector2(376, y), Vector2(250, 44), func():
 			flash = UiKit.said(season.resign(man) if out_of_deal else season.extend(man))
 			Session.autosave()
@@ -262,6 +262,16 @@ func _build() -> void:
 
 	ui.add_child(UiKit.button("<", Vector2(700, y), Vector2(56, 44), _page.bind(-1)))
 	ui.add_child(UiKit.button(">", Vector2(764, y), Vector2(56, 44), _page.bind(1)))
+	## HIS WEAPON, and a tap changes it. Sword-and-shield or polearm — a line-up
+	## decision, so it costs nothing and can be changed between any two events.
+	ui.add_child(UiKit.button(String(Tuning.WEAPON_SHORT[man.weapon]),
+		Vector2(828, y), Vector2(108, 44), func():
+			man.weapon = Tuning.Weapon.POLEARM if man.weapon == Tuning.Weapon.SWORD_SHIELD \
+				else Tuning.Weapon.SWORD_SHIELD
+			flash = UiKit.t("%s will carry a %s.") % [man.display_name,
+				Tuning.weapon_name(man.weapon).to_lower()]
+			Session.autosave()
+			_build()))
 
 	## ------------------------------------------------------------ the level
 	## WHERE THE POINT GOES, and it is a row of real buttons rather than a
@@ -284,7 +294,7 @@ func _build() -> void:
 		for i in Career.STATS.size():
 			var stat: int = Career.STATS[i]
 			var ok: bool = can.has(stat)
-			var b := UiKit.button("+1 %s" % Career.stat_name(stat),
+			var b := UiKit.button(UiKit.t("+1 %s") % Career.stat_name(stat),
 				Vector2(L_X + float(i) * (bw + GAP), LEVEL_ROW_Y),
 				Vector2(bw, ROW_H), func():
 					## It can still refuse — a stat at 99, or a level he has not
@@ -292,14 +302,14 @@ func _build() -> void:
 					## goes gray without a reason is one the player argues with.
 					var r := Career.level_into(man, stat)
 					if bool(r.get("levelled", false)):
-						flash = "%s put a level into %s." % [man.display_name,
+						flash = UiKit.t("%s put a level into %s.") % [man.display_name,
 							Career.stat_name(stat).to_lower()]
 						season.sync_power()
 					elif r.get("reason", "") == "not earned":
-						flash = UiKit.said("%d more xp before he levels." %
+						flash = UiKit.said(UiKit.t("%d more xp before he levels.") %
 							int(r.get("short", 0)))
 					else:
-						flash = UiKit.said("Nothing left in his %s." %
+						flash = UiKit.said(UiKit.t("Nothing left in his %s.") %
 							Career.stat_name(stat).to_lower())
 					Session.autosave()
 					_build())
@@ -311,7 +321,7 @@ func _build() -> void:
 		## own (layout B, `tools/mock_meeting.gd`) so each one can show the stat
 		## it MOVES underneath it — which is the thing three buttons in a strip
 		## could never do, because there was nowhere to put the answer.
-		var open_b := UiKit.button("Meeting · %s" % man.display_name,
+		var open_b := UiKit.button(UiKit.t("Meeting · %s") % man.display_name,
 			Vector2(L_X, LEVEL_ROW_Y), Vector2(meet_x() - GAP - L_X, ROW_H), func():
 				meeting_open = true
 				rolls.clear()
@@ -329,7 +339,7 @@ func _meeting_controls() -> void:
 	for i in 4:
 		var c: Dictionary = _meeting_row(i)
 		var at := _cell_at(i)
-		var b := UiKit.button("%s · %d CC" % [String(c["verb"]), int(c["cc"])],
+		var b := UiKit.button(UiKit.t("%s · %d CC") % [String(c["verb"]), int(c["cc"])],
 			at + Vector2(READ_W + 12.0, 0.0), Vector2(btn_w(), HEAD_H),
 			_buy.bind(String(c["key"])))
 		b.disabled = bool(c["off"])
@@ -339,7 +349,7 @@ func _meeting_controls() -> void:
 		Vector2(52, 40), _page.bind(-1)))
 	ui.add_child(UiKit.button(">", Vector2(card().position.x + PAD + 58.0, fy),
 		Vector2(52, 40), _page.bind(1)))
-	ui.add_child(UiKit.button("Done",
+	ui.add_child(UiKit.button(UiKit.t("Done"),
 		Vector2(card().position.x + card().size.x - PAD - 130.0, fy),
 		Vector2(130, 40), func():
 			meeting_open = false
@@ -445,22 +455,22 @@ func _buy(which: String) -> void:
 		"morale":
 			err = season.office.negotiate(man)
 			if err == "":
-				flash = "%s is %s after a word." % [man.display_name,
+				flash = UiKit.t("%s is %s after a word.") % [man.display_name,
 					man.morale_word().to_lower()]
 		"kit":
 			err = season.office.repair_kit(man)
 			if err == "":
-				flash = "The armorer went over %s's harness." % man.display_name
+				flash = UiKit.t("The armorer went over %s's harness.") % man.display_name
 		"level":
 			err = season.office.buy_level(man)
 			if err == "":
-				flash = "%s has a level waiting after a week of extra reps." \
+				flash = UiKit.t("%s has a level waiting after a week of extra reps.") \
 					% man.display_name
 		"deal":
 			var out: bool = man.years <= 0
 			err = season.resign(man) if out else season.extend(man)
 			if err == "":
-				flash = "%s signed for %d years." % [man.display_name, man.years]
+				flash = UiKit.t("%s signed for %d years.") % [man.display_name, man.years]
 	if err != "":
 		flash = UiKit.said(err)
 		Juice.refuse()
@@ -489,10 +499,10 @@ func _draw() -> void:
 	## 64px drawn at 64px, between the Hall button and the squad counter.
 	ArtBank.portrait(self, Rect2(580, 8, 64, 64), man.overall(), man.display_name,
 		man.number)
-	UiKit.text(self, font, "%s  —  %s" % [man.pos_name().to_upper(),
+	UiKit.text(self, font, UiKit.t("%s  —  %s") % [man.pos_name().to_upper(),
 		man.display_name.to_upper()], Vector2(24, 46), 24, UiKit.INK)
 	var order := _order()
-	UiKit.right(self, font, "#%d   ·   %d of %d" % [man.number,
+	UiKit.right(self, font, UiKit.t("#%d   ·   %d of %d") % [man.number,
 		order.find(man) + 1, order.size()],
 		Vector2(UiKit.screen().x - 24, 46), 14, UiKit.DIM, 260)
 
@@ -530,7 +540,7 @@ func _draw() -> void:
 # ------------------------------------------------------------------- column 1
 func _the_man() -> void:
 	UiKit.panel(self, Rect2(L_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "THE MAN", Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THE MAN"), Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	## THE LIST PAYS FOR THE TRAIT OUT OF ITS OWN RHYTHM, 22 instead of 24.
 	##
 	## The first cut grew `COL_H` by 14 instead, and the panel's new bottom ran
@@ -552,7 +562,7 @@ func _the_man() -> void:
 	## HIS MOOD, and it belongs on this list rather than in a panel of its own:
 	## it is a fact about the man in the same way his weight is, and it is the one
 	## on the list that you can do something about this week.
-	UiKit.text(self, font, "Morale", Vector2(L_X + 16, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Morale"), Vector2(L_X + 16, y), 13, UiKit.DIM)
 	UiKit.right(self, font, man.morale_word(), Vector2(L_X + COL_W - 16, y), 13,
 		man.morale_color(), 210)
 	y += ROW
@@ -571,7 +581,7 @@ func _the_man() -> void:
 	## half that costs you something.
 	if man.trait_id != FighterTrait.T.NONE:
 		var flaw := FighterTrait.is_flaw(man.trait_id)
-		UiKit.text(self, font, "Known for", Vector2(L_X + 16, y), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Known for"), Vector2(L_X + 16, y), 13, UiKit.DIM)
 		UiKit.right(self, font, FighterTrait.name_of(man.trait_id),
 			Vector2(L_X + COL_W - 16, y), 13, UiKit.DOWN if flaw else UiKit.UP, 210)
 		y += 17.0
@@ -584,11 +594,11 @@ func _the_man() -> void:
 	else:
 		y += 8.0
 
-	UiKit.text(self, font, "RATING", Vector2(L_X + 16, y), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("RATING"), Vector2(L_X + 16, y), 11, UiKit.DIM)
 	UiKit.stars(self, Vector2(L_X + 16, y + 8), man.overall(), UiKit.YOU, 13.0, 4.0)
 	UiKit.text(self, font, "%d" % man.overall(), Vector2(L_X + 116, y + 20), 15, UiKit.INK)
 
-	UiKit.text(self, font, "CEILING", Vector2(L_X + 156, y), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("CEILING"), Vector2(L_X + 156, y), 11, UiKit.DIM)
 	UiKit.stars(self, Vector2(L_X + 156, y + 8), man.potential, UiKit.UP, 13.0, 4.0)
 	UiKit.text(self, font, "%d" % man.potential, Vector2(L_X + 256, y + 20), 15,
 		UiKit.UP if man.headroom() > 0 else UiKit.DIM)
@@ -607,7 +617,7 @@ func _the_man() -> void:
 	var bar := Career.next_level_at(man)
 	var capped: bool = Career.at_ceiling(man)
 	var waiting: bool = Career.can_place(man)
-	UiKit.text(self, font, "LEVEL", Vector2(L_X + 16, y), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("LEVEL"), Vector2(L_X + 16, y), 11, UiKit.DIM)
 	UiKit.text(self, font, "%d" % man.level, Vector2(L_X + 70, y + 2), 15, UiKit.INK)
 	## TWO STATES. "A level waiting with nowhere to put it" was a third message
 	## written for a case a peak-as-a-wall rule created, and that rule lasted one
@@ -630,14 +640,14 @@ func _the_man() -> void:
 	## player has to take on trust.
 	var asks: Dictionary = Contracts.demand(man)
 	if bool(asks["refuses"]):
-		UiKit.text(self, font, "He will not sign again.",
+		UiKit.text(self, font, UiKit.t("He will not sign again."),
 			Vector2(L_X + 16, y + 56), 12, UiKit.DOWN)
 	else:
-		UiKit.text(self, font, "Asks next", Vector2(L_X + 16, y + 56), 11, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Asks next"), Vector2(L_X + 16, y + 56), 11, UiKit.DIM)
 		## The price the club would actually pay (a Negotiator captain included),
 		## from the same function `Season.resign` charges.
 		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])
-		UiKit.right(self, font, "%s/wk · %dy" % [
+		UiKit.right(self, font, UiKit.t("%s/wk · %dy") % [
 			ClubOffice.money(wage_asked), int(asks["years"])],
 			Vector2(L_X + COL_W - 16, y + 56), 12,
 			UiKit.DOWN if float(asks["mood"]) > 1.02 else (
@@ -683,13 +693,13 @@ func _pace(y: float) -> void:
 func _draw_meeting() -> void:
 	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
 	UiKit.panel(self, card())
-	UiKit.mid(self, font, "A WORD WITH %s" % man.display_name.to_upper(),
+	UiKit.mid(self, font, UiKit.t("A WORD WITH %s") % man.display_name.to_upper(),
 		Vector2(card().position.x, card().position.y + 22.0), 19, UiKit.INK,
 		card().size.x)
 	## THE PURSE, ROLLING TOO. Spending is the other half of every row on this
 	## card, and a balance that snaps while the effect counts is the card telling
 	## you the price was free.
-	UiKit.right(self, font, "%d CC" % int(round(_roll("cc",
+	UiKit.right(self, font, UiKit.t("%d CC") % int(round(_roll("cc",
 		float(season.office.credits)))),
 		Vector2(card().position.x + card().size.x - PAD, card().position.y + 22.0),
 		17, UiKit.YOU, 200.0)
@@ -706,7 +716,7 @@ func _draw_meeting() -> void:
 	var ry := card_close_y() - 32.0
 	draw_rect(Rect2(card().position.x + PAD, ry, card().size.x - PAD * 2.0, 1.0),
 		UiKit.FRAME)
-	UiKit.mid(self, font, "club rating %d"
+	UiKit.mid(self, font, UiKit.t("club rating %d")
 		% int(round(_roll("power", float(season.club.power())))),
 		Vector2(card().position.x, ry + 20.0), 13, UiKit.DIM, card().size.x)
 
@@ -756,7 +766,7 @@ func _line(label: String, value: String, y: float) -> void:
 ## which is the number the decision actually turns on.
 func _attributes() -> void:
 	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "WHAT HE IS MADE OF", Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("WHAT HE IS MADE OF"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	## THE VALUE AND WHAT HE ACTUALLY FIGHTS AT. An angry man hits harder and a
 	## toxic one lasts longer — the melee reads `fighting_strength()` and
 	## `fighting_gas()`, so this panel reads them too rather than drawing the
@@ -813,13 +823,13 @@ func _attributes() -> void:
 # ------------------------------------------------------------------- column 3
 func _the_book() -> void:
 	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "HIS RECORD", Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("HIS RECORD"), Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	if man.bouts <= 0:
-		UiKit.text(self, font, "He has not fought for you yet.",
+		UiKit.text(self, font, UiKit.t("He has not fought for you yet."),
 			Vector2(R_X + 16, COL_Y + 64), 13, UiKit.DIM)
-		UiKit.text(self, font, "Downs, assists and knocks are",
+		UiKit.text(self, font, UiKit.t("Downs, assists and knocks are"),
 			Vector2(R_X + 16, COL_Y + 92), 12, UiKit.EDGE.lightened(0.5))
-		UiKit.text(self, font, "kept from his first event on.",
+		UiKit.text(self, font, UiKit.t("kept from his first event on."),
 			Vector2(R_X + 16, COL_Y + 110), 12, UiKit.EDGE.lightened(0.5))
 		return
 	var y := COL_Y + 56.0
@@ -830,11 +840,11 @@ func _the_book() -> void:
 	_book("Best afternoon", "%d" % man.best_downs, y); y += 26.0
 	_book("Rounds standing", "%d" % man.rounds_standing, y); y += 26.0
 	_book("Carried off", "%d" % man.knocks, y); y += 34.0
-	UiKit.text(self, font, "HONORS", Vector2(R_X + 16, y), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("HONORS"), Vector2(R_X + 16, y), 11, UiKit.DIM)
 	if man.honors <= 0:
-		UiKit.text(self, font, "Nothing yet.", Vector2(R_X + 16, y + 22), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Nothing yet."), Vector2(R_X + 16, y + 22), 13, UiKit.DIM)
 	else:
-		UiKit.text(self, font, "%d cup%s" % [man.honors, "" if man.honors == 1 else "s"],
+		UiKit.text(self, font, UiKit.t("%d cup%s") % [man.honors, "" if man.honors == 1 else "s"],
 			Vector2(R_X + 16, y + 22), 16, UiKit.YOU)
 
 

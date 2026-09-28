@@ -232,7 +232,17 @@ static func trade_value(rating: int, tier: int) -> int:
 	##
 	## Floored at zero rather than one, which is the honest reading: nobody pays
 	## for a man you could replace off the shelf for a single credit.
-	return clampi(paid, 0, maxi(0, fee(rating, tier) - 1))
+	##
+	## AGAINST THE CHEAPEST FEE IN HIS BUCKET, not his own. Clamping against his
+	## own fee let the bottom of a bucket fetch 0 and the rest 1, and the buckets
+	## are supposed to be flat (every man in one fetches the same) — which broke
+	## the day the re-measured slack moved the bottom share over half a credit.
+	var k := trade_tier(rating, tier)
+	var lo := rating
+	var floor_r: int = int(shelf_of(tier)[0]) - 20
+	while lo - 1 >= floor_r and trade_tier(lo - 1, tier) == k:
+		lo -= 1
+	return clampi(paid, 0, maxi(0, fee(lo, tier) - 1))
 
 
 ## WHICH DIVISION'S STANDARD THIS MAN IS AT, read off his RATING against the

@@ -23,10 +23,6 @@ const POS_NAME := {
 ## Fraction of the list's width each position starts on.
 const POS_X := [0.10, 0.27, 0.50, 0.73, 0.90]
 
-## Lanes, matching ACTM's 2-1-2 silhouette exactly (`groups = {5:[2,1,2]}` in
-## actm_arena/lib/src/roster.dart). Left pair, center, right pair.
-const POS_LANE := [0, 0, 1, 2, 2]
-
 ## Who a fighter starts paired with. Rail and Flanker stick together on each
 ## side unless split — and splitting is not a command, it is what has HAPPENED
 ## once you draw one of them a path somewhere his partner is not.
@@ -38,6 +34,39 @@ const POS_PARTNER := [Pos.FLANK_L, Pos.RAIL_L, -1, Pos.RAIL_R, Pos.FLANK_R]
 ## against — a Rail filling the other Rail slot is not out of position, and
 ## treating him as though he were would make the depth chart nonsense.
 enum Role { RAIL, FLANK, CENTER }
+
+## ------------------------------------------------------------- the weapon
+## TWO WEAPON CLASSES AND NO MORE (Pete, 14 Sep 2026): sword-and-shield and
+## polearm. Buhurt has no thrusts — every strike is a swing — no dual-wielding,
+## no war hammers or flails; shield punches are legal.
+##
+## What the difference is FOR in a management game is a line-up decision, so
+## the effects are small and read through the same `tmod` door the traits use:
+## a key with default 1.0 multiplies, a key with default 0.0 adds.
+##   POLEARM  reach — he closes to contact from further out; hooks and sweeps —
+##            better takedowns; no shield — easier to bullrush, and two hands on
+##            a pole are worse in a clinch.
+##   SWORD & SHIELD  the shield braces him against a bullrush and the punch is
+##            a small edge on his own.
+enum Weapon { SWORD_SHIELD, POLEARM }
+const WEAPON_NAME := { Weapon.SWORD_SHIELD: "Sword & shield", Weapon.POLEARM: "Polearm" }
+const WEAPON_SHORT := { Weapon.SWORD_SHIELD: "S&S", Weapon.POLEARM: "Pole" }
+const WEAPON_MODS := {
+	Weapon.SWORD_SHIELD: {"br_against": 1.05, "td_for": 0.0},
+	Weapon.POLEARM: {"reach": 1.15, "td_for": 0.04, "br_against": 0.90, "escape": 0.90},
+}
+## Who carries a pole when a club is generated, by role: the rails hook from the
+## end of the line, the centre anchors behind a shield.
+const POLEARM_SHARE := { Role.RAIL: 40, Role.FLANK: 25, Role.CENTER: 10 }
+
+
+static func weapon_mod(weapon: int, key: String):
+	var row: Dictionary = WEAPON_MODS.get(weapon, {})
+	return row.get(key, null)
+
+
+static func weapon_name(weapon: int) -> String:
+	return String(WEAPON_NAME.get(weapon, "Sword & shield"))
 const POS_ROLE := [Role.RAIL, Role.FLANK, Role.CENTER, Role.FLANK, Role.RAIL]
 const ROLE_NAME := { Role.RAIL: "Rail", Role.FLANK: "Flanker", Role.CENTER: "Center" }
 
@@ -62,7 +91,6 @@ const TICK: float = 1.0 / 30.0
 const LIST_W: float = 300.0
 const LIST_H: float = 570.0
 const RAIL_INSET: float = 14.0
-const START_LINE: float = 0.15          ## how far in from his own rail a side starts
 
 # ----------------------------------------------------------------- the clock
 ## Pete, 10 Sep 2026: a real 5v5 is capped at five minutes, but Retro Bowl does
@@ -521,7 +549,7 @@ const PLAN_MIN_STANDING: int = 3
 ## 0.66 of LIST_H — and when the list went from 320 long to 760 those same
 ## fractions moved the two re-form lines from 102 units apart to 244. So a
 ## Seasoned side, which is the one that re-forms, started walking two and a half
-## times as far to do it, burning the gas that walking now costs, while a Green
+## times as far to do it, burning the gas that walking cost at the time (GAS_MOVE is 0 now), while a Green
 ## side stood on its plan zone and kept its wind. **The difficulty curve
 ## inverted: Green beat Seasoned 61% of the time.**
 ##
@@ -711,3 +739,35 @@ static func acts_for(menu: int) -> Array:
 
 static func act_name(a: int) -> String:
 	return ACT_NAME[a]
+
+
+# ------------------------------------------------------ the fight's small print
+## Numbers that lived as literals inside `melee_sim.gd` until 27 Sep 2026 —
+## moved here, VALUES UNCHANGED, so a sweep can see them and nobody has to read
+## the sim to find one. A pair is [min, max] for `randf_range`.
+const ACT_FIRST := [0.8, 1.6]        ## first action after the line is set
+const ACT_AFTER := [1.6, 2.6]        ## next action after resolving one at contact
+const ACT_CLINCH := [2.2, 3.4]       ## between actions inside a clinch
+const ACT_BIND := [1.0, 1.8]         ## both men, the moment a clinch binds
+const WALK_RECOVER: float = 0.35     ## gas recovered while CLOSING, vs 1.0 in RECOVER
+const TD_EMPTY_TANK: float = 0.65    ## takedown chance at an empty tank (x at full)
+const BR_EMPTY_TANK: float = 0.60    ## bullrush chance at an empty tank
+const ESCAPE_MIN: float = 0.1
+const ESCAPE_MAX: float = 0.9
+## Targeting weights (score units are list units of distance).
+const AI_SAME_LANE: float = 70.0
+const AI_LANE_DRIFT: float = 0.85
+const AI_WORN_BELOW: float = 0.6
+const AI_HUNT_WORN: float = 40.0
+const AI_LEASH_PULL: float = 1.6
+## Decision thresholds (aggression and gas are 0-1; ratings are overall points).
+const AI_RUSH_WOBBLY: float = 0.45
+const AI_TIRED_GRAPPLE: float = 0.35
+const AI_RUSH_AGG: float = 0.68
+const AI_RUSH_WEIGHT: float = 4.0
+const AI_TIE_UP_BETTER: int = 8
+const AI_HIT_BELOW_AGG: float = 0.45
+const AI_ESCAPE_GAS: float = 0.18
+const AI_HOLD_BETTER: int = 10
+const AI_TD_AGG: float = 0.75
+const AI_TD_WOBBLY: float = 0.80

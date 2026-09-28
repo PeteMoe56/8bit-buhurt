@@ -24,14 +24,16 @@ LANE="${LANE:-/tmp/sweeplane}"
 SEEDS="${SEEDS:-3}"
 YEARS="${YEARS:-14}"
 
-## ONE COPY, MADE ONCE. `.git` and the art are excluded: the art is 140MB of
-## PNGs no headless career sim ever opens, and `.godot` IS copied because it
-## carries the import cache and the global class table — without it every single
-## run pays a re-import.
-if [ ! -d "$LANE" ]; then
-  mkdir -p "$LANE"
-  tar -C "$SRC" --exclude=.git --exclude='art/*' -cf - . | tar -C "$LANE" -xf -
-fi
+## A FRESH COPY EVERY RUN. It used to be made once and reused, so a sweep run
+## after a code change measured the OLD code. `.git` and the art are excluded:
+## the art is PNGs no headless career sim ever opens, and `.godot` IS copied
+## because it carries the import cache and the global class table.
+rm -rf "$LANE"
+mkdir -p "$LANE"
+tar -C "$SRC" --exclude=.git --exclude='art/*' --exclude=logs -cf - . | tar -C "$LANE" -xf -
+## And nothing in the real tree is touched — the copy is thrown away on exit,
+## interrupted or not.
+trap 'rm -rf "$LANE"' EXIT
 
 printf 'var\tvalue\ttitle\tt1\tt2\tt3\ttier\tpower\tcc\tworlds\tyouth_title\tyouth_t3\n'
 while IFS=$'\t' read -r NAME FILE VALUE; do

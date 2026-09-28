@@ -53,7 +53,7 @@ func _build() -> void:
 		b.flat = true
 		b.modulate = Color(1, 1, 1, 0)
 		ui.add_child(b)
-	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
 	queue_redraw()
@@ -98,10 +98,10 @@ func _draw() -> void:
 	Audio.for_mood(UiKit.mood, false)
 	UiKit.ground(self)
 
-	UiKit.text(self, font, "ROSTER", Vector2(24, 46), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("ROSTER"), Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.screen().x - 24, 46), 18, UiKit.YOU, 200)
-	UiKit.text(self, font, "THE LINE", Vector2(24, 78), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THE LINE"), Vector2(24, 78), 12, UiKit.DIM)
 
 	for slot in _slots():
 		var f: FighterCard = slot["card"]
@@ -114,7 +114,7 @@ func _draw() -> void:
 	## The label for the second row goes between the rows rather than above the
 	## first of them, because a header that sits over the first card reads as
 	## that card's title.
-	UiKit.text(self, font, "THE BENCH AND THE RESERVE",
+	UiKit.text(self, font, UiKit.t("THE BENCH AND THE RESERVE"),
 		Vector2(24, SMALL_Y - 12), 12, UiKit.DIM)
 	_footer()
 
@@ -187,19 +187,19 @@ func _footer() -> void:
 	var bill := ClubOffice.wage_bill(season.club)
 	var cap := season.office.cap()
 	UiKit.panel(self, Rect2(200, y, 380, 44))
-	UiKit.text(self, font, "WAGE BILL", Vector2(212, y + 18), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("WAGE BILL"), Vector2(212, y + 18), 11, UiKit.DIM)
 	UiKit.bar(self, Rect2(212, y + 24, 356, 12), float(bill) / float(maxi(1, cap)),
 		UiKit.DOWN if bill > cap else UiKit.YOU)
 	UiKit.right(self, font, _bill_word(bill, cap),
 		Vector2(568, y + 18), 11, UiKit.INK if bill <= cap else UiKit.DOWN, 220)
 
 	UiKit.panel(self, Rect2(596, y, 150, 44))
-	UiKit.text(self, font, "MORALE", Vector2(608, y + 18), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("MORALE"), Vector2(608, y + 18), 11, UiKit.DIM)
 	UiKit.text(self, font, "%d%%" % int(round(season.office.morale * 100.0)),
 		Vector2(608, y + 36), 15, UiKit.INK)
 
 	UiKit.panel(self, Rect2(760, y, 176, 44))
-	UiKit.text(self, font, "CLUB", Vector2(772, y + 18), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("CLUB"), Vector2(772, y + 18), 11, UiKit.DIM)
 	UiKit.stars(self, Vector2(772, y + 24), season.club.power(), UiKit.YOU, 12.0, 4.0)
 
 

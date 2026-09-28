@@ -1964,7 +1964,7 @@ func roll_over() -> void:
 	## there — so it is the position you actually came, not the one you start the
 	## new season in. Getting those two the wrong way round would have paid a
 	## promoted club for finishing first in a division it had already left.
-	coach.after_division(finished)
+	coach.after_division(finished, before)
 	## AND WHAT THE CUPS DID. Every bracket that resolved this year and had you in
 	## it pays by how far you went — the size of the round you went out in, which
 	## is the key `Coach.REP_BY_CUP_EXIT` is written on.

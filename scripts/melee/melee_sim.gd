@@ -99,13 +99,13 @@ class Man extends RefCounted:
 	var downed_round: bool = false
 	## WHO HAS BEEN WEARING HIM DOWN, attacker index -> stability taken off him
 	## since he was last on the floor. Cleared every time he goes down, because
-	## the man who ground him into the dirt at 0:30 has no claim on the takedown
-	## at 2:10 — he got up in between.
+	## the work that put him down is spent — a downed man is out until the next
+	## round, and a takedown then is new work by whoever does it.
 	var wear: Dictionary = {}
 	## Rounds this man finished on his feet. Counted at the whistle rather than
-	## derived from `times_downed`, because a man can go down twice in a round
-	## and get up, and arithmetic on those two numbers would quietly pay him for
-	## rounds that never happened. The career layer reads it for XP.
+	## derived from `times_downed`: in buhurt a man who goes down is out for the
+	## round and never gets up, so this is the count of rounds he was still
+	## standing at the whistle. The career layer reads it for XP.
 	var rounds_standing: int = 0
 	var gassed_at: float = -1.0
 	## WHICH ROUND he first gassed in — the report printed the last round.
@@ -148,8 +148,21 @@ class Man extends RefCounted:
 	func trait_id() -> int:
 		return card.trait_id if card != null else FighterTrait.T.NONE
 
+	## HIS TRAIT AND HIS WEAPON, through one door. A weapon mod with a 1.0
+	## default multiplies, with a 0.0 default adds — the same reading every
+	## caller already gives a trait mod.
 	func tmod(key: String, def: float) -> float:
-		return FighterTrait.mod(trait_id(), key, def)
+		var t := FighterTrait.mod(trait_id(), key, def)
+		if card == null:
+			return t
+		var w = Tuning.weapon_mod(card.weapon, key)
+		if w == null:
+			return t
+		return t + float(w) if def == 0.0 else t * float(w)
+
+	## How close he has to be for the action to land. A pole reaches further.
+	func contact_range() -> float:
+		return Tuning.CONTACT_RANGE * tmod("reach", 1.0)
 
 	func tflag(key: String) -> bool:
 		return FighterTrait.flag(trait_id(), key)
@@ -161,7 +174,7 @@ class Man extends RefCounted:
 	## HOW THE ROOM IS FEELING, and it is a field for the same reason `occasion`
 	## is: a man carries the state of his side with him rather than every formula
 	## asking the sim to count who is still up. The sim recomputes it whenever
-	## somebody goes down or gets back up — Last Man and Talisman are the two
+	## somebody goes down or a new round starts — Last Man and Talisman are the two
 	## traits that move it, and both of them are about the rest of the line.
 	var rally: float = 1.0
 	## SECOND WIND, once. Not a cooldown and not a per-round refill: the trait
@@ -521,7 +534,7 @@ func _set_the_line() -> void:
 		m.hit_cd = 0.0
 		m.grapple_t = 0.0
 		m.idle_t = 0.0
-		m.next_act = rng.randf_range(0.8, 1.6)
+		m.next_act = rng.randf_range(Tuning.ACT_FIRST[0], Tuning.ACT_FIRST[1])
 	## The plan goes on AFTER everyone is placed and cleared, because setting the
 	## line wipes orders — running the play first would have drawn it and then
 	## rubbed it out, which is exactly the bug shape that hides for a week.
@@ -790,7 +803,7 @@ func _tick_timers(m: Man) -> void:
 	if m.state == State.CLOSING or m.state == State.RECOVER:
 		var rec := Tuning.GAS_RECOVER * (m.eff_gas() / Tuning.GAS_STAT_DIV)
 		m.tank = minf(m.eff_tank(), m.tank + rec
-			* (1.0 if m.state == State.RECOVER else 0.35) * Tuning.TICK)
+			* (1.0 if m.state == State.RECOVER else Tuning.WALK_RECOVER) * Tuning.TICK)
 	if m.gassed_at < 0.0 and m.gas_frac() < m.gassed_line():
 		m.gassed_at = round_t
 		m.gassed_round = round_no
@@ -1007,12 +1020,12 @@ func _ai_pick_target(m: Man) -> int:
 		var d := m.pos.distance_to(e.pos)
 		var score := -d
 		if e.lane == lane:
-			score += 70.0
+			score += Tuning.AI_SAME_LANE
 		## Lane discipline. Without it every man chases the nearest fight
 		## wherever it is, the whole melee slides into one corner of the list
 		## and two thirds of the screen is empty ground — which is both
 		## unreadable and nothing like a real line.
-		score -= absf(e.pos.x - m.anchor.x) * 0.85
+		score -= absf(e.pos.x - m.anchor.x) * Tuning.AI_LANE_DRIFT
 		## A plan that leans a side wants the fight over there. While it is live
 		## that pull is the plan zone doing the work, not a target preference.
 		## The 2-on-1. Going to a man who is already tied up is how melees are
@@ -1026,8 +1039,8 @@ func _ai_pick_target(m: Man) -> int:
 		## Going looking for a worn man is what SETTING UP a down means, and
 		## it is the thing a Green side cannot do. He will still take one that
 		## is handed to him; he just never crosses the list to find it.
-		if e.stability < 0.6 and bool(sk["hunts_wear"]):
-			score += 40.0
+		if e.stability < Tuning.AI_WORN_BELOW and bool(sk["hunts_wear"]):
+			score += Tuning.AI_HUNT_WORN
 		## THE CENTER PLAYS FREE SAFETY — see the role notes in Tuning. He takes
 		## the loose man rather than the busy one, and above all the loose man who
 		## is about to make it two-on-one against somebody of ours.
@@ -1044,7 +1057,7 @@ func _ai_pick_target(m: Man) -> int:
 			if p.standing() and not p.under_orders():
 				var stretch := p.pos.distance_to(e.pos)
 				var leash: float = Tuning.PAIR_LEASH
-				score -= maxf(0.0, stretch - leash) * 1.6
+				score -= maxf(0.0, stretch - leash) * Tuning.AI_LEASH_PULL
 		if score > best_score:
 			best_score = score
 			best = e.idx
@@ -1150,8 +1163,8 @@ func _step_closing(m: Man) -> void:
 			return
 	if waiting:
 		return
-	if d <= Tuning.CONTACT_RANGE and m.next_act <= 0.0:
-		m.next_act = rng.randf_range(1.6, 2.6)
+	if d <= m.contact_range() and m.next_act <= 0.0:
+		m.next_act = rng.randf_range(Tuning.ACT_AFTER[0], Tuning.ACT_AFTER[1])
 		var act: int = m.prompt.choice if m.prompt != null else _ai_choose(m, tgt, menu)
 		_resolve(m, act, tgt.idx)
 		if m.prompt != null:
@@ -1253,15 +1266,15 @@ func _ai_choose(m: Man, tgt: Man, menu: int) -> int:
 	var sk := _skill_of(m)
 	match menu:
 		Tuning.Menu.APPROACH:
-			if tgt.exposed_t > 0.0 or tgt.stability < 0.45:
+			if tgt.exposed_t > 0.0 or tgt.stability < Tuning.AI_RUSH_WOBBLY:
 				return Tuning.Act.BULLRUSH
-			if m.gas_frac() < 0.35:
+			if m.gas_frac() < Tuning.AI_TIRED_GRAPPLE:
 				return Tuning.Act.GRAPPLE
-			if agg > 0.68 and float(m.card.weight) > float(tgt.card.weight) + 4.0:
+			if agg > Tuning.AI_RUSH_AGG and float(m.card.weight) > float(tgt.card.weight) + Tuning.AI_RUSH_WEIGHT:
 				return Tuning.Act.BULLRUSH
-			if tgt.card.overall() > m.card.overall() + 8:
+			if tgt.card.overall() > m.card.overall() + Tuning.AI_TIE_UP_BETTER:
 				return Tuning.Act.GRAPPLE    ## agency denial: tie up a better man
-			return Tuning.Act.HIT if agg < 0.45 else Tuning.Act.GRAPPLE
+			return Tuning.Act.HIT if agg < Tuning.AI_HIT_BELOW_AGG else Tuning.Act.GRAPPLE
 		Tuning.Menu.THIRD_MAN:
 			if tgt.team != m.team:
 				## Arriving on a man who is tied up is a free shot, not a free
@@ -1284,20 +1297,20 @@ func _ai_choose(m: Man, tgt: Man, menu: int) -> int:
 			## Only bail when the tank is genuinely gone, and never while you are
 			## the one winning the hold — at 0.25 the whole field spent the third
 			## round escaping and re-engaging, which burns more gas than it saves.
-			if bool(sk["escapes"]) and m.gas_frac() < 0.18 and m.stability <= tgt.stability:
+			if bool(sk["escapes"]) and m.gas_frac() < Tuning.AI_ESCAPE_GAS and m.stability <= tgt.stability:
 				return Tuning.Act.ESCAPE
 			if m.exposed_t > 0.0:
 				return Tuning.Act.HOLD
 			if tgt.exposed_t > 0.0:
 				return Tuning.Act.TAKEDOWN
-			if tgt.card.overall() > m.card.overall() + 10:
+			if tgt.card.overall() > m.card.overall() + Tuning.AI_HOLD_BETTER:
 				return Tuning.Act.HOLD
 			## The tier, in one line. A Green man needs the opponent almost gone
 			## before he recognises the moment; an Elite one takes him while he is
 			## still on his feet.
 			if tgt.stability < float(sk["wear_read"]):
 				return Tuning.Act.TAKEDOWN
-			if agg > 0.75 and tgt.stability < 0.80:
+			if agg > Tuning.AI_TD_AGG and tgt.stability < Tuning.AI_TD_WOBBLY:
 				return Tuning.Act.TAKEDOWN
 			return Tuning.Act.HOLD
 	return Tuning.Act.HIT
@@ -1322,7 +1335,7 @@ func _tick_grapples() -> void:
 				grind *= Tuning.GRAPPLE_GRIND_GASSED
 			_wear(m, foe, grind * Tuning.TICK)
 		if m.next_act <= 0.0:
-			m.next_act = rng.randf_range(2.2, 3.4)
+			m.next_act = rng.randf_range(Tuning.ACT_CLINCH[0], Tuning.ACT_CLINCH[1])
 			if m.prompt == null:
 				var tgt := men[m.target]
 				if tgt.standing():
@@ -1413,8 +1426,8 @@ func _enter_grapple(a: Man, b: Man) -> void:
 	b.grapple_t = 0.0
 	a.idle_t = 0.0
 	b.idle_t = 0.0
-	a.next_act = rng.randf_range(1.0, 1.8)
-	b.next_act = rng.randf_range(1.0, 1.8)
+	a.next_act = rng.randf_range(Tuning.ACT_BIND[0], Tuning.ACT_BIND[1])
+	b.next_act = rng.randf_range(Tuning.ACT_BIND[0], Tuning.ACT_BIND[1])
 
 
 func _ungrapple(m: Man) -> void:
@@ -1442,7 +1455,7 @@ func _takedown_chance(a: Man, d: Man, gang: bool) -> float:
 		c += Tuning.TD_GANG * a.tmod("td_gang", 1.0)
 	if d.exposed_t > 0.0:
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
-	c *= lerpf(0.65, 1.0, a.gas_frac())
+	c *= lerpf(Tuning.TD_EMPTY_TANK, 1.0, a.gas_frac())
 	return clampf(c, Tuning.TD_MIN, Tuning.TD_MAX)
 
 
@@ -1455,7 +1468,7 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	if d.exposed_t > 0.0:
 		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
-	c *= lerpf(0.60, 1.0, a.gas_frac())
+	c *= lerpf(Tuning.BR_EMPTY_TANK, 1.0, a.gas_frac())
 	return clampf(c, Tuning.BR_MIN, Tuning.BR_MAX)
 
 
@@ -1530,7 +1543,7 @@ func _resolve(m: Man, act: int, target: int) -> void:
 			## trait made a slippery man EASIER to hold exactly when it mattered.
 			var c := (Tuning.ESCAPE_BASE + (m.eff_skill()
 				- t.eff_strength()) * Tuning.ESCAPE_PER_SKL) * m.tmod("escape", 1.0)
-			if rng.randf() < clampf(c, 0.1, 0.9):
+			if rng.randf() < clampf(c, Tuning.ESCAPE_MIN, Tuning.ESCAPE_MAX):
 				_ungrapple(t)
 				_ungrapple(m)
 				ok = true

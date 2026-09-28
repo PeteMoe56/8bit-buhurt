@@ -67,20 +67,20 @@ func _build() -> void:
 		b.flat = true
 		b.modulate = Color(1, 1, 1, 0)
 		ui.add_child(b)
-	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
 	## PUT THE WORD OUT. The pool is fixed for the summer, deliberately, so that
 	## it does not reshuffle under the player while he compares two men — which
 	## also means a summer with nothing in it stays that way unless he pays.
-	ui.add_child(UiKit.button("New names  ·  %d CC" % ClubOffice.REFRESH_COST,
+	ui.add_child(UiKit.button(UiKit.t("New names  ·  %d CC") % ClubOffice.REFRESH_COST,
 		Vector2(190, UiKit.screen().y - 56), Vector2(220, 44), func():
 			flash = UiKit.said(season.office.refresh_market())
 			picked = null
 			Session.autosave()
 			_build()))
 	if picked != null:
-		ui.add_child(UiKit.button("Sign %s  ·  %d CC"
+		ui.add_child(UiKit.button(UiKit.t("Sign %s  ·  %d CC")
 			% [UiKit.clip(picked.display_name, 12), season.market_fee(picked)],
 			Vector2(560, UiKit.screen().y - 56), Vector2(376, 44), func():
 				flash = UiKit.said(season.sign_from_market(picked))
@@ -96,15 +96,15 @@ func _draw() -> void:
 		return
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
-	UiKit.text(self, font, "FREE AGENTS", Vector2(24, 46), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("FREE AGENTS"), Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.screen().x - 24, 46), 18, UiKit.YOU, 200)
-	UiKit.text(self, font, "Season %d  ·  %s" % [season.world.season, season.tier_name()],
+	UiKit.text(self, font, UiKit.t("Season %d  ·  %s") % [season.world.season, season.tier_name()],
 		Vector2(24, 78), 12, UiKit.DIM)
 
 	var slots := _slots()
 	if slots.is_empty():
-		UiKit.text(self, font, "Nobody is looking for a club this season.",
+		UiKit.text(self, font, UiKit.t("Nobody is looking for a club this season."),
 			Vector2(24, 140), 16, UiKit.DIM)
 	for slot in slots:
 		var f: FighterCard = slot["card"]
@@ -200,7 +200,7 @@ func _footer() -> void:
 	## left, the figure right-aligned into the 76 that are left, and the bar under
 	## both. And the figure is short — `_bill_word`'s long form does not fit in 76
 	## pixels at any size, which is why it now has a short form.
-	UiKit.text(self, font, "BILL", Vector2(434, y + 15), 9, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("BILL"), Vector2(434, y + 15), 9, UiKit.DIM)
 	UiKit.bar(self, Rect2(434, y + 22, 104, 12), float(bill) / float(maxi(1, cap)),
 		UiKit.DOWN if bill > cap else UiKit.YOU)
 	UiKit.right(self, font, _bill_word(bill, cap),

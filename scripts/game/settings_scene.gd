@@ -86,7 +86,7 @@ func _build() -> void:
 				Audio.play("tap")
 				_build()))
 
-	ui.add_child(UiKit.button("Back", Vector2(LEFT_X, UiKit.bottom(58.0)),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(LEFT_X, UiKit.bottom(58.0)),
 		Vector2(160, 46), _back))
 	queue_redraw()
 
@@ -106,11 +106,11 @@ func _back() -> void:
 func _draw() -> void:
 	UiKit.set_mood(UiKit.Mood.NORMAL)
 	UiKit.ground(self)
-	UiKit.text(self, font, "SETTINGS", Vector2(LEFT_X, 54), 30, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("SETTINGS"), Vector2(LEFT_X, 54), 30, UiKit.INK)
 
 	# ---------------------------------------------------------------- volume
 	UiKit.panel(self, Rect2(LEFT_X, TOP, COL_W, SOUND_H))
-	UiKit.text(self, font, "SOUND", Vector2(LEFT_X + 18, TOP + 30), 15, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("SOUND"), Vector2(LEFT_X + 18, TOP + 30), 15, UiKit.DIM)
 	for i in ROWS.size():
 		var key := String(ROWS[i]["key"])
 		var y := TOP + 56.0 + float(i) * ROW_STEP
@@ -137,7 +137,7 @@ func _draw() -> void:
 	## somewhere else still has to be findable from where people look for it** —
 	## an absence with no explanation is indistinguishable from an omission, and
 	## that is exactly what it was mistaken for.
-	UiKit.text(self, font, "Saved as you set them.",
+	UiKit.text(self, font, UiKit.t("Saved as you set them."),
 		Vector2(LEFT_X + 2, TOP + SOUND_H + 12.0), 13, UiKit.EDGE.lightened(0.5))
 
 	## ITS OWN PANEL, because it is its own kind of thing. The first cut put it
@@ -148,9 +148,9 @@ func _draw() -> void:
 	## that the control is elsewhere. 82 was the height of the signpost.
 	var gy := CAREER_Y
 	UiKit.panel(self, Rect2(LEFT_X, gy, COL_W, CAREER_H))
-	UiKit.text(self, font, "THIS CAREER", Vector2(LEFT_X + 18, gy + 24), 15, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THIS CAREER"), Vector2(LEFT_X + 18, gy + 24), 15, UiKit.DIM)
 	if Session.season != null:
-		UiKit.pair(self, font, "Difficulty", Grade.name_of(Session.season.grade),
+		UiKit.pair(self, font, UiKit.t("Difficulty"), Grade.name_of(Session.season.grade),
 			Vector2(LEFT_X + 18, gy + 48.0), LEFT_X + COL_W - 18.0, 17, 15,
 			UiKit.INK, UiKit.YOU)
 		## WHAT THE ONE HE IS ON ACTUALLY DOES, not what the next one does. The
@@ -170,25 +170,25 @@ func _draw() -> void:
 			UiKit.text(self, font, lines[li],
 				Vector2(LEFT_X + 18, gy + 66.0 + float(li) * 15.0), 12, UiKit.DIM)
 	else:
-		UiKit.text(self, font, "Difficulty", Vector2(LEFT_X + 18, gy + 48.0),
+		UiKit.text(self, font, UiKit.t("Difficulty"), Vector2(LEFT_X + 18, gy + 48.0),
 			17, UiKit.DIM)
-		UiKit.text(self, font, "Open it from Clubhouse, Your career.",
+		UiKit.text(self, font, UiKit.t("Open it from Clubhouse, Your career."),
 			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.EDGE)
 
 	# --------------------------------------------------------------- credits
 	UiKit.panel(self, Rect2(RIGHT_X, TOP, COL_W + 6, 344))
-	UiKit.text(self, font, "CREDITS", Vector2(RIGHT_X + 18, TOP + 30), 15, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("CREDITS"), Vector2(RIGHT_X + 18, TOP + 30), 15, UiKit.DIM)
 	var y := TOP + 62.0
-	UiKit.text(self, font, "MUSIC", Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("MUSIC"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
 	y += 26.0
 	for c in Settings.credit_lines():
 		UiKit.text(self, font, UiKit.clip(String(c["line"]), 42),
 			Vector2(RIGHT_X + 18, y), 16, UiKit.INK)
 		y += 21.0
-		UiKit.text(self, font, "from %s  ·  %s" % [String(c["from"]), String(c["url"])],
+		UiKit.text(self, font, UiKit.t("from %s  ·  %s") % [String(c["from"]), String(c["url"])],
 			Vector2(RIGHT_X + 18, y), 13, UiKit.DIM)
 		y += 19.0
-		UiKit.text(self, font, "Used under the %s" % String(c["licence"]),
+		UiKit.text(self, font, UiKit.t("Used under the %s") % String(c["licence"]),
 			Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
 		y += 24.0
 	## SHORTER, BECAUSE IT DID NOT FIT. Seventeen pixels over the panel's right
@@ -198,10 +198,10 @@ func _draw() -> void:
 	## and it was worse: the second line pushed everything below it 18 pixels
 	## down and ran "Built by BonkWorks." out of the bottom of the same panel,
 	## which the same check then caught. One line, made to fit.
-	UiKit.text(self, font, "All other audio written for this game.",
+	UiKit.text(self, font, UiKit.t("All other audio written for this game."),
 		Vector2(RIGHT_X + 18, y), 14, UiKit.DIM)
 	y += 28.0
-	UiKit.text(self, font, "TYPE", Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("TYPE"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
 	y += 24.0
 	var fc := Settings.face_credit()
 	## TWO LINES, because the credit is generated and its length is not ours to
@@ -210,17 +210,17 @@ func _draw() -> void:
 	## A credit that is cut off is a licence condition that is not met.
 	UiKit.text(self, font, String(fc["name"]), Vector2(RIGHT_X + 18, y), 13, UiKit.INK)
 	y += 17.0
-	UiKit.text(self, font, "after %s" % String(fc["from"]),
+	UiKit.text(self, font, UiKit.t("after %s") % String(fc["from"]),
 		Vector2(RIGHT_X + 18, y), 12, UiKit.INK)
 	y += 19.0
-	UiKit.text(self, font, "%s  ·  %s" % [String(fc["licence"]), String(fc["url"])],
+	UiKit.text(self, font, UiKit.t("%s  ·  %s") % [String(fc["licence"]), String(fc["url"])],
 		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
 	y += 19.0
 	UiKit.text(self, font, String(fc["ours"]),
 		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
 	y += 28.0
-	UiKit.text(self, font, "GAME", Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("GAME"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
 	y += 26.0
 	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, y), 16, UiKit.INK)
 	y += 21.0
-	UiKit.text(self, font, "Built by BonkWorks.", Vector2(RIGHT_X + 18, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Built by BonkWorks."), Vector2(RIGHT_X + 18, y), 13, UiKit.DIM)

@@ -115,19 +115,19 @@ func _rebuild() -> void:
 	club_name_edit = null
 	club_short_edit = null
 
-	ui.add_child(UiKit.button("FIGHTER", Vector2(24, 72), Vector2(150, 34), func():
+	ui.add_child(UiKit.button(UiKit.t("FIGHTER"), Vector2(24, 72), Vector2(150, 34), func():
 		tab = Tab.FIGHTER
 		flash = ""
 		_rebuild()))
-	ui.add_child(UiKit.button("CLUB", Vector2(180, 72), Vector2(150, 34), func():
+	ui.add_child(UiKit.button(UiKit.t("CLUB"), Vector2(180, 72), Vector2(150, 34), func():
 		tab = Tab.CLUB
 		flash = ""
 		_rebuild()))
-	ui.add_child(UiKit.button("GRADE", Vector2(336, 72), Vector2(150, 34), func():
+	ui.add_child(UiKit.button(UiKit.t("GRADE"), Vector2(336, 72), Vector2(150, 34), func():
 		tab = Tab.GRADE
 		flash = ""
 		_rebuild()))
-	ui.add_child(UiKit.button("Back", Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
 		Session.autosave()
 		UiKit.back("res://scenes/Season.tscn")))
 	if tab == Tab.FIGHTER:
@@ -188,20 +188,20 @@ func _fighter_controls() -> void:
 		queue_redraw())
 	ui.add_child(w)
 
-	ui.add_child(UiKit.button("Position: %s" % card.pos_name(),
+	ui.add_child(UiKit.button(UiKit.t("Position: %s") % card.pos_name(),
 		Vector2(RIGHT_X, 108), Vector2(200, 34), func():
 			card.pos = ((int(card.pos) + 1) % 5) as Tuning.Pos
 			_rebuild()))
 	var out := _cuttable()
 	if not out.is_empty():
 		var who: FighterCard = out[replace_i % out.size()]
-		ui.add_child(UiKit.button("Replaces: %s (%d)" % [UiKit.clip(who.display_name, 14),
+		ui.add_child(UiKit.button(UiKit.t("Replaces: %s (%d)") % [UiKit.clip(who.display_name, 14),
 				who.overall()], Vector2(RIGHT_X + 208, 108), Vector2(208, 34), func():
 			replace_i = (replace_i + 1) % out.size()
 			_rebuild()))
-	ui.add_child(UiKit.button("Sign him — %d CC" % shop.cost(),
+	ui.add_child(UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
 		Vector2(STAT_X, 486), Vector2(260, 42), _sign))
-	ui.add_child(UiKit.button("Start over", Vector2(296, 486), Vector2(160, 42), func():
+	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(296, 486), Vector2(160, 42), func():
 		card = Workshop.blank()
 		flash = ""
 		_rebuild()))
@@ -231,8 +231,8 @@ func _sign() -> void:
 		return
 	season.sync_power()
 	Session.autosave()
-	flash = "%s signed%s. He is on the reserve — promote him in SQUAD." % [
-		card.display_name, "" if who == null else ", %s released" % who.display_name]
+	flash = UiKit.t("%s signed%s. He is on the reserve — promote him in SQUAD.") % [
+		card.display_name, "" if who == null else UiKit.t(", %s released") % who.display_name]
 	replace_i = 0
 	card = Workshop.blank()
 	_rebuild()
@@ -307,10 +307,10 @@ func _club_controls() -> void:
 		_offer_towns()
 	if not town_offers.is_empty():
 		var town: String = town_offers[0]
-		ui.add_child(UiKit.button("Move to %s" % Cities.full_name(town),
+		ui.add_child(UiKit.button(UiKit.t("Move to %s") % Cities.full_name(town),
 			Vector2(STAT_X, TOWN_Y), TOWN_CARD, func(t = town):
 				if not UiKit.confirm("move:" + t):
-					flash = "Tap again to move the club to %s." % Cities.full_name(t)
+					flash = UiKit.t("Tap again to move the club to %s.") % Cities.full_name(t)
 					_rebuild()
 					return
 				var was := season.city()
@@ -322,16 +322,16 @@ func _club_controls() -> void:
 					Session.autosave()
 				_offer_towns()
 				_rebuild()))
-		ui.add_child(UiKit.button("Somewhere else",
+		ui.add_child(UiKit.button(UiKit.t("Somewhere else"),
 			Vector2(STAT_X + TOWN_CARD.x + 8.0, TOWN_Y),
 			Vector2(200, TOWN_CARD.y), func():
 				_offer_towns()
 				_rebuild()))
 
-	ui.add_child(UiKit.button("Kit color", Vector2(STAT_X, 258), Vector2(150, 34), func():
+	ui.add_child(UiKit.button(UiKit.t("Kit color"), Vector2(STAT_X, 258), Vector2(150, 34), func():
 		kit_i = (kit_i + 1) % IconBank.KIT_COLORS.size()
 		_rebuild()))
-	ui.add_child(UiKit.button("Mark color", Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
+	ui.add_child(UiKit.button(UiKit.t("Mark color"), Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
 		mark_col_i = (mark_col_i + 1) % IconBank.MARK_COLORS.size()
 		_rebuild()))
 
@@ -370,7 +370,7 @@ func _club_controls() -> void:
 					if err == "":
 						icon_i = id
 						Session.autosave()
-						flash = "%s unlocked." % IconBank.icon_name(id)
+						flash = UiKit.t("%s unlocked.") % IconBank.icon_name(id)
 					else:
 						flash = err
 				_rebuild())
@@ -378,7 +378,7 @@ func _club_controls() -> void:
 		bank_b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(bank_b)
 
-	ui.add_child(UiKit.button("Save the club", Vector2(STAT_X, 486), Vector2(260, 42),
+	ui.add_child(UiKit.button(UiKit.t("Save the club"), Vector2(STAT_X, 486), Vector2(260, 42),
 		_save_club))
 
 
@@ -423,14 +423,14 @@ func _draw_grade() -> void:
 	## is the XCOM 2 problem, and XCOM at least does not print a stat line.
 	var sc := Grade.scale_for(g, season.matched_step, 60, League.Tier.REGIONAL)
 	var ry := GRADE_Y + 122.0
-	UiKit.text(self, font, "Their numbers, against a middling club",
+	UiKit.text(self, font, UiKit.t("Their numbers, against a middling club"),
 		Vector2(ix, ry), 13, UiKit.DIM)
 	UiKit.text(self, font, "x%.2f" % sc, Vector2(ix + 300.0, ry), 16,
 		UiKit.DOWN if sc > 1.0 else (UiKit.UP if sc < 1.0 else UiKit.INK))
-	UiKit.text(self, font, "Calls from the corner", Vector2(ix, ry + 26.0), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Calls from the corner"), Vector2(ix, ry + 26.0), 13, UiKit.DIM)
 	UiKit.text(self, font, "%d" % Grade.pauses_for(g, season.matched_step,
 		season.office.extra_calls()), Vector2(ix + 300.0, ry + 26.0), 16, UiKit.INK)
-	UiKit.text(self, font, "Corner, between rounds", Vector2(ix, ry + 52.0), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Corner, between rounds"), Vector2(ix, ry + 52.0), 13, UiKit.DIM)
 	UiKit.text(self, font, "%ds" % int(Grade.corner_time(g)),
 		Vector2(ix + 300.0, ry + 52.0), 16, UiKit.INK)
 
@@ -439,7 +439,7 @@ func _draw_grade() -> void:
 	## 110 with its drop — text drawn behind a button, which is the exact fault
 	## the layout sweep exists to catch and which a comment at the top of a screen
 	## is always the first to commit.
-	UiKit.text(self, font, "It is saved with the club, not with the settings, "
+	UiKit.text(self, font, UiKit.t("It is saved with the club, not with the settings, ")
 		+ "and you can change it later.", Vector2(STAT_X, 402.0), 13, UiKit.DIM)
 
 
@@ -455,14 +455,14 @@ func _save_club() -> void:
 	## The world carries the club's name for the table, so it has to be told.
 	season.world.clubs[season.world.player_club]["name"] = season.club.display_name
 	Session.autosave()
-	flash = "Saved."
+	flash = UiKit.t("Saved.")
 	_rebuild()
 
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	UiKit.ground(self)
-	UiKit.text(self, font, "CREATE", Vector2(24, 40), 22, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("CREATE"), Vector2(24, 40), 22, UiKit.YOU)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.right_edge(120.0), 40), 16, UiKit.DIM, 200.0)
 	if flash != "":
@@ -478,10 +478,10 @@ func _draw() -> void:
 func _draw_fighter() -> void:
 	var lim := _limits()
 	if shop.left() <= 0:
-		UiKit.text(self, font, "You have written all four men this club will ever get.",
+		UiKit.text(self, font, UiKit.t("You have written all four men this club will ever get."),
 			Vector2(24, 160), 18, UiKit.DIM)
 		return
-	UiKit.right(self, font, "%d of %d left" % [shop.left(), Workshop.MAX_FIGHTERS],
+	UiKit.right(self, font, UiKit.t("%d of %d left") % [shop.left(), Workshop.MAX_FIGHTERS],
 		Vector2(UiKit.right_edge(120.0), 64), 14, UiKit.DIM, 200.0)
 
 	for i in STATS.size():
@@ -491,10 +491,10 @@ func _draw_fighter() -> void:
 			Vector2(SLIDER_X + SLIDER_W + 14, y + 24), 16, UiKit.YOU)
 		UiKit.text(self, font, STAT_BLURB[i], Vector2(STAT_X, y + 42), 12, UiKit.DIM)
 	var wy := STAT_Y + 5.0 * STAT_ROW
-	UiKit.text(self, font, "Weight", Vector2(STAT_X, wy + 24), 16, UiKit.INK)
-	UiKit.text(self, font, "%d lb" % card.weight,
+	UiKit.text(self, font, UiKit.t("Weight"), Vector2(STAT_X, wy + 24), 16, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("%d lb") % card.weight,
 		Vector2(SLIDER_X + SLIDER_W + 14, wy + 24), 16, UiKit.YOU)
-	UiKit.text(self, font, "In harness. Decides a bullrush more than anything else.",
+	UiKit.text(self, font, UiKit.t("In harness. Decides a bullrush more than anything else."),
 		Vector2(STAT_X, wy + 42), 12, UiKit.DIM)
 
 	## THE CEILING, DRAWN. The bar fills to his rating and the marshal's line
@@ -502,7 +502,7 @@ func _draw_fighter() -> void:
 	## than a sentence that appears after the fact.
 	var r := Rect2(RIGHT_X, 190, 340, 22)
 	var ceiling := int(lim["rating"])
-	UiKit.text(self, font, "Rating", Vector2(RIGHT_X, 180), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Rating"), Vector2(RIGHT_X, 180), 14, UiKit.DIM)
 	var frac := clampf(card.rating() / float(ceiling), 0.0, 1.0)
 	var over: bool = card.rating() > float(ceiling)
 	UiKit.bar(self, r, frac, UiKit.DOWN if over else UiKit.UP)
@@ -510,7 +510,7 @@ func _draw_fighter() -> void:
 		Tuning.COL_MARSHAL, 2.0)
 	UiKit.text(self, font, "%d" % card.overall(), Vector2(RIGHT_X, 232), 20,
 		UiKit.DOWN if over else UiKit.INK)
-	UiKit.right(self, font, "%s caps a made man at %d" % [String(lim["tier"]), ceiling],
+	UiKit.right(self, font, UiKit.t("%s caps a made man at %d") % [String(lim["tier"]), ceiling],
 		Vector2(RIGHT_X + 340, 232), 13, UiKit.DIM, 300.0)
 
 	var wage := ClubOffice.wage(card)
@@ -522,10 +522,10 @@ func _draw_fighter() -> void:
 	var out := _cuttable()
 	if season.club.roster.size() >= MeleeClub.SQUAD_MAX and not out.is_empty():
 		bill -= ClubOffice.billed(out[replace_i % out.size()])
-	UiKit.text(self, font, "Wage", Vector2(RIGHT_X, 282), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Wage"), Vector2(RIGHT_X, 282), 14, UiKit.DIM)
 	UiKit.text(self, font, ClubOffice.money(wage), Vector2(RIGHT_X, 306), 18, UiKit.INK)
-	UiKit.text(self, font, "Bill after the trade", Vector2(RIGHT_X, 340), 14, UiKit.DIM)
-	UiKit.text(self, font, "%s of %s" % [ClubOffice.money(bill), ClubOffice.money(cap)],
+	UiKit.text(self, font, UiKit.t("Bill after the trade"), Vector2(RIGHT_X, 340), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
 		Vector2(RIGHT_X, 364), 18, UiKit.DOWN if bill > cap else UiKit.INK)
 
 	var err := Workshop.fighter_legal(card, season.office.tier)
@@ -538,11 +538,11 @@ func _draw_club() -> void:
 	var mark: Color = IconBank.MARK_COLORS[mark_col_i]
 	var short: String = club_short_edit.text if club_short_edit != null else season.club.short_name
 
-	UiKit.text(self, font, "One club per save. The colors are free; the marks are not.",
+	UiKit.text(self, font, UiKit.t("One club per save. The colors are free; the marks are not."),
 		Vector2(STAT_X, 126), 14, UiKit.DIM)
-	UiKit.text(self, font, "Name", Vector2(STAT_X + 390, 176), 13, UiKit.EDGE)
-	UiKit.text(self, font, "Short", Vector2(STAT_X + 130, 226), 13, UiKit.EDGE)
-	UiKit.text(self, font, "HOME TOWN", Vector2(STAT_X, TOWN_Y - 12.0), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Name"), Vector2(STAT_X + 390, 176), 13, UiKit.EDGE)
+	UiKit.text(self, font, UiKit.t("Short"), Vector2(STAT_X + 130, 226), 13, UiKit.EDGE)
+	UiKit.text(self, font, UiKit.t("HOME TOWN"), Vector2(STAT_X, TOWN_Y - 12.0), 11, UiKit.DIM)
 	UiKit.text(self, font, Cities.full_name(season.city()),
 		Vector2(STAT_X + 96.0, TOWN_Y - 11.0), 14, UiKit.YOU)
 

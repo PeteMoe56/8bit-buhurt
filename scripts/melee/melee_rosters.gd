@@ -155,11 +155,15 @@ static func validate() -> String:
 ## Backyard Circuit's leader, so it is a balance figure and it belongs where the
 ## sweep can find it. `tools/sweep_plan.py` reads `const` declarations; a literal
 ## buried in an argument list is a tunable no instrument can see.
-const START_POWER: int = 38
+## 38 -> 50 on 27 Sep 2026 (the 16 Sep pacing package said 48; re-measured
+## after the audit fixes and the re-written market proxies, 48 gave a title at
+## 12.1 on the five check bases and 50 gives 11.3): the club you inherit
+## can compete in the division you inherit it in.
+const START_POWER: int = 50
 
 
 static func starting_club() -> MeleeClub:
-	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", START_POWER)
+	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", START_POWER, true)
 	c.kit = IconBank.KIT_COLORS[0]
 	c.icon_color = IconBank.MARK_COLORS[0]
 	c.icon = 5

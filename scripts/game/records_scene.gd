@@ -77,7 +77,7 @@ func _ready() -> void:
 func _build() -> void:
 	for c in ui.get_children():
 		c.queue_free()
-	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
 	## THREE TABS NOW, and they have to fit the row rather than the row being
@@ -95,8 +95,8 @@ func _draw() -> void:
 		return
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
-	UiKit.text(self, font, "RECORDS", Vector2(24, 46), 26, UiKit.INK)
-	UiKit.right(self, font, "Season %d" % season.world.season,
+	UiKit.text(self, font, UiKit.t("RECORDS"), Vector2(24, 46), 26, UiKit.INK)
+	UiKit.right(self, font, UiKit.t("Season %d") % season.world.season,
 		Vector2(UiKit.screen().x - 24, 46), 14, UiKit.DIM, 220)
 	## The selected tab, marked where the button is — a Button cannot carry it
 	## without a theme and a theme is not worth one underline.
@@ -151,27 +151,27 @@ static func year_col_w() -> float:
 
 func _year() -> void:
 	UiKit.panel(self, Rect2(24, 88, UiKit.span(), 340))
-	UiKit.text(self, font, "THE SEASON SO FAR", Vector2(40, 114), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("THE SEASON SO FAR"), Vector2(40, 114), 12, UiKit.DIM)
 	var played: Array = []
 	for r in season.results:
 		if not bool(r.get("bye", false)):
 			played.append(r)
 	var sum := season.year_summary()
-	UiKit.right(self, font, "%d of %d" % [played.size(),
+	UiKit.right(self, font, UiKit.t("%d of %d") % [played.size(),
 		season.world.events_this_season()],
 		Vector2(UiKit.right_edge(48.0), 114), 11, UiKit.EDGE.lightened(0.5), 200)
 	if played.is_empty():
-		UiKit.text(self, font, "Nothing fought yet.", Vector2(40, 160), 16, UiKit.DIM)
-		UiKit.text(self, font, "Every event is written down here, with the grade you fought it at.",
+		UiKit.text(self, font, UiKit.t("Nothing fought yet."), Vector2(40, 160), 16, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Every event is written down here, with the grade you fought it at."),
 			Vector2(40, 190), 12, UiKit.EDGE.lightened(0.5))
 		return
 	var hdr := UiKit.EDGE.lightened(0.5)
 	for c in YEAR_COLS:
 		var cx := 40.0 + float(c) * (year_col_w() + YEAR_GUTTER)
-		UiKit.text(self, font, "OPPONENT", Vector2(cx + 26.0, 140), 11, hdr)
-		UiKit.right(self, font, "ROUNDS", Vector2(cx + year_col_w() - 176.0, 140), 11, hdr, 90)
-		UiKit.right(self, font, "DIFF", Vector2(cx + year_col_w() - 120.0, 140), 11, hdr, 50)
-		UiKit.right(self, font, "AT", Vector2(cx + year_col_w(), 140), 11, hdr, 70)
+		UiKit.text(self, font, UiKit.t("OPPONENT"), Vector2(cx + 26.0, 140), 11, hdr)
+		UiKit.right(self, font, UiKit.t("ROUNDS"), Vector2(cx + year_col_w() - 176.0, 140), 11, hdr, 90)
+		UiKit.right(self, font, UiKit.t("DIFF"), Vector2(cx + year_col_w() - 120.0, 140), 11, hdr, 50)
+		UiKit.right(self, font, UiKit.t("AT"), Vector2(cx + year_col_w(), 140), 11, hdr, 70)
 	## THE LAST SIXTEEN, oldest first, so the page reads the way the season was
 	## fought. Only a season longer than the page can lose anything off the front,
 	## and by the constant above there is no such season.
@@ -185,14 +185,14 @@ func _year() -> void:
 	## rows this page happens to be showing.
 	UiKit.rule(self, UiKit.RULE_GEM, Vector2(40, 382), UiKit.span(40.0), UiKit.FRAME)
 	var pts_all: int = int(sum["diff"])
-	UiKit.text(self, font, "%d fought" % int(sum["fought"])
+	UiKit.text(self, font, UiKit.t("%d fought") % int(sum["fought"])
 		+ ("" if int(sum["simmed"]) == 0 else ", %d simulated" % int(sum["simmed"])),
 		Vector2(40, 414), 13, UiKit.DIM)
 	UiKit.right(self, font, "%d-%d" % [int(sum["rf"]), int(sum["ra"])],
 		Vector2(UiKit.right_edge(260.0), 414), 13, UiKit.INK, 120)
 	UiKit.right(self, font, "%+d" % pts_all, Vector2(UiKit.right_edge(200.0), 414), 13,
 		UiKit.UP if pts_all > 0 else (UiKit.DOWN if pts_all < 0 else UiKit.DIM), 60)
-	UiKit.right(self, font, "now at %s" % Grade.short_of(season.grade).to_lower(),
+	UiKit.right(self, font, UiKit.t("now at %s") % Grade.short_of(season.grade).to_lower(),
 		Vector2(UiKit.right_edge(48.0), 414), 11, UiKit.EDGE.lightened(0.5), 200)
 
 
@@ -235,14 +235,14 @@ func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
 ## much as the judgement that put them in it.
 func _hall() -> void:
 	UiKit.panel(self, Rect2(24, 88, UiKit.span(), 340))
-	UiKit.text(self, font, "THE HALL OF FAME", Vector2(40, 114), 12, UiKit.DIM)
-	UiKit.right(self, font, "%d of %d" % [season.world.hall.size(), LeagueWorld.HOF_MAX],
+	UiKit.text(self, font, UiKit.t("THE HALL OF FAME"), Vector2(40, 114), 12, UiKit.DIM)
+	UiKit.right(self, font, UiKit.t("%d of %d") % [season.world.hall.size(), LeagueWorld.HOF_MAX],
 		Vector2(UiKit.right_edge(48.0), 114), 11, UiKit.EDGE.lightened(0.5), 120)
 	if season.world.hall.is_empty():
-		UiKit.text(self, font, "Nobody in it yet.", Vector2(40, 160), 16, UiKit.DIM)
-		UiKit.text(self, font, "Tag a fighter on his own page, while he is still playing.",
+		UiKit.text(self, font, UiKit.t("Nobody in it yet."), Vector2(40, 160), 16, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Tag a fighter on his own page, while he is still playing."),
 			Vector2(40, 190), 12, UiKit.EDGE.lightened(0.5))
-		UiKit.text(self, font, "Who belongs in here is your judgement, not the game's.",
+		UiKit.text(self, font, UiKit.t("Who belongs in here is your judgement, not the game's."),
 			Vector2(40, 210), 12, UiKit.EDGE.lightened(0.5))
 		return
 	## TWO COLUMNS. Twelve names down one side would run off the panel, and the
@@ -259,15 +259,15 @@ func _hall() -> void:
 		UiKit.text(self, font, String(h.get("pos", "")), Vector2(x + 190.0, y), 12, UiKit.DIM)
 		UiKit.right(self, font, "%d" % int(h.get("rating", 0)),
 			Vector2(x + 330.0, y), 15, UiKit.YOU, 60)
-		UiKit.right(self, font, "S%d" % int(h.get("season", 0)),
+		UiKit.right(self, font, UiKit.t("S%d") % int(h.get("season", 0)),
 			Vector2(x + UiKit.span(40.0) * 0.5 - 40.0, y), 12, UiKit.DIM, 70)
 
 
 func _club() -> void:
 	UiKit.panel(self, Rect2(24, 88, UiKit.span(), 340))
-	UiKit.text(self, font, "CLUB RECORDS", Vector2(40, 114), 12, UiKit.DIM)
-	UiKit.right(self, font, "HELD BY", Vector2(UiKit.right_edge(170.0), 114), 11, UiKit.EDGE.lightened(0.5), 180)
-	UiKit.right(self, font, "SET", Vector2(UiKit.right_edge(48.0), 114), 11, UiKit.EDGE.lightened(0.5), 120)
+	UiKit.text(self, font, UiKit.t("CLUB RECORDS"), Vector2(40, 114), 12, UiKit.DIM)
+	UiKit.right(self, font, UiKit.t("HELD BY"), Vector2(UiKit.right_edge(170.0), 114), 11, UiKit.EDGE.lightened(0.5), 180)
+	UiKit.right(self, font, UiKit.t("SET"), Vector2(UiKit.right_edge(48.0), 114), 11, UiKit.EDGE.lightened(0.5), 120)
 	var y := 152.0
 	var any := false
 	for row in ROWS:
@@ -280,14 +280,14 @@ func _club() -> void:
 			UiKit.right(self, font, "%d" % int(rec["value"]), Vector2(UiKit.right_edge(360.0), y), 16, UiKit.YOU, 120)
 			UiKit.right(self, font, UiKit.clip(String(rec["holder"]), 18),
 				Vector2(UiKit.right_edge(170.0), y), 14, UiKit.INK, 180)
-			UiKit.right(self, font, "S%d" % int(rec["season"]),
+			UiKit.right(self, font, UiKit.t("S%d") % int(rec["season"]),
 				Vector2(UiKit.right_edge(48.0), y), 13, UiKit.DIM, 120)
 		y += 40.0
 	if not any:
-		UiKit.text(self, font, "Nothing yet. The record starts at your first event.",
+		UiKit.text(self, font, UiKit.t("Nothing yet. The record starts at your first event."),
 			Vector2(40, y + 14), 13, UiKit.DIM)
 	else:
-		UiKit.text(self, font, "A record keeps the man's name even after he has gone home.",
+		UiKit.text(self, font, UiKit.t("A record keeps the man's name even after he has gone home."),
 			Vector2(40, y + 14), 11, UiKit.EDGE.lightened(0.5))
 
 
@@ -323,7 +323,7 @@ func _mine() -> void:
 	var half := (UiKit.span() - 16.0) * 0.5
 	var rx := 24.0 + half + 16.0
 	UiKit.panel(self, Rect2(24, 88, half, 340))
-	UiKit.text(self, font, "YOUR RECORD", Vector2(40, 114), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("YOUR RECORD"), Vector2(40, 114), 12, UiKit.DIM)
 	var y := 152.0
 	_stat("Seasons run", "%d" % seasons, y); y += 32.0
 	_stat("Promotions", "%d" % promos, y); y += 32.0
@@ -335,9 +335,9 @@ func _mine() -> void:
 	_stat("Now", season.tier_name(), y)
 
 	UiKit.panel(self, Rect2(rx, 88, half, 340))
-	UiKit.text(self, font, "SEASON BY SEASON", Vector2(rx + 16.0, 114), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("SEASON BY SEASON"), Vector2(rx + 16.0, 114), 12, UiKit.DIM)
 	if h.is_empty():
-		UiKit.text(self, font, "This is your first.", Vector2(rx + 16.0, 152), 15, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("This is your first."), Vector2(rx + 16.0, 152), 15, UiKit.DIM)
 		return
 	var ry := 148.0
 	for i in range(h.size() - 1, maxi(-1, h.size() - 9), -1):
@@ -350,7 +350,7 @@ func _mine() -> void:
 		elif bool(e.get("relegated", false)):
 			col = UiKit.DOWN
 			tag = "down"
-		UiKit.text(self, font, "S%d" % int(e.get("season", 0)), Vector2(rx + 16.0, ry), 14, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("S%d") % int(e.get("season", 0)), Vector2(rx + 16.0, ry), 14, UiKit.DIM)
 		UiKit.text(self, font, League.TIERS[int(e.get("tier", 0))]["name"],
 			Vector2(rx + 60.0, ry), 14, UiKit.INK)
 		UiKit.right(self, font, UiKit.ordinal(int(e.get("position", 0))),
@@ -377,7 +377,7 @@ func _stat(label: String, value: String, y: float) -> void:
 func _history() -> void:
 	var h: Array = season.honors()
 	var y := 100.0
-	UiKit.text(self, font, "TROPHIES", Vector2(24, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("TROPHIES"), Vector2(24, y), 13, UiKit.DIM)
 	y += 30.0
 	var any := false
 	for i in range(h.size() - 1, maxi(-1, h.size() - 11), -1):
@@ -387,19 +387,19 @@ func _history() -> void:
 		if not mine and not won:
 			continue
 		any = true
-		UiKit.text(self, font, "S%d  %s" % [int(e["season"]),
+		UiKit.text(self, font, UiKit.t("S%d  %s") % [int(e["season"]),
 			UiKit.clip(String(e["name"]), 22)], Vector2(40, y), 15, UiKit.INK)
-		UiKit.right(self, font, "Champions" if won else String(e["player"]),
+		UiKit.right(self, font, UiKit.t("Champions") if won else String(e["player"]),
 			Vector2(440, y), 15, UiKit.YOU if won else UiKit.DIM, 200)
 		y += 26.0
 	if not any:
-		UiKit.text(self, font, "Nothing yet.", Vector2(40, y), 15, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Nothing yet."), Vector2(40, y), 15, UiKit.DIM)
 
 	y = 100.0
-	UiKit.text(self, font, "SEASONS", Vector2(500, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("SEASONS"), Vector2(500, y), 13, UiKit.DIM)
 	y += 30.0
 	if season.world.history.is_empty():
-		UiKit.text(self, font, "This is your first.", Vector2(516, y), 15, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("This is your first."), Vector2(516, y), 15, UiKit.DIM)
 		return
 	for i in range(season.world.history.size() - 1,
 			maxi(-1, season.world.history.size() - 13), -1):
@@ -412,7 +412,7 @@ func _history() -> void:
 		elif bool(e.get("relegated", false)):
 			tag = "  relegated"
 			col = UiKit.DOWN
-		UiKit.text(self, font, "S%d  %s" % [int(e["season"]),
+		UiKit.text(self, font, UiKit.t("S%d  %s") % [int(e["season"]),
 			League.tier_name(int(e["tier"]))], Vector2(516, y), 15, UiKit.DIM)
 		UiKit.right(self, font, "%s%s" % [UiKit.ordinal(int(e["position"])), tag],
 			Vector2(UiKit.right_edge(), y), 15, col, 220)

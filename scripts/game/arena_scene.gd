@@ -55,14 +55,14 @@ func _ready() -> void:
 func _rebuild() -> void:
 	for c in ui.get_children():
 		c.queue_free()
-	ui.add_child(UiKit.button("Back", Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
 		Session.autosave()
 		UiKit.back("res://scenes/Season.tscn")))
 
 	if not arena.at_top():
 		var err := arena.can_build(office.tier, office.credits)
 		var label := "Build the %s — %d CC" % [String(arena.next()["name"]), arena.next_cost()]
-		ui.add_child(UiKit.button(label if err == "" else "Locked",
+		ui.add_child(UiKit.button(label if err == "" else UiKit.t("Locked"),
 			Vector2(RIGHT_X, 212), Vector2(340, 40), _build))
 
 	## HAVE IT SEEN TO. On the LEFT, under the picture of the mess, rather than
@@ -75,35 +75,35 @@ func _rebuild() -> void:
 	## screen; a spotless ground simply has no control, and `condition_word()`
 	## next to the level already says why.
 	if arena.condition < 0.999 and arena.level >= Arena.WEARS_FROM_LEVEL:
-		ui.add_child(UiKit.button("Have it seen to — %d CC" % arena.upkeep_cost(),
+		ui.add_child(UiKit.button(UiKit.t("Have it seen to — %d CC") % arena.upkeep_cost(),
 			Vector2(24, 444), Vector2(264, 36), _tidy))
 
 	if season.bid_open():
 		## THE BID. Two dials on one screen, both spent the moment he takes it —
 		## the date and the promotion.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
-		ui.add_child(UiKit.button("Date: %s — %d CC" % [String(o["name"]), int(o["bid"])],
+		ui.add_child(UiKit.button(UiKit.t("Date: %s — %d CC") % [String(o["name"]), int(o["bid"])],
 			Vector2(RIGHT_X, 280), Vector2(340, 36), func():
 				offer_i = (offer_i + 1) % season.bid_offers.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.button("Budget: %s — %d CC" % [
+		ui.add_child(UiKit.button(UiKit.t("Budget: %s — %d CC") % [
 				String(ClubEvent.BUDGETS[budget_i]["name"]),
 				int(ClubEvent.BUDGETS[budget_i]["cost"])],
 			Vector2(RIGHT_X, 322), Vector2(340, 36), func():
 				budget_i = (budget_i + 1) % ClubEvent.BUDGETS.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.button("Take the date", Vector2(RIGHT_X, 364),
+		ui.add_child(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 364),
 			Vector2(166, 40), _bid))
-		ui.add_child(UiKit.button("Pass this year", Vector2(RIGHT_X + 174, 364),
+		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(RIGHT_X + 174, 364),
 			Vector2(166, 40), func():
 				season.decline_bid()
 				Session.autosave()
-				flash = "No tournament this year."
+				flash = UiKit.t("No tournament this year.")
 				_rebuild()))
 	elif season.booked == null:
-		ui.add_child(UiKit.button("Run a demo", Vector2(RIGHT_X, 384),
+		ui.add_child(UiKit.button(UiKit.t("Run a demo"), Vector2(RIGHT_X, 384),
 			Vector2(340, 40), _demo))
 	queue_redraw()
 
@@ -115,7 +115,7 @@ func _build() -> void:
 		_rebuild()
 		return
 	Session.autosave()
-	flash = "Built. %s." % arena.arena_name()
+	flash = UiKit.t("Built. %s.") % arena.arena_name()
 	_rebuild()
 
 
@@ -132,7 +132,7 @@ func _tidy() -> void:
 		_rebuild()
 		return
 	Session.autosave()
-	flash = "Swept, patched and put right. %d CC." % cost
+	flash = UiKit.t("Swept, patched and put right. %d CC.") % cost
 	_rebuild()
 
 
@@ -140,7 +140,7 @@ func _bid() -> void:
 	var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
 	var nm := String(o["name"])
 	var err := season.take_bid(offer_i % season.bid_offers.size(), budget_i)
-	flash = UiKit.said(err) if err != "" else "%s is yours. The rest of the year is preparation." % nm
+	flash = UiKit.said(err) if err != "" else UiKit.t("%s is yours. The rest of the year is preparation.") % nm
 	if err == "":
 		Session.autosave()
 	_rebuild()
@@ -148,7 +148,7 @@ func _bid() -> void:
 
 func _demo() -> void:
 	var err := season.run_demo()
-	flash = UiKit.said(err) if err != "" else "Demo run. %d CC." % int(season.last_show.get("gate", 0))
+	flash = UiKit.said(err) if err != "" else UiKit.t("Demo run. %d CC.") % int(season.last_show.get("gate", 0))
 	if err == "":
 		Session.autosave()
 	_rebuild()
@@ -158,7 +158,7 @@ func _demo() -> void:
 func _draw() -> void:
 	UiKit.ground(self)
 	UiKit.text(self, font, arena.arena_name().to_upper(), Vector2(24, 40), 22, UiKit.YOU)
-	UiKit.text(self, font, "%s  ·  %s  ·  %s fans  ·  %d CC" % [
+	UiKit.text(self, font, UiKit.t("%s  ·  %s  ·  %s fans  ·  %d CC") % [
 		office.note_word(), _capacity_word(), _fans_word(), office.credits],
 		Vector2(24, 64), 14, UiKit.DIM)
 	## THE ONE NUMBER, said two ways: how many came, and what share of the room
@@ -172,7 +172,7 @@ func _draw() -> void:
 	## fell off. The left of this row ends around 370, so the box can have the
 	## room, and `fit_px` records the cut if it ever needs one anyway.
 	UiKit.right(self, font, UiKit.fit_px(font,
-		"%s in  ·  %d%% full  ·  %d CC a home fight" % [
+		UiKit.t("%s in  ·  %d%% full  ·  %d CC a home fight") % [
 			UiKit.crowd_word(office.attendance()),
 			int(round(office.fill() * 100.0)), office.crowd_pay()], 13, 420.0),
 		Vector2(UiKit.right_edge(120.0), 64), 13, UiKit.DIM, 420.0)
@@ -190,7 +190,7 @@ func _draw() -> void:
 	## mechanic from a rendering fault, and no term to look for when he wants to
 	## do something about it. **A state the game draws and does not name is a
 	## state the player reads as a bug.**
-	UiKit.right(self, font, "Level %d of %d" % [arena.level, Arena.MAX_LEVEL],
+	UiKit.right(self, font, UiKit.t("Level %d of %d") % [arena.level, Arena.MAX_LEVEL],
 		Vector2(UiKit.right_edge(120.0), 40), 14, UiKit.DIM, 200.0)
 	UiKit.right(self, font, arena.condition_word(),
 		Vector2(UiKit.right_edge(120.0), 22), 13,
@@ -255,11 +255,11 @@ func _draw_ground() -> void:
 		draw_rect(g, UiKit.PANEL)
 		## A slot says what it is waiting for. A blank box says the screen is
 		## broken.
-		UiKit.text(self, font, "%s  —  artwork to come" % arena.arena_name(),
+		UiKit.text(self, font, UiKit.t("%s  —  artwork to come") % arena.arena_name(),
 			g.position + Vector2(18, 30), 15, UiKit.DIM)
 		UiKit.text(self, font, ART_DIR + "arena_%d.png" % arena.level,
 			g.position + Vector2(18, 52), 12, UiKit.EDGE)
-		UiKit.text(self, font, "%d × %d" % [int(g.size.x), int(g.size.y)],
+		UiKit.text(self, font, UiKit.t("%d × %d") % [int(g.size.x), int(g.size.y)],
 			g.position + Vector2(18, 70), 12, UiKit.EDGE)
 		## Corner ticks, so the slot reads as a frame waiting to be filled rather
 		## than as a panel that failed to draw.
@@ -303,13 +303,13 @@ func _art_for(level: int) -> Texture2D:
 
 
 func _draw_diary() -> void:
-	UiKit.text(self, font, "THE GROUND", Vector2(RIGHT_X, 118), 15, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("THE GROUND"), Vector2(RIGHT_X, 118), 15, UiKit.INK)
 	if arena.at_top():
-		UiKit.text(self, font, "Built as far as a club can build.",
+		UiKit.text(self, font, UiKit.t("Built as far as a club can build."),
 			Vector2(RIGHT_X, 146), 13, UiKit.DIM)
 	else:
 		var n := arena.next()
-		UiKit.text(self, font, "Next: %s, holds %d" % [String(n["name"]), int(n["capacity"])],
+		UiKit.text(self, font, UiKit.t("Next: %s, holds %d") % [String(n["name"]), int(n["capacity"])],
 			Vector2(RIGHT_X, 146), 13, UiKit.DIM)
 		## AND WHICH DIVISION IT NEEDS. `arena.next_tier()` was written for this
 		## screen — its own comment says so — and then never called, so the one
@@ -329,7 +329,7 @@ func _draw_diary() -> void:
 		var need := arena.next_tier()
 		var locked := need > office.tier
 		if locked:
-			UiKit.text(self, font, "Needs the %s" % League.tier_name(need),
+			UiKit.text(self, font, UiKit.t("Needs the %s") % League.tier_name(need),
 				Vector2(RIGHT_X, 168), 13, UiKit.DOWN)
 		else:
 			var err := arena.can_build(office.tier, office.credits)
@@ -337,7 +337,7 @@ func _draw_diary() -> void:
 				UiKit.text(self, font, UiKit.fit_px(font, err, 12, 340.0),
 					Vector2(RIGHT_X, 168), 12, UiKit.DIM)
 
-	UiKit.text(self, font, "THE DIARY", Vector2(RIGHT_X, 270), 15, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("THE DIARY"), Vector2(RIGHT_X, 270), 15, UiKit.INK)
 	if season.bid_open():
 		## The preview is honest and it is the reason the screen exists: the
 		## player is choosing between numbers, not adjectives, and the number
@@ -350,36 +350,36 @@ func _draw_diary() -> void:
 		## player is meant to read before spending credits on a date. Breaking
 		## them at the natural clause beats shrinking a figure somebody is about
 		## to make a decision on.
-		UiKit.text(self, font, "Matchday %d  ·  about %d through the gate" % [
+		UiKit.text(self, font, UiKit.t("Matchday %d  ·  about %d through the gate") % [
 			int(o["event"]) + 1, int(p["heads"])],
 			Vector2(RIGHT_X, 442), 13, UiKit.DIM)
-		UiKit.text(self, font, "%d CC spent" % int(p["cost"]),
+		UiKit.text(self, font, UiKit.t("%d CC spent") % int(p["cost"]),
 			Vector2(RIGHT_X, 460), 13, UiKit.DIM)
 		var net := int(p["net"])
-		UiKit.text(self, font, "%+d before the podium," % net,
+		UiKit.text(self, font, UiKit.t("%+d before the podium,") % net,
 			Vector2(RIGHT_X, 484), 15, UiKit.UP if net >= 0 else UiKit.DOWN)
-		UiKit.text(self, font, "up to %+d if you win it" % int(p["best"]),
+		UiKit.text(self, font, UiKit.t("up to %+d if you win it") % int(p["best"]),
 			Vector2(RIGHT_X, UiKit.bottom(34.0)), 13, UiKit.UP if net >= 0 else UiKit.DOWN)
 		return
 	if season.booked != null:
 		var away := season.booked.events_away(season.world.event)
-		UiKit.text(self, font, "%s, %s" % [season.booked.kind_name(),
-			"this matchday" if away == 0 else "in %d matchdays" % away],
+		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(),
+			UiKit.t("this matchday") if away == 0 else UiKit.t("in %d matchdays") % away],
 			Vector2(RIGHT_X, 304), 13, UiKit.YOU)
-		UiKit.text(self, font, "The budget is already spent. Win it and it comes back.",
+		UiKit.text(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
 			Vector2(RIGHT_X, 326), 12, UiKit.DIM)
 	else:
-		UiKit.text(self, font, "No tournament this year.",
+		UiKit.text(self, font, UiKit.t("No tournament this year."),
 			Vector2(RIGHT_X, 304), 13, UiKit.DIM)
-		UiKit.text(self, font, "The federation offers dates between seasons.",
+		UiKit.text(self, font, UiKit.t("The federation offers dates between seasons."),
 			Vector2(RIGHT_X, 326), 12, UiKit.EDGE)
 
 	if not season.last_show.is_empty():
 		var l := season.last_show
-		UiKit.text(self, font, "LAST TIME OUT", Vector2(RIGHT_X, 466), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("LAST TIME OUT"), Vector2(RIGHT_X, 466), 13, UiKit.DIM)
 		var f := String(l.get("finish", ""))
-		UiKit.text(self, font, "%s · %d in · %+d cr%s" % [
+		UiKit.text(self, font, UiKit.t("%s · %d in · %+d cr%s") % [
 			String(l.get("kind", "?")), int(l.get("heads", 0)), int(l.get("net", 0)),
-			"" if f == "" else " · %s" % f],
+			"" if f == "" else UiKit.t(" · %s") % f],
 			Vector2(RIGHT_X, 490), 13,
 			UiKit.UP if int(l.get("net", 0)) >= 0 else UiKit.DOWN)

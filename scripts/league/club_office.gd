@@ -69,7 +69,11 @@ const WAGE_A: float = 0.000794
 const WAGE_B: float = 0.2126
 
 ## Per division, not per club. The federation sets what a league costs to be in.
-const TIER_CAP := [200, 2600, 34000, 1000000]
+## Bottom cap 200 -> 800 with the pacing package: a power-50 starting squad bills
+## ~181 and `test_market` holds a starting club to bill x4 under the cap, so it
+## can renew anybody without money being the reason. It never binds in the sim
+## (career score unchanged); it binds on a player.
+const TIER_CAP := [800, 2600, 34000, 1000000]
 ## THE CAP RAISE HAS NO CEILING, at Pete's instruction — *"the upgradable salary
 ## cap"* — and Retro Bowl's works the same way: you can keep buying it, and the
 ## price keeps climbing, forever.
@@ -89,9 +93,6 @@ const TIER_CAP := [200, 2600, 34000, 1000000]
 ## which is exactly what the top of the pyramid needed.
 const CAP_COST_BASE: float = 4.0
 const CAP_COST_GROWTH: float = 1.28
-## Kept because the screen and the old tests read it: the number of raises after
-## which the cost is no longer in the hand-written table. It is not a limit.
-const CAP_MAX_LEVEL: int = 5
 ## Each raise is a slice of your own division's cap rather than a fixed sum,
 ## because a fixed sum that matters in the Backyard is a rounding error at the top.
 const CAP_STEP_FRACTION: float = 0.15
@@ -1544,12 +1545,21 @@ func age_captains() -> Array[String]:
 	return gone
 
 
+## ANOTHER YEAR COSTS WHAT HE IS WORTH. It was a flat 2 CC for anybody, so a
+## five-star hired for 20 was kept forever for 2 a year. Now a fifth of his
+## hiring price a year, never less than CAPTAIN_EXTEND — a one-star costs what
+## he always did.
+static func extend_cost(c: Dictionary) -> int:
+	return maxi(CAPTAIN_EXTEND, int(round(float(cost_of(c)) * 0.2)))
+
+
 func extend_captain(i: int) -> String:
 	if i < 0 or i >= captains.size():
 		return "There is no captain in that job."
-	if credits < CAPTAIN_EXTEND:
-		return "Another year costs %d CC and you have %d." % [CAPTAIN_EXTEND, credits]
-	spend(CAPTAIN_EXTEND, LINE_SQUAD)
+	var price := extend_cost(captains[i])
+	if credits < price:
+		return "Another year costs %d CC and you have %d." % [price, credits]
+	spend(price, LINE_SQUAD)
 	captains[i]["years"] = int(captains[i].get("years", 0)) + 1
 	return ""
 

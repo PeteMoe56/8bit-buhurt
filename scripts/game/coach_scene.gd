@@ -61,22 +61,22 @@ func _build() -> void:
 	var shown: int = mini(offers.size(), OFFERS_SHOWN)
 	for i in shown:
 		var cid: int = offers[i]
-		ui.add_child(UiKit.button("Sign and leave it all" if confirm_take == cid else "Take it",
+		ui.add_child(UiKit.button(UiKit.t("Sign and leave it all") if confirm_take == cid else UiKit.t("Take it"),
 			Vector2(R_X + 16, offer_row_y(i) + OFFER_BUTTON_DY),
 			Vector2(COL_W - 32, OFFER_BUTTON_H), _take.bind(cid)))
 	if confirm_take >= 0:
-		ui.add_child(UiKit.button("Stay", Vector2(190, UiKit.screen().y - 56),
+		ui.add_child(UiKit.button(UiKit.t("Stay"), Vector2(190, UiKit.screen().y - 56),
 			Vector2(150, 44), func():
 				confirm_take = -1
 				flash = ""
 				_build()))
-	ui.add_child(UiKit.button("Back", Vector2(24, UiKit.screen().y - 56),
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			UiKit.back("res://scenes/Season.tscn")))
 	## THE DIFFICULTY LIVES WITH THE CAREER, and Settings can only change it while
 	## a career is open — which it never was, because Settings was reachable only
 	## from the title screen, where no career is. This is the door from inside.
-	ui.add_child(UiKit.button("Settings", Vector2(356, UiKit.screen().y - 56),
+	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(356, UiKit.screen().y - 56),
 		Vector2(150, 44), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Settings.tscn"), "cog"))
@@ -93,9 +93,9 @@ func _take(club_id: int) -> void:
 	if confirm_take != club_id:
 		confirm_take = club_id
 		var carry: int = mini(season.office.credits, season.office.bought) if season.office.bought > 0 else 0
-		flash = "You leave the squad, %d CC, the buildings, captains and playbook behind%s. Tap again to sign." % [
+		flash = UiKit.t("You leave the squad, %d CC, the buildings, captains and playbook behind%s. Tap again to sign.") % [
 			maxi(0, season.office.credits - carry),
-			(" (your %d bought CC come with you)" % carry) if carry > 0 else ""]
+			(UiKit.t(" (your %d bought CC come with you)") % carry) if carry > 0 else ""]
 		_build()
 		return
 	confirm_take = -1
@@ -113,7 +113,7 @@ func _draw() -> void:
 	UiKit.ground(self)
 	var c := season.coach
 	UiKit.text(self, font, c.display_name.to_upper(), Vector2(24, 46), 26, UiKit.INK)
-	UiKit.right(self, font, "Season %d" % season.world.season,
+	UiKit.right(self, font, UiKit.t("Season %d") % season.world.season,
 		Vector2(UiKit.screen().x - 24, 46), 16, UiKit.DIM, 220)
 
 	_standing(c)
@@ -129,11 +129,11 @@ func _draw() -> void:
 ## is about to be compared with.
 func _standing(c: Coach) -> void:
 	UiKit.panel(self, Rect2(L_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "YOUR STANDING", Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("YOUR STANDING"), Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	UiKit.text(self, font, c.standing(), Vector2(L_X + 16, COL_Y + 62), 22, UiKit.YOU)
 	UiKit.meter(self, Rect2(L_X + 16, COL_Y + 76, COL_W - 32, 16),
 		c.reputation, Coach.REP_MAX, UiKit.YOU)
-	UiKit.right(self, font, "%d of %d" % [c.reputation, Coach.REP_MAX],
+	UiKit.right(self, font, UiKit.t("%d of %d") % [c.reputation, Coach.REP_MAX],
 		Vector2(L_X + COL_W - 16, COL_Y + 112), 12, UiKit.DIM, 160)
 
 	var y := COL_Y + 146.0
@@ -146,15 +146,15 @@ func _standing(c: Coach) -> void:
 	## WHAT IT COSTS TO HAVE A BAD YEAR, said out loud on the screen that owns the
 	## number. Reputation is additive up and multiplicative down, and a player who
 	## does not know that reads a halving as a bug.
-	UiKit.text(self, font, "Win your division and this climbs.",
+	UiKit.text(self, font, UiKit.t("Win your division and this climbs."),
 		Vector2(L_X + 16, y), 11, UiKit.EDGE.lightened(0.5))
-	UiKit.text(self, font, "Finish outside the top four and it halves.",
+	UiKit.text(self, font, UiKit.t("Finish outside the top four and it halves."),
 		Vector2(L_X + 16, y + 16), 11, UiKit.DOWN)
 
 
 func _the_book(c: Coach) -> void:
 	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "HIS RECORD", Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("HIS RECORD"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	var rows := [
 		["Seasons", "%d" % c.seasons],
 		["Record", c.record_line()],
@@ -170,21 +170,21 @@ func _the_book(c: Coach) -> void:
 			UiKit.DOWN if String(row[0]) == "Relegations" and c.relegations > 0 else UiKit.INK, 140)
 		y += 30.0
 	if c.fought() == 0:
-		UiKit.text(self, font, "Nothing in it yet.", Vector2(M_X + 16, y + 8), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Nothing in it yet."), Vector2(M_X + 16, y + 8), 12, UiKit.DIM)
 	else:
-		UiKit.text(self, font, "This follows you. The club does not.",
+		UiKit.text(self, font, UiKit.t("This follows you. The club does not."),
 			Vector2(M_X + 16, COL_Y + COL_H - 14), 11, UiKit.EDGE.lightened(0.5))
 
 
 func _offers(c: Coach) -> void:
 	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, "WHO WANTS YOU", Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("WHO WANTS YOU"), Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	var offers := Jobs.offers(c, season.world)
 	if offers.is_empty():
-		UiKit.text(self, font, "Nobody, yet.", Vector2(R_X + 16, COL_Y + 62), 15, UiKit.DIM)
-		UiKit.text(self, font, "Clubs come for a coach who", Vector2(R_X + 16, COL_Y + 92), 11,
+		UiKit.text(self, font, UiKit.t("Nobody, yet."), Vector2(R_X + 16, COL_Y + 62), 15, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Clubs come for a coach who"), Vector2(R_X + 16, COL_Y + 92), 11,
 			UiKit.EDGE.lightened(0.5))
-		UiKit.text(self, font, "out-rates them. Win something.", Vector2(R_X + 16, COL_Y + 108), 11,
+		UiKit.text(self, font, UiKit.t("out-rates them. Win something."), Vector2(R_X + 16, COL_Y + 108), 11,
 			UiKit.EDGE.lightened(0.5))
 		return
 	var shown: int = mini(offers.size(), OFFERS_SHOWN)
@@ -202,7 +202,7 @@ func _offers(c: Coach) -> void:
 		UiKit.right(self, font, League.tier_name(int(club["tier"])),
 			Vector2(R_X + COL_W - 16, y), 11, UiKit.DIM, 140)
 	if offers.size() > shown:
-		UiKit.right(self, font, "and %d more want you" % (offers.size() - shown),
+		UiKit.right(self, font, UiKit.t("and %d more want you") % (offers.size() - shown),
 			Vector2(R_X + COL_W - 16, COL_Y + COL_H - 14), 11, UiKit.DIM, 160)
 	else:
 		UiKit.text(self, font, UiKit.clip(c.offer_blurb(), 40),

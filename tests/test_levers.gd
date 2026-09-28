@@ -250,7 +250,7 @@ func _test_a_captain_is_on_a_deal() -> void:
 		bad.append("could not extend")
 	if int(t.office.captains[0]["years"]) != ClubOffice.CAPTAIN_YEARS + 1:
 		bad.append("extending did not add a year")
-	if purse - t.office.credits != ClubOffice.CAPTAIN_EXTEND:
+	if purse - t.office.credits != ClubOffice.extend_cost(t.office.captains[0]):
 		bad.append("extending cost the wrong amount")
 	if ClubOffice.CAPTAIN_EXTEND >= ClubOffice.CAPTAIN_COST:
 		bad.append("a year costs as much as a whole new captain")

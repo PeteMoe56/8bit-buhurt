@@ -323,13 +323,22 @@ func _test_the_bid_is_a_start_of_year_decision() -> void:
 			String(offer["name"]), spend, int(offer["event"]) + 1])
 
 	## And then it actually happens, on the day it was bought for.
+	## An Invitational can be pending first (a club good enough to be invited);
+	## its ties are simmed out of the way and the SHOW is what is waited for.
 	var guard := 0
-	while not s.cup_pending() and guard < 20 and not s.season_complete():
+	var opened := false
+	while s.booked != null and guard < 30 and not s.season_complete():
 		guard += 1
-		s.skip_event()
-	var opened := s.cup_pending()
+		var p := s.pending_cup()
+		if p != null and s.booked.cup == p:
+			opened = true
+			break
+		if p != null:
+			s.sim_cup_tie()
+		else:
+			s.skip_event()
 	var ties := 0
-	while s.cup_pending() and ties < 10:
+	while s.booked != null and s.cup_pending() and ties < 12:
 		ties += 1
 		s.sim_cup_tie()
 	_ok(opened and s.booked == null and not s.last_show.is_empty(),

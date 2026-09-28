@@ -132,9 +132,14 @@ func offer_blurb() -> String:
 
 # ------------------------------------------------------------------ the season
 ## WHERE THE DIVISION LEAVES YOU. `place` is 1-based.
-func after_division(place: int) -> void:
+##
+## `tier` scales a placed finish: winning the National Division is worth more to
+## a coach's name than winning the Backyard Circuit (it paid the same). +1 a rung
+## on any placed finish above nought.
+func after_division(place: int, tier: int = 0) -> void:
 	if place >= 1 and place <= REP_BY_PLACE.size():
-		reputation += REP_BY_PLACE[place - 1]
+		var pts: int = REP_BY_PLACE[place - 1]
+		reputation += pts + (maxi(0, tier) if pts > 0 else 0)
 	else:
 		## The halving. Rounded rather than floored, so a 5 becomes a 3 and not a
 		## 2 — theirs rounds, and at this scale the difference is a whole band.

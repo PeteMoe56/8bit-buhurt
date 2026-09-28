@@ -13,10 +13,9 @@ extends Node2D
 ## right-hand side, which is the layout the sport wanted all along: a line of
 ## five is a horizontal thing, and in portrait the camera was always fighting it.
 ##
-## The SIM's list is still 300x320 (Tuning.LIST_W/LIST_H) and deliberately
-## untouched. A wider list is the more authentic shape and would use this screen
-## better — and it would also invalidate every number in the melee suite, so it
-## is a measured change rather than a layout one.
+## The SIM's list is Tuning.LIST_W x LIST_H (300 x 570 today), drawn rotated so
+## its long axis is the screen's width. Changing its shape is a sim change with a
+## re-measure attached, not a layout one.
 const SCREEN := Vector2(960.0, 540.0)
 ## Drawn rotated (see _to_screen), so the list is LIST_H wide and LIST_W tall on
 ## screen. The fighter cards sit in a row along the bottom, which is where the
@@ -482,7 +481,7 @@ func _on_bout_finished(_w: int) -> void:
 			Session.season.post_bout(sim)
 		Session.clear_bout()
 		Session.autosave()
-		again_button.text = "Back to the clubhouse"
+		again_button.text = UiKit.t("Back to the clubhouse")
 	_quips_cache = []
 	_news_cache = []
 	screen = Screen.REPORT
@@ -841,9 +840,9 @@ func _draw() -> void:
 	if paused:
 		var sz := SCREEN
 		draw_rect(Rect2(Vector2(-off_x, 0.0), UiKit.screen()), Color(0, 0, 0, 0.6))
-		UiKit.raw(self, font, Vector2(0, sz.y * 0.46), "PAUSED",
+		UiKit.raw(self, font, Vector2(0, sz.y * 0.46), UiKit.t("PAUSED"),
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 40, UiKit.YOU)
-		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36), "Tap to carry on",
+		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36), UiKit.t("Tap to carry on"),
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 16, COL_DIM)
 
 
@@ -856,7 +855,7 @@ func _draw_report() -> void:
 	var them := 1
 	var verb := "take it" if sim.bout_winner() == us \
 		else ("share it" if sim.bout_winner() == -1 else "lose it")
-	UiKit.raw(self, font, Vector2(REP_LX, 56), "%s %d - %d %s" % [
+	UiKit.raw(self, font, Vector2(REP_LX, 56), UiKit.t("%s %d - %d %s") % [
 		sim.clubs[us].display_name.to_upper(), sim.rounds_won[us],
 		sim.rounds_won[them], sim.clubs[them].display_name.to_upper()],
 		HORIZONTAL_ALIGNMENT_LEFT, 880, 17, UiKit.YOU)
@@ -866,14 +865,14 @@ func _draw_report() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT, 880, 11, COL_DIM)
 	_rule(REP_LX, 94.0, 936.0 - REP_LX * 2.0)
 
-	UiKit.raw(self, font, Vector2(REP_LX, 112), "THE AFTERNOON",
+	UiKit.raw(self, font, Vector2(REP_LX, 112), UiKit.t("THE AFTERNOON"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 10, COL_DIM)
-	UiKit.raw(self, font, Vector2(REP_RX, 112), "THE CHANGING ROOM",
+	UiKit.raw(self, font, Vector2(REP_RX, 112), UiKit.t("THE CHANGING ROOM"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 10, COL_DIM)
 	_draw_report_table()
 	_draw_quips()
 	_rule(REP_LX, 314.0, 936.0 - REP_LX * 2.0)
-	UiKit.raw(self, font, Vector2(REP_LX, 334), "AFTER ACTION REPORT",
+	UiKit.raw(self, font, Vector2(REP_LX, 334), UiKit.t("AFTER ACTION REPORT"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 12, UiKit.YOU)
 	UiKit.raw(self, font, Vector2(REP_LX + 260.0, 334),
 		"The men, the room, the gate and the ground.",
@@ -902,7 +901,7 @@ func _draw_report_table() -> void:
 		var y := REP_ROW_Y + float(i) * REP_ROW_H
 		if i % 2 == 0:
 			draw_rect(Rect2(REP_LX, y - 12.0, REP_LW, 24.0), Color(1, 1, 1, 0.022))
-		UiKit.raw(self, font, Vector2(REP_LX + 6.0, y + 4), "#%d %s" % [
+		UiKit.raw(self, font, Vector2(REP_LX + 6.0, y + 4), UiKit.t("#%d %s") % [
 			m.card.number, m.card.display_name],
 			HORIZONTAL_ALIGNMENT_LEFT, 140, 11, COL_INK)
 		UiKit.raw(self, font, Vector2(REP_LX + 150.0, y + 4), m.card.pos_name(),
@@ -1075,13 +1074,13 @@ func _draw_corner() -> void:
 	var first: bool = sim.round_no <= 1 and sim.phase != MeleeSim.Phase.CORNER
 
 	if first:
-		UiKit.raw(self, font, Vector2(C_LX, 60), "BEFORE THE CHARGE",
+		UiKit.raw(self, font, Vector2(C_LX, 60), UiKit.t("BEFORE THE CHARGE"),
 			HORIZONTAL_ALIGNMENT_LEFT, 400, 16, UiKit.YOU)
-		UiKit.raw(self, font, Vector2(440, 62), "%s v %s" % [
+		UiKit.raw(self, font, Vector2(440, 62), UiKit.t("%s v %s") % [
 			sim.clubs[0].display_name, sim.clubs[1].display_name],
 			HORIZONTAL_ALIGNMENT_LEFT, 440, 9, COL_DIM)
 	else:
-		UiKit.raw(self, font, Vector2(C_LX, 60), "END OF ROUND %d" % sim.round_no,
+		UiKit.raw(self, font, Vector2(C_LX, 60), UiKit.t("END OF ROUND %d") % sim.round_no,
 			HORIZONTAL_ALIGNMENT_LEFT, 400, 16, UiKit.YOU)
 		var standing := 0
 		for m in sim.men:
@@ -1109,22 +1108,22 @@ func _draw_corner() -> void:
 		draw_rect(Rect2(C_LX, ry, C_LW, row_h), COL_HOT if downed else COL_EDGE,
 			false, 2.0 if downed else 1.0)
 		var f = line[i]
-		UiKit.raw(self, font, Vector2(C_LX + 10, ry + 19), "#%d %s" % [f.number,
+		UiKit.raw(self, font, Vector2(C_LX + 10, ry + 19), UiKit.t("#%d %s") % [f.number,
 			f.display_name], HORIZONTAL_ALIGNMENT_LEFT, 120, 11, COL_INK)
 		UiKit.raw(self, font, Vector2(C_LX + 10, ry + 34), f.pos_name(),
 			HORIZONTAL_ALIGNMENT_LEFT, 120, 8, COL_DIM)
 		if downed:
-			UiKit.raw(self, font, Vector2(C_LX + 10, ry + 50), "DOWNED",
+			UiKit.raw(self, font, Vector2(C_LX + 10, ry + 50), UiKit.t("DOWNED"),
 				HORIZONTAL_ALIGNMENT_LEFT, 120, 8, COL_HOT)
 		elif FighterTrait.flag(f.trait_id, "no_sub"):
-			UiKit.raw(self, font, Vector2(C_LX + 10, ry + 50), "WILL NOT COME OFF",
+			UiKit.raw(self, font, Vector2(C_LX + 10, ry + 50), UiKit.t("WILL NOT COME OFF"),
 				HORIZONTAL_ALIGNMENT_LEFT, 120, 8, COL_DIM)
 		## THE TWO NUMBERS THE ROUND PRODUCED. Blank before the charge, because a
 		## column of noughts on the pre-fight screen is a report on nothing.
 		if not first and m != null:
-			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 19), "TD %d" % m.downs_caused,
+			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 19), UiKit.t("TD %d") % m.downs_caused,
 				HORIZONTAL_ALIGNMENT_LEFT, 60, 9, COL_INK)
-			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 34), "AST %d" % m.assists,
+			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 34), UiKit.t("AST %d") % m.assists,
 				HORIZONTAL_ALIGNMENT_LEFT, 60, 9, COL_DIM)
 
 		## ENERGY NOW AND ENERGY RECOVERED — Pete, 13 Sep 2026. The lighter part
@@ -1136,7 +1135,7 @@ func _draw_corner() -> void:
 		## shown as he is, not with somebody else's rest added on.
 		var back: float = sim.corner_preview(m) \
 			if (m != null and not first and m.card == f) else now_e
-		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 17), "ENERGY",
+		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 17), UiKit.t("ENERGY"),
 			HORIZONTAL_ALIGNMENT_LEFT, 80, 7, COL_DIM)
 		draw_rect(Rect2(C_LX + C_BAR_X, ry + 21, C_BAR_W, 8), Color(0, 0, 0, 0.45))
 		draw_rect(Rect2(C_LX + C_BAR_X, ry + 21, C_BAR_W * back, 8),
@@ -1147,7 +1146,7 @@ func _draw_corner() -> void:
 			"%d%%" % int(round(now_e * 100.0)) if is_equal_approx(back, now_e)
 				else "%d%% → %d%%" % [int(round(now_e * 100.0)), int(round(back * 100.0))],
 			HORIZONTAL_ALIGNMENT_RIGHT, int(C_BAR_W), 8, COL_DIM)
-		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 58), "CONDITION",
+		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 58), UiKit.t("CONDITION"),
 			HORIZONTAL_ALIGNMENT_LEFT, 80, 7, COL_DIM)
 		var word := Tuning.condition_word(now_e, f.fit())
 		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + 76, ry + 59), word,
@@ -1156,14 +1155,14 @@ func _draw_corner() -> void:
 
 	## THE RIGHT COLUMN'S HEADING AND THE CHOSEN STRIP. The strip sits between
 	## the book and the fight because that is where the player's eye is going.
-	UiKit.raw(self, font, Vector2(C_RX, C_LY - 4), "PLAYBOOK",
+	UiKit.raw(self, font, Vector2(C_RX, C_LY - 4), UiKit.t("PLAYBOOK"),
 		HORIZONTAL_ALIGNMENT_LEFT, 200, 10, COL_DIM)
 	var fw: float = (C_RW - C_FAV_GAP) * 0.5
 	var fh: float = fw * (PLAY_CARD.y / PLAY_CARD.x)
 	var cy: float = C_LY + 6.0 + fh * 2.0 + C_FAV_GAP + 10.0 + 44.0
 	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 32.0), COL_PANEL.lightened(0.08))
 	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 32.0), UiKit.YOU, false, 1.0)
-	UiKit.raw(self, font, Vector2(C_RX + 9, cy + 13), "CHOSEN",
+	UiKit.raw(self, font, Vector2(C_RX + 9, cy + 13), UiKit.t("CHOSEN"),
 		HORIZONTAL_ALIGNMENT_LEFT, 80, 7, COL_DIM)
 	UiKit.raw(self, font, Vector2(C_RX + 9, cy + 26),
 		UiKit.fit(font, _chosen_label(), 10, C_RW - 24.0),
@@ -1296,6 +1295,15 @@ func _draw_man(m) -> void:
 	_draw_mark(p, club, w - 8.0)
 	draw_rect(Rect2(p - Vector2(7.0, h * 0.5 + 7.0), Vector2(14.0, 9.0)), Tuning.COL_STEEL)
 	draw_rect(Rect2(p - Vector2(6.0, h * 0.5 + 4.0), Vector2(12.0, 3.0)), Tuning.COL_STEEL_DARK)
+	## HIS WEAPON, until the sprites say it: a pole along his side, or a shield
+	## square on his arm. Placeholder primitives, like the rest of him.
+	var side := 1.0 if m.team == 0 else -1.0
+	if m.card != null and m.card.weapon == Tuning.Weapon.POLEARM:
+		draw_rect(Rect2(p + Vector2(side * (w * 0.5 + 1.0) - 1.5, -h * 0.5 - 8.0),
+			Vector2(3.0, h + 12.0)), Tuning.COL_STEEL)
+	else:
+		draw_rect(Rect2(p + Vector2(side * (w * 0.5 - 2.0) - 5.0, -6.0),
+			Vector2(10.0, 12.0)), Tuning.COL_STEEL_DARK)
 
 	## Two slivers under his feet: gas, then stability. Stability is what a Hit
 	## spends, so it has to be visible or Hit is an invisible investment.
@@ -1373,9 +1381,9 @@ func _draw_scoreboard() -> void:
 	var clock: float = maxf(0.0, Tuning.ROUND_TIME - sim.round_t)
 	## The score lives on the banners now — a scoreline in the top corners and a
 	## club standing down each side was the same fact printed twice.
-	UiKit.raw(self, font, Vector2(0, 30), "R%d  %d:%02d" % [sim.round_no, int(clock) / 60, int(clock) % 60],
+	UiKit.raw(self, font, Vector2(0, 30), UiKit.t("R%d  %d:%02d") % [sim.round_no, int(clock) / 60, int(clock) % 60],
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 22, COL_INK)
-	UiKit.raw(self, font, Vector2(0, 50), "%s   |   %s" % [
+	UiKit.raw(self, font, Vector2(0, 50), UiKit.t("%s   |   %s") % [
 		_our_shape_name(),
 		Tuning.STRATEGIES[sim.strategies[0]]["name"],
 	], HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 14, COL_DIM)
@@ -1407,7 +1415,7 @@ func _draw_banner(team: int, x: float, club) -> void:
 	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 118.0), club.short_name,
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 26, COL_INK)
 
-	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 152.0), "ROUNDS",
+	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 152.0), UiKit.t("ROUNDS"),
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 11, COL_DIM)
 	for i in Tuning.BOUT_WINS:
 		var px := cx - 15.0 + float(i) * 30.0
@@ -1416,19 +1424,19 @@ func _draw_banner(team: int, x: float, club) -> void:
 			Tuning.COL_MARSHAL if lit else Color("221e1a"))
 		draw_rect(Rect2(px - 9.0, BANNER_TOP + 162.0, 18.0, 18.0), COL_EDGE, false, 1.0)
 
-	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 216.0), "STANDING",
+	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 216.0), UiKit.t("STANDING"),
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 11, COL_DIM)
 	var up := sim.standing_count(team)
 	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 250.0), "%d" % up,
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 34,
 		COL_INK if up > 1 else COL_HOT)
-	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 272.0), "of %d" % _line_size(team),
+	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 272.0), UiKit.t("of %d") % _line_size(team),
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 12, COL_DIM)
 
 	## What this side has put down THIS round — the round's actual score, and the
 	## number the stop rule is watching. Standing tells you how you are; downs
 	## tells you how close it is to over.
-	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 316.0), "DOWNS",
+	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 316.0), UiKit.t("DOWNS"),
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 11, COL_DIM)
 	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 346.0), "%d" % sim.round_downs[team],
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 26, COL_GOOD if sim.round_downs[team] > 0 else COL_DIM)
@@ -1463,7 +1471,7 @@ func _draw_strip() -> void:
 		draw_rect(r, Tuning.COL_ROUTE if m.under_orders() else COL_EDGE, false,
 			2.0 if m.under_orders() else 1.0)
 		var ink := COL_INK if live else Color("5a5148")
-		UiKit.raw(self, font, r.position + Vector2(10, 22), "#%d %s" % [m.card.number, m.card.display_name],
+		UiKit.raw(self, font, r.position + Vector2(10, 22), UiKit.t("#%d %s") % [m.card.number, m.card.display_name],
 			HORIZONTAL_ALIGNMENT_LEFT, int(CARD_W - 16), 15, ink)
 		UiKit.raw(self, font, r.position + Vector2(10, 42), m.card.pos_name(),
 			HORIZONTAL_ALIGNMENT_LEFT, int(CARD_W - 16), 13, COL_DIM)
@@ -1529,7 +1537,7 @@ func _draw_hint() -> void:
 	elif open > 0:
 		msg = "Options are up — pick, or let him."
 	UiKit.raw(self, font, Vector2(24, 50), msg, HORIZONTAL_ALIGNMENT_LEFT, 260, 13, COL_DIM)
-	UiKit.raw(self, font, Vector2(SCREEN.x - 284, 50), "%d routes · %d of %d calls" % [
+	UiKit.raw(self, font, Vector2(SCREEN.x - 284, 50), UiKit.t("%d routes · %d of %d calls") % [
 		sim.orders_issued, sim.prompts_answered,
 		sim.prompts_answered + sim.prompts_timed_out],
 		HORIZONTAL_ALIGNMENT_RIGHT, 260, 13, COL_EDGE.lightened(0.35))
@@ -1545,7 +1553,7 @@ func _draw_calls() -> void:
 	if screen != Screen.FIGHT or calls_total <= 0:
 		return
 	var y := CALL_AT.y - 22.0
-	UiKit.raw(self, font, Vector2(CALL_AT.x, y - 4.0), "CALLS", HORIZONTAL_ALIGNMENT_LEFT,
+	UiKit.raw(self, font, Vector2(CALL_AT.x, y - 4.0), UiKit.t("CALLS"), HORIZONTAL_ALIGNMENT_LEFT,
 		60, 11, COL_DIM)
 	for i in calls_total:
 		var r := Rect2(CALL_AT.x + 56.0 + float(i) * 18.0, y - 15.0, 13.0, 13.0)
@@ -1562,7 +1570,7 @@ func _draw_held() -> void:
 	var band := Rect2(LIST_ORIGIN.x, 196.0, Tuning.LIST_H * LIST_SCALE, 62.0)
 	draw_rect(band, Color(0, 0, 0, 0.62))
 	draw_rect(band, Tuning.COL_MARSHAL, false, 2.0)
-	UiKit.raw(self, font, Vector2(band.position.x, band.position.y + 30.0), "HOLD",
+	UiKit.raw(self, font, Vector2(band.position.x, band.position.y + 30.0), UiKit.t("HOLD"),
 		HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 26, Tuning.COL_MARSHAL)
 	UiKit.raw(self, font, Vector2(band.position.x, band.position.y + 52.0),
 		"give one man an order · %.1fs" % maxf(0.0, hold_t),
@@ -1583,8 +1591,8 @@ func _build_ui() -> void:
 	## round time the skip is spending. `test_icons.gd` scans for a mark a screen
 	## asks for and cannot find, so a made-up name fails the suite rather than
 	## rendering a button with a hole in it.
-	call_button = UiKit.button("HOLD", CALL_AT, CALL_SIZE, _hold, "speaker")
-	skip_button = UiKit.button("SKIP ROUND", SKIP_AT, CALL_SIZE, _skip_round, "clock")
+	call_button = UiKit.button(UiKit.t("HOLD"), CALL_AT, CALL_SIZE, _hold, "speaker")
+	skip_button = UiKit.button(UiKit.t("SKIP ROUND"), SKIP_AT, CALL_SIZE, _skip_round, "clock")
 	call_button.visible = false
 	skip_button.visible = false
 	ui.add_child(call_button)
@@ -1952,8 +1960,8 @@ func _show_playbook() -> void:
 	_clear_panel()
 	var board: Chalkboard = Session.season.board if Session.season != null else null
 	var starred: int = board.live_favorites().size() if board != null else 0
-	panel_title.text = "THE PLAYBOOK — %s" % ("tap to star, %d of %d" % [starred,
-		Chalkboard.MAX_FAVORITES] if starring else "pick one")
+	panel_title.text = UiKit.t("THE PLAYBOOK — %s") % (UiKit.t("tap to star, %d of %d") % [starred,
+		Chalkboard.MAX_FAVORITES] if starring else UiKit.t("pick one"))
 	if book_note != "":
 		panel_title.text += "   ·   " + book_note
 	panel_box.visible = true
@@ -2023,7 +2031,7 @@ func _build_fav_strip(board: Chalkboard) -> void:
 	if favs.size() < 2:
 		return
 	var head := Label.new()
-	head.text = "IN THE CORNER, IN THIS ORDER — tap to move one left"
+	head.text = UiKit.t("IN THE CORNER, IN THIS ORDER — tap to move one left")
 	head.add_theme_color_override("font_color", UiKit.DIM)
 	head.add_theme_font_size_override("font_size", 12)
 	panel_box.add_child(head)
@@ -2338,7 +2346,7 @@ func _splash_club(club, side: int, cx: float) -> void:
 	var id: int = _season().world.player_club if side == 0 else _season().opponent_id()
 	if id < 0:
 		return
-	UiKit.raw(self, font, Vector2(cx - 220.0, 316.0), "W - D - L",
+	UiKit.raw(self, font, Vector2(cx - 220.0, 316.0), UiKit.t("W - D - L"),
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 9, COL_DIM)
 	UiKit.raw(self, font, Vector2(cx - 220.0, 340.0), _season().world.record_line(id),
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 15, COL_INK)
@@ -2488,7 +2496,7 @@ func _build_corner() -> void:
 		## the only trait in the game whose whole effect is that a control does
 		## not work, which is why it is a flag and not a number.
 		var proud: bool = FighterTrait.flag(line[i].trait_id, "no_sub")
-		var b := UiKit.button("SUB",
+		var b := UiKit.button(UiKit.t("SUB"),
 			Vector2(C_LX + C_LW - C_SUB.x - 6.0, ry + (row_h - C_SUB.y) * 0.5),
 			C_SUB, func(k = i): sub_open = -1 if sub_open == k else k; _build_corner())
 		b.disabled = proud or left <= 0 or sim.bench(0).is_empty()
@@ -2518,7 +2526,7 @@ func _build_corner() -> void:
 		ui.add_child(fb)
 
 	var y: float = C_LY + 6.0 + fh * 2.0 + C_FAV_GAP + 10.0
-	var full := UiKit.button("FULL PLAYBOOK", Vector2(C_RX, y), Vector2(C_RW, 34.0),
+	var full := UiKit.button(UiKit.t("FULL PLAYBOOK"), Vector2(C_RX, y), Vector2(C_RW, 34.0),
 		_show_playbook)
 	corner_nodes.append(full)
 	ui.add_child(full)
@@ -2527,7 +2535,7 @@ func _build_corner() -> void:
 	## two halves of the screen end together however many men are on the line.
 	var lbot: float = C_LY + float(line.size()) * (row_h + C_ROW_GAP)
 	var fy: float = maxf(y + 44.0 + 42.0, lbot - 56.0)
-	var fight := UiKit.button("FIGHT", Vector2(C_RX, fy), Vector2(C_RW, 56.0),
+	var fight := UiKit.button(UiKit.t("FIGHT"), Vector2(C_RX, fy), Vector2(C_RW, 56.0),
 		_apply_chosen)
 	## NOTHING CALLED IS NOTHING TO FIGHT WITH. Before round one the clubhouse
 	## has already sent a shape, so the corner opens with it chosen and the
@@ -2587,7 +2595,7 @@ func _build_sub_popup(line: Array) -> void:
 	sub_for = String(line[sub_open].display_name) if sub_open < line.size() else ""
 	for i in bench.size():
 		var f = bench[i]
-		var b := UiKit.button("%s  ·  %s  ·  %d%%" % [f.display_name, f.pos_name(),
+		var b := UiKit.button(UiKit.t("%s  ·  %s  ·  %d%%") % [f.display_name, f.pos_name(),
 				int(round(sim.condition_of(f) * 100.0))],
 			box.position + Vector2(SUB_PAD, _sub_row_y(i)), SUB_ROW,
 			func(m = f): _do_swap(m))
@@ -2596,7 +2604,7 @@ func _build_sub_popup(line: Array) -> void:
 	## FULL WIDTH, LIKE THE ROWS ABOVE IT. A 160-wide cancel under a column of
 	## 400-wide buttons is a different kind of control by its shape, and it is
 	## not — it is the last item in the same list.
-	var cancel := UiKit.button("Never mind",
+	var cancel := UiKit.button(UiKit.t("Never mind"),
 		box.position + Vector2(SUB_PAD,
 			_sub_row_y(maxi(1, bench.size())) - SUB_GAP + SUB_TAIL),
 		SUB_CANCEL, func(): sub_open = -1; _build_corner())

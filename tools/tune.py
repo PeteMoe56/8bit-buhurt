@@ -196,9 +196,17 @@ def key(s, cur=None, ship=None):
     return (miss(s), d, -s["power"])
 
 
+def fresh_lane():
+    """A FRESH copy of the project every run, thrown away at exit. The lane used
+    to be made once (by sweep.sh) and reused, so a tune after a code change tuned
+    the OLD code — and an interrupted run left constants rewritten in it."""
+    src = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    shutil.rmtree(LANE, ignore_errors=True)
+    shutil.copytree(src, LANE, ignore=shutil.ignore_patterns(".git", "art", "logs"))
+
+
 def main():
-    if not os.path.isdir(LANE):
-        raise SystemExit("no lane at %s -- run tools/sweep.sh once first" % LANE)
+    fresh_lane()
     # Start from what the game currently ships.
     cur = {}
     for name, path, cands in LEVERS:
@@ -262,4 +270,8 @@ def main():
         print("  %-22s %-8s%s" % (k, v, mark))
 
 
-main()
+if __name__ == "__main__":
+    try:
+        main()
+    finally:
+        shutil.rmtree(LANE, ignore_errors=True)

@@ -688,6 +688,17 @@ static func _note(font: Font, s: String, at: Vector2, size: int,
 ## `draw_string`'s arguments in `draw_string`'s order and forwards them verbatim.
 ## The substitution is `draw_string(` -> `UiKit.raw(self, ` and the pixels are
 ## identical by construction — which is a claim the shot tools can check, and did.
+## ------------------------------------------------------------- the words
+## EVERY WORD A PLAYER READS GOES THROUGH HERE, so a translation is data, not a
+## code change. `t("Sim it")` is the English until a translation for the current
+## locale says otherwise. Format templates are translated BEFORE they are filled
+## — `UiKit.t("%d credits.") % got` — so the key is the template, not a sentence
+## with this afternoon's numbers in it. `tools/extract_strings.py` collects every
+## `UiKit.t("...")` into `locale/strings.csv`, the file a translator fills in.
+static func t(s: String) -> String:
+	return TranslationServer.translate(s)
+
+
 static func raw(ci: CanvasItem, font: Font, at: Vector2, s: String,
 		align: int = HORIZONTAL_ALIGNMENT_LEFT, width: float = -1,
 		size: int = 16, col: Color = Color.WHITE) -> void:
