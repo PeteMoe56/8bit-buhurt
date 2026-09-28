@@ -18,9 +18,11 @@ This README is the cold-start doc. A fresh chat should be able to read it and co
 
 ## Where things stand
 
-Sixteen screens, a full career loop, 33 test files green. Open `C:\Dev\RetroBuhurt` in
-Godot 4.6 and press play. **Landscape, 960×540** — and the canvas floats: see *The shape
-of the screen* below.
+*Updated 27 Sep 2026 (Central), after a full code audit — see `docs/REGISTER.md` §28.*
+
+Sixteen screens, a full career loop, 49 test files, **fast gate green, balance tier green**.
+Open `C:\Dev\RetroBuhurt` in Godot 4.6.2 and press play. **Landscape, 960×540** — and the
+canvas floats: see *The shape of the screen* below.
 
 You run a club through a season: a fixture list, a league table, a squad with contracts and
 wages, a market, a ground you build, a federation you owe, cups, a chalkboard you draw
@@ -28,17 +30,22 @@ plays on, and a trophy cabinet. Bouts can be simulated or fought. When you fight
 pick a formation, pick a strategy in the corner, and then **put your finger on a fighter
 and draw him a path** — to open ground, or onto an opponent. He lights up and goes. When
 the route is done the AI takes him back. Drawing nothing at all is a real way to play.
+Every fighter carries **sword-and-shield or a polearm** (tap it on his card to change).
 
-What is **not** built, as of 15 Sep 2026:
+Pacing, measured with `bash tools/bb.sh bases`: a National title at season **12.0** on
+average (10.8–13.0 across the five check bases), with a manager that keeps the club
+eligible for cups.
 
-- **The art.** 30 slots declared in `ArtBank.SLOTS`, 0 on disk. Every one falls back to a
-  primitive, so nothing is broken — the game is playable and blank.
-- **Any export target.** There is no `export_presets.cfg` and no `icon.svg`, so nothing has
-  ever been built for a device.
-- **The IAP credit unlock.** Direction §7 names it as the second milestone.
+What is **not** built:
 
-The full list, with sizes and owners, is the **Ship List** artifact — that is the live
-document, not this file.
+- **The art.** 32 slots declared in `ArtBank.SLOTS`, none filled yet (in progress). Every
+  one falls back to a primitive, so nothing is broken.
+- **The store and export chain** — no gradle build/AAB, no Google Play Billing plugin, no
+  Steamworks. `Store` is written and its seam is ready; the plugin wiring is the job.
+- **Translations.** Every UI string goes through `UiKit.t()` and `locale/strings.csv`
+  (`bash tools/bb.sh strings`) has 420 of them with an empty column per Play locale. A
+  column is registered in `project.godot` only once it is filled — and the BuhurtRail font
+  has no accented glyphs yet.
 
 ## The shape of the screen
 
@@ -72,19 +79,22 @@ scenes/                  16 scenes — Title, Season, Roster, Fighter, Market, S
                          Coach, Records, Federation, Arena, Chalkboard, Create,
                          Bracket, Melee, Settings, Start
 scripts/game/            the shell: every screen, plus UiKit, Juice, ArtBank, SaveGame,
-                         Career, Audio, Settings, Session
-  ui.gd                  EVERY drawing primitive and the whole palette. Start here.
-  juice.gd               the feel layer — pops, shakes, typing, the tick
-  save_game.gd           v12, with a migration floor at v11
+                         Career, Audio, Settings, Session, AppLife
+  ui.gd                  EVERY drawing primitive, the palette, UiKit.t() and confirm()
+  app_life.gd            pause/close autosave, Android back + Esc, taps during a wipe
+  season_scene.gd        the clubhouse shell; each tab is season_tab_<name>.gd
+  save_game.gd           v12 in an RBH2 container (length + MD5), .tmp -> rename, .bak
 scripts/league/          the meta game: season, world, tables, cups, office, arena,
                          contracts, market, federation, dilemmas, splits
-  season.gd              the spine — one season, one club, every door the screens use
+  season.gd              the spine — every door the screens use; the work is in
+                         season_bouts / season_cups / season_desk / season_winter.gd
+  club_office.gd         the club's desk; office_books / office_crowd / office_staff.gd
 scripts/melee/           the fight: sim, scene, tuning, traits, grades, report
-  tuning.gd              EVERY tunable fight number, in one place
+  tuning.gd              EVERY tunable fight number, in one place (weapons included)
   melee_sim.gd           pure RefCounted, seeded RNG, no node deps
-scripts/ui/              shared UI pieces
-tests/                   33 files
-tools/                   80 scripts — shot_* render a screen, probe_* measure something
+tests/                   49 files; fixtures/ holds golden saves
+tools/                   bb.sh is the door; shot_* render, probe_* measure
+locale/strings.csv       every UI string, one column per Play locale
 docs/
   GAMEPLAY.md            the current design
   DIRECTION.md           the founding direction doc (10 Sep 2026)
@@ -95,40 +105,46 @@ docs/
 shots/                   rendered screens
 ```
 
-## The suite
+## The suite, and the toolbox
 
 ```
-bash tools/run_tests.sh
+bash tools/bb.sh test              # the fast gate — parse, every test file, the shape sweep
+bash tools/bb.sh test --balance    # the statistical tier: run before any balance change ships
+bash tools/bb.sh bases             # career score on the five check bases, and the mean
+bash tools/bb.sh list              # every probe and shot tool, one line each
 ```
 
-Runs every file in `tests/`, then parses every script in the repo, then re-runs the ink
-sweep and the shape sweep at four canvas shapes. About 25 minutes, most of it
-`test_melee.gd`. Run `--import` once first, or the `class_name` cache is empty and nothing
-resolves.
+`bash tools/bb.sh` with no argument lists the rest (probe, shot, titles, soak, fixture,
+strings, sweep, tune, noise). CI runs the fast gate on push and the balance tier nightly
+(`.github/workflows/tests.yml`) once the repo has a GitHub remote.
 
-Nothing in it may be skipped. **A test that cannot run gets fixed or removed, never
-printed as SKIP.**
+**A file passes only if** it exits 0, prints its banner with more than zero checks, prints
+no `SCRIPT ERROR`/`Parse Error`, and prints no engine `ERROR:` that is not listed (with a
+reason) in `tests/allowed_errors.txt`. Full output of every file is in `logs/tests/`.
+Until 27 Sep the runner read exit codes only, and `test_save` had been crashing inside its
+own fingerprint — asserting nothing — while the suite printed green.
+
+Tiers: `RB_TIER=fast|balance` is exported to every test. A slow statistical measure runs
+only in the balance tier; a file that is nothing but those says `RB_TIER: balance-only` and
+is **listed**, not run, in the fast tier. Nothing is ever printed as a quiet SKIP.
 
 A few worth knowing by name:
 
 - `test_ink.gd` — measures drawn *text*: off the frame, on a control, off a panel.
-- `test_shapes.gd` — renders 16 screens and samples pixels, so a background that stops
-  short of the screen edge fails. Needs a display; the runner gives it one.
-- `test_melee.gd` — 40 bouts a measure, thirteen measures. It is the slow one.
-- `test_save.gd` — round trip, a five-season career, and the v11 migration.
+- `test_shapes.gd` — renders the screens and samples pixels. Needs a display (xvfb).
+- `test_save.gd` — round trip, a five-season career, torn-file backup, and every golden
+  file in `tests/fixtures/` (write a new one with `bb fixture` **before** bumping
+  `SaveGame.VERSION`).
+- `test_audit_*.gd` — one check per fix from the 27 Sep audit.
 
-And the ones that answer questions no headless check can:
+And the pictures no headless check can replace:
 
 ```
-xvfb-run -a godot --path . --resolution 1170x540 --script res://tools/shot_aspect.gd
-xvfb-run -a godot --path . --script res://tools/shot_season.gd
-xvfb-run -a godot --path . --script res://tools/shot_melee.gd -- <frames> <out.png>
+bash tools/bb.sh shot melee 1170x540 300 /tmp/melee.png
+bash tools/bb.sh shot season
 ```
 
-**Readability has never once been settled by reasoning about it on this project.** Three
-real defects on the season screen were found in the first four pictures of it and none of
-them by a suite; the whole mobile pass of 15 Sep started with one screenshot at a width
-nothing had ever rendered.
+**Readability has never once been settled by reasoning about it on this project.**
 
 ---
 
@@ -142,7 +158,8 @@ and formation and strategy must outrank the thumb.
 ## Before you close a session
 
 1. **Audit the previous session.** Standing instruction; it has found something every time.
-2. **Run `bash tools/run_tests.sh`. It must be green.**
+2. **Run `bash tools/bb.sh test`. It must be green** — and `bb test --balance` too if
+   anything that moves a number changed.
 3. **Re-render anything visual you touched.** An image, not an opinion.
 4. **Update `docs/REGISTER.md` in the same session** — record the *rationale* and the
    measurement, not just the decision.
@@ -153,17 +170,16 @@ and formation and strategy must outrank the thumb.
 
 ### Committing from a Cowork session
 
-The desktop sandbox blocks file deletion, and git needs to unlink its own locks. Move them
-rather than requesting delete permission — `mv` is permitted where `rm` is not:
+The desktop sandbox blocks file deletion until you allow it, and git has to delete its own
+lock files. Ask for delete permission on this folder once per session (the prompt says why)
+and git works normally. Without it, `mv` the locks aside before every git command:
 
 ```
-cd RetroBuhurt && mkdir -p _git_locks_to_delete \
-  && mv .git/index.lock .git/HEAD.lock _git_locks_to_delete/ 2>/dev/null; \
-     mv .git/objects/maintenance.lock _git_locks_to_delete/ 2>/dev/null; \
-     for f in .git/objects/*/tmp_obj_*; do [ -e "$f" ] && mv "$f" _git_locks_to_delete/; done
+mkdir -p _git_locks_to_delete && for f in .git/*.lock .git/refs/heads/*.lock; do [ -e "$f" ] && mv "$f" _git_locks_to_delete/; done
 ```
 
-Run it before `git add`, unconditionally. It is harmless when there is nothing to move.
+Work done in the cloud container lands as `git format-patch` files applied here with
+`git am --3way`; compare `git rev-parse HEAD^{tree}` on both sides afterwards.
 
 ---
 
