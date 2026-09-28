@@ -250,6 +250,11 @@ static func walk_on(rng: RandomNumberGenerator, slot: int, tier: int) -> Fighter
 static func free_agent(rng: RandomNumberGenerator, slot: int, target: int,
 		standard: int = 0) -> FighterCard:
 	var f := _fighter(rng, 0, slot, target, rng.randf_range(0.70, 1.0), standard, true)
+	## THE SHELF'S CEILINGS ARE DRAWN WIDE — see `Career.free_agent_potential`.
+	## Off a hash of the man, not the stream, so the rest of the list is unmoved.
+	var talent := float(absi(hash("talent:%s:%d:%d:%d" % [f.display_name, f.age,
+		f.overall(), f.peak_seed])) % 10000) / 10000.0
+	f.potential = Career.free_agent_potential(f, standard, talent)
 	f.active = false
 	f.years = 0
 	f.wage_agreed = 0

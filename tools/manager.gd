@@ -30,7 +30,7 @@ var youth: bool = false
 ## a scout nobody can hire. ORACLE keeps that for the pacing baseline;
 ## `tools/probe_scouting.gd` plays the other three to measure what reading the
 ## range well is worth.
-enum Read { ORACLE, MIDPOINT, OPTIMIST, PESSIMIST }
+enum Read { ORACLE, MIDPOINT, OPTIMIST, PESSIMIST, IGNORE }
 var reading: int = Read.ORACLE
 var _s: Season = null
 var was_tier: int = -1
@@ -162,6 +162,9 @@ func value(f: FighterCard) -> int:
 	if reading == Read.ORACLE or _s == null:
 		return Career.projected(f) if youth else Career.worth(f)
 	var r := _s.potential_range(f)
+	## IGNORE reads no range at all: a stranger is what he is today.
+	if reading == Read.IGNORE and not _s.club.roster.has(f):
+		r = Vector2i(f.overall(), f.overall())
 	var guess: int = r.x if reading == Read.PESSIMIST else (r.y if reading == Read.OPTIMIST
 		else int(round((r.x + r.y) * 0.5)))
 	var truth := f.potential

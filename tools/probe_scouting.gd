@@ -11,12 +11,13 @@ extends SceneTree
 ##   midpoint   takes the middle of the range — the sensible reading
 ##   optimist   takes the top — believes every scout's best case
 ##   pessimist  takes the bottom
+##   ignore     reads no range: a stranger is worth what he is today
 ##
 ## The skill edge is midpoint minus optimist; the price of the fog is oracle
 ## minus midpoint. If both are inside the noise the range is decoration.
 
 const BASES := [9001, 5150, 2718, 6060, 8123]
-const NAMES := ["oracle", "midpoint", "optimist", "pessimist"]
+const NAMES := ["oracle", "midpoint", "optimist", "pessimist", "ignore"]
 
 
 func _initialize() -> void:
@@ -26,7 +27,7 @@ func _initialize() -> void:
 	print("\n=== reading the scouting range: %d bases x %d seeds x %d seasons ===\n" % [BASES.size(), seeds, years])
 	print("%-10s %-10s %8s %8s %8s %8s" % ["manager", "reader", "title", "t3", "power", "signed"])
 	for youth in [false, true]:
-		for mode in 4:
+		for mode in NAMES.size():
 			var title := 0.0
 			var t3 := 0.0
 			var power := 0.0

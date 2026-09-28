@@ -32,8 +32,8 @@ and draw him a path** — to open ground, or onto an opponent. He lights up and 
 the route is done the AI takes him back. Drawing nothing at all is a real way to play.
 Every fighter carries **sword-and-shield or a polearm** (tap it on his card to change).
 
-Pacing, measured with `bash tools/bb.sh bases`: a National title at season **12.04** on
-average (10.8–13.0 across the five check bases), with a manager that keeps the club
+Pacing, measured with `bash tools/bb.sh bases`: a National title at season **12.40** on
+average (11.0–13.0 across the five check bases), with a manager that keeps the club
 eligible for cups.
 
 What is **not** built:

@@ -232,6 +232,34 @@ static func roll_potential(rng: RandomNumberGenerator, f: FighterCard,
 		1, POTENTIAL_CEILING)
 
 
+## A FREE AGENT'S CEILING, DRAWN WIDE — Pete, 28 Sep 2026: make the scouted range
+## worth reading.
+##
+## `roll_potential` gives every man 0..room above himself, evenly. On a shelf that
+## meant every young man looked roughly alike and knowing his real ceiling bought
+## nothing (`tools/probe_scouting.gd`: the true number and the worst reading of it
+## finished within 0.45 seasons of each other). The ceiling's own drift carries a
+## man upward either way; what the GAP decides is how fast — `gain_for` pays a
+## point per level plus one per three points of gap.
+##
+## So the shelf draws the gap on a skewed curve over a wider span: most men arrive
+## near finished, a few arrive with twice the ordinary room. `talent` is a 0..1
+## draw from the caller's hash, so this moves no random stream; squared, so the
+## wide ones are rare. Mean gap is 0.6 x room (was 0.5), and the top quarter of
+## the shelf has more room than anybody could before.
+const FREE_AGENT_WIDE: float = 1.8
+
+
+static func free_agent_potential(f: FighterCard, standard: int, talent: float) -> int:
+	var room := potential_room(f.age)
+	var bonus := 0
+	if standard > f.overall():
+		bonus = mini(STANDARD_ROOM, (standard - f.overall()) / 2) \
+			* room / maxi(1, POTENTIAL_GAP_MAX)
+	var gap := int(round(float(room) * FREE_AGENT_WIDE * talent * talent))
+	return clampi(f.overall() + gap + bonus, 1, POTENTIAL_CEILING)
+
+
 ## WHAT HE WILL BE WORTH, WHICH IS NOT WHAT HE IS WORTH TODAY.
 ##
 ## Pete, 15 Sep 2026: *"The simulations need to run on potential, not immediate
