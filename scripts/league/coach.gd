@@ -97,12 +97,12 @@ func record_line() -> String:
 ## word on the screen and the letter that arrives say the same thing about you.
 func standing() -> String:
 	if reputation >= 16:
-		return "Sought after"
+		return UiKit.t("Sought after")
 	if reputation >= 11:
-		return "Widely known"
+		return UiKit.t("Widely known")
 	if reputation >= 6:
-		return "Making waves"
-	return "Unknown"
+		return UiKit.t("Making waves")
+	return UiKit.t("Unknown")
 
 
 ## Which of the four letters arrives, as an index. Same four bands as the words
@@ -127,7 +127,7 @@ const OFFER_BLURB: Array[String] = [
 
 
 func offer_blurb() -> String:
-	return OFFER_BLURB[offer_tone()]
+	return UiKit.t(OFFER_BLURB[offer_tone()])
 
 
 # ------------------------------------------------------------------ the season

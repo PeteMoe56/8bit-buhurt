@@ -52,13 +52,13 @@ static func rule_cost(o: ClubOffice, r: int) -> int:
 
 static func raise_rule(o: ClubOffice, r: int) -> String:
 	if o.rule_level(r) >= Federation.MAX_LEVEL:
-		return "%s is already at the top standard." % String(Federation.RULE_NAME[r])
+		return UiKit.t("%s is already at the top standard.") % UiKit.t(String(Federation.RULE_NAME[r]))
 	if o._throttled(ClubOffice.SLOT_RULE):
-		return ClubOffice.throttle_word("the paperwork")
+		return ClubOffice.throttle_word(UiKit.t("the paperwork"))
 	var cost := o.rule_cost(r)
 	if o.credits < cost:
-		return "%s costs %d CC and you have %d." % [
-			String(Federation.RULE_NAME[r]), cost, o.credits]
+		return UiKit.t("%s costs %d CC and you have %d.") % [
+			UiKit.t(String(Federation.RULE_NAME[r])), cost, o.credits]
 	o.spend(cost, ClubOffice.LINE_FEDERATION)
 	o.compliance[r] = o.rule_level(r) + 1
 	o._mark(ClubOffice.SLOT_RULE)
@@ -220,9 +220,9 @@ static func can_boost(o: ClubOffice) -> bool:
 ## does the lifting — same division of labour as the captain's arrival traits.
 static func take_boost(o: ClubOffice) -> String:
 	if o.done_this_week(ClubOffice.SLOT_BOOST):
-		return ClubOffice.throttle_word("the club")
+		return ClubOffice.throttle_word(UiKit.t("the club"))
 	if o.credits < ClubOffice.BOOST_COST:
-		return "A night out costs %d CC and you have %d." % [ClubOffice.BOOST_COST, o.credits]
+		return UiKit.t("A night out costs %d CC and you have %d.") % [ClubOffice.BOOST_COST, o.credits]
 	o.spend(ClubOffice.BOOST_COST, ClubOffice.LINE_CLUB)
 	o._mark(ClubOffice.SLOT_BOOST)
 	return ""
@@ -232,7 +232,7 @@ static func take_boost(o: ClubOffice) -> String:
 
 static func refresh_staff(o: ClubOffice) -> String:
 	if o.credits < ClubOffice.REFRESH_COST:
-		return "Putting the word out costs %d CC and you have %d." % [ClubOffice.REFRESH_COST, o.credits]
+		return UiKit.t("Putting the word out costs %d CC and you have %d.") % [ClubOffice.REFRESH_COST, o.credits]
 	o.spend(ClubOffice.REFRESH_COST, ClubOffice.LINE_CLUB)
 	o.staff_refreshes += 1
 	return ""
@@ -242,7 +242,7 @@ static func refresh_staff(o: ClubOffice) -> String:
 
 static func refresh_market(o: ClubOffice) -> String:
 	if o.credits < ClubOffice.REFRESH_COST:
-		return "Putting the word out costs %d CC and you have %d." % [ClubOffice.REFRESH_COST, o.credits]
+		return UiKit.t("Putting the word out costs %d CC and you have %d.") % [ClubOffice.REFRESH_COST, o.credits]
 	o.spend(ClubOffice.REFRESH_COST, ClubOffice.LINE_CLUB)
 	o.market_refreshes += 1
 	return ""
@@ -261,12 +261,12 @@ static func travel_cost(o: ClubOffice) -> int:
 
 static func buy_travel_slot(o: ClubOffice) -> String:
 	if o.travel_slots >= ClubOffice.TRAVEL_MAX:
-		return "You can already take a full eight."
+		return UiKit.t("You can already take a full eight.")
 	if o._throttled(ClubOffice.SLOT_TRAVEL):
-		return ClubOffice.throttle_word("the travel budget")
+		return ClubOffice.throttle_word(UiKit.t("the travel budget"))
 	var cost := o.travel_cost()
 	if o.credits < cost:
-		return "Another place costs %d CC and you have %d." % [cost, o.credits]
+		return UiKit.t("Another place costs %d CC and you have %d.") % [cost, o.credits]
 	o.spend(cost, ClubOffice.LINE_TRAVEL)
 	o.travel_slots += 1
 	o._mark(ClubOffice.SLOT_TRAVEL)

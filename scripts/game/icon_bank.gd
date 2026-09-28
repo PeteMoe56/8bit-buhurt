@@ -97,7 +97,7 @@ static func entry(id: int) -> Dictionary:
 
 
 static func icon_name(id: int) -> String:
-	return String(entry(id)["name"])
+	return UiKit.t(String(entry(id)["name"]))
 
 
 static func cost(id: int) -> int:

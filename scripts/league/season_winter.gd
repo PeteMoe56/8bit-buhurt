@@ -33,13 +33,13 @@ static func roll_over(s: Season) -> void:
 	## would take a champion's share of a division it has not played a fight in.
 	if finished >= 1:
 		s.office.take(Season.purse(finished, League.club_count(before), before),
-			"Finished %s" % UiKit.ordinal(finished), "season", ClubOffice.LINE_PRIZE)
+			UiKit.t("Finished %s") % UiKit.ordinal(finished), "season", ClubOffice.LINE_PRIZE)
 	if after > before:
-		s.office.take(Season.CREDITS_PROMOTED, "Went up", "season", ClubOffice.LINE_PRIZE)
+		s.office.take(Season.CREDITS_PROMOTED, UiKit.t("Went up"), "season", ClubOffice.LINE_PRIZE)
 		s.office.after_move(true)
 	elif after < before:
 		s.office.after_move(false)
-	s.office.take(s.office.gate_income(), "A season of gates", "season",
+	s.office.take(s.office.gate_income(), UiKit.t("A season of gates"), "season",
 		ClubOffice.LINE_GROUND)
 	## THE DUES. Banked before the bills, because that is what they are for — the
 	## members' money is the income that does not move with results, and it is
@@ -84,7 +84,7 @@ static func roll_over(s: Season) -> void:
 	for f in s.club.roster:
 		var got := Career.cash_in(f)
 		if got > 0:
-			s.last_cashed += s.office.take(got, "%s passing it on" % f.display_name,
+			s.last_cashed += s.office.take(got, UiKit.t("%s passing it on") % f.display_name,
 				"season", ClubOffice.LINE_SQUAD)
 	for f in s.club.roster:
 		f.injury = 0            ## nobody carries a knock across a winter
@@ -566,7 +566,7 @@ static func ensure_a_line(s: Season) -> Array[String]:
 		if out_man != null:
 			out_man.active = false
 		f.active = true
-		s.last_emergency.append("%s travels in place of the injured" % f.display_name)
+		s.last_emergency.append(UiKit.t("%s travels in place of the injured") % f.display_name)
 	## Its own stream, keyed on the matchday: the roster stream is not saved, and
 	## a mid-season draw from it would come out differently after a reload.
 	var rng := RandomNumberGenerator.new()
@@ -584,7 +584,7 @@ static func ensure_a_line(s: Season) -> Array[String]:
 					a.active = false
 					break
 		w.active = true
-		s.last_emergency.append("%s signed as an emergency walk-on" % w.display_name)
+		s.last_emergency.append(UiKit.t("%s signed as an emergency walk-on") % w.display_name)
 	if not s.last_emergency.is_empty():
 		s.sync_power()
 	return s.last_emergency

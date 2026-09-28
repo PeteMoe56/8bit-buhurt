@@ -59,7 +59,7 @@ func _rebuild() -> void:
 
 	if not arena.at_top():
 		var err := arena.can_build(office.tier, office.credits)
-		var label := "Build the %s — %d CC" % [String(arena.next()["name"]), arena.next_cost()]
+		var label := UiKit.t("Build the %s — %d CC") % [UiKit.t(String(arena.next()["name"])), arena.next_cost()]
 		ui.add_child(UiKit.button(label if err == "" else UiKit.t("Locked"),
 			Vector2(RIGHT_X, 212), Vector2(340, 40), _build))
 
@@ -197,7 +197,7 @@ func _draw() -> void:
 	_draw_ground()
 	## Clipped to its own column. The National Arena's blurb is long enough to
 	## run under the diary and print through the payout line.
-	UiKit.text(self, font, UiKit.clip(String(arena.here()["blurb"]), 88),
+	UiKit.text(self, font, UiKit.clip(UiKit.t(String(arena.here()["blurb"])), 88),
 		Vector2(24, GROUND.end.y + 26), 13, UiKit.DIM)
 	_draw_diary()
 	## THE FLASH MOVED DOWN, because the tidy button now sits at 444 and it used
@@ -342,7 +342,7 @@ func _draw_diary() -> void:
 		## moves with the ground he has banked into.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
 		var p := season.bid_preview(offer_i % season.bid_offers.size(), budget_i)
-		UiKit.text(self, font, String(o["blurb"]), Vector2(RIGHT_X, 424), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 424), 12, UiKit.DIM)
 		## TWO LINES EACH, because both of these ran off the right of the frame in
 		## the real face — 1021 and 976 of a 960 — and both are sentences the
 		## player is meant to read before spending credits on a date. Breaking

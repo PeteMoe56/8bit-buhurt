@@ -21,9 +21,9 @@ static func regime_for(o: ClubOffice, role: int) -> int:
 
 static func set_regime(o: ClubOffice, index: int, regime: int) -> String:
 	if index < 0 or index >= o.captains.size():
-		return "There is no captain in that job."
+		return UiKit.t("There is no captain in that job.")
 	if regime < ClubOffice.Regime.LIGHT or regime > ClubOffice.Regime.HARD:
-		return "That is not a regime."
+		return UiKit.t("That is not a regime.")
 	o.captains[index]["regime"] = regime
 	return ""
 
@@ -154,9 +154,9 @@ static func specialties_of(c: Dictionary) -> Array:
 static func teaches_list(c: Dictionary) -> Array[String]:
 	var out: Array[String] = []
 	for r in ClubOffice.specialties_of(c):
-		out.append(String(Tuning.ROLE_NAME[int(r)]))
+		out.append(UiKit.t(String(Tuning.ROLE_NAME[int(r)])))
 	if out.is_empty():
-		out.append("Nothing · lifts the room")
+		out.append(UiKit.t("Nothing · lifts the room"))
 	return out
 
 
@@ -170,10 +170,10 @@ static func teaches_line(c: Dictionary) -> String:
 
 static func hire(o: ClubOffice, c: Dictionary) -> String:
 	if o.captains.size() >= ClubOffice.MAX_CAPTAINS:
-		return "You already have two captains. Release one first."
+		return UiKit.t("You already have two captains. Release one first.")
 	var price := ClubOffice.cost_of(c)
 	if o.credits < price:
-		return "%s costs %d CC and you have %d." % [String(c.get("name", "A captain")), price, o.credits]
+		return UiKit.t("%s costs %d CC and you have %d.") % [String(c.get("name", UiKit.t("A captain"))), price, o.credits]
 	o.spend(price, ClubOffice.LINE_SQUAD)
 	o.captains.append(c)
 	return ""
@@ -218,7 +218,7 @@ static func age_captains(o: ClubOffice) -> Array[String]:
 		var years := int(c.get("years", ClubOffice.CAPTAIN_YEARS)) - 1
 		c["years"] = years
 		if years <= 0:
-			gone.append(String(c.get("name", "A captain")))
+			gone.append(String(c.get("name", UiKit.t("A captain"))))
 		else:
 			keep.append(c)
 	o.captains.clear()
@@ -241,10 +241,10 @@ static func extend_cost(c: Dictionary) -> int:
 
 static func extend_captain(o: ClubOffice, i: int) -> String:
 	if i < 0 or i >= o.captains.size():
-		return "There is no captain in that job."
+		return UiKit.t("There is no captain in that job.")
 	var price := ClubOffice.extend_cost(o.captains[i])
 	if o.credits < price:
-		return "Another year costs %d CC and you have %d." % [price, o.credits]
+		return UiKit.t("Another year costs %d CC and you have %d.") % [price, o.credits]
 	o.spend(price, ClubOffice.LINE_SQUAD)
 	o.captains[i]["years"] = int(o.captains[i].get("years", 0)) + 1
 	return ""

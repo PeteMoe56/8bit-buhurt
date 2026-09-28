@@ -135,7 +135,7 @@ static func tier(t: int) -> Dictionary:
 
 
 static func tier_name(t: int) -> String:
-	return String(TIERS[t]["name"])
+	return UiKit.t(String(TIERS[t]["name"]))
 
 
 ## ------------------------------------------------------------- the dues
@@ -380,8 +380,8 @@ static func pyramid_balances() -> String:
 		var below: int = int(TIERS[i]["up"])
 		var above: int = int(TIERS[i + 1]["down"])
 		if below != above:
-			return "%s promotes %d but %s relegates %d" % [
+			return UiKit.t("%s promotes %d but %s relegates %d") % [
 				TIERS[i]["name"], below, TIERS[i + 1]["name"], above]
 	if int(TIERS[0]["down"]) != 0:
-		return "the bottom tier cannot relegate anyone"
+		return UiKit.t("the bottom tier cannot relegate anyone")
 	return ""

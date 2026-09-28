@@ -81,7 +81,7 @@ func _build() -> void:
 	## THREE TABS NOW, and they have to fit the row rather than the row being
 	## assumed to fit them. The two were placed at a hand-written x of 400 and 610
 	## with a width of 200; a third at 820 would have run 84px off a 960 screen.
-	var labels := ["This year", "The club", "History", "The Hall", "Your record"]
+	var labels := [UiKit.t("This year"), UiKit.t("The club"), UiKit.t("History"), UiKit.t("The Hall"), UiKit.t("Your record")]
 	for i in labels.size():
 		ui.add_child(UiKit.button(labels[i], Vector2(_tab_x(i), UiKit.screen().y - 56),
 			Vector2(TAB_W, 44), func(p = i): page = p; _build()))
@@ -270,7 +270,7 @@ func _club() -> void:
 	var any := false
 	for row in ROWS:
 		var rec: Dictionary = season.world.records.get(String(row["key"]), {})
-		UiKit.text(self, font, String(row["label"]), Vector2(40, y), 15, UiKit.INK)
+		UiKit.text(self, font, UiKit.t(String(row["label"])), Vector2(40, y), 15, UiKit.INK)
 		if rec.is_empty():
 			UiKit.right(self, font, "—", Vector2(UiKit.right_edge(360.0), y), 15, UiKit.EDGE.lightened(0.4), 120)
 		else:

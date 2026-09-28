@@ -1711,13 +1711,13 @@ func _check_round_end() -> void:
 	var trail := mini(s0, s1)
 	if trail == 0:
 		over = true
-		reason = "Stop fight!"
+		reason = UiKit.t("Stop fight!")
 	elif trail <= Tuning.STOP_TRAIL and lead >= Tuning.STOP_LEAD:
 		over = true
-		reason = "Three to one — stop fight!"
+		reason = UiKit.t("Three to one — stop fight!")
 	elif round_t >= Tuning.ROUND_TIME:
 		over = true
-		reason = "Stop fight!"
+		reason = UiKit.t("Stop fight!")
 	if not over:
 		return
 

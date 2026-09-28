@@ -28,8 +28,8 @@ static func release(s: Season, f: FighterCard) -> String:
 	if err != "":
 		return err
 	if paid > 0:
-		s.office.take(paid, "%s traded" % f.display_name,
-			"season %d" % s.world.season, ClubOffice.LINE_TRANSFER)
+		s.office.take(paid, UiKit.t("%s traded") % f.display_name,
+			UiKit.t("season %d") % s.world.season, ClubOffice.LINE_TRANSFER)
 	for other in s.club.active_eight():
 		other.morale_shift(Season.CUT_TOXIC if was_toxic else Season.CUT_LIKED)
 	s.office.sync_morale(s.club)
@@ -78,7 +78,7 @@ static func promotion_terms(s: Season) -> Dictionary:
 ## Take it or leave it. Returns "" like every other verb here.
 static func answer_promotion(s: Season, take: bool) -> String:
 	if not s.promotion_place():
-		return "There is nothing to decide."
+		return UiKit.t("There is nothing to decide.")
 	s.promotion_answered = true
 	s.world.stay_down = not take
 	s.last_promotion_choice = take
@@ -149,11 +149,11 @@ static func _draw_dilemma(s: Season) -> void:
 
 static func _last_opponent_name(s: Season) -> String:
 	if s.results.is_empty():
-		return "the other lot"
+		return UiKit.t("the other lot")
 	var last: Dictionary = s.results[s.results.size() - 1]
 	var id: int = int(last.get("opponent", -1))
 	if id < 0 or id >= s.world.clubs.size():
-		return "the other lot"
+		return UiKit.t("the other lot")
 	return String(s.world.clubs[id]["name"])
 
 
@@ -169,8 +169,9 @@ static func dilemma_card(s: Season) -> Dictionary:
 		return {}
 	var man := s.dilemma_man()
 	var out := card.duplicate(true)
-	var who := man.display_name if man != null else "somebody"
-	var rival := String(s.dilemma.get("rival", "the other lot"))
+	out["title"] = UiKit.t(String(card.get("title", "")))
+	var who := man.display_name if man != null else UiKit.t("somebody")
+	var rival := String(s.dilemma.get("rival", UiKit.t("the other lot")))
 	out["body"] = Dilemma.fill(String(card["text"]), who, s.club.display_name, rival)
 	## AND THE OPTIONS TOO. Only the body was filled, so a card whose ANSWERS
 	## named the club printed the token: *"{club} is not an advert."* — caught in
@@ -216,7 +217,7 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		return ""
 	var opts: Array = card["options"]
 	if option_i < 0 or option_i >= opts.size():
-		return "Pick one."
+		return UiKit.t("Pick one.")
 	var fx: Dictionary = (opts[option_i] as Dictionary).get("fx", {})
 	var man := s.dilemma_man()
 	var said: Array[String] = []
@@ -233,7 +234,7 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		## credit, so the finances page can see it.
 		var real: int = d if d >= 0 else -mini(-d, maxi(0, s.office.credits))
 		if real > 0:
-			s.office.take(real, "The club's decision", "", ClubOffice.LINE_CLUB)
+			s.office.take(real, UiKit.t("The club's decision"), "", ClubOffice.LINE_CLUB)
 		elif real < 0:
 			s.office.spend(-real, ClubOffice.LINE_CLUB)
 		said.append("%+d CC" % real)
@@ -243,7 +244,7 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		## and a card that set morale directly would be the one place in the game
 		## that could do it.
 		s.office.morale_shift(float(fx["morale"]))
-		said.append("morale %s" % ("up" if float(fx["morale"]) > 0.0 else "down"))
+		said.append(UiKit.t("morale %s") % ("up" if float(fx["morale"]) > 0.0 else "down"))
 	## THE DECK'S `note` CURRENCY IS NOW THE FOLLOWING TOO.
 	##
 	## Fifteen cards were written against five currencies — credits, morale,
@@ -260,39 +261,38 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		else:
 			s.office.fans += s.office.fans * (n * 0.02)
 		s.office.crowd_came(0)
-		said.append("talked about %s" % ("more" if n > 0.0 else "less"))
+		said.append(UiKit.t("talked about %s") % ("more" if n > 0.0 else "less"))
 	if fx.has("fans"):
 		s.office.crowd_came(int(s.office.fans * float(fx["fans"]) * 2.0))
-		said.append("%d%% more following" % int(round(float(fx["fans"]) * 100.0)))
+		said.append(UiKit.t("%d%% more following") % int(round(float(fx["fans"]) * 100.0)))
 	if fx.has("kit"):
 		for f in s.club.roster:
 			f.armor = clampf(f.armor + float(fx["kit"]), 0.0, 1.0)
-		said.append("harness %s across the club" % ("mended" if float(fx["kit"]) > 0.0 else "worse"))
+		said.append(UiKit.t("harness %s across the club") % ("mended" if float(fx["kit"]) > 0.0 else "worse"))
 	if man != null:
 		if fx.has("armor"):
 			man.armor = clampf(man.armor + float(fx["armor"]), 0.0, 1.0)
-			said.append("%s's harness %s" % [man.display_name,
+			said.append(UiKit.t("%s's harness %s") % [man.display_name,
 				"mended" if float(fx["armor"]) > 0.0 else "worse"])
 		if fx.has("injury"):
 			man.injury = maxi(man.injury, int(fx["injury"]))
-			said.append("%s out %d" % [man.display_name, int(fx["injury"])])
+			said.append(UiKit.t("%s out %d") % [man.display_name, int(fx["injury"])])
 		if fx.has("xp"):
 			man.xp += int(fx["xp"])
 		if fx.has("potential"):
 			man.potential = clampi(man.potential + int(fx["potential"]), 1,
 				Career.POTENTIAL_CEILING)
-			said.append("%s's ceiling up %d" % [man.display_name, int(fx["potential"])])
+			said.append(UiKit.t("%s's ceiling up %d") % [man.display_name, int(fx["potential"])])
 		if fx.has("years"):
 			man.years = clampi(man.years + int(fx["years"]), 0, Contracts.YEARS_MAX)
-			said.append("%s on %d year%s" % [man.display_name, man.years,
-				"" if man.years == 1 else "s"])
+			said.append(UiKit.tn("%s on %d year", "%s on %d years", man.years) % [man.display_name, man.years])
 		if fx.has("wage"):
 			man.wage_agreed = maxi(1, int(round(float(ClubOffice.billed(man))
 				* float(fx["wage"]))))
 
 	s.dilemma = {}
 	s.sync_power()
-	return "Done." if said.is_empty() else "  ".join(said) + "."
+	return UiKit.t("Done.") if said.is_empty() else "  ".join(said) + "."
 
 
 
@@ -336,10 +336,10 @@ static func market_wage(s: Season, f: FighterCard) -> int:
 static func sign_from_market(s: Season, f: FighterCard) -> String:
 	var fee := s.market_fee(f)
 	if s.office.credits < fee:
-		return "%s costs %d CC and you have %d." % [f.display_name, fee, s.office.credits]
+		return UiKit.t("%s costs %d CC and you have %d.") % [f.display_name, fee, s.office.credits]
 	var wage := s.market_wage(f)
 	if ClubOffice.wage_bill(s.club) + wage > s.office.cap():
-		return "%s wants %s a week. That puts you %s over the cap." % [
+		return UiKit.t("%s wants %s a week. That puts you %s over the cap.") % [
 			f.display_name, ClubOffice.money(wage),
 			ClubOffice.money(ClubOffice.wage_bill(s.club) + wage - s.office.cap())]
 	var card := f.copy()
@@ -368,18 +368,18 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
 ## for pretending he is the fighter he was three years ago.
 static func extend(s: Season, f: FighterCard) -> String:
 	if not s.club.roster.has(f):
-		return "%s is not on this club's books." % f.display_name
+		return UiKit.t("%s is not on this club's books.") % f.display_name
 	if f.years <= 0:
-		return "%s is out of contract. Re-sign him." % f.display_name
+		return UiKit.t("%s is out of contract. Re-sign him.") % f.display_name
 	if not Contracts.can_extend(f):
 		if f.years >= Contracts.YEARS_MAX:
-			return "%s is on the longest deal the club can offer." % f.display_name
-		return "%s is in the last year of his deal. Let it run out, then re-sign him." % f.display_name
+			return UiKit.t("%s is on the longest deal the club can offer.") % f.display_name
+		return UiKit.t("%s is in the last year of his deal. Let it run out, then re-sign him.") % f.display_name
 	var was := ClubOffice.billed(f)
 	var wage := s.extend_cost(f)
 	var bill := ClubOffice.wage_bill(s.club) - was + wage
 	if bill > s.office.cap():
-		return "That deal puts you %s over the cap." % ClubOffice.money(bill - s.office.cap())
+		return UiKit.t("That deal puts you %s over the cap.") % ClubOffice.money(bill - s.office.cap())
 	f.wage_agreed = wage
 	f.years = Contracts.YEARS_MAX
 	return ""
@@ -391,7 +391,7 @@ static func extend(s: Season, f: FighterCard) -> String:
 ## man whose deal has run out.
 static func resign(s: Season, f: FighterCard) -> String:
 	if not s.club.roster.has(f):
-		return "%s is not on this club's books." % f.display_name
+		return UiKit.t("%s is not on this club's books.") % f.display_name
 	## AND THE ADVICE HAS TO BE TRUE.
 	##
 	## This said "Extend him instead" to every man still under contract — and
@@ -406,14 +406,14 @@ static func resign(s: Season, f: FighterCard) -> String:
 	## he sits in visibly for a whole season.
 	if f.years > 0:
 		if f.years == 1:
-			return "%s is in his last year. Let it run out, then re-sign him." % f.display_name
+			return UiKit.t("%s is in his last year. Let it run out, then re-sign him.") % f.display_name
 		## AND THE OTHER END OF THE SAME FAULT. A man already on the longest deal
 		## the club can write cannot be extended either, so "Extend him instead"
 		## was a dead end there too — one the check below found the moment it was
 		## asked about every length rather than about the one that had gone wrong.
 		if f.years >= Contracts.YEARS_MAX:
-			return "%s is already on the longest deal the club can offer." % f.display_name
-		return "%s has %d years left. Extend him instead." % [f.display_name, f.years]
+			return UiKit.t("%s is already on the longest deal the club can offer.") % f.display_name
+		return UiKit.t("%s has %d years left. Extend him instead.") % [f.display_name, f.years]
 	## WHAT THE FIGHTER CARD PROMISED IS WHAT HAPPENS. The card reads
 	## `Contracts.demand()` — the refusal, the mood-priced wage, two years for a
 	## man of 33 — and this used to ignore all three and sign everybody for three
@@ -423,7 +423,7 @@ static func resign(s: Season, f: FighterCard) -> String:
 	var wage := s.resign_cost(f)
 	var bill := ClubOffice.wage_bill(s.club) - ClubOffice.billed(f) + wage
 	if bill > s.office.cap():
-		return "%s wants %s a week. That puts you %s over the cap." % [
+		return UiKit.t("%s wants %s a week. That puts you %s over the cap.") % [
 			f.display_name, ClubOffice.money(wage),
 			ClubOffice.money(bill - s.office.cap())]
 	f.wage_agreed = wage

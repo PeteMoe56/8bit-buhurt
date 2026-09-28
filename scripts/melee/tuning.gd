@@ -66,7 +66,7 @@ static func weapon_mod(weapon: int, key: String):
 
 
 static func weapon_name(weapon: int) -> String:
-	return String(WEAPON_NAME.get(weapon, "Sword & shield"))
+	return String(WEAPON_NAME.get(weapon, UiKit.t("Sword & shield")))
 const POS_ROLE := [Role.RAIL, Role.FLANK, Role.CENTER, Role.FLANK, Role.RAIL]
 const ROLE_NAME := { Role.RAIL: "Rail", Role.FLANK: "Flanker", Role.CENTER: "Center" }
 
@@ -315,11 +315,11 @@ const CONDITION_WORDS: Array[String] = ["Fresh", "Healthy", "Tired", "Beat Up"]
 
 static func condition_word(energy: float, fit: bool = true) -> String:
 	if not fit:
-		return "Injured"
+		return UiKit.t("Injured")
 	for i in CONDITION_BANDS.size():
 		if energy >= CONDITION_BANDS[i]:
-			return CONDITION_WORDS[i]
-	return CONDITION_WORDS[CONDITION_WORDS.size() - 1]
+			return UiKit.t(CONDITION_WORDS[i])
+	return UiKit.t(CONDITION_WORDS[CONDITION_WORDS.size() - 1])
 
 const GRAPPLE_GRIND: float = 0.056       ## stability per second, at parity
 const GRAPPLE_GRIND_GASSED: float = 1.45  ## multiplier once your tank is under GASSED_BELOW
@@ -449,14 +449,14 @@ const FORMATIONS := {
 ## rather than trusted, because the Chalkboard will let players write these.
 static func formation_legal(spots: Array) -> String:
 	if spots.size() != 5:
-		return "A formation needs five spots."
+		return UiKit.t("A formation needs five spots.")
 	for i in spots.size():
 		var v: Vector2 = spots[i]
 		if v.y < -SPOT_EPSILON or v.y > SET_UP_LINE + SPOT_EPSILON:
-			return "%s is %.0f%% out; nobody starts past %.0f%%." % [
+			return UiKit.t("%s is %.0f%% out; nobody starts past %.0f%%.") % [
 				POS_NAME[i], v.y * 100.0, SET_UP_LINE * 100.0]
 		if v.x < 0.02 - SPOT_EPSILON or v.x > 0.98 + SPOT_EPSILON:
-			return "%s is off the list." % POS_NAME[i]
+			return UiKit.t("%s is off the list.") % POS_NAME[i]
 	return ""
 
 
@@ -487,7 +487,7 @@ const PLAY_MAX_Y: float = 0.62
 ## leaves three where they stand is a play.
 static func play_legal(routes: Array) -> String:
 	if routes.size() != 5:
-		return "A play needs a route slot for each of the five."
+		return UiKit.t("A play needs a route slot for each of the five.")
 	var drawn := 0
 	for i in routes.size():
 		var r: Array = routes[i]
@@ -495,17 +495,17 @@ static func play_legal(routes: Array) -> String:
 			continue
 		drawn += 1
 		if r.size() > PLAY_MAX_POINTS:
-			return "%s's route has %d points; %d is the most." % [
+			return UiKit.t("%s's route has %d points; %d is the most.") % [
 				POS_NAME[i], r.size(), PLAY_MAX_POINTS]
 		for v in r:
 			var p: Vector2 = v
 			if p.x < 0.02 - SPOT_EPSILON or p.x > 0.98 + SPOT_EPSILON:
-				return "%s's route leaves the list." % POS_NAME[i]
+				return UiKit.t("%s's route leaves the list.") % POS_NAME[i]
 			if p.y < -SPOT_EPSILON or p.y > PLAY_MAX_Y + SPOT_EPSILON:
-				return "%s's route runs %.0f%% up the list; %.0f%% is as far as a play reaches." % [
+				return UiKit.t("%s's route runs %.0f%% up the list; %.0f%% is as far as a play reaches.") % [
 					POS_NAME[i], p.y * 100.0, PLAY_MAX_Y * 100.0]
 	if drawn == 0:
-		return "Nobody has been given a route."
+		return UiKit.t("Nobody has been given a route.")
 	return ""
 
 
@@ -721,7 +721,7 @@ const COL_ROUTE_HOSTILE: Color = Color("e05a3c")
 
 
 static func pos_name(p: int) -> String:
-	return POS_NAME[p]
+	return UiKit.t(POS_NAME[p])
 
 
 static func role_of(slot: int) -> int:

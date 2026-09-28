@@ -41,3 +41,4 @@ _git_locks_to_delete/
 
 # Test and tool logs
 /logs/
+__pycache__/

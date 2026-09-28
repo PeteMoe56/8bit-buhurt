@@ -155,11 +155,11 @@ func _draw() -> void:
 			## the green one. A word in a colored band takes its color from the
 			## ink, knocked back, the way the shirt number in that same corner
 			## already does.
-			"head_right_col": UiKit.UP if step == "step up" \
+			"head_right_col": UiKit.UP if step == UiKit.t("step up") \
 				else UiKit.INK * Color(1, 1, 1, 0.62),
 			## OVER THE CAP REPLACES THE WAGE rather than trailing it: six cards a
 			## row leave no room for both, and the red says why he cannot come.
-			"note": ("age %d · %s/wk" % [f.age, ClubOffice.money(season.market_wage(f))]) if room
+			"note": (UiKit.t("age %d · %s/wk") % [f.age, ClubOffice.money(season.market_wage(f))]) if room
 				else (UiKit.t("age %d · over cap") % f.age),
 			"note_col": UiKit.DIM if room else UiKit.DOWN,
 			## A RANGE, NOT HIS NUMBER: the club reads a stranger's ceiling only as

@@ -140,12 +140,12 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 	}
 	if big:
 		var flag := f.morale_flag()
-		d["note"] = ("%d  ·  age %d  ·  %s" % [f.overall(), f.age, flag]) if flag != "" \
-			else ("%d  ·  age %d" % [f.overall(), f.age])
+		d["note"] = (UiKit.t("%d  ·  age %d  ·  %s") % [f.overall(), f.age, flag]) if flag != "" \
+			else (UiKit.t("%d  ·  age %d") % [f.overall(), f.age])
 		## A man at his ceiling has nowhere to go, and that is worth seeing on
 		## the card rather than two taps away — it is the whole reason to prefer
 		## a 39 who can reach 60 over a 45 who cannot.
-		d["right_note"] = "capped" if f.headroom() <= 0 else "to %d" % f.potential
+		d["right_note"] = UiKit.t("capped") if f.headroom() <= 0 else UiKit.t("to %d") % f.potential
 		d["right_col"] = UiKit.EDGE.lightened(0.5) if f.headroom() <= 0 else UiKit.UP
 	UiKit.card(self, font, r, d, big)
 	## THE INSPECTION LINE, drawn ON the armor bar. A threshold you cannot see is

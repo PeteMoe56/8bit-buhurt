@@ -20,6 +20,7 @@ func _initialize() -> void:
 	await _test_every_root_screen_answers_back()
 	_test_the_string_table_is_whole()
 	_test_every_language_has_its_letters()
+	_test_drafts_never_ship()
 
 	print("")
 	for n in notes:
@@ -203,3 +204,33 @@ func _test_every_language_has_its_letters() -> void:
 	var langs := head.slice(1)
 	_ok(missing.is_empty(), "every language's letters are in the game's pixel fonts",
 		"%d languages checked%s" % [langs.size(), "" if missing.is_empty() else ": missing " + str(missing)])
+
+
+## THE DRAFTS NEVER REACH A PLAYER BY THEMSELVES (28 Sep 2026). All nine are
+## registered, so the gate is `Settings`: a release build offers only what ships
+## and resolves everything else — even a saved choice of a draft — to English;
+## a debug build offers the drafts, marked, and choosing one really translates.
+func _test_drafts_never_ship() -> void:
+	var was_path := Settings.path
+	Settings.path = "user://audit_settings.cfg"
+	Settings.release_rules = true
+	Settings.language = "es"
+	var rel_offered := Settings.offered()
+	var rel_resolved := Settings.resolved()
+	Settings.release_rules = false
+	var dbg_offered := Settings.offered()
+	Settings.set_language("es")
+	var spoken := UiKit.t("Back")
+	## The mark is itself translated: a Spanish reader sees "(borrador)".
+	var marked := Settings.language_name("es")
+	var mark := UiKit.t("  (draft)").strip_edges()
+	Settings.set_language("")
+	var english := UiKit.t("Back")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.path))
+	Settings.path = was_path
+	_ok(rel_offered == ["", "en"] and rel_resolved == "en"
+		and dbg_offered.size() == 2 + Settings.DRAFTS.size()
+		and spoken != "Back" and english == "Back" and marked.ends_with(mark) and mark != "(draft)",
+		"drafts are offered only in a debug build, and never chosen for a player",
+		"release offers %s and resolves a saved 'es' to '%s'; debug offers %d; Spanish 'Back' = '%s', named '%s'"
+			% [str(rel_offered), rel_resolved, dbg_offered.size(), spoken, marked])

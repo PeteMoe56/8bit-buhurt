@@ -161,18 +161,18 @@ func _the_book(c: Coach) -> void:
 	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
 	UiKit.text(self, font, UiKit.t("HIS RECORD"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	var rows := [
-		["Seasons", "%d" % c.seasons],
-		["Record", c.record_line()],
-		["Win rate", "%d%%" % int(round(c.win_rate() * 100.0))],
-		["Cups", "%d" % c.cups],
-		["Promotions", "%d" % c.promotions],
-		["Relegations", "%d" % c.relegations],
+		[UiKit.t("Seasons"), "%d" % c.seasons],
+		[UiKit.t("Record"), c.record_line()],
+		[UiKit.t("Win rate"), "%d%%" % int(round(c.win_rate() * 100.0))],
+		[UiKit.t("Cups"), "%d" % c.cups],
+		[UiKit.t("Promotions"), "%d" % c.promotions],
+		[UiKit.t("Relegations"), "%d" % c.relegations],
 	]
 	var y := COL_Y + 62.0
 	for row in rows:
 		UiKit.text(self, font, String(row[0]), Vector2(M_X + 16, y), 13, UiKit.DIM)
 		UiKit.right(self, font, String(row[1]), Vector2(M_X + COL_W - 16, y), 14,
-			UiKit.DOWN if String(row[0]) == "Relegations" and c.relegations > 0 else UiKit.INK, 140)
+			UiKit.DOWN if String(row[0]) == UiKit.t("Relegations") and c.relegations > 0 else UiKit.INK, 140)
 		y += 30.0
 	if c.fought() == 0:
 		UiKit.text(self, font, UiKit.t("Nothing in it yet."), Vector2(M_X + 16, y + 8), 12, UiKit.DIM)
@@ -215,5 +215,5 @@ func _offers(c: Coach) -> void:
 
 
 func _line(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, label, Vector2(L_X + 16, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t(label), Vector2(L_X + 16, y), 13, UiKit.DIM)
 	UiKit.right(self, font, UiKit.clip(value, 18), Vector2(L_X + COL_W - 16, y), 13, UiKit.INK, 190)

@@ -170,7 +170,7 @@ static func refuses(f: FighterCard) -> bool:
 static func refusal(f: FighterCard) -> String:
 	if not refuses(f):
 		return ""
-	return "%s is not interested in signing again. Look at how his season went." \
+	return UiKit.t("%s is not interested in signing again. Look at how his season went.") \
 		% f.display_name
 
 

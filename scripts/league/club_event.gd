@@ -187,10 +187,10 @@ func cost() -> int:
 
 func kind_name() -> String:
 	if kind == Kind.DEMO:
-		return "Demo"
+		return UiKit.t("Demo")
 	if slot >= 0:
-		return "%s, %s" % [String(SLOTS[slot]["name"]), String(BUDGETS[budget]["name"]).to_lower()]
-	return "%s tournament" % String(BUDGETS[budget]["name"])
+		return "%s, %s" % [UiKit.t(String(SLOTS[slot]["name"])), UiKit.t(String(BUDGETS[budget]["name"])).to_lower()]
+	return UiKit.t("%s tournament") % UiKit.t(String(BUDGETS[budget]["name"]))
 
 
 func events_away(world_event: int) -> int:

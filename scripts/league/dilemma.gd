@@ -425,7 +425,7 @@ static func costs(option: Dictionary) -> Array[Dictionary]:
 		if n == 0:
 			continue
 		out.append({
-			"text": "%s %+d" % [String(FX_WORD[key]), n],
+			"text": "%s %+d" % [UiKit.t(String(FX_WORD[key])), n],
 			"dir": 1 if n > 0 else -1,
 		})
 	return out
@@ -470,4 +470,6 @@ static func pick(who: int, roster: Array, rng: RandomNumberGenerator) -> Fighter
 
 
 static func fill(text: String, man: String, club: String, rival: String) -> String:
-	return text.replace("{man}", man).replace("{club}", club).replace("{rival}", rival)
+	## TRANSLATED BEFORE IT IS FILLED, so the key is the card's own text with its
+	## {tokens} still in it — every card line reaches the screen through here.
+	return UiKit.t(text).replace("{man}", man).replace("{club}", club).replace("{rival}", rival)

@@ -24,6 +24,7 @@ extends SceneTree
 ## what `nothing on a card runs into anything else` does for the one place that
 ## has bitten us. This catches the other half.
 
+const HEAD_GAP := 4.0
 var failures: Array[String] = []
 var checks: int = 0
 var notes: Array[String] = []
@@ -658,6 +659,29 @@ func _test_the_team_sheet_columns_do_not_touch() -> void:
 	_ok(over.is_empty(), "and the row fits inside itself",
 		"%.0fpx wide, tightest gap %.0fpx" % [w, tight]
 			if over.is_empty() else ", ".join(over))
+
+	## AND IN EVERY LANGUAGE (28 Sep 2026). The headings go through the string
+	## table now, and a German KÄMPFER is wider than FIGHTER: every column's
+	## heading has to clear its neighbours and stay inside the row in each one.
+	var clash: Array[String] = []
+	var locales: Array[String] = ["en"]
+	locales.append_array(Settings.DRAFTS)
+	for loc in locales:
+		TranslationServer.set_locale(loc)
+		var lc: Array = s.call("squad_columns", f)
+		for i in lc.size():
+			var a: Rect2 = lc[i]["head_rect"]
+			if a.end.x > w + 0.5:
+				clash.append("%s '%s' ends at %.0f" % [loc, lc[i]["head"], a.end.x])
+			for j in range(i + 1, lc.size()):
+				var b: Rect2 = lc[j]["head_rect"]
+				## Touching is not clearing: German JR ran into JETZT at 0px and
+				## read as one word, JRJETZT. A heading needs a gap a reader sees.
+				if a.grow_individual(0.0, 0.0, HEAD_GAP, 0.0).intersection(b).size.x > 0.0:
+					clash.append("%s '%s'/'%s'" % [loc, lc[i]["head"], lc[j]["head"]])
+	TranslationServer.set_locale("en")
+	_ok(clash.is_empty(), "and the headings fit in every language",
+		"%d languages" % locales.size() if clash.is_empty() else ", ".join(clash.slice(0, 6)))
 	s.queue_free()
 	await process_frame
 

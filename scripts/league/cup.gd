@@ -257,7 +257,7 @@ func record(m: Dictionary, ra: int, rb: int, ma: int, mb: int) -> void:
 	if player_club != -1 and stage == Stage.KNOCKOUT \
 			and (int(m["a"]) == player_club or int(m["b"]) == player_club) \
 			and int(m.get("winner", -1)) != player_club:
-		player_finish = "out in the %s" % String(m["round"]).to_lower()
+		player_finish = UiKit.t("out in the %s") % String(m["round"]).to_lower()
 
 
 ## Play out everything the player is not in. `resolver` takes two club ids and
@@ -397,10 +397,10 @@ func finish_label() -> String:
 		for m in day:
 			if int(m["winner"]) != -1 and int(m["winner"]) != player_club \
 					and (int(m["a"]) == player_club or int(m["b"]) == player_club):
-				return "Out in the %s" % String(m["round"]).to_lower()
+				return UiKit.t("Out in the %s") % String(m["round"]).to_lower()
 	if has_pools:
-		return "Out in the pools"
-	return "In progress"
+		return UiKit.t("Out in the pools")
+	return UiKit.t("In progress")
 
 
 ## HOW FAR THE PLAYER GOT, AS A NUMBER: the size of the round he went out in.

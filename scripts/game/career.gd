@@ -119,11 +119,11 @@ static func write_stat(f: FighterCard, stat: int, v: int) -> void:
 
 static func stat_name(stat: int) -> String:
 	match stat:
-		Stat.STRENGTH: return "Strength"
-		Stat.BASE: return "Base"
-		Stat.SKILL: return "Skill"
-		Stat.GAS: return "Gas"
-		_: return "Aggression"
+		Stat.STRENGTH: return UiKit.t("Strength")
+		Stat.BASE: return UiKit.t("Base")
+		Stat.SKILL: return UiKit.t("Skill")
+		Stat.GAS: return UiKit.t("Gas")
+		_: return UiKit.t("Aggression")
 
 
 # -------------------------------------------------------------------- decline
@@ -798,9 +798,9 @@ static func learn_rate_par() -> float:
 static func learn_word(f: FighterCard) -> String:
 	var r := learn_rate(f)
 	if r <= 0.85:
-		return "picks it up fast"
+		return UiKit.t("picks it up fast")
 	if r >= 1.30:
-		return "slow to learn"
+		return UiKit.t("slow to learn")
 	return ""
 
 
@@ -830,7 +830,7 @@ static func level_into(f: FighterCard, stat: int) -> Dictionary:
 	if not raisable(f).has(stat):
 		return {"levelled": false, "reason": "maxed"}
 	if f.xp < next_level_at(f):
-		return {"levelled": false, "reason": "not earned",
+		return {"levelled": false, "reason": UiKit.t("not earned"),
 			"short": next_level_at(f) - f.xp}
 	var before := f.overall()
 	write_stat(f, stat, read_stat(f, stat) + 1)
@@ -901,7 +901,7 @@ static func level_up(f: FighterCard) -> Dictionary:
 		## pretending to be the other.
 		var open_ := raisable(f)
 		if open_.is_empty():
-			return {"levelled": false, "reason": "nothing to grow"}
+			return {"levelled": false, "reason": UiKit.t("nothing to grow")}
 		var pick: int = open_[0]
 		for stat in open_:
 			if read_stat(f, stat) < read_stat(f, pick):

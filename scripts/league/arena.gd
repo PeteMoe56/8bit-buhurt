@@ -135,7 +135,7 @@ static func counter_take(level: int, heads: int) -> int:
 
 
 static func sells(level: int) -> String:
-	return String(LEVELS[clampi(level, 0, MAX_LEVEL)]["sells"])
+	return UiKit.t(String(LEVELS[clampi(level, 0, MAX_LEVEL)]["sells"]))
 
 var level: int = 0
 
@@ -312,14 +312,14 @@ static func worth_word(level: int, condition: float) -> String:
 	## described to the player as barely worth turning up to. A scale whose
 	## baseline is an insult is a scale that is measuring from the wrong end.
 	if w >= 1.85:
-		return "a big day out"
+		return UiKit.t("a big day out")
 	if w >= 1.40:
-		return "a proper ground"
+		return UiKit.t("a proper ground")
 	if w >= 0.95:
-		return "an honest ground"
+		return UiKit.t("an honest ground")
 	if w >= 0.70:
-		return "a thin gate"
-	return "barely worth the trip"
+		return UiKit.t("a thin gate")
+	return UiKit.t("barely worth the trip")
 
 
 ## WHAT THE RETAINER IS MULTIPLIED BY. Full at a well-kept ground, `GATE_FLOOR`
@@ -344,14 +344,14 @@ func shabby() -> bool:
 ## because "needs work" is a decision and "0.58" is arithmetic.
 func condition_word() -> String:
 	if condition >= 0.95:
-		return "Spotless"
+		return UiKit.t("Spotless")
 	if condition >= 0.80:
-		return "Well kept"
+		return UiKit.t("Well kept")
 	if condition >= SHABBY:
-		return "Worn"
+		return UiKit.t("Worn")
 	if condition >= 0.35:
-		return "Shabby"
-	return "Falling apart"
+		return UiKit.t("Shabby")
+	return UiKit.t("Falling apart")
 
 
 ## WHAT PUTTING IT RIGHT COSTS — priced against what the ground PAYS, not against
@@ -443,7 +443,7 @@ func arena_name() -> String:
 ## list and the post-bout report both want to name the other club's place, and
 ## neither has an `Arena` object to ask.
 static func arena_name_of(level: int) -> String:
-	return String(LEVELS[clampi(level, 0, MAX_LEVEL)]["name"])
+	return UiKit.t(String(LEVELS[clampi(level, 0, MAX_LEVEL)]["name"]))
 
 
 func capacity() -> int:
@@ -473,13 +473,13 @@ func next_tier() -> int:
 ## it — the league first, because no amount of saving fixes that one.
 func can_build(tier: int, credits: int) -> String:
 	if at_top():
-		return "%s is as far as a club can build." % arena_name()
+		return UiKit.t("%s is as far as a club can build.") % arena_name()
 	var n := next()
 	if tier < int(n["tier"]):
-		return "The %s is for clubs in the %s. Get promoted first." % [
+		return UiKit.t("The %s is for clubs in the %s. Get promoted first.") % [
 			String(n["name"]), League.tier_name(int(n["tier"]))]
 	if credits < int(n["cost"]):
-		return "The %s costs %d CC and you have %d." % [
+		return UiKit.t("The %s costs %d CC and you have %d.") % [
 			String(n["name"]), int(n["cost"]), credits]
 	return ""
 

@@ -222,7 +222,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		var y := v._office_row_y(i)
 		var key: String = String(row["kind"]) if row["kind"] is String else ""
 		var is_cap: bool = key == "cap"
-		var label := String(row["label"])
+		var label := UiKit.t(String(row["label"]))
 		if key == "travel":
 			## HOW MANY YOU CAN TAKE, and how many you actually have — two numbers
 			## on one row, because a club with six places and five fit men has a
@@ -237,16 +237,17 @@ static func _draw_office(v: SeasonScene) -> void:
 				o.travel_slots - ClubOffice.TRAVEL_MIN,
 				ClubOffice.TRAVEL_MAX - ClubOffice.TRAVEL_MIN, UiKit.YOU)
 			UiKit.pair(v, v.font,
-				"%d of %d" % [o.travel_slots, ClubOffice.TRAVEL_MAX],
+				UiKit.t("%d of %d") % [o.travel_slots, ClubOffice.TRAVEL_MAX],
 				"a line and no more" if o.travel_slots <= ClubOffice.TRAVEL_MIN
 					## SHORT ENOUGH FOR THE 220px IT IS GIVEN. The first version said
 					## "2 swaps in the corner" and the screenshot printed "2 swaps
 					## in the corn" — a right-aligned field clips from the right,
 					## so the half that gets cut is the half carrying the meaning.
-					else ("%d on the bench · %d swap%s" % [
+					else ((UiKit.t("%d on the bench · %d swap")
+						if mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER) == 1
+						else UiKit.t("%d on the bench · %d swaps")) % [
 						o.travel_slots - ClubOffice.TRAVEL_MIN,
-						mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER),
-						"" if mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER) == 1 else "s"]),
+						mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER)]),
 				Vector2(SeasonScene.BAR_X, y + 54), SeasonScene.BAR_X + SeasonScene.BAR_W, 14, 12, UiKit.INK,
 				UiKit.DOWN if o.travel_slots <= ClubOffice.TRAVEL_MIN else UiKit.DIM)
 			continue
@@ -259,8 +260,8 @@ static func _draw_office(v: SeasonScene) -> void:
 				float(bill) / float(maxi(1, cap)),
 				UiKit.DOWN if bill > cap else UiKit.YOU)
 			UiKit.pair(v, v.font,
-				"%s of %s" % [ClubOffice.money(bill), ClubOffice.money(cap)],
-				"%d raises · next %d CC" % [o.cap_level, o.cap_cost()],
+				UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
+				UiKit.t("%d raises · next %d CC") % [o.cap_level, o.cap_cost()],
 				Vector2(SeasonScene.BAR_X, y + 54), SeasonScene.BAR_X + SeasonScene.BAR_W, 14, 12,
 				UiKit.DOWN if bill > cap else UiKit.INK, UiKit.DIM)
 			continue
@@ -268,7 +269,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		## A facility at level nought has no effect, and saying "-0 events off a
 		## knock" is worse than saying nothing: it reads like a broken number
 		## rather than like a thing you have not built.
-		var effect := "not built"
+		var effect := UiKit.t("not built")
 		match f:
 			ClubOffice.Facility.TRAINING:
 				if o.training_points() > 0:
@@ -291,7 +292,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		## which is text over text and therefore invisible to every check in the
 		## suite. A screenshot saw it.
 		UiKit.text(v, v.font, UiKit.fit_px(v.font,
-			String(ClubOffice.FACILITIES[f]["blurb"]), 13, SeasonScene.NAV_X - SeasonScene.BAR_X - 16.0),
+			UiKit.t(String(ClubOffice.FACILITIES[f]["blurb"])), 13, SeasonScene.NAV_X - SeasonScene.BAR_X - 16.0),
 			Vector2(SeasonScene.BAR_X, y + 54), 13, UiKit.DIM)
 
 	# ------------------------------------------------------------ the captains
@@ -372,7 +373,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		## button. The staff room says all of this at length and is one tap away.
 		var names := ""
 		for r in bare:
-			names += ("" if names == "" else " and ") + String(Tuning.ROLE_NAME[r])
+			names += ("" if names == "" else " and ") + UiKit.t(String(Tuning.ROLE_NAME[r]))
 		UiKit.text(v, v.font, UiKit.fit_px(v.font,
 			UiKit.t("%s untaught — see the staff room.") % names,
 			13, UiKit.right_edge() - SeasonScene.NAV_X), Vector2(SeasonScene.NAV_X, y + 20), 13, UiKit.DOWN)

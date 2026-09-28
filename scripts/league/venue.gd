@@ -51,22 +51,22 @@ static func title(kind: int, host_city: String, host_arena: String) -> String:
 	match kind:
 		## The tournament ground has no city — it is the federation's, and which
 		## town it is in is not a thing the player has any relationship with.
-		Kind.NEUTRAL: return "Tournament ground"
+		Kind.NEUTRAL: return UiKit.t("Tournament ground")
 		## At home he knows the room by name, because he bought it.
-		Kind.HOME: return "%s, %s" % [host_arena, host_city] if host_city != "" \
+		Kind.HOME: return UiKit.t("%s, %s") % [host_arena, host_city] if host_city != "" \
 			else host_arena
 		## Away he knows the town and nothing else, which is true of an away day:
 		## you know you are going to Holt. "Their ground, Holt" was the first
 		## version and it said the same thing twice.
-		_: return host_city if host_city != "" else "Their ground"
+		_: return host_city if host_city != "" else UiKit.t("Their ground")
 
 
 ## The one line under it that says whose afternoon this is.
 static func mood_line(kind: int, host_name: String) -> String:
 	match kind:
-		Kind.HOME: return "Your crowd."
-		Kind.NEUTRAL: return "Nobody's ground."
-		_: return "%s's crowd." % host_name
+		Kind.HOME: return UiKit.t("Your crowd.")
+		Kind.NEUTRAL: return UiKit.t("Nobody's ground.")
+		_: return UiKit.t("%s's crowd.") % host_name
 
 
 ## ---------------------------------------------------------------- the gate
@@ -156,9 +156,9 @@ static func homesick_scale(card, kind: int, miles: float = FAR_MILES) -> float:
 ## What the screens say about the trip, for the man and for the club.
 static func trip_word(miles: float) -> String:
 	if miles < 1.0:
-		return "at home"
+		return UiKit.t("at home")
 	if miles <= NEAR_MILES:
-		return "%s — a local run" % Cities.distance_word(miles)
+		return UiKit.t("%s — a local run") % Cities.distance_word(miles)
 	if miles >= FAR_MILES:
-		return "%s — the other end of the country" % Cities.distance_word(miles)
+		return UiKit.t("%s — the other end of the country") % Cities.distance_word(miles)
 	return Cities.distance_word(miles)

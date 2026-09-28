@@ -370,8 +370,8 @@ static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
 				## is new, and a later pass over the squad cannot tell a man hurt
 				## today from a man hurt last week.
 				s._note_change("knock", card.display_name,
-					"carried off — out for %d event%s" % [card.injury,
-						"" if card.injury == 1 else "s"], -1)
+					UiKit.tn("carried off — out for %d event", "carried off — out for %d events",
+						card.injury) % card.injury, -1)
 
 
 
@@ -410,7 +410,7 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 		if m.downs_caused >= 3 and FighterTrait.flag(m.card.trait_id, "ceiling_on_big"):
 			m.card.potential = mini(99, m.card.potential + 1)
 			s._note_change("trait", m.card.display_name,
-				"Ceiling Raiser — a three-down afternoon moved what he could become", 1)
+				UiKit.t("Ceiling Raiser — a three-down afternoon moved what he could become"), 1)
 		## AND IF HE HAS EARNED A LEVEL, IT WAITS FOR YOU. It used to be taken here
 		## automatically, into whatever stat he was worst at — which quietly made
 		## it impossible to build a specialist, because every point a man earned
@@ -420,11 +420,12 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 			s.last_levels.append({"name": m.card.display_name, "waiting": true,
 				"level": m.card.level, "overall": m.card.overall()})
 			s._note_change("level", m.card.display_name,
-				"has a level waiting — spend it on his card", 1)
+				UiKit.t("has a level waiting — spend it on his card"), 1)
 		if int(m.assists) > 0:
 			s._note_change("work", m.card.display_name,
-				"%d assist%s — second man on somebody else's takedown" % [
-					int(m.assists), "" if int(m.assists) == 1 else "s"], 1)
+				UiKit.tn("%d assist — second man on somebody else's takedown",
+					"%d assists — second man on somebody else's takedown",
+					int(m.assists)) % int(m.assists), 1)
 		## THE BOOK, kept from the same two numbers the XP is paid on. They were
 		## already being counted and already being discarded; writing them down
 		## costs nothing and is the difference between a level and a career.
@@ -468,7 +469,7 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 		if sour != 0.0:
 			f.morale_shift(sour)
 			s._note_change("trait", f.display_name,
-				"Prima Donna — sat out and did not take it well", -1)
+				UiKit.t("Prima Donna — sat out and did not take it well"), -1)
 
 	## TALISMAN — *"Lifts the room while he is here. Guts it when he goes."*
 	##
@@ -493,8 +494,8 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 				continue
 			f.morale_shift(lift if here else -lift * 0.5)
 		s._note_change("trait", t.display_name,
-			"Talisman — the room is better for him being out there" if here
-			else "Talisman — the room felt him missing", 1 if here else -1)
+			UiKit.t("Talisman — the room is better for him being out there") if here
+			else UiKit.t("Talisman — the room felt him missing"), 1 if here else -1)
 
 	## GRUDGE — *"Fights above himself against one named club, forever."*
 	##
@@ -516,7 +517,7 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 				continue
 			m.card.grudge_club = beat_us
 			s._note_change("trait", m.card.display_name,
-				"Grudge — he will not forget %s" % String(
+				UiKit.t("Grudge — he will not forget %s") % String(
 					s.world.clubs[beat_us]["name"]), -1)
 
 
@@ -653,7 +654,7 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> 
 	## made two thirds of a season's fixtures worth nothing at all — see the long
 	## note over `Venue.gate_share`.
 	var g := gate if not gate.is_empty() else s.gate_now()
-	s.office.take(int(g["cc"]), "The gate  ·  %s" % String(g["where"]), "event",
+	s.office.take(int(g["cc"]), UiKit.t("The gate  ·  %s") % String(g["where"]), "event",
 		ClubOffice.LINE_GATE)
 	## AND THE COUNTER, AT HOME ONLY. It is your bar or it is not.
 	##
@@ -670,13 +671,13 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> 
 	if int(g["kind"]) == Venue.Kind.HOME:
 		var heads := s.office.attendance()
 		s.office.take(Arena.counter_take(s.office.arena.level, heads),
-			"The counter  ·  %s" % Arena.sells(s.office.arena.level), "event",
+			UiKit.t("The counter  ·  %s") % Arena.sells(s.office.arena.level), "event",
 			ClubOffice.LINE_COUNTER)
 	if rf > ra:
-		s.office.take(Season.CREDITS_WIN, "Won the event", "event", ClubOffice.LINE_PRIZE)
+		s.office.take(Season.CREDITS_WIN, UiKit.t("Won the event"), "event", ClubOffice.LINE_PRIZE)
 		s.office.morale_after(true, false)
 	elif rf == ra:
-		s.office.take(Season.CREDITS_DRAW, "Drew the event", "event", ClubOffice.LINE_PRIZE)
+		s.office.take(Season.CREDITS_DRAW, UiKit.t("Drew the event"), "event", ClubOffice.LINE_PRIZE)
 		s.office.morale_after(false, true)
 	else:
 		s.office.morale_after(false, false)

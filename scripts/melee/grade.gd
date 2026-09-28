@@ -329,12 +329,12 @@ static func bills_for(g: int, step: int, custom: Dictionary = {}) -> float:
 
 
 static func name_of(g: int) -> String:
-	return String(NAME.get(g, NAME[DEFAULT]))
+	return UiKit.t(String(NAME.get(g, NAME[DEFAULT])))
 
 
 static func short_of(g: int) -> String:
-	return String(SHORT.get(g, SHORT[DEFAULT]))
+	return UiKit.t(String(SHORT.get(g, SHORT[DEFAULT])))
 
 
 static func blurb_of(g: int) -> String:
-	return String(BLURB.get(g, BLURB[DEFAULT]))
+	return UiKit.t(String(BLURB.get(g, BLURB[DEFAULT])))

@@ -102,7 +102,7 @@ var custom_grade: Dictionary = Grade.CUSTOM_DEFAULT.duplicate()
 ## written into the history when Custom is the grade actually being played.
 func set_custom(key: String, v: float) -> String:
 	if not Grade.CUSTOM_DEFAULT.has(key):
-		return "There is no such setting."
+		return UiKit.t("There is no such setting.")
 	var c := Grade.clamp_dial(key, v)
 	if key == "pauses":
 		custom_grade[key] = int(c)
@@ -118,7 +118,7 @@ func set_custom(key: String, v: float) -> String:
 
 func set_grade(g: int) -> String:
 	if not Grade.ORDER.has(g):
-		return "There is no such grade."
+		return UiKit.t("There is no such grade.")
 	if g == grade:
 		return ""
 	grade = g
@@ -239,11 +239,11 @@ func _init(player_club: MeleeClub, seed_v: int = 0,
 ## `world.player_club`.
 func take_job(club_id: int) -> String:
 	if club_id == world.player_club:
-		return "You are already there."
+		return UiKit.t("You are already there.")
 	if not Jobs.interested(coach, world, club_id):
-		return "They have not offered."
+		return UiKit.t("They have not offered.")
 	if world.event > 0:
-		return "See the season out first."
+		return UiKit.t("See the season out first.")
 
 	## The club you are leaving goes back to being an ordinary club in the
 	## league — it keeps the roster you built, which is what makes meeting them
@@ -271,7 +271,7 @@ func take_job(club_id: int) -> String:
 	office = ClubOffice.new()
 	office.tier = int(world.clubs[club_id]["tier"])
 	if carried > 0:
-		office.take(carried, "Bought credits, brought with you", "move", ClubOffice.LINE_STORE)
+		office.take(carried, UiKit.t("Bought credits, brought with you"), "move", ClubOffice.LINE_STORE)
 		office.bought = carried
 	office.sync_morale(club)
 	board = Chalkboard.new()
@@ -533,7 +533,7 @@ func summer_warning() -> String:
 ## The range in words, for a card: "to 64" when it is known, "to 58-66" when not.
 func potential_word(f: FighterCard) -> String:
 	var r := potential_range(f)
-	return ("to %d" % r.x) if r.x == r.y else ("to %d-%d" % [r.x, r.y])
+	return (UiKit.t("to %d") % r.x) if r.x == r.y else (UiKit.t("to %d-%d") % [r.x, r.y])
 
 
 func mark_bout_live(is_cup: bool) -> void:
@@ -554,7 +554,7 @@ func forfeit_abandoned_bout() -> bool:
 			return false
 		var opp := String(world.clubs[cup_opponent()]["name"])
 		SeasonCups.forfeit_cup_tie(self)
-		last_forfeit = "You left the %s tie against %s mid-bout. It counts as a forfeit." % [
+		last_forfeit = UiKit.t("You left the %s tie against %s mid-bout. It counts as a forfeit.") % [
 			c.cup_name, opp]
 		return true
 	var o := opponent_id()
@@ -562,7 +562,7 @@ func forfeit_abandoned_bout() -> bool:
 		return false
 	var opp_name := String(world.clubs[o]["name"])
 	SeasonBouts.forfeit_bout(self)
-	last_forfeit = "You left the bout against %s mid-fight. It counts as a forfeit, 0-%d." % [
+	last_forfeit = UiKit.t("You left the bout against %s mid-fight. It counts as a forfeit, 0-%d.") % [
 		opp_name, Tuning.BOUT_WINS]
 	return true
 

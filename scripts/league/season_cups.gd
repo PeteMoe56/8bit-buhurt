@@ -33,14 +33,14 @@ static func open_bids(s: Season) -> void:
 ## following between here and there is what decides whether it comes back.
 static func take_bid(s: Season, offer_i: int, budget_i: int) -> String:
 	if not s.bid_open():
-		return "There is nothing on the table."
+		return UiKit.t("There is nothing on the table.")
 	if offer_i < 0 or offer_i >= s.bid_offers.size():
-		return "No such date."
+		return UiKit.t("No such date.")
 	var offer: Dictionary = s.bid_offers[offer_i]
 	var b: Dictionary = ClubEvent.BUDGETS[clampi(budget_i, 0, ClubEvent.BUDGETS.size() - 1)]
 	var total := int(offer["bid"]) + int(b["cost"])
 	if s.office.credits < total:
-		return "The date and the budget come to %d CC and you have %d." % [
+		return UiKit.t("The date and the budget come to %d CC and you have %d.") % [
 			total, s.office.credits]
 	s.office.spend(total, ClubOffice.LINE_CUP)
 	s.booked = ClubEvent.tournament(offer, s.office.arena, budget_i)
@@ -253,7 +253,7 @@ static func _apply_injuries(s: Season, sim: MeleeSim) -> void:
 ## club with no following and an empty week does.
 static func run_demo(s: Season) -> String:
 	if s.booked != null:
-		return "You already have %s in the diary." % s.booked.kind_name().to_lower()
+		return UiKit.t("You already have %s in the diary.") % s.booked.kind_name().to_lower()
 	## ONCE A WEEK, and without this the game has no economy.
 	##
 	## `run_demo` never set `booked`, and the button's only guard was
@@ -266,9 +266,9 @@ static func run_demo(s: Season) -> String:
 	## getting its own flag, because a second throttle is a second thing to
 	## forget to reset.
 	if s.office.done_this_week("demo"):
-		return "You have already put a demo on this week."
+		return UiKit.t("You have already put a demo on this week.")
 	var pay: int = ClubEvent.DEMO_PAY[clampi(s.office.arena.level, 0, ClubEvent.DEMO_PAY.size() - 1)]
-	s.office.take(pay, "A demo at the ground", "event", ClubOffice.LINE_GROUND)
+	s.office.take(pay, UiKit.t("A demo at the ground"), "event", ClubOffice.LINE_GROUND)
 	## A demo keeps you on the calendar. Barely — a quarter of the turnout a real
 	## event would pull, and no promotion behind it.
 	var heads := int(float(ClubEvent.attendance(s.office.arena.capacity(),
@@ -334,7 +334,7 @@ static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 		podium = ClubEvent.PODIUM[1]
 	elif c.third == s.world.player_club:
 		podium = ClubEvent.PODIUM[2]
-	s.office.take(g + podium, "The cup", "event", ClubOffice.LINE_CUP)
+	s.office.take(g + podium, UiKit.t("The cup"), "event", ClubOffice.LINE_CUP)
 	## A crowd is the loudest thing that can happen to a club, and everyone who
 	## came is half a fan afterwards. An empty house is not punished twice — the
 	## lost credits are punishment enough — so this only ever adds.

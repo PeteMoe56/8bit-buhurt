@@ -66,10 +66,10 @@ func owns(id: int) -> bool:
 ## caller that will eventually name the wrong one.
 func buy_icon(office: ClubOffice, id: int) -> String:
 	if owns(id):
-		return "You already have the %s." % IconBank.icon_name(id)
+		return UiKit.t("You already have the %s.") % IconBank.icon_name(id)
 	var price := IconBank.cost(id)
 	if office.credits < price:
-		return "The %s costs %d CC and you have %d." % [
+		return UiKit.t("The %s costs %d CC and you have %d.") % [
 			IconBank.icon_name(id), price, office.credits]
 	office.spend(price, ClubOffice.LINE_CLUB)
 	owned.append(id)
@@ -109,17 +109,17 @@ static func limits(tier: int) -> Dictionary:
 static func fighter_legal(card: FighterCard, tier: int) -> String:
 	var lim := limits(tier)
 	if card.display_name.strip_edges() == "":
-		return "Give him a name."
+		return UiKit.t("Give him a name.")
 	var stats := {
 		"Strength": card.strength, "Base": card.base, "Skill": card.skill,
 		"Gas": card.gas, "Aggression": card.aggression,
 	}
 	for k in stats:
 		if int(stats[k]) > int(lim["stat"]):
-			return "%s %d is over what the %s allows a new man (%d)." % [
+			return UiKit.t("%s %d is over what the %s allows a new man (%d).") % [
 				k, int(stats[k]), lim["tier"], int(lim["stat"])]
 	if card.rating() > float(lim["rating"]):
-		return "He rates %d; the %s caps a made man at %d." % [
+		return UiKit.t("He rates %d; the %s caps a made man at %d.") % [
 			card.overall(), lim["tier"], int(lim["rating"])]
 	return ""
 
@@ -155,7 +155,7 @@ static func blank(no: int = 0) -> FighterCard:
 func create(office: ClubOffice, club: MeleeClub, card: FighterCard,
 		replace: FighterCard = null) -> String:
 	if made >= MAX_FIGHTERS:
-		return "You have written all %d men this club will ever get." % MAX_FIGHTERS
+		return UiKit.t("You have written all %d men this club will ever get.") % MAX_FIGHTERS
 	var bad := fighter_legal(card, office.tier)
 	if bad != "":
 		return bad
@@ -177,17 +177,17 @@ func create(office: ClubOffice, club: MeleeClub, card: FighterCard,
 	card.wage_agreed = Contracts.offer(ClubOffice.wage(card), card.age)
 	var price := cost()
 	if office.credits < price:
-		return "That costs %d CC and you have %d." % [price, office.credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [price, office.credits]
 	if replace == null and club.roster.size() >= MeleeClub.SQUAD_MAX:
-		return "The books are full at %d. Pick who he replaces." % MeleeClub.SQUAD_MAX
+		return UiKit.t("The books are full at %d. Pick who he replaces.") % MeleeClub.SQUAD_MAX
 	## Everything is checked BEFORE anybody is cut. A half-applied create that
 	## released a man and then refused to sign his replacement would be the
 	## worst bug this screen could have.
 	if replace != null:
 		if not club.roster.has(replace):
-			return "%s is not on this club's books." % replace.display_name
+			return UiKit.t("%s is not on this club's books.") % replace.display_name
 		if replace.active:
-			return "%s is on the eight. Move him to the reserve first." % replace.display_name
+			return UiKit.t("%s is on the eight. Move him to the reserve first.") % replace.display_name
 	## The wage he will draw is checked before he is signed rather than after,
 	## because a club that is over the cap the moment a man walks in has been
 	## handed a problem by a button that said nothing.
@@ -195,7 +195,7 @@ func create(office: ClubOffice, club: MeleeClub, card: FighterCard,
 	if replace != null:
 		bill -= ClubOffice.billed(replace)
 	if bill > office.cap():
-		return "He would take the bill to %s against a %s cap." % [
+		return UiKit.t("He would take the bill to %s against a %s cap.") % [
 			ClubOffice.money(bill), ClubOffice.money(office.cap())]
 	if replace != null:
 		var err := club.cut(replace)
@@ -233,11 +233,11 @@ static func _free_number(club: MeleeClub) -> int:
 ## adds a color.
 static func identity_legal(nm: String, short: String, kit: Color, icon_col: Color) -> String:
 	if nm.strip_edges().length() < 3:
-		return "A club needs a name."
+		return UiKit.t("A club needs a name.")
 	if short.strip_edges().length() < 2 or short.strip_edges().length() > 4:
-		return "The short name is two to four letters."
+		return UiKit.t("The short name is two to four letters.")
 	if not IconBank.contrast_ok(kit, icon_col):
-		return "That mark will not read on that kit. Take one light and one dark."
+		return UiKit.t("That mark will not read on that kit. Take one light and one dark.")
 	return ""
 
 
@@ -255,7 +255,7 @@ func rename(club: MeleeClub, nm: String, short: String,
 	## wore — so renaming the club without touching the badge was refused until
 	## he bought the mark he was already wearing. Found by tests/test_flows.gd.
 	if not owns(mark) and mark != club.icon:
-		return "You do not own the %s yet." % IconBank.icon_name(mark)
+		return UiKit.t("You do not own the %s yet.") % IconBank.icon_name(mark)
 	club.display_name = nm.strip_edges()
 	club.short_name = short.strip_edges().to_upper()
 	club.kit = kit

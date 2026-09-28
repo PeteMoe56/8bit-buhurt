@@ -111,15 +111,15 @@ static func available() -> bool:
 static func closed_word() -> String:
 	match state:
 		State.COLD:
-			return "The shop has not opened yet."
+			return UiKit.t("The shop has not opened yet.")
 		State.CONNECTING:
-			return "Reaching the store…"
+			return UiKit.t("Reaching the store…")
 		State.READY:
 			return ""
 		_:
 			if OS.get_name() in ["Windows", "macOS", "Linux"]:
-				return "Credits are earned on this version, not bought."
-			return "The store is not available on this device."
+				return UiKit.t("Credits are earned on this version, not bought.")
+			return UiKit.t("The store is not available on this device.")
 
 
 static func product(id: String) -> Dictionary:
@@ -226,7 +226,7 @@ static func claim(office, persist: Callable = Callable()) -> int:
 	var moved := owed
 	## THROUGH `take()`, not straight at the balance. Bought credits are the one
 	## line on the finances page that is not the club earning.
-	office.take(moved, "Credits bought", "store", ClubOffice.LINE_STORE)
+	office.take(moved, UiKit.t("Credits bought"), "store", ClubOffice.LINE_STORE)
 	office.bought += moved
 	if not bool(persist.call()):
 		office.credits -= moved
@@ -247,7 +247,7 @@ static func buy(id: String) -> String:
 	last_error = ""
 	var p := product(id)
 	if p.is_empty():
-		return "There is no such pack."
+		return UiKit.t("There is no such pack.")
 	if not available():
 		return closed_word()
 	var b = _backend()
@@ -258,7 +258,7 @@ static func buy(id: String) -> String:
 		## The grant happens when the store calls back, not here. A store that
 		## credits on the REQUEST is a store that credits a canceled purchase.
 		return ""
-	return "This device cannot take a payment."
+	return UiKit.t("This device cannot take a payment.")
 
 
 ## THE ONLY PATH THAT CREATES CREDITS WITHOUT A PAYMENT, and it is fenced twice.
@@ -279,7 +279,7 @@ static func _debug() -> bool:
 
 static func _stub_buy(p: Dictionary) -> String:
 	if not _debug():
-		return "The store is not available on this device."
+		return UiKit.t("The store is not available on this device.")
 	_stub_purchases.append(String(p["id"]))
 	return grant(String(p["id"]))
 
@@ -293,15 +293,15 @@ static func _stub_buy(p: Dictionary) -> String:
 static func grant(id: String) -> String:
 	var p := product(id)
 	if p.is_empty():
-		return "There is no such pack."
+		return UiKit.t("There is no such pack.")
 	if not _debug() and _backend() == null:
 		## Nothing may create credits in a release build without a real store
 		## behind it. This is the line `test_store.gd` exists to hold.
-		return "The store is not available on this device."
+		return UiKit.t("The store is not available on this device.")
 	owed += int(p["credits"])
 	if not save_wallet():
 		owed -= int(p["credits"])
-		last_error = "The purchase could not be saved. Nothing was charged twice."
+		last_error = UiKit.t("The purchase could not be saved. Nothing was charged twice.")
 		return last_error
 	var b = _backend()
 	if b != null and b.has_method("consumePurchase"):

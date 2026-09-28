@@ -181,7 +181,7 @@ func _rebuild() -> void:
 	## EACH TAB CARRIES ITS MARK. A row of five words all the same length is
 	## parsed; a row of five marks is recognised, which on a phone held in one
 	## hand is the whole difference. The names stay — an icon alone is a rebus.
-	var names := ["CLUB", "SQUAD", "ARMORER", "CLUBHOUSE", "FINANCES"]
+	var names := [UiKit.t("CLUB"), UiKit.t("SQUAD"), UiKit.t("ARMORER"), UiKit.t("CLUBHOUSE"), UiKit.t("FINANCES")]
 	var marks := ["shield", "roster", "armor", "hall", "purse"]
 	for i in names.size():
 		ui.add_child(UiKit.button(names[i], Vector2(24 + float(i) * (TAB_W + 6.0), TAB_Y),

@@ -142,7 +142,7 @@ static func fee(rating: int, tier: int) -> int:
 
 
 static func band_name(rating: int, tier: int) -> String:
-	return BAND_NAME[band_of(rating, tier)]
+	return UiKit.t(BAND_NAME[band_of(rating, tier)])
 
 
 ## --------------------------------------------------------------- trading him
@@ -276,14 +276,14 @@ static func step_of(rating: int, tier: int) -> int:
 ## signing that changes a season, and he is what you save for.
 static func step_word(rating: int, tier: int) -> String:
 	match step_of(rating, tier):
-		Step.BELOW: return "depth"
+		Step.BELOW: return UiKit.t("depth")
 		## "STEP UP" IS A LIE AT THE TOP OF THE PYRAMID. There is no division above
 		## National, so a man over its ceiling did not come from one — he came from
 		## outside the world, and the card should say so. Derived from where he
 		## stands rather than flagged on the object, so a foreign man who fades under
 		## the ceiling stops reading as one, which is correct.
 		Step.ABOVE:
-			return "foreign" if tier >= League.TIERS.size() - 1 else "step up"
+			return UiKit.t("foreign") if tier >= League.TIERS.size() - 1 else UiKit.t("step up")
 	return ""
 
 

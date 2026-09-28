@@ -202,8 +202,8 @@ static func distance(a: String, b: String) -> float:
 ## afternoon rather than a figure anybody does arithmetic on.
 static func distance_word(miles: float) -> String:
 	if miles < 1.0:
-		return "at home"
+		return UiKit.t("at home")
 	var m := int(round(miles))
 	if m < 1000:
-		return "%d miles" % m
-	return "%d,%03d miles" % [m / 1000, m % 1000]
+		return UiKit.t("%d miles") % m
+	return UiKit.t("%d,%03d miles") % [m / 1000, m % 1000]

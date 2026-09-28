@@ -441,7 +441,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	## in the 420 it was given and printed "how well you are kn" — a legend that
 	## needs its own legend.
 	UiKit.right(v, v.font, UiKit.t("%s = the squad's mood   ·   %s = your renown")
-		% [Dilemma.FX_WORD["morale"], Dilemma.FX_WORD["note"]],
+		% [UiKit.t(Dilemma.FX_WORD["morale"]), UiKit.t(Dilemma.FX_WORD["note"])],
 		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 12, UiKit.EDGE, 400.0)
 	for i in opts.size():
 		var o: Dictionary = opts[i]
@@ -450,7 +450,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 		## Inset to the same ten pixels a button pads its own label by, so a
 		## column of prose sits over its button rather than over the gap, and the
 		## leftmost one stops touching the edge of the panel.
-		for line in v._wrap(String(o["blurb"]), int(w / 7.4)):
+		for line in v._wrap(UiKit.t(String(o["blurb"])), int(w / 7.4)):
 			UiKit.text(v, v.font, line, Vector2(x + 10.0, by), 13, UiKit.DIM)
 			by += 18.0
 		var bill: Array[Dictionary] = Dilemma.costs(o)
@@ -553,7 +553,7 @@ static func _fixture(v: SeasonScene) -> void:
 		## mid-sentence, and nobody read it as a fault because a sentence that
 		## stops at a panel edge looks like a sentence that stops.
 		var by := y + 80.0
-		for line in UiKit.wrap(v.font, "Pick a week to hold your own, or pass on the year.",
+		for line in UiKit.wrap(v.font, UiKit.t("Pick a week to hold your own, or pass on the year."),
 				SeasonScene.fixture_w() - 40.0, 14):
 			UiKit.text(v, v.font, String(line), Vector2(44, by), 14, UiKit.DIM)
 			by += 18.0
@@ -562,7 +562,7 @@ static func _fixture(v: SeasonScene) -> void:
 	if cup != null:
 		var opp := v.season.cup_opponent()
 		var o: Dictionary = v.season.world.clubs[opp]
-		UiKit.text(v, v.font, UiKit.clip(String(o["name"]), 26),
+		UiKit.text(v, v.font, UiKit.clip(UiKit.t(String(o["name"])), 26),
 			Vector2(44, y + 52), 22, UiKit.INK)
 		var gap := int(v.season.world.clubs[v.season.world.player_club]["power"]) - int(o["power"])
 		UiKit.text(v, v.font, UiKit.t("rating %d  ·  win or you are out") % int(o["power"]),
@@ -580,7 +580,7 @@ static func _fixture(v: SeasonScene) -> void:
 		UiKit.text(v, v.font, UiKit.t("Bye"), Vector2(44, y + 52), 22, UiKit.INK)
 		return
 	var o: Dictionary = v.season.world.clubs[opp]
-	UiKit.text(v, v.font, UiKit.clip(String(o["name"]), 26), Vector2(44, y + 52), 22, UiKit.INK)
+	UiKit.text(v, v.font, UiKit.clip(UiKit.t(String(o["name"])), 26), Vector2(44, y + 52), 22, UiKit.INK)
 	var gap := int(v.season.world.clubs[v.season.world.player_club]["power"]) - int(o["power"])
 	## Three whole sentences, not one with an English word dropped into it: a
 	## translation cannot agree with a word it never sees.
@@ -617,7 +617,7 @@ static func _fixture(v: SeasonScene) -> void:
 	## tells you which one this is before you tap FIGHT.
 	var g: Dictionary = v.season.gate_now()
 	var kind := int(g["kind"])
-	var where := String(Venue.NAME[kind]).to_upper()
+	var where := UiKit.t(String(Venue.NAME[kind])).to_upper()
 	UiKit.text(v, v.font, where, Vector2(44, y + 28), 12,
 		UiKit.YOU if kind == Venue.Kind.HOME else UiKit.DIM)
 	UiKit.pair(v, v.font,

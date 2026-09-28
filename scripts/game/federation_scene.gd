@@ -94,7 +94,7 @@ func _federation(o: ClubOffice) -> void:
 		var have := o.rule_level(r)
 		var want := Federation.required(o.tier, r)
 		var short: bool = have < want
-		UiKit.text(self, font, String(Federation.RULE_NAME[r]), Vector2(L_X + 16, y),
+		UiKit.text(self, font, UiKit.t(String(Federation.RULE_NAME[r])), Vector2(L_X + 16, y),
 			14, UiKit.DOWN if short else UiKit.INK)
 		UiKit.meter(self, Rect2(L_X + 16, y + 18, COL_W - 140.0, 14),
 			have, Federation.MAX_LEVEL, UiKit.DOWN if short else UiKit.UP)
@@ -159,12 +159,12 @@ func _members(o: ClubOffice) -> void:
 	## mid-season without pretending to, so it is said in the line above and not
 	## dressed up as a live reading here.
 	var bits: Array[String] = []
-	bits.append("room %s" % o.morale_word().to_lower())
-	bits.append("bus %s" % ("full" if bench_full else "short"))
+	bits.append(UiKit.t("room %s") % o.morale_word().to_lower())
+	bits.append(UiKit.t("bus full") if bench_full else UiKit.t("bus short"))
 	UiKit.text(self, font, "  ·  ".join(bits), Vector2(R_X + 16, y + 44.0), 13,
 		UiKit.DOWN if not bench_full or o.morale < 0.38 else UiKit.INK)
 
 
 func _line(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, label, Vector2(R_X + 16, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t(label), Vector2(R_X + 16, y), 13, UiKit.DIM)
 	UiKit.right(self, font, value, Vector2(R_X + COL_W - 16, y), 14, UiKit.INK, 180)

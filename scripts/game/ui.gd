@@ -715,7 +715,27 @@ static func _note(font: Font, s: String, at: Vector2, size: int,
 ## with this afternoon's numbers in it. `tools/extract_strings.py` collects every
 ## `UiKit.t("...")` into `locale/strings.csv`, the file a translator fills in.
 static func t(s: String) -> String:
+	## While the ledger runs, every key asked for is written down, so
+	## `test_untranslated.gd` can check each one exists in the string table.
+	if _ledger_on:
+		_t_keys[s] = true
 	return TranslationServer.translate(s)
+
+
+static var _t_keys: Dictionary = {}
+
+
+## ONE OR MANY (28 Sep 2026). The CSV string table has no plural forms, so a
+## count picks between two WHOLE keys and each language words both itself —
+## never `"event%s" % "s"`, which only English can read.
+static func tn(one: String, many: String, n: int) -> String:
+	return t(one if n == 1 else many)
+
+
+static func ledger_keys() -> Array:
+	var k := _t_keys.keys()
+	_t_keys.clear()
+	return k
 
 
 static func raw(ci: CanvasItem, font: Font, at: Vector2, s: String,

@@ -24,6 +24,9 @@ const SOUND_H := 218.0
 ## screen turned out to be rather than a literal 470.
 const CAREER_Y := TOP + 238.0
 const CAREER_H := 136.0
+## LANGUAGE, under the credits: one cycling button, like the grade's.
+const LANG_Y := TOP + 356.0
+const LANG_H := 80.0
 
 var font: Font
 var ui: CanvasLayer
@@ -86,6 +89,17 @@ func _build() -> void:
 				Audio.play("tap")
 				_build()))
 
+	## THE LANGUAGE BUTTON SHOWS WHAT IT CHANGES TO, like the grade's; the panel
+	## says what is in use now. A draft is offered only in a debug build.
+	var langs := Settings.offered()
+	if langs.size() > 1:
+		var li := langs.find(Settings.language)
+		var nxt: String = langs[(maxi(0, li) + 1) % langs.size()]
+		ui.add_child(UiKit.button(Settings.language_name(nxt),
+			Vector2(RIGHT_X + 18, LANG_Y + 32.0), Vector2(COL_W - 30.0, 36), func():
+				Settings.set_language(nxt)
+				Audio.play("tap")
+				_build()))
 	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(LEFT_X, UiKit.bottom(58.0)),
 		Vector2(160, 46), _back))
 	queue_redraw()
@@ -114,7 +128,7 @@ func _draw() -> void:
 	for i in ROWS.size():
 		var key := String(ROWS[i]["key"])
 		var y := TOP + 56.0 + float(i) * ROW_STEP
-		UiKit.text(self, font, String(ROWS[i]["label"]),
+		UiKit.text(self, font, UiKit.t(String(ROWS[i]["label"])),
 			Vector2(LEFT_X + 18, y + 26), 17, UiKit.INK)
 		var lvl := Settings.get_level(key)
 		## Eight notches, because eight is countable at a glance and a continuous
@@ -175,8 +189,14 @@ func _draw() -> void:
 		UiKit.text(self, font, UiKit.t("Open it from Clubhouse, Your career."),
 			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.EDGE)
 
+	# -------------------------------------------------------------- language
+	UiKit.panel(self, Rect2(RIGHT_X, LANG_Y, COL_W + 6, LANG_H))
+	UiKit.pair(self, font, UiKit.t("LANGUAGE"), Settings.language_name(Settings.language)
+		+ ("" if Settings.language != "" else "  ·  " + Settings.language_name(Settings.resolved())),
+		Vector2(RIGHT_X + 18, LANG_Y + 22.0), RIGHT_X + COL_W - 12.0, 15, 13, UiKit.DIM, UiKit.INK)
+
 	# --------------------------------------------------------------- credits
-	UiKit.panel(self, Rect2(RIGHT_X, TOP, COL_W + 6, 344))
+	UiKit.panel(self, Rect2(RIGHT_X, TOP, COL_W + 6, 348))
 	UiKit.text(self, font, UiKit.t("CREDITS"), Vector2(RIGHT_X + 18, TOP + 30), 15, UiKit.DIM)
 	var y := TOP + 62.0
 	UiKit.text(self, font, UiKit.t("MUSIC"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
@@ -200,9 +220,9 @@ func _draw() -> void:
 	## which the same check then caught. One line, made to fit.
 	UiKit.text(self, font, UiKit.t("All other audio written for this game."),
 		Vector2(RIGHT_X + 18, y), 14, UiKit.DIM)
-	y += 28.0
-	UiKit.text(self, font, UiKit.t("TYPE"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
 	y += 24.0
+	UiKit.text(self, font, UiKit.t("TYPE"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
+	y += 20.0
 	var fc := Settings.face_credit()
 	## TWO LINES, because the credit is generated and its length is not ours to
 	## choose: the face's name and the face it is after are both somebody else's
@@ -216,11 +236,15 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("%s  ·  %s") % [String(fc["licence"]), String(fc["url"])],
 		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
 	y += 19.0
-	UiKit.text(self, font, String(fc["ours"]),
+	UiKit.text(self, font, UiKit.t("Buhurt Rail, Gorget and Maul drawn for this game."),
 		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
-	y += 28.0
+	y += 17.0
+	## THE FALLBACK FACE, which draws every letter the Buhurt faces lack. OFL.
+	UiKit.text(self, font, UiKit.t("Other alphabets: LanaPixel by eishiya, SIL OFL 1.1"),
+		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
+	y += 24.0
 	UiKit.text(self, font, UiKit.t("GAME"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
-	y += 26.0
+	y += 22.0
 	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, y), 16, UiKit.INK)
 	y += 21.0
 	UiKit.text(self, font, UiKit.t("Built by BonkWorks."), Vector2(RIGHT_X + 18, y), 13, UiKit.DIM)

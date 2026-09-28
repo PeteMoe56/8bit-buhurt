@@ -66,17 +66,17 @@ func contrast_legal() -> bool:
 func line_legal() -> String:
 	var five := starting_five()
 	if five.size() != 5:
-		return "%s does not have all five line positions filled." % display_name
+		return UiKit.t("%s does not have all five line positions filled.") % display_name
 	if not contrast_legal():
-		return "%s's mark does not read against its kit." % display_name
+		return UiKit.t("%s's mark does not read against its kit.") % display_name
 	## AGAINST THE PARTY THIS CLUB CAN TAKE, and against the books — the two rules
 	## that are actually rules. The reserve count is whatever is left between them.
 	var eight := active_eight()
 	if eight.size() != party_size():
-		return "%s takes %d fighters to an event; it holds %d places." % [
+		return UiKit.t("%s takes %d fighters to an event; it holds %d places.") % [
 			display_name, eight.size(), party_size()]
 	if roster.size() > SQUAD_MAX:
-		return "%s carries %d on the books; the limit is %d." % [
+		return UiKit.t("%s carries %d on the books; the limit is %d.") % [
 			display_name, roster.size(), SQUAD_MAX]
 	return ""
 
@@ -198,38 +198,38 @@ func reserves() -> Array:
 ## `set_active` for the screens that show one.
 func set_active_would(card: FighterCard, on: bool) -> String:
 	if not roster.has(card):
-		return "not on the books"
+		return UiKit.t("not on the books")
 	if on:
 		if card.active:
-			return "already on"
+			return UiKit.t("already on")
 		if active_eight().size() >= party_size():
-			return "bus is full"
+			return UiKit.t("bus is full")
 		return ""
 	if not card.active:
-		return "already off"
+		return UiKit.t("already off")
 	if active_eight().size() <= party_size():
-		return "need eight"
+		return UiKit.t("need eight")
 	if reserves().size() >= RESERVE_SIZE:
-		return "reserve full"
+		return UiKit.t("reserve full")
 	return ""
 
 
 func set_active(card: FighterCard, on: bool) -> String:
 	if not roster.has(card):
-		return "%s is not on this club's books." % card.display_name
+		return UiKit.t("%s is not on this club's books.") % card.display_name
 	if on:
 		if card.active:
 			return ""
 		if active_eight().size() >= ACTIVE_SIZE:
-			return "The eight is full. Swap him for somebody already on it."
+			return UiKit.t("The eight is full. Swap him for somebody already on it.")
 		card.active = true
 		return ""
 	if not card.active:
 		return ""
 	if active_eight().size() <= ACTIVE_SIZE:
-		return "The eight is always eight. Swap %s for somebody in the reserve." % card.display_name
+		return UiKit.t("The eight is always eight. Swap %s for somebody in the reserve.") % card.display_name
 	if reserves().size() >= RESERVE_SIZE:
-		return "The reserve is full at %d. Cut somebody first." % RESERVE_SIZE
+		return UiKit.t("The reserve is full at %d. Cut somebody first.") % RESERVE_SIZE
 	card.active = false
 	return ""
 
@@ -239,15 +239,15 @@ func set_active(card: FighterCard, on: bool) -> String:
 ## allowed to be seven in between.
 func swap_squad(out_card: FighterCard, in_card: FighterCard) -> String:
 	if not roster.has(out_card) or not roster.has(in_card):
-		return "Both fighters must be on this club's books."
+		return UiKit.t("Both fighters must be on this club's books.")
 	if not out_card.active or in_card.active:
-		return "Take one off the eight and bring one up from the reserve."
+		return UiKit.t("Take one off the eight and bring one up from the reserve.")
 	out_card.active = false
 	in_card.active = true
 	if starting_five().size() != 5:
 		out_card.active = true
 		in_card.active = false
-		return "That leaves the eight unable to fill all five positions."
+		return UiKit.t("That leaves the eight unable to fill all five positions.")
 	return ""
 
 
@@ -275,7 +275,7 @@ func swap_order(a: FighterCard, b: FighterCard) -> String:
 	var ia := roster.find(a)
 	var ib := roster.find(b)
 	if ia < 0 or ib < 0:
-		return "Both fighters must be on this club's books."
+		return UiKit.t("Both fighters must be on this club's books.")
 	roster[ia] = b
 	roster[ib] = a
 	## AND THE LINE MUST STILL FILL. Reordering cannot break the five the way a
@@ -286,7 +286,7 @@ func swap_order(a: FighterCard, b: FighterCard) -> String:
 	if starting_five().size() != 5:
 		roster[ia] = a
 		roster[ib] = b
-		return "That order leaves the five unable to fill all five positions."
+		return UiKit.t("That order leaves the five unable to fill all five positions.")
 	return ""
 
 
@@ -371,7 +371,7 @@ func best_line() -> void:
 ## Sign a man into the reserve.
 func sign(card: FighterCard) -> String:
 	if roster.size() >= SQUAD_MAX:
-		return "The books are full at %d. Cut somebody first." % SQUAD_MAX
+		return UiKit.t("The books are full at %d. Cut somebody first.") % SQUAD_MAX
 	## ONE LIMIT ON THE BOOKS, AND IT IS THE LINE ABOVE.
 	##
 	## There was a second gate here — "the reserve is full at 5" — and it was a
@@ -401,9 +401,9 @@ func sign(card: FighterCard) -> String:
 func cut(card: FighterCard) -> String:
 	var i := roster.find(card)
 	if i == -1:
-		return "%s is not on this club's books." % card.display_name
+		return UiKit.t("%s is not on this club's books.") % card.display_name
 	if card.active:
-		return "%s is on the eight. Swap him into the reserve first." % card.display_name
+		return UiKit.t("%s is on the eight. Swap him into the reserve first.") % card.display_name
 	roster.remove_at(i)
 	return ""
 

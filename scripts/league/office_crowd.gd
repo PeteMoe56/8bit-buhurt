@@ -290,12 +290,12 @@ static func gate_income_full(o: ClubOffice) -> int:
 ## afternoon and the whole axis becomes a vending machine.
 static func tidy_arena(o: ClubOffice) -> String:
 	if o.arena.condition >= 0.999:
-		return "The ground is already spotless."
+		return UiKit.t("The ground is already spotless.")
 	if o._throttled(ClubOffice.SLOT_TIDY):
-		return "The ground has already been seen to this week."
+		return UiKit.t("The ground has already been seen to this week.")
 	var cost := o.arena.upkeep_cost()
 	if o.credits < cost:
-		return "That costs %d CC and you have %d." % [cost, o.credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, o.credits]
 	o.spend(cost, ClubOffice.LINE_GROUND)
 	o.arena.condition = 1.0
 	o._mark(ClubOffice.SLOT_TIDY)

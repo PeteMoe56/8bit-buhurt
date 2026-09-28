@@ -67,7 +67,7 @@ func _build() -> void:
 			## fourth regime or a longer word makes it stop fitting.
 			var made: Array[Button] = []
 			for k in 3:
-				var bb := UiKit.button(ClubOffice.REGIME_NAME[k], Vector2.ZERO,
+				var bb := UiKit.button(UiKit.t(String(ClubOffice.REGIME_NAME[k])), Vector2.ZERO,
 					Vector2(40, 36), _set_regime.bind(i, k))
 				made.append(bb)
 				ui.add_child(bb)
@@ -185,7 +185,7 @@ func _draw() -> void:
 				"band": UiKit.SELECT,
 				## THE REGIME AND THE YEARS LEFT ON HIS DEAL, together, because they
 				## are the two things about a hired captain that change.
-				"foot": "%s  ·  %dy" % [ClubOffice.REGIME_NAME[reg],
+				"foot": "%s  ·  %dy" % [UiKit.t(String(ClubOffice.REGIME_NAME[reg])),
 					int(c.get("years", ClubOffice.CAPTAIN_YEARS))],
 				"foot_col": UiKit.DOWN if int(c.get("years", 9)) <= 1 else _regime_color(reg),
 			}, true)
@@ -245,8 +245,8 @@ func _trait_word() -> void:
 			continue
 		said += 1
 		UiKit.text(self, font, UiKit.t("%s  ·  %s") % [String(c.get("name", "?")),
-			String(ClubOffice.TRAIT_NAME[t])], Vector2(OFFER_X, y), 13, UiKit.UP)
-		UiKit.text(self, font, String(ClubOffice.TRAIT_BLURB[t]),
+			UiKit.t(String(ClubOffice.TRAIT_NAME[t]))], Vector2(OFFER_X, y), 13, UiKit.UP)
+		UiKit.text(self, font, UiKit.t(String(ClubOffice.TRAIT_BLURB[t])),
 			Vector2(OFFER_X, y + 16.0), 11, UiKit.EDGE.lightened(0.5))
 		y += 40.0
 	if said == 0:
@@ -267,19 +267,19 @@ func _what_it_costs() -> void:
 	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, CARD_H + 86.0))
 	UiKit.text(self, font, UiKit.t("WHAT A REGIME COSTS"), Vector2(OFFER_X + 16, CUR_Y + 26),
 		12, UiKit.DIM)
-	var cols := ["", "TRAINING", "MORALE", "ARMOR", "KNOCKS"]
+	var cols := ["", UiKit.t("TRAINING"), UiKit.t("MORALE"), UiKit.t("ARMOR"), UiKit.t("KNOCKS")]
 	var xs := [16.0, 140.0, 226.0, 306.0, 386.0]
 	for i in cols.size():
 		UiKit.text(self, font, cols[i], Vector2(OFFER_X + xs[i], CUR_Y + 54), 10, UiKit.EDGE.lightened(0.5))
 	var rows := [
-		{"r": ClubOffice.Regime.LIGHT, "t": "×0.6", "m": "+", "a": "+", "k": "rare"},
-		{"r": ClubOffice.Regime.NORMAL, "t": "×1.0", "m": "—", "a": "—", "k": "some"},
+		{"r": ClubOffice.Regime.LIGHT, "t": "×0.6", "m": "+", "a": "+", "k": UiKit.t("rare")},
+		{"r": ClubOffice.Regime.NORMAL, "t": "×1.0", "m": "—", "a": "—", "k": UiKit.t("some")},
 		{"r": ClubOffice.Regime.HARD, "t": "×1.5", "m": "−", "a": "−", "k": "\u00d75"},
 	]
 	var y := CUR_Y + 84.0
 	for row in rows:
 		var col := _regime_color(int(row["r"]))
-		UiKit.text(self, font, ClubOffice.REGIME_NAME[int(row["r"])],
+		UiKit.text(self, font, UiKit.t(String(ClubOffice.REGIME_NAME[int(row["r"])])),
 			Vector2(OFFER_X + xs[0], y), 14, col)
 		UiKit.text(self, font, String(row["t"]), Vector2(OFFER_X + xs[1], y), 13, UiKit.INK)
 		UiKit.text(self, font, String(row["m"]), Vector2(OFFER_X + xs[2], y), 13, UiKit.INK)
@@ -315,7 +315,7 @@ func _coverage() -> void:
 	var spec := o.club_specialty()
 	if spec >= 0:
 		UiKit.text(self, font, UiKit.t("Club specialty: %s, training ×%.2f")
-			% [Tuning.ROLE_NAME[spec], ClubOffice.SPECIALTY_XP],
+			% [UiKit.t(String(Tuning.ROLE_NAME[spec])), ClubOffice.SPECIALTY_XP],
 			Vector2(24, y), 12, UiKit.UP)
 	elif o.presence() > 0.0:
 		UiKit.text(self, font, UiKit.t("No specialty — but the room is a happier one."),
@@ -327,11 +327,11 @@ func _coverage() -> void:
 		var taught: bool = o.taught(role)
 		var is_spec: bool = role == spec
 		var x := 24.0 + float(i) * 150.0
-		UiKit.text(self, font, String(Tuning.ROLE_NAME[role]), Vector2(x, y), 15,
+		UiKit.text(self, font, UiKit.t(String(Tuning.ROLE_NAME[role])), Vector2(x, y), 15,
 			(UiKit.UP if is_spec else UiKit.INK) if taught else UiKit.DOWN)
-		var line := "nobody teaches it"
+		var line := UiKit.t("nobody teaches it")
 		if taught:
-			line = ClubOffice.REGIME_NAME[o.regime_for(role)]
+			line = UiKit.t(String(ClubOffice.REGIME_NAME[o.regime_for(role)]))
 			if is_spec:
 				line += "  ·  specialty"
 		UiKit.text(self, font, line, Vector2(x, y + 20), 12,

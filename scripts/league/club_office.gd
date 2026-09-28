@@ -164,7 +164,7 @@ func raise_cap() -> String:
 		return throttle_word("cap")
 	var cost: int = cap_cost()
 	if credits < cost:
-		return "That costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_CLUB)
 	cap_level += 1
 	_mark(SLOT_CAP)
@@ -232,12 +232,12 @@ func facility_cost(f: int) -> int:
 
 func upgrade(f: int) -> String:
 	if _throttled(str(f)):
-		return throttle_word(String(FACILITIES[f]["name"]).to_lower())
+		return throttle_word(UiKit.t(String(FACILITIES[f]["name"])).to_lower())
 	if level(f) >= FACILITY_MAX:
-		return "%s cannot be improved further." % FACILITIES[f]["name"]
+		return UiKit.t("%s cannot be improved further.") % UiKit.t(String(FACILITIES[f]["name"]))
 	var cost := facility_cost(f)
 	if credits < cost:
-		return "That costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_FACILITIES)
 	facilities[f] = level(f) + 1
 	_mark(str(f))
@@ -361,10 +361,10 @@ static func negotiate_cost(card: FighterCard) -> int:
 func negotiate(card: FighterCard) -> String:
 	var slot := "neg:%s#%d" % [card.display_name, card.number]
 	if _throttled(slot):
-		return "You have already sat down with %s this week." % card.display_name
+		return UiKit.t("You have already sat down with %s this week.") % card.display_name
 	var cost := negotiate_cost(card)
 	if credits < cost:
-		return "That costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_SQUAD)
 	card.morale_shift(NEGOTIATE_LIFT)
 	_mark(slot)
@@ -418,10 +418,10 @@ static func kit_cost(card: FighterCard) -> int:
 func buy_harness(card: FighterCard) -> String:
 	var next := Quartermaster.next_grade(card)
 	if next < 0:
-		return "%s is already in tournament plate." % card.display_name
+		return UiKit.t("%s is already in tournament plate.") % card.display_name
 	var cost := Quartermaster.upgrade_cost(card)
 	if credits < cost:
-		return "That costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_KIT)
 	card.harness = next
 	card.armor = Quartermaster.ceiling(card)
@@ -447,19 +447,19 @@ func repair_kit(card: FighterCard) -> String:
 		## So there are three answers now, not two: nothing worth doing, nothing
 		## MORE that can be done at this grade, and nothing better in the world.
 		if card.armor < Quartermaster.ceiling(card) - 0.001:
-			return "%s's kit is fine. Come back when there is something to do." \
+			return UiKit.t("%s's kit is fine. Come back when there is something to do.") \
 				% card.display_name
 		if Quartermaster.next_grade(card) < 0:
-			return "%s's harness is as good as it gets." % card.display_name
-		return "%s's %s harness is as good as %s gets. He needs better kit." % [
+			return UiKit.t("%s's harness is as good as it gets.") % card.display_name
+		return UiKit.t("%s's %s harness is as good as %s gets. He needs better kit.") % [
 			card.display_name, Quartermaster.name_of(card).to_lower(),
 			Quartermaster.name_of(card).to_lower()]
 	var slot := "kit:%s#%d" % [card.display_name, card.number]
 	if _throttled(slot):
-		return "The armorer has already had %s's kit this week." % card.display_name
+		return UiKit.t("The armorer has already had %s's kit this week.") % card.display_name
 	var cost := kit_cost(card)
 	if credits < cost:
-		return "That costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_KIT)
 	card.armor = clampf(card.armor + KIT_STEP, 0.0, Quartermaster.ceiling(card))
 	_mark(slot)
@@ -479,15 +479,15 @@ func repair_kit(card: FighterCard) -> String:
 ## "at what".
 func buy_level(card: FighterCard) -> String:
 	if Career.at_ceiling(card):
-		return "%s has nothing left to learn." % card.display_name
+		return UiKit.t("%s has nothing left to learn.") % card.display_name
 	if Career.can_level(card):
-		return "%s already has a level waiting. Spend it." % card.display_name
+		return UiKit.t("%s already has a level waiting. Spend it.") % card.display_name
 	var slot := "reps:%s#%d" % [card.display_name, card.number]
 	if _throttled(slot):
-		return "%s has done his extra reps this week." % card.display_name
+		return UiKit.t("%s has done his extra reps this week.") % card.display_name
 	var cost := Career.level_cost(card)
 	if credits < cost:
-		return "That costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_SQUAD)
 	card.xp = Career.next_level_at(card)
 	_mark(slot)
@@ -505,13 +505,13 @@ func buy_level(card: FighterCard) -> String:
 ## buy both every week would make the throttle a formality.
 func raise_ceiling(card: FighterCard) -> String:
 	if not Career.can_raise_ceiling(card):
-		return "%s is as far along as a fighter his age gets." % card.display_name
+		return UiKit.t("%s is as far along as a fighter his age gets.") % card.display_name
 	var slot := "reps:%s#%d" % [card.display_name, card.number]
 	if _throttled(slot):
-		return "%s has done his extra reps this week." % card.display_name
+		return UiKit.t("%s has done his extra reps this week.") % card.display_name
 	var cost := Career.raise_cost(card)
 	if credits < cost:
-		return "That costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_SQUAD)
 	Career.raise_ceiling(card)
 	_mark(slot)
@@ -519,7 +519,7 @@ func raise_ceiling(card: FighterCard) -> String:
 
 
 static func throttle_word(what: String) -> String:
-	return "The %s has already been worked on this week. One job at a time." % what
+	return UiKit.t("The %s has already been worked on this week. One job at a time.") % what
 
 
 # ------------------------------------------------------------------- upkeep
@@ -661,7 +661,7 @@ func pay_upkeep() -> Dictionary:
 			billed += c
 		else:
 			facilities[key] = level(key) - 1
-			lost.append(String(FACILITIES[key]["name"]))
+			lost.append(UiKit.t(String(FACILITIES[key]["name"])))
 
 	## AND THE FEDERATION'S BILL, which is different in kind from the two above
 	## and so is charged differently. A ground or a facility you cannot afford
@@ -680,7 +680,7 @@ func pay_upkeep() -> Dictionary:
 			billed += c
 		else:
 			compliance[r] = 0
-			lapsed.append(String(Federation.RULE_NAME[r]))
+			lapsed.append(UiKit.t(String(Federation.RULE_NAME[r])))
 
 	_clamp_fans()
 	return {"billed": billed, "lost": lost, "lapsed": lapsed}
@@ -995,10 +995,10 @@ func session_cost() -> int:
 ## Paying for a thing and having it happen is one step or it is a bug.
 func charge_session() -> String:
 	if _throttled(SLOT_SESSION):
-		return "The squad has already had its extra session this week."
+		return UiKit.t("The squad has already had its extra session this week.")
 	var cost := session_cost()
 	if credits < cost:
-		return "A session costs %d CC and you have %d." % [cost, credits]
+		return UiKit.t("A session costs %d CC and you have %d.") % [cost, credits]
 	spend(cost, LINE_SQUAD)
 	_mark(SLOT_SESSION)
 	return ""
@@ -1838,14 +1838,14 @@ func specialty_xp(role: int) -> float:
 ## the bottom of the division is Restless — which is what the five words were for.
 func morale_word() -> String:
 	if morale >= 0.80:
-		return "Flying"
+		return UiKit.t("Flying")
 	if morale >= 0.56:
-		return "Good"
+		return UiKit.t("Good")
 	if morale >= 0.38:
-		return "Fine"
+		return UiKit.t("Fine")
 	if morale >= 0.20:
-		return "Restless"
-	return "Mutinous"
+		return UiKit.t("Restless")
+	return UiKit.t("Mutinous")
 
 
 # -------------------------------------------------------------------- saving

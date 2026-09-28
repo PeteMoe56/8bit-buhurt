@@ -93,19 +93,19 @@ static func quips(sim: MeleeSim, season) -> Array:
 		## stat the club did or did not buy him.
 		if m.gassed_at >= 0.0 and m.gassed_at < 45.0:
 			_say(out, spoke, name,
-				"I was blowing after the first. That is the winter, not the afternoon.", -1)
+				UiKit.t("I was blowing after the first. That is the winter, not the afternoon."), -1)
 		## PUT DOWN REPEATEDLY, and he blames the shape, which is the player's.
 		if m.times_downed >= 2:
 			_say(out, spoke, name,
-				"We were stood in the wrong shape and everyone could see it.", -1)
+				UiKit.t("We were stood in the wrong shape and everyone could see it."), -1)
 		## THE WORK NOBODY WATCHES, in his own words.
 		if int(m.assists) >= 2 and m.downs_caused == 0:
 			_say(out, spoke, name,
-				"I held two of them all afternoon. Somebody else got the credit.", 0)
+				UiKit.t("I held two of them all afternoon. Somebody else got the credit."), 0)
 		## HIS FIRST TIME ON THE EIGHT.
 		if m.card.bouts <= 1:
 			_say(out, spoke, name,
-				"First time on the eight. I would like it not to be the last.", 1)
+				UiKit.t("First time on the eight. I would like it not to be the last."), 1)
 	## AND THE MEN WHO DID NOT PLAY. A bench that never speaks is a bench the
 	## player forgets he is paying for, and "restless" is the state that turns
 	## into a transfer request.
@@ -115,7 +115,7 @@ static func quips(sim: MeleeSim, season) -> Array:
 				continue
 			if f.morale < 0.45:
 				_say(out, spoke, f.display_name,
-					"Nice of you to remember me. Another one watched from a bucket.", -1)
+					UiKit.t("Nice of you to remember me. Another one watched from a bucket."), -1)
 	out.sort_custom(func(a, b): return a.tone < b.tone)
 	return out.slice(0, mini(MAX_QUIPS, out.size()))
 
@@ -193,21 +193,21 @@ static func news(season) -> Array:
 	if pos > 0:
 		var up: int = int(League.TIERS[season.world.player_tier()]["up"])
 		var down: int = int(League.TIERS[season.world.player_tier()]["down"])
-		var line := "%s of %d in the %s." % [_ordinal(pos), rows.size(),
+		var line := UiKit.t("%s of %d in the %s.") % [_ordinal(pos), rows.size(),
 			String(League.TIERS[season.world.player_tier()]["name"])]
 		var tone := 0
 		## THE PLAYOFF PICTURE, in the one sentence that matters: are you going
 		## up, are you going down, or is neither of those your problem today.
 		if pos <= up:
-			line += " Promotion places."
+			line += UiKit.t(" Promotion places.")
 			tone = 1
 		elif pos > rows.size() - down:
-			line += " Relegation places."
+			line += UiKit.t(" Relegation places.")
 			tone = -1
 		else:
 			var gap := pos - up
-			line += " %d off the promotion places." % gap
-		out.append(News.new("The table", line, tone))
+			line += UiKit.t(" %d off the promotion places.") % gap
+		out.append(News.new(UiKit.t("The table"), line, tone))
 	## THE GATE, AND ONLY WHEN IT WAS YOURS — an away day has none to report.
 	##
 	## WHAT THE CLUB WAS PAID, not what the club estimates came. `crowd_came` is
@@ -229,9 +229,9 @@ static func news(season) -> Array:
 		room = Venue.title(int(g["kind"]),
 			season.world.city_of(season.host_id()),
 			Arena.arena_name_of(int(g["level"])))
-	out.append(News.new("The gate", "%d CC, %s at %s." % [
+	out.append(News.new(UiKit.t("The gate"), "%d CC, %s at %s." % [
 		int(g["cc"]), String(g["where"]).to_lower(), room], 0))
-	out.append(News.new("The following", "%d, and the room knows it."
+	out.append(News.new(UiKit.t("The following"), UiKit.t("%d, and the room knows it.")
 		% int(season.office.fans), 0))
 	return out
 
@@ -284,7 +284,7 @@ static func build(sim: MeleeSim) -> Array:
 	gassed.sort_custom(func(a, b): return a.gassed_at < b.gassed_at)
 	for m in gassed:
 		out.append(Line.new(2 if not won else 1,
-			"%s (#%d, %s) gassed at %d:%02d of round %d. He went in with %d gas against a %d-second round — the tank is a stat, and it is the one you did not buy." % [
+			UiKit.t("%s (#%d, %s) gassed at %d:%02d of round %d. He went in with %d gas against a %d-second round — the tank is a stat, and it is the one you did not buy.") % [
 				m.card.display_name, m.card.number, m.card.pos_name(),
 				int(m.gassed_at) / 60, int(m.gassed_at) % 60, maxi(1, m.gassed_round),
 				m.card.gas, int(Tuning.ROUND_TIME),
@@ -296,7 +296,7 @@ static func build(sim: MeleeSim) -> Array:
 			continue
 		if m.card.armor < 0.9 and m.times_downed >= 2:
 			out.append(Line.new(1,
-				"%s went down %d times in harness at %d%%. Rattling armor reads as %d base instead of %d — that is a commission, not a coaching problem." % [
+				UiKit.t("%s went down %d times in harness at %d%%. Rattling armor reads as %d base instead of %d — that is a commission, not a coaching problem.") % [
 					m.card.display_name, m.times_downed, int(m.card.armor * 100.0),
 					int(m.card.effective_base()), m.card.base,
 				]))
@@ -310,7 +310,7 @@ static func build(sim: MeleeSim) -> Array:
 			worst = m
 	if worst != null and worst.times_downed >= 2:
 		out.append(Line.new(1,
-			"Your %s went down %d times. That side of the line is where the round went." % [
+			UiKit.t("Your %s went down %d times. That side of the line is where the round went.") % [
 				worst.card.pos_name().to_lower(), worst.times_downed,
 			]))
 
@@ -327,7 +327,7 @@ static func build(sim: MeleeSim) -> Array:
 
 	# --- and the small, honest note about how much you actually touched it
 	out.append(Line.new(0,
-		"You drew %d routes and answered %d of %d prompts. The rest of it was the club." % [
+		UiKit.t("You drew %d routes and answered %d of %d prompts. The rest of it was the club.") % [
 			sim.orders_issued, sim.prompts_answered,
 			sim.prompts_answered + sim.prompts_timed_out,
 		]))

@@ -34,7 +34,7 @@ static func _draw_market(v: SeasonScene) -> void:
 	## THE HEADLINE IS THE MARSHALS, not the average. A club whose mean harness
 	## reads 74% is fine; a club with one man under the line cannot field five,
 	## and those two facts do not live in the same number.
-	var head := "Every harness on the bus passes inspection."
+	var head := UiKit.t("Every harness on the bus passes inspection.")
 	var head_col := UiKit.UP
 	if int(led["failing"]) > 0:
 		head = "%d of the eight will not pass inspection." % led["failing"]
@@ -47,7 +47,7 @@ static func _draw_market(v: SeasonScene) -> void:
 		head_col = UiKit.YOU
 	UiKit.pair(v, v.font, head,
 		("%d CC to put the eight right" % led["bill"]) if int(led["bill"]) > 0
-			else "nothing owing",
+			else UiKit.t("nothing owing"),
 		Vector2(24, SeasonScene.CONTENT_Y + 26), UiKit.right_edge(), 14, 13, head_col, UiKit.DIM)
 
 	var cell := v._qm_cell()
@@ -163,7 +163,7 @@ static func _market_controls(v: SeasonScene) -> void:
 		var nxt := Quartermaster.next_grade(v.qm_pick)
 		if nxt >= 0:
 			v.ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [
-				String(Quartermaster.GRADE_NAME[nxt]),
+				UiKit.t(String(Quartermaster.GRADE_NAME[nxt])),
 				Quartermaster.upgrade_cost(v.qm_pick)],
 				Vector2(24 + (third + 8.0) * 2.0, SeasonScene.action_y()), Vector2(third, 46), func():
 					var err := o.buy_harness(v.qm_pick)

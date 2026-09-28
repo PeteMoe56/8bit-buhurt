@@ -159,18 +159,18 @@ func angry() -> bool:
 ## actually sits rather than on an even split of the range.
 func morale_word() -> String:
 	if morale >= 0.86:
-		return "Exceptional"
+		return UiKit.t("Exceptional")
 	if morale >= 0.70:
-		return "Great"
+		return UiKit.t("Great")
 	if morale >= 0.54:
-		return "Good"
+		return UiKit.t("Good")
 	if morale >= 0.38:
-		return "Ok"
+		return UiKit.t("Ok")
 	if morale >= 0.26:
-		return "Poor"
+		return UiKit.t("Poor")
 	if morale >= 0.18:
-		return "Bad"
-	return "Toxic"
+		return UiKit.t("Bad")
+	return UiKit.t("Toxic")
 
 
 ## THE MOOD AS A CARD-SIZED FLAG, or nothing at all.
@@ -300,9 +300,9 @@ func fit() -> bool:
 ## get the weekend off is not a problem you solve with money.
 func unfit_reason() -> String:
 	if injury > 0:
-		return "out %d" % injury
+		return UiKit.t("out %d") % injury
 	if not passes_inspection():
-		return "kit failed"
+		return UiKit.t("kit failed")
 	if not available:
 		return "unavailable"
 	return ""

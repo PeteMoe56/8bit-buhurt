@@ -138,7 +138,7 @@ static func grade_of(card: FighterCard) -> int:
 
 
 static func name_of(card: FighterCard) -> String:
-	return String(GRADE_NAME[grade_of(card)])
+	return UiKit.t(String(GRADE_NAME[grade_of(card)]))
 
 
 static func ceiling(card: FighterCard) -> float:

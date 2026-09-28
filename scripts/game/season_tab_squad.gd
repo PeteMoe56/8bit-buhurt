@@ -96,7 +96,7 @@ static func _squad_spread(v: SeasonScene) -> String:
 	## The wage is the least of the three anyway. Total wages against the cap are
 	## already on the right of this same line, which is the number that decides
 	## anything; what one man costs is on his own row.
-	return "age %d-%d  ·  rated %d-%d" % [lo_age, hi_age, lo_rat, hi_rat]
+	return UiKit.t("age %d-%d  ·  rated %d-%d") % [lo_age, hi_age, lo_rat, hi_rat]
 
 
 
@@ -135,7 +135,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 	## Both come back the instant he is deselected. Sorting the reserve and going
 	## to the shelf are things you do when you are not in the middle of a decision
 	## about one man, which is why hiding them costs nothing.
-	var sw := String(SeasonScene.RESERVE_SORTS[(v.reserve_sort + 1) % SeasonScene.RESERVE_SORTS.size()]["word"])
+	var sw := UiKit.t(String(SeasonScene.RESERVE_SORTS[(v.reserve_sort + 1) % SeasonScene.RESERVE_SORTS.size()]["word"]))
 	if v.picked == null:
 		v.ui.add_child(UiKit.button(UiKit.t("Reserve by %s") % sw,
 			Vector2(24, SeasonScene.action_y()), Vector2(200, 46), func():
@@ -366,8 +366,8 @@ static func _draw_squad(v: SeasonScene) -> void:
 		Vector2(24, SeasonScene.CONTENT_Y), SeasonScene.RESERVE_X - 16.0, 13, 12, UiKit.DIM, UiKit.EDGE)
 	## THE RESERVE SAYS HOW IT IS ORDERED, because it is the only list on this
 	## screen whose order is a choice rather than a fact.
-	UiKit.text(v, v.font, UiKit.t("RESERVE — by %s") % String(
-		SeasonScene.RESERVE_SORTS[v.reserve_sort % SeasonScene.RESERVE_SORTS.size()]["word"]),
+	UiKit.text(v, v.font, UiKit.t("RESERVE — by %s") % UiKit.t(String(
+		SeasonScene.RESERVE_SORTS[v.reserve_sort % SeasonScene.RESERVE_SORTS.size()]["word"])),
 		Vector2(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y), 13, UiKit.DIM)
 	## The cap, where the decision is: every man on this screen costs against it.
 	var bill := ClubOffice.wage_bill(v.season.club)
@@ -408,8 +408,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## (a green kit percentage, a dimmed reserve name) mean "this is fine" and
 	## "this man is not in the eight", and a key that explains the absence of a
 	## problem is a key nobody finishes reading.
-	UiKit.text(v, v.font, UiKit.t("NOW is what he is, MAX what he could be  ·  ")
-		+ "red = deal with it  ·  green = room to grow",
+	UiKit.text(v, v.font, UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow"),
 		Vector2(24, SeasonScene._squad_key_y()), 11, UiKit.EDGE.lightened(0.25))
 
 
@@ -521,40 +520,40 @@ static func squad_columns(v: SeasonScene, f: Font, size_hint: int = 0) -> Array:
 		"rect": Rect2(SeasonScene.COL_NUM, 0.0, float(w.call("#13", 13)), 18.0),
 		"head_rect": lhead.call("#", SeasonScene.COL_NUM)})
 	## The name can never exceed its budget, because `UiKit.fit` measures it.
-	out.append({"name": "name", "head": "FIGHTER", "align": "left",
+	out.append({"name": "name", "head": UiKit.t("FIGHTER"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_NAME, 0.0, SeasonScene.COL_NAME_W, 18.0),
-		"head_rect": lhead.call("FIGHTER", SeasonScene.COL_NAME)})
-	out.append({"name": "position", "head": "ROLE", "align": "left",
+		"head_rect": lhead.call(UiKit.t("FIGHTER"), SeasonScene.COL_NAME)})
+	out.append({"name": "position", "head": UiKit.t("ROLE"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_POS, 0.0, float(w.call("FLANKER", 13)), 18.0),
-		"head_rect": lhead.call("ROLE", SeasonScene.COL_POS)})
-	out.append({"name": "armor", "head": "KIT", "align": "left",
+		"head_rect": lhead.call(UiKit.t("ROLE"), SeasonScene.COL_POS)})
+	out.append({"name": "armor", "head": UiKit.t("KIT"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_ARMOR, 0.0, float(w.call("100%", 13)), 18.0),
-		"head_rect": lhead.call("KIT", SeasonScene.COL_ARMOR)})
-	out.append({"name": "age", "head": "AGE", "align": "left",
+		"head_rect": lhead.call(UiKit.t("KIT"), SeasonScene.COL_ARMOR)})
+	out.append({"name": "age", "head": UiKit.t("AGE"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_AGE, 0.0, float(w.call("39", 13)), 18.0),
-		"head_rect": lhead.call("AGE", SeasonScene.COL_AGE)})
+		"head_rect": lhead.call(UiKit.t("AGE"), SeasonScene.COL_AGE)})
 	## Right-aligned: the widest string this field can produce, ending at its stop.
 	var wage: float = w.call("$99.9k", 13)
-	out.append({"name": "wage", "head": "PAY", "align": "right",
+	out.append({"name": "wage", "head": UiKit.t("PAY"), "align": "right",
 		"rect": Rect2(SeasonScene.COL_WAGE_TO - wage, 0.0, wage, 18.0),
-		"head_rect": rhead.call("PAY", SeasonScene.COL_WAGE_TO)})
+		"head_rect": rhead.call(UiKit.t("PAY"), SeasonScene.COL_WAGE_TO)})
 	## `YR` AND NOT `DEAL`. Six pixels separate the wage's stop from the years'
 	## and no four-letter word survives that; the field says `3y` and `OUT`, so
 	## the two letters are the whole of the information anyway.
-	out.append({"name": "years", "head": "YR", "align": "left",
+	out.append({"name": "years", "head": UiKit.t("YR"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_YEARS, 0.0, float(w.call("OUT", 12)), 18.0),
-		"head_rect": lhead.call("YR", SeasonScene.COL_YEARS)})
+		"head_rect": lhead.call(UiKit.t("YR"), SeasonScene.COL_YEARS)})
 	var rating: float = w.call("99", 16)
-	out.append({"name": "rating", "head": "NOW", "align": "right",
+	out.append({"name": "rating", "head": UiKit.t("NOW"), "align": "right",
 		"rect": Rect2(SeasonScene.COL_RATING_TO - rating, 0.0, rating, 18.0),
-		"head_rect": rhead.call("NOW", SeasonScene.COL_RATING_TO)})
+		"head_rect": rhead.call(UiKit.t("NOW"), SeasonScene.COL_RATING_TO)})
 	var pot: float = w.call("99", 12)
 	## MAX RIDES THE END OF THE ROW rather than the ceiling's own stop. There are
 	## eight spare pixels at 446 and this label needs six of them to clear `NOW`;
 	## the alternative was a third abbreviation nobody would read.
-	out.append({"name": "ceiling", "head": "MAX", "align": "right",
+	out.append({"name": "ceiling", "head": UiKit.t("MAX"), "align": "right",
 		"rect": Rect2(SeasonScene.COL_POT_TO - pot, 0.0, pot, 18.0),
-		"head_rect": rhead.call("MAX", SeasonScene.SQUAD_W)})
+		"head_rect": rhead.call(UiKit.t("MAX"), SeasonScene.SQUAD_W)})
 	return out
 
 

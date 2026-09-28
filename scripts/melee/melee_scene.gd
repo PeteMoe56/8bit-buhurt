@@ -893,14 +893,17 @@ func _draw_report() -> void:
 	UiKit.panel(self, REP_PANEL)
 	var us := 0
 	var them := 1
-	var verb := "take it" if sim.bout_winner() == us \
-		else ("share it" if sim.bout_winner() == -1 else "lose it")
+	## Three whole sentences, not a verb dropped into one: a language that bends
+	## the verb, or puts it last, has to see the sentence it lands in.
+	var verdict := UiKit.t("You take it. Rounds %d-%d, %d down across the afternoon.") \
+		if sim.bout_winner() == us else (UiKit.t("You share it. Rounds %d-%d, %d down across the afternoon.") \
+		if sim.bout_winner() == -1 else UiKit.t("You lose it. Rounds %d-%d, %d down across the afternoon."))
 	UiKit.raw(self, font, Vector2(REP_LX, 56), UiKit.t("%s %d - %d %s") % [
 		sim.clubs[us].display_name.to_upper(), sim.rounds_won[us],
 		sim.rounds_won[them], sim.clubs[them].display_name.to_upper()],
 		HORIZONTAL_ALIGNMENT_LEFT, 880, 17, UiKit.YOU)
 	UiKit.raw(self, font, Vector2(REP_LX, 78),
-		"You %s. Rounds %d-%d, %d down across the afternoon." % [verb,
+		verdict % [
 			sim.rounds_won[us], sim.rounds_won[them], sim.downs[us] + sim.downs[them]],
 		HORIZONTAL_ALIGNMENT_LEFT, 880, 11, COL_DIM)
 	_rule(REP_LX, 94.0, 936.0 - REP_LX * 2.0)
@@ -915,7 +918,7 @@ func _draw_report() -> void:
 	UiKit.raw(self, font, Vector2(REP_LX, 334), UiKit.t("AFTER ACTION REPORT"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 12, UiKit.YOU)
 	UiKit.raw(self, font, Vector2(REP_LX + 260.0, 334),
-		"The men, the room, the gate and the ground.",
+		UiKit.t("The men, the room, the gate and the ground."),
 		HORIZONTAL_ALIGNMENT_LEFT, 400, 10, COL_DIM)
 	_draw_news()
 
@@ -964,7 +967,7 @@ func _draw_report_table() -> void:
 		if Career.at_ceiling(m.card):
 			_cell("PEAK", "next", y, 10, COL_DIM)
 		elif Career.can_place(m.card):
-			_cell("LEVEL UP", "next", y, 10, UiKit.YOU)
+			_cell(UiKit.t("LEVEL UP"), "next", y, 10, UiKit.YOU)
 		else:
 			_cell("%d/%d" % [m.card.xp, Career.next_level_at(m.card)],
 				"next", y, 10, COL_INK)
@@ -1006,7 +1009,7 @@ func _draw_quips() -> void:
 	quip_scroll = clampf(quip_scroll, 0.0, quip_over)
 	if rows.is_empty():
 		UiKit.raw(self, font, Vector2(REP_RX, QUIP_TOP + 20.0),
-			"Nobody had anything to say.", HORIZONTAL_ALIGNMENT_LEFT,
+			UiKit.t("Nobody had anything to say."), HORIZONTAL_ALIGNMENT_LEFT,
 			int(REP_RW), 10, COL_DIM)
 
 
@@ -1074,7 +1077,7 @@ func _draw_news() -> void:
 	if news_over > 0.5:
 		var at_end: bool = news_scroll >= news_over - 0.5
 		UiKit.raw(self, font, Vector2(936.0 - REP_LX - 60.0, NEWS_TOP - 10.0),
-			"scroll ^" if at_end else "more v", HORIZONTAL_ALIGNMENT_RIGHT, 60, 9,
+			UiKit.t("scroll ^") if at_end else UiKit.t("more v"), HORIZONTAL_ALIGNMENT_RIGHT, 60, 9,
 			COL_DIM)
 	for c in plan["caps"]:
 		var cy: float = NEWS_TOP + float(c["y"]) - news_scroll
@@ -1214,7 +1217,7 @@ func _draw_corner() -> void:
 		draw_rect(Rect2(Vector2(-off_x, 0.0), UiKit.screen()), Color(0, 0, 0, 0.7))
 		UiKit.panel(self, sub_box)
 		UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD, 32),
-			"WHO COMES ON FOR", HORIZONTAL_ALIGNMENT_LEFT,
+			UiKit.t("WHO COMES ON FOR"), HORIZONTAL_ALIGNMENT_LEFT,
 			int(sub_box.size.x - SUB_PAD * 2.0), 9, COL_DIM)
 		UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD + 112.0, 33),
 			sub_for.to_upper(), HORIZONTAL_ALIGNMENT_LEFT,
@@ -1226,7 +1229,7 @@ func _draw_corner() -> void:
 			COL_EDGE, 1.0)
 		if sim.bench(0).is_empty():
 			UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD, _sub_row_y(0) + 26.0),
-				"Nobody left on the bench.", HORIZONTAL_ALIGNMENT_LEFT,
+				UiKit.t("Nobody left on the bench."), HORIZONTAL_ALIGNMENT_LEFT,
 				int(sub_box.size.x - SUB_PAD * 2.0), 11, COL_DIM)
 
 
@@ -1529,7 +1532,7 @@ func _draw_strip() -> void:
 		if m.state == MeleeSim.State.GRAPPLED:
 			s = "clinched"
 		elif m.under_orders():
-			s = "on a route"
+			s = UiKit.t("on a route")
 		elif m.state == MeleeSim.State.RECOVER:
 			s = "breathing"
 		elif live:
@@ -1552,9 +1555,9 @@ func _draw_strip() -> void:
 func _tally(m) -> String:
 	var bits: Array[String] = []
 	if m.downs_caused > 0:
-		bits.append("%d down" % m.downs_caused)
+		bits.append(UiKit.t("%d down") % m.downs_caused)
 	if m.assists > 0:
-		bits.append("%d assist%s" % [m.assists, "" if m.assists == 1 else "s"])
+		bits.append(UiKit.tn("%d assist", "%d assists", m.assists) % m.assists)
 	return " · ".join(bits)
 
 
@@ -1571,11 +1574,11 @@ func _draw_hint() -> void:
 	for m in sim.men:
 		if m.prompt != null:
 			open += 1
-	var msg := "Drag a fighter to send him."
+	var msg := UiKit.t("Drag a fighter to send him.")
 	if drawing != -1:
-		msg = "Release on ground, or on a man."
+		msg = UiKit.t("Release on ground, or on a man.")
 	elif open > 0:
-		msg = "Options are up — pick, or let him."
+		msg = UiKit.t("Options are up — pick, or let him.")
 	UiKit.raw(self, font, Vector2(24, 50), msg, HORIZONTAL_ALIGNMENT_LEFT, 260, 13, COL_DIM)
 	UiKit.raw(self, font, Vector2(SCREEN.x - 284, 50), UiKit.t("%d routes · %d of %d calls") % [
 		sim.orders_issued, sim.prompts_answered,
@@ -1613,7 +1616,7 @@ func _draw_held() -> void:
 	UiKit.raw(self, font, Vector2(band.position.x, band.position.y + 30.0), UiKit.t("HOLD"),
 		HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 26, Tuning.COL_MARSHAL)
 	UiKit.raw(self, font, Vector2(band.position.x, band.position.y + 52.0),
-		"give one man an order · %.1fs" % maxf(0.0, hold_t),
+		UiKit.t("give one man an order · %.1fs") % maxf(0.0, hold_t),
 		HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 13, COL_INK)
 
 
@@ -1649,7 +1652,7 @@ func _build_ui() -> void:
 
 
 	again_button = _panel_button(
-		"Back to the clubhouse" if Session.season != null else "Next bout",
+		UiKit.t("Back to the clubhouse") if Session.season != null else UiKit.t("Next bout"),
 		Vector2(260, 48), func():
 			if Session.season != null:
 				UiKit.back("res://scenes/Season.tscn")
@@ -1749,8 +1752,8 @@ func _book_calls(shape_id: int) -> Array:
 	var out: Array = []
 	for st in Tuning.STRATEGIES.keys():
 		out.append({"kind": "push", "id": int(st),
-			"name": String(Tuning.STRATEGIES[st]["name"]),
-			"blurb": String(Tuning.STRATEGIES[st]["blurb"])})
+			"name": UiKit.t(String(Tuning.STRATEGIES[st]["name"])),
+			"blurb": UiKit.t(String(Tuning.STRATEGIES[st]["blurb"]))})
 	if Session.season != null:
 		for p in Session.season.board.plays_for(shape_id):
 			out.append({"kind": "play", "id": int(p["index"]), "name": String(p["name"]),
@@ -1866,7 +1869,7 @@ func _build_book(box: Vector2) -> void:
 			## picked out" is two vocabularies.
 			("\u2605 " if starred else "") + String(call_["name"]),
 			func(): _tap_call(shapes[book_shape], call_, key))
-		b.tooltip_text = String(call_.get("blurb", "A play you drew."))
+		b.tooltip_text = String(call_.get("blurb", UiKit.t("A play you drew.")))
 		grid.add_child(b)
 
 
@@ -2027,12 +2030,12 @@ func _show_playbook() -> void:
 	row.add_theme_constant_override("separation", 8)
 	panel_box.add_child(row)
 	var half := (PANEL_W - 8.0) * 0.5
-	row.add_child(_panel_button("Done picking favorites" if starring
-		else "Pick favorites for the corner", Vector2(half, 40), func():
+	row.add_child(_panel_button(UiKit.t("Done picking favorites") if starring
+		else UiKit.t("Pick favorites for the corner"), Vector2(half, 40), func():
 			starring = not starring
 			book_note = ""
 			_show_playbook()))
-	row.add_child(_panel_button("Back to the corner", Vector2(half, 40), func():
+	row.add_child(_panel_button(UiKit.t("Back to the corner"), Vector2(half, 40), func():
 		starring = false
 		book_note = ""
 		_clear_panel()
@@ -2297,9 +2300,9 @@ func _show_splash() -> void:
 ## the screen telling you where you are and then forgetting.
 func _splash_word(kind: int) -> String:
 	match kind:
-		Venue.Kind.HOME: return "OUT TO YOUR OWN CROWD"
-		Venue.Kind.NEUTRAL: return "OUT TO THE TOURNAMENT"
-		_: return "OUT INTO THEIR HOUSE"
+		Venue.Kind.HOME: return UiKit.t("OUT TO YOUR OWN CROWD")
+		Venue.Kind.NEUTRAL: return UiKit.t("OUT TO THE TOURNAMENT")
+		_: return UiKit.t("OUT INTO THEIR HOUSE")
 
 
 ## WHO IS HOSTING, ASKED ONCE. `Season.host_id()` answers the same question by
@@ -2348,11 +2351,11 @@ func _draw_splash() -> void:
 
 	var home_id := _splash_host()
 	var city := _season().world.city_of(home_id) if (_season() != null and home_id >= 0) else ""
-	UiKit.raw(self, font, Vector2(0, 74), Venue.NAME[kind].to_upper(),
+	UiKit.raw(self, font, Vector2(0, 74), UiKit.t(String(Venue.NAME[kind])).to_upper(),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 13, COL_DIM)
 	var ground := _season().office.arena.arena_name() if (_season() != null
-		and kind == Venue.Kind.HOME) else ("Tournament ground"
-		if kind == Venue.Kind.NEUTRAL else "Their ground")
+		and kind == Venue.Kind.HOME) else (UiKit.t("Tournament ground")
+		if kind == Venue.Kind.NEUTRAL else UiKit.t("Their ground"))
 	UiKit.raw(self, font, Vector2(0, 104), Venue.title(kind,
 		Cities.full_name(city) if city != "" else "", ground),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 22, UiKit.YOU)
@@ -2671,7 +2674,7 @@ func _choose(shape: Dictionary, call_: Dictionary) -> void:
 
 func _chosen_label() -> String:
 	if chosen_call.is_empty():
-		return "nothing called"
+		return UiKit.t("nothing called")
 	return "%s · %s" % [String(chosen_shape.get("name", "?")),
 		String(chosen_call.get("name", "?"))]
 

@@ -27,7 +27,9 @@ static func load_once() -> void:
 		music = clampf(float(cfg.get_value("audio", "music", music)), 0.0, 1.0)
 		sfx = clampf(float(cfg.get_value("audio", "sfx", sfx)), 0.0, 1.0)
 		interface = clampf(float(cfg.get_value("audio", "ui", interface)), 0.0, 1.0)
+		language = String(cfg.get_value("general", "language", ""))
 	apply()
+	apply_language()
 
 
 static func save_to_disk() -> void:
@@ -35,7 +37,70 @@ static func save_to_disk() -> void:
 	cfg.set_value("audio", "music", music)
 	cfg.set_value("audio", "sfx", sfx)
 	cfg.set_value("audio", "ui", interface)
+	cfg.set_value("general", "language", language)
 	cfg.save(path)
+
+
+# ------------------------------------------------------------------ language
+## THE LANGUAGE (28 Sep 2026). "" is Automatic: the phone's own language if it is
+## one this build SHIPS, else English.
+##
+## SHIPPING is the list Pete has approved after a native read. The eight drafts
+## are registered in project.godot, so without this gate a Spanish phone would
+## open a release build in an unreviewed draft — `apply_language` is what stops
+## it. In a DEBUG build the drafts are offered too, marked, so they can be looked
+## at on a real screen before anybody signs them off.
+const SHIPPING: Array[String] = ["en"]
+const DRAFTS: Array[String] = ["es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]
+const LANG_NAME := {
+	"": "Automatic", "en": "English", "es": "Español", "fr": "Français",
+	"de": "Deutsch", "it": "Italiano", "pt_BR": "Português (BR)", "pl": "Polski",
+	"ru": "Русский", "ja": "日本語",
+}
+static var language: String = ""
+## Tests set this to see what a release build would offer.
+static var release_rules: bool = false
+
+
+## What the picker offers, Automatic first.
+static func offered() -> Array[String]:
+	var out: Array[String] = [""]
+	out.append_array(SHIPPING)
+	if OS.is_debug_build() and not release_rules:
+		out.append_array(DRAFTS)
+	return out
+
+
+static func is_draft(code: String) -> bool:
+	return DRAFTS.has(code) and not SHIPPING.has(code)
+
+
+## The locale actually used: the chosen one if it is still offered, else the
+## phone's if it ships, else English. A phone never lands in a draft by itself.
+static func resolved() -> String:
+	if language != "" and offered().has(language):
+		return language
+	var os_full := OS.get_locale()
+	var os_lang := OS.get_locale_language()
+	for code in SHIPPING:
+		if code == os_full or code == os_lang:
+			return code
+	return "en"
+
+
+static func apply_language() -> void:
+	TranslationServer.set_locale(resolved())
+
+
+static func set_language(code: String) -> void:
+	language = code if offered().has(code) else ""
+	apply_language()
+	save_to_disk()
+
+
+static func language_name(code: String) -> String:
+	var nm := UiKit.t("Automatic") if code == "" else String(LANG_NAME.get(code, code))
+	return nm + (UiKit.t("  (draft)") if is_draft(code) else "")
 
 
 static func apply() -> void:

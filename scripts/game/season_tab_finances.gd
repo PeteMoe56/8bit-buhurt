@@ -7,6 +7,10 @@ extends RefCounted
 
 
 
+## The foot of the books, either way; `_fin_row` translates it.
+const NET_WORD := ["LEFT OVER", "SHORT"]
+
+
 static func _finances_controls(v: SeasonScene) -> void:
 	## THE GROUND, from the page that talks about what it earns. Pete asked for
 	## the arena to live here and it half does: the numbers are on this screen and
@@ -36,7 +40,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 
 	UiKit.text(v, v.font, UiKit.t("COMING IN"), Vector2(SeasonScene.FIN_LEFT, SeasonScene.CONTENT_Y), 13, UiKit.DIM)
 	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
-	UiKit.right(v, v.font, "last", Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
+	UiKit.right(v, v.font, UiKit.t("last"), Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
 	var y := SeasonScene.CONTENT_Y + 26.0
 	y = v._fin_block(o.books_in, was_in, ClubOffice.IN_ORDER, y, UiKit.UP)
 	var in_now := ClubOffice.book_total(o.books_in)
@@ -57,7 +61,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	## "am I making money" is the question and everything above it is the working.
 	y += 30.0
 	var net := in_now - out_now
-	v._fin_row("LEFT OVER" if net >= 0 else "SHORT", net, in_was - out_was, y,
+	v._fin_row(NET_WORD[0] if net >= 0 else NET_WORD[1], net, in_was - out_was, y,
 		UiKit.UP if net >= 0 else UiKit.DOWN, 17)
 
 	v._fin_ground()
@@ -67,7 +71,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 
 ## One heading and its figure in both columns.
 static func _fin_row(v: SeasonScene, label: String, now: int, was: int, y: float, col: Color, px: int = 13) -> void:
-	UiKit.text(v, v.font, label, Vector2(SeasonScene.FIN_LEFT + 14.0, y), px, col)
+	UiKit.text(v, v.font, UiKit.t(label), Vector2(SeasonScene.FIN_LEFT + 14.0, y), px, col)
 	UiKit.right(v, v.font, "%d" % now, Vector2(SeasonScene.FIN_NOW, y), px, col, 90)
 	## LAST YEAR IS DIMMED, ALWAYS, whatever this year's line is doing. It is
 	## context, not news — coloring it would put two equally loud numbers on one
@@ -171,7 +175,7 @@ static func _fin_ground(v: SeasonScene) -> void:
 	UiKit.text(v, v.font, UiKit.t("THE CROWD"), Vector2(SeasonScene.FIN_RIGHT, y), 13, UiKit.DIM)
 	y += 26.0
 	UiKit.pair(v, v.font, UiKit.t("They put through the door"),
-		"%s  ·  %d%% full" % [UiKit.crowd_word(o.attendance()),
+		UiKit.t("%s  ·  %d%% full") % [UiKit.crowd_word(o.attendance()),
 			int(round(o.fill() * 100.0))],
 		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
 	y += 22.0
@@ -182,6 +186,6 @@ static func _fin_ground(v: SeasonScene) -> void:
 	## on this page rather than the arena's because the whole reason it exists is
 	## that it is a different KIND of income, and this is the page about that.
 	UiKit.pair(v, v.font, Arena.sells(a.level),
-		"%d CC a home meet" % Arena.counter_take(a.level, o.attendance()),
+		UiKit.t("%d CC a home meet") % Arena.counter_take(a.level, o.attendance()),
 		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 12, 13,
 		UiKit.EDGE.lightened(0.35), UiKit.DIM)

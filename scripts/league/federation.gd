@@ -107,7 +107,7 @@ static func shortfalls(held: Dictionary, tier: int) -> Array[String]:
 	var out: Array[String] = []
 	for r in rules():
 		if int(held.get(r, 0)) < required(tier, r):
-			out.append(String(RULE_NAME[r]))
+			out.append(UiKit.t(String(RULE_NAME[r])))
 	return out
 
 
@@ -167,11 +167,11 @@ static func following_after(fans: float, cap: float, won_more: bool,
 static func following_word(fans: float, cap: float) -> String:
 	var f: float = 0.0 if cap <= 0.0 else clampf(fans / cap, 0.0, 1.0)
 	if f >= 0.85:
-		return "A proper club"
+		return UiKit.t("A proper club")
 	if f >= 0.60:
-		return "Healthy"
+		return UiKit.t("Healthy")
 	if f >= 0.35:
-		return "Ticking over"
+		return UiKit.t("Ticking over")
 	if f >= 0.15:
-		return "Thin"
-	return "A few mates"
+		return UiKit.t("Thin")
+	return UiKit.t("A few mates")

@@ -210,7 +210,7 @@ func _build() -> void:
 	## says so on its face instead, the way the night-out button learned to. A
 	## control that can tell you no before you spend the tap should.
 	var on_eight: bool = man.active
-	var bus_label := "Off the bus" if on_eight else "Onto the bus"
+	var bus_label := UiKit.t("Off the bus") if on_eight else UiKit.t("Onto the bus")
 	var bus_why := season.club.set_active_would(man, not on_eight) \
 		if season.club.has_method("set_active_would") else ""
 	## THE REASON GOES ON THE LINE ABOVE, NOT ON THE FACE. "Off the bus · need
@@ -227,8 +227,8 @@ func _build() -> void:
 	## Kept for `_draw`, which is a different function and runs on a different
 	## frame — a screen that recomputed the reason to print it would be two
 	## answers to one question.
-	bus_note = ("" if bus_why == "" else "%s cannot come %s the bus: %s." % [
-		man.display_name, "off" if on_eight else "onto", bus_why])
+	bus_note = ("" if bus_why == "" else (UiKit.t("%s cannot come off the bus: %s.") if on_eight
+		else UiKit.t("%s cannot come onto the bus: %s.")) % [man.display_name, bus_why])
 	ui.add_child(bus_b)
 
 	## THE CONTRACT, as one control with the price on it — the same fork the
@@ -411,30 +411,30 @@ func _meeting_row(i: int) -> Dictionary:
 func _meeting_under(i: int) -> Array:
 	match i:
 		0:
-			return [["Strength", "%d → %d" % [man.strength,
+			return [[UiKit.t("Strength"), "%d → %d" % [man.strength,
 					int(round(_roll("str", float(man.fighting_strength()))))],
 					man.fighting_strength() != man.strength],
-				["Gas", "%d → %d" % [man.gas,
+				[UiKit.t("Gas"), "%d → %d" % [man.gas,
 					int(round(_roll("gas", float(man.fighting_gas()))))],
 					man.fighting_gas() != man.gas]]
 		1:
-			return [["Base", "%d → %d" % [man.base,
+			return [[UiKit.t("Base"), "%d → %d" % [man.base,
 					int(round(_roll("base", float(man.effective_base()))))],
 					man.armor < 1.0],
-				["Inspection", "passes" if man.passes_inspection() else "FAILS",
+				[UiKit.t("Inspection"), UiKit.t("passes") if man.passes_inspection() else UiKit.t("FAILS"),
 					not man.passes_inspection()]]
 		2:
-			return [["To the next", "at his ceiling" if Career.at_ceiling(man)
-					else ("ready" if Career.can_level(man)
-						else "%d xp" % maxi(0, Career.next_level_at(man) - man.xp)),
+			return [[UiKit.t("To the next"), UiKit.t("at his ceiling") if Career.at_ceiling(man)
+					else (UiKit.t("ready") if Career.can_level(man)
+						else UiKit.t("%d xp") % maxi(0, Career.next_level_at(man) - man.xp)),
 					Career.can_level(man)],
-				["Ceiling", str(man.potential), false]]
+				[UiKit.t("Ceiling"), str(man.potential), false]]
 		_:
 			var bill := ClubOffice.wage_bill(season.club)
-			return [["Wage bill", "%s of %s" % [ClubOffice.money(bill),
+			return [[UiKit.t("Wage bill"), UiKit.t("%s of %s") % [ClubOffice.money(bill),
 					ClubOffice.money(season.office.cap())],
 					bill > season.office.cap()],
-				["Years left", str(int(round(_roll("years", float(man.years))))),
+				[UiKit.t("Years left"), str(int(round(_roll("years", float(man.years))))),
 					man.years <= 0]]
 
 
@@ -551,14 +551,14 @@ func _the_man() -> void:
 	const ROW := 22.0
 	var y := COL_Y + 54.0
 	_line("Age", "%d" % man.age, y); y += ROW
-	_line("Weight", "%d lb in harness" % man.weight, y); y += ROW
-	_line("Contract", "%s/wk  ·  %dy" % [ClubOffice.money(ClubOffice.billed(man)),
-		man.years] if man.years > 0 else "OUT OF CONTRACT", y)
+	_line("Weight", UiKit.t("%d lb in harness") % man.weight, y); y += ROW
+	_line("Contract", UiKit.t("%s/wk  ·  %dy") % [ClubOffice.money(ClubOffice.billed(man)),
+		man.years] if man.years > 0 else UiKit.t("OUT OF CONTRACT"), y)
 	y += ROW
-	_line("Where", "the line" if season.club.starting_five().has(man)
-		else ("the bench" if man.active else "reserve"), y)
+	_line("Where", UiKit.t("the line") if season.club.starting_five().has(man)
+		else (UiKit.t("the bench") if man.active else UiKit.t("reserve")), y)
 	y += ROW
-	_line("Fit", "ready" if man.fit() else "out %d event(s)" % man.injury, y)
+	_line("Fit", UiKit.t("ready") if man.fit() else UiKit.t("out %d event(s)") % man.injury, y)
 	y += ROW
 	## HIS MOOD, and it belongs on this list rather than in a panel of its own:
 	## it is a fact about the man in the same way his weight is, and it is the one
@@ -624,10 +624,10 @@ func _the_man() -> void:
 	## written for a case a peak-as-a-wall rule created, and that rule lasted one
 	## pass. Only 99 in all four gets a man there now, and a screen that keeps
 	## explaining a rule the game no longer has is the `xp_cost` ladder again.
-	var word := "A LEVEL IS WAITING" if waiting else "%d / %d xp" % [man.xp, bar]
+	var word := UiKit.t("A LEVEL IS WAITING") if waiting else UiKit.t("%d / %d xp") % [man.xp, bar]
 	var tint := UiKit.YOU if waiting else UiKit.DIM
 	if capped:
-		word = "at his ceiling"
+		word = UiKit.t("at his ceiling")
 		tint = UiKit.EDGE.lightened(0.5)
 	UiKit.right(self, font, word, Vector2(L_X + COL_W - 16, y), 12, tint, 210)
 	UiKit.bar(self, Rect2(L_X + 16, y + 12, COL_W - 32, 14),
@@ -755,7 +755,7 @@ func _draw_cell(i: int) -> void:
 
 
 func _line(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, label, Vector2(L_X + 16, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t(label), Vector2(L_X + 16, y), 13, UiKit.DIM)
 	UiKit.right(self, font, value, Vector2(L_X + COL_W - 16, y), 13, UiKit.INK, 210)
 
 
@@ -773,10 +773,10 @@ func _attributes() -> void:
 	## `fighting_gas()`, so this panel reads them too rather than drawing the
 	## stored number and letting the fight disagree with the card.
 	var rows := [
-		{"n": "Strength", "v": man.strength, "f": man.fighting_strength(), "w": "puts men down"},
-		{"n": "Base", "v": man.base, "f": man.base, "w": "stays on his feet"},
-		{"n": "Skill", "v": man.skill, "f": man.skill, "w": "takedowns and escapes"},
-		{"n": "Gas", "v": man.gas, "f": man.fighting_gas(), "w": "how long he lasts"},
+		{"n": UiKit.t("Strength"), "v": man.strength, "f": man.fighting_strength(), "w": UiKit.t("puts men down")},
+		{"n": UiKit.t("Base"), "v": man.base, "f": man.base, "w": UiKit.t("stays on his feet")},
+		{"n": UiKit.t("Skill"), "v": man.skill, "f": man.skill, "w": UiKit.t("takedowns and escapes")},
+		{"n": UiKit.t("Gas"), "v": man.gas, "f": man.fighting_gas(), "w": UiKit.t("how long he lasts")},
 	]
 	var y := COL_Y + 54.0
 	for row in rows:
@@ -815,8 +815,8 @@ func _attributes() -> void:
 	## bottom of this panel, so it is one line, on the baseline the contented
 	## version already proved clear.
 	UiKit.text(self, font,
-		("%s — he fights above his card." % man.morale_word()) if man.angry()
-			else "His ceiling is the overall, not one stat.",
+		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
+			else UiKit.t("His ceiling is the overall, not one stat."),
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 11,
 		man.morale_color() if man.angry() else UiKit.EDGE.lightened(0.4))
 

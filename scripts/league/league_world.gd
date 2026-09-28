@@ -99,11 +99,11 @@ func in_hall(nm: String) -> bool:
 ## point of the hall is what he WAS.
 func tag_for_hall(f: FighterCard, at_season: int) -> String:
 	if in_hall(f.display_name):
-		return "%s is already in it." % f.display_name
+		return UiKit.t("%s is already in it.") % f.display_name
 	if hall.size() >= HOF_MAX:
-		return "There is no room. Take somebody out first."
+		return UiKit.t("There is no room. Take somebody out first.")
 	hall.append({
-		"name": f.display_name, "pos": f.pos_name(), "rating": f.overall(),
+		"name": f.display_name, "pos": String(Tuning.POS_NAME[f.pos]), "rating": f.overall(),
 		"age": f.age, "season": at_season, "bouts": f.bouts, "downs": f.downs,
 		"honors": f.honors,
 	})
@@ -359,7 +359,7 @@ static func _hash2(a: int, b: int) -> int:
 ## brotherhood.
 func take_city_for_player(city: String) -> String:
 	if city == "" or Cities.find(city).is_empty():
-		return "No such town."
+		return UiKit.t("No such town.")
 	var mine := city_of(player_club)
 	if city == mine:
 		return ""

@@ -416,11 +416,11 @@ static func names() -> Array[String]:
 
 
 static func name_of(t: int) -> String:
-	return String(NAME.get(t, NAME[T.NONE]))
+	return UiKit.t(String(NAME.get(t, NAME[T.NONE])))
 
 
 static func blurb_of(t: int) -> String:
-	return String(BLURB.get(t, BLURB[T.NONE]))
+	return UiKit.t(String(BLURB.get(t, BLURB[T.NONE])))
 
 
 static func is_flaw(t: int) -> bool:
