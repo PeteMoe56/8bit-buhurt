@@ -25,6 +25,14 @@ extends RefCounted
 ## years; `true` values what he will BE and lets the club wait for it. See
 ## `value()` — the gap between the two lines is what skill is worth in this game.
 var youth: bool = false
+## HOW HE READS A STRANGER'S CEILING. The market shows a range, not the number
+## (Pete, 27 Sep 2026), and the probe used to read the true number anyway —
+## a scout nobody can hire. ORACLE keeps that for the pacing baseline;
+## `tools/probe_scouting.gd` plays the other three to measure what reading the
+## range well is worth.
+enum Read { ORACLE, MIDPOINT, OPTIMIST, PESSIMIST }
+var reading: int = Read.ORACLE
+var _s: Season = null
 var was_tier: int = -1
 var raised: int = 0
 ## Named so a sweep can hold the WEEKLY reserves still while it moves something
@@ -66,6 +74,7 @@ func winter(s: Season) -> int:
 ## nothing. Bounded, because a probe that spins is a probe that hangs.
 const LOOKS := 14
 func market(s: Season, went_up: bool = false) -> int:
+	_s = s
 	var took := 0
 	var guard := 0
 	while guard < LOOKS:
@@ -150,7 +159,16 @@ func staff(s: Season) -> void:
 ## over the next six years; the youth one asks what he will BE and lets the club
 ## wait for it — which is the whole difference between the two careers below.
 func value(f: FighterCard) -> int:
-	return Career.projected(f) if youth else Career.worth(f)
+	if reading == Read.ORACLE or _s == null:
+		return Career.projected(f) if youth else Career.worth(f)
+	var r := _s.potential_range(f)
+	var guess: int = r.x if reading == Read.PESSIMIST else (r.y if reading == Read.OPTIMIST
+		else int(round((r.x + r.y) * 0.5)))
+	var truth := f.potential
+	f.potential = guess
+	var v := Career.projected(f) if youth else Career.worth(f)
+	f.potential = truth
+	return v
 
 
 func make_room(s: Season, want: FighterCard) -> void:
