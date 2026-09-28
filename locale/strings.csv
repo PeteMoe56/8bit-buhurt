@@ -335,7 +335,7 @@ Finished %s. The place is yours if you want it.,Finished %s. The place is yours 
 Three dates on offer,Three dates on offer,Tres fechas disponibles,Trois dates proposées,Drei Termine im Angebot,Tre date disponibili,Três datas oferecidas,Trzy terminy do wyboru,Три даты на выбор,3つの日程候補
 "Pick a week to hold your own, or pass on the year.","Pick a week to hold your own, or pass on the year.","Elige una semana para organizar el tuyo, o pasa este año.","Choisis une semaine pour organiser le tien, ou passe l'année.",Wähl eine Woche für dein eigenes Turnier oder setz dieses Jahr aus.,"Scegli una settimana per organizzare il tuo, o salta l'anno.","Escolha uma semana para seu próprio torneio, ou passe o ano.",Wybierz tydzień na własny turniej albo odpuść ten rok.,Выбери неделю для своего турнира или пропусти год.,自主開催する週を選ぶか、今年は見送る。
 rating %d  ·  win or you are out,rating %d  ·  win or you are out,media %d  ·  gana o estás fuera,note %d  ·  gagne ou tu es éliminé,Wertung %d  ·  gewinn oder du bist raus,valore %d  ·  vinci o sei fuori,nota %d  ·  vença ou está fora,ocena %d  ·  wygraj albo odpadasz,рейтинг %d  ·  победа или вылет,能力値 %d  ·  負ければ敗退
-Finished %s of %d in the %s.,Finished %s of %d in the %s.,Acabaste %s de %d en %s.,Terminé %s sur %d en %s.,Platz %s von %d in der %s.,Chiuso %s su %d in %s.,Terminou em %s de %d em: %s.,Miejsce %s z %d w: %s.,Место %s из %d: %s.,順位 %s / %d（%s）。
+Finished %s of %d in the %s.,Finished %s of %d in the %s.,Acabaste %s de %d en %s.,Terminé %s sur %d en %s.,Platz %s von %d in der %s.,Chiuso %s su %d in %s.,Terminou em %s de %d em: %s.,Miejsce %s z %d w: %s.,Место %s из %d: %s.,%s / %d（%s）で終了。
 The cups and the summer are next.,The cups and the summer are next.,"Luego, las copas y el verano.",Les coupes et l'été arrivent.,Als Nächstes die Pokale und der Sommer.,Ora le coppe e l'estate.,As copas e o verão vêm a seguir.,Dalej puchary i lato.,Дальше — кубки и лето.,次はカップ戦と夏。
 Bye,Bye,Libre,Exempt,Spielfrei,Riposo,Folga,Pauza,Пропуск,不戦
 rating %d  ·  an even fight,rating %d  ·  an even fight,media %d  ·  combate parejo,note %d  ·  combat équilibré,Wert %d  ·  offener Kampf,valore %d  ·  scontro alla pari,nota %d  ·  combate equilibrado,ocena %d  ·  wyrównana walka,рейтинг %d  ·  равный бой,能力値 %d  ·  互角
@@ -500,6 +500,10 @@ Backyard Circuit.,Backyard Circuit.,Backyard Circuit.,Backyard Circuit.,Backyard
 Event %d of %d,Event %d of %d,Evento %d de %d,Rencontre %d sur %d,Kampftag %d von %d,Evento %d di %d,Evento %d de %d,Zawody %d z %d,Турнир %d из %d,大会 %d / %d
 T,T,T,T,T,T,T,T,Т,T
 ...,...,...,...,...,...,...,...,...,...
+%dst,%dst,%dº,%der,%d.,%dº,%dº,%d.,%d,%d位
+%dnd,%dnd,%dº,%de,%d.,%dº,%dº,%d.,%d,%d位
+%drd,%drd,%dº,%de,%d.,%dº,%dº,%d.,%d,%d位
+%dth,%dth,%dº,%de,%d.,%dº,%dº,%d.,%d,%d位
 You already have the %s.,You already have the %s.,Ya tienes %s.,Tu as déjà : %s.,Du hast %s schon.,Hai già %s.,Você já tem: %s.,Masz już: %s.,У тебя уже есть: %s.,%sはすでに所有しています。
 The %s costs %d CC and you have %d.,The %s costs %d CC and you have %d.,%s cuesta %d CC y tienes %d.,%s coûte %d CC et tu as %d.,"%s kostet %d CC, du hast %d.",%s costa %d CC e ne hai %d.,%s custa %d CC e você tem %d.,"%s kosztuje %d CC, a masz %d.","%s стоит %d CC, а у тебя %d.",%sは%d CC、所持金は%d。
 Give him a name.,Give him a name.,Ponle un nombre.,Donne-lui un nom.,Gib ihm einen Namen.,Dagli un nome.,Dê um nome a ele.,Nadaj mu imię.,Дай ему имя.,名前を付けてください。
@@ -627,11 +631,15 @@ the other lot,the other lot,los otros,les autres,die anderen,gli altri,os outros
 somebody,somebody,alguien,quelqu'un,irgendwer,qualcuno,alguém,ktoś,кто-то,誰か
 Pick one.,Pick one.,Elige una.,Choisis.,Wähl eins.,Scegline una.,Escolha um.,Wybierz.,Выбери одно.,1つ選んで。
 The club's decision,The club's decision,La decisión del club,La décision du club,Die Entscheidung des Vereins,La decisione del club,Decisão do clube,Decyzja klubu,Решение клуба,クラブの決断
-morale %s,morale %s,moral %s,moral %s,Moral %s,morale %s,moral %s,morale %s,боевой дух %s,士気 %s
-talked about %s,talked about %s,se habla de %s,on parle de %s,Gesprächsthema: %s,si parla di %s,comentado %s,rozgłos %s,о нас говорят: %s,%sが話題に
+morale up,morale up,la moral sube,le moral monte,Moral steigt,morale in su,moral em alta,morale w górę,боевой дух вырос,士気上昇
+morale down,morale down,la moral baja,le moral baisse,Moral sinkt,morale in giù,moral em baixa,morale w dół,боевой дух упал,士気低下
+talked about more,talked about more,se habla más del club,on parle plus du club,man redet mehr über uns,se ne parla di più,falam mais do clube,mówią o nas więcej,о нас говорят больше,話題が増えた
+talked about less,talked about less,se habla menos del club,on parle moins du club,man redet weniger über uns,se ne parla di meno,falam menos do clube,mówią o nas mniej,о нас говорят меньше,話題が減った
 %d%% more following,%d%% more following,%d%% más seguidores,%d%% de fidèles en plus,%d%% mehr Anhänger,%d%% di seguito in più,%d%% mais seguidores,%d%% więcej kibiców,фанатов больше на %d%%,フォロワー%d%%増
-harness %s across the club,harness %s across the club,arnés %s en todo el club,armures %s dans tout le club,Rüstung %s im ganzen Verein,armature %s in tutto il club,armadura %s em todo o clube,zbroje %s w całym klubie,доспехи клуба %s,クラブ全体の装備 %s
-%s's harness %s,%s's harness %s,arnés de %s %s,armure de %s %s,%ss Rüstung %s,armatura di %s %s,armadura de %s %s,%s: zbroja %s,%s: доспех %s,%sの装備 %s
+harness mended across the club,harness mended across the club,arneses reparados en todo el club,armures réparées dans tout le club,Rüstungen im ganzen Verein repariert,armature riparate in tutto il club,armaduras consertadas em todo o clube,zbroje w całym klubie naprawione,доспехи клуба починены,クラブ全体の装備を修繕
+harness worse across the club,harness worse across the club,arneses peor en todo el club,armures abîmées dans tout le club,Rüstungen im ganzen Verein schlechter,armature peggiorate in tutto il club,armaduras piores em todo o clube,zbroje w całym klubie w gorszym stanie,доспехи клуба в худшем состоянии,クラブ全体の装備が劣化
+%s's harness mended,%s's harness mended,arnés de %s reparado,armure de %s réparée,%ss Rüstung repariert,armatura di %s riparata,armadura de %s consertada,%s: zbroja naprawiona,%s: доспех починен,%sの装備を修繕
+%s's harness worse,%s's harness worse,arnés de %s peor,armure de %s abîmée,%ss Rüstung schlechter,armatura di %s peggiorata,armadura de %s pior,%s: zbroja w gorszym stanie,%s: доспех в худшем состоянии,%sの装備が劣化
 %s out %d,%s out %d,%s fuera %d,%s absent %d,%s %d raus,%s fuori %d,%s fora %d,%s poza grą: %d,%s выбыл: %d,%s 離脱%d
 %s's ceiling up %d,%s's ceiling up %d,techo de %s sube %d,plafond de %s relevé de %d,%ss Potenzial +%d,tetto di %s su di %d,teto de %s sobe %d,%s: pułap w górę o %d,%s: потолок выше на %d,%sの潜在能力 +%d
 Done.,Done.,Hecho.,Fait.,Erledigt.,Fatto.,Pronto.,Gotowe.,Готово.,完了。
@@ -692,12 +700,13 @@ We were stood in the wrong shape and everyone could see it.,We were stood in the
 I held two of them all afternoon. Somebody else got the credit.,I held two of them all afternoon. Somebody else got the credit.,Sujeté a dos toda la tarde. El mérito se lo llevó otro.,J'en ai tenu deux tout l'après-midi. Un autre a eu le mérite.,Ich hab zwei von denen den ganzen Nachmittag gehalten. Den Ruhm kriegt ein anderer.,Ne ho tenuti due tutto il pomeriggio. Il merito l'ha preso un altro.,Segurei dois deles a tarde toda. Outro levou o crédito.,Trzymałem dwóch przez całe popołudnie. Zasługi zebrał ktoś inny.,Я держал двоих весь день. Похвалили кого-то другого.,一日中2人を抑えていた。手柄は他の奴のものになった。
 First time on the eight. I would like it not to be the last.,First time on the eight. I would like it not to be the last.,Primera vez entre los ocho. Me gustaría que no fuera la última.,Première fois dans les huit. J'aimerais que ce ne soit pas la dernière.,"Das erste Mal in der Acht. Ich hätte gern, dass es nicht das letzte ist.",Prima volta tra gli otto. Vorrei non fosse l'ultima.,Primeira vez entre os oito. Queria que não fosse a última.,"Pierwszy raz w ósemce. Wolałbym, żeby nie ostatni.","Первый раз в восьмёрке. Хотелось бы, чтобы не последний.",初めての遠征メンバー。これで最後にはしたくない。
 Nice of you to remember me. Another one watched from a bucket.,Nice of you to remember me. Another one watched from a bucket.,Qué detalle acordarte de mí. Otro más mirando desde un cubo.,Sympa de penser à moi. Encore une passée assis sur un seau.,"Nett, dass du an mich denkst. Wieder einer vom Eimer aus zugeschaut.",Grazie di esserti ricordato di me. Un altro visto da un secchio.,Gentil você lembrar de mim. Mais uma assistida de cima de um balde.,"Miło, że o mnie pamiętasz. Kolejne zawody oglądane z wiadra.","Мило, что вспомнил обо мне. Ещё один бой я смотрел с ведра.",覚えていてくれてどうも。今回もバケツに座って見ていたよ。
-%s of %d in the %s.,%s of %d in the %s.,%s de %d en %s.,%s sur %d en %s.,Platz %s von %d in der %s.,%s su %d in %s.,%s de %d em: %s.,%s z %d w: %s.,Место %s из %d: %s.,%s位 / %d（%s）。
+%s of %d in the %s.,%s of %d in the %s.,%s de %d en %s.,%s sur %d en %s.,Platz %s von %d in der %s.,%s su %d in %s.,%s de %d em: %s.,%s z %d w: %s.,Место %s из %d: %s.,%s / %d（%s）。
  Promotion places., Promotion places., Puestos de ascenso., Places de montée., Aufstiegsplätze., Zona promozione., Zona de acesso., Miejsca awansowe., Зона повышения., 昇格圏。
  Relegation places., Relegation places., Puestos de descenso., Places de relégation., Abstiegsplätze., Zona retrocessione., Zona de rebaixamento., Miejsca spadkowe., Зона вылета., 降格圏。
  %d off the promotion places., %d off the promotion places., A %d de los puestos de ascenso., À %d des places de montée., %d hinter den Aufstiegsplätzen., A %d dalla zona promozione., A %d da zona de acesso., %d do miejsc awansowych., До зоны повышения: %d., 昇格圏まであと%d。
 The table,The table,La tabla,Le classement,Die Tabelle,La classifica,A tabela,Tabela,Таблица,順位表
 The gate,The gate,La taquilla,Le guichet,Die Kasse,Gli ingressi,O público,Bramka,Сборы,入場
+"%d CC, %s at %s.","%d CC, %s at %s.","%d CC, %s en %s.","%d CC, %s à %s.","%d CC, %s in %s.","%d CC, %s a %s.","%d CC, %s em %s.","%d CC, %s: %s.","%d CC, %s: %s.",%d CC、%s（%s）。
 The following,The following,Los seguidores,Les fidèles,Die Anhänger,Il seguito,Os seguidores,Kibice,Фанаты,フォロワー
 "%d, and the room knows it.","%d, and the room knows it.","%d, y el vestuario lo sabe.","%d, et le vestiaire le sait.","%d, und die Kabine weiß es.","%d, e lo spogliatoio lo sa.","%d, e o vestiário sabe.","%d, i szatnia o tym wie.","%d, и раздевалка это знает.",%d、チームもそれをわかっている。
 "%s %d-%d on rounds, %d-%d on the ground. %s vs %s.","%s %d-%d on rounds, %d-%d on the ground. %s vs %s.","%s %d-%d en asaltos, %d-%d en derribos. %s contra %s.","%s %d-%d aux manches, %d-%d au sol. %s contre %s.","%s %d-%d in Runden, %d-%d am Boden. %s gegen %s.","%s %d-%d nei round, %d-%d a terra. %s vs %s.","%s %d-%d em rounds, %d-%d em quedas. %s x %s.","%s %d-%d w rundach, %d-%d w powaleniach. %s vs %s.","%s %d-%d по раундам, %d-%d по сбитым. %s против %s.",%s ラウンド%d-%d、ダウン%d-%d。%s対%s。
@@ -719,6 +728,13 @@ THE AFTERNOON,THE AFTERNOON,LA TARDE,L'APRÈS-MIDI,DER NACHMITTAG,IL POMERIGGIO,
 THE CHANGING ROOM,THE CHANGING ROOM,EL VESTUARIO,LE VESTIAIRE,DIE KABINE,LO SPOGLIATOIO,O VESTIÁRIO,SZATNIA,РАЗДЕВАЛКА,控室
 AFTER ACTION REPORT,AFTER ACTION REPORT,INFORME DE COMBATE,RAPPORT D'APRÈS-COMBAT,KAMPFBERICHT,RAPPORTO POST-SCONTRO,RELATÓRIO PÓS-AÇÃO,RAPORT PO WALCE,РАЗБОР БОЯ,戦闘報告
 "The men, the room, the gate and the ground.","The men, the room, the gate and the ground.","Los hombres, el vestuario, la taquilla y el estadio.","Les hommes, le vestiaire, le guichet et le stade.","Die Männer, die Kabine, die Kasse und die Arena.","Gli uomini, lo spogliatoio, gli ingressi e l'impianto.","Os homens, o vestiário, o público e o estádio.","Ludzie, szatnia, bramka i obiekt.","Бойцы, дух, сборы и арена.",選手、雰囲気、入場、本拠地。
+DOWNS,DOWNS,DERRIBOS,AU SOL,WÜRFE,ABBATT.,QUEDAS,POWAL.,СБИТЫ,ダウン数
+AST,AST,ASI,PAS,ASS,AST,ASS,AS,ПОМ,アシ
+UP,UP,PIE,DEB,STH,PIE,PÉ,STO,СТ,残
+OFF,OFF,CAÍ,SOL,UNT,GIÙ,CAIU,LEŻ,ЛЁГ,倒
+XP,XP,XP,XP,EP,XP,XP,XP,ОП,XP
+LVL,LVL,NIV,NIV,STF,LIV,NÍV,POZ,УР,Lv
+NEXT,NEXT,SIG,SUIV,NÄCHST,PROS,PRÓX,NAST,ДАЛЕЕ,次
 #%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s
 LEVEL UP,LEVEL UP,SUBE DE NIVEL,NIVEAU SUPÉRIEUR,STUFE HOCH,LIVELLO SU,SUBIU DE NÍVEL,NOWY POZIOM,НОВЫЙ УРОВЕНЬ,レベルアップ
 Nobody had anything to say.,Nobody had anything to say.,Nadie tenía nada que decir.,Personne n'avait rien à dire.,Keiner hatte was zu sagen.,Nessuno aveva niente da dire.,Ninguém tinha nada a dizer.,Nikt nie miał nic do powiedzenia.,Никому нечего сказать.,誰も何も言わなかった。
@@ -727,6 +743,8 @@ more v,more v,más v,suite v,mehr v,altro v,mais v,więcej v,ещё v,続き v
 BEFORE THE CHARGE,BEFORE THE CHARGE,ANTES DE LA CARGA,AVANT LA CHARGE,VOR DEM ANSTURM,PRIMA DELLA CARICA,ANTES DA CARGA,PRZED SZARŻĄ,ПЕРЕД АТАКОЙ,突撃前
 %s v %s,%s v %s,%s v %s,%s c. %s,%s v %s,%s v %s,%s x %s,%s v %s,%s против %s,%s 対 %s
 END OF ROUND %d,END OF ROUND %d,FIN DEL ASALTO %d,FIN DE LA MANCHE %d,ENDE RUNDE %d,FINE ROUND %d,FIM DO ROUND %d,KONIEC RUNDY %d,КОНЕЦ РАУНДА %d,第%dラウンド終了
+STANDING,STANDING,EN PIE,DEBOUT,STEHEND,IN PIEDI,DE PÉ,NA NOGACH,НА НОГАХ,残存
+TOOK,TOOK,DURÓ,DURÉE,DAUER,DURATA,DUROU,CZAS,ВРЕМЯ,所要
 DOWNED,DOWNED,DERRIBADO,AU SOL,AM BODEN,A TERRA,CAIU,POWALONY,СБИТ,ダウン
 WILL NOT COME OFF,WILL NOT COME OFF,NO QUIERE SALIR,NE VEUT PAS SORTIR,GEHT NICHT RAUS,NON ESCE,NÃO SAI,NIE ZEJDZIE,НЕ УЙДЁТ,交代拒否
 TD %d,TD %d,DER %d,MS %d,TD %d,AT %d,QD %d,PW %d,СБ %d,撃倒 %d
@@ -738,10 +756,12 @@ WHO COMES ON FOR,WHO COMES ON FOR,QUIÉN ENTRA POR,QUI ENTRE POUR,WER KOMMT FÜR
 Nobody left on the bench.,Nobody left on the bench.,No queda nadie en el banquillo.,Plus personne sur le banc.,Keiner mehr auf der Bank.,Nessuno rimasto in panchina.,Ninguém mais no banco.,Na ławce nikt nie został.,На скамейке никого.,ベンチに誰もいない。
 R%d  %d:%02d,R%d  %d:%02d,A%d  %d:%02d,M%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,Р%d  %d:%02d,R%d  %d:%02d
 %s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s
-STANDING,STANDING,EN PIE,DEBOUT,STEHEND,IN PIEDI,DE PÉ,NA NOGACH,НА НОГАХ,残存
 of %d,of %d,de %d,sur %d,von %d,di %d,de %d,z %d,из %d,/ %d
-DOWNS,DOWNS,DERRIBOS,MISES AU SOL,NIEDERWÜRFE,ABBATTUTI,QUEDAS,POWALENIA,СБИТЫ,ダウン数
+down,down,en el suelo,au sol,am Boden,a terra,no chão,leży,на земле,ダウン
+clinched,clinched,trabado,au corps-à-corps,im Clinch,in presa,agarrado,w klinczu,в клинче,組み合い
 on a route,on a route,en ruta,sur un parcours,auf einem Weg,su un percorso,numa rota,na trasie,по маршруту,ルート上
+breathing,breathing,recuperando aire,reprend son souffle,holt Luft,riprende fiato,recuperando o fôlego,łapie oddech,переводит дух,息を整え中
+loose,loose,libre,libre,frei,libero,livre,wolny,свободен,フリー
 %d down,%d down,%d al suelo,%d au sol,%d am Boden,%d a terra,%d quedas,powalenia: %d,сбил: %d,ダウン%d
 Drag a fighter to send him.,Drag a fighter to send him.,Arrastra a un luchador para enviarlo.,Glisse un combattant pour l'envoyer.,"Zieh einen Kämpfer, um ihn zu schicken.",Trascina un combattente per mandarlo.,Arraste um lutador para mandá-lo.,"Przeciągnij zawodnika, by go wysłać.","Перетащи бойца, чтобы отправить.",選手をドラッグして送り出す。
 "Release on ground, or on a man.","Release on ground, or on a man.",Suelta en el suelo o sobre un hombre.,"Lâche sur le sol, ou sur un homme.",Loslassen auf dem Boden oder auf einem Mann.,"Rilascia a terra, o su un uomo.","Solte no chão, ou num homem.",Puść na polu albo na zawodniku.,Отпусти на землю или на бойца.,地面か相手の上で離す。
@@ -802,6 +822,8 @@ A properly sanctioned fight. Their numbers mean what they say.,A properly sancti
 "They came to end it. One fewer call from the corner, and a shorter breather.","They came to end it. One fewer call from the corner, and a shorter breather.",Vienen a acabar. Una orden menos desde la esquina y menos respiro.,"Ils viennent pour en finir. Un ordre de moins au coin, et une pause plus courte.",Sie wollen es beenden. Ein Ruf weniger aus der Ecke und kürzere Pausen.,"Sono venuti a chiuderla. Una chiamata in meno dall'angolo, e meno respiro.",Vieram para acabar com a luta. Uma chamada a menos do canto e menos descanso.,Przyszli to zakończyć. O jedną komendę z narożnika mniej i krótsza przerwa.,Пришли закончить дело. На одну команду из угла меньше и короче передышка.,相手は決着をつけに来る。コーナーからの指示が1回少なく、休憩も短い。
 "Full Steel, and every club in the country fights at the top of its division whatever its rating says.","Full Steel, and every club in the country fights at the top of its division whatever its rating says.","Acero Total, y todos los clubes del país luchan al tope de su división diga lo que diga su media.","Plein Acier, et chaque club du pays combat au sommet de sa division, quelle que soit sa note.","Voller Stahl, und jeder Verein im Land kämpft auf Divisionsspitze, egal was seine Wertung sagt.","Acciaio Pieno, e ogni club del paese combatte al top della sua divisione, qualunque sia il suo valore.","Aço Pleno, e todo clube do país luta no topo da divisão, diga a nota o que disser.","Pełna Stal, a każdy klub w kraju walczy jak szczyt swojej ligi, bez względu na ocenę.","Полная сталь, и каждый клуб страны бьётся на пике своей лиги, что бы ни говорил рейтинг.",フルスチールに加え、国中の全クラブが能力値に関係なく部門最強として戦う。
 Your own dials. Set each one below.,Your own dials. Set each one below.,Tus propios ajustes. Fija cada uno abajo.,Tes propres réglages. Règle chacun ci-dessous.,Deine eigenen Regler. Stell jeden unten ein.,Le tue manopole. Regola ognuna qui sotto.,Seus próprios ajustes. Defina cada um abaixo.,Twoje własne pokrętła. Ustaw każde poniżej.,Свои настройки. Задай каждую ниже.,自分で調整。以下で個別に設定。
+THE CLUB,THE CLUB,EL CLUB,LE CLUB,DER VEREIN,IL CLUB,O CLUBE,KLUB,КЛУБ,クラブ
+THE MEN,THE MEN,LOS HOMBRES,LES HOMMES,DIE MÄNNER,GLI UOMINI,OS HOMENS,ZAWODNICY,БОЙЦЫ,選手たち
 None,None,Ninguno,Aucun,Keine,Nessuno,Nenhum,Brak,Нет,なし
 Grinder,Grinder,Picador,Broyeur,Malocher,Macinatore,Moedor,Mielacz,Жернов,粘り屋
 Slippery,Slippery,Escurridizo,Glissant,Aalglatt,Sfuggente,Escorregadio,Śliski,Скользкий,するり

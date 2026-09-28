@@ -53,6 +53,13 @@ func _initialize() -> void:
 	_world()
 	for sc in SCREENS:
 		await _sweep(String(sc[0]), int(sc[1]))
+	## THE STATES A SCREEN ONLY REACHES BY PLAYING (29 Sep 2026): the fight
+	## live, paused, in the corner and in its report, and the club tab with
+	## each dilemma card up. Reached the way test_ink reaches them.
+	for st in [1, 5, 2, 4]:
+		await _sweep_fight(st)
+	for c in Dilemma.CARDS:
+		await _sweep_dilemma(String(c["id"]))
 	TranslationServer.pseudolocalization_enabled = false
 	TranslationServer.reload_pseudolocalization()
 	print("\n=== 8-Bit Buhurt — nothing drawn escapes the string table ===\n")
@@ -72,10 +79,11 @@ func _initialize() -> void:
 		if not table.has(k) and String(k).strip_edges() != "":
 			missing.append(String(k))
 	missing.sort()
-	var checks := 2
+	var checks := 3
 	var fails: Array[String] = []
-	print("  %s  every string drawn on %d screens went through the string table — %s" % [
-		"pass" if keys.is_empty() else "FAIL", SCREENS.size(),
+	var glued := _english_in_args()
+	print("  %s  every string drawn on %d screens and states went through the string table — %s" % [
+		"pass" if keys.is_empty() else "FAIL", SCREENS.size() + FIGHT_LABEL.size() + Dilemma.CARDS.size(),
 		"none escaped" if keys.is_empty() else "%d escaped (listed above)" % keys.size()])
 	if not keys.is_empty():
 		fails.append("%d drawn strings skip UiKit.t()" % keys.size())
@@ -84,6 +92,11 @@ func _initialize() -> void:
 		"" if missing.is_empty() else ": missing " + ", ".join(missing.slice(0, 8))])
 	if not missing.is_empty():
 		fails.append("%d keys not in the CSV (run bb strings)" % missing.size())
+	print("  %s  and no translated sentence is filled with an English word — %s" % [
+		"pass" if glued.is_empty() else "FAIL",
+		"none in the source" if glued.is_empty() else ", ".join(glued.slice(0, 6))])
+	if not glued.is_empty():
+		fails.append("%d translated sentences take an English word as a value" % glued.size())
 	print("")
 	if fails.is_empty():
 		print("THE STRING TABLE HOLDS (%d checks)\n" % checks)
@@ -152,6 +165,74 @@ func _sweep(path: String, tab: int) -> void:
 	await process_frame
 
 
+func _collect(n: Node, label: String) -> void:
+	UiKit.ledger_start()
+	if n is CanvasItem:
+		(n as CanvasItem).queue_redraw()
+	await process_frame
+	await process_frame
+	var drawn := UiKit.ledger_stop()
+	for k in UiKit.ledger_keys():
+		asked[k] = true
+	for d in drawn:
+		_check(String(d["text"]), label)
+	for b in _buttons(n):
+		if (b as Button).is_visible_in_tree():
+			_check(String(b.text), label + " (button)")
+	n.queue_free()
+	await process_frame
+
+
+const FIGHT_LABEL := {1: "fight", 5: "fight paused", 2: "corner", 4: "report"}
+
+func _sweep_fight(state: int) -> void:
+	seed(20260914)
+	## The shared world, so its fighters and clubs are the names filtered out.
+	Session.season = world
+	Session.bout = null
+	var n: Node = (load("res://scenes/Melee.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	await process_frame
+	var sim = n.get("sim")
+	## Whoever the bout drew is a proper noun too: both clubs, both benches.
+	for c in sim.clubs:
+		names[String(c.display_name)] = true
+		names[String(c.short_name)] = true
+		for f in c.roster:
+			names[String(f.display_name)] = true
+	if state == 2:
+		sim.skip_round()
+		n.set("screen", 3)
+		n.set("corner_done_for_round", -1)
+		n.call("_show_strategy_panel")
+	else:
+		var sh = n.call("_shape_of", int(sim.formations[0]))
+		n.call("_call_from_book", sh if sh is Dictionary else {},
+			{"kind": "push", "id": int(sim.strategies[0]), "name": "hold"})
+		await process_frame
+		await process_frame
+		if state == 5:
+			n.call("_set_paused", true)
+		elif state == 4:
+			sim.run_to_end()
+			if n.has_method("_show_report"):
+				n.call("_show_report")
+	await process_frame
+	await _collect(n, "Melee/" + String(FIGHT_LABEL[state]))
+
+
+func _sweep_dilemma(id: String) -> void:
+	Session.season = world
+	world.dilemma = {"id": id, "man": 0}
+	var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	await process_frame
+	await _collect(n, "dilemma " + id)
+	world.dilemma = {}
+
+
 func _buttons(n: Node) -> Array:
 	var out: Array = []
 	for c in n.get_children():
@@ -205,3 +286,43 @@ func _check(t: String, where: String) -> void:
 	if not found.has(s):
 		found[s] = {}
 	found[s][where] = true
+
+
+## WHAT THE SWEEP CANNOT SEE (29 Sep 2026). A value put into a translated
+## sentence lands inside its brackets, so `UiKit.t("morale %s") % "up"` reads as
+## translated on screen and says "moral up" in Spanish. This reads the source:
+## a string literal with letters among the values of a `UiKit.t(...) %` is an
+## English word in a translated sentence. Dictionary keys (`e["name"]`,
+## `.get("name"`) are not values and are cut out first.
+func _english_in_args() -> Array[String]:
+	var out: Array[String] = []
+	var call := RegEx.create_from_string('UiKit\\.t\\("(?:[^"\\\\]|\\\\.)*"\\)\\s*%\\s*(\\[[^\\]]*(?:\\][^\\]\\n]*)*\\]|\\((?:[^()\\n]|\\([^()\\n]*\\))*\\)|"[^"\\n]*")')
+	var wrapped := RegEx.create_from_string('UiKit\\.t\\("(?:[^"\\\\]|\\\\.)*"\\)')
+	var sub := RegEx.create_from_string('\\[\\s*"[^"]*"\\s*\\]')
+	var getter := RegEx.create_from_string('\\.(get|has|get_value)\\(\\s*"[^"]*"')
+	var lit := RegEx.create_from_string('"((?:[^"\\\\]|\\\\.)*)"')
+	var word := RegEx.create_from_string("[A-Za-z]{2,}")
+	var comment := RegEx.create_from_string("##?[^\\n]*")
+	for path in _scripts("res://scripts"):
+		var src := FileAccess.get_file_as_string(path)
+		for m in call.search_all(src):
+			var a := m.get_string(1)
+			a = comment.sub(a, "", true)
+			a = wrapped.sub(a, "", true)
+			a = sub.sub(a, "", true)
+			a = getter.sub(a, "(", true)
+			for l in lit.search_all(a):
+				if word.search(l.get_string(1)) != null:
+					out.append("%s:%d '%s'" % [path.get_file(),
+						src.substr(0, m.get_start()).count("\n") + 1, l.get_string(1)])
+	return out
+
+
+func _scripts(dir: String) -> Array[String]:
+	var out: Array[String] = []
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(".gd"):
+			out.append(dir.path_join(f))
+	for d in DirAccess.get_directories_at(dir):
+		out.append_array(_scripts(dir.path_join(d)))
+	return out

@@ -193,7 +193,7 @@ static func news(season) -> Array:
 	if pos > 0:
 		var up: int = int(League.TIERS[season.world.player_tier()]["up"])
 		var down: int = int(League.TIERS[season.world.player_tier()]["down"])
-		var line := UiKit.t("%s of %d in the %s.") % [_ordinal(pos), rows.size(),
+		var line := UiKit.t("%s of %d in the %s.") % [UiKit.ordinal(pos), rows.size(),
 			String(League.TIERS[season.world.player_tier()]["name"])]
 		var tone := 0
 		## THE PLAYOFF PICTURE, in the one sentence that matters: are you going
@@ -229,8 +229,8 @@ static func news(season) -> Array:
 		room = Venue.title(int(g["kind"]),
 			season.world.city_of(season.host_id()),
 			Arena.arena_name_of(int(g["level"])))
-	out.append(News.new(UiKit.t("The gate"), "%d CC, %s at %s." % [
-		int(g["cc"]), String(g["where"]).to_lower(), room], 0))
+	out.append(News.new(UiKit.t("The gate"), UiKit.t("%d CC, %s at %s.") % [
+		int(g["cc"]), UiKit.t(String(g["where"])).to_lower(), room], 0))
 	out.append(News.new(UiKit.t("The following"), UiKit.t("%d, and the room knows it.")
 		% int(season.office.fans), 0))
 	return out
@@ -246,16 +246,6 @@ static func _say(out: Array, spoke: Dictionary, who: String, what: String,
 		return
 	spoke[who] = true
 	out.append(Quip.new(who, what, tone))
-
-
-static func _ordinal(n: int) -> String:
-	var suffix := "th"
-	if n % 100 < 11 or n % 100 > 13:
-		match n % 10:
-			1: suffix = "st"
-			2: suffix = "nd"
-			3: suffix = "rd"
-	return "%d%s" % [n, suffix]
 
 
 static func build(sim: MeleeSim) -> Array:

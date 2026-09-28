@@ -654,7 +654,7 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> 
 	## made two thirds of a season's fixtures worth nothing at all — see the long
 	## note over `Venue.gate_share`.
 	var g := gate if not gate.is_empty() else s.gate_now()
-	s.office.take(int(g["cc"]), UiKit.t("The gate  ·  %s") % String(g["where"]), "event",
+	s.office.take(int(g["cc"]), UiKit.t("The gate  ·  %s") % UiKit.t(String(g["where"])), "event",
 		ClubOffice.LINE_GATE)
 	## AND THE COUNTER, AT HOME ONLY. It is your bar or it is not.
 	##

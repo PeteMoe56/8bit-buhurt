@@ -244,7 +244,7 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		## and a card that set morale directly would be the one place in the game
 		## that could do it.
 		s.office.morale_shift(float(fx["morale"]))
-		said.append(UiKit.t("morale %s") % ("up" if float(fx["morale"]) > 0.0 else "down"))
+		said.append(UiKit.t("morale up") if float(fx["morale"]) > 0.0 else UiKit.t("morale down"))
 	## THE DECK'S `note` CURRENCY IS NOW THE FOLLOWING TOO.
 	##
 	## Fifteen cards were written against five currencies — credits, morale,
@@ -261,19 +261,20 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		else:
 			s.office.fans += s.office.fans * (n * 0.02)
 		s.office.crowd_came(0)
-		said.append(UiKit.t("talked about %s") % ("more" if n > 0.0 else "less"))
+		said.append(UiKit.t("talked about more") if n > 0.0 else UiKit.t("talked about less"))
 	if fx.has("fans"):
 		s.office.crowd_came(int(s.office.fans * float(fx["fans"]) * 2.0))
 		said.append(UiKit.t("%d%% more following") % int(round(float(fx["fans"]) * 100.0)))
 	if fx.has("kit"):
 		for f in s.club.roster:
 			f.armor = clampf(f.armor + float(fx["kit"]), 0.0, 1.0)
-		said.append(UiKit.t("harness %s across the club") % ("mended" if float(fx["kit"]) > 0.0 else "worse"))
+		said.append(UiKit.t("harness mended across the club") if float(fx["kit"]) > 0.0
+			else UiKit.t("harness worse across the club"))
 	if man != null:
 		if fx.has("armor"):
 			man.armor = clampf(man.armor + float(fx["armor"]), 0.0, 1.0)
-			said.append(UiKit.t("%s's harness %s") % [man.display_name,
-				"mended" if float(fx["armor"]) > 0.0 else "worse"])
+			said.append((UiKit.t("%s's harness mended") if float(fx["armor"]) > 0.0
+				else UiKit.t("%s's harness worse")) % man.display_name)
 		if fx.has("injury"):
 			man.injury = maxi(man.injury, int(fx["injury"]))
 			said.append(UiKit.t("%s out %d") % [man.display_name, int(fx["injury"])])

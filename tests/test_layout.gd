@@ -66,6 +66,7 @@ func _initialize() -> void:
 	await _test_nothing_leaves_the_screen()
 	await _test_every_control_can_be_hit()
 	await _test_the_team_sheet_columns_do_not_touch()
+	await _test_the_report_headings_fit()
 	await _test_nothing_stands_on_the_tab_strip()
 	await _test_no_button_is_smaller_than_its_label()
 	await _test_no_button_clips_its_own_text()
@@ -683,6 +684,37 @@ func _test_the_team_sheet_columns_do_not_touch() -> void:
 	_ok(clash.is_empty(), "and the headings fit in every language",
 		"%d languages" % locales.size() if clash.is_empty() else ", ".join(clash.slice(0, 6)))
 	s.queue_free()
+	await process_frame
+
+
+## THE FIGHT REPORT'S HEADINGS, IN EVERY LANGUAGE (29 Sep 2026). Seven
+## right-aligned 9 px words over columns 36-40 px apart; a French MISES AU SOL
+## ran 18 px into the column before it. Each must clear its left neighbour.
+func _test_the_report_headings_fit() -> void:
+	Session.season = Season.new(MeleeRosters.starting_club(), 1)
+	var n: Node = (load("res://scenes/Melee.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	var f: Font = n.get("font")
+	var col: Dictionary = n.get("REP_COL")
+	var order := ["dn", "as", "up", "off", "xp", "lv", "next"]
+	var keys := ["DOWNS", "AST", "UP", "OFF", "XP", "LVL", "NEXT"]
+	var locales: Array[String] = ["en"]
+	locales.append_array(Settings.DRAFTS)
+	var bad: Array[String] = []
+	for loc in locales:
+		TranslationServer.set_locale(loc)
+		for i in order.size():
+			var word := TranslationServer.translate(keys[i])
+			var w := f.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
+			## The first column's neighbour is the position name at +150.
+			var prev: float = 200.0 if i == 0 else float(col[order[i - 1]])
+			if float(col[order[i]]) - w < prev + HEAD_GAP:
+				bad.append("%s '%s'" % [loc, word])
+	TranslationServer.set_locale("en")
+	_ok(bad.is_empty(), "the fight report's headings fit in every language",
+		"%d languages x 7" % locales.size() if bad.is_empty() else ", ".join(bad))
+	n.queue_free()
 	await process_frame
 
 

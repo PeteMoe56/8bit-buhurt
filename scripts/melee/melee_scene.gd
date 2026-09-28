@@ -931,8 +931,9 @@ func _rule(x: float, y: float, w: float) -> void:
 ## what he is on after it, and the last cell says the only three things it can:
 ## he went up, he is at his ceiling, or how far off he is.
 func _draw_report_table() -> void:
-	var heads := [["DOWNS", "dn"], ["AST", "as"], ["UP", "up"], ["OFF", "off"],
-		["XP", "xp"], ["LVL", "lv"], ["NEXT", "next"]]
+	var heads := [[UiKit.t("DOWNS"), "dn"], [UiKit.t("AST"), "as"], [UiKit.t("UP"), "up"],
+		[UiKit.t("OFF"), "off"], [UiKit.t("XP"), "xp"], [UiKit.t("LVL"), "lv"],
+		[UiKit.t("NEXT"), "next"]]
 	for h in heads:
 		UiKit.right(self, font, String(h[0]),
 			Vector2(REP_LX + float(REP_COL[h[1]]), 130), 9, COL_DIM, 90.0)
@@ -1050,7 +1051,7 @@ func _news_layout(rows: Array) -> Dictionary:
 			## above a row nothing left room for lands on the row.
 			if last != "" and col > 0:
 				y += NEWS_STEP.y
-			caps.append({"y": y, "text": String(NEWS_BAND.get(kind, ""))})
+			caps.append({"y": y, "text": UiKit.t(String(NEWS_BAND.get(kind, "")))})
 			y += NEWS_CAP_H
 			col = 0
 			last = kind
@@ -1130,10 +1131,10 @@ func _draw_corner() -> void:
 			if m.team == 0 and m.standing():
 				standing += 1
 		var head := [
-			["STANDING", "%d - %d" % [standing, _line_size(0) - standing],
+			[UiKit.t("STANDING"), "%d - %d" % [standing, _line_size(0) - standing],
 				COL_GOOD if standing >= 3 else COL_HOT],
-			["TOOK", "%d:%02d" % [int(sim.round_t) / 60, int(sim.round_t) % 60], COL_INK],
-			["ROUNDS", "%d - %d" % [sim.rounds_won[0], sim.rounds_won[1]], COL_INK],
+			[UiKit.t("TOOK"), "%d:%02d" % [int(sim.round_t) / 60, int(sim.round_t) % 60], COL_INK],
+			[UiKit.t("ROUNDS"), "%d - %d" % [sim.rounds_won[0], sim.rounds_won[1]], COL_INK],
 		]
 		for i in head.size():
 			var hx: float = 440.0 + float(i) * 158.0
@@ -1528,15 +1529,15 @@ func _draw_strip() -> void:
 			UiKit.raw(self, font, r.position + Vector2(10, 42), tally,
 				HORIZONTAL_ALIGNMENT_RIGHT, int(CARD_W - 20), 13,
 				COL_GOOD if live else Color("5a5148"))
-		var s := "down"
+		var s := UiKit.t("down")
 		if m.state == MeleeSim.State.GRAPPLED:
-			s = "clinched"
+			s = UiKit.t("clinched")
 		elif m.under_orders():
 			s = UiKit.t("on a route")
 		elif m.state == MeleeSim.State.RECOVER:
-			s = "breathing"
+			s = UiKit.t("breathing")
 		elif live:
-			s = "loose"
+			s = UiKit.t("loose")
 		UiKit.raw(self, font, r.position + Vector2(10, 60), s, HORIZONTAL_ALIGNMENT_LEFT,
 			int(CARD_W - 16), 13,
 			Tuning.COL_ROUTE if m.under_orders() else COL_DIM)

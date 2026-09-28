@@ -1607,13 +1607,14 @@ static func fit(font: Font, s: String, px: int, width: float) -> String:
 static func ordinal(n: int) -> String:
 	if n <= 0:
 		return "—"
-	var suffix := "th"
+	## Each English suffix is a key, so a language words its own: "%d." in
+	## German, "%dº" in Spanish, "%der" / "%de" in French.
 	if n % 100 < 11 or n % 100 > 13:
 		match n % 10:
-			1: suffix = "st"
-			2: suffix = "nd"
-			3: suffix = "rd"
-	return "%d%s" % [n, suffix]
+			1: return UiKit.t("%dst") % n
+			2: return UiKit.t("%dnd") % n
+			3: return UiKit.t("%drd") % n
+	return UiKit.t("%dth") % n
 
 
 ## A club's badge — the same mark the melee puts on a surcoat, so a club is

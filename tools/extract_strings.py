@@ -39,6 +39,7 @@ HELPER = re.compile(r'(?:\b_line|\b_fin_row)\(\s*"((?:[^"\\\n]|\\.)*)"')
 ## nor are values under the fields in SKIP_FIELDS (ids, paths, kinds).
 TABLES = {
     "scripts/melee/grade.gd": ["NAME", "SHORT", "BLURB"],
+    "scripts/melee/melee_scene.gd": ["NEWS_BAND"],
     "scripts/melee/fighter_trait.gd": ["NAME", "BLURB"],
     "scripts/league/club_office.gd": ["TRAIT_NAME", "TRAIT_BLURB", "REGIME_NAME", "FACILITIES"],
     "scripts/league/federation.gd": ["RULE_NAME"],
