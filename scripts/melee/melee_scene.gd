@@ -368,7 +368,9 @@ func _process(delta: float) -> void:
 		sim.corner_t -= delta
 		if sim.corner_t <= 0.0:
 			_corner_time_up()
-	if screen == Screen.FIGHT and not Juice.frozen() and not held and not paused:
+	if skipping and not paused:
+		_skip_slice()
+	elif screen == Screen.FIGHT and not Juice.frozen() and not held and not paused:
 		## NO CATCH-UP AFTER A STALL. A hitch or an app resume handed the loop a
 		## huge delta, and the fight fast-forwarded until it caught up.
 		accum = minf(accum + delta, 0.25)
@@ -425,14 +427,38 @@ func _skip_round() -> void:
 	## QUIET WHILE IT RUNS. A skipped round played every down's freeze, shake and
 	## sound and every clash in the same frame — a wall of noise for a button
 	## that means "I don't need to watch this". One knock at the end instead.
+	##
+	## AND SPREAD OVER FRAMES. A round is 120 s at 30 ticks a second, and running
+	## all of it in the frame the button was pressed froze the screen for half a
+	## second on a desktop (tools/probe_perf.gd: ~130 us a tick) and for seconds
+	## on a phone. `_process` now runs it in slices of SKIP_BUDGET_US, so it
+	## plays as a fast-forward. The same ticks in the same order: the bout comes
+	## out identical, which `tools/probe_fingerprint.gd` holds.
+	if skipping:
+		return
 	skipping = true
-	var downs_before: int = sim.downs[0] + sim.downs[1]
-	sim.skip_round()
-	skipping = false
-	if sim.downs[0] + sim.downs[1] > downs_before:
-		Audio.play("clash")
+	skip_round_no = sim.round_no
+	skip_downs = sim.downs[0] + sim.downs[1]
 	accum = 0.0
 	queue_redraw()
+
+
+## One slice of a skip. Runs until the round ends or the frame's budget is spent.
+func _skip_slice() -> void:
+	var t0 := Time.get_ticks_usec()
+	while Time.get_ticks_usec() - t0 < SKIP_BUDGET_US and not sim.is_over() \
+			and sim.phase != MeleeSim.Phase.CORNER and sim.round_no == skip_round_no:
+		sim.tick()
+	if sim.is_over() or sim.phase == MeleeSim.Phase.CORNER or sim.round_no != skip_round_no:
+		skipping = false
+		if sim.downs[0] + sim.downs[1] > skip_downs:
+			Audio.play("clash")
+		accum = 0.0
+
+
+const SKIP_BUDGET_US := 10000
+var skip_round_no: int = -1
+var skip_downs: int = 0
 
 
 ## THE ONE PLACE THE TWO BUTTONS DECIDE WHETHER THEY EXIST. Two call sites
@@ -442,7 +468,7 @@ func _sync_controls() -> void:
 	if call_button == null or skip_button == null:
 		return
 	var live: bool = screen == Screen.FIGHT and not sim.is_over() \
-		and sim.phase != MeleeSim.Phase.CORNER
+		and sim.phase != MeleeSim.Phase.CORNER and not skipping
 	call_button.visible = live and not held and calls_left > 0
 	skip_button.visible = live and not held
 
@@ -610,6 +636,10 @@ func _notification(what: int) -> void:
 
 
 func _press(p: Vector2) -> void:
+	## Not while a skip is running: a route drawn into a fast-forward is a route
+	## the player never saw run.
+	if skipping:
+		return
 	## A prompt is a question with three answers. Answering it beats starting a
 	## new route, so it is tested first.
 	for m in sim.men:

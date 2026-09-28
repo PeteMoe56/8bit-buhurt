@@ -91,6 +91,29 @@ func _test_the_tap_on_the_screen() -> void:
 	var play_kept := ts.men[who].under_orders()
 	tap.queue_free()
 	await process_frame
+	## SKIP ROUND RUNS OVER FRAMES, and comes out the same as the sim's own skip.
+	var sk := _melee_scene()
+	await process_frame
+	var ss: MeleeSim = sk.get("sim")
+	sk.set("screen", 2)
+	ss.phase = MeleeSim.Phase.LIVE
+	var twin := MeleeSim.new(MeleeRosters.player_club(), MeleeRosters.rival_club(), 31)
+	twin.phase = MeleeSim.Phase.LIVE
+	sk.call("_skip_round")
+	var frames := 0
+	while bool(sk.get("skipping")) and frames < 2000:
+		await process_frame
+		frames += 1
+	twin.skip_round()
+	var same: bool = ss.round_no == twin.round_no and ss.phase == twin.phase \
+		and str(ss.downs) == str(twin.downs) and is_equal_approx(ss.round_t, twin.round_t)
+	_ok(frames >= 1 and not bool(sk.get("skipping")) and same,
+		"skip round plays over frames and ends where the sim's own skip ends",
+		"%d frames; round %d/%d, downs %s/%s" % [frames, ss.round_no, twin.round_no,
+			str(ss.downs), str(twin.downs)])
+	sk.queue_free()
+	Session.clear_bout()
+	await process_frame
 	Session.clear_bout()
 	_ok(drawn_gone, "and a tap on the man on the real screen takes his route back",
 		"a route you drew, tapped: %s" % ("gone" if drawn_gone else "still on"))

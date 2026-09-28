@@ -152,20 +152,55 @@ class Man extends RefCounted:
 	## default multiplies, with a 0.0 default adds — the same reading every
 	## caller already gives a trait mod.
 	func tmod(key: String, def: float) -> float:
+		## CACHED PER CARD. A man's trait and weapon cannot change inside a bout
+		## (a sub brings a different CARD, which empties the cache), and this is
+		## read dozens of times a tick: three dictionary walks each, 29% of a tick
+		## in `tools/probe_perf.gd`. Keyed by the default too, because the
+		## default decides whether a weapon mod adds or multiplies.
+		var sig := _sig()
+		if card != _mc_card or sig != _mc_sig:
+			_mc.clear()
+			_mc_card = card
+			_mc_sig = sig
+		var ck := key if def == 1.0 else ("%s@%s" % [key, def])
+		var hit = _mc.get(ck)
+		if hit != null:
+			return hit
 		var t := FighterTrait.mod(trait_id(), key, def)
-		if card == null:
-			return t
-		var w = Tuning.weapon_mod(card.weapon, key)
-		if w == null:
-			return t
-		return t + float(w) if def == 0.0 else t * float(w)
+		if card != null:
+			var w = Tuning.weapon_mod(card.weapon, key)
+			if w != null:
+				t = t + float(w) if def == 0.0 else t * float(w)
+		_mc[ck] = t
+		return t
+
+	var _mc: Dictionary = {}
+	var _mc_card: FighterCard = null
+	var _mc_sig: int = -1
+	var _fc_sig: int = -1
+
+	## What the cache is keyed on besides the card: nothing changes these in a
+	## bout, but a test (or a future screen) may, and a stale mod is a wrong fight.
+	func _sig() -> int:
+		return -1 if card == null else card.trait_id * 64 + card.weapon
+	var _fc: Dictionary = {}
+	var _fc_card: FighterCard = null
 
 	## How close he has to be for the action to land. A pole reaches further.
 	func contact_range() -> float:
 		return Tuning.CONTACT_RANGE * tmod("reach", 1.0)
 
 	func tflag(key: String) -> bool:
-		return FighterTrait.flag(trait_id(), key)
+		var sig := _sig()
+		if card != _fc_card or sig != _fc_sig:
+			_fc.clear()
+			_fc_card = card
+			_fc_sig = sig
+		var hit = _fc.get(key)
+		if hit == null:
+			hit = FighterTrait.flag(trait_id(), key)
+			_fc[key] = hit
+		return hit
 
 	## Set by `_build` off the sim's own flag, so the man carries the day with him
 	## rather than every formula asking what day it is.
@@ -800,11 +835,15 @@ func _tick_timers(m: Man) -> void:
 	if m.state == State.CLOSING and m.stability < Tuning.STABILITY_MAX:
 		m.stability = minf(Tuning.STABILITY_MAX, m.stability
 			+ Tuning.STABILITY_RECOVER * m.tmod("stability_recover", 1.0) * Tuning.TICK)
+	## The tank's size once, not three times: it is a chain of five calls and
+	## nothing in this function changes it.
+	var cap := m.eff_tank()
 	if m.state == State.CLOSING or m.state == State.RECOVER:
 		var rec := Tuning.GAS_RECOVER * (m.eff_gas() / Tuning.GAS_STAT_DIV)
-		m.tank = minf(m.eff_tank(), m.tank + rec
+		m.tank = minf(cap, m.tank + rec
 			* (1.0 if m.state == State.RECOVER else Tuning.WALK_RECOVER) * Tuning.TICK)
-	if m.gassed_at < 0.0 and m.gas_frac() < m.gassed_line():
+	var frac := clampf(m.tank / cap, 0.0, 1.0)
+	if m.gassed_at < 0.0 and frac < m.gassed_line():
 		m.gassed_at = round_t
 		m.gassed_round = round_no
 		log_lines.append({"t": round_t, "round": round_no, "kind": "gassed", "who": m.idx})
@@ -819,10 +858,10 @@ func _tick_timers(m: Man) -> void:
 	## seven of those and a trait wired at six of them is the hole this codebase
 	## keeps finding.
 	if not m.wind_used and m.standing() \
-			and m.gas_frac() <= Tuning.SECOND_WIND_AT \
+			and frac <= Tuning.SECOND_WIND_AT \
 			and m.tflag("second_wind"):
 		m.wind_used = true
-		m.tank = m.eff_tank() * Tuning.SECOND_WIND_TO
+		m.tank = cap * Tuning.SECOND_WIND_TO
 		log_lines.append({"t": round_t, "round": round_no, "kind": "second_wind",
 			"who": m.idx})
 
