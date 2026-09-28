@@ -31,6 +31,11 @@ func _process(_d: float) -> bool:
 		if which == "grade":
 			scene.tab = 2
 			s2.grade = Grade.G.HARD_LIST
+		elif which == "custom":
+			scene.tab = 2
+			s2.grade = Grade.G.CUSTOM
+			s2.set_custom("bills", 0.7)
+			s2.set_custom("scale", 1.06)
 		elif which == "club":
 			scene.tab = 1
 			scene.shop.buy_icon(s2.office, 12)

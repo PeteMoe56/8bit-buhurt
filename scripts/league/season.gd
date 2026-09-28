@@ -93,6 +93,29 @@ var grade_history: Array = []
 ## — there is no cooldown and no cost — because the first version of a control
 ## that exists to rescue a struggling player should not itself be a thing he has
 ## to earn.
+## THE CUSTOM GRADE'S DIALS — see `Grade.DIALS`. Kept on the career even while
+## a preset is chosen, so switching back to Custom finds them as they were left.
+var custom_grade: Dictionary = Grade.CUSTOM_DEFAULT.duplicate()
+
+
+## Turn one dial. Clamped and stepped by `Grade.clamp_dial`; the change is only
+## written into the history when Custom is the grade actually being played.
+func set_custom(key: String, v: float) -> String:
+	if not Grade.CUSTOM_DEFAULT.has(key):
+		return "There is no such setting."
+	var c := Grade.clamp_dial(key, v)
+	if key == "pauses":
+		custom_grade[key] = int(c)
+	elif key == "ceiling":
+		custom_grade[key] = c > 0.5
+	else:
+		custom_grade[key] = c
+	if grade == Grade.G.CUSTOM:
+		_note_grade()
+	sync_power()
+	return ""
+
+
 func set_grade(g: int) -> String:
 	if not Grade.ORDER.has(g):
 		return "There is no such grade."
@@ -105,11 +128,14 @@ func set_grade(g: int) -> String:
 	## a number he never earned.
 	matched_step = Grade.STEP_START
 	_note_grade()
+	sync_power()
 	return ""
 
 
 func _note_grade() -> void:
 	var at := {"season": world.season, "event": world.event, "grade": grade}
+	if grade == Grade.G.CUSTOM:
+		at["custom"] = custom_grade.duplicate()
 	## ONE ENTRY PER CHANGE, not one per call. Re-noting the same grade on the
 	## same event is the creation screen cycling through the list, which is a
 	## player deciding rather than a career happening.
@@ -334,6 +360,9 @@ func sync_power() -> void:
 	## — which this line has just set — so the two have to move together or a
 	## promoted club is judged against the standard it has left behind.
 	world.cup_entry_barred = not office.compliant()
+	## AND WHAT THE GRADE DOES TO THE BILLS, for the same reason: every path
+	## that could have changed the grade or its ladder comes through here.
+	office.bills_scale = Grade.bills_for(grade, matched_step, custom_grade)
 
 
 func opponent_id() -> int:

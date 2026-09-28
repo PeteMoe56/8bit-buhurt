@@ -394,6 +394,7 @@ static func to_dict(season: Season) -> Dictionary:
 		## able to say so, and a record that only keeps the CURRENT grade cannot.
 		"grade_history": season.grade_history,
 		"matched_step": season.matched_step,
+		"custom_grade": season.custom_grade.duplicate(),
 		"play_index": season.play_index,
 		"workshop": season.workshop.to_dict(),
 		"booked": _event_to_dict(season.booked),
@@ -496,6 +497,16 @@ static func from_dict(d: Dictionary) -> Season:
 	## measured, and a file written before that carries a number outside it —
 	## harmless today because `matched_scale` clamps too, and a lie on the grade
 	## screen, which reads the raw step.
+	## THE CUSTOM GRADE'S DIALS, each clamped on the way in: a save is a file and a
+	## file can say anything. A save from before 28 Sep has none and gets the
+	## default dials (Sanctioned's numbers).
+	var cg: Dictionary = d.get("custom_grade", {}) if d.get("custom_grade", {}) is Dictionary else {}
+	for k in cg:
+		var key := String(k)
+		if not Grade.CUSTOM_DEFAULT.has(key):
+			continue
+		var v := Grade.clamp_dial(key, float(cg[k]))
+		s.custom_grade[key] = int(v) if key == "pauses" else ((v > 0.5) if key == "ceiling" else v)
 	s.matched_step = clampi(int(d.get("matched_step", Grade.STEP_START)),
 		Grade.STEP_MIN, Grade.STEP_MAX)
 	s.play_index = int(d.get("play_index", -1))

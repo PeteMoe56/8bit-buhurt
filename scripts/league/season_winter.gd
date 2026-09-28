@@ -62,7 +62,7 @@ static func roll_over(s: Season) -> void:
 	## AND IT IS ALLOWED TO GO NEGATIVE. `spend()` does not check, deliberately —
 	## every other caller checks first and this one must not, because a bill you
 	## can decline is not a bill. See `ClubOffice.in_the_red()`.
-	s.office.spend(League.dues_for(s.office.tier), ClubOffice.LINE_FEDERATION)
+	s.office.spend(s.office.dues(), ClubOffice.LINE_FEDERATION)
 	## AND THEN THE BILLS. Deliberately after the retainer and the prize money and
 	## deliberately before the training: a club should be paid for the year it had
 	## and then asked what it costs to keep what it owns, in that order, because

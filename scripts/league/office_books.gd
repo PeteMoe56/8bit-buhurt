@@ -80,7 +80,12 @@ static func shortfalls(o: ClubOffice) -> Array[String]:
 
 
 static func federation_upkeep(o: ClubOffice) -> int:
-	return Federation.upkeep_of(o.compliance)
+	## Rule by rule, each scaled and rounded on its own — exactly how
+	## `pay_upkeep` charges them, so the bill shown is the bill taken.
+	var t := 0
+	for r in Federation.rules():
+		t += o.scaled(int(Federation.UPKEEP[r]) * int(o.compliance.get(r, 0)))
+	return t
 
 
 
@@ -193,7 +198,7 @@ static func purse_since(o: ClubOffice, when_: String) -> int:
 ## about fighting. Now it is a cost, it scales with the division, and a club can
 ## go into the red paying it.
 static func dues(o: ClubOffice) -> int:
-	return League.dues_for(o.tier)
+	return o.scaled(League.dues_for(o.tier))
 
 
 

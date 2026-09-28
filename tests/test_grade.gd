@@ -43,6 +43,8 @@ func _initialize() -> void:
 		_test_a_v12_save_loads_sanctioned()
 		_test_a_skipped_round_is_the_round_you_would_have_watched()
 		_test_the_skip_stops_at_the_corner()
+		_test_the_grade_reaches_the_bills()
+		_test_custom_is_your_own_dials()
 	## THE STATISTICAL MEASURE — a balance target, not an invariant, and 320
 	## bouts long. Balance tier (and by hand); the fast tier skips it by design.
 	if tier != "fast":
@@ -444,3 +446,66 @@ func _snap(s: MeleeSim) -> Array:
 			snappedf(m.pos.y, 0.00001), m.downs_caused, m.times_downed,
 			m.rounds_standing])
 	return out
+
+
+## THE GRADE REACHES THE MONEY (Pete, 28 Sep 2026). Dues and renewals scale with
+## it; buildings do not. And the bill the screen shows is still exactly the bill
+## the summer takes, at every grade: a club holding it ends on zero, nothing lost.
+func _test_the_grade_reaches_the_bills() -> void:
+	var bills := {}
+	var exact: Array[String] = []
+	for g in [Grade.G.FRIENDLY, Grade.G.SANCTIONED, Grade.G.FULL_STEEL]:
+		var s := Season.new(MeleeRosters.starting_club(), 3131)
+		s.set_grade(g)
+		s.office.tier = 2
+		for r in Federation.rules():
+			s.office.compliance[r] = Federation.required(2, r)
+		bills[g] = s.office.summer_bill()
+		s.office.credits = s.office.summer_bill()
+		s.office.spend(s.office.dues(), ClubOffice.LINE_FEDERATION)
+		var paid := s.office.pay_upkeep()
+		if s.office.credits != 0 or not (paid["lost"] as Array).is_empty() \
+				or not (paid["lapsed"] as Array).is_empty():
+			exact.append("%s ended on %d" % [Grade.name_of(g), s.office.credits])
+	var m := Season.new(MeleeRosters.starting_club(), 3131)
+	m.set_grade(Grade.G.MATCHED)
+	var lo := Grade.bills_for(Grade.G.MATCHED, Grade.STEP_MIN)
+	var hi := Grade.bills_for(Grade.G.MATCHED, Grade.STEP_MAX)
+	_ok(int(bills[Grade.G.FRIENDLY]) < int(bills[Grade.G.SANCTIONED])
+		and int(bills[Grade.G.SANCTIONED]) < int(bills[Grade.G.FULL_STEEL]) and exact.is_empty()
+		and is_equal_approx(lo, 0.8) and is_equal_approx(hi, 1.2),
+		"the grade scales the dues and renewals, and the bill shown is the bill taken",
+		"Regional bill: friendly %d, sanctioned %d, full steel %d; matched spans x%.1f-x%.1f%s"
+			% [bills[Grade.G.FRIENDLY], bills[Grade.G.SANCTIONED], bills[Grade.G.FULL_STEEL], lo, hi,
+				"" if exact.is_empty() else " — " + ", ".join(exact)])
+
+
+## CUSTOM: every dial turns, clamps at its ends, reaches the fight and the bills,
+## survives a save, and a load does not write a grade change into the history.
+func _test_custom_is_your_own_dials() -> void:
+	SaveGame.set_namespace("grade")
+	var s := Season.new(MeleeRosters.starting_club(), 5151)
+	s.set_grade(Grade.G.CUSTOM)
+	s.set_custom("scale", 5.0)
+	s.set_custom("pauses", -9)
+	s.set_custom("corner", 4.0)
+	s.set_custom("bills", 0.63)
+	s.set_custom("ceiling", 1.0)
+	var cg := s.custom_grade
+	var clamped: bool = is_equal_approx(float(cg["scale"]), 1.10) and int(cg["pauses"]) == -2 \
+		and is_equal_approx(float(cg["bills"]), 0.6) and bool(cg["ceiling"])
+	var reaches: bool = is_equal_approx(Grade.corner_time(Grade.G.CUSTOM, cg), Tuning.CORNER_TIME + 4.0) \
+		and Grade.pauses_for(Grade.G.CUSTOM, 0, 0, cg) == Grade.PAUSES_BASE - 2 \
+		and is_equal_approx(s.office.bills_scale, 0.6) \
+		and Grade.scale_for(Grade.G.CUSTOM, 0, 40, 0, cg) >= 1.10
+	var hist := s.grade_history.size()
+	SaveGame.save(s, 1)
+	var back := SaveGame.load_slot(1)
+	SaveGame.delete(1)
+	SaveGame.set_namespace("")
+	var kept: bool = back != null and back.grade == Grade.G.CUSTOM \
+		and str(back.custom_grade) == str(cg) and back.grade_history.size() == hist \
+		and is_equal_approx(back.office.bills_scale, 0.6)
+	_ok(clamped and reaches and kept, "custom is your own dials, clamped, fought and saved",
+		"dials %s; clamped %s, reach the fight and bills %s, survive a save %s"
+			% [str(cg), clamped, reaches, kept])

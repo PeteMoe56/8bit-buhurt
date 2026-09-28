@@ -67,8 +67,8 @@ static func promotion_terms(s: Season) -> Dictionary:
 	return {
 		"from": League.tier_name(t),
 		"to": League.tier_name(up),
-		"dues_now": League.dues_for(t),
-		"dues_up": League.dues_for(up),
+		"dues_now": s.office.scaled(League.dues_for(t)),
+		"dues_up": s.office.scaled(League.dues_for(up)),
 		"in_hand": s.office.credits,
 	}
 

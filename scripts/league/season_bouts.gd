@@ -35,7 +35,7 @@ static func _dress_sim(s: Season, sim: MeleeSim, opp_id: int, kind: int, dist: f
 	sim.opponent_club_id = opp_id
 	sim.venue = kind
 	sim.miles = dist
-	sim.corner_time = Grade.corner_time(s.grade)
+	sim.corner_time = Grade.corner_time(s.grade, s.custom_grade)
 	sim.big_occasion = int(Session.bout_mood) != UiKit.Mood.NORMAL
 	## And now that the sim knows the fixture, let the fixture reach the men.
 	sim.dress()
@@ -252,9 +252,9 @@ static func opposition_scale(s: Season, opp_id: int) -> float:
 	## every club, was graded against the same invented power-50 tier-0 nobody.
 	## A guard that can only fail is no more a guard than one that cannot.
 	if opp_id < 0 or opp_id >= s.world.clubs.size():
-		return Grade.scale_for(s.grade, s.matched_step, 50, 0)
+		return Grade.scale_for(s.grade, s.matched_step, 50, 0, s.custom_grade)
 	var c: Dictionary = s.world.clubs[opp_id]
-	return Grade.scale_for(s.grade, s.matched_step, int(c["power"]), int(c["tier"]))
+	return Grade.scale_for(s.grade, s.matched_step, int(c["power"]), int(c["tier"]), s.custom_grade)
 
 
 

@@ -216,7 +216,8 @@ func _new_bout(seed_value: int) -> void:
 	## grade at all.
 	var g := Session.season.grade if Session.season != null else Grade.DEFAULT
 	var st := Session.season.matched_step if Session.season != null else Grade.STEP_START
-	calls_total = Grade.pauses_for(g, st, _call_bonus())
+	var cg: Dictionary = Session.season.custom_grade if Session.season != null else {}
+	calls_total = Grade.pauses_for(g, st, _call_bonus(), cg)
 	calls_left = calls_total
 	held = false
 	hold_t = 0.0

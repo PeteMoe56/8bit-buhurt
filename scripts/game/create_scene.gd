@@ -70,7 +70,7 @@ var replace_i := 0
 
 ## One row per grade down the left, the chosen one's sentence on the right.
 const GRADE_Y := 132.0
-const GRADE_ROW := 46.0
+const GRADE_ROW := 44.0
 const GRADE_BTN := Vector2(228.0, 38.0)
 const GRADE_TEXT_X := 288.0
 const GRADE_TEXT_W := 648.0
@@ -397,6 +397,38 @@ func _grade_controls() -> void:
 				Session.autosave()
 				_rebuild(),
 			"cursor" if g == season.grade else ""))
+	## THE ADVANCED SETTINGS: on CUSTOM, every read-out row gets its own − and +.
+	if season.grade == Grade.G.CUSTOM:
+		var x1 := UiKit.right_edge() - 18.0 - 2.0 * DIAL_BTN.x - 6.0
+		for k in DIAL_ROWS.size():
+			var key: String = DIAL_ROWS[k]
+			var y := _dial_y(k) - 18.0
+			ui.add_child(UiKit.button("-", Vector2(x1, y), DIAL_BTN, func(): _dial(key, -1)))
+			ui.add_child(UiKit.button("+", Vector2(x1 + DIAL_BTN.x + 6.0, y), DIAL_BTN,
+				func(): _dial(key, 1)))
+
+
+## The rows the read-out prints, in order; the dials follow the same list.
+const DIAL_ROWS: Array[String] = ["scale", "pauses", "corner", "bills", "ceiling"]
+const DIAL_BTN := Vector2(40.0, 24.0)
+const DIAL_ROW_H := 30.0
+
+
+func _dial_y(k: int) -> float:
+	return GRADE_Y + 108.0 + float(k) * DIAL_ROW_H
+
+
+func _dial(key: String, dir: int) -> void:
+	var cur := float(season.custom_grade.get(key, Grade.CUSTOM_DEFAULT[key]))
+	var step := 1.0 if key == "ceiling" else float(Grade.DIALS[key][2])
+	if key == "ceiling":
+		cur = 1.0 if dir > 0 else 0.0
+	else:
+		cur += step * float(dir)
+	season.set_custom(key, cur)
+	Session.autosave()
+	Audio.play("tap")
+	_rebuild()
 
 
 func _draw_grade() -> void:
@@ -405,7 +437,8 @@ func _draw_grade() -> void:
 	## printed at x 708, which is 36 pixels PAST its own right edge — the figure
 	## was sitting on the background outside the frame that was meant to contain
 	## it. Measured now rather than built out of offsets that were true once.
-	var box := Rect2(GRADE_TEXT_X, GRADE_Y - 8.0, UiKit.right_edge() - GRADE_TEXT_X, 196.0)
+	var box := Rect2(GRADE_TEXT_X, GRADE_Y - 8.0, UiKit.right_edge() - GRADE_TEXT_X,
+		_dial_y(DIAL_ROWS.size() - 1) - GRADE_Y + 30.0)
 	UiKit.window(self, box, Grade.name_of(g), font)
 	var ix := box.position.x + 18.0
 	var iw := box.size.x - 36.0
@@ -414,23 +447,33 @@ func _draw_grade() -> void:
 	draw_multiline_string(font, Vector2(ix, GRADE_Y + 34.0), Grade.blurb_of(g),
 		HORIZONTAL_ALIGNMENT_LEFT, iw, 15, 4, UiKit.INK)
 
-	## WHAT IT IS WORTH, in the two numbers a player can act on, and the
-	## multiplier is deliberately printed. This game puts a two-digit overall next
-	## to every name on four screens; a setting that quietly changed what those
-	## numbers mean without saying so would make the roster screen a liar — which
-	## is the XCOM 2 problem, and XCOM at least does not print a stat line.
-	var sc := Grade.scale_for(g, season.matched_step, 60, League.Tier.REGIONAL)
-	var ry := GRADE_Y + 122.0
-	UiKit.text(self, font, UiKit.t("Their numbers, against a middling club"),
-		Vector2(ix, ry), 13, UiKit.DIM)
-	UiKit.text(self, font, "x%.2f" % sc, Vector2(ix + 300.0, ry), 16,
-		UiKit.DOWN if sc > 1.0 else (UiKit.UP if sc < 1.0 else UiKit.INK))
-	UiKit.text(self, font, UiKit.t("Calls from the corner"), Vector2(ix, ry + 26.0), 13, UiKit.DIM)
-	UiKit.text(self, font, "%d" % Grade.pauses_for(g, season.matched_step,
-		season.office.extra_calls()), Vector2(ix + 300.0, ry + 26.0), 16, UiKit.INK)
-	UiKit.text(self, font, UiKit.t("Corner, between rounds"), Vector2(ix, ry + 52.0), 13, UiKit.DIM)
-	UiKit.text(self, font, "%ds" % int(Grade.corner_time(g)),
-		Vector2(ix + 300.0, ry + 52.0), 16, UiKit.INK)
+	## WHAT IT IS WORTH, in the numbers a player can act on, and the multiplier
+	## is deliberately printed. This game puts a two-digit overall next to every
+	## name on four screens; a setting that quietly changed what those numbers
+	## mean without saying so would make the roster screen a liar — which is the
+	## XCOM 2 problem, and XCOM at least does not print a stat line.
+	##
+	## EVERY DIAL THE GRADE TURNS, one row each (Pete, 28 Sep 2026: *"we can
+	## always just show those"*). On CUSTOM the same rows carry − and +.
+	var cg := season.custom_grade
+	var sc := Grade.scale_for(g, season.matched_step, 60, League.Tier.REGIONAL, cg)
+	var bills := Grade.bills_for(g, season.matched_step, cg)
+	var ceiling: bool = g == Grade.G.HARD_LIST or (g == Grade.G.CUSTOM and bool(cg.get("ceiling", false)))
+	var rows := [
+		[UiKit.t("Opposition strength"), "x%.2f" % sc,
+			UiKit.DOWN if sc > 1.0 else (UiKit.UP if sc < 1.0 else UiKit.INK)],
+		[UiKit.t("Calls from the corner"), "%d" % Grade.pauses_for(g, season.matched_step,
+			season.office.extra_calls(), cg), UiKit.INK],
+		[UiKit.t("Corner, between rounds"), "%ds" % int(Grade.corner_time(g, cg)), UiKit.INK],
+		[UiKit.t("Dues and renewals"), "x%.1f" % bills,
+			UiKit.DOWN if bills > 1.0 else (UiKit.UP if bills < 1.0 else UiKit.INK)],
+		[UiKit.t("Every club at its division's top"), UiKit.t("yes") if ceiling else UiKit.t("no"),
+			UiKit.DOWN if ceiling else UiKit.INK],
+	]
+	for k in rows.size():
+		var y := _dial_y(k)
+		UiKit.text(self, font, rows[k][0], Vector2(ix, y), 13, UiKit.DIM)
+		UiKit.text(self, font, rows[k][1], Vector2(ix + 300.0, y), 16, rows[k][2])
 
 	## THE FOOTER SAYS THE TWO THINGS A PLAYER NEEDS AND THE HEADER SAID NEITHER.
 	## Two lines of preamble used to sit at y 108, under a tab strip that runs to
@@ -438,7 +481,7 @@ func _draw_grade() -> void:
 	## the layout sweep exists to catch and which a comment at the top of a screen
 	## is always the first to commit.
 	UiKit.text(self, font, UiKit.t("It is saved with the club, not with the settings, ")
-		+ "and you can change it later.", Vector2(STAT_X, 402.0), 13, UiKit.DIM)
+		+ "and you can change it later.", Vector2(STAT_X, 408.0), 13, UiKit.DIM)
 
 
 func _save_club() -> void:

@@ -617,10 +617,17 @@ func upkeep_bill() -> int:
 ## and find out in June what it had cost. `probe_upkeep`: a club that keeps this
 ## in hand loses nothing, at any grade.
 func summer_bill() -> int:
-	var t := League.dues_for(tier) + upkeep_bill()
-	for r in Federation.rules():
-		t += int(Federation.UPKEEP[r]) * rule_level(r)
-	return t
+	return dues() + upkeep_bill() + federation_upkeep()
+
+
+## WHAT THE GRADE DOES TO THE DUES AND RENEWALS, pushed down by
+## `Season.sync_power()` from `Grade.bills_for`. Not saved: it is derived, and
+## every load syncs.
+var bills_scale: float = 1.0
+
+
+func scaled(n: int) -> int:
+	return int(round(float(n) * bills_scale))
 
 
 ## The summer bill. Returns what happened so the screen can say it plainly —
@@ -667,7 +674,7 @@ func pay_upkeep() -> Dictionary:
 		var lvl := rule_level(r)
 		if lvl <= 0:
 			continue
-		var c: int = int(Federation.UPKEEP[r]) * lvl
+		var c: int = scaled(int(Federation.UPKEEP[r]) * lvl)
 		if credits >= c:
 			spend(c, LINE_FEDERATION)
 			billed += c
