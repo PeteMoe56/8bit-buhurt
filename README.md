@@ -18,9 +18,9 @@ This README is the cold-start doc. A fresh chat should be able to read it and co
 
 ## Where things stand
 
-*Updated 27 Sep 2026 (Central), after a full code audit — see `docs/REGISTER.md` §28.*
+*Updated 28 Sep 2026 (Central), after the audit (§28) and an overnight hardening pass (§29) — see `docs/REGISTER.md`.*
 
-Sixteen screens, a full career loop, 49 test files, **fast gate green, balance tier green**.
+Sixteen screens, a full career loop, 51 test files, **fast gate green, balance tier green**.
 Open `C:\Dev\RetroBuhurt` in Godot 4.6.2 and press play. **Landscape, 960×540** — and the
 canvas floats: see *The shape of the screen* below.
 
@@ -32,7 +32,7 @@ and draw him a path** — to open ground, or onto an opponent. He lights up and 
 the route is done the AI takes him back. Drawing nothing at all is a real way to play.
 Every fighter carries **sword-and-shield or a polearm** (tap it on his card to change).
 
-Pacing, measured with `bash tools/bb.sh bases`: a National title at season **12.0** on
+Pacing, measured with `bash tools/bb.sh bases`: a National title at season **12.04** on
 average (10.8–13.0 across the five check bases), with a manager that keeps the club
 eligible for cups.
 
@@ -42,10 +42,11 @@ What is **not** built:
   one falls back to a primitive, so nothing is broken.
 - **The store and export chain** — no gradle build/AAB, no Google Play Billing plugin, no
   Steamworks. `Store` is written and its seam is ready; the plugin wiring is the job.
-- **Translations.** Every UI string goes through `UiKit.t()` and `locale/strings.csv`
-  (`bash tools/bb.sh strings`) has 420 of them with an empty column per Play locale. A
-  column is registered in `project.godot` only once it is filled — and the BuhurtRail font
-  has no accented glyphs yet.
+- **Translations, switched on.** Every UI string goes through `UiKit.t()`; `locale/strings.csv`
+  (`bash tools/bb.sh strings`) holds 427 of them with **draft** translations in eight
+  languages (es fr de it pt_BR pl ru ja, 28 Sep — unreviewed). None is registered in
+  `project.godot` yet: the BuhurtRail font has no accented, Cyrillic or Japanese glyphs,
+  and the squad table's pixel-fitted column heads are still English.
 
 ## The shape of the screen
 
@@ -112,6 +113,10 @@ bash tools/bb.sh test              # the fast gate — parse, every test file, t
 bash tools/bb.sh test --balance    # the statistical tier: run before any balance change ships
 bash tools/bb.sh bases             # career score on the five check bases, and the mean
 bash tools/bb.sh list              # every probe and shot tool, one line each
+bash tools/bb.sh monkey 12000 1 2 3  # a bot taps through the real screens, per seed
+bash tools/bb.sh invariants 6 25   # every matchday of long careers checked, saves round-tripped
+bash tools/bb.sh probe perf        # where the time goes: a tick by part, a summer, a save
+bash tools/bb.sh probe fingerprint # one hash over 40 bouts + 3 seasons: a speed-up must not move it
 ```
 
 `bash tools/bb.sh` with no argument lists the rest (probe, shot, titles, soak, fixture,
@@ -136,6 +141,10 @@ A few worth knowing by name:
   file in `tests/fixtures/` (write a new one with `bb fixture` **before** bumping
   `SaveGame.VERSION`).
 - `test_audit_*.gd` — one check per fix from the 27 Sep audit.
+- `test_flows.gd` — whole journeys pressing the real buttons: new career into a town,
+  first bout, Create, Settings across a restart, a new job.
+- `test_invariants.gd` — tables balance, the pyramid holds its shape, squads stay whole,
+  and a save taken at any matchday loads into the same world (fast: 2×6 seasons).
 
 And the pictures no headless check can replace:
 

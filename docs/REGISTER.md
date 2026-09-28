@@ -9025,3 +9025,21 @@ were left out on Pete's call. The list is the project doc `code-audit-27-sep`.
 | 28.17 | 1-0 unreachable under the stop rule; Green wins ~95%. | **locked for now** (Pete, 27 Sep). |
 | 28.18 | season.gd / club_office.gd / season_scene.gd split into helper classes with wrappers. | **locked** — behaviour-identical (five-base score unchanged to the decimal). `tools/extract_group.py` did it and is kept. |
 | 28.19 | `_backup_20260914/` held duplicate `class_name ArtBank` and `Tuning`, and Godot's class cache resolved `Tuning` to the backup. | **locked** — deleted. Open the editor once so it rescans. |
+
+
+## 29 — OVERNIGHT HARDENING (27-28 Sep 2026)
+
+Ten items, worked unattended after the audit. Store/export, Steam and art stayed out.
+
+| # | Item | Status |
+|---|---|---|
+| 29.1 | **Monkey**: `tools/monkey.gd` taps random buttons, draws routes, pauses and backs out through the real screens. | **locked** — 6 seeds x 12,000 steps, ~60 seasons: no script error, no stranded or stuck screen. `bb monkey`. |
+| 29.2 | **Invariants**: `tests/test_invariants.gd`, every matchday of 6 careers x 25 seasons, 314 mid-career saves round-tripped. | **locked** — found: the week's kit wear ran after the rating sync, so each simmed fixture used last week's power and a reload changed results. `_apply_regime` syncs last. Title 12.04 (was 12.0). |
+| 29.3 | **Flows**: `tests/test_flows.gd` presses the real buttons through five journeys. | **locked** — found: every career starts in the Saltire (a 1 CC mark), so Create refused a plain rename. `Workshop.keep_worn()`. |
+| 29.4 | Source-grep tests replaced by behaviour (melee tap, favorites strip, nav, store fence via `Store.release_rules`, the club tab's queue order, audio call sites). test_grade's win-rate measure moved to the balance tier. | **locked** — found: `crowd` and `type` sounds were never played; `type` now ticks every third typed letter, `crowd` on a win. **REC** — both are Pete's to veto. |
+| 29.5 | **Speed**: tmod/tflag cached per card, the tank computed once. 159 -> 130 us a tick (desktop), fingerprint unchanged. | **locked** — Skip Round ran up to 3,600 ticks in one frame (~0.5 s desktop, seconds on a phone); it now runs in 10 ms slices as a fast-forward and ends exactly where the sim's skip ends. |
+| 29.6 | probe_pace on `ProbeManager`; probe_run pays the federation. | **locked** — probe_run: TOP 3.0 at four grades. **Open**: 3.6-14.6 buildings lost a career to unpaid summers, most at Friendly. |
+| 29.7 | UI: flash tones (refusal / good news / question), no sticky hover on touch, `UiKit.back_button` / `corner_back`, `Season.staff_offer`. | **locked** — the soak had been hiring from seed 31337's staff list. |
+| 29.8 | Is reading the scouting range a skill? `tools/probe_scouting.gd`. | **Open** — no: even the true ceiling buys nothing (title 11.90-12.35 across all readers). Men grow ~2 a season from ~8 below their ceiling and spend 8% of seasons at it, so the ceiling rarely binds. Pete's call on what should make it matter. |
+| 29.9 | Draft translations, 8 languages x 427 strings. | **ASSUMED** — unreviewed drafts, unregistered. Found: the extractor had mojibaked every key with a dash; fixed and held by test_audit_ui. English-fragment sentences made whole. |
+
