@@ -20,6 +20,7 @@ func _initialize() -> void:
 	_test_a_short_line_is_made_whole()
 	_test_the_bronze_is_the_players_to_fight()
 	_test_a_breakaway_ages()
+	_test_rulings()
 
 	print("")
 	for n in notes:
@@ -216,3 +217,46 @@ func _test_a_breakaway_ages() -> void:
 		"a breakaway has a winter",
 		"%d of 6 founders a year older; power %d is its men's" % [aged,
 			int(s.world.clubs[cid]["power"])])
+
+
+## PETE'S RULINGS OF 27 SEP (after the audit).
+func _test_rulings() -> void:
+	## Forfeit and warn: a bout marked live and never posted is a 0-2 loss on load.
+	SaveGame.set_namespace("audit")
+	var s := Season.new(MeleeRosters.starting_club(), 4040)
+	var before: Dictionary = s._my_row()
+	s.mark_bout_live(false)
+	SaveGame.save(s, 1)
+	var back := SaveGame.load_slot(1)
+	var row: Dictionary = back._my_row() if back != null else {}
+	_ok(back != null and back.world.event == 1 and int(row.get("ra", 0)) == int(before.get("ra", 0)) + Tuning.BOUT_WINS
+		and back.last_forfeit != "" and back.bout_live.is_empty(),
+		"a bout walked out of is a forfeit on the next load",
+		"event %d, rounds against %d -> %d: '%s'" % [back.world.event if back else -1,
+			int(before.get("ra", 0)), int(row.get("ra", 0)), back.last_forfeit.left(50) if back else ""])
+	var again := SaveGame.load_slot(1)
+	_ok(again != null and again.world.event == 1 and again.last_forfeit == "",
+		"and it is forfeited once, not again on the next load",
+		"second load: event %d" % (again.world.event if again else -1))
+	SaveGame.delete(1)
+	## A posted bout clears the mark.
+	var p := Season.new(MeleeRosters.starting_club(), 4041)
+	p.mark_bout_live(false)
+	var sim := p.begin_bout()
+	sim.run_to_end()
+	p.post_bout(sim)
+	_ok(p.bout_live.is_empty(), "a bout that finishes clears the mark", "posted, mark empty")
+
+	## Potential as a range the staff narrow.
+	var m := Season.new(MeleeRosters.starting_club(), 777)
+	var f: FighterCard = m.market()[0]
+	var blind: Vector2i = m.potential_range(f)
+	m.office.credits = 200
+	m.hire_captain(ClubOffice.captain("Scout", Tuning.Role.RAIL, Tuning.Role.CENTER, 5))
+	var sharp: Vector2i = m.potential_range(f)
+	var own: Vector2i = m.potential_range(m.club.roster[0])
+	_ok(blind.x <= f.potential and f.potential <= blind.y and blind.y - blind.x >= 6
+		and sharp.x == sharp.y and sharp.x == f.potential
+		and own.x == own.y and own.x == m.club.roster[0].potential,
+		"a stranger's ceiling is a range; a five-star captain reads it exactly; your own men are exact",
+		"no staff %d-%d (true %d); five-star %d-%d" % [blind.x, blind.y, f.potential, sharp.x, sharp.y])

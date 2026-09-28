@@ -844,6 +844,11 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 40, UiKit.YOU)
 		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36), UiKit.t("Tap to carry on"),
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 16, COL_DIM)
+		## THE WARNING. Closing the game now is not a way out of a bad bout.
+		if Session.season != null:
+			UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 64),
+				UiKit.t("Leave the game now and this bout counts as a forfeit."),
+				HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 14, UiKit.DOWN)
 
 
 # ----------------------------------------------------------- the report

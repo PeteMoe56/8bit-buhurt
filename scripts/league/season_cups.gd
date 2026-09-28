@@ -174,6 +174,20 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 
 
 ## Or hand it to the AI. Same road afterwards.
+## A FORFEITED TIE: recorded 0-2 against the player, and the round plays on.
+static func forfeit_cup_tie(s: Season) -> void:
+	var c := s.pending_cup()
+	if c == null:
+		return
+	var m := c.player_match()
+	var mine: bool = int(m["a"]) == s.world.player_club
+	if mine:
+		c.record(m, 0, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE)
+	else:
+		c.record(m, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE, 0)
+	s._finish_cup_round(c, false)
+
+
 static func sim_cup_tie(s: Season) -> void:
 	s.ensure_a_line()
 	var c := s.pending_cup()

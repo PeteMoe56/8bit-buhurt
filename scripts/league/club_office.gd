@@ -1311,6 +1311,23 @@ func doubled(role: int) -> bool:
 
 
 ## -> OfficeStaff (office_staff.gd)
+## ------------------------------------------------------------ scouting
+## HOW WELL THE CLUB CAN READ A STRANGER'S CEILING (Pete, 27 Sep 2026: potential
+## shown as a range that a staff member narrows). A man on the shelf shows his
+## ceiling as a range this many points wide; your best captain's grade narrows
+## it — no captain 10, one star 8, down to exact at five stars. Men on your own
+## books are always exact: you have watched them train.
+const SCOUT_BLIND: int = 10
+const SCOUT_PER_STAR: int = 2
+
+
+func scout_width() -> int:
+	var best := 0
+	for c in captains:
+		best = maxi(best, int(c.get("grade", 1)))
+	return maxi(0, SCOUT_BLIND - SCOUT_PER_STAR * best)
+
+
 func tier_for(role: int) -> int:
 	return OfficeStaff.tier_for(self, role)
 

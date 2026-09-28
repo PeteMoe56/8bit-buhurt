@@ -39,7 +39,16 @@ func _slots() -> Array:
 	var out: Array = []
 	if season == null:
 		return out
-	var men := season.market()
+	## IN THE ORDER THE CLUB CAN SEE. `Market.pool` sorts on what a man will
+	## BE, using his true ceiling; shown in that order, the list would give away
+	## the thing the scouting range hides. Sorted here on the visible range.
+	var men: Array = season.market().duplicate()
+	men.sort_custom(func(a, b):
+		var ra: Vector2i = season.potential_range(a)
+		var rb: Vector2i = season.potential_range(b)
+		if ra.x + ra.y != rb.x + rb.y:
+			return ra.x + ra.y > rb.x + rb.y
+		return a.overall() > b.overall())
 	for i in men.size():
 		if i >= PER_ROW * 2:
 			break
@@ -153,7 +162,9 @@ func _draw() -> void:
 			"note": "age %d  ·  %s/wk%s" % [f.age,
 				ClubOffice.money(season.market_wage(f)), "" if room else "  over cap"],
 			"note_col": UiKit.DIM if room else UiKit.DOWN,
-			"right_note": "to %d" % f.potential,
+			## A RANGE, NOT HIS NUMBER: the club reads a stranger's ceiling only as
+			## well as its best captain can (ClubOffice.scout_width).
+			"right_note": season.potential_word(f),
 			"right_col": UiKit.UP,
 			"foot_left": Market.band_name(f.overall(), tier),
 			"foot": "%d CC" % fee,

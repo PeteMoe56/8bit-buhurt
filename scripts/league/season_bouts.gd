@@ -608,6 +608,21 @@ static func skip_event(s: Season) -> void:
 
 
 
+## A FORFEIT: the fixture is lost 0-2 with nobody standing, and the week still
+## happens (the crowd came, the regime ran). No XP — nobody fought.
+static func forfeit_bout(s: Season) -> void:
+	var opp := s.opponent_id()
+	var was_home: bool = s.venue_kind() == Venue.Kind.HOME
+	var gate := s.gate_now()
+	var before := s._my_row()
+	s.last_result = [0, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE]
+	s.world.play_event(s.last_result)
+	s._after_event(0, Tuning.BOUT_WINS, gate)
+	s._apply_regime(was_home)
+	s._log(opp, before, false, was_home)
+	s.event_played.emit(opp, [])
+
+
 ## Everything that happens to the club because an event happened: credits for
 ## the result, morale, and a week off the treatment table.
 static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> void:

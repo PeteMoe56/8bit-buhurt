@@ -436,7 +436,76 @@ func called_play():
 
 ## -> SeasonBouts (season_bouts.gd)
 func post_bout(sim: MeleeSim) -> void:
+	bout_live = {}
 	SeasonBouts.post_bout(self, sim)
+
+
+## ------------------------------------------------------- walking out mid-bout
+## A BOUT IN PROGRESS IS WRITTEN DOWN (Pete, 27 Sep 2026: "forfeit and warn").
+## The season screen marks it just before it hands the bout to the melee and
+## saves; posting the result clears it. A save that loads with the mark still on
+## it is a bout somebody walked out of — the app closed or was killed mid-fight —
+## and it is recorded as a forfeit, 0-2, rather than handed back to be fought
+## again with the same seed. The melee's pause screen says so.
+var bout_live: Dictionary = {}
+## What the last load forfeited, for the season screen to say once. "" if nothing.
+var last_forfeit: String = ""
+
+
+## WHAT THE CLUB CAN SEE OF A MAN'S CEILING, as [low, high]. Exact for your own
+## men; a range `office.scout_width()` wide for anybody else, placed so the true
+## value sits somewhere inside it — deterministically, per man and per season,
+## so reopening the list does not re-roll it. See ClubOffice.scout_width.
+func potential_range(f: FighterCard) -> Vector2i:
+	if f == null:
+		return Vector2i.ZERO
+	if club.roster.has(f):
+		return Vector2i(f.potential, f.potential)
+	var w := office.scout_width()
+	if w <= 0:
+		return Vector2i(f.potential, f.potential)
+	var off: int = absi(hash("scout:%s:%d:%d:%d" % [f.display_name, f.age, f.potential,
+		world.season])) % (w + 1)
+	var lo: int = maxi(f.overall(), f.potential - off)
+	var hi: int = mini(Career.POTENTIAL_CEILING, lo + w)
+	return Vector2i(lo, hi)
+
+
+## The range in words, for a card: "to 64" when it is known, "to 58-66" when not.
+func potential_word(f: FighterCard) -> String:
+	var r := potential_range(f)
+	return ("to %d" % r.x) if r.x == r.y else ("to %d-%d" % [r.x, r.y])
+
+
+func mark_bout_live(is_cup: bool) -> void:
+	bout_live = {"cup": is_cup, "season": world.season, "event": world.event}
+
+
+## Called by SaveGame.load_slot. Returns true if a bout was forfeited.
+func forfeit_abandoned_bout() -> bool:
+	if bout_live.is_empty():
+		return false
+	var was: Dictionary = bout_live
+	bout_live = {}
+	if int(was.get("season", -1)) != world.season or int(was.get("event", -1)) != world.event:
+		return false
+	if bool(was.get("cup", false)):
+		var c := pending_cup()
+		if c == null:
+			return false
+		var opp := String(world.clubs[cup_opponent()]["name"])
+		SeasonCups.forfeit_cup_tie(self)
+		last_forfeit = "You left the %s tie against %s mid-bout. It counts as a forfeit." % [
+			c.cup_name, opp]
+		return true
+	var o := opponent_id()
+	if o < 0:
+		return false
+	var opp_name := String(world.clubs[o]["name"])
+	SeasonBouts.forfeit_bout(self)
+	last_forfeit = "You left the bout against %s mid-fight. It counts as a forfeit, 0-%d." % [
+		opp_name, Tuning.BOUT_WINS]
+	return true
 
 
 ## -> SeasonBouts (season_bouts.gd)
@@ -649,6 +718,7 @@ func begin_cup_bout() -> MeleeSim:
 
 ## -> SeasonCups (season_cups.gd)
 func post_cup_bout(sim: MeleeSim) -> void:
+	bout_live = {}
 	SeasonCups.post_cup_bout(self, sim)
 
 

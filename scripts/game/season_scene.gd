@@ -99,6 +99,10 @@ func _ready() -> void:
 	if Session.season == null:
 		Session.season = Season.new(MeleeRosters.starting_club(), randi())
 	season = Session.season
+	## A bout walked out of on the last run — said once.
+	if season.last_forfeit != "":
+		flash = season.last_forfeit
+		season.last_forfeit = ""
 	## Anything the club had to do to put five men on the list — said once.
 	if not season.last_emergency.is_empty():
 		flash = UiKit.t("Short of fit men: ") + season.last_emergency[0] + (
@@ -253,6 +257,7 @@ func _fight_cup() -> void:
 		flash = UiKit.t("Nothing to fight.")
 		_rebuild()
 		return
+	season.mark_bout_live(true)
 	Session.autosave()
 	Session.bout = sim
 	Session.bout_is_cup = true
@@ -273,6 +278,7 @@ func _fight() -> void:
 	## Save BEFORE handing over. The bout is a scene change and a few minutes of
 	## play; a save taken only on the way back would lose the whole event if the
 	## app went away mid-fight.
+	season.mark_bout_live(false)
 	Session.autosave()
 	Session.bout = sim
 	Session.bout_is_cup = false
