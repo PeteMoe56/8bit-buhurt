@@ -731,6 +731,7 @@ func _test_a_trait_survives_the_save() -> void:
 	_ok(int(old.get("trait", FighterTrait.T.NONE)) == FighterTrait.T.NONE,
 		"a file from before traits is a squad of ordinary men",
 		"the default is None, so the version does not move")
+	SaveGame.delete(2)
 	SaveGame.set_namespace("")
 
 

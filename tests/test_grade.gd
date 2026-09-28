@@ -332,6 +332,7 @@ func _test_a_v12_save_loads_sanctioned() -> void:
 	_ok(int(old.get("grade", Grade.DEFAULT)) == Grade.G.SANCTIONED,
 		"a file with no grade key reads as sanctioned",
 		"default is %s" % Grade.name_of(Grade.DEFAULT))
+	SaveGame.delete(1)
 	SaveGame.set_namespace("")
 
 

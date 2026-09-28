@@ -9,6 +9,7 @@
 ##   bash tools/bb.sh probe <name> [args...]          tools/probe_<name>.gd
 ##   bash tools/bb.sh shot <name> [WxH] [args...]     tools/shot_<name>.gd under xvfb
 ##   bash tools/bb.sh soak [args...]                  tools/soak.gd
+##   bash tools/bb.sh monkey [steps] [seeds...]       random taps through the real screens
 ##   bash tools/bb.sh fixture                         write tests/fixtures/save_v<N>.dat
 ##   bash tools/bb.sh strings                         refresh locale/strings.csv
 ##   bash tools/bb.sh sweep < plan.tsv | tune | noise the balance sweepers
@@ -62,6 +63,16 @@ case "$cmd" in
     xvfb-run -a "$G" --audio-driver Dummy --path . --resolution "$res" --script "res://$f" -- "${@:3}" 2>&1 \
       | grep -v '^Godot Engine\|^$\|ALSA' ;;
   soak)    run tools/soak.gd "$@" ;;
+  monkey)
+    need_godot
+    steps="${1:-4000}"; shift || true
+    seeds="${*:-7}"; bad=0
+    for sd in $seeds; do
+      out="$("$G" --headless --fixed-fps 60 --path . --script res://tools/monkey.gd -- "$steps" "$sd" 2>&1)"
+      echo "$out" | grep -E 'SCRIPT ERROR|PROBLEM|^monkey|MONKEY|screens visited' 
+      echo "$out" | grep -q 'SCRIPT ERROR\|PROBLEM' && bad=1
+    done
+    exit $bad ;;
   fixture) run tools/make_save_fixture.gd ;;
   strings) python3 tools/extract_strings.py ;;
   sweep)   exec bash tools/sweep.sh "$@" ;;

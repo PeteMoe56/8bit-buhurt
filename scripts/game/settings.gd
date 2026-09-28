@@ -6,6 +6,9 @@ class_name Settings
 ## every time the game opens is not a setting, it is a tease.
 
 const PATH := "user://settings.cfg"
+## Tools that press every button (the monkey) point this elsewhere, so a night of
+## random taps does not leave the developer's own volume at zero.
+static var path: String = PATH
 
 ## Defaults chosen so the first launch is pleasant rather than loud: music sits
 ## under the effects, and the UI ticks sit under both.
@@ -20,7 +23,7 @@ static func load_once() -> void:
 		return
 	_loaded = true
 	var cfg := ConfigFile.new()
-	if cfg.load(PATH) == OK:
+	if cfg.load(path) == OK:
 		music = clampf(float(cfg.get_value("audio", "music", music)), 0.0, 1.0)
 		sfx = clampf(float(cfg.get_value("audio", "sfx", sfx)), 0.0, 1.0)
 		interface = clampf(float(cfg.get_value("audio", "ui", interface)), 0.0, 1.0)
@@ -32,7 +35,7 @@ static func save_to_disk() -> void:
 	cfg.set_value("audio", "music", music)
 	cfg.set_value("audio", "sfx", sfx)
 	cfg.set_value("audio", "ui", interface)
-	cfg.save(PATH)
+	cfg.save(path)
 
 
 static func apply() -> void:
