@@ -81,4 +81,18 @@ static func clear_bout() -> void:
 static func autosave() -> bool:
 	if season == null or slot < 0:
 		return false
-	return SaveGame.save(season, slot)
+	var ok := SaveGame.save(season, slot)
+	## A FAILED SAVE IS SAID, ONCE (29 Sep 2026). Sixty-nine call sites ignored
+	## the answer, so a full phone lost progress in silence. The season screen
+	## reads this and tells the player; a save that works clears it, so the
+	## next failure is said again.
+	if ok:
+		save_failed = false
+		save_warned = false
+	else:
+		save_failed = true
+	return ok
+
+
+static var save_failed: bool = false
+static var save_warned: bool = false

@@ -154,8 +154,9 @@ const SOUNDS := {
 
 ## WHAT PLAYS WHEN A TRACK IS NOT WRITTEN YET.
 ##
-## Four of the seven exist. Without this map the other three moods and the
-## ordinary league bout would be **silent**, and silence on one screen and music
+## Every track exists now (29 Sep 2026, `test_audio` fails if one goes missing),
+## so this map is the insurance rather than the plan: without it a mood whose
+## file failed to load — or the next mood somebody adds — would be **silent**, and silence on one screen and music
 ## on the next reads as the audio being broken rather than as the audio being
 ## unfinished. A fallback is not a placeholder — it is a reasonable answer that
 ## happens to be reused.

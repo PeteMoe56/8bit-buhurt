@@ -39,7 +39,7 @@ third-party material. Nothing to attribute.
 | menu | `menu.ogg` | **HeatleyBros — Game On** (licensed) |
 | menu (fallback) | `menu_own.ogg` | ours |
 | club, fight, hosted, cup, worlds, final, champion | | ours |
-| all 8 one-shots | | ours, `tools/music/buhurt_sfx.py` |
+| all 12 one-shots (tap, wipe and type rendered 29 Sep 2026) | | ours, `tools/music/buhurt_sfx.py` |
 
 ## Two standing constraints from the HeatleyBros licence
 

@@ -71,7 +71,7 @@ specific one; `-NoBoot` skips the emulator if a device is already attached.
 
 The rest of this file is what those scripts are doing and why.
 
-## Getting to an APK
+## Getting to an app bundle (and an APK for the desk)
 
 1. **Export templates.** 1.2GB, matched to the engine version exactly — and
    **exactly includes the patch number.** A 4.6.2 editor wants
@@ -117,10 +117,24 @@ The rest of this file is what those scripts are doing and why.
    already on `PATH`. A missing JVM fails as an SDK error, which is how it
    costs an hour.
 
-5. **Build it.**
+5. **The Android build template (once).** Since 29 Sep 2026 the preset is a
+   **gradle build that outputs an app bundle (AAB) targeting API 36** — Play
+   takes new apps only as an AAB, and from 31 Aug 2026 only at API 36, and
+   Godot can only do either through gradle. In the editor: *Project → Install
+   Android Build Template…*. That writes `android/` into the project (commit
+   it; it is source). It needs the export templates from step 1.
+
+6. **Build it.**
    ```
-   godot --headless --path . --export-debug "Android" build/combat-club.apk
-   adb install -r build/combat-club.apk
+   godot --headless --path . --export-release "Android" build/combat-club.aab   :: for Play (release keystore)
+   godot --headless --path . --export-debug "Android" build/combat-club.aab     :: debug-signed bundle
+   ```
+   An AAB does not install with `adb install`. For a phone on the desk, either
+   flip *Export Format* to APK for that one export in the editor, or turn the
+   bundle into an installable set with bundletool:
+   ```
+   java -jar bundletool.jar build-apks --bundle=build/combat-club.aab --output=build/cc.apks --local-testing
+   java -jar bundletool.jar install-apks --apks=build/cc.apks
    ```
 
 ## Release signing — and the one rule
@@ -146,9 +160,12 @@ it on a build machine and keeps the file empty.
 |---|---|
 | Package | `com.bonkworks.combatclub` — *not* Godot's `com.example` default, which Play refuses at upload, after the build |
 | Architectures | `arm64-v8a` and `x86_64`. No armeabi-v7a: 32-bit ARM phones are long gone, and it doubles the APK. **`x86_64` is also what the desktop emulator runs** — an AVD on an Intel or AMD PC must use an x86_64 system image, or the install fails with `INSTALL_FAILED_NO_MATCHING_ABIS` |
-| Gradle | **Off.** `use_gradle_build=false`, so the export uses the prebuilt `android_debug.apk` template and signs it with `apksigner`. That is the short path: no gradle, no Android build template, no `android/` folder. It is also why Play Billing is not in the build — a plugin needs the gradle path, and that is a decision, not an oversight |
-| Excludes | `audio/_candidates` is 20 of the project's 25MB of audio and not one file in it is referenced. `shots/`, `docs/`, `tools/`, `tests/` go too |
-| Billing | `com_android_vending_billing` plus `internet` and `access_network_state`, for the credit unlock |
+| Gradle | **On** (29 Sep 2026): `use_gradle_build=true`, `export_format=1` (AAB), `target_sdk=36`, `min_sdk=24`. Play requires AAB and API 36; the prebuilt APK path could do neither. Needs the build template, step 5 |
+| Excludes | `audio/_candidates` (4.5MB), `audio/music/_archive` (12.5MB), the full album MP3 in the root (7MB, licensed as a loop only), `Assets/`, `Claude outputs/`, font specimens, `shots/`, `docs/`, `tools/`, `tests/`. The exported pack went 32.6MB → 15.0MB |
+| Includes | The licence texts (`fonts/OFL.txt`, `fonts/fallback/LanaPixel-OFL.txt`, `art/ui/KENNEY-LICENSE.txt`) — the game shows them on Settings → Licences with Godot's own |
+| Permissions | `com_android_vending_billing` only. **No `internet`, no `access_network_state`** — nothing in the game opens a socket, and Play Billing talks to the network through the Play Store app |
+| Backup | **On.** A career is ~70KB; off, a new phone loses it |
+| Splash | The crest on the game's ground colour, filtering off (project.godot `application/boot_splash/*`) |
 | Orientation | **Not set here.** Godot writes `android:screenOrientation` into the manifest from `display/window/handheld/orientation` in `project.godot`, which is 4 — `SENSOR_LANDSCAPE`. It was PORTRAIT under a landscape game until the mobile pass, so `test_export.gd` holds it |
 
 ## Real billing needs one more thing
@@ -187,8 +204,8 @@ adb uninstall com.bonkworks.combatclub
 
 ## The icon
 
-`icon.svg` is a placeholder: a heater shield with a cross, drawn on a 16×16 grid
-in the game's own palette. It exists so exports resolve. The real one belongs to
-the art pass, along with the launcher icons — the three `launcher_icons/*` fields
-in the Android preset are empty, so Godot falls back to `icon.svg` for all of
-them, which is fine for a debug build and not fine for a listing.
+The launcher icons are real: `art/brand/crest_192.png` for the square icon and
+the adaptive pair (`adaptive_fg_432.png` with the crest inside the middle 66%,
+`adaptive_bg_432.png` in the ground colour), set in the Android preset. The
+project icon is `crest_512.png`. (This section said the icon fields were empty
+until 29 Sep 2026; they had not been for two weeks.)

@@ -16,6 +16,10 @@ config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://art/brand/crest_512.png"
 run/max_fps=60
 run/low_processor_mode=true
+boot_splash/bg_color=Color(0.180392, 0.164706, 0.141176, 1)
+boot_splash/image="res://art/brand/crest_512.png"
+boot_splash/fullsize=false
+boot_splash/use_filter=false
 
 [display]
 

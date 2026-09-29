@@ -155,6 +155,9 @@ func _upkeep_word() -> String:
 
 func _rebuild() -> void:
 	_centre_modals()
+	if Session.save_failed and not Session.save_warned:
+		Session.save_warned = true
+		flash = UiKit.t("Could not save — your phone may be out of space. The last save is safe.")
 	for c in ui.get_children():
 		c.queue_free()
 	## THE SHOP REPLACES THE SCREEN'S CONTROLS WHEN IT IS OPEN, rather than

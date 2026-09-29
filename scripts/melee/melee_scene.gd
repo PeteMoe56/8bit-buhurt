@@ -431,7 +431,8 @@ func _skip_round() -> void:
 	##
 	## AND SPREAD OVER FRAMES. A round is 120 s at 30 ticks a second, and running
 	## all of it in the frame the button was pressed froze the screen for half a
-	## second on a desktop (tools/probe_perf.gd: ~130 us a tick) and for seconds
+	## second on a desktop (tools/probe_perf.gd: 210–290 us a tick on this 2-core
+	## box, 29 Sep 2026; the audit measured 400–580 under load) and for seconds
 	## on a phone. `_process` now runs it in slices of SKIP_BUDGET_US, so it
 	## plays as a fast-forward. The same ticks in the same order: the bout comes
 	## out identical, which `tools/probe_fingerprint.gd` holds.

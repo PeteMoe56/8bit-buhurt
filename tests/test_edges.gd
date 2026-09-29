@@ -25,6 +25,7 @@ func _initialize() -> void:
 	_test_wallet_survives_the_rename_window()
 	_test_save_keeps_everything()
 	await _test_market_shows_over_cap()
+	await _test_a_failed_save_is_said()
 	for slot in 3:
 		SaveGame.delete(slot)
 	print("")
@@ -288,3 +289,33 @@ func _test_market_shows_over_cap() -> void:
 	_ok(cards > 0 and red == cards,
 		"a man the club cannot carry says so on his market card, in red",
 		"%d cards over the cap, %d of them in red" % [cards, red])
+
+
+
+## A SAVE THAT FAILS IS SAID, ONCE. Saving into a folder that does not exist
+## fails the way a full phone does; the season screen has to say so, and not
+## again on the next rebuild while nothing has changed.
+func _test_a_failed_save_is_said() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	Session.season = s
+	Session.slot = 0
+	SaveGame.set_namespace("no_such_dir/edges")
+	var ok := Session.autosave()
+	var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	n.call("_rebuild")
+	var first := String(n.get("flash"))
+	n.set("flash", "")
+	n.call("_rebuild")
+	var second := String(n.get("flash"))
+	n.queue_free()
+	await process_frame
+	SaveGame.set_namespace("edges_test")
+	var healed := Session.autosave()
+	Session.slot = -1
+	var msg := UiKit.t("Could not save — your phone may be out of space. The last save is safe.")
+	_ok(not ok and first == msg and second == "" and healed and not Session.save_failed,
+		"a save that fails is said on the season screen, once",
+		"save failed: %s; said: %s; said again: %s; a good save clears it: %s"
+			% [not ok, first == msg, second != "", healed and not Session.save_failed])

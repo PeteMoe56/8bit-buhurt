@@ -159,9 +159,13 @@ func _test_the_catalog_is_honest() -> void:
 		% [take["have"], take["want"], ", ".join(take["missing"] as Array)])
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))
-	_ok(bad.is_empty(), "the catalog is honest",
-		"every entry has its own file and says what it is for, and the stocktake reports %d of %d actually present"
-			% [take["have"], take["want"]])
+	## AND EVERY FILE IS THERE (29 Sep 2026). This reported the stocktake and
+	## passed anyway: tap, wipe and type were missing — the tap being the most
+	## frequent sound in the game — and the check said "honest".
+	_ok(bad.is_empty() and (take["missing"] as Array).is_empty(), "the catalog is honest",
+		"every entry has its own file and says what it is for, and the stocktake reports %d of %d actually present%s"
+			% [take["have"], take["want"], "" if (take["missing"] as Array).is_empty()
+				else " — missing: " + ", ".join(take["missing"] as Array)])
 
 
 func _test_a_bus_is_built_not_stored() -> void:

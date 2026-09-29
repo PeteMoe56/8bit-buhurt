@@ -1,4 +1,5 @@
 extends Node2D
+class_name SettingsScene
 ## Settings and credits, and the credits half is not optional.
 ##
 ## `menu.ogg` is licensed rather than ours, and that licence makes attribution a
@@ -104,7 +105,77 @@ func _build() -> void:
 				_build()))
 	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(LEFT_X, UiKit.bottom(58.0)),
 		Vector2(160, 46), _back))
+	ui.add_child(UiKit.button(UiKit.t("Licences"), Vector2(LEFT_X + 176.0, UiKit.bottom(58.0)),
+		Vector2(160, 46), _show_licences))
 	queue_redraw()
+
+
+## THE LICENCES, IN FULL, WHERE A PLAYER CAN READ THEM (29 Sep 2026). Godot's
+## MIT licence and the fonts' SIL OFL both require their text to travel with the
+## game, and on a phone a file inside the pack is not somewhere a player can
+## look. Godot's own text comes from the engine (so it is always the version
+## that is running); the rest is read from the files the export ships
+## (`include_filter` in export_presets.cfg).
+const LICENCE_FILES := [
+	["Buhurt Rail, Gorget and Maul — SIL Open Font License 1.1", "res://fonts/OFL.txt"],
+	["LanaPixel by eishiya — SIL Open Font License 1.1", "res://fonts/fallback/LanaPixel-OFL.txt"],
+	["Fantasy UI Borders by Kenney — CC0", "res://art/ui/KENNEY-LICENSE.txt"],
+]
+
+var _licences: Control = null
+
+
+static func licence_text() -> String:
+	var parts: Array[String] = []
+	parts.append("Godot Engine — MIT License\n\n" + Engine.get_license_text())
+	for pair in LICENCE_FILES:
+		var body := FileAccess.get_file_as_string(String(pair[1]))
+		parts.append("%s\n\n%s" % [String(pair[0]), body.strip_edges()])
+	## AND WHAT GODOT ITSELF IS BUILT FROM (FreeType, and the rest), as the
+	## engine reports it — Godot's own "complying with licenses" guidance asks
+	## for these alongside its MIT text.
+	var third: Array[String] = []
+	for comp in Engine.get_copyright_info():
+		for part in comp.get("parts", []):
+			var holders := ", ".join(part.get("copyright", []))
+			third.append("%s — %s — %s" % [String(comp.get("name", "")), holders, String(part.get("license", ""))])
+	parts.append("Third-party components of Godot Engine\n\n" + "\n".join(third))
+	var info: Dictionary = Engine.get_license_info()
+	for name in info.keys():
+		parts.append("%s\n\n%s" % [String(name), String(info[name]).strip_edges()])
+	return "\n\n————————\n\n".join(parts)
+
+
+func _show_licences() -> void:
+	if _licences != null:
+		return
+	var screen := UiKit.screen()
+	var box := Panel.new()
+	box.position = Vector2(24, 24)
+	box.size = screen - Vector2(48, 48)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = UiKit.PANEL
+	sb.border_color = UiKit.EDGE
+	sb.set_border_width_all(3)
+	box.add_theme_stylebox_override("panel", sb)
+	var scroll := ScrollContainer.new()
+	scroll.position = Vector2(16, 16)
+	scroll.size = box.size - Vector2(32, 88)
+	var label := Label.new()
+	label.text = licence_text()
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(scroll.size.x - 16.0, 0)
+	label.add_theme_font_override("font", font)
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_color", UiKit.INK)
+	scroll.add_child(label)
+	box.add_child(scroll)
+	box.add_child(UiKit.button(UiKit.t("Close"), Vector2(16, box.size.y - 62.0),
+		Vector2(160, 46), func():
+			_licences.queue_free()
+			_licences = null))
+	_licences = box
+	ui.add_child(box)
 
 
 func _nudge(key: String, dir: int) -> void:

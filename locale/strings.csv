@@ -306,6 +306,7 @@ WAGE BILL,WAGE BILL,NÓMINA,MASSE SALARIALE,LOHNKOSTEN,MONTE STIPENDI,FOLHA SALA
 MORALE,MORALE,MORAL,MORAL,MORAL,MORALE,MORAL,MORALE,БОЕВОЙ ДУХ,士気
 Short of fit men: ,Short of fit men: ,Faltan hombres aptos: ,Pas assez d'hommes aptes : ,Zu wenig fitte Männer: ,Mancano uomini: ,Faltam homens aptos: ,Brak zdolnych do walki: ,Не хватает здоровых: ,出場可能な選手が不足: 
  and %d more., and %d more., y %d más., et %d autres., und %d weitere., e altri %d., e mais %d., i jeszcze %d., и ещё %d., 他%d人。
+Could not save — your phone may be out of space. The last save is safe.,Could not save — your phone may be out of space. The last save is safe.,No se pudo guardar: puede que tu teléfono no tenga espacio. La última partida guardada está a salvo.,Sauvegarde impossible : ton téléphone manque peut-être de place. La dernière sauvegarde est intacte.,Speichern fehlgeschlagen – vielleicht ist dein Handy voll. Der letzte Spielstand ist sicher.,Salvataggio non riuscito: forse il telefono è pieno. L'ultimo salvataggio è al sicuro.,Não foi possível salvar: talvez o celular esteja sem espaço. O último save está seguro.,Nie udało się zapisać — może brakuje miejsca w telefonie. Ostatni zapis jest bezpieczny.,"Не удалось сохранить — возможно, на телефоне нет места. Последнее сохранение цело.",保存できなかった。端末の空き容量が足りないかもしれない。前回のセーブは無事だ。
 SQUAD,SQUAD,PLANTILLA,EFFECTIF,KADER,ROSA,ELENCO,SKŁAD,СОСТАВ,チーム
 ARMORER,ARMORER,ARMERO,ARMURIER,SCHMIED,ARMAIOLO,ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
 CLUBHOUSE,CLUBHOUSE,SEDE,CLUB-HOUSE,VEREINSHEIM,CLUBHOUSE,SEDE,KLUBOWNIA,КЛУБ,クラブハウス
@@ -455,6 +456,8 @@ NOW,NOW,HOY,ACT,IST,ORA,HOJE,AKT,СЕЙЧ,現在
 MAX,MAX,MÁX,MAX,MAX,MAX,MÁX,MAX,МАКС,最大
 Automatic,Automatic,Automático,Automatique,Automatisch,Automatica,Automático,Automatycznie,Автоматически,自動
   (draft),  (draft),  (borrador),  (brouillon),  (Entwurf),  (bozza),  (rascunho),  (szkic),  (черновик),  （下書き）
+Licences,Licences,Licencias,Licences,Lizenzen,Licenze,Licenças,Licencje,Лицензии,ライセンス
+Close,Close,Cerrar,Fermer,Schließen,Chiudi,Fechar,Zamknij,Закрыть,閉じる
 SETTINGS,SETTINGS,AJUSTES,RÉGLAGES,OPTIONEN,IMPOSTAZIONI,CONFIGURAÇÕES,USTAWIENIA,НАСТРОЙКИ,設定
 SOUND,SOUND,SONIDO,SON,TON,AUDIO,SOM,DŹWIĘK,ЗВУК,サウンド
 Saved as you set them.,Saved as you set them.,Se guardan al cambiarlos.,Enregistré à chaque changement.,Wird sofort gesichert.,Salvate mentre le imposti.,Salvo ao ajustar.,Zapisuje się od razu.,Сохраняются сразу.,変更は即保存。

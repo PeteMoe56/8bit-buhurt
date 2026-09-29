@@ -49,6 +49,8 @@ func _initialize() -> void:
 	_test_the_presets_agree_with_the_project()
 	_test_nothing_in_here_is_a_secret()
 	_test_the_pack_leaves_the_workshop_behind()
+	_test_android_is_what_play_takes()
+	_test_the_licences_travel()
 	print("")
 	for n in notes:
 		print("   " + n)
@@ -172,7 +174,8 @@ func _test_the_pack_leaves_the_workshop_behind() -> void:
 	## one file in it is referenced by the game. Shipping it would roughly double
 	## the download for nothing — and `shots/`, `tools/`, `tests/` and `docs/`
 	## are the same argument in miniature.
-	var want := ["audio/_candidates", "shots", "tools", "tests", "docs"]
+	var want := ["audio/_candidates", "audio/music/_archive", "shots", "tools", "tests", "docs",
+		"Assets", "Claude outputs", "*.mp3", "font-*.png"]
 	var missing: Array[String] = []
 	var seen := 0
 	for sec in c.get_sections():
@@ -186,3 +189,58 @@ func _test_the_pack_leaves_the_workshop_behind() -> void:
 	_ok(missing.is_empty(), "every preset leaves the workshop out of the pack",
 		"%d presets, %d folders each%s" % [seen, want.size(),
 			"" if missing.is_empty() else " — " + "; ".join(missing)])
+
+
+
+## WHAT GOOGLE PLAY TAKES (29 Sep 2026, from the fresh-eyes audit). A new app
+## is accepted only as an app bundle, and from 31 Aug 2026 only targeting API
+## 36; both need a gradle build. And an app that never opens a socket does not
+## ask for the network.
+func _test_android_is_what_play_takes() -> void:
+	var c := _cfg()
+	if c == null:
+		return
+	var sec := ""
+	for s in c.get_sections():
+		if s.begins_with("preset.") and not s.ends_with(".options") \
+				and String(c.get_value(s, "platform", "")) == "Android":
+			sec = s + ".options"
+	var bad: Array[String] = []
+	if not bool(c.get_value(sec, "gradle_build/use_gradle_build", false)):
+		bad.append("not a gradle build")
+	if int(c.get_value(sec, "gradle_build/export_format", 0)) != 1:
+		bad.append("exports an APK, not an AAB")
+	if int(String(c.get_value(sec, "gradle_build/target_sdk", "0"))) < 36:
+		bad.append("target SDK below 36")
+	for perm in ["permissions/internet", "permissions/access_network_state"]:
+		if bool(c.get_value(sec, perm, false)):
+			bad.append("asks for %s" % perm.get_slice("/", 1))
+	if not bool(c.get_value(sec, "user_data_backup/allow", false)):
+		bad.append("backup is off")
+	_ok(sec != "" and bad.is_empty(), "the Android preset builds what Play accepts",
+		"AAB, gradle, target 36, no network, backup on" if bad.is_empty() else ", ".join(bad))
+
+
+
+## THE LICENCES TRAVEL WITH THE GAME AND CAN BE READ IN IT. Godot's MIT text and
+## the fonts' OFL must accompany a shipped game; every preset includes the
+## licence files, and the Settings page that shows them has all four in it.
+func _test_the_licences_travel() -> void:
+	var c := _cfg()
+	if c == null:
+		return
+	var missing: Array[String] = []
+	for sec in c.get_sections():
+		if sec.ends_with(".options") or not sec.begins_with("preset."):
+			continue
+		var inc := String(c.get_value(sec, "include_filter", ""))
+		for pair in SettingsScene.LICENCE_FILES:
+			var f := String(pair[1]).trim_prefix("res://")
+			if inc.find(f) < 0:
+				missing.append("%s lacks %s" % [String(c.get_value(sec, "name", sec)), f])
+	var text := SettingsScene.licence_text()
+	var has_all := text.contains("MIT") and text.contains("Permission is hereby granted") \
+		and text.contains("SIL OPEN FONT LICENSE") and text.contains("Kenney")
+	_ok(missing.is_empty() and has_all, "the licences ship, and the game shows them in full",
+		"%d characters on the Licences page%s" % [text.length(),
+			"" if missing.is_empty() else "; " + ", ".join(missing)])
