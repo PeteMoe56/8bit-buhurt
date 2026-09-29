@@ -10,6 +10,8 @@ extends SceneTree
 ##   worst  spam in a hopeless matchup vs hands-off
 ##   scale  grade strength x0.96 / x1.04, hands-off
 ##   strat  each strategy, hands-off      form  each formation, hands-off
+##   help   careful help-sending: none / helpfree / helpslow / helpnoans
+##   split  the clinch answer: none / aipick / aifresh / tdonly / holdonly
 var rnd := RandomNumberGenerator.new()
 var cad := 1
 var light := false
@@ -37,6 +39,14 @@ func _initialize() -> void:
 		## Which "always" answer is the one that beats the AI's own pick?
 		for pol in ["none", "aipick", "aifresh", "tdonly", "holdonly"]:
 			print("POLICY %-7s win%% %.1f" % [pol, wr(n, pol, -1, -1, 1.0)])
+	elif which == "help":
+		## Is SENDING HELP worth anything when it is done carefully? (29 Sep)
+		## helpfree: only men not already fighting someone, one helper per
+		## clinch, every 36 ticks, smart answers. helpslow: the same, but the
+		## player answers only after a second (a human thumb). helpnoans: sent,
+		## never answered — the prompt times out on the AI's pick.
+		for pol in ["none", "helpfree", "helpslow", "helpnoans"]:
+			print("POLICY %-9s win%% %.1f" % [pol, wr(n, pol, -1, -1, 1.0)])
 	elif which == "worst":
 		cad = 30; light = true; worldopp = true
 		print("CLINCH dumb every 30 ticks, light roster, x1.08, WORLD-skill opp win%% %.1f" % wr(n, "clinchdumb", -1, -1, 1.08))
@@ -109,6 +119,16 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 					if pol == "tdonly": act = Tuning.Act.TAKEDOWN
 					elif pol == "holdonly": act = Tuning.Act.HOLD
 					sim.answer_prompt(mm.idx, act)
+			elif pol.begins_with("help"):
+				if k % 36 == 0:
+					send_free(sim)
+				if pol == "helpfree":
+					answer(sim, "smart")
+				elif pol == "helpslow":
+					for mm in sim.men:
+						if mm.team == 0 and mm.prompt != null and not mm.prompt.by_player \
+								and mm.prompt.t < Tuning.PROMPT_TIME - 1.0:
+							answer_one(sim, mm)
 			elif pol != "none" and (not pol.begins_with("clinch") or k % cad == 0):
 				answer(sim, "random" if pol == "tapper" else ("dumb" if pol == "clinchdumb" else pol))
 				if (pol == "smart" and k % 5 == 0) or (pol == "busy" and k % 36 == 0):
@@ -154,6 +174,39 @@ func send(sim: MeleeSim) -> void:
 		if m.team != 0 or m.under_orders() or m.state == MeleeSim.State.GRAPPLED or not m.standing(): continue
 		for e in sim.men:
 			if e.team == 0 or e.state != MeleeSim.State.GRAPPLED: continue
+			if e.target == -1 or sim.men[e.target].team != 0: continue
+			var dd: float = m.pos.distance_to(e.pos)
+			if dd < bd: bd = dd; bm = m.idx; bt = e.idx
+	if bm == -1: return
+	var path: Array[Vector2] = []
+	sim.give_order(bm, path, bt)
+
+
+func answer_one(sim: MeleeSim, m) -> void:
+	var tgt = sim.men[m.prompt.target]
+	match m.prompt.menu:
+		Tuning.Menu.APPROACH:
+			sim.answer_prompt(m.idx, Tuning.Act.BULLRUSH if tgt.stability < 0.50 or tgt.exposed_t > 0.0 else Tuning.Act.HIT)
+		Tuning.Menu.THIRD_MAN:
+			sim.answer_prompt(m.idx, Tuning.Act.TAKEDOWN if tgt.stability < 0.65 else Tuning.Act.HIT)
+		Tuning.Menu.GRAPPLED:
+			sim.answer_prompt(m.idx, Tuning.Act.TAKEDOWN if tgt.stability < 0.60 else Tuning.Act.HOLD)
+
+
+## Send ONE free man to the nearest enemy who has one of ours tied up, and only
+## if nobody is already on his way to that enemy.
+func send_free(sim: MeleeSim) -> void:
+	if sim.phase != MeleeSim.Phase.LIVE: return
+	var claimed := {}
+	for m in sim.men:
+		if m.team == 0 and m.under_orders() and m.order.target != -1:
+			claimed[m.order.target] = true
+	var bm := -1; var bt := -1; var bd := 140.0
+	for m in sim.men:
+		if m.team != 0 or m.under_orders() or not m.standing() or m.state != MeleeSim.State.CLOSING: continue
+		if m.target != -1 and sim.men[m.target].standing() and m.pos.distance_to(sim.men[m.target].pos) < 80.0: continue
+		for e in sim.men:
+			if e.team == 0 or e.state != MeleeSim.State.GRAPPLED or claimed.has(e.idx): continue
 			if e.target == -1 or sim.men[e.target].team != 0: continue
 			var dd: float = m.pos.distance_to(e.pos)
 			if dd < bd: bd = dd; bm = m.idx; bt = e.idx
