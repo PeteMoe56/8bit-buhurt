@@ -179,7 +179,7 @@ static func _club_controls(v: SeasonScene) -> void:
 				return
 			var c := v.season.pending_cup()
 			var nm := c.cup_name
-			var rnd := c.round_name()
+			var rnd := c.round_label()
 			v.season.sim_cup_tie()
 			Session.autosave()
 			v.flash = UiKit.t("%s %s simulated.") % [nm, rnd.to_lower()]
@@ -360,7 +360,7 @@ static func _schedule(v: SeasonScene) -> void:
 				v.season.gate_for_fixture(opp, home)]
 		UiKit.pair(v, v.font, UiKit.t("%d.  %s") % [int(r["event"]),
 			UiKit.clip_px(v.font, nm, 13, 150.0)], tail,
-			Vector2(46, y), SeasonScene.fixture_w() - 16.0, 13, 12, col, UiKit.EDGE)
+			Vector2(46, y), SeasonScene.fixture_w() - 16.0, 13, 12, col, UiKit.DIM)
 		y += 20.0
 
 
@@ -449,7 +449,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	## needs its own legend.
 	UiKit.right(v, v.font, UiKit.t("%s = the squad's mood   ·   %s = your renown")
 		% [UiKit.t(Dilemma.FX_WORD["morale"]), UiKit.t(Dilemma.FX_WORD["note"])],
-		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 12, UiKit.EDGE, 400.0)
+		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 12, UiKit.DIM, 400.0)
 	for i in opts.size():
 		var o: Dictionary = opts[i]
 		var x := 24.0 + float(i) * (w + 12.0)
@@ -489,18 +489,25 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 ## body are drawn in two places and a heading computed twice is a heading that
 ## eventually says two different things.
 static func _fixture_title(v: SeasonScene) -> String:
-	## THE PROMOTION OFFER OUTRANKS EVERYTHING, because it is the only decision in
-	## the game that changes which division you are in.
-	if v.season.promotion_offered():
-		return "PROMOTION"
-	if v.season.bid_open():
-		return "TOURNAMENT BID"
-	var cup := v.season.pending_cup()
-	if cup != null:
-		return "%s  ·  %s" % [cup.cup_name.to_upper(), cup.round_name().to_upper()]
+	## THE HEAD OF THE QUEUE NAMES THE PANEL (29 Sep 2026). This asked its own
+	## questions, promotion first, where `blocked_by()` puts promotion last — the
+	## same fault the action row had — so with a dilemma and a promotion offer
+	## both pending the panel said PROMOTION over the dilemma's buttons. And it
+	## was English in every language: `UiKit.window` drew titles outside the
+	## ledger, so the string sweep never saw them.
+	match v.season.blocked_by():
+		"promotion":
+			return UiKit.t("PROMOTION")
+		"bid":
+			return UiKit.t("TOURNAMENT BID")
+		"cup":
+			var cup := v.season.pending_cup()
+			return "%s  ·  %s" % [cup.cup_name.to_upper(), cup.round_label().to_upper()]
+		"dilemma":
+			return UiKit.t("A DECISION")
 	if v.season.season_complete():
-		return "SEASON COMPLETE"
-	return "EVENT %d OF %d" % [v.season.world.event + 1,
+		return UiKit.t("SEASON COMPLETE")
+	return UiKit.t("EVENT %d OF %d") % [v.season.world.event + 1,
 		v.season.world.events_this_season()]
 
 
@@ -648,9 +655,12 @@ static func _last_event(v: SeasonScene) -> void:
 		return
 	var rf := int(e["rf"])
 	var ra := int(e["ra"])
-	var word := "beat" if rf > ra else ("lost to" if rf < ra else "drew with")
+	## Three whole sentences, not an English verb dropped into one (29 Sep 2026).
+	var line := UiKit.t("Last: beat %s %d-%d (%+d)%s") if rf > ra \
+		else (UiKit.t("Last: lost to %s %d-%d (%+d)%s") if rf < ra \
+		else UiKit.t("Last: drew with %s %d-%d (%+d)%s"))
 	var col := UiKit.UP if rf > ra else (UiKit.DOWN if rf < ra else UiKit.DIM)
-	UiKit.text(v, v.font, UiKit.t("Last: %s %s %d-%d (%+d)%s") % [word,
+	UiKit.text(v, v.font, line % [
 		UiKit.clip(String(v.season.world.clubs[int(e["opponent"])]["name"]), 22), rf, ra,
 		int(e["margin"]), "" if bool(e["fought"]) else UiKit.t("  ·  simmed")],
 		Vector2(28, y), 14, col)

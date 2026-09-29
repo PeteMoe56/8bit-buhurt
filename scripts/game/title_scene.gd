@@ -17,6 +17,8 @@ extends Node2D
 const SLOT_X := 24.0
 const SLOT_Y := 176.0
 const SLOT_W := 300.0
+## The Back / Settings row, between the tagline and the slots.
+const HEADER_BTN_Y := 124.0
 const SLOT_H := 300.0
 const SLOT_GAP := 12.0
 
@@ -168,9 +170,12 @@ func _build() -> void:
 	## Settings lives on the title screen rather than inside a season, because
 	## the credits are in there and the licence for the menu music wants them
 	## reachable without starting a club.
-	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(UiKit.screen().x - 180, 96),
+	## A ROW OF THEIR OWN (29 Sep 2026), under the tagline instead of beside it:
+	## at y 96 Back sat level with the tagline, eighteen pixels from its first
+	## letter. HEADER_BTN_Y still clears the slot panels at SLOT_Y.
+	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(UiKit.screen().x - 180, HEADER_BTN_Y),
 		Vector2(156, 44), _settings))
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 96), Vector2(140, 44), func():
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, HEADER_BTN_Y), Vector2(140, 44), func():
 		UiKit.go("res://scenes/Start.tscn")))
 	## A CANCEL, NOT A SECOND TAP ON THE SAME PIXEL. "Delete" became "Sure?" in
 	## place, same rect, no way out — so a double-tap destroyed a career, which
@@ -321,12 +326,12 @@ func _draw() -> void:
 	var two_x := 118.0 + font.get_string_size(one, HORIZONTAL_ALIGNMENT_LEFT,
 		-1.0, 42).x + 18.0
 	UiKit.text(self, font, UiKit.t("BUHURT"), Vector2(two_x, 72 - lift), 42, UiKit.YOU)
-	## 180 AND NOT 120. The Back button sits at its usual (24, 96) and runs to
-	## x 164, so this line started underneath it — on every visit to this screen
-	## since the button was added, invisible to every check in the suite because
-	## none of them could see drawn text. `test_ink.gd` named it on its first run.
-	UiKit.text(self, font, UiKit.t("Run a club. Take the list. Climb."),
-		Vector2(180, 104), 16, UiKit.DIM)
+	## UNDER THE WORDMARK. It once started at 120, underneath the Back button
+	## (then at 24, 96), and was moved to 180 — still level with the button and
+	## eighteen pixels off it. The buttons have their own row now (HEADER_BTN_Y),
+	## so the line sits where the eye expects it, under "8-BIT".
+	UiKit.text_fit(self, font, UiKit.t("Run a club. Take the list. Climb."),
+		Vector2(118, 102), 16, UiKit.DIM, UiKit.screen().x - 118.0 - 24.0)
 
 	if picking >= 0:
 		## THE PANEL IS DERIVED FROM THE GRID IT HOLDS, not written down — the

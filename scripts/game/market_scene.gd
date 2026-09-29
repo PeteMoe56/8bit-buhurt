@@ -230,4 +230,4 @@ func _bill_word(bill: int, cap: int) -> String:
 	var over := season.office.over_cap(season.club)
 	if over <= 0:
 		return "%s/%s" % [ClubOffice.money(bill), ClubOffice.money(cap)]
-	return "over by %s" % ClubOffice.money(over)
+	return UiKit.t("over by %s") % ClubOffice.money(over)

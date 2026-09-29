@@ -1200,7 +1200,7 @@ func occasion() -> String:
 	var c := pending_cup()
 	if c == null:
 		return ""
-	return "%s  ·  %s" % [c.cup_name, c.round_name()]
+	return "%s  ·  %s" % [c.cup_name, c.round_label()]
 
 
 # ---------------------------------------------------------------- the dilemma

@@ -139,7 +139,7 @@ static func pull(o: ClubOffice) -> float:
 
 
 static func note_word(o: ClubOffice) -> String:
-	return ClubOffice.CROWD_WORD[o.crowd_band()]
+	return UiKit.t(ClubOffice.CROWD_WORD[o.crowd_band()])
 
 
 

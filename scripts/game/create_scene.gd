@@ -503,6 +503,9 @@ func _save_club() -> void:
 func _draw() -> void:
 	UiKit.ground(self)
 	UiKit.text(self, font, UiKit.t("CREATE"), Vector2(24, 40), 22, UiKit.YOU)
+	## THE CURRENT TAB, marked the way the season hub marks its own (29 Sep 2026):
+	## the three tabs were identical buttons and nothing said which one you were on.
+	draw_rect(Rect2(24.0 + float(tab) * 156.0, 72.0 + 34.0, 150.0, 3.0), UiKit.YOU)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.right_edge(120.0), 40), 16, UiKit.DIM, 200.0)
 	if flash != "":
@@ -582,9 +585,9 @@ func _draw_club() -> void:
 	UiKit.text(self, font, UiKit.t("One club per save. The colors are free; the marks are not."),
 		Vector2(STAT_X, 126), 14, UiKit.DIM)
 	## Beside the name field and short of the mark shelf's first button.
-	UiKit.text_fit(self, font, UiKit.t("Name"), Vector2(STAT_X + 390, 176), 13, UiKit.EDGE,
+	UiKit.text_fit(self, font, UiKit.t("Name"), Vector2(STAT_X + 390, 176), 13, UiKit.DIM,
 		BANK_X - (STAT_X + 390) - 6.0)
-	UiKit.text(self, font, UiKit.t("Short"), Vector2(STAT_X + 130, 226), 13, UiKit.EDGE)
+	UiKit.text(self, font, UiKit.t("Short"), Vector2(STAT_X + 130, 226), 13, UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("HOME TOWN"), Vector2(STAT_X, TOWN_Y - 12.0), 11, UiKit.DIM)
 	UiKit.text(self, font, Cities.full_name(season.city()),
 		Vector2(STAT_X + 96.0, TOWN_Y - 11.0), 14, UiKit.YOU)

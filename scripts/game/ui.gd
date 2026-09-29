@@ -676,7 +676,7 @@ static func ledger_stop() -> Array[Dictionary]:
 ## ascent — getting that wrong by a line would make every check in `test_ink.gd`
 ## measure the gap above the text instead of the text.
 static func _note(font: Font, s: String, at: Vector2, size: int,
-		align: int, width: float) -> void:
+		align: int, width: float, col: Color = Color.WHITE) -> void:
 	if not _ledger_on or s == "":
 		return
 	var w := font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size).x
@@ -692,7 +692,7 @@ static func _note(font: Font, s: String, at: Vector2, size: int,
 	var asc := font.get_ascent(size)
 	_ledger.append({
 		"rect": Rect2(x, at.y - asc, w, asc + font.get_descent(size)),
-		"text": s, "size": size,
+		"text": s, "size": size, "col": col,
 	})
 
 
@@ -745,13 +745,13 @@ static func ledger_keys() -> Array:
 static func raw(ci: CanvasItem, font: Font, at: Vector2, s: String,
 		align: int = HORIZONTAL_ALIGNMENT_LEFT, width: float = -1,
 		size: int = 16, col: Color = Color.WHITE) -> void:
-	_note(font, s, at, size, align, width)
+	_note(font, s, at, size, align, width, col)
 	ci.draw_string(font, at, s, align, int(width), size, col)
 
 
 static func text(ci: CanvasItem, font: Font, s: String, at: Vector2,
 		size: int, col: Color) -> void:
-	_note(font, s, at, size, HORIZONTAL_ALIGNMENT_LEFT, 0.0)
+	_note(font, s, at, size, HORIZONTAL_ALIGNMENT_LEFT, 0.0, col)
 	ci.draw_string(font, at, s, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
 
 
@@ -824,7 +824,7 @@ static func right(ci: CanvasItem, font: Font, s: String, at: Vector2,
 	if width > 0.0 and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size).x > width:
 		size = fit_size(font, s, size, width)
 		s = fit_px(font, s, size, width)
-	_note(font, s, at - Vector2(width, 0), size, HORIZONTAL_ALIGNMENT_RIGHT, width)
+	_note(font, s, at - Vector2(width, 0), size, HORIZONTAL_ALIGNMENT_RIGHT, width, col)
 	ci.draw_string(font, at - Vector2(width, 0), s, HORIZONTAL_ALIGNMENT_RIGHT,
 		width, size, col)
 
@@ -917,7 +917,7 @@ static func mid(ci: CanvasItem, font: Font, s: String, at: Vector2,
 	if width > 0.0 and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size).x > width:
 		size = fit_size(font, s, size, width)
 		s = fit_px(font, s, size, width)
-	_note(font, s, at, size, HORIZONTAL_ALIGNMENT_CENTER, width)
+	_note(font, s, at, size, HORIZONTAL_ALIGNMENT_CENTER, width, col)
 	ci.draw_string(font, at, s, HORIZONTAL_ALIGNMENT_CENTER, width, size, col)
 
 
@@ -1275,6 +1275,9 @@ static func window(ci: CanvasItem, r: Rect2, title: String, font: Font) -> void:
 	## to whatever is behind the window.
 	ci.draw_rect(Rect2(r.position.x + 14.0, r.position.y - 1.0,
 		w + 16.0, FRAME_PX + 2.0), PANEL)
+	## In the ledger like every other drawn string — the titles were the one
+	## piece of text on a panel that the string and ink sweeps could not see.
+	_note(font, t, r.position + Vector2(22.0, float(px) - 2.0), px, HORIZONTAL_ALIGNMENT_LEFT, -1.0, YOU)
 	ci.draw_string(font, r.position + Vector2(22.0, float(px) - 2.0), t,
 		HORIZONTAL_ALIGNMENT_LEFT, -1.0, px, YOU)
 

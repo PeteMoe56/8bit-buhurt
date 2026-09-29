@@ -197,7 +197,7 @@ func _draw() -> void:
 				"band": UiKit.SELECT,
 				## THE REGIME AND THE YEARS LEFT ON HIS DEAL, together, because they
 				## are the two things about a hired captain that change.
-				"foot": "%s  ·  %dy" % [UiKit.t(String(ClubOffice.REGIME_NAME[reg])),
+				"foot": UiKit.t("%s  ·  %dy") % [UiKit.t(String(ClubOffice.REGIME_NAME[reg])),
 					int(c.get("years", ClubOffice.CAPTAIN_YEARS))],
 				"foot_col": UiKit.DOWN if int(c.get("years", 9)) <= 1 else _regime_color(reg),
 			}, true)
@@ -281,7 +281,10 @@ func _what_it_costs() -> void:
 	UiKit.text(self, font, UiKit.t("WHAT A REGIME COSTS"), Vector2(OFFER_X + 16, CUR_Y + 26),
 		12, UiKit.DIM)
 	var cols := ["", UiKit.t("TRAINING"), UiKit.t("MORALE"), UiKit.t("ARMOR"), UiKit.t("KNOCKS")]
-	var xs := [16.0, 140.0, 226.0, 306.0, 386.0]
+	## The last column is the only one holding a WORD ("rare", "some"), and its
+	## heading is the longest in most languages (LESIONES, BLESSURES), so it gets
+	## the room: the three before it hold ×0.6, + and — (29 Sep 2026).
+	var xs := [16.0, 118.0, 214.0, 280.0, 346.0]
 	for i in cols.size():
 		## Each heading has its column's room; the last runs to the panel's edge.
 		var room: float = (xs[i + 1] - 6.0 if i + 1 < xs.size() else 440.0 - 8.0) - xs[i]

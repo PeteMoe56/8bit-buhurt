@@ -163,6 +163,23 @@ func round_name() -> String:
 	return String(day[0]["round"]) if not day.is_empty() else ""
 
 
+## THE ROUND, FOR A SCREEN (29 Sep 2026). `round_name()` is data — it is stored
+## on every match and compared against ("Final") — so it stays English; this is
+## the same round in the player's language. The cup's own name is a proper noun
+## (Pete named them) and is not translated, like the divisions.
+func round_label() -> String:
+	var r := round_name()
+	match r:
+		"Pools": return UiKit.t("Pools")
+		"Complete": return UiKit.t("Complete")
+		"Final": return UiKit.t("Final")
+		"Semi-finals": return UiKit.t("Semi-finals")
+		"Quarter-finals": return UiKit.t("Quarter-finals")
+	if r.begins_with("Round of "):
+		return UiKit.t("Round of %d") % int(r.substr(9))
+	return UiKit.t(r)
+
+
 ## The player's next unplayed fixture in this cup, or {} if he has none — he is
 ## out, he was never in, or the cup is over.
 func player_match() -> Dictionary:

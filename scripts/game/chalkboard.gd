@@ -57,12 +57,12 @@ func unlock_play(office: ClubOffice) -> String:
 
 func _unlock(office: ClubOffice, is_formation: bool) -> String:
 	var have: int = formation_slots if is_formation else play_slots
-	var what: String = "formation" if is_formation else "play"
 	if have >= SLOTS:
-		return "You already have all %d %s slots." % [SLOTS, what]
+		return (UiKit.t("You already have all %d formation slots.") if is_formation
+			else UiKit.t("You already have all %d play slots.")) % SLOTS
 	var cost := slot_cost(have)
 	if office.credits < cost:
-		return "That costs %d CC and you have %d." % [cost, office.credits]
+		return UiKit.t("That costs %d CC and you have %d.") % [cost, office.credits]
 	office.spend(cost, ClubOffice.LINE_CLUB)
 	if is_formation:
 		formation_slots += 1
@@ -77,13 +77,13 @@ func _unlock(office: ClubOffice, is_formation: bool) -> String:
 ## function that vets the built-in shapes vets these.
 func save_formation(index: int, nm: String, spots: Array) -> String:
 	if index < 0 or index >= formation_slots:
-		return "That formation slot is not unlocked yet."
+		return UiKit.t("That formation slot is not unlocked yet.")
 	var bad := Tuning.formation_legal(spots)
 	if bad != "":
 		return bad
 	nm = _clean(nm)
 	if nm == "":
-		return "Give the formation a name."
+		return UiKit.t("Give the formation a name.")
 	var copy: Array = []
 	for v in spots:
 		copy.append(Vector2(v))
@@ -101,16 +101,15 @@ func save_formation(index: int, nm: String, spots: Array) -> String:
 ## worse than loudly refused.
 func delete_formation(index: int) -> String:
 	if index < 0 or index >= formations.size():
-		return "No such formation."
+		return UiKit.t("No such formation.")
 	var id := int(formations[index]["id"])
 	var bound: Array = []
 	for p in plays:
 		if int(p["formation"]) == id:
 			bound.append(String(p["name"]))
 	if not bound.is_empty():
-		return "%s is what %s %s drawn for." % [
-			String(formations[index]["name"]), ", ".join(bound),
-			"is" if bound.size() == 1 else "are"]
+		return UiKit.tn("%s is what %s is drawn for.", "%s is what %s are drawn for.",
+			bound.size()) % [String(formations[index]["name"]), ", ".join(bound)]
 	formations.remove_at(index)
 	return ""
 
@@ -158,16 +157,16 @@ func formation_choices() -> Array:
 ## thing it points at rather than as a bool plus a separate field.
 func save_play(index: int, nm: String, routes: Array, formation: int = UNIVERSAL) -> String:
 	if index < 0 or index >= play_slots:
-		return "That play slot is not unlocked yet."
+		return UiKit.t("That play slot is not unlocked yet.")
 	var bad := Tuning.play_legal(routes)
 	if bad != "":
 		return bad
 	nm = _clean(nm)
 	if nm == "":
-		return "Give the play a name."
+		return UiKit.t("Give the play a name.")
 	if formation != UNIVERSAL and formation_by_id(formation).is_empty() \
 			and not Tuning.FORMATIONS.has(formation):
-		return "That play is tied to a formation you no longer have."
+		return UiKit.t("That play is tied to a formation you no longer have.")
 	var copy: Array = []
 	for r in routes:
 		var leg: Array[Vector2] = []
@@ -185,7 +184,7 @@ func save_play(index: int, nm: String, routes: Array, formation: int = UNIVERSAL
 
 func delete_play(index: int) -> String:
 	if index < 0 or index >= plays.size():
-		return "No such play."
+		return UiKit.t("No such play.")
 	plays.remove_at(index)
 	return ""
 
@@ -251,7 +250,7 @@ func toggle_favorite(shape_id: int, kind: String, key: String) -> String:
 			favorites.remove_at(i)
 			return ""
 	if favorites.size() >= MAX_FAVORITES:
-		return "Four favorites is the lot. Take one off first."
+		return UiKit.t("Four favorites is the lot. Take one off first.")
 	favorites.append({"shape": shape_id, "kind": kind, "key": key})
 	return ""
 
@@ -273,7 +272,7 @@ func toggle_favorite(shape_id: int, kind: String, key: String) -> String:
 ## the model are separated by a frame in which a play could have been deleted.
 func promote_favorite(i: int) -> String:
 	if i <= 0 or i >= favorites.size():
-		return "" if i == 0 else "That one is not on the list."
+		return "" if i == 0 else UiKit.t("That one is not on the list.")
 	var moved: Dictionary = favorites[i]
 	favorites[i] = favorites[i - 1]
 	favorites[i - 1] = moved
@@ -284,7 +283,7 @@ func promote_favorite(i: int) -> String:
 ## walk one way is a list you have to empty to reorder.
 func demote_favorite(i: int) -> String:
 	if i < 0 or i >= favorites.size():
-		return "That one is not on the list."
+		return UiKit.t("That one is not on the list.")
 	if i == favorites.size() - 1:
 		return ""
 	var moved: Dictionary = favorites[i]

@@ -52,9 +52,9 @@ static func _draw_market(v: SeasonScene) -> void:
 
 	var cell := v._qm_cell()
 	UiKit.text(v, v.font, UiKit.t("ON THE BUS"), Vector2(24, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22),
-		12, UiKit.EDGE)
+		12, UiKit.DIM)
 	UiKit.text(v, v.font, UiKit.t("IN THE CLUBHOUSE"),
-		Vector2(24 + cell + SeasonScene.QM_GAP, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.EDGE)
+		Vector2(24 + cell + SeasonScene.QM_GAP, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)
 
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
@@ -97,13 +97,13 @@ static func _draw_market(v: SeasonScene) -> void:
 		var word := ""
 		var wcol := UiKit.DIM
 		if not f.passes_inspection():
-			word = "OUT"
+			word = UiKit.t("OUT")
 			wcol = UiKit.DOWN
 		elif not Quartermaster.topped_out(f):
 			word = "%d CC" % ClubOffice.kit_cost(f)
 		elif Quartermaster.next_grade(f) >= 0:
 			word = "%d CC" % Quartermaster.upgrade_cost(f)
-			wcol = UiKit.EDGE
+			wcol = UiKit.DIM
 		if word != "":
 			UiKit.right(v, v.font, word, Vector2(x + cell, y), 12, wcol, SeasonScene.QM_COST_W)
 

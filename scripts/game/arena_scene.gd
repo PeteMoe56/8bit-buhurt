@@ -80,13 +80,13 @@ func _rebuild() -> void:
 		## THE BID. Two dials on one screen, both spent the moment he takes it —
 		## the date and the promotion.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
-		ui.add_child(UiKit.button(UiKit.t("Date: %s — %d CC") % [String(o["name"]), int(o["bid"])],
+		ui.add_child(UiKit.button(UiKit.t("Date: %s — %d CC") % [UiKit.t(String(o["name"])), int(o["bid"])],
 			Vector2(RIGHT_X, 280), Vector2(340, 36), func():
 				offer_i = (offer_i + 1) % season.bid_offers.size()
 				flash = ""
 				_rebuild()))
 		ui.add_child(UiKit.button(UiKit.t("Budget: %s — %d CC") % [
-				String(ClubEvent.BUDGETS[budget_i]["name"]),
+				UiKit.t(String(ClubEvent.BUDGETS[budget_i]["name"])),
 				int(ClubEvent.BUDGETS[budget_i]["cost"])],
 			Vector2(RIGHT_X, 322), Vector2(340, 36), func():
 				budget_i = (budget_i + 1) % ClubEvent.BUDGETS.size()
@@ -232,7 +232,7 @@ func _fans_word() -> String:
 
 func _capacity_word() -> String:
 	var c := arena.capacity()
-	return "holds %d" % c if c < 1000 else "holds %.1fk" % (float(c) / 1000.0)
+	return UiKit.t("holds %s") % (str(c) if c < 1000 else "%.1fk" % (float(c) / 1000.0))
 
 
 ## THE GROUND. An image if one has been dropped in for this level, and an empty
@@ -255,10 +255,9 @@ func _draw_ground() -> void:
 		## broken.
 		UiKit.text(self, font, UiKit.t("%s  —  artwork to come") % arena.arena_name(),
 			g.position + Vector2(18, 30), 15, UiKit.DIM)
-		UiKit.text(self, font, ART_DIR + "arena_%d.png" % arena.level,
-			g.position + Vector2(18, 52), 12, UiKit.EDGE)
-		UiKit.text(self, font, UiKit.t("%d × %d") % [int(g.size.x), int(g.size.y)],
-			g.position + Vector2(18, 70), 12, UiKit.EDGE)
+		## The file path and the pixel size that used to follow were notes for
+		## whoever draws the art, printed to the player (29 Sep 2026). They are
+		## in docs/ART.md; the slot only says what it is waiting for.
 		## Corner ticks, so the slot reads as a frame waiting to be filled rather
 		## than as a panel that failed to draw.
 		for c in [Vector2(0, 0), Vector2(1, 0), Vector2(0, 1), Vector2(1, 1)]:
@@ -370,7 +369,7 @@ func _draw_diary() -> void:
 		UiKit.text(self, font, UiKit.t("No tournament this year."),
 			Vector2(RIGHT_X, 304), 13, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("The federation offers dates between seasons."),
-			Vector2(RIGHT_X, 326), 12, UiKit.EDGE)
+			Vector2(RIGHT_X, 326), 12, UiKit.DIM)
 
 	if not season.last_show.is_empty():
 		var l := season.last_show

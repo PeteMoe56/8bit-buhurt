@@ -471,7 +471,8 @@ func _buy(which: String) -> void:
 			var out: bool = man.years <= 0
 			err = season.resign(man) if out else season.extend(man)
 			if err == "":
-				flash = UiKit.t("%s signed for %d years.") % [man.display_name, man.years]
+				flash = UiKit.tn("%s signed for %d year.", "%s signed for %d years.", man.years) \
+					% [man.display_name, man.years]
 	if err != "":
 		flash = UiKit.said(err)
 		Juice.refuse()
@@ -558,7 +559,7 @@ func _the_man() -> void:
 	_line("Where", UiKit.t("the line") if season.club.starting_five().has(man)
 		else (UiKit.t("the bench") if man.active else UiKit.t("reserve")), y)
 	y += ROW
-	_line("Fit", UiKit.t("ready") if man.fit() else UiKit.t("out %d event(s)") % man.injury, y)
+	_line("Fit", UiKit.t("ready") if man.fit() else UiKit.tn("out %d event", "out %d events", man.injury) % man.injury, y)
 	y += ROW
 	## HIS MOOD, and it belongs on this list rather than in a panel of its own:
 	## it is a fact about the man in the same way his weight is, and it is the one

@@ -189,7 +189,7 @@ func _draw() -> void:
 		UiKit.text(self, font, UiKit.t("Difficulty"), Vector2(LEFT_X + 18, gy + 48.0),
 			17, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Open it from Clubhouse, Your career."),
-			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.EDGE)
+			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.DIM)
 
 	# -------------------------------------------------------------- language
 	UiKit.panel(self, Rect2(RIGHT_X, LANG_Y, COL_W + 6, LANG_H))

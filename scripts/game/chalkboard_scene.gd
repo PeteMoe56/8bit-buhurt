@@ -415,7 +415,7 @@ func _draw_slots() -> void:
 		if i >= owned:
 			UiKit.panel(self, r, false)
 			if i > owned:
-				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 12, y + 26), 14, UiKit.EDGE)
+				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 12, y + 26), 14, UiKit.DIM)
 			continue
 		UiKit.panel(self, r, i == slot)
 		var nm := ""
@@ -428,7 +428,7 @@ func _draw_slots() -> void:
 		if mode == Mode.PLAY and i < board.plays.size():
 			var f := int(board.plays[i]["formation"])
 			var tag := "any" if f == Chalkboard.UNIVERSAL else UiKit.clip(board.formation_name(f), 10)
-			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 26), 12, UiKit.EDGE, 120.0)
+			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 26), 12, UiKit.DIM, 120.0)
 
 
 func _draw_board() -> void:
@@ -450,8 +450,12 @@ func _draw_board() -> void:
 		Vector2(f.end.x - 8, f.end.y - 10), 12, UiKit.DIM, 160.0)
 
 	if slot >= _slots_owned():
-		UiKit.text(self, font, UiKit.t("Unlock a slot to start drawing."),
-			f.position + Vector2(16, 40), 16, UiKit.DIM)
+		## BESIDE THE FIELD, not across it (29 Sep 2026): drawn on the field it ran
+		## over the centre line. The board's open left side is empty until a slot
+		## is unlocked, which is exactly when this shows.
+		UiKit.para(self, font, UiKit.t("Unlock a slot to start drawing."),
+			Vector2(BOARD.position.x + 8.0, f.position.y + 40.0), 16, UiKit.DIM,
+			f.position.x - BOARD.position.x - 24.0, 22.0, 3)
 		return
 
 	var five: Array = spots if mode == Mode.FORMATION else _play_spots()
@@ -465,7 +469,7 @@ func _draw_board() -> void:
 		var live: bool = (mode == Mode.FORMATION and dragging == i) or drawing == i
 		draw_circle(at, MARK_R, UiKit.YOU if live else Tuning.COL_STEEL)
 		draw_arc(at, MARK_R, 0.0, TAU, 20, Tuning.COL_STEEL_DARK, 2.0)
-		UiKit.text(self, font, Tuning.POS_NAME[i].substr(0, 1),
+		UiKit.text(self, font, UiKit.t(String(Tuning.POS_NAME[i])).substr(0, 1),
 			at + Vector2(-4, 5), 14, Tuning.COL_GROUND)
 
 

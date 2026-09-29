@@ -214,7 +214,7 @@ func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
 	## beside the point — nobody fought it — and printing it beside weeks the
 	## player actually stood in would make the column a liar.
 	if not bool(r.get("fought", true)):
-		UiKit.right(self, font, "sim", Vector2(cx + year_col_w(), y), 11,
+		UiKit.right(self, font, UiKit.t("sim"), Vector2(cx + year_col_w(), y), 11,
 			UiKit.EDGE.lightened(0.4), 70)
 		return
 	## MATCHED CARRIES ITS STEP. "Matched" alone is four difficulties wearing one

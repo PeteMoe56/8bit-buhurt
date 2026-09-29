@@ -244,6 +244,54 @@ func _test_nothing_is_drawn_off_the_screen() -> void:
 	_ok(bad.is_empty(), "nothing is drawn off the screen",
 		"%d strings measured%s" % [seen,
 			"" if bad.is_empty() else " — " + "; ".join(bad.slice(0, _cap(6)))])
+	_contrast_rows = []
+	for page in SCREENS:
+		for row in await _ink(String(page[0]), int(page[1])):
+			row["page"] = _label(String(page[0]), int(page[1]))
+			_contrast_rows.append(row)
+	_test_text_can_be_read()
+
+
+## TEXT HAS TO BE READABLE, measured (29 Sep 2026). A whole class of copy was
+## drawn in `UiKit.EDGE` — the colour of a panel's border — at 1.18:1 against
+## the ground, which is invisible on a phone. Every drawn string's colour is in
+## the ledger now; against the better of the two grounds it can sit on (BG or
+## PANEL) it must reach 3:1. (WCAG asks 4.5 for body text; 3 is the floor this
+## pixel palette's secondary grey clears on both grounds.)
+var _contrast_rows: Array = []
+const MIN_CONTRAST := 3.0
+
+func _test_text_can_be_read() -> void:
+	var bad := {}
+	for row in _contrast_rows:
+		var col: Color = row.get("col", Color.WHITE)
+		## Dark text is only ever drawn on a light fill (a marker, a band), never
+		## on the ground, so the ground is the wrong thing to measure it against.
+		## And the one exemption by name: ground-coloured lettering cut into the
+		## steel position markers on the Chalkboard, read against the steel.
+		if _lum(Color(col, 1.0)) < _lum(UiKit.BG) or Color(col, 1.0).is_equal_approx(Tuning.COL_GROUND):
+			continue
+		var over_bg := UiKit.BG.lerp(Color(col, 1.0), col.a)
+		var over_panel := UiKit.PANEL.lerp(Color(col, 1.0), col.a)
+		var best := maxf(_cr(over_bg, UiKit.BG), _cr(over_panel, UiKit.PANEL))
+		if best < MIN_CONTRAST:
+			bad["%s: '%s' at %.2f:1" % [row["page"], String(row["text"]).left(40), best]] = true
+	var keys := bad.keys()
+	_ok(keys.is_empty(), "every drawn string can be read against its ground",
+		"%d strings, floor %.1f:1%s" % [_contrast_rows.size(), MIN_CONTRAST,
+			"" if keys.is_empty() else " — " + "; ".join(keys.slice(0, _cap(8)))])
+
+
+func _lum(c: Color) -> float:
+	var f := func(x: float) -> float:
+		return x / 12.92 if x <= 0.03928 else pow((x + 0.055) / 1.055, 2.4)
+	return 0.2126 * f.call(c.r) + 0.7152 * f.call(c.g) + 0.0722 * f.call(c.b)
+
+
+func _cr(a: Color, b: Color) -> float:
+	var la := _lum(a)
+	var lb := _lum(b)
+	return (maxf(la, lb) + 0.05) / (minf(la, lb) + 0.05)
 
 
 ## TEXT ON A BUTTON IS THE OTHER HALF of the same failure. A label that grows

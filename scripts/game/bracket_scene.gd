@@ -202,7 +202,8 @@ func _road() -> void:
 			y += 64.0
 			continue
 		var opp: int = int(m["b"]) if int(m["a"]) == me else int(m["a"])
-		UiKit.text(self, font, UiKit.clip(_name(opp), 17), Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK)
+		UiKit.text(self, font, UiKit.clip_px(font, _name(opp), 14, ROAD_W - 32.0),
+			Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK)
 		if bool(m.get("played", false)):
 			var mine: int = int(m["ra"]) if int(m["a"]) == me else int(m["rb"])
 			var his: int = int(m["rb"]) if int(m["a"]) == me else int(m["ra"])
@@ -236,7 +237,7 @@ func _pools() -> void:
 		UiKit.panel(self, Rect2(px, py, 444, 192))
 		UiKit.text(self, font, UiKit.t("POOL %s") % char(65 + p), Vector2(px + 18, py + 28), 13, UiKit.DIM)
 		UiKit.right(self, font, UiKit.t("P   W   D   L   MARGIN"), Vector2(px + 426, py + 28),
-			12, UiKit.EDGE, 240)
+			12, UiKit.DIM, 240)
 		## REAL ROWS. The mockup made these up and printed a club on minus one
 		## win; these come off the cup's own table.
 		var rows := cup.pool_table(p)

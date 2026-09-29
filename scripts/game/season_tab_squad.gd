@@ -363,7 +363,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## of the words and the reserve column, and a summary belongs beside the thing
 	## it summarises anyway.
 	UiKit.pair(v, v.font, UiKit.t("THE EIGHT WHO TRAVEL"), v._squad_spread(),
-		Vector2(24, SeasonScene.CONTENT_Y), SeasonScene.RESERVE_X - 16.0, 13, 12, UiKit.DIM, UiKit.EDGE)
+		Vector2(24, SeasonScene.CONTENT_Y), SeasonScene.RESERVE_X - 16.0, 13, 12, UiKit.DIM, UiKit.DIM)
 	## THE RESERVE SAYS HOW IT IS ORDERED, because it is the only list on this
 	## screen whose order is a choice rather than a fact.
 	UiKit.text(v, v.font, UiKit.t("RESERVE — by %s") % UiKit.t(String(
@@ -409,7 +409,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## "this man is not in the eight", and a key that explains the absence of a
 	## problem is a key nobody finishes reading.
 	UiKit.text(v, v.font, UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow"),
-		Vector2(24, SeasonScene._squad_key_y()), 11, UiKit.EDGE.lightened(0.25))
+		Vector2(24, SeasonScene._squad_key_y()), 11, UiKit.DIM)
 
 
 
@@ -456,7 +456,7 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 		deal_col = UiKit.UP
 	UiKit.right(v, v.font, ClubOffice.money(ClubOffice.billed(f)),
 		Vector2(x + SeasonScene.COL_WAGE_TO, y), 13, UiKit.DIM, SeasonScene.COL_WAGE_BOX)
-	UiKit.text(v, v.font, (UiKit.t("OUT") if f.years <= 0 else "%dy" % f.years),
+	UiKit.text(v, v.font, (UiKit.t("OUT") if f.years <= 0 else UiKit.t("%dy") % f.years),
 		Vector2(x + SeasonScene.COL_YEARS, y), 12, deal_col)
 	## THE TWO NUMBERS, together. Retro Bowl's roster screen is read almost
 	## entirely off rating-and-potential, and the pairing is why: neither one

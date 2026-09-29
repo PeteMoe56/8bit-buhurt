@@ -115,10 +115,14 @@ func _federation(o: ClubOffice) -> void:
 			Vector2(L_X + 16, y2), 12, UiKit.UP)
 	else:
 		UiKit.text(self, font, UiKit.t("NOT ENTERED FOR THE CUPS"), Vector2(L_X + 16, y2), 13, UiKit.DOWN)
-		UiKit.text(self, font, UiKit.clip(UiKit.t("Short on: ") + ", ".join(shorts), 52),
-			Vector2(L_X + 16, y2 + 18.0), 11, UiKit.DOWN)
+		UiKit.text_fit(self, font, UiKit.t("Short on: ") + ", ".join(shorts),
+			Vector2(L_X + 16, y2 + 18.0), 11, UiKit.DOWN, COL_W - 32.0)
+	## ITS OWN LINE (29 Sep 2026). It sat on the same baseline as "In good
+	## standing…" and the two printed through each other, in English and worse
+	## in German. Under the standing line when that is one line, and under the
+	## shortfall list when there is one.
 	UiKit.right(self, font, UiKit.t("%d CC a year to hold") % o.federation_upkeep(),
-		Vector2(L_X + COL_W - 16, y2), 12, UiKit.DIM, 220)
+		Vector2(L_X + COL_W - 16, y2 + (18.0 if shorts.is_empty() else 36.0)), 12, UiKit.DIM, 220)
 
 
 func _members(o: ClubOffice) -> void:

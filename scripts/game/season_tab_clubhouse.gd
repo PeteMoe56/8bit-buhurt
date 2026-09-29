@@ -273,12 +273,14 @@ static func _draw_office(v: SeasonScene) -> void:
 		match f:
 			ClubOffice.Facility.TRAINING:
 				if o.training_points() > 0:
-					effect = "%d points a winter" % o.training_points()
+					effect = UiKit.tn("%d point a winter", "%d points a winter",
+						o.training_points()) % o.training_points()
 			ClubOffice.Facility.INFIRMARY:
 				if o.injury_relief() > 0:
-					effect = "-%d events off a knock" % o.injury_relief()
+					effect = UiKit.tn("-%d event off a knock", "-%d events off a knock",
+						o.injury_relief()) % o.injury_relief()
 				elif o.level(f) > 0:
-					effect = "one more level to help"
+					effect = UiKit.t("one more level to help")
 		## On the LABEL line, not under the bar. Under the bar it landed in the
 		## same place as the blurb and the two strings printed through each other
 		## — which a screenshot shows instantly and nothing else would.

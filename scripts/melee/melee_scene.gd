@@ -1670,7 +1670,9 @@ func _build_ui() -> void:
 				UiKit.back("res://scenes/Season.tscn")
 			else:
 				_new_bout(randi()))
-	again_button.position = Vector2(350, 476)
+	## Inside the report's frame (29 Sep 2026): at 476 its 48 px ran across the
+	## frame's bottom edge at 522.
+	again_button.position = Vector2(350, REP_PANEL.end.y - 48.0 - 14.0)
 	again_button.visible = false
 	ui.add_child(again_button)
 

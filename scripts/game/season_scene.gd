@@ -253,7 +253,7 @@ func _draw_sim_ask() -> void:
 	UiKit.text(self, font, UiKit.t("Your men still take the week: kit wears, the room moves."),
 		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 98.0), 13, UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("Against %s.") % o,
-		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 124.0), 13, UiKit.EDGE)
+		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 124.0), 13, UiKit.DIM)
 
 
 func _fight_cup() -> void:
