@@ -81,6 +81,10 @@ class Man extends RefCounted:
 	var tank: float = 1.0
 	var stability: float = 1.0
 	var exposed_t: float = 0.0
+	## Clinch experiments: whose call this act is, and his run of misses.
+	var acting_for_player: bool = false
+	var td_misses: int = 0
+	var td_miss_on: int = -1
 	var hit_cd: float = 0.0
 	var next_act: float = 0.0
 	var grapple_t: float = 0.0
@@ -651,6 +655,9 @@ func answer_prompt(idx: int, act: int) -> bool:
 		return false
 	if m.prompt.menu == Tuning.Menu.GRAPPLED and not clinch_ready(m):
 		return false
+	if Tuning.td_gate > 0.0 and act == Tuning.Act.TAKEDOWN and m.prompt.menu == Tuning.Menu.GRAPPLED \
+			and men[m.prompt.target].stability > Tuning.td_gate:
+		return false
 	m.prompt.choice = act
 	m.prompt.by_player = true
 	m.prompt.committed = true
@@ -679,7 +686,9 @@ func clinch_ready(m: Man) -> bool:
 func _clinch_act(m: Man) -> void:
 	var p: Prompt = m.prompt
 	m.next_act = rng.randf_range(Tuning.ACT_CLINCH[0], Tuning.ACT_CLINCH[1])
+	m.acting_for_player = p.by_player
 	_resolve(m, p.choice, p.target)
+	m.acting_for_player = false
 	_close_prompt(m)
 
 
@@ -1374,7 +1383,8 @@ func _ai_choose(m: Man, tgt: Man, menu: int) -> int:
 			## The tier, in one line. A Green man needs the opponent almost gone
 			## before he recognises the moment; an Elite one takes him while he is
 			## still on his feet.
-			if tgt.stability < float(sk["wear_read"]) + Tuning.ai_clinch_throw:
+			if tgt.stability < float(sk["wear_read"]) + Tuning.ai_clinch_throw \
+					+ (Tuning.throw_mine if m.team == 0 else 0.0):
 				return Tuning.Act.TAKEDOWN
 			if agg > Tuning.AI_TD_AGG and tgt.stability < Tuning.AI_TD_WOBBLY:
 				return Tuning.Act.TAKEDOWN
@@ -1523,6 +1533,12 @@ func _takedown_chance(a: Man, d: Man, gang: bool) -> float:
 	if d.exposed_t > 0.0:
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
 	c += _sent_edge(a)
+	if Tuning.pread > 0.0 and a.acting_for_player and d.stability < Tuning.pread_at:
+		c += Tuning.pread
+	if Tuning.td_repeat > 0.0 and a.td_miss_on == d.idx:
+		c -= Tuning.td_repeat * float(a.td_misses)
+	if Tuning.td_steady > 0.0:
+		c *= lerpf(1.0 - Tuning.td_steady, 1.0, clampf(1.0 - d.stability, 0.0, 1.0))
 	c *= lerpf(Tuning.TD_EMPTY_TANK, 1.0, a.gas_frac())
 	return clampf(c, Tuning.TD_MIN, Tuning.TD_MAX)
 
@@ -1601,8 +1617,21 @@ func _resolve(m: Man, act: int, target: int) -> void:
 				if m.state == State.GRAPPLED:
 					_ungrapple(m)
 				ok = true
+				m.td_misses = 0
+				m.td_miss_on = -1
 			else:
 				m.exposed_t = Tuning.TD_FAIL_EXPOSE
+				if m.td_miss_on != t.idx:
+					m.td_misses = 0
+					m.td_miss_on = t.idx
+				m.td_misses += 1
+				if Tuning.td_brace > 0.0:
+					t.stability = minf(Tuning.STABILITY_MAX, t.stability + Tuning.td_brace)
+				if m.acting_for_player:
+					if Tuning.pmiss_expose > 0.0:
+						m.exposed_t = maxf(m.exposed_t, Tuning.pmiss_expose)
+					if Tuning.pmiss_gas > 0.0:
+						m.tank = maxf(0.0, m.tank - Tuning.pmiss_gas * m.eff_tank())
 			m.idle_t = 0.0
 			t.idle_t = 0.0
 

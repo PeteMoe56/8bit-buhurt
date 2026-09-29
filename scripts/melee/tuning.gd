@@ -252,6 +252,34 @@ static var sent_walks: bool = false
 ## at a quarter of its old price. Measured (bb probe levers, n=40 x 2 seed
 ## sets): the only variant where buying sessions beats skipping them.
 ## Kept as vars so a probe can put the old behaviour back.
+## CLINCH EXPERIMENTS (29 Sep 2026, answering "#1 without flattening tactics").
+## All OFF (0). Read from the environment so a probe can switch them.
+##   PMISS_EXPOSE  a TAKEDOWN the PLAYER chose that misses leaves him takeable
+##                 this long (seconds) instead of TD_FAIL_EXPOSE
+##   PMISS_GAS     ...and costs this share of his tank
+##   TD_REPEAT     each consecutive miss by the same man on the same man takes
+##                 this off the next attempt's odds (everyone)
+##   TD_STEADY     a takedown on a man square over his base keeps only
+##                 (1 - this) of its odds, scaling back up as he wobbles (everyone)
+##   TD_GATE       the player's TAKEDOWN is only offered once the man he holds
+##                 is below this stability; above it the answer is refused
+static func _env(k: String) -> float:
+	return OS.get_environment(k).to_float()
+static var pmiss_expose: float = _env("RB_PMISS_EXPOSE")
+static var pmiss_gas: float = _env("RB_PMISS_GAS")
+static var td_repeat: float = _env("RB_TD_REPEAT")
+static var td_steady: float = _env("RB_TD_STEADY")
+static var td_gate: float = _env("RB_TD_GATE")
+##   TD_BRACE      a man who survives a takedown braces: +this stability (everyone)
+##   THROW_MINE    added to the wear_read of the PLAYER's own men only, so his
+##                 hands-off AI throws like a thumb would, and the opposition is
+##                 untouched
+static var td_brace: float = _env("RB_TD_BRACE")
+static var throw_mine: float = _env("RB_THROW_MINE")
+##   PREAD         a TAKEDOWN the PLAYER chose on a man below PREAD_AT stability
+##                 (a good read) gains this much on its odds
+static var pread: float = _env("RB_PREAD")
+static var pread_at: float = 0.5 if OS.get_environment("RB_PREAD_AT") == "" else _env("RB_PREAD_AT")
 static var session_full_week: bool = true
 static var session_price_scale: float = 0.25
 ## #1, SHIPPED at 0.15 (Pete, 29 Sep 2026): raises every AI tier's "wear_read",

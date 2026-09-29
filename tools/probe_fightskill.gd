@@ -61,6 +61,12 @@ func _initialize() -> void:
 			orders_total = 0; bouts_total = 0
 			var w := wr(n, pol, -1, -1, 1.0)
 			print("POLICY %-9s win%% %.1f   orders/bout %.1f" % [pol, w, float(orders_total) / maxf(1.0, float(bouts_total))])
+	elif which == "gap":
+		## Just the two numbers the clinch decision turns on (29 Sep).
+		var hn := wr(n, "none", -1, -1, 1.0)
+		var td := wr(n, "tdonly", -1, -1, 1.0)
+		var th := wr(n, "think", -1, -1, 1.0)
+		print("GAP none %.1f  tdonly %.1f  edge %+.1f  think %.1f (%+.1f)" % [hn, td, td - hn, th, th - hn])
 	elif which == "worst":
 		cad = 30; light = true; worldopp = true
 		print("CLINCH dumb every 30 ticks, light roster, x1.08, WORLD-skill opp win%% %.1f" % wr(n, "clinchdumb", -1, -1, 1.08))
@@ -115,7 +121,7 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 				if not mine.is_empty() and not theirs.is_empty():
 					var pth: Array[Vector2] = []
 					sim.give_order(mine[rnd.randi() % mine.size()], pth, theirs[rnd.randi() % theirs.size()])
-			if pol in ["aipick", "aifresh", "tdonly", "holdonly"]:
+			if pol in ["aipick", "aifresh", "tdonly", "holdonly", "think"]:
 				## Open every clinched man's menu (a tap), then answer it — with the
 				## AI's own pick (the control), always TAKEDOWN, or always HOLD.
 				for mm in sim.men:
@@ -130,6 +136,11 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 							continue
 						mm.prompt.choice = sim._ai_choose(mm, sim.men[mm.prompt.target], Tuning.Menu.GRAPPLED)
 					var act: int = mm.prompt.choice
+					## think: a sensible thumb — throw on a wobbling or open man,
+					## hold on a steady one (29 Sep).
+					if pol == "think":
+						var tg = sim.men[mm.prompt.target]
+						act = Tuning.Act.TAKEDOWN if (tg.stability < 0.55 or tg.exposed_t > 0.0) else Tuning.Act.HOLD
 					if pol == "tdonly": act = Tuning.Act.TAKEDOWN
 					elif pol == "holdonly": act = Tuning.Act.HOLD
 					sim.answer_prompt(mm.idx, act)
