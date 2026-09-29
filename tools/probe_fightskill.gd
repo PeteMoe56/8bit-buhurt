@@ -19,6 +19,7 @@ var light := false
 var worldopp := false
 var orders_total := 0
 var grabs_total := 0
+var sent_total := 0
 var trips_total := 0
 var flank_total := 0
 var front_total := 0
@@ -71,8 +72,9 @@ func _initialize() -> void:
 		var out := "HELP"
 		for pol in ["none", "helpfree", "helpflank", "smart"]:
 			orders_total = 0; bouts_total = 0; flank_total = 0; front_total = 0
+			sent_total = 0
 			var w := wr(n, pol, -1, -1, 1.0)
-			out += "  %s %.1f" % [pol, w]
+			out += "  %s %.1f (%.1f/b)" % [pol, w, float(sent_total) / maxf(1.0, bouts_total)]
 			if pol != "none":
 				out += " (f%d/F%d)" % [flank_total, front_total]
 		print(out)
@@ -80,10 +82,11 @@ func _initialize() -> void:
 		## The contact wheel (29 Sep): a player reading the wheel's odds, walking
 		## and running his man round behind the one he is sent at.
 		var out := "WHEEL"
-		for pol in ["none", "helpfree", "helpwheel", "helpwheelrun", "smart"]:
+		for pol in ["none", "helpfree", "helpwheel", "helpwheelrun", "helpbusy", "smart"]:
 			bouts_total = 0; grabs_total = 0; trips_total = 0
+			sent_total = 0
 			var w := wr(n, pol, -1, -1, 1.0)
-			out += "  %s %.1f" % [pol, w]
+			out += "  %s %.1f (%.1f/b)" % [pol, w, float(sent_total) / maxf(1.0, bouts_total)]
 		out += "  | grabs %d trips %d" % [grabs_total, trips_total]
 		print(out)
 	elif which == "gap":
@@ -170,12 +173,14 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 					elif pol == "holdonly": act = Tuning.Act.HOLD
 					sim.answer_prompt(mm.idx, act)
 			elif pol.begins_with("help"):
-				if k % 36 == 0:
-					send_free(sim, pol == "helpflank" or pol.begins_with("helpwheel"),
-						pol == "helpwheelrun")
+				## helpbusy: the wheel thumb, running round behind, but looking for
+				## a free man three times as often (every 12 ticks).
+				if k % (12 if pol == "helpbusy" else 36) == 0:
+					send_free(sim, pol == "helpflank" or pol.begins_with("helpwheel") or pol == "helpbusy",
+						pol == "helpwheelrun" or pol == "helpbusy")
 				if pol == "helpfree" or pol == "helpflank":
 					answer(sim, "smart")
-				elif pol.begins_with("helpwheel"):
+				elif pol.begins_with("helpwheel") or pol == "helpbusy":
 					answer_wheel(sim)
 				elif pol == "helpslow":
 					for mm in sim.men:
@@ -189,6 +194,7 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 			sim.tick()
 		orders_total += sim.orders_issued
 		grabs_total += sim.passes_grabbed
+		sent_total += sim.sent_contacts
 		trips_total += sim.passes_tripped
 		flank_total += sim.flank_blows
 		front_total += sim.front_blows
@@ -271,18 +277,6 @@ func send_free(sim: MeleeSim, flank: bool = false, run: bool = false) -> void:
 			if dd < bd: bd = dd; bm = m.idx; bt = e.idx
 	if bm == -1: return
 	var path: Array[Vector2] = []
-	## FLANK: a waypoint off the held man's side — perpendicular to the way he
-	## faces his clinch partner, on whichever side is nearer the man sent.
-	if flank:
-		var e = sim.men[bt]
-		var face: Vector2 = (sim.men[e.target].pos - e.pos).normalized()
-		var side := Vector2(-face.y, face.x)
-		if (sim.men[bm].pos - e.pos).dot(side) < 0.0:
-			side = -side
-		## Out to his side, then round behind him — the man sent arrives from
-		## the back, the way a thumb would draw it.
-		path.append(e.pos + side * 38.0)
-		path.append(e.pos + side * 14.0 - face * 34.0)
 	## FLANK: a waypoint off the held man's side — perpendicular to the way he
 	## faces his clinch partner, on whichever side is nearer the man sent.
 	if flank:

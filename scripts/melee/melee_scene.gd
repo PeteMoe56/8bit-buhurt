@@ -1532,7 +1532,11 @@ func _draw_wheel(m) -> void:
 		draw_rect(r, COL_PANEL)
 		draw_rect(r, COL_EDGE if act == -1 else Tuning.COL_ROUTE, false, 2.0)
 		var name_ := UiKit.t("Cancel") if act == -1 else Tuning.act_name(act)
-		UiKit.raw(self, font, r.position + Vector2(0, 19), name_,
+		## Three lines in the bullrush box (the fall), so it sits higher: at the
+		## old spacing the red line's descenders ran into the frame.
+		var three := act == Tuning.Act.BULLRUSH and Tuning.br_fall > 0.0
+		var y0 := 16.0 if three else 19.0
+		UiKit.raw(self, font, r.position + Vector2(0, y0), name_,
 			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 15, COL_INK if act != -1 else COL_DIM)
 		if act == -1:
 			continue
@@ -1552,11 +1556,11 @@ func _draw_wheel(m) -> void:
 			_:
 				line = "%d%%" % int(round(float(o["p"]) * 100.0))
 				col = _odds_col(float(o["p"]))
-		UiKit.raw(self, font, r.position + Vector2(0, 36), line,
+		UiKit.raw(self, font, r.position + Vector2(0, y0 + 16.0 if three else 36.0), line,
 			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 12, col)
 		## THE RED ONE (Pete): the bullrush that bounces off and puts him down.
 		if act == Tuning.Act.BULLRUSH and float(o["fall"]) > 0.0:
-			UiKit.raw(self, font, r.position + Vector2(0, 48), UiKit.t("fall %d%%") % int(round(float(o["fall"]) * 100.0)),
+			UiKit.raw(self, font, r.position + Vector2(0, y0 + 29.0), UiKit.t("fall %d%%") % int(round(float(o["fall"]) * 100.0)),
 				HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 11, UiKit.DOWN)
 
 

@@ -244,8 +244,18 @@ const TD_GANG: float = 0.06             ## [the 2-on-1] third man on an occupied
 ##               (a thumb-drawn order, not a play), on the act his order ends in.
 ##   sent_walks  a sent man keeps walking while his question is open, instead of
 ##               standing at the range it came up at.
-static var sent_edge: float = 0.0
+static var sent_edge: float = _env("RB_SENT_EDGE")
 static var sent_walks: bool = false
+## Pete's two #10 extras (29 Sep, evening), ON (grid X, n=240: wheel help
+## 42.7 -> 50.8 against hands-off 45.0; RB_FIRST_SWING=0 / RB_MATE_GRIP=0 off):
+##   MATE_GRIP    a man you SENT arriving on an enemy who has one of ours tied up
+##                gives our holder +MATE_GRIP on his takedown for MATE_GRIP_T s
+##                ("a bonus to a teammate's grapple")
+##   FIRST_SWING  a man you SENT lands one free blow the moment he arrives,
+##                before the act you picked, with no cooldown and no cost
+static var mate_grip: float = 0.15 if OS.get_environment("RB_MATE_GRIP") == "" else _env("RB_MATE_GRIP")
+const MATE_GRIP_T: float = 3.0
+static var first_swing: bool = OS.get_environment("RB_FIRST_SWING") != "0"
 ## #11, SHIPPED (Pete, 29 Sep 2026): a PAID session trains the five at the full
 ## weekly rate instead of PRACTICE_STARTER's quarter ("his week is mostly
 ## Saturday" is true of the free week, not of an extra one the club paid for),
@@ -297,7 +307,7 @@ static var pread: float = _env("RB_PREAD")
 ##   BACK_BR       a bullrush from behind gains this on its odds
 ##   BACK_HELD     and both are this many times stronger again on a man held in
 ##                 a clinch, who cannot turn
-##   BR_FALL       a bullrush that fails puts the man who threw it on the floor
+##   BR_FALL       a PLAYER-CHOSEN bullrush that fails puts the man who threw it on the floor
 ##                 this often ("you run into them and fall")
 ##   SPRINT        a route whose endpoint is held runs at this many times the
 ##                 walking pace (1 = no sprint), and costs SPRINT_GAS of the tank
@@ -312,14 +322,14 @@ static var contact_wheel: bool = OS.get_environment("RB_WHEEL") != "0"
 ## How long a finger must rest on a route's endpoint for the man to RUN it.
 const SPRINT_HOLD: float = 0.35
 static var back_arc: float = 100.0 if OS.get_environment("RB_BACK_ARC") == "" else _env("RB_BACK_ARC")
-static var back_hit: float = _env("RB_BACK_HIT")
-static var back_br: float = _env("RB_BACK_BR")
-static var back_held: float = 1.0 if OS.get_environment("RB_BACK_HELD") == "" else _env("RB_BACK_HELD")
-static var br_fall: float = _env("RB_BR_FALL")
-static var sprint: float = 1.0 if OS.get_environment("RB_SPRINT") == "" else _env("RB_SPRINT")
+static var back_hit: float = 2.0 if OS.get_environment("RB_BACK_HIT") == "" else _env("RB_BACK_HIT")
+static var back_br: float = 0.20 if OS.get_environment("RB_BACK_BR") == "" else _env("RB_BACK_BR")
+static var back_held: float = 1.5 if OS.get_environment("RB_BACK_HELD") == "" else _env("RB_BACK_HELD")
+static var br_fall: float = 0.20 if OS.get_environment("RB_BR_FALL") == "" else _env("RB_BR_FALL")
+static var sprint: float = 1.5 if OS.get_environment("RB_SPRINT") == "" else _env("RB_SPRINT")
 static var sprint_gas: float = 0.04 if OS.get_environment("RB_SPRINT_GAS") == "" else _env("RB_SPRINT_GAS")
-static var pass_grab: float = _env("RB_PASS_GRAB")
-static var pass_trip: float = _env("RB_PASS_TRIP")
+static var pass_grab: float = 0.12 if OS.get_environment("RB_PASS_GRAB") == "" else _env("RB_PASS_GRAB")
+static var pass_trip: float = 0.12 if OS.get_environment("RB_PASS_TRIP") == "" else _env("RB_PASS_TRIP")
 static var pass_range: float = 26.0 if OS.get_environment("RB_PASS_RANGE") == "" else _env("RB_PASS_RANGE")
 const PASS_TRIP_HIT: float = 0.25
 const PASS_TRIP_FLOOR: float = 0.20

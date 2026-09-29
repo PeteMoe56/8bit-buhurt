@@ -85,7 +85,11 @@ func _test_the_cap_bites() -> void:
 	o.tier = League.Tier.BACKYARD
 	o.cap_level = 0
 	var start := ClubOffice.wage_bill(MeleeRosters.starting_club())
-	var room: bool = start < o.cap() / 2
+	## Pete, 29 Sep 2026 (#13): the cap BINDS now — raises are a needed purchase —
+	## so the starting squad no longer sits under half of it. It must still fit
+	## with a fifth of the cap spare, or the first signing is impossible.
+	var cap0 := o.cap()
+	var room: bool = start <= int(cap0 * 0.8)
 
 	## RAISING IT HAS TO COST, AND THE COST HAS TO CLIMB. It used to have to STOP
 	## as well — five raises and a wall — and that assertion is gone on purpose:
@@ -119,7 +123,7 @@ func _test_the_cap_bites() -> void:
 	var ran_out: bool = o.credits < o.cap_cost()
 	notes.append("top of each division vs its cap:  " + line.strip_edges())
 	notes.append("the club you start with bills %s against a %s cap"
-		% [ClubOffice.money(start), ClubOffice.money(200)])
+		% [ClubOffice.money(start), ClubOffice.money(cap0)])
 	notes.append("200 CC bought %d cap raises, from %d CC up to %d, and then ran out"
 		% [raised, costs[0], costs[costs.size() - 1]])
 	_ok(bad == 0 and room and raised > ClubOffice.CAP_COST.size() and climbs

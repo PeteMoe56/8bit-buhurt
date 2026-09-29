@@ -89,6 +89,10 @@ class Man extends RefCounted:
 	var acting_for_player: bool = false
 	var td_misses: int = 0
 	var td_miss_on: int = -1
+	## Tuning.mate_grip: how long this man stays loosened for the other side's
+	## holder, and which side that is.
+	var grip_t: float = 0.0
+	var grip_team: int = -1
 	var hit_cd: float = 0.0
 	var next_act: float = 0.0
 	var grapple_t: float = 0.0
@@ -272,6 +276,8 @@ class Man extends RefCounted:
 var men: Array[Man] = []
 ## Probe counters for the flank rule (29 Sep 2026): blows on clinched men.
 var passes_grabbed: int = 0
+## How many times a man the player SENT reached his target (probe counter).
+var sent_contacts: int = 0
 var passes_tripped: int = 0
 var flank_blows: int = 0
 var front_blows: int = 0
@@ -871,6 +877,7 @@ func tick() -> void:
 
 func _tick_timers(m: Man) -> void:
 	m.exposed_t = maxf(0.0, m.exposed_t - Tuning.TICK)
+	m.grip_t = maxf(0.0, m.grip_t - Tuning.TICK)
 	m.hit_cd = maxf(0.0, m.hit_cd - Tuning.TICK)
 	m.timer = maxf(0.0, m.timer - Tuning.TICK)
 	m.next_act = maxf(0.0, m.next_act - Tuning.TICK)
@@ -1252,7 +1259,22 @@ func _step_closing(m: Man) -> void:
 	if d <= m.contact_range() and m.next_act <= 0.0:
 		m.next_act = rng.randf_range(Tuning.ACT_AFTER[0], Tuning.ACT_AFTER[1])
 		var act: int = m.prompt.choice if m.prompt != null else _ai_choose(m, tgt, menu)
-		_resolve(m, act, tgt.idx)
+		m.acting_for_player = m.prompt != null and m.prompt.by_player
+		## #10's extras belong to a man the PLAYER sent, not to a play.
+		if m.under_orders() and not m.order.from_play:
+			sent_contacts += 1
+			if Tuning.mate_grip > 0.0 and tgt.state == State.GRAPPLED and tgt.target != -1 \
+					and men[tgt.target].team == m.team:
+				tgt.grip_t = Tuning.MATE_GRIP_T
+				tgt.grip_team = m.team
+			if Tuning.first_swing:
+				var cd := m.hit_cd
+				m.hit_cd = 0.0
+				_resolve(m, Tuning.Act.HIT, tgt.idx)
+				m.hit_cd = cd if act == Tuning.Act.HIT else m.hit_cd
+		if tgt.standing():
+			_resolve(m, act, tgt.idx)
+		m.acting_for_player = false
 		if m.prompt != null:
 			_close_prompt(m)
 		if m.under_orders():
@@ -1552,6 +1574,8 @@ func _takedown_chance(a: Man, d: Man, gang: bool) -> float:
 	if d.exposed_t > 0.0:
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
 	c += _sent_edge(a)
+	if d.grip_t > 0.0 and d.grip_team == a.team and d.target == a.idx:
+		c += Tuning.mate_grip
 	if Tuning.pread > 0.0 and a.acting_for_player and d.stability < Tuning.pread_at:
 		c += Tuning.pread
 	if Tuning.td_repeat > 0.0 and a.td_miss_on == d.idx:
@@ -1649,6 +1673,13 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 	var was := m.acting_for_player
 	m.acting_for_player = true
 	var out := {"p": 1.0, "fall": 0.0, "dent": 0.0}
+	## THE FREE FIRST SWING lands before the act he picks, so the odds shown are
+	## the odds after it — otherwise the wheel undersells every choice on it.
+	var t_stab := t.stability
+	var swing := 0.0
+	if Tuning.first_swing and m.under_orders() and not m.order.from_play:
+		swing = minf(_hit_amount(m, t), t.stability)
+		t.stability -= swing
 	match act:
 		Tuning.Act.BULLRUSH:
 			var p := _bullrush_chance(m, t)
@@ -1657,16 +1688,23 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 		Tuning.Act.TAKEDOWN:
 			out["p"] = _takedown_chance(m, t, t.state == State.GRAPPLED and t.target != m.idx)
 		Tuning.Act.HIT:
-			var amount := Tuning.HIT_STABILITY * t.tmod("hit_stability_against", 1.0) * (
-				0.7 + 0.6 * m.eff_strength() / 99.0)
-			if Tuning.back_hit > 1.0 and from_behind(m, t):
-				amount *= 1.0 + (Tuning.back_hit - 1.0) * _back_scale(m, t)
-			out["dent"] = minf(amount, t.stability)
+			out["dent"] = swing + minf(_hit_amount(m, t), t.stability)
 		Tuning.Act.GRAPPLE:
 			## Tying up always lands; what it is worth is his takedown once in.
 			out["p"] = _takedown_chance(m, t, false)
+	t.stability = t_stab
 	m.acting_for_player = was
 	return out
+
+
+## The balance one blow from `a` knocks off `d` (before the floor at his
+## remaining balance), with the from-behind bonus. The wheel's number.
+func _hit_amount(a: Man, d: Man) -> float:
+	var amount := Tuning.HIT_STABILITY * d.tmod("hit_stability_against", 1.0) * (
+		0.7 + 0.6 * a.eff_strength() / 99.0)
+	if Tuning.back_hit > 1.0 and from_behind(a, d):
+		amount *= 1.0 + (Tuning.back_hit - 1.0) * _back_scale(a, d)
+	return amount
 
 
 ## Is this blow from behind him (Tuning.back_arc)?
@@ -1733,7 +1771,12 @@ func _resolve(m: Man, act: int, target: int) -> void:
 				m.stability = maxf(0.0, m.stability - 0.10)
 				## AND SOMETIMES HE BOUNCES OFF AND GOES OVER (Pete: "there SHOULD
 				## be a red chance in Bullrush where you run into them and fall").
-				if Tuning.br_fall > 0.0 and rng.randf() < bullrush_fall_chance(m, t):
+				## The PLAYER'S bullrush only (grid W2, 29 Sep): the AI bullrushes
+				## far more often than a thumb does, so a fall on everyone's lowered
+				## hands-off play 5 points and brought takedown spam back. The
+				## wheel is where the risk is shown, so the wheel is where it lives.
+				if Tuning.br_fall > 0.0 and m.acting_for_player \
+						and rng.randf() < bullrush_fall_chance(m, t):
 					_put_down(m, t)
 
 		Tuning.Act.GRAPPLE:

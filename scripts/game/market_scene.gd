@@ -232,5 +232,23 @@ func _footer() -> void:
 func _bill_word(bill: int, cap: int) -> String:
 	var over := season.office.over_cap(season.club)
 	if over <= 0:
-		return "%s/%s" % [ClubOffice.money(bill), ClubOffice.money(cap)]
+		return pair_money(ClubOffice.money(bill), ClubOffice.money(cap))
 	return UiKit.t("over by %s") % ClubOffice.money(over)
+
+
+## "$181/$250" -> "$181/250", "181 $/250 $" -> "181/250 $": the currency said
+## once. Since the 29 Sep cap the figures are three digits everywhere, and the
+## second symbol was the character that did not fit the 76 px column at 11 px.
+static func pair_money(a: String, b: String) -> String:
+	var pre := 0
+	while pre < mini(a.length(), b.length()) and a[pre] == b[pre] and not a[pre].is_valid_int():
+		pre += 1
+	if pre > 0:
+		return "%s/%s" % [a, b.substr(pre)]
+	var suf := 0
+	while suf < mini(a.length(), b.length()) and a[a.length() - 1 - suf] == b[b.length() - 1 - suf] \
+			and not a[a.length() - 1 - suf].is_valid_int():
+		suf += 1
+	if suf > 0:
+		return "%s/%s" % [a.left(a.length() - suf), b]
+	return "%s/%s" % [a, b]

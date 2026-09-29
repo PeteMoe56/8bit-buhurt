@@ -67,15 +67,21 @@ func _test_the_league_gates_the_ladder() -> void:
 	## THE POINT OF THE WHOLE FEATURE. Every other purchase in this game asks
 	## "have you got the credits"; this one asks "have you earned the right", and
 	## a Backyard club with a fortune must still be refused.
+	##
+	## Pete, 29 Sep 2026 (#13): the ground now comes BEFORE the division — a club
+	## builds one division ahead (Arena.BUILD_AHEAD) so it can go up at all. So a
+	## Backyard club may build the Fenced ground, and is refused the Arena.
 	var a := Arena.new()
 	var rich := a.can_build(0, 9999)      ## Backyard, unlimited money
 	a.level = 1
-	var still := a.can_build(0, 9999)     ## next is Fenced ground, tier 1
+	var ahead := a.can_build(0, 9999)     ## next is Fenced ground, tier 1: one ahead
+	a.level = Arena.level_for_tier(2) - 1
+	var still := a.can_build(0, 9999)     ## next is the Arena, tier 2: two ahead
 	a.level = 5
 	var top := a.can_build(3, 9999)
-	_ok(rich == "" and still.find("promoted") != -1 and top.find("as far") != -1,
+	_ok(rich == "" and ahead == "" and still.find("Climb") != -1 and top.find("as far") != -1,
 		"the league gates the ladder",
-		"a Backyard club with 9999 credits is refused the Fenced ground: %s" % still)
+		"a Backyard club with 9999 credits may build the Fenced ground ('%s') and is refused the Arena: %s" % [ahead, still])
 	## And the tiers only ever go up, or the gate means nothing.
 	var rising := true
 	for i in range(1, Arena.LEVELS.size()):

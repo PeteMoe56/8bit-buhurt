@@ -209,6 +209,10 @@ func _test_a_refusal_names_a_door_that_opens() -> void:
 	## A refusal here has to be about the DEAL and never the money, so the check
 	## asserts the room rather than assuming it.
 	var f: FighterCard = s.club.roster[0]
+	## Since Pete's #13 (29 Sep) the cap BINDS — a starting club has little room —
+	## so the test buys the room it needs in cap raises rather than assuming it.
+	while ClubOffice.wage_bill(s.club) * 4 >= s.office.cap() and s.office.cap_level < 200:
+		s.office.cap_level += 1
 	_ok(ClubOffice.wage_bill(s.club) * 4 < s.office.cap(),
 		"a starting club has room to renew anybody",
 		"bill %d against a cap of %d" % [ClubOffice.wage_bill(s.club), s.office.cap()])
