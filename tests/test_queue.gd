@@ -36,6 +36,7 @@ func _initialize() -> void:
 	var shown := 0
 	var both := 0
 	var bad: Array[String] = []
+	var order_bad: Array[String] = []
 	for b in BASES:
 		var s := Season.new(MeleeRosters.starting_club(), int(b))
 		Session.season = s
@@ -58,6 +59,17 @@ func _initialize() -> void:
 						"P" if s.promotion_offered() else "-"]
 					if flags.count("-") <= 2:
 						both += 1
+					## AND THE ORDER ITSELF: bid, cup, dilemma, promotion. The
+					## screen agreeing with the season is no use if the season's
+					## own order moves (a mutation swapping two survived).
+					var want_head := ""
+					for pair in [["bid", s.bid_open()], ["cup", s.cup_pending()],
+							["dilemma", not s.dilemma.is_empty()], ["promotion", s.promotion_offered()]]:
+						if bool(pair[1]):
+							want_head = String(pair[0])
+							break
+					if head != want_head:
+						order_bad.append("pending %s: season says '%s', the order says '%s'" % [flags, head, want_head])
 					var key := head + "/" + flags
 					if not seen.has(key):
 						seen[key] = true
@@ -82,6 +94,8 @@ func _initialize() -> void:
 		"the club tab offers what the season says comes next",
 		"%d states checked across %d careers x %d seasons, %d with two or more pending%s"
 			% [shown, BASES.size(), SEASONS, both, "" if bad.is_empty() else ": " + "; ".join(bad)])
+	_ok(order_bad.is_empty(), "and the season's own order is bid, cup, dilemma, promotion",
+		"every blocked state checked" if order_bad.is_empty() else "; ".join(order_bad.slice(0, 4)))
 	print("")
 	if failures.is_empty():
 		print("THE QUEUE HOLDS (%d checks)\n" % checks)

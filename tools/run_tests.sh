@@ -99,20 +99,23 @@ run_one() {
   fi
 }
 
-## EVERY SCRIPT PARSES, TOOLS INCLUDED. One engine launch per file, in parallel.
-## `--import` does not report parse errors and a detached GDScript.reload() cannot
-## resolve class_names, so this is the honest way. A timeout or crash is a failure.
+## EVERY SCRIPT PARSES, TOOLS INCLUDED — in one engine (29 Sep 2026).
+## This used to launch the engine once per file with --check-only: 235 launches,
+## about twelve minutes of a fifteen-minute gate. `tools/parse_all.gd` loads
+## every script inside the project, where every class_name resolves as it does
+## in the game, and the engine prints Parse / Compile Error per file. The file
+## must also print its PARSED line, so a crash part-way is a failure.
 if [ ${#FILES[@]} -eq 0 ]; then
   echo "=== every script parses"
-  P="$(nproc 2>/dev/null || echo 4)"
-  parse_out="$(find scripts tools tests -name '*.gd' | sort | xargs -P "$P" -I{} \
-    sh -c 'out="$(timeout 60 "$0" --headless --path . --check-only --script "res://$1" 2>&1)"; rc=$?;
-      if [ $rc -ne 0 ] || echo "$out" | grep -q -E "Parse Error|SCRIPT ERROR"; then echo "DOES NOT PARSE ($rc): $1"; fi' "$G" {})"
+  plog="$LOGS/parse_all.log"
+  timeout 300 "$G" --headless --path . --script res://tools/parse_all.gd >"$plog" 2>&1
+  prc=$?
   ran=$((ran+1))
-  if [ -n "$parse_out" ]; then
-    echo "$parse_out"; echo "FAILED: $(echo "$parse_out" | wc -l) script(s)"; fails=$((fails+1)); failed_names+=("parse")
+  if [ $prc -ne 0 ] || grep -q -E "Parse Error|Compile Error|SCRIPT ERROR" "$plog" || ! grep -q "^PARSED" "$plog"; then
+    grep -E "DOES NOT PARSE|Parse Error|Compile Error|SCRIPT ERROR" "$plog" | head -20
+    echo "FAILED: parse sweep (rc $prc)   log: $plog"; fails=$((fails+1)); failed_names+=("parse")
   else
-    echo "  ok   all scripts parse"
+    echo "  ok   all scripts parse ($(grep -oE 'PARSED [0-9]+' "$plog" | grep -oE '[0-9]+') in one engine)"
   fi
 fi
 
@@ -201,5 +204,9 @@ if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ]; then
 fi
 
 echo ""
+## A RUN THAT RAN NOTHING IS NOT GREEN (29 Sep 2026). Naming only
+## test_shapes.gd (display-only, skipped in the headless pass) printed
+## "SUITE GREEN — 0 runs".
+if [ "$ran" -eq 0 ]; then echo "SUITE RED — 0 runs: nothing was run (test_shapes needs the full sweep)"; exit 1; fi
 if [ "$fails" -eq 0 ]; then echo "SUITE GREEN — $ran runs ($TIER)   logs: $LOGS/"; exit 0; fi
 echo "SUITE RED — $fails of $ran runs: ${failed_names[*]}   logs: $LOGS/"; exit 1

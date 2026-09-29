@@ -13,6 +13,7 @@
 ##   bash tools/bb.sh monkey [steps] [seeds...]       random taps through the real screens
 ##   bash tools/bb.sh fixture                         write tests/fixtures/save_v<N>.dat
 ##   bash tools/bb.sh strings                         refresh locale/strings.csv
+##   bash tools/bb.sh mutants [n ...]                 break each pinned rule, confirm a test notices
 ##   bash tools/bb.sh sweep < plan.tsv | tune | noise the balance sweepers
 ##   bash tools/bb.sh list                            every probe and shot, one line each
 ##
@@ -77,6 +78,7 @@ case "$cmd" in
     exit $bad ;;
   fixture) run tools/make_save_fixture.gd ;;
   strings) python3 tools/extract_strings.py ;;
+  mutants) python3 tools/mutants.py "$@" ;;
   sweep)   exec bash tools/sweep.sh "$@" ;;
   tune)    exec python3 tools/tune.py "$@" ;;
   noise)   exec bash tools/noise.sh "$@" ;;

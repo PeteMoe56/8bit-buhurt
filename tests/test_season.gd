@@ -307,14 +307,24 @@ func _test_the_after_action_report() -> void:
 			"" if missing.is_empty() else " — unprintable: " + ", ".join(missing)])
 	## AND IT IS THIS AFTERNOON'S. A report that accumulated would name a man
 	## carried off three weeks ago every week since.
+	## CHECKED BY IDENTITY, not by size (29 Sep 2026): the size bound it replaced
+	## ended in `or true` and could not fail. A fresh report holds none of the
+	## entries the last one did.
 	var n := s.last_changes.size()
+	var first: Array = s.last_changes.duplicate(false)
 	var sim2 := s.begin_bout()
 	if sim2 != null:
 		sim2.run_to_end()
 		s.post_bout(sim2)
-		_ok(s.last_changes.size() <= n + 4 or true,
+		var carried := 0
+		for c in s.last_changes:
+			for o in first:
+				if is_same(c, o):
+					carried += 1
+		_ok(n > 0 and carried == 0,
 			"and the next bout starts a fresh one",
-			"%d then %d, not %d" % [n, s.last_changes.size(), n + s.last_changes.size()])
+			"%d changes after the first bout, %d after the second, %d carried over"
+				% [n, s.last_changes.size(), carried])
 		var stale := false
 		for c in s.last_changes:
 			if not (c as Dictionary).has("who"):

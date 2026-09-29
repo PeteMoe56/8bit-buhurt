@@ -23,6 +23,8 @@ func _initialize() -> void:
 	_test_undecodable_save_is_broken()
 	_test_required_fields_match_the_decoder()
 	_test_wallet_survives_the_rename_window()
+	_test_save_keeps_everything()
+	await _test_market_shows_over_cap()
 	for slot in 3:
 		SaveGame.delete(slot)
 	print("")
@@ -212,3 +214,77 @@ func _test_wallet_survives_the_rename_window() -> void:
 		"a wallet killed between its two renames is not lost",
 		"unrenamed .tmp read back %d (want 12); with only the backup left, %d (want 7)"
 			% [from_tmp, from_bak])
+
+
+
+## THE WHOLE SAVE, NOT A FINGERPRINT OF IT (29 Sep 2026). test_save compares a
+## hand-picked set of fields, and a mutation that dropped the league records on
+## load sailed through it. This writes a lived-in season — fought bouts, so the
+## records and the book have something in them — and asks that everything the
+## writer writes comes back, bar the timestamp.
+func _test_save_keeps_everything() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	Session.season = s
+	var fought := 0
+	var guard := 0
+	while fought < 6 and guard < 60:
+		guard += 1
+		match s.blocked_by():
+			"bid": s.decline_bid(); continue
+			"dilemma": s.answer_dilemma(0); continue
+			"cup": s.sim_cup_tie(); continue
+			"promotion": s.answer_promotion(false); continue
+		if s.season_complete():
+			s.roll_over()
+			continue
+		var sim := s.begin_bout()
+		if sim == null:
+			s.skip_event()
+			continue
+		sim.run_to_end()
+		s.post_bout(sim)
+		fought += 1
+	var before := SaveGame.to_dict(s)
+	SaveGame.save(s, 0)
+	var back := SaveGame.load_slot(0)
+	var after := SaveGame.to_dict(back) if back != null else {}
+	before.erase("saved")
+	after.erase("saved")
+	var differ: Array[String] = []
+	for k in before:
+		if not after.has(k) or str(before[k]) != str(after[k]):
+			differ.append(String(k))
+	_ok(back != null and differ.is_empty(),
+		"everything a save writes comes back, not only the fields a test picked",
+		"%d fields compared after %d fought bouts%s" % [before.size(), fought,
+			"" if differ.is_empty() else "; differ: " + ", ".join(differ)])
+
+
+## THE MARKET SAYS WHEN THE CLUB CANNOT CARRY A MAN, in red, on his card. A
+## mutation that treated every wage as affordable got through the suite.
+func _test_market_shows_over_cap() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	for f in s.club.roster:
+		f.wage_agreed = 400
+	Session.season = s
+	var n: Node = (load("res://scenes/Market.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	UiKit.ledger_start()
+	(n as CanvasItem).queue_redraw()
+	await process_frame
+	await process_frame
+	var ink := UiKit.ledger_stop()
+	var red := 0
+	var cards := 0
+	var needle := UiKit.t("age %d · over cap").split("%d")[1]
+	for row in ink:
+		if String(row["text"]).ends_with(needle):
+			cards += 1
+			if Color(row.get("col", Color.WHITE)).is_equal_approx(UiKit.DOWN):
+				red += 1
+	n.queue_free()
+	await process_frame
+	_ok(cards > 0 and red == cards,
+		"a man the club cannot carry says so on his market card, in red",
+		"%d cards over the cap, %d of them in red" % [cards, red])
