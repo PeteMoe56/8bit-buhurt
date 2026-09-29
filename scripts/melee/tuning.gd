@@ -255,7 +255,11 @@ static var sent_walks: bool = false
 ##                before the act you picked, with no cooldown and no cost
 static var mate_grip: float = 0.15 if OS.get_environment("RB_MATE_GRIP") == "" else _env("RB_MATE_GRIP")
 const MATE_GRIP_T: float = 3.0
-static var first_swing: bool = OS.get_environment("RB_FIRST_SWING") != "0"
+## The free swing's share of a full blow (1.0 = a whole hit). 29 Sep: at 1.0 a
+## wheel thumb won C-6's worst setup 100% of the time.
+static var first_swing_share: float = 0.5 if OS.get_environment("RB_FIRST_SWING") == "" \
+	else _env("RB_FIRST_SWING")
+static var first_swing: bool = first_swing_share > 0.0
 ## #11, SHIPPED (Pete, 29 Sep 2026): a PAID session trains the five at the full
 ## weekly rate instead of PRACTICE_STARTER's quarter ("his week is mostly
 ## Saturday" is true of the free week, not of an extra one the club paid for),
@@ -276,7 +280,7 @@ static var first_swing: bool = OS.get_environment("RB_FIRST_SWING") != "0"
 static func _env(k: String) -> float:
 	return OS.get_environment(k).to_float()
 static var pmiss_expose: float = _env("RB_PMISS_EXPOSE")
-static var pmiss_gas: float = _env("RB_PMISS_GAS")
+static var pmiss_gas: float = 0.15 if OS.get_environment("RB_PMISS_GAS") == "" else _env("RB_PMISS_GAS")
 static var td_repeat: float = _env("RB_TD_REPEAT")
 static var td_steady: float = _env("RB_TD_STEADY")
 static var td_gate: float = _env("RB_TD_GATE")
@@ -288,7 +292,7 @@ static var td_brace: float = _env("RB_TD_BRACE")
 static var throw_mine: float = _env("RB_THROW_MINE")
 ##   PREAD         a TAKEDOWN the PLAYER chose on a man below PREAD_AT stability
 ##                 (a good read) gains this much on its odds
-static var pread: float = _env("RB_PREAD")
+static var pread: float = 0.20 if OS.get_environment("RB_PREAD") == "" else _env("RB_PREAD")
 ## THE FLANK (Pete, 29 Sep 2026): *"make it so bullrushes and swings work when
 ## you're hit from the sides and back when grappled... around the 100 degree
 ## mark."* A man tied up in a clinch faces the man he holds; an attack from
@@ -339,13 +343,14 @@ static var flank_br: float = _env("RB_FLANK_BR")
 static var front_pen: float = _env("RB_FRONT_PEN")
 static var pread_at: float = 0.5 if OS.get_environment("RB_PREAD_AT") == "" else _env("RB_PREAD_AT")
 static var session_full_week: bool = true
-static var session_price_scale: float = 0.25
-## #1, SHIPPED at 0.15 (Pete, 29 Sep 2026): raises every AI tier's "wear_read",
-## so the AI throws a takedown in the clinch against a steadier man. Halves the
-## edge an always-TAKEDOWN thumb has over hands-off play (+22-27 → +11) without
-## moving hands-off. RB_AI_THROW overrides it for probes (RB_AI_THROW=0 is the
-## old game).
-static var ai_clinch_throw: float = 0.15 if OS.get_environment("RB_AI_THROW") == "" \
+## Pete, 29 Sep evening: FULL price (1.0). At 0.25 everyone trained to his
+## ceiling and reading the scouted range was worth 0.55 seasons, not 1.8.
+static var session_price_scale: float = 1.0
+## #1, REVERSED to 0 (Pete, 29 Sep evening): +0.15 on every AI's clinch throw
+## flattened tactics (C-6 swap -4.2, needs 8). Replaced by the PLAYER-ONLY fix
+## above: a missed player takedown costs 15% of the tank (pmiss_gas) and a player
+## takedown on a man under 0.5 balance gets +0.20 (pread). RB_AI_THROW overrides.
+static var ai_clinch_throw: float = 0.0 if OS.get_environment("RB_AI_THROW") == "" \
 	else OS.get_environment("RB_AI_THROW").to_float()
 const TD_MIN: float = 0.05
 const TD_MAX: float = 0.45

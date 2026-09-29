@@ -278,6 +278,8 @@ var men: Array[Man] = []
 var passes_grabbed: int = 0
 ## How many times a man the player SENT reached his target (probe counter).
 var sent_contacts: int = 0
+## The share of a full blow the HIT being resolved lands (the free swing's).
+var _hit_mult: float = 1.0
 var passes_tripped: int = 0
 var flank_blows: int = 0
 var front_blows: int = 0
@@ -1270,8 +1272,13 @@ func _step_closing(m: Man) -> void:
 			if Tuning.first_swing:
 				var cd := m.hit_cd
 				m.hit_cd = 0.0
+				_hit_mult = Tuning.first_swing_share
 				_resolve(m, Tuning.Act.HIT, tgt.idx)
-				m.hit_cd = cd if act == Tuning.Act.HIT else m.hit_cd
+				_hit_mult = 1.0
+				## No double blow: a chosen Hit waits out the swing's cooldown
+				## unless RB_SWING_REHIT=1 (the 29 Sep first cut).
+				if act == Tuning.Act.HIT and OS.get_environment("RB_SWING_REHIT") == "1":
+					m.hit_cd = cd
 		if tgt.standing():
 			_resolve(m, act, tgt.idx)
 		m.acting_for_player = false
@@ -1678,7 +1685,7 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 	var t_stab := t.stability
 	var swing := 0.0
 	if Tuning.first_swing and m.under_orders() and not m.order.from_play:
-		swing = minf(_hit_amount(m, t), t.stability)
+		swing = minf(_hit_amount(m, t) * Tuning.first_swing_share, t.stability)
 		t.stability -= swing
 	match act:
 		Tuning.Act.BULLRUSH:
@@ -1800,7 +1807,7 @@ func _resolve(m: Man, act: int, target: int) -> void:
 				match _clinch_side(m, t):
 					1: amount *= maxf(1.0, Tuning.flank_hit)
 					-1: amount *= 1.0 - Tuning.front_pen
-			_wear(t, m, amount)
+			_wear(t, m, amount * _hit_mult)
 			## AND THE HARNESS, if the man throwing it is Heavy Handed. Floored,
 			## because a trait that can take a man to nothing is a trait that
 			## decides a bout on its own.
