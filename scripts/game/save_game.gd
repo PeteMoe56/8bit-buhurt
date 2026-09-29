@@ -359,6 +359,18 @@ static func decodable(d: Dictionary) -> bool:
 				return false
 	if not (d["clubs"] is Array):
 		return false
+	## THE CUPS TOO (29 Sep 2026) — the one nested decoder this did not cover.
+	if not (d["cups"] is Array):
+		return false
+	var cups: Array = (d["cups"] as Array).duplicate()
+	var wd = d.get("worlds", {})
+	if not (wd is Dictionary):
+		return false
+	if not (wd as Dictionary).is_empty():
+		cups.append(wd)
+	for c in cups:
+		if not (c is Dictionary) or not _has_all(c, Cup.NEED):
+			return false
 	var pc := int(d["player_club"])
 	return pc >= 0 and pc < (d["clubs"] as Array).size()
 
@@ -739,14 +751,16 @@ static func fighter_from_dict(d: Dictionary) -> FighterCard:
 	var f := FighterCard.new()
 	f.display_name = String(d["name"])
 	f.number = int(d["no"])
-	f.pos = int(d["pos"])
+	## Clamped: a position outside the enum indexed off the end of POS_ROLE
+	## in the power sums (29 Sep 2026).
+	f.pos = clampi(int(d["pos"]), 0, Tuning.Pos.size() - 1)
 	f.strength = int(d["str"])
 	f.base = int(d["base"])
 	f.skill = int(d["tec"])
 	f.gas = int(d["gas"])
 	f.aggression = int(d["agg"])
 	f.weight = int(d["kg"])
-	f.armor = float(d["armor"])
+	f.armor = clampf(float(d["armor"]), 0.0, 1.0)
 	## DEFAULTED, NOT REQUIRED. Every save written before the quartermaster
 	## existed has no `harness` key, and Borrowed is exactly what those men were
 	## wearing — so the absence reads correctly rather than needing a migration

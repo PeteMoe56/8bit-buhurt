@@ -27,6 +27,10 @@ static func release(s: Season, f: FighterCard) -> String:
 	var err := s.club.cut(f)
 	if err != "":
 		return err
+	## A man let go is nobody's prospect: the winter would bank a gain on a
+	## card that has left the club (29 Sep 2026).
+	if s.prospect == f:
+		s.prospect = null
 	if paid > 0:
 		s.office.take(paid, UiKit.t("%s traded") % f.display_name,
 			UiKit.t("season %d") % s.world.season, ClubOffice.LINE_TRANSFER)
@@ -138,6 +142,11 @@ static func _draw_dilemma(s: Season) -> void:
 	s.dilemma = {
 		"id": String(card["id"]),
 		"man": s.club.roster.find(man),
+		## AND HIS NAME, so the card can tell when the index has gone stale
+		## (29 Sep 2026): a release, a retirement or a walk-on swap shifts every
+		## index behind it, and the card then named — and answered on — whoever
+		## had slid into his slot.
+		"name": man.display_name if man != null else "",
 		"rival": s._last_opponent_name(),
 	}
 	s.dilemma_recent.append(String(card["id"]))
@@ -198,7 +207,17 @@ static func dilemma_card(s: Season) -> Dictionary:
 
 static func dilemma_man(s: Season) -> FighterCard:
 	var i: int = int(s.dilemma.get("man", -1))
-	return s.club.roster[i] if i >= 0 and i < s.club.roster.size() else null
+	var nm := String(s.dilemma.get("name", ""))
+	var at: FighterCard = s.club.roster[i] if i >= 0 and i < s.club.roster.size() else null
+	## A card from before the name was kept trusts its index, as it always did.
+	if nm == "" or (at != null and at.display_name == nm):
+		return at
+	## The roster moved under the card: find him by name, or he has gone and the
+	## card is about "somebody" rather than about the man who took his place.
+	for f in s.club.roster:
+		if (f as FighterCard).display_name == nm:
+			return f
+	return null
 
 
 

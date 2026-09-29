@@ -509,6 +509,14 @@ func to_dict() -> Dictionary:
 	}
 
 
+## What `from_dict` indexes outright. Everything else is read with a default,
+## so a cup saved before a field existed still opens. SaveGame checks these up
+## front (29 Sep 2026): a cup missing one used to load as a null in the world's
+## cup list, on a save the slot screen called healthy.
+const NEED := ["champion", "entrants", "name", "player", "pool_matches", "pool_tables",
+	"pools", "pools_first", "rounds", "runner_up", "stage"]
+
+
 static func from_dict(d: Dictionary) -> Cup:
 	var c := Cup.new(String(d["name"]), [], 0, int(d["player"]), false)
 	c.entrants = (d["entrants"] as Array).duplicate()
@@ -518,13 +526,14 @@ static func from_dict(d: Dictionary) -> Cup:
 	c.pool_tables = (d["pool_tables"] as Array).duplicate(true)
 	c.pool_matches = (d["pool_matches"] as Array).duplicate(true)
 	c.rounds = (d["rounds"] as Array).duplicate(true)
-	c.third_place = (d["third_place"] as Dictionary).duplicate(true)
+	c.third_place = (d.get("third_place", {}) as Dictionary).duplicate(true)
 	c.champion = int(d["champion"])
 	c.runner_up = int(d["runner_up"])
-	c.third = int(d["third"])
-	c.set_meta("id", String(d["id"]))
+	c.third = int(d.get("third", -1))
+	c.set_meta("id", String(d.get("id", "")))
 	if int(d.get("season", -1)) >= 0:
 		c.set_meta("season", int(d["season"]))
-	c.rng.seed = int(d["rng_seed"])
-	c.rng.state = int(d["rng_state"])
+	c.rng.seed = int(d.get("rng_seed", hash(String(d["name"]))))
+	if d.has("rng_state"):
+		c.rng.state = int(d["rng_state"])
 	return c

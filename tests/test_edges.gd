@@ -27,6 +27,8 @@ func _initialize() -> void:
 	await _test_market_shows_over_cap()
 	await _test_a_failed_save_is_said()
 	_test_cup_finish_is_data()
+	_test_dilemma_follows_its_man()
+	_test_broken_cup_is_refused()
 	for slot in 3:
 		SaveGame.delete(slot)
 	print("")
@@ -174,6 +176,18 @@ func _test_undecodable_save_is_broken() -> void:
 func _test_required_fields_match_the_decoder() -> void:
 	var src := FileAccess.get_file_as_string("res://scripts/game/save_game.gd")
 	var bad: Array[String] = []
+	## The cup's decoder lives in cup.gd and keeps its own list.
+	var csrc := FileAccess.get_file_as_string("res://scripts/league/cup.gd")
+	var ci := csrc.find("static func from_dict(")
+	var cj := csrc.find("\nstatic func ", ci + 10)
+	if cj < 0:
+		cj = csrc.find("\nfunc ", ci + 10)
+	var cbody := csrc.substr(ci, (cj - ci) if cj > 0 else -1)
+	for m in RegEx.create_from_string('\\bd\\["(\\w+)"\\]').search_all(cbody):
+		var k := m.get_string(1)
+		## `season` is read only after a `.get` says it is there.
+		if not Cup.NEED.has(k) and k != "season" and k != "rng_state":
+			bad.append("Cup.from_dict indexes d[\"%s\"] without it being required" % k)
 	var pairs := [["from_dict", SaveGame.NEED_SEASON, ["splinters"]],
 		["club_from_dict", SaveGame.NEED_CLUB, []],
 		["fighter_from_dict", SaveGame.NEED_FIGHTER, []]]
@@ -187,7 +201,7 @@ func _test_required_fields_match_the_decoder() -> void:
 			if not (pr[1] as Array).has(k) and not (pr[2] as Array).has(k):
 				bad.append("%s indexes d[\"%s\"] without it being required" % [pr[0], k])
 	_ok(bad.is_empty(), "the save's required fields are exactly what its decoders index",
-		"3 decoders read" if bad.is_empty() else "; ".join(bad))
+		"4 decoders read" if bad.is_empty() else "; ".join(bad))
 
 
 ## Kill the app after the old wallet has stepped aside and before the new one
@@ -351,3 +365,63 @@ func _test_cup_finish_is_data() -> void:
 		"a cup finish is saved in English and drawn in the language on screen",
 		"stored '%s', cabinet '%s' → es '%s' / '%s'; an old translated save passes through as '%s'"
 			% [stored, cabinet, es_low, es_cap, old])
+
+
+## A DILEMMA IS ABOUT A MAN, NOT A ROSTER SLOT (29 Sep 2026). The card kept an
+## index; releasing anybody listed before him slid the next man into it, and the
+## answer landed on him. Letting the man himself go leaves the card about nobody.
+func _test_dilemma_follows_its_man() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	var r: Array = s.club.roster
+	var early: FighterCard = r[1]
+	var him: FighterCard = r[r.size() - 1]
+	early.active = false
+	him.active = false
+	s.prospect = early
+	s.dilemma = {"id": String(Dilemma.CARDS[0]["id"]), "man": r.find(him),
+		"name": him.display_name, "rival": "them"}
+	var err := s.release(early)
+	var still := s.dilemma_man()
+	var prospect_gone := s.prospect == null
+	var err2 := s.release(him)
+	var gone := s.dilemma_man()
+	## A card saved before the name was kept still trusts its index.
+	s.dilemma = {"id": String(Dilemma.CARDS[0]["id"]), "man": 0, "rival": "them"}
+	var legacy := s.dilemma_man()
+	_ok(err == "" and err2 == "" and still == him and gone == null and legacy == s.club.roster[0]
+			and prospect_gone,
+		"a dilemma stays with its man when the roster moves, and a released prospect is dropped",
+		"after releasing a man above him the card names %s (want %s); after releasing him: %s; old card by index: %s; prospect cleared: %s"
+			% [still.display_name if still != null else "nobody", him.display_name,
+				"nobody" if gone == null else gone.display_name, legacy != null, prospect_gone])
+
+
+## A cup missing a field the decoder needs makes the save undecodable, instead
+## of loading a null into the world's cup list. A cup missing only a field that
+## came later (third_place) still opens.
+func _test_broken_cup_is_refused() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	var guard := 0
+	while s.world.cups.is_empty() and guard < 40:
+		guard += 1
+		match s.blocked_by():
+			"bid": s.decline_bid()
+			"dilemma": s.answer_dilemma(0)
+			"cup": s.sim_cup_tie()
+			"promotion": s.answer_promotion(false)
+			_: s.skip_event()
+	var d := SaveGame.to_dict(s)
+	var has_cup := not (d["cups"] as Array).is_empty()
+	var old := d.duplicate(true)
+	if has_cup:
+		(old["cups"][0] as Dictionary).erase("third_place")
+		(old["cups"][0] as Dictionary).erase("rng_state")
+	var bad := d.duplicate(true)
+	if has_cup:
+		(bad["cups"][0] as Dictionary).erase("rounds")
+	var old_cup: Cup = Cup.from_dict(old["cups"][0]) if has_cup else null
+	_ok(has_cup and SaveGame.decodable(d) and SaveGame.decodable(old) and not SaveGame.decodable(bad)
+			and old_cup != null,
+		"a save whose cup lacks a needed field is refused; one lacking a later field still opens",
+		"cup in the save: %s; whole: %s; without third_place/rng_state: %s; without rounds: %s"
+			% [has_cup, SaveGame.decodable(d), SaveGame.decodable(old), SaveGame.decodable(bad)])
