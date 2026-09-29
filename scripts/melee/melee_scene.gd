@@ -2355,9 +2355,13 @@ func _draw_splash() -> void:
 	var city := _season().world.city_of(home_id) if (_season() != null and home_id >= 0) else ""
 	UiKit.raw(self, font, Vector2(0, 74), UiKit.t(String(Venue.NAME[kind])).to_upper(),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 13, COL_DIM)
-	var ground := _season().office.arena.arena_name() if (_season() != null
-		and kind == Venue.Kind.HOME) else (UiKit.t("Tournament ground")
-		if kind == Venue.Kind.NEUTRAL else UiKit.t("Their ground"))
+	var ground := UiKit.t("Their ground")
+	if kind == Venue.Kind.HOME:
+		## A standalone bout has no arena to name, and used to fall through to
+		## "Their ground" under a HOME heading.
+		ground = _season().office.arena.arena_name() if _season() != null else UiKit.t("Home ground")
+	elif kind == Venue.Kind.NEUTRAL:
+		ground = UiKit.t("Tournament ground")
 	UiKit.raw(self, font, Vector2(0, 104), Venue.title(kind,
 		Cities.full_name(city) if city != "" else "", ground),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 22, UiKit.YOU)
@@ -2380,7 +2384,12 @@ func _draw_splash() -> void:
 
 
 func _splash_club(club, side: int, cx: float) -> void:
-	_draw_mark(Vector2(cx, 212.0), club, 92.0)
+	## ON ITS KIT, the way the fight's banner draws it (29 Sep 2026). The bare
+	## mark sat on the black band, and a navy mark on black is no mark at all.
+	var plate := Rect2(cx - 50.0, 162.0, 100.0, 100.0)
+	draw_rect(plate, club.kit)
+	draw_rect(plate, COL_EDGE, false, 2.0)
+	_draw_mark(Vector2(cx, 212.0), club, 76.0)
 	UiKit.raw(self, font, Vector2(cx - 220.0, 286.0), club.display_name,
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 17, COL_INK)
 	## THE RECORD, which only the season knows. Blank in a standalone bout rather

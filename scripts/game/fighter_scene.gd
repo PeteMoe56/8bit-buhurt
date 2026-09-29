@@ -413,10 +413,12 @@ func _meeting_under(i: int) -> Array:
 		0:
 			return [[UiKit.t("Strength"), "%d → %d" % [man.strength,
 					int(round(_roll("str", float(man.fighting_strength()))))],
-					man.fighting_strength() != man.strength],
+					## Red only when he fights BELOW his number — a boost is not a
+					## warning (29 Sep 2026: "50 → 56" was drawn in the alarm colour).
+					man.fighting_strength() < man.strength],
 				[UiKit.t("Gas"), "%d → %d" % [man.gas,
 					int(round(_roll("gas", float(man.fighting_gas()))))],
-					man.fighting_gas() != man.gas]]
+					man.fighting_gas() < man.gas]]
 		1:
 			return [[UiKit.t("Base"), "%d → %d" % [man.base,
 					int(round(_roll("base", float(man.effective_base()))))],

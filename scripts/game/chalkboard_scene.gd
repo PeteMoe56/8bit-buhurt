@@ -188,6 +188,7 @@ func _rebuild() -> void:
 
 	if slot < owned:
 		name_edit = LineEdit.new()
+		UiKit.skin_edit(name_edit)
 		name_edit.position = Vector2(BOARD.position.x, 48)
 		name_edit.size = Vector2(300, 34)
 		name_edit.max_length = 18

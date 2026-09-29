@@ -141,6 +141,7 @@ func _fighter_controls() -> void:
 	if shop.left() <= 0:
 		return
 	name_edit = LineEdit.new()
+	UiKit.skin_edit(name_edit)
 	## 116 AND NOT 108. The tab row ends at 106 including its drop shadow, so at
 	## 108 this box sat two pixels under it and the shadow ran along its top edge
 	## — the pair read as one control with a line through it. Nothing overlapped,
@@ -273,6 +274,7 @@ func _offer_towns() -> void:
 
 func _club_controls() -> void:
 	club_name_edit = LineEdit.new()
+	UiKit.skin_edit(club_name_edit)
 	club_name_edit.position = Vector2(STAT_X, 150)
 	club_name_edit.size = Vector2(380, 36)
 	club_name_edit.max_length = 30
@@ -282,6 +284,7 @@ func _club_controls() -> void:
 	ui.add_child(club_name_edit)
 
 	club_short_edit = LineEdit.new()
+	UiKit.skin_edit(club_short_edit)
 	club_short_edit.position = Vector2(STAT_X, 200)
 	club_short_edit.size = Vector2(120, 36)
 	club_short_edit.max_length = 4

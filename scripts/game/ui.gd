@@ -1139,6 +1139,26 @@ static func _add_slop(b: Button, inner: Vector2) -> void:
 		b.add_child(strip)
 
 
+## A TEXT FIELD IN THE GAME'S OWN TYPE (29 Sep 2026). The name fields on
+## Create and the Chalkboard were Godot's stock LineEdit — a smooth sans in a
+## rounded grey box, the one control on those screens that was not pixel type.
+static func skin_edit(e: LineEdit, px: int = 16) -> void:
+	e.add_theme_font_override("font", body())
+	e.add_theme_font_size_override("font_size", px)
+	e.add_theme_color_override("font_color", INK)
+	e.add_theme_color_override("font_placeholder_color", DIM)
+	e.add_theme_color_override("caret_color", YOU)
+	for state in ["normal", "focus", "read_only"]:
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = BG.darkened(0.25)
+		sb.border_color = YOU if state == "focus" else FRAME
+		sb.set_border_width_all(2)
+		sb.set_corner_radius_all(0)
+		sb.content_margin_left = 8.0
+		sb.content_margin_right = 8.0
+		e.add_theme_stylebox_override(state, sb)
+
+
 ## GODOT'S DEFAULT BUTTON IS THE LOUDEST TELL ON THE SCREEN.
 ##
 ## A gray rounded rectangle with a soft vertical gradient. It is the one element
