@@ -11,11 +11,14 @@ extends SceneTree
 ##   scale  grade strength x0.96 / x1.04, hands-off
 ##   strat  each strategy, hands-off      form  each formation, hands-off
 ##   help   careful help-sending: none / helpfree / helpslow / helpnoans
+##   sent:<edge>:<walks>  the same under decision #10's options (sent:0.15:1)
 ##   split  the clinch answer: none / aipick / aifresh / tdonly / holdonly
 var rnd := RandomNumberGenerator.new()
 var cad := 1
 var light := false
 var worldopp := false
+var orders_total := 0
+var bouts_total := 0
 func _initialize() -> void:
 	var a := OS.get_cmdline_user_args()
 	var n: int = int(a[0]) if a.size() > 0 else 100
@@ -47,6 +50,17 @@ func _initialize() -> void:
 		## never answered — the prompt times out on the AI's pick.
 		for pol in ["none", "helpfree", "helpslow", "helpnoans"]:
 			print("POLICY %-9s win%% %.1f" % [pol, wr(n, pol, -1, -1, 1.0)])
+	elif which.begins_with("sent"):
+		## MORNING DECISION #10 (29 Sep): what a route is worth under each option.
+		## sent:<edge>:<walks 0/1>  e.g. sent:0.15:1
+		var parts := which.split(":")
+		Tuning.sent_edge = float(parts[1]) if parts.size() > 1 else 0.0
+		Tuning.sent_walks = parts.size() > 2 and parts[2] == "1"
+		print("sent_edge %.2f  sent_walks %s" % [Tuning.sent_edge, Tuning.sent_walks])
+		for pol in ["none", "helpfree", "helpslow", "smart"]:
+			orders_total = 0; bouts_total = 0
+			var w := wr(n, pol, -1, -1, 1.0)
+			print("POLICY %-9s win%% %.1f   orders/bout %.1f" % [pol, w, float(orders_total) / maxf(1.0, float(bouts_total))])
 	elif which == "worst":
 		cad = 30; light = true; worldopp = true
 		print("CLINCH dumb every 30 ticks, light roster, x1.08, WORLD-skill opp win%% %.1f" % wr(n, "clinchdumb", -1, -1, 1.08))
@@ -134,6 +148,8 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 				if (pol == "smart" and k % 5 == 0) or (pol == "busy" and k % 36 == 0):
 					send(sim)
 			sim.tick()
+		orders_total += sim.orders_issued
+		bouts_total += 1
 		var x := sim.bout_winner()
 		if x == -1: continue
 		d += 1

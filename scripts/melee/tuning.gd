@@ -235,6 +235,17 @@ const TD_PER_STR: float = 0.0040        ## attacker strength vs defender base
 const TD_PER_SKL: float = 0.0020
 const TD_STABILITY_W: float = 0.30      ## a wobbling man goes down much easier
 const TD_GANG: float = 0.06             ## [the 2-on-1] third man on an occupied opponent
+
+## EXPERIMENT SWITCHES FOR MORNING DECISION #10 (29 Sep 2026) — both OFF, so the
+## game plays exactly as it did. `bb probe fightskill <n> sent` flips them to
+## measure what a player's route is worth under each option; nothing in the
+## game sets them. Static vars rather than consts only so a probe can.
+##   sent_edge   added to the takedown and bullrush odds of a man the player SENT
+##               (a thumb-drawn order, not a play), on the act his order ends in.
+##   sent_walks  a sent man keeps walking while his question is open, instead of
+##               standing at the range it came up at.
+static var sent_edge: float = 0.0
+static var sent_walks: bool = false
 const TD_MIN: float = 0.05
 const TD_MAX: float = 0.45
 const TD_FAIL_EXPOSE: float = 1.2       ## seconds you are takeable after missing

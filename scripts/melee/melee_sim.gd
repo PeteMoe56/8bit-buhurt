@@ -1195,7 +1195,7 @@ func _step_closing(m: Man) -> void:
 	var waiting: bool = m.prompt != null and not m.prompt.committed \
 		and m.prompt.menu != Tuning.Menu.GRAPPLED
 	var to_goal := goal - m.pos
-	if to_goal.length() > 1.0 and not waiting:
+	if to_goal.length() > 1.0 and (not waiting or Tuning.sent_walks):
 		var step := _speed(m) * Tuning.TICK
 		m.pos += to_goal.normalized() * step
 		## Charged by the METRE. See Tuning.GAS_MOVE — per second, this went to
@@ -1522,6 +1522,7 @@ func _takedown_chance(a: Man, d: Man, gang: bool) -> float:
 		c += Tuning.TD_GANG * a.tmod("td_gang", 1.0)
 	if d.exposed_t > 0.0:
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
+	c += _sent_edge(a)
 	c *= lerpf(Tuning.TD_EMPTY_TANK, 1.0, a.gas_frac())
 	return clampf(c, Tuning.TD_MIN, Tuning.TD_MAX)
 
@@ -1535,8 +1536,16 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	if d.exposed_t > 0.0:
 		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
+	c += _sent_edge(a)
 	c *= lerpf(Tuning.BR_EMPTY_TANK, 1.0, a.gas_frac())
 	return clampf(c, Tuning.BR_MIN, Tuning.BR_MAX)
+
+
+## Morning decision #10's option (a): off (0.0) unless a probe sets it.
+func _sent_edge(a: Man) -> float:
+	if Tuning.sent_edge == 0.0 or not a.under_orders() or a.order.from_play:
+		return 0.0
+	return Tuning.sent_edge
 
 
 func _resolve(m: Man, act: int, target: int) -> void:
