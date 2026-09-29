@@ -374,7 +374,7 @@ func _draw_diary() -> void:
 	if not season.last_show.is_empty():
 		var l := season.last_show
 		UiKit.text(self, font, UiKit.t("LAST TIME OUT"), Vector2(RIGHT_X, 466), 13, UiKit.DIM)
-		var f := String(l.get("finish", ""))
+		var f := Cup.finish_words(String(l.get("finish", "")))
 		UiKit.text(self, font, UiKit.t("%s · %d in · %+d cr%s") % [
 			String(l.get("kind", "?")), int(l.get("heads", 0)), int(l.get("net", 0)),
 			"" if f == "" else UiKit.t(" · %s") % f],

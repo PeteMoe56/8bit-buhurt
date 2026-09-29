@@ -595,16 +595,22 @@ Widely known,Widely known,Muy conocido,Bien connu,Weithin bekannt,Molto noto,Bem
 Making waves,Making waves,Dando que hablar,Fait parler,Im Kommen,Emergente,Fazendo barulho,Robi szum,На слуху,注目株
 Unknown,Unknown,Desconocido,Inconnu,Unbekannt,Sconosciuto,Desconhecido,Nieznany,Неизвестен,無名
 %s is not interested in signing again. Look at how his season went.,%s is not interested in signing again. Look at how his season went.,%s no quiere volver a firmar. Mira cómo le fue la temporada.,%s ne veut pas re-signer. Regarde comment s'est passée sa saison.,%s will nicht nochmal unterschreiben. Schau dir seine Saison an.,%s non vuole rinnovare. Guarda com'è andata la sua stagione.,%s não quer renovar. Veja como foi a temporada dele.,"%s nie chce podpisać ponownie. Zobacz, jak mu poszedł sezon.","%s не хочет подписываться снова. Посмотри, как прошёл его сезон.",%sは再契約に興味がない。彼のシーズンを見ればわかる。
+champions,champions,campeones,champions,Meister,campioni,campeões,mistrzowie,чемпионы,優勝
+runners-up,runners-up,subcampeones,finalistes,Vizemeister,secondi,vice-campeões,wicemistrzowie,финалисты,準優勝
+third,third,terceros,troisièmes,Dritter,terzi,terceiros,trzecie miejsce,третьи,3位
+fourth,fourth,cuartos,quatrièmes,Vierter,quarti,quartos,czwarte miejsce,четвёртые,4位
+in progress,in progress,en curso,en cours,läuft noch,in corso,em andamento,w toku,идёт,進行中
+out in the pools,out in the pools,fuera en la fase de grupos,éliminés en poules,in der Gruppenphase raus,fuori ai gironi,eliminados na fase de grupos,odpadli w grupach,выбыли в группе,予選敗退
+out in the final,out in the final,perdieron la final,battus en finale,im Finale verloren,sconfitti in finale,perderam a final,przegrali finał,проиграли финал,決勝敗退
+out in the semi-finals,out in the semi-finals,fuera en semifinales,éliminés en demi-finales,im Halbfinale raus,fuori in semifinale,eliminados na semifinal,odpadli w półfinale,выбыли в полуфинале,準決勝敗退
+out in the quarter-finals,out in the quarter-finals,fuera en cuartos de final,éliminés en quarts de finale,im Viertelfinale raus,fuori ai quarti,eliminados nas quartas,odpadli w ćwierćfinale,выбыли в четвертьфинале,ベスト8敗退
+out in the round of %d,out in the round of %d,fuera en la ronda de %d,éliminés au tour de %d,in der Runde der %d raus,fuori al turno a %d,eliminados na rodada de %d,odpadli w rundzie %d,вылетели в раунде %d,ベスト%dで敗退
 Pools,Pools,Grupos,Poules,Gruppen,Gironi,Grupos,Grupy,Группы,予選リーグ
 Complete,Complete,Terminado,Terminé,Beendet,Concluso,Encerrado,Zakończony,Завершён,終了
 Final,Final,Final,Finale,Finale,Finale,Final,Finał,Финал,決勝
 Semi-finals,Semi-finals,Semifinales,Demi-finales,Halbfinale,Semifinali,Semifinais,Półfinały,Полуфиналы,準決勝
 Quarter-finals,Quarter-finals,Cuartos de final,Quarts de finale,Viertelfinale,Quarti di finale,Quartas de final,Ćwierćfinały,Четвертьфиналы,ベスト8
 Round of %d,Round of %d,Ronda de %d,Tour de %d,Runde der %d,Turno a %d,Rodada de %d,Runda %d,Раунд %d,ベスト%d
-out in the %s,out in the %s,fuera en %s,éliminé en %s,raus in der %s,fuori in %s,caiu em: %s,odpadł w: %s,вылет: %s,%sで敗退
-Out in the %s,Out in the %s,Fuera en %s,Éliminé en %s,Raus in der %s,Fuori in %s,Caiu em: %s,Odpadł w: %s,Вылет: %s,%sで敗退
-Out in the pools,Out in the pools,Fuera en grupos,Éliminé en poules,Raus in der Gruppe,Fuori ai gironi,Caiu nos grupos,Odpadł w grupie,Вылет в группе,プールで敗退
-In progress,In progress,En curso,En cours,Läuft,In corso,Em andamento,W toku,Идёт,進行中
 A proper club,A proper club,Un club de verdad,Un vrai club,Ein echter Verein,Un vero club,Um clube de verdade,Porządny klub,Настоящий клуб,立派なクラブ
 Healthy,Healthy,Sano,En bonne santé,Gesund,In salute,Saudável,Zdrowo,Крепко,健全
 Ticking over,Ticking over,Tirando,Ça tourne,Läuft so,Tira avanti,Levando,Jakoś idzie,Держимся,なんとか回っている

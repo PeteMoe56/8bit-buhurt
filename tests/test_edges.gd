@@ -26,6 +26,7 @@ func _initialize() -> void:
 	_test_save_keeps_everything()
 	await _test_market_shows_over_cap()
 	await _test_a_failed_save_is_said()
+	_test_cup_finish_is_data()
 	for slot in 3:
 		SaveGame.delete(slot)
 	print("")
@@ -319,3 +320,34 @@ func _test_a_failed_save_is_said() -> void:
 		"a save that fails is said on the season screen, once",
 		"save failed: %s; said: %s; said again: %s; a good save clears it: %s"
 			% [not ok, first == msg, second != "", healed and not Session.save_failed])
+
+
+## A CUP FINISH IS STORED ENGLISH AND DRAWN IN THE PLAYER'S LANGUAGE (29 Sep
+## 2026). It used to be translated on the night and saved, with the English
+## round name glued in — so a Spanish save read "fuera en la quarter-finals"
+## forever, and switching language never fixed it.
+func _test_cup_finish_is_data() -> void:
+	var cup := Cup.new("Test", [10, 11, 12, 13, 14, 15, 16, 17], 7, 10)
+	var day := cup.current_round()
+	for m in day:
+		var p := int(m["a"]) == 10 or int(m["b"]) == 10
+		## The player loses his quarter-final; everybody else, side a wins.
+		if p:
+			var him_a := int(m["a"]) == 10
+			cup.record(m, 0 if him_a else 2, 2 if him_a else 0, 0, 3)
+		else:
+			cup.record(m, 2, 0, 3, 0)
+	var stored := cup.player_finish
+	var cabinet := cup.finish_label()
+	TranslationServer.set_locale("es")
+	var es_low := Cup.finish_words(stored)
+	var es_cap := Cup.finish_words(cabinet)
+	var old := Cup.finish_words("fuera en la quarter-finals")
+	TranslationServer.set_locale("en")
+	var en_low := Cup.finish_words(stored)
+	_ok(stored == "out in the quarter-finals" and cabinet == "Out in the quarter-finals"
+			and en_low == stored and es_low != stored and es_cap.substr(0, 1) == es_low.substr(0, 1).to_upper()
+			and old == "fuera en la quarter-finals",
+		"a cup finish is saved in English and drawn in the language on screen",
+		"stored '%s', cabinet '%s' → es '%s' / '%s'; an old translated save passes through as '%s'"
+			% [stored, cabinet, es_low, es_cap, old])

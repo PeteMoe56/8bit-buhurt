@@ -387,7 +387,7 @@ func _history() -> void:
 		any = true
 		UiKit.text(self, font, UiKit.t("S%d  %s") % [int(e["season"]),
 			UiKit.clip(String(e["name"]), 22)], Vector2(40, y), 15, UiKit.INK)
-		UiKit.right(self, font, UiKit.t("Champions") if won else String(e["player"]),
+		UiKit.right(self, font, UiKit.t("Champions") if won else Cup.finish_words(String(e["player"])),
 			Vector2(440, y), 15, UiKit.YOU if won else UiKit.DIM, 200)
 		y += 26.0
 	if not any:

@@ -163,6 +163,40 @@ func round_name() -> String:
 	return String(day[0]["round"]) if not day.is_empty() else ""
 
 
+## HOW THE CLUB FINISHED, FOR A SCREEN. Both `player_finish` ("out in the
+## semi-finals") and the honours cabinet's `finish_label()` ("Out in the
+## semi-finals") are stored English; this is where either becomes words. A
+## capitalised entry gets its first letter raised AFTER translation, so the one
+## key serves both. Whole sentences per round, not a round name lower-cased into
+## a template: a German Viertelfinale keeps its capital, a template cannot know.
+## Anything unknown (a save from before 29 Sep, already translated) passes
+## through as it was written.
+static func finish_words(f: String) -> String:
+	if f == "":
+		return ""
+	var low := f.to_lower()
+	var w := ""
+	## One literal per key so the string extractor sees every one of them.
+	match low:
+		"champions": w = UiKit.t("champions")
+		"runners-up": w = UiKit.t("runners-up")
+		"third": w = UiKit.t("third")
+		"fourth": w = UiKit.t("fourth")
+		"in progress": w = UiKit.t("in progress")
+		"out in the pools": w = UiKit.t("out in the pools")
+		"out in the final": w = UiKit.t("out in the final")
+		"out in the semi-finals": w = UiKit.t("out in the semi-finals")
+		"out in the quarter-finals": w = UiKit.t("out in the quarter-finals")
+		_:
+			if low.begins_with("out in the round of "):
+				w = UiKit.t("out in the round of %d") % int(low.substr(20))
+			else:
+				return f
+	if f != low and w != "":
+		w = w.substr(0, 1).to_upper() + w.substr(1)
+	return w
+
+
 ## THE ROUND, FOR A SCREEN (29 Sep 2026). `round_name()` is data — it is stored
 ## on every match and compared against ("Final") — so it stays English; this is
 ## the same round in the player's language. The cup's own name is a proper noun
@@ -281,7 +315,10 @@ func record(m: Dictionary, ra: int, rb: int, ma: int, mb: int) -> void:
 	if player_club != -1 and stage == Stage.KNOCKOUT \
 			and (int(m["a"]) == player_club or int(m["b"]) == player_club) \
 			and int(m.get("winner", -1)) != player_club:
-		player_finish = UiKit.t("out in the %s") % String(m["round"]).to_lower()
+		## Stored as English DATA (it is saved), translated where it is drawn —
+		## `finish_words`. It used to be a translated sentence with the English
+		## round name glued into it, in whatever language was on that night.
+		player_finish = "out in the %s" % String(m["round"]).to_lower()
 
 
 ## Play out everything the player is not in. `resolver` takes two club ids and
@@ -421,10 +458,11 @@ func finish_label() -> String:
 		for m in day:
 			if int(m["winner"]) != -1 and int(m["winner"]) != player_club \
 					and (int(m["a"]) == player_club or int(m["b"]) == player_club):
-				return UiKit.t("Out in the %s") % String(m["round"]).to_lower()
+				return "Out in the %s" % String(m["round"]).to_lower()
+	## English DATA — it is kept in the honours cabinet. `finish_words()` draws it.
 	if has_pools:
-		return UiKit.t("Out in the pools")
-	return UiKit.t("In progress")
+		return "Out in the pools"
+	return "In progress"
 
 
 ## HOW FAR THE PLAYER GOT, AS A NUMBER: the size of the round he went out in.
