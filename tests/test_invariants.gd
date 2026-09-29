@@ -124,7 +124,12 @@ func _drain(s: Season) -> void:
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(rng.randi_range(0, 1))
 			"cup": s.sim_cup_tie()
-			"promotion": s.answer_promotion(rng.randf() < 0.7)
+			## No ground, no promotion (#13, 29 Sep): a "yes" can be refused, and
+			## the refusal leaves the question open. A player then declines (or
+			## builds — test_climb holds that road), so a refused yes is a no.
+			"promotion":
+				if s.answer_promotion(rng.randf() < 0.7) != "":
+					s.answer_promotion(false)
 			var other:
 				_bad("queue", "unknown blocker '%s'" % other)
 				return

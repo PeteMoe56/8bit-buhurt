@@ -1702,7 +1702,7 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 func _hit_amount(a: Man, d: Man) -> float:
 	var amount := Tuning.HIT_STABILITY * d.tmod("hit_stability_against", 1.0) * (
 		0.7 + 0.6 * a.eff_strength() / 99.0)
-	if Tuning.back_hit > 1.0 and from_behind(a, d):
+	if Tuning.back_hit > 1.0 and a.acting_for_player and from_behind(a, d):
 		amount *= 1.0 + (Tuning.back_hit - 1.0) * _back_scale(a, d)
 	return amount
 
@@ -1724,7 +1724,7 @@ func _back_scale(a: Man, d: Man) -> float:
 
 func _bullrush_chance(a: Man, d: Man) -> float:
 	var c := Tuning.BR_BASE
-	if Tuning.back_br > 0.0 and from_behind(a, d):
+	if Tuning.back_br > 0.0 and a.acting_for_player and from_behind(a, d):
 		c += Tuning.back_br * _back_scale(a, d)
 	if Tuning.flank_br > 0.0 or Tuning.front_pen > 0.0:
 		match _clinch_side(a, d):
@@ -1792,7 +1792,9 @@ func _resolve(m: Man, act: int, target: int) -> void:
 			m.hit_cd = Tuning.HIT_COOLDOWN
 			var amount := Tuning.HIT_STABILITY * t.tmod("hit_stability_against", 1.0) * (
 				0.7 + 0.6 * m.eff_strength() / 99.0)
-			if Tuning.back_hit > 1.0 and from_behind(m, t):
+			## The PLAYER'S blow only (29 Sep): on everyone it erased C-6's
+			## tactical hole (worst setup 25% -> 54% hands-off).
+			if Tuning.back_hit > 1.0 and m.acting_for_player and from_behind(m, t):
 				amount *= 1.0 + (Tuning.back_hit - 1.0) * _back_scale(m, t)
 			if Tuning.flank_hit > 0.0 or Tuning.front_pen > 0.0:
 				match _clinch_side(m, t):
