@@ -434,7 +434,7 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 		UiKit.text(v, v.font, Tuning.pos_name(int(f.pos)), Vector2(x + SeasonScene.COL_POS, y), 13, UiKit.DIM)
 	## Kit is this game's salary cap and already costs him base, so it belongs on
 	## the team sheet next to the rating it is quietly subtracting from.
-	var armor_col := UiKit.UP if f.armor > 0.85 else (UiKit.DOWN if f.armor < 0.6 else UiKit.DIM)
+	var armor_col := armor_col(f.armor)
 	UiKit.text(v, v.font, "%3d%%" % int(round(f.armor * 100.0)),
 		Vector2(x + SeasonScene.COL_ARMOR, y), 13, armor_col)
 	## AGE, and it is not decoration — see scripts/game/career.gd. Marked when he
@@ -612,3 +612,10 @@ static func _qm_rows(v: SeasonScene) -> Array:
 		out.append({"card": f, "y": y, "x": 24.0 + v._qm_cell() + SeasonScene.QM_GAP, "bus": false})
 		y += SeasonScene.QM_ROW
 	return out
+
+
+## THE KIT'S COLOUR ON THE TEAM SHEET: green when it is good, red when it is
+## worn. A function of its own (29 Sep 2026) so test_loop can pin it — the
+## fresh audit reversed it and nothing noticed.
+static func armor_col(a: float) -> Color:
+	return UiKit.UP if a > 0.85 else (UiKit.DOWN if a < 0.6 else UiKit.DIM)
