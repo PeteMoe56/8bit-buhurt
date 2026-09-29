@@ -222,7 +222,8 @@ func _test_a_breakaway_ages() -> void:
 
 ## PETE'S RULINGS OF 27 SEP (after the audit).
 func _test_rulings() -> void:
-	## Forfeit and warn: a bout marked live and never posted is a 0-2 loss on load.
+	## Pete, 29 Sep 2026: a bout the app lost starts again from before the match
+	## — no forfeit, no result posted, the mark cleared, said once.
 	SaveGame.set_namespace("audit")
 	var s := Season.new(MeleeRosters.starting_club(), 4040)
 	var before: Dictionary = s._my_row()
@@ -230,14 +231,16 @@ func _test_rulings() -> void:
 	SaveGame.save(s, 1)
 	var back := SaveGame.load_slot(1)
 	var row: Dictionary = back._my_row() if back != null else {}
-	_ok(back != null and back.world.event == 1 and int(row.get("ra", 0)) == int(before.get("ra", 0)) + Tuning.BOUT_WINS
-		and back.last_forfeit != "" and back.bout_live.is_empty(),
-		"a bout walked out of is a forfeit on the next load",
-		"event %d, rounds against %d -> %d: '%s'" % [back.world.event if back else -1,
-			int(before.get("ra", 0)), int(row.get("ra", 0)), back.last_forfeit.left(50) if back else ""])
+	_ok(back != null and back.world.event == 0 and int(row.get("ra", 0)) == int(before.get("ra", 0))
+		and int(row.get("played", 0)) == int(before.get("played", 0))
+		and back.last_interrupted != "" and back.bout_live.is_empty() and back.opponent_id() == s.opponent_id(),
+		"a bout the app lost starts again from before the match",
+		"event %d, rounds against %d -> %d, same opponent %s: '%s'" % [back.world.event if back else -1,
+			int(before.get("ra", 0)), int(row.get("ra", 0)),
+			back.opponent_id() == s.opponent_id() if back else false, back.last_interrupted.left(50) if back else ""])
 	var again := SaveGame.load_slot(1)
-	_ok(again != null and again.world.event == 1 and again.last_forfeit == "",
-		"and it is forfeited once, not again on the next load",
+	_ok(again != null and again.world.event == 0 and again.last_interrupted == "",
+		"and it is said once, not again on the next load",
 		"second load: event %d" % (again.world.event if again else -1))
 	SaveGame.delete(1)
 	## A posted bout clears the mark.

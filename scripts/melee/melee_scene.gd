@@ -886,11 +886,12 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 40, UiKit.YOU)
 		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36), UiKit.t("Tap to carry on"),
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 16, COL_DIM)
-		## THE WARNING. Closing the game now is not a way out of a bad bout.
+		## WHAT HAPPENS IF THE PHONE KILLS US NOW (Pete, 29 Sep 2026): the bout
+		## is fought again from the walk-out, on the same seed.
 		if Session.season != null:
 			UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 64),
-				UiKit.t("Leave the game now and this bout counts as a forfeit."),
-				HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 14, UiKit.DOWN)
+				UiKit.t("If the game closes, this bout starts again from the walk-out."),
+				HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 14, COL_DIM)
 
 
 # ----------------------------------------------------------- the report
@@ -902,9 +903,9 @@ func _draw_report() -> void:
 	var them := 1
 	## Three whole sentences, not a verb dropped into one: a language that bends
 	## the verb, or puts it last, has to see the sentence it lands in.
-	var verdict := UiKit.t("You take it. Rounds %d-%d, %d down across the afternoon.") \
-		if sim.bout_winner() == us else (UiKit.t("You share it. Rounds %d-%d, %d down across the afternoon.") \
-		if sim.bout_winner() == -1 else UiKit.t("You lose it. Rounds %d-%d, %d down across the afternoon."))
+	var verdict := UiKit.t("You take it. Rounds %d-%d, %d down across the bout.") \
+		if sim.bout_winner() == us else (UiKit.t("You share it. Rounds %d-%d, %d down across the bout.") \
+		if sim.bout_winner() == -1 else UiKit.t("You lose it. Rounds %d-%d, %d down across the bout."))
 	UiKit.raw(self, font, Vector2(REP_LX, 56), UiKit.t("%s %d - %d %s") % [
 		sim.clubs[us].display_name.to_upper(), sim.rounds_won[us],
 		sim.rounds_won[them], sim.clubs[them].display_name.to_upper()],
@@ -915,7 +916,7 @@ func _draw_report() -> void:
 		HORIZONTAL_ALIGNMENT_LEFT, 880, 11, COL_DIM)
 	_rule(REP_LX, 94.0, 936.0 - REP_LX * 2.0)
 
-	UiKit.raw(self, font, Vector2(REP_LX, 112), UiKit.t("THE AFTERNOON"),
+	UiKit.raw(self, font, Vector2(REP_LX, 112), UiKit.t("THE EVENT"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 10, COL_DIM)
 	UiKit.raw(self, font, Vector2(REP_RX, 112), UiKit.t("THE CHANGING ROOM"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 10, COL_DIM)

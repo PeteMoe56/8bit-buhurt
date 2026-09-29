@@ -32,6 +32,7 @@ func _initialize() -> void:
 	_test_toxic_band()
 	_test_retirement_waits()
 	_test_armour_colour()
+	_test_paid_session_trains_the_five()
 	print("")
 	if failures.is_empty():
 		print("THE LOOP HOLDS (%d checks)\n" % checks)
@@ -268,3 +269,24 @@ func _test_armour_colour() -> void:
 		"95%% %s, 70%% %s, 40%% %s" % [
 			"UP" if good == UiKit.UP else "other", "DIM" if mid == UiKit.DIM else "other",
 			"DOWN" if worn == UiKit.DOWN else "other"])
+
+
+## A PAID SESSION TRAINS THE FIVE AT THE FULL RATE (Pete, 29 Sep 2026, #11) —
+## and what the button promises is what it pays.
+func _test_paid_session_trains_the_five() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	s.office.credits = 999
+	s.office.captains.append(ClubOffice.captain("Coach", Tuning.Role.RAIL, Tuning.Role.CENTER, 2))
+	var five: Array = s.club.starting_five()
+	var before := {}
+	for f in five:
+		before[f] = (f as FighterCard).xp
+	var promised := SeasonBouts.session_xp(s)
+	var err := s.run_session()
+	var total := 0
+	for f in five:
+		total += (f as FighterCard).xp - int(before[f])
+	var mean := float(total) / float(five.size())
+	_ok(err == "" and mean >= Career.PRACTICE_BASE and absf(mean - float(promised)) <= 1.0,
+		"a paid session trains the five at the full rate, and pays what its button says",
+		"mean %.1f XP per man in the five (button said +%d, base %.1f)" % [mean, promised, Career.PRACTICE_BASE])

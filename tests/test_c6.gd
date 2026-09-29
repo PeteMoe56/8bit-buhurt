@@ -37,6 +37,9 @@ extends SceneTree
 ## five points — which is exactly why the assertions are placed at 50% and 40%
 ## and not at the measured values.
 const N := 24
+## The re-measure of the chosen pairing: fresh seeds, twice the sample.
+const N_CHECK := 48
+const SEED_CHECK := 61000
 const DEFICITS := [0, 4, 8, 12, 16]
 ## ONE seed base for every cell in this suite.
 ##
@@ -215,14 +218,22 @@ func _test_thumb_beats_tactics(hole: Dictionary) -> void:
 	## it again would be the same number at twice the cost — and if it were NOT
 	## the same number, the suite would be non-deterministic and that is a bigger
 	## problem than C-6.
-	var idle: float = float(hole["rate"])
+	## RE-MEASURED ON FRESH SEEDS (29 Sep 2026). The sweep takes the WORST of up
+	## to fourteen 24-bout samples, and the worst of several noisy samples is low
+	## by selection alone — the winner's curse. Comparing that against an honest
+	## mirror measured once made "formation and strategy are worth picking" a
+	## coin toss: 0.0 points one run, 18.8 the next, on the same pairing. So the
+	## pairing the sweep chose is measured again, both ways round, on seeds the
+	## sweep never saw and at twice the sample.
+	var idle := _winrate(N_CHECK, "auto", int(hole["formation"]), int(hole["strategy"]),
+		int(hole["against_formation"]), int(hole["against_strategy"]), 0, SEED_CHECK)
 	var busy := _winrate(N, "busy", int(hole["formation"]), int(hole["strategy"]),
 		int(hole["against_formation"]), int(hole["against_strategy"]), 0, SEED_BASE)
 	## The mirror of it: the same club with the BEST setup instead of the worst.
 	## If those two land on top of each other, formation and strategy are
 	## decoration and there is no hole for the thumb to climb out of.
-	var good := _winrate(N, "auto", int(hole["against_formation"]), int(hole["against_strategy"]),
-		int(hole["formation"]), int(hole["strategy"]), 0, SEED_BASE)
+	var good := _winrate(N_CHECK, "auto", int(hole["against_formation"]), int(hole["against_strategy"]),
+		int(hole["formation"]), int(hole["strategy"]), 0, SEED_CHECK)
 	notes.append("out-positioned and out-strategized, even roster: hands-off %.1f%%, thumb %.1f%%"
 		% [idle, busy])
 	notes.append("the same club with the setups swapped: %.1f%% hands-off" % good)

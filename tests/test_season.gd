@@ -438,13 +438,13 @@ func _test_one_queue_one_order() -> void:
 		seen = await _offered(v)
 		if s.blocked_by() != "cup":
 			bad.append("with a tie and a card waiting, blocked_by says '%s'" % s.blocked_by())
-		if not seen.has("Fight the tie") or seen.has("Fight it"):
+		if not seen.has("Fight the cup bout") or seen.has("Fight it"):
 			bad.append("tie + card: the screen offers %s" % ", ".join(seen))
 		s.sim_cup_tie()
 		while s.cup_pending():
 			s.sim_cup_tie()
 		seen = await _offered(v)
-		if seen.has("Fight the tie") or seen.has("Fight it") or s.blocked_by() != "dilemma":
+		if seen.has("Fight the cup bout") or seen.has("Fight it") or s.blocked_by() != "dilemma":
 			bad.append("card alone: blocked_by '%s', the screen offers %s" % [s.blocked_by(), ", ".join(seen)])
 	else:
 		bad.append("no cup tie came up in a season, so the cup half was not asked")

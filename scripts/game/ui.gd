@@ -205,7 +205,7 @@ const FACE_CREDIT := {
 	"from": "Press Start 2P by Cody Boisclair",
 	"url": "zone38.net",
 	"licence": "SIL Open Font License 1.1",
-	"note": "Modified: proportional spacing. Renamed as the licence requires.",
+	"note": "Modified: proportional spacing. Renamed as the license requires.",
 	"ours": "Buhurt Rail, Gorget and Maul drawn for this game.",
 }
 
@@ -742,15 +742,26 @@ static func ledger_keys() -> Array:
 	return k
 
 
+## THE SMALLEST TYPE THE GAME DRAWS (Pete, 29 Sep 2026, #15). A phone held in
+## landscape shows 960 virtual pixels across a hand's width, and labels at 7-9
+## were unreadable there — the corner's ENERGY and CONDITION, the squad legend,
+## the difficulty blurb. Every draw below is floored here, once, rather than at
+## four hundred call sites; `fit_size` steps down to it and no further, so
+## copy that no longer fits is cut and recorded, and `test_ink` names it.
+const MIN_PX := 11
+
+
 static func raw(ci: CanvasItem, font: Font, at: Vector2, s: String,
 		align: int = HORIZONTAL_ALIGNMENT_LEFT, width: float = -1,
 		size: int = 16, col: Color = Color.WHITE) -> void:
+	size = maxi(size, MIN_PX)
 	_note(font, s, at, size, align, width, col)
 	ci.draw_string(font, at, s, align, int(width), size, col)
 
 
 static func text(ci: CanvasItem, font: Font, s: String, at: Vector2,
 		size: int, col: Color) -> void:
+	size = maxi(size, MIN_PX)
 	_note(font, s, at, size, HORIZONTAL_ALIGNMENT_LEFT, 0.0, col)
 	ci.draw_string(font, at, s, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
 
@@ -771,10 +782,10 @@ static func pos_color(f: FighterCard) -> Color:
 ## so a cut is still recorded and `test_ink.gd` still fails on it. The French
 ## and German drafts ran sixteen fixed one-liners off their panels.
 const FIT_STEP := 3
-const FIT_MIN_PX := 9
+const FIT_MIN_PX := MIN_PX
 
 static func fit_size(font: Font, s: String, size: int, width: float) -> int:
-	var px := size
+	var px := maxi(size, MIN_PX)
 	var floor_px := maxi(size - FIT_STEP, FIT_MIN_PX)
 	while px > floor_px and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT,
 			-1.0, px).x > width:
@@ -800,6 +811,7 @@ static func right_fit(ci: CanvasItem, font: Font, s: String, at: Vector2,
 ## too long, the last line is cut and recorded. Returns the lines drawn.
 static func para(ci: CanvasItem, font: Font, s: String, at: Vector2, size: int,
 		col: Color, width: float, line_h: float, lines: int = 2) -> int:
+	size = maxi(size, MIN_PX)
 	var px := size
 	var floor_px := maxi(size - FIT_STEP, FIT_MIN_PX)
 	var ls := UiKit.wrap(font, s, width, px)
@@ -817,6 +829,7 @@ static func para(ci: CanvasItem, font: Font, s: String, at: Vector2, size: int,
 
 static func right(ci: CanvasItem, font: Font, s: String, at: Vector2,
 		size: int, col: Color, width: float) -> void:
+	size = maxi(size, MIN_PX)
 	## A BOX IS A PROMISE (29 Sep 2026). Godot clips a string wider than its
 	## box without a word, so "Backyard Circuit limita um lutador c" went out
 	## in Portuguese and no check could see it. Too wide, it steps down and is
@@ -914,6 +927,7 @@ static func pair(ci: CanvasItem, font: Font, label: String, note: String,
 ## under a button, which is the only thing in the game that wants it.
 static func mid(ci: CanvasItem, font: Font, s: String, at: Vector2,
 		size: int, col: Color, width: float) -> void:
+	size = maxi(size, MIN_PX)
 	if width > 0.0 and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size).x > width:
 		size = fit_size(font, s, size, width)
 		s = fit_px(font, s, size, width)
@@ -1215,8 +1229,11 @@ static func back_button(fallback: String) -> Button:
 		back(fallback))
 
 
+## BOTTOM-LEFT LIKE EVERY OTHER BACK (Pete, 29 Sep 2026, #14). This was a small
+## button in the top-right corner — one of six places Back lived. The name is
+## kept because it still differs in one way: it saves before it leaves.
 static func corner_back(fallback: String) -> Button:
-	return button(t("Back"), Vector2(right_edge(98.0), 14), Vector2(78, 36), func():
+	return button(t("Back"), Vector2(24, screen().y - 56), Vector2(150, 44), func():
 		Session.autosave()
 		back(fallback))
 

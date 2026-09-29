@@ -819,7 +819,7 @@ func _attributes() -> void:
 	## version already proved clear.
 	UiKit.text_fit(self, font,
 		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
-			else UiKit.t("His ceiling is the overall, not one stat."),
+			else UiKit.t("Ceiling means overall, not one stat."),
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 11,
 		man.morale_color() if man.angry() else UiKit.EDGE.lightened(0.4), COL_W - 32.0)
 
@@ -839,7 +839,7 @@ func _the_book() -> void:
 	_book("Downs caused", "%d" % man.downs, y); y += 26.0
 	_book("Assists", "%d" % man.assists, y); y += 26.0
 	_book("Per event", "%.2f" % man.downs_per_bout(), y); y += 26.0
-	_book("Best afternoon", "%d" % man.best_downs, y); y += 26.0
+	_book("Best event", "%d" % man.best_downs, y); y += 26.0
 	_book("Rounds standing", "%d" % man.rounds_standing, y); y += 26.0
 	_book("Carried off", "%d" % man.knocks, y); y += 34.0
 	UiKit.text(self, font, UiKit.t("HONORS"), Vector2(R_X + 16, y), 11, UiKit.DIM)

@@ -483,15 +483,19 @@ func post_bout(sim: MeleeSim) -> void:
 
 
 ## ------------------------------------------------------- walking out mid-bout
-## A BOUT IN PROGRESS IS WRITTEN DOWN (Pete, 27 Sep 2026: "forfeit and warn").
-## The season screen marks it just before it hands the bout to the melee and
-## saves; posting the result clears it. A save that loads with the mark still on
-## it is a bout somebody walked out of — the app closed or was killed mid-fight —
-## and it is recorded as a forfeit, 0-2, rather than handed back to be fought
-## again with the same seed. The melee's pause screen says so.
+## A BOUT IN PROGRESS IS WRITTEN DOWN. The season screen marks it just before it
+## hands the bout to the melee and saves; posting the result clears it. A save
+## that loads with the mark still on it is a bout the app lost — killed in the
+## background, a crash, a flat battery.
+##
+## Pete, 29 Sep 2026 (replacing "forfeit and warn" of 27 Sep): *"Just pause the
+## match. If it's a system failure, restart from before the match started."*
+## So the mark is cleared and the fixture is still there to be fought, from the
+## walk-out, on the same seed — a lost app is not a loss, and it is not a re-roll
+## either.
 var bout_live: Dictionary = {}
-## What the last load forfeited, for the season screen to say once. "" if nothing.
-var last_forfeit: String = ""
+## What the last load restarted, for the season screen to say once. "" if nothing.
+var last_interrupted: String = ""
 
 
 ## WHAT THE CLUB CAN SEE OF A MAN'S CEILING, as [low, high]. Exact for your own
@@ -534,6 +538,41 @@ func summer_warning() -> String:
 		bill, office.credits]
 
 
+## THE DRESSING ROOM ASKS WHERE THE DUES ARE GOING (Pete, 29 Sep 2026, #12).
+##
+## A club that only re-signs never leaves the bottom division — 20 careers out of
+## 20 in the 4 AM audit — and sits on five hundred credits with nothing ever
+## saying so. So once a season, when the bank holds several summers' bills and
+## the club has put nothing into the squad or the ground this year, one of the
+## men says it, and says what the money is for. "" when there is nothing to say.
+const HOARD_SUMMERS: int = 4
+var _hoard_said: int = -1
+
+
+func hoard_note() -> String:
+	if _hoard_said == world.season or world.event < 2 or club.roster.is_empty() \
+			or blocked_by() != "":
+		return ""
+	var bill := maxi(1, office.summer_bill())
+	if office.credits < bill * HOARD_SUMMERS:
+		return ""
+	var put_in := int(office.books_out.get(ClubOffice.LINE_SQUAD, 0)) \
+		+ int(office.books_out.get(ClubOffice.LINE_FACILITIES, 0)) \
+		+ int(office.books_out.get(ClubOffice.LINE_GROUND, 0))
+	if put_in > 0:
+		return ""
+	_hoard_said = world.season
+	var who: FighterCard = club.roster[absi(hash("hoard:%d" % world.season)) % club.roster.size()]
+	## The hint points at the one thing that moves a club: the next ground if the
+	## division above needs it, otherwise the market.
+	var up := mini(world.player_tier() + 1, League.TIERS.size() - 1)
+	var hint := UiKit.t("The Market has starters.")
+	if not office.arena.fit_for(up) and office.arena.can_build(office.tier, office.credits) == "":
+		hint = UiKit.t("Build the ground.")
+	return UiKit.t("%s: where are the dues going? %d CC banked, nothing new. %s") % [
+		who.display_name, office.credits, hint]
+
+
 ## The range in words, for a card: "to 64" when it is known, "to 58-66" when not.
 func potential_word(f: FighterCard) -> String:
 	var r := potential_range(f)
@@ -544,30 +583,15 @@ func mark_bout_live(is_cup: bool) -> void:
 	bout_live = {"cup": is_cup, "season": world.season, "event": world.event}
 
 
-## Called by SaveGame.load_slot. Returns true if a bout was forfeited.
-func forfeit_abandoned_bout() -> bool:
+## Called by SaveGame.load_slot. Returns true if a bout was waiting to restart.
+func restart_abandoned_bout() -> bool:
 	if bout_live.is_empty():
 		return false
 	var was: Dictionary = bout_live
 	bout_live = {}
 	if int(was.get("season", -1)) != world.season or int(was.get("event", -1)) != world.event:
 		return false
-	if bool(was.get("cup", false)):
-		var c := pending_cup()
-		if c == null:
-			return false
-		var opp := String(world.clubs[cup_opponent()]["name"])
-		SeasonCups.forfeit_cup_tie(self)
-		last_forfeit = UiKit.t("You left the %s tie against %s mid-bout. It counts as a forfeit.") % [
-			c.cup_name, opp]
-		return true
-	var o := opponent_id()
-	if o < 0:
-		return false
-	var opp_name := String(world.clubs[o]["name"])
-	SeasonBouts.forfeit_bout(self)
-	last_forfeit = UiKit.t("You left the bout against %s mid-fight. It counts as a forfeit, 0-%d.") % [
-		opp_name, Tuning.BOUT_WINS]
+	last_interrupted = UiKit.t("The game closed mid-bout. It starts again from the walk-out.")
 	return true
 
 

@@ -21,7 +21,7 @@ var checks: int = 0
 const FIRST_BUTTON := {
 	"promotion": "Take it",
 	"bid": "Tournament bid",
-	"cup": "Fight the tie",
+	"cup": "Fight the cup bout",
 	"": "End the season",
 }
 const BASES := [4242, 9001, 2718, 6060]

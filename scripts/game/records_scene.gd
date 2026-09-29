@@ -240,7 +240,7 @@ func _hall() -> void:
 		UiKit.text(self, font, UiKit.t("Nobody in it yet."), Vector2(40, 160), 16, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Tag a fighter on his own page, while he is still playing."),
 			Vector2(40, 190), 12, UiKit.EDGE.lightened(0.5))
-		UiKit.text(self, font, UiKit.t("Who belongs in here is your judgement, not the game's."),
+		UiKit.text(self, font, UiKit.t("Who belongs in here is your judgment, not the game's."),
 			Vector2(40, 210), 12, UiKit.EDGE.lightened(0.5))
 		return
 	## TWO COLUMNS. Twelve names down one side would run off the panel, and the

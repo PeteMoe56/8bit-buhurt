@@ -416,7 +416,7 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 		if m.downs_caused >= 3 and FighterTrait.flag(m.card.trait_id, "ceiling_on_big"):
 			m.card.potential = mini(99, m.card.potential + 1)
 			s._note_change("trait", m.card.display_name,
-				UiKit.t("Ceiling Raiser — a three-down afternoon moved what he could become"), 1)
+				UiKit.t("Ceiling Raiser — a three-down event moved what he could become"), 1)
 		## AND IF HE HAS EARNED A LEVEL, IT WAITS FOR YOU. It used to be taken here
 		## automatically, into whatever stat he was worst at — which quietly made
 		## it impossible to build a specialist, because every point a man earned
@@ -568,6 +568,23 @@ static func _practice(s: Season, paid: bool = false) -> void:
 ## now, on the same function the matchday runs — so a bought session and a free
 ## one cannot ever be worth different amounts, and every multiplier the club has
 ## applies to both.
+## WHAT A PAID SESSION IS WORTH TO THE FIVE, per man, on the same sum
+## `_practice` runs — shown on the button so the price has a number beside it
+## (Pete, 29 Sep 2026, decision #11).
+static func session_xp(s: Season) -> int:
+	var five := s.club.starting_five()
+	if five.is_empty():
+		return 0
+	var total := 0
+	for f in five:
+		var role := Tuning.role_of(int(f.pos))
+		var got := Career.practice_xp(s.office.coaching(role), not Tuning.session_full_week) \
+			* s.office.practice_ground() * s.office.regime_xp(role) \
+			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
+		total += maxi(1, int(round(got)))
+	return int(round(float(total) / float(five.size())))
+
+
 static func run_session(s: Season) -> String:
 	var err := s.office.charge_session()
 	if err != "":

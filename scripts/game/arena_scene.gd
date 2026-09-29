@@ -207,7 +207,7 @@ func _draw() -> void:
 	## vanished behind the very button that produced it and the screen would have
 	## looked like it had done nothing at all.
 	if flash != "":
-		UiKit.text(self, font, flash, Vector2(24, UiKit.bottom(18.0)), 14, UiKit.INK)
+		UiKit.text(self, font, flash, Vector2(190, UiKit.bottom(18.0)), 14, UiKit.INK)
 
 
 ## A five-segment bar: the bands behind, the band being filled, the bands ahead.
@@ -347,7 +347,7 @@ func _draw_diary() -> void:
 		## player is meant to read before spending credits on a date. Breaking
 		## them at the natural clause beats shrinking a figure somebody is about
 		## to make a decision on.
-		UiKit.text(self, font, UiKit.t("Matchday %d  ·  about %d through the gate") % [
+		UiKit.text(self, font, UiKit.t("Event %d  ·  about %d through the gate") % [
 			int(o["event"]) + 1, int(p["heads"])],
 			Vector2(RIGHT_X, 442), 13, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("%d CC spent") % int(p["cost"]),
@@ -361,7 +361,7 @@ func _draw_diary() -> void:
 	if season.booked != null:
 		var away := season.booked.events_away(season.world.event)
 		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(),
-			UiKit.t("this matchday") if away == 0 else UiKit.t("in %d matchdays") % away],
+			UiKit.t("this event") if away == 0 else UiKit.t("in %d events") % away],
 			Vector2(RIGHT_X, 304), 13, UiKit.YOU)
 		UiKit.text(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
 			Vector2(RIGHT_X, 326), 12, UiKit.DIM)

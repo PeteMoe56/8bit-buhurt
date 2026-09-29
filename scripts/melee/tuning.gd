@@ -246,19 +246,27 @@ const TD_GANG: float = 0.06             ## [the 2-on-1] third man on an occupied
 ##               standing at the range it came up at.
 static var sent_edge: float = 0.0
 static var sent_walks: bool = false
-## AND FOR #11: a PAID session trains the five at the full weekly rate instead
-## of PRACTICE_STARTER's quarter ("his week is mostly Saturday" is true of the
-## free week, not of an extra one the club paid for). OFF.
-static var session_full_week: bool = false
-## And its price, scaled (1.0 = as shipped).
-static var session_price_scale: float = 1.0
-## And #1: raises every AI tier's "wear_read" by this much, so the AI throws a
-## takedown in the clinch against a steadier man. 0 = as shipped. Read from
-## RB_AI_THROW so `bb bases` can measure pacing under it; unset in the game.
-static var ai_clinch_throw: float = OS.get_environment("RB_AI_THROW").to_float()
+## #11, SHIPPED (Pete, 29 Sep 2026): a PAID session trains the five at the full
+## weekly rate instead of PRACTICE_STARTER's quarter ("his week is mostly
+## Saturday" is true of the free week, not of an extra one the club paid for),
+## at a quarter of its old price. Measured (bb probe levers, n=40 x 2 seed
+## sets): the only variant where buying sessions beats skipping them.
+## Kept as vars so a probe can put the old behaviour back.
+static var session_full_week: bool = true
+static var session_price_scale: float = 0.25
+## #1, SHIPPED at 0.15 (Pete, 29 Sep 2026): raises every AI tier's "wear_read",
+## so the AI throws a takedown in the clinch against a steadier man. Halves the
+## edge an always-TAKEDOWN thumb has over hands-off play (+22-27 → +11) without
+## moving hands-off. RB_AI_THROW overrides it for probes (RB_AI_THROW=0 is the
+## old game).
+static var ai_clinch_throw: float = 0.15 if OS.get_environment("RB_AI_THROW") == "" \
+	else OS.get_environment("RB_AI_THROW").to_float()
 const TD_MIN: float = 0.05
 const TD_MAX: float = 0.45
-const TD_FAIL_EXPOSE: float = 1.2       ## seconds you are takeable after missing
+## seconds you are takeable after missing. A var (29 Sep 2026) so a probe can
+## try the "a miss costs you" answer to #1: RB_TD_EXPOSE=<seconds>.
+static var TD_FAIL_EXPOSE: float = 1.2 if OS.get_environment("RB_TD_EXPOSE") == "" \
+	else OS.get_environment("RB_TD_EXPOSE").to_float()
 
 const BR_BASE: float = 0.07
 ## Per POUND of difference. Was per kilogram at 0.0040; a pound is 0.4536 of a
@@ -629,7 +637,7 @@ const STRATEGIES := {
 	## values flipped and the same men in the same places.
 	Strategy.TURTLE_LEFT: {
 		"name": "Turtle left",
-		"blurb": "Shell up around the Center against your left rail. Nobody gets round you; nobody scores either.",
+		"blurb": "Shell up around the Center against your left rail. Nobody gets around you; nobody scores either.",
 		"lane": [0.14, 0.10, 0.15, 0.26, 0.28],
 		"push": [0.44, 0.32, 0.24, 0.34, 0.44],
 	},

@@ -74,6 +74,10 @@ static func promotion_terms(s: Season) -> Dictionary:
 		"dues_now": s.office.scaled(League.dues_for(t)),
 		"dues_up": s.office.scaled(League.dues_for(up)),
 		"in_hand": s.office.credits,
+		## THE GROUND THE DIVISION ABOVE WILL PLAY IN (#13).
+		"arena_ok": s.office.arena.fit_for(up),
+		"arena_need": Arena.arena_name_of(Arena.level_for_tier(up)),
+		"arena_have": s.office.arena.arena_name(),
 	}
 
 
@@ -83,6 +87,13 @@ static func promotion_terms(s: Season) -> Dictionary:
 static func answer_promotion(s: Season, take: bool) -> String:
 	if not s.promotion_place():
 		return UiKit.t("There is nothing to decide.")
+	## No ground, no promotion (#13). The question stays open, so a club can
+	## build the ground now and then take the place — or turn it down.
+	var up := mini(s.world.player_tier() + 1, League.TIERS.size() - 1)
+	if take and not s.office.arena.fit_for(up):
+		return UiKit.t("The %s won't fight in a %s. Build a %s first.") % [
+			League.tier_name(up), s.office.arena.arena_name(),
+			Arena.arena_name_of(Arena.level_for_tier(up))]
 	s.promotion_answered = true
 	s.world.stay_down = not take
 	s.last_promotion_choice = take

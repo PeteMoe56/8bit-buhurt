@@ -40,17 +40,17 @@ const LEVELS := [
 	},
 	{
 		"name": "Club gym", "tier": 0, "cost": 6, "capacity": 120,
-		"sells": "Tea urn, brownies, a biscuit tin", "take": 1.05,
-		"blurb": "Mats, a roof and a kettle. Forty people can watch without standing in mud.",
+		"sells": "Coffee urn, brownies, a cookie jar", "take": 1.05,
+		"blurb": "Mats, a roof and a coffee pot. Forty people can watch without standing in mud.",
 	},
 	{
 		"name": "Fenced ground", "tier": 1, "cost": 12, "capacity": 400,
-		"sells": "A burger van and a coffee cart", "take": 1.10,
-		"blurb": "A proper list, hoarding all the way round and a gate you can take money on.",
+		"sells": "A burger truck and a coffee cart", "take": 1.10,
+		"blurb": "A proper list, fencing all the way around and a gate you can take money at.",
 	},
 	{
 		"name": "Sports hall", "tier": 1, "cost": 22, "capacity": 1200,
-		"sells": "Hot food, and a bar with a licence", "take": 1.15,
+		"sells": "Hot food and a licensed bar", "take": 1.15,
 		"blurb": "Seated, lit and warm. Clubs will travel to fight here.",
 	},
 	{
@@ -281,7 +281,11 @@ func retainer() -> int:
 ## six to one top to bottom, and a second multiplier of the same size would make
 ## the National Division's gate thirty times the Backyard Circuit's, which is not
 ## a climb, it is two different games.
-const GATE_PER_LEVEL: float = 0.24
+## 0.35 (was 0.24), Pete 29 Sep 2026 (#13): the ground "should be adding a
+## noticeable amount of income". The gate is 55-64% of a club's income in every
+## division, so this is the lever that is felt: a National Arena doubles and
+## three-quarters a home gate instead of doubling and a fifth.
+const GATE_PER_LEVEL: float = 0.35
 
 
 static func gate_factor(level: int) -> float:
@@ -469,15 +473,38 @@ func next_tier() -> int:
 	return int(next()["tier"]) if not at_top() else -1
 
 
+## THE GROUND COMES BEFORE THE DIVISION (Pete, 29 Sep 2026, #13): *"Arena
+## building is mandatory to rising a league because the next league won't want
+## to use your shittier arena."* It used to be the other way round — get
+## promoted, then you may build — which made the arena a trophy for having
+## risen rather than the thing you rise on. Now a club may build one division
+## AHEAD of where it plays, and cannot be promoted without the ground for it.
+const BUILD_AHEAD: int = 1
+
+
+## The first level a division will play in: the lowest level whose tier is that
+## division's. Tier 0 plays anywhere.
+static func level_for_tier(t: int) -> int:
+	for i in LEVELS.size():
+		if int(LEVELS[i]["tier"]) >= t:
+			return i
+	return MAX_LEVEL
+
+
+## Is this ground fit for that division?
+func fit_for(t: int) -> bool:
+	return level >= level_for_tier(t)
+
+
 ## Everything wrong with building the next one, in the order a player would fix
 ## it — the league first, because no amount of saving fixes that one.
 func can_build(tier: int, credits: int) -> String:
 	if at_top():
 		return UiKit.t("%s is as far as a club can build.") % arena_name()
 	var n := next()
-	if tier < int(n["tier"]):
-		return UiKit.t("The %s is for clubs in the %s. Get promoted first.") % [
-			String(n["name"]), League.tier_name(int(n["tier"]))]
+	if tier + BUILD_AHEAD < int(n["tier"]):
+		return UiKit.t("The %s is for clubs about to reach the %s. Climb a division first.") % [
+			UiKit.t(String(n["name"])), League.tier_name(int(n["tier"]))]
 	if credits < int(n["cost"]):
 		return UiKit.t("The %s costs %d CC and you have %d.") % [
 			String(n["name"]), int(n["cost"]), credits]

@@ -174,4 +174,4 @@ static func following_word(fans: float, cap: float) -> String:
 		return UiKit.t("Ticking over")
 	if f >= 0.15:
 		return UiKit.t("Thin")
-	return UiKit.t("A few mates")
+	return UiKit.t("A few buddies")

@@ -27,6 +27,8 @@ extends RefCounted
 ## does not call, seeded so the list does not reshuffle while you look at it.
 const DREAM_HELD_UNTIL_SEASON: int = 3
 const ONE_IN: int = 4
+## How far above your current division a job offer can come from.
+const MAX_TIERS_UP: int = 1
 
 
 ## A CLUB'S RATING ON THE COACH'S OWN SCALE.
@@ -62,6 +64,13 @@ static func interested(coach: Coach, world, club_id: int) -> bool:
 	if bool(club.get("guest", false)) or int(club.get("tier", 0)) < 0:
 		return false
 	if coach.reputation < standing_of(int(club["power"])):
+		return false
+	## ONE LEAGUE UP AT A TIME (Pete, 29 Sep 2026, #8/#9): *"Limit advance to one
+	## league per year. If they can reach it but suck, they regress down leagues."*
+	## Four of six job-hoppers were in the National Division by season 3-4; a
+	## club more than one division above the one you run now does not call.
+	## Sideways and down are open. Relegation does the rest.
+	if int(club.get("tier", 0)) > world.player_tier() + MAX_TIERS_UP:
 		return false
 	if club_id == coach.favorite_club_id and world.season < DREAM_HELD_UNTIL_SEASON:
 		return false

@@ -15,7 +15,10 @@ extends Node2D
 ## what the shape of the screen wants and also what makes them read as a choice
 ## between clubs rather than as a list.
 const SLOT_X := 24.0
-const SLOT_Y := 176.0
+## 124 (was 176): Back and Settings moved from the row above the slots to the
+## bottom of the screen (Pete, 29 Sep 2026, #14 — Back bottom-left everywhere),
+## so the slots take the row they left.
+const SLOT_Y := 124.0
 const SLOT_W := 300.0
 ## The Back / Settings row, between the tagline and the slots.
 const HEADER_BTN_Y := 124.0
@@ -175,9 +178,9 @@ func _build() -> void:
 	## A ROW OF THEIR OWN (29 Sep 2026), under the tagline instead of beside it:
 	## at y 96 Back sat level with the tagline, eighteen pixels from its first
 	## letter. HEADER_BTN_Y still clears the slot panels at SLOT_Y.
-	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(UiKit.screen().x - 180, HEADER_BTN_Y),
+	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(UiKit.screen().x - 180, UiKit.screen().y - 56),
 		Vector2(156, 44), _settings))
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, HEADER_BTN_Y), Vector2(140, 44), func():
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, UiKit.screen().y - 56), Vector2(150, 44), func():
 		UiKit.go("res://scenes/Start.tscn")))
 	## A CANCEL, NOT A SECOND TAP ON THE SAME PIXEL. "Delete" became "Sure?" in
 	## place, same rect, no way out — so a double-tap destroyed a career, which

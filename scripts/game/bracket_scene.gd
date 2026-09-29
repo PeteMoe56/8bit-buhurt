@@ -46,9 +46,9 @@ func _ready() -> void:
 	## the bottom — so Back moves to the top right rather than the tables being
 	## squeezed to make room for it.
 	var pools_mode: bool = cup != null and cup.has_pools and cup.stage == Cup.Stage.POOLS
-	ui.add_child(UiKit.button(UiKit.t("Back"),
-		Vector2(w() - 172, 26) if pools_mode else Vector2(ROAD_X, h() - 56),
-		Vector2(148 if pools_mode else ROAD_W, 40 if pools_mode else 44), _back))
+	## BOTTOM-LEFT IN BOTH MODES (#14) — it was top-right in pools and
+	## bottom-right in the knockout, two places in one scene.
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, h() - 56), Vector2(150, 44), _back))
 	queue_redraw()
 
 
@@ -233,8 +233,10 @@ func _pools() -> void:
 		Vector2(24, 64), 13, UiKit.DIM)
 	for p in cup.pools.size():
 		var px := 24.0 + float(p % 2) * 468.0
-		var py := 100.0 + float(p / 2) * 212.0
-		UiKit.panel(self, Rect2(px, py, 444, 192))
+		## 176 tall at 184 apart (was 192 at 212): the pools end at 460 now, above
+		## the bottom-left Back that every screen shares (#14).
+		var py := 92.0 + float(p / 2) * 184.0
+		UiKit.panel(self, Rect2(px, py, 444, 176))
 		UiKit.text(self, font, UiKit.t("POOL %s") % char(65 + p), Vector2(px + 18, py + 28), 13, UiKit.DIM)
 		UiKit.right(self, font, UiKit.t("P   W   D   L   MARGIN"), Vector2(px + 426, py + 28),
 			12, UiKit.DIM, 240)
@@ -260,4 +262,4 @@ func _pools() -> void:
 					int(row.get("mf", 0)) - int(row.get("ma", 0))],
 				Vector2(px + 426, ry), 13, col, 240)
 	UiKit.text(self, font, UiKit.t("Top %d of each pool make the knockout.") % Cup.POOLS_ADVANCE,
-		Vector2(24, UiKit.bottom(16.0)), 12, UiKit.DIM)
+		Vector2(194, UiKit.bottom(16.0)), 12, UiKit.DIM)

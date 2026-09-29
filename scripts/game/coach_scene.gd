@@ -153,7 +153,7 @@ func _standing(c: Coach) -> void:
 	## does not know that reads a halving as a bug.
 	UiKit.text_fit(self, font, UiKit.t("Win your division and this climbs."),
 		Vector2(L_X + 16, y), 11, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
-	UiKit.text_fit(self, font, UiKit.t("Finish outside the top four and it halves."),
+	UiKit.text_fit(self, font, UiKit.t("Outside the top four, it halves."),
 		Vector2(L_X + 16, y + 16), 11, UiKit.DOWN, COL_W - 32.0)
 
 

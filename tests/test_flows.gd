@@ -156,9 +156,9 @@ func _flow_new_career_and_first_bout() -> void:
 		"back %s, event %d -> %d, played %d, cleared %s" % [back, event_was,
 			Session.season.world.event, int(row.get("played", 0)), cleared])
 	var again := SaveGame.load_slot(0)
-	_ok(again != null and again.last_forfeit == "" and again.world.event == event_was + 1,
-		"and reloading it is not a forfeit",
-		"event %d, forfeit '%s'" % [again.world.event if again else -1, again.last_forfeit if again else "?"])
+	_ok(again != null and again.last_interrupted == "" and again.world.event == event_was + 1,
+		"and reloading it restarts nothing",
+		"event %d, forfeit '%s'" % [again.world.event if again else -1, again.last_interrupted if again else "?"])
 
 
 func _flow_create_renames_everywhere() -> void:

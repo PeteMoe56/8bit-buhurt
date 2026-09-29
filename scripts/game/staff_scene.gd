@@ -119,7 +119,9 @@ func _build() -> void:
 	## discover by accident.
 	var cost := season.office.session_cost()
 	var idle: bool = season.office.captains.is_empty()
-	ui.add_child(UiKit.button(UiKit.t("Extra session  ·  %d CC") % cost,
+	## AND WHAT IT BUYS, per man in the five (decision #11).
+	ui.add_child(UiKit.button(UiKit.t("Session  ·  +%d XP each  ·  %d CC") % [
+			SeasonBouts.session_xp(season), cost],
 		Vector2(UiKit.right_edge(280.0), UiKit.screen().y - 56), Vector2(280, 44),
 		func():
 			flash_tone = 0

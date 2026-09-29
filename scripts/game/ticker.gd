@@ -50,7 +50,7 @@ const SPEED: float = 34.0
 ## going and is wrong is worse than no line. The results carry the specifics.
 const QUIPS: Array[String] = [
 	"Reminder: the marshals will not pass a helm you have repaired with tape.",
-	"Lost property at the last meet: two gauntlets, one boot, somebody's dog.",
+	"Lost property at the last event: two gauntlets, one boot, somebody's dog.",
 	"The federation reminds clubs that a poleaxe is not a walking aid.",
 	"Weigh-in is at eight. The scales do not care what your harness weighs.",
 	"A fighter writes in to ask whether beard length counts as armor. It does not.",
@@ -63,7 +63,7 @@ const QUIPS: Array[String] = [
 	"This week's longest bout ran eleven minutes. Both sides blamed the other.",
 	"A fighter has asked if he may compete in a harness made of hockey pads. No.",
 	"The federation's new rulebook is 94 pages. Page 3 is about parking.",
-	"Somebody's mother has written in about the language at the last meet. Fair.",
+	"Somebody's mother has written in about the language at the last event. Fair.",
 ]
 
 

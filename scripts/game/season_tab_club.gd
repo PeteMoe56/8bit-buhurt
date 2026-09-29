@@ -136,8 +136,8 @@ static func _club_controls(v: SeasonScene) -> void:
 		## say which way.
 		v.ui.add_child(UiKit.button(UiKit.t("Take it"),
 			Vector2(24, SeasonScene.action_y()), Vector2(200, 46), func():
-				v.season.answer_promotion(true)
-				v.flash = UiKit.t("Up to the %s.") % String(pt["to"])
+				var perr: String = v.season.answer_promotion(true)
+				v.flash = UiKit.said(perr) if perr != "" else UiKit.t("Up to the %s.") % String(pt["to"])
 				Session.autosave()
 				v._rebuild(), "up"))
 		v.ui.add_child(UiKit.button(UiKit.t("Stay down  ·  save %d CC")
@@ -166,7 +166,7 @@ static func _club_controls(v: SeasonScene) -> void:
 				v._rebuild()))
 		return
 	if block == "cup":
-		v.ui.add_child(UiKit.button(UiKit.t("Fight the tie"), Vector2(24, SeasonScene.action_y()),
+		v.ui.add_child(UiKit.button(UiKit.t("Fight the cup bout"), Vector2(24, SeasonScene.action_y()),
 			Vector2(204, 46), v._fight_cup))
 		## THE DRAW, next to the tie. Carried open since section 22: the screen
 		## could say who you were fighting and never who else was left, which is
@@ -174,7 +174,7 @@ static func _club_controls(v: SeasonScene) -> void:
 		v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(244, SeasonScene.action_y()), Vector2(204, 46), func():
 			## Two taps, like the league's sim: a cup tie simmed is a cup tie gone.
 			if not UiKit.confirm("sim_cup"):
-				v.flash = UiKit.t("Tap Sim it again to hand the tie to the AI.")
+				v.flash = UiKit.t("Tap Sim it again to hand the cup bout to the AI.")
 				v._rebuild()
 				return
 			var c := v.season.pending_cup()
@@ -549,13 +549,21 @@ static func _fixture(v: SeasonScene) -> void:
 		## it." is 430 pixels at 14px against a 436-pixel panel, and the first
 		## render lost the last two words — copy the game wrote itself is not
 		## allowed to lose its tail.
-		UiKit.text_fit(v, v.font,
-			UiKit.t("Finished %s. The place is yours if you want it.")
-				% UiKit.ordinal(v.season.position()),
-			Vector2(44, y + 80), 13, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
+		## THE GROUND, WHEN IT IS THE THING IN THE WAY (#13). The division above
+		## will not fight in a lesser arena, and that outranks the pleasantry:
+		## the card has three lines and this one is the one the player must act on.
+		if bool(t["arena_ok"]):
+			UiKit.text_fit(v, v.font,
+				UiKit.t("Finished %s. The place is yours if you want it.")
+					% UiKit.ordinal(v.season.position()),
+				Vector2(44, y + 80), 13, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
+		else:
+			UiKit.text_fit(v, v.font,
+				UiKit.t("Needs a %s. You have a %s.") % [String(t["arena_need"]), String(t["arena_have"])],
+				Vector2(44, y + 80), 13, UiKit.DOWN, SeasonScene.fixture_w() - 40.0)
 		UiKit.pair(v, v.font,
-			"%s costs %d a season" % [String(t["to"]), int(t["dues_up"])],
-			"you have %d" % int(t["in_hand"]),
+			UiKit.t("%s costs %d a season") % [String(t["to"]), int(t["dues_up"])],
+			UiKit.t("you have %d") % int(t["in_hand"]),
 			Vector2(44, y + 104), 24.0 + SeasonScene.fixture_w() - 20.0, 12, 12,
 			UiKit.EDGE.lightened(0.35),
 			UiKit.UP if int(t["in_hand"]) >= int(t["dues_up"]) else UiKit.DOWN)

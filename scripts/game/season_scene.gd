@@ -100,9 +100,9 @@ func _ready() -> void:
 		Session.season = Season.new(MeleeRosters.starting_club(), randi())
 	season = Session.season
 	## A bout walked out of on the last run — said once.
-	if season.last_forfeit != "":
-		flash = season.last_forfeit
-		season.last_forfeit = ""
+	if season.last_interrupted != "":
+		flash = season.last_interrupted
+		season.last_interrupted = ""
 	## Anything the club had to do to put five men on the list — said once.
 	if not season.last_emergency.is_empty():
 		flash = UiKit.t("Short of fit men: ") + season.last_emergency[0] + (
@@ -111,6 +111,8 @@ func _ready() -> void:
 		season.last_emergency = []
 	if flash == "":
 		flash = season.summer_warning()
+	if flash == "":
+		flash = season.hoard_note()
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_rebuild()

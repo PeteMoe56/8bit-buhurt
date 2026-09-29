@@ -28,6 +28,8 @@ extends Node2D
 enum Tab { FIGHTER, CLUB, GRADE }
 
 const STAT_X := 24.0
+## The bottom row starts right of Back, which is bottom-left on every screen (#14).
+const BOTTOM_X := 190.0
 const STAT_Y := 150.0
 const STAT_ROW := 48.0
 const SLIDER_X := 150.0
@@ -199,8 +201,8 @@ func _fighter_controls() -> void:
 			replace_i = (replace_i + 1) % out.size()
 			_rebuild()))
 	ui.add_child(UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
-		Vector2(STAT_X, 486), Vector2(260, 42), _sign))
-	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(296, 486), Vector2(160, 42), func():
+		Vector2(BOTTOM_X, 486), Vector2(260, 42), _sign))
+	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(BOTTOM_X + 272, 486), Vector2(160, 42), func():
 		card = Workshop.blank()
 		flash = ""
 		_rebuild()))
@@ -379,7 +381,7 @@ func _club_controls() -> void:
 		bank_b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(bank_b)
 
-	ui.add_child(UiKit.button(UiKit.t("Save the club"), Vector2(STAT_X, 486), Vector2(260, 42),
+	ui.add_child(UiKit.button(UiKit.t("Save the club"), Vector2(BOTTOM_X, 486), Vector2(260, 42),
 		_save_club))
 
 

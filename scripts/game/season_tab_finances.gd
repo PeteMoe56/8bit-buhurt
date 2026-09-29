@@ -186,6 +186,11 @@ static func _fin_ground(v: SeasonScene) -> void:
 	## on this page rather than the arena's because the whole reason it exists is
 	## that it is a different KIND of income, and this is the page about that.
 	UiKit.pair(v, v.font, Arena.sells(a.level),
-		UiKit.t("%d CC a home meet") % Arena.counter_take(a.level, o.attendance()),
+		UiKit.t("%d CC a home event") % Arena.counter_take(a.level, o.attendance()),
 		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 12, 13,
 		UiKit.EDGE.lightened(0.35), UiKit.DIM)
+	## TWO CURRENCIES, SAID ONCE (Pete, 29 Sep 2026, #7): CC is the club's money
+	## and $ is the men's pay. Both appear across the game; this is the page
+	## about money, so this is where the difference is written down.
+	UiKit.text_fit(v, v.font, UiKit.t("CC is the club's money. $ is what the men are paid each week."),
+		Vector2(SeasonScene.FIN_RIGHT, y + 26.0), 12, UiKit.DIM, UiKit.right_edge() - SeasonScene.FIN_RIGHT)

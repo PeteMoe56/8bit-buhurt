@@ -219,10 +219,10 @@ static func load_slot(slot: int) -> Season:
 	var s := from_dict(d)
 	if s != null:
 		_settle(s, int(d.get("migrated_from", VERSION)))
-		## A bout that was in progress when the app went away is a forfeit, and
-		## the file is written again at once so the forfeit cannot be undone by
-		## closing the app a second time before the next autosave.
-		if s.forfeit_abandoned_bout():
+		## A bout that was in progress when the app went away starts again
+		## (Pete, 29 Sep 2026). The file is written at once so the note is said
+		## once and the mark does not outlive the load.
+		if s.restart_abandoned_bout():
 			save(s, slot)
 	return s
 

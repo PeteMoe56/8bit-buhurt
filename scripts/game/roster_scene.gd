@@ -147,6 +147,9 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 		## a 39 who can reach 60 over a 45 who cannot.
 		d["right_note"] = UiKit.t("capped") if f.headroom() <= 0 else UiKit.t("to %d") % f.potential
 		d["right_col"] = UiKit.EDGE.lightened(0.5) if f.headroom() <= 0 else UiKit.UP
+		## On the star row, as the market does, so the note line keeps its whole
+		## width at the 11-pixel floor (#15) — sharing it left "51 · age ." cut.
+		d["right_note_up"] = true
 	UiKit.card(self, font, r, d, big)
 	## THE INSPECTION LINE, drawn ON the armor bar. A threshold you cannot see is
 	## a threshold the player discovers by being refused, and this one decides

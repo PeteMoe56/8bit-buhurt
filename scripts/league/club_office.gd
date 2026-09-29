@@ -73,7 +73,14 @@ const WAGE_B: float = 0.2126
 ## ~181 and `test_market` holds a starting club to bill x4 under the cap, so it
 ## can renew anybody without money being the reason. It never binds in the sim
 ## (career score unchanged); it binds on a player.
-const TIER_CAP := [800, 2600, 34000, 1000000]
+## THE CAP BINDS NOW (Pete, 29 Sep 2026, #13): *"Wage cap should be used so you
+## can buy better guys, if it's too high, we can lower it to make it a needed
+## purchase."* Measured before the change (bb probe wages, 8 careers x 20 years):
+## the median bill sat at 20 / 9 / 9 / 25 % of these caps and even the 90th
+## percentile never passed 71% — a limit nobody reached. Each is set now near the
+## 75th-percentile bill for its division, so a good squad needs a raise or two
+## and a great one needs several.
+const TIER_CAP := [250, 1000, 12000, 450000]
 ## THE CAP RAISE HAS NO CEILING, at Pete's instruction — *"the upgradable salary
 ## cap"* — and Retro Bowl's works the same way: you can keep buying it, and the
 ## price keeps climbing, forever.

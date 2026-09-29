@@ -111,7 +111,7 @@ static func available() -> bool:
 static func closed_word() -> String:
 	match state:
 		State.COLD:
-			return UiKit.t("The shop has not opened yet.")
+			return UiKit.t("The store has not opened yet.")
 		State.CONNECTING:
 			return UiKit.t("Reaching the store…")
 		State.READY:

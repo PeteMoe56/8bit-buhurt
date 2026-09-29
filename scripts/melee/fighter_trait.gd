@@ -186,7 +186,7 @@ const BLURB := {
 	T.BURNS_OUT: "Goes early.",
 	T.ROUGH_ON_KIT: "Comes back with the harness in pieces.",
 	T.SPONGE: "Trains faster than the man beside him.",
-	T.CEILING_RAISER: "A big afternoon actually raises what he can become.",
+	T.CEILING_RAISER: "A big event actually raises what he can become.",
 	T.LATE_BLOOMER: "Banks a season of training the day he signs.",
 	T.PLATEAUED: "What you signed is what you get.",
 	T.CHEAP: "Signs under the going rate and re-signs the same.",

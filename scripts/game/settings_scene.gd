@@ -105,7 +105,7 @@ func _build() -> void:
 				_build()))
 	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(LEFT_X, UiKit.bottom(58.0)),
 		Vector2(160, 46), _back))
-	ui.add_child(UiKit.button(UiKit.t("Licences"), Vector2(LEFT_X + 176.0, UiKit.bottom(58.0)),
+	ui.add_child(UiKit.button(UiKit.t("Licenses"), Vector2(LEFT_X + 176.0, UiKit.bottom(58.0)),
 		Vector2(160, 46), _show_licences))
 	queue_redraw()
 
