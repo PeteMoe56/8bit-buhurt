@@ -1283,16 +1283,19 @@ func _step_closing(m: Man) -> void:
 					and men[tgt.target].team == m.team:
 				tgt.grip_t = Tuning.MATE_GRIP_T
 				tgt.grip_team = m.team
+			## THE FREE FIRST SWING (Pete, #10). If you picked HIT, that hit IS the
+			## free swing: it lands now, whatever his cooldown, at full weight.
+			## Anything else gets `swing_share` of a blow first. (29 Sep: a swing
+			## before a chosen Hit either doubled it — a thumb won C-6's worst
+			## setup 100% — or, with the cooldown kept, ate it.)
 			if swing_share > 0.0:
-				var cd := m.hit_cd
-				m.hit_cd = 0.0
-				_hit_mult = swing_share
-				_resolve(m, Tuning.Act.HIT, tgt.idx)
-				_hit_mult = 1.0
-				## No double blow: a chosen Hit waits out the swing's cooldown
-				## unless RB_SWING_REHIT=1 (the 29 Sep first cut).
-				if act == Tuning.Act.HIT and OS.get_environment("RB_SWING_REHIT") == "1":
-					m.hit_cd = cd
+				if act == Tuning.Act.HIT:
+					m.hit_cd = 0.0
+				else:
+					_hit_mult = swing_share
+					m.hit_cd = 0.0
+					_resolve(m, Tuning.Act.HIT, tgt.idx)
+					_hit_mult = 1.0
 		if tgt.standing():
 			_resolve(m, act, tgt.idx)
 		m.acting_for_player = false
@@ -1698,7 +1701,7 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 	## the odds after it — otherwise the wheel undersells every choice on it.
 	var t_stab := t.stability
 	var swing := 0.0
-	if swing_share > 0.0 and m.under_orders() and not m.order.from_play:
+	if swing_share > 0.0 and act != Tuning.Act.HIT and m.under_orders() and not m.order.from_play:
 		swing = minf(_hit_amount(m, t) * swing_share, t.stability)
 		t.stability -= swing
 	match act:
