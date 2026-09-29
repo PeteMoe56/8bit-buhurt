@@ -41,6 +41,10 @@ class Order extends RefCounted:
 	## a man's recovery and does not count as thumb work. That gap between a plan
 	## and a hand on the screen is the ladder, and it is load-bearing.
 	var from_play: bool = false
+	## The endpoint was held: he runs it (see Tuning.sprint).
+	var sprint: bool = false
+	## Free enemies he has already passed on this route — each gets one try.
+	var passed: Dictionary = {}
 
 	func done() -> bool:
 		return path.is_empty() and target == -1
@@ -267,6 +271,8 @@ class Man extends RefCounted:
 
 var men: Array[Man] = []
 ## Probe counters for the flank rule (29 Sep 2026): blows on clinched men.
+var passes_grabbed: int = 0
+var passes_tripped: int = 0
 var flank_blows: int = 0
 var front_blows: int = 0
 var clubs: Array = []
@@ -591,13 +597,14 @@ func _set_the_line() -> void:
 # ------------------------------------------------------------- player input
 ## Hand a fighter a drawn path. `path` is in list coordinates; `target` is an
 ## enemy index or -1. Returns false if he cannot be given one right now.
-func give_order(idx: int, path: Array[Vector2], target: int = -1) -> bool:
+func give_order(idx: int, path: Array[Vector2], target: int = -1, run: bool = false) -> bool:
 	if phase == Phase.OVER or idx < 0 or idx >= men.size():
 		return false
 	var m := men[idx]
 	if m.team != 0 or not m.standing():
 		return false
 	_order(m, path, target, false)
+	m.order.sprint = run and Tuning.sprint > 1.0
 	m.orders_given += 1
 	orders_issued += 1
 	## A route drawn for one half of a pair IS the split. There is no separate
@@ -1147,6 +1154,8 @@ func _speed(m: Man) -> float:
 	v *= float(_skill_of(m)["pace"])
 	if phase == Phase.CHARGE:
 		v *= 1.3
+	if m.under_orders() and m.order.sprint:
+		v *= Tuning.sprint
 	return v
 
 
@@ -1213,6 +1222,13 @@ func _step_closing(m: Man) -> void:
 		## Charged by the METRE. See Tuning.GAS_MOVE — per second, this went to
 		## nothing the moment the list got longer and the men got quicker.
 		m.tank = maxf(0.0, m.tank - Tuning.GAS_MOVE * step)
+		if m.under_orders() and m.order.sprint:
+			m.tank = maxf(0.0, m.tank - Tuning.sprint_gas * m.eff_tank() * Tuning.TICK)
+		## RUNNING PAST A FREE MAN (Pete: "Blood Bowl rules where that opponent,
+		## if free, can try to grab or try to trip you at a percentage").
+		if m.under_orders() and (Tuning.pass_grab > 0.0 or Tuning.pass_trip > 0.0):
+			if _pass_by(m):
+				return
 
 	if not homing:
 		return
@@ -1564,8 +1580,114 @@ func _clinch_side(a: Man, d: Man) -> int:
 	return -1
 
 
+## WHICH WAY A MAN FACES: at the man he is clinched with or closing on, else the
+## way his route runs, else up the list toward the other end.
+func _facing(d: Man) -> Vector2:
+	if d.target >= 0 and d.target < men.size() and (d.state == State.GRAPPLED or d.state == State.CLOSING):
+		var v := men[d.target].pos - d.pos
+		if v.length() > 0.01:
+			return v.normalized()
+	if d.under_orders() and not d.order.path.is_empty():
+		var w := d.order.path[0] - d.pos
+		if w.length() > 0.01:
+			return w.normalized()
+	return Vector2(1, 0) if d.team == 0 else Vector2(-1, 0)
+
+
+## ONE TRY PER FREE ENEMY PER ROUTE. A free man is on his feet and not tied up;
+## the man the route is aimed at does not count — reaching him is the point.
+## Returns true if the runner's route ended here.
+func _pass_by(m: Man) -> bool:
+	for e in men:
+		if e.team == m.team or e.state != State.CLOSING or e.idx == m.order.target:
+			continue
+		if m.order.passed.has(e.idx) or m.pos.distance_to(e.pos) > Tuning.pass_range:
+			continue
+		m.order.passed[e.idx] = true
+		var odds := pass_odds(m, e)
+		var roll := rng.randf()
+		if roll < float(odds["grab"]):
+			m.order = null
+			_close_prompt(m)
+			_enter_grapple(e, m)
+			passes_grabbed += 1
+			return true
+		if roll < float(odds["grab"]) + float(odds["trip"]):
+			passes_tripped += 1
+			_wear(m, e, Tuning.PASS_TRIP_HIT)
+			if m.stability < Tuning.PASS_TRIP_FLOOR:
+				_put_down(m, e)
+				return true
+	return false
+
+
+## What a free man's reach costs a runner, as {grab, trip} — skill against
+## skill, and a sprinter is harder to lay hands on and easier to put off his feet.
+func pass_odds(m: Man, e: Man) -> Dictionary:
+	var edge := clampf((e.eff_skill() - m.eff_skill()) * 0.006, -0.12, 0.12)
+	var run := m.under_orders() and m.order.sprint
+	var grab := clampf((Tuning.pass_grab + edge) * (0.7 if run else 1.0), 0.0, 0.8)
+	var trip := clampf((Tuning.pass_trip + edge) * (1.4 if run else 1.0), 0.0, 0.8)
+	return {"grab": grab, "trip": trip}
+
+
+## HOW OFTEN A FAILED BULLRUSH PUTS THE MAN WHO THREW IT DOWN — more when he is
+## already rocking, and when he threw himself at someone heavier.
+func bullrush_fall_chance(a: Man, d: Man) -> float:
+	var c := Tuning.br_fall
+	c += (1.0 - a.stability) * 0.25
+	c += clampf(float(d.card.weight - a.card.weight) * 0.004, -0.10, 0.15)
+	return clampf(c, 0.0, 0.6)
+
+
+## THE WHEEL'S NUMBERS, for one act by a man on a target, as the player would
+## choose it: "p" the chance it lands, "fall" (bullrush) the chance he ends up on
+## the floor himself, "dent" (hit) the share of balance it knocks off.
+func contact_odds(idx: int, act: int, target: int) -> Dictionary:
+	var m := men[idx]
+	var t := men[target]
+	var was := m.acting_for_player
+	m.acting_for_player = true
+	var out := {"p": 1.0, "fall": 0.0, "dent": 0.0}
+	match act:
+		Tuning.Act.BULLRUSH:
+			var p := _bullrush_chance(m, t)
+			out["p"] = p
+			out["fall"] = (1.0 - p) * (bullrush_fall_chance(m, t) if Tuning.br_fall > 0.0 else 0.0)
+		Tuning.Act.TAKEDOWN:
+			out["p"] = _takedown_chance(m, t, t.state == State.GRAPPLED and t.target != m.idx)
+		Tuning.Act.HIT:
+			var amount := Tuning.HIT_STABILITY * t.tmod("hit_stability_against", 1.0) * (
+				0.7 + 0.6 * m.eff_strength() / 99.0)
+			if Tuning.back_hit > 1.0 and from_behind(m, t):
+				amount *= 1.0 + (Tuning.back_hit - 1.0) * _back_scale(m, t)
+			out["dent"] = minf(amount, t.stability)
+		Tuning.Act.GRAPPLE:
+			## Tying up always lands; what it is worth is his takedown once in.
+			out["p"] = _takedown_chance(m, t, false)
+	m.acting_for_player = was
+	return out
+
+
+## Is this blow from behind him (Tuning.back_arc)?
+func from_behind(a: Man, d: Man) -> bool:
+	var to_a := a.pos - d.pos
+	if to_a.length() < 0.01:
+		return false
+	return absf(rad_to_deg(_facing(d).angle_to(to_a))) > Tuning.back_arc
+
+
+## The multiplier a blow from behind earns on this man, 1.0 if it is not one.
+func _back_scale(a: Man, d: Man) -> float:
+	if not from_behind(a, d):
+		return 1.0
+	return Tuning.back_held if d.state == State.GRAPPLED else 1.0
+
+
 func _bullrush_chance(a: Man, d: Man) -> float:
 	var c := Tuning.BR_BASE
+	if Tuning.back_br > 0.0 and from_behind(a, d):
+		c += Tuning.back_br * _back_scale(a, d)
 	if Tuning.flank_br > 0.0 or Tuning.front_pen > 0.0:
 		match _clinch_side(a, d):
 			1: c += Tuning.flank_br
@@ -1609,6 +1731,10 @@ func _resolve(m: Man, act: int, target: int) -> void:
 				## rather than a strictly better Hit.
 				m.exposed_t = Tuning.BR_FAIL_EXPOSE
 				m.stability = maxf(0.0, m.stability - 0.10)
+				## AND SOMETIMES HE BOUNCES OFF AND GOES OVER (Pete: "there SHOULD
+				## be a red chance in Bullrush where you run into them and fall").
+				if Tuning.br_fall > 0.0 and rng.randf() < bullrush_fall_chance(m, t):
+					_put_down(m, t)
 
 		Tuning.Act.GRAPPLE:
 			if t.state == State.GRAPPLED:
@@ -1623,6 +1749,8 @@ func _resolve(m: Man, act: int, target: int) -> void:
 			m.hit_cd = Tuning.HIT_COOLDOWN
 			var amount := Tuning.HIT_STABILITY * t.tmod("hit_stability_against", 1.0) * (
 				0.7 + 0.6 * m.eff_strength() / 99.0)
+			if Tuning.back_hit > 1.0 and from_behind(m, t):
+				amount *= 1.0 + (Tuning.back_hit - 1.0) * _back_scale(m, t)
 			if Tuning.flank_hit > 0.0 or Tuning.front_pen > 0.0:
 				match _clinch_side(m, t):
 					1: amount *= maxf(1.0, Tuning.flank_hit)

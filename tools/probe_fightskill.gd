@@ -18,6 +18,8 @@ var cad := 1
 var light := false
 var worldopp := false
 var orders_total := 0
+var grabs_total := 0
+var trips_total := 0
 var flank_total := 0
 var front_total := 0
 var bouts_total := 0
@@ -73,6 +75,16 @@ func _initialize() -> void:
 			out += "  %s %.1f" % [pol, w]
 			if pol != "none":
 				out += " (f%d/F%d)" % [flank_total, front_total]
+		print(out)
+	elif which == "help3":
+		## The contact wheel (29 Sep): a player reading the wheel's odds, walking
+		## and running his man round behind the one he is sent at.
+		var out := "WHEEL"
+		for pol in ["none", "helpfree", "helpwheel", "helpwheelrun", "smart"]:
+			bouts_total = 0; grabs_total = 0; trips_total = 0
+			var w := wr(n, pol, -1, -1, 1.0)
+			out += "  %s %.1f" % [pol, w]
+		out += "  | grabs %d trips %d" % [grabs_total, trips_total]
 		print(out)
 	elif which == "gap":
 		## Just the two numbers the clinch decision turns on (29 Sep).
@@ -159,9 +171,12 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 					sim.answer_prompt(mm.idx, act)
 			elif pol.begins_with("help"):
 				if k % 36 == 0:
-					send_free(sim, pol == "helpflank")
+					send_free(sim, pol == "helpflank" or pol.begins_with("helpwheel"),
+						pol == "helpwheelrun")
 				if pol == "helpfree" or pol == "helpflank":
 					answer(sim, "smart")
+				elif pol.begins_with("helpwheel"):
+					answer_wheel(sim)
 				elif pol == "helpslow":
 					for mm in sim.men:
 						if mm.team == 0 and mm.prompt != null and not mm.prompt.by_player \
@@ -173,6 +188,8 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 					send(sim)
 			sim.tick()
 		orders_total += sim.orders_issued
+		grabs_total += sim.passes_grabbed
+		trips_total += sim.passes_tripped
 		flank_total += sim.flank_blows
 		front_total += sim.front_blows
 		bouts_total += 1
@@ -237,7 +254,7 @@ func answer_one(sim: MeleeSim, m) -> void:
 
 ## Send ONE free man to the nearest enemy who has one of ours tied up, and only
 ## if nobody is already on his way to that enemy.
-func send_free(sim: MeleeSim, flank: bool = false) -> void:
+func send_free(sim: MeleeSim, flank: bool = false, run: bool = false) -> void:
 	if sim.phase != MeleeSim.Phase.LIVE: return
 	var claimed := {}
 	for m in sim.men:
@@ -278,4 +295,27 @@ func send_free(sim: MeleeSim, flank: bool = false) -> void:
 		## the back, the way a thumb would draw it.
 		path.append(e.pos + side * 38.0)
 		path.append(e.pos + side * 14.0 - face * 34.0)
-	sim.give_order(bm, path, bt)
+	sim.give_order(bm, path, bt, run)
+
+
+## ANSWER LIKE A PLAYER READING THE WHEEL (29 Sep): take the bullrush when it is
+## likelier than not and the fall is small, the takedown on a held man when it is
+## a fair shot, and otherwise the hit.
+func answer_wheel(sim: MeleeSim) -> void:
+	for m in sim.men:
+		if m.prompt == null or m.team != 0 or m.prompt.by_player:
+			continue
+		if m.prompt.menu == Tuning.Menu.GRAPPLED:
+			continue
+		var t: int = m.prompt.target
+		var acts: Array = Tuning.acts_for(m.prompt.menu)
+		var pick: int = Tuning.Act.HIT
+		if acts.has(Tuning.Act.BULLRUSH):
+			var br: Dictionary = sim.contact_odds(m.idx, Tuning.Act.BULLRUSH, t)
+			if float(br["p"]) >= 0.5 and float(br["fall"]) <= 0.15:
+				pick = Tuning.Act.BULLRUSH
+		if acts.has(Tuning.Act.TAKEDOWN):
+			var td: Dictionary = sim.contact_odds(m.idx, Tuning.Act.TAKEDOWN, t)
+			if float(td["p"]) >= 0.35:
+				pick = Tuning.Act.TAKEDOWN
+		sim.answer_prompt(m.idx, pick)

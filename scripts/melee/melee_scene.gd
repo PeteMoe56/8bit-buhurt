@@ -87,6 +87,14 @@ var drawing := -1
 var draw_path: Array[Vector2] = []
 var draw_screen: PackedVector2Array = PackedVector2Array()
 var hover_enemy := -1
+## THE CONTACT WHEEL (Pete, 29 Sep 2026). The man whose question is up, or -1;
+## and where a drag toward an option began, for "circle command" release.
+var wheel_man := -1
+var wheel_drag := false
+## SPRINT: seconds the drawing finger has rested, and whether it has rested long
+## enough on the endpoint to make this route a run.
+var draw_rest := 0.0
+var draw_run := false
 
 var ui: CanvasLayer
 var panel_box: VBoxContainer
@@ -375,9 +383,16 @@ func _process(delta: float) -> void:
 		sim.corner_t -= delta
 		if sim.corner_t <= 0.0:
 			_corner_time_up()
+	## THE WHEEL FREEZES THE FIGHT like the hold does — the accumulator is gated,
+	## not emptied, so no fighting is lost while the player chooses.
+	wheel_man = _wheel_candidate()
+	if drawing != -1 and not draw_screen.is_empty():
+		draw_rest += delta
+		if draw_rest >= Tuning.SPRINT_HOLD and Tuning.sprint > 1.0:
+			draw_run = true
 	if skipping and not paused:
 		_skip_slice()
-	elif screen == Screen.FIGHT and not Juice.frozen() and not held and not paused:
+	elif screen == Screen.FIGHT and not Juice.frozen() and not held and not paused and wheel_man == -1:
 		## NO CATCH-UP AFTER A STALL. A hitch or an app resume handed the loop a
 		## huge delta, and the fight fast-forwarded until it caught up.
 		accum = minf(accum + delta, 0.25)
@@ -477,8 +492,10 @@ func _sync_controls() -> void:
 		return
 	var live: bool = screen == Screen.FIGHT and not sim.is_over() \
 		and sim.phase != MeleeSim.Phase.CORNER and not skipping
-	call_button.visible = live and not held and calls_left > 0
-	skip_button.visible = live and not held
+	## Not while the wheel is up: the fight is frozen and the ring needs the
+	## bottom of the list the two buttons sit over.
+	call_button.visible = live and not held and calls_left > 0 and wheel_man == -1
+	skip_button.visible = live and not held and wheel_man == -1
 
 
 ## THE THREE SIZES OF A MAN GOING DOWN.
@@ -648,6 +665,16 @@ func _press(p: Vector2) -> void:
 	## the player never saw run.
 	if skipping:
 		return
+	## THE WHEEL OWNS THE SCREEN while it is up: a tap on an option answers it;
+	## a press on the man himself starts a drag toward one; anything else waits.
+	if wheel_man != -1:
+		var wm = sim.men[wheel_man]
+		var opt := _wheel_option_at(wm, p)
+		if opt != -2:
+			_wheel_answer(wm, opt)
+		elif _to_screen(wm.pos).distance_to(p) < 30.0:
+			wheel_drag = true
+		return
 	## A prompt is a question with three answers. Answering it beats starting a
 	## new route, so it is tested first.
 	for m in sim.men:
@@ -681,12 +708,23 @@ func _extend(p: Vector2) -> void:
 		return
 	if draw_screen[draw_screen.size() - 1].distance_to(p) < 14.0:
 		return
+	## Moving again: not resting on the endpoint any more.
+	draw_rest = 0.0
+	draw_run = false
 	draw_screen.append(p)
 	draw_path.append(_to_list(p))
 	hover_enemy = _enemy_at(p)
 
 
 func _release(p: Vector2) -> void:
+	if wheel_drag:
+		wheel_drag = false
+		if wheel_man != -1:
+			var wm = sim.men[wheel_man]
+			var opt := _wheel_option_at(wm, p, true)
+			if opt != -2:
+				_wheel_answer(wm, opt)
+		return
 	if drawing == -1:
 		return
 	var idx := drawing
@@ -740,7 +778,9 @@ func _release(p: Vector2) -> void:
 		## The last leg is the approach; the sim homes on the live man from
 		## there, because he will not still be standing where you drew.
 		draw_path.remove_at(draw_path.size() - 1)
-	sim.give_order(idx, draw_path, target)
+	sim.give_order(idx, draw_path, target, draw_run)
+	draw_run = false
+	draw_rest = 0.0
 	draw_path.clear()
 	draw_screen = PackedVector2Array()
 
@@ -843,8 +883,10 @@ func _draw() -> void:
 	_draw_calls()
 	_draw_held()
 	for m in sim.men:
-		if m.prompt != null and m.team == 0:
+		if m.prompt != null and m.team == 0 and m.idx != wheel_man:
 			_draw_prompt(m)
+	if wheel_man != -1:
+		_draw_wheel(sim.men[wheel_man])
 	## THE PANEL NEEDS A FLOOR, NOT JUST A DIMMER.
 	##
 	## There was a scrim here and nothing else, so the formation picker and the
@@ -1318,7 +1360,12 @@ func _draw_routes() -> void:
 func _draw_drawing() -> void:
 	if drawing == -1 or draw_screen.size() < 2:
 		return
-	draw_polyline(draw_screen, Tuning.COL_ROUTE, 3.0)
+	## A RUN IS DRAWN HOT, with the word at the finger, so a held endpoint is seen
+	## to have done something before it is lifted.
+	draw_polyline(draw_screen, COL_HOT if draw_run else Tuning.COL_ROUTE, 4.0 if draw_run else 3.0)
+	if draw_run:
+		UiKit.raw(self, font, draw_screen[draw_screen.size() - 1] + Vector2(-30, -18),
+			UiKit.t("RUN"), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, COL_HOT)
 	if hover_enemy != -1:
 		var e := _to_screen(sim.men[hover_enemy].pos)
 		draw_arc(e, 24.0, 0.0, TAU, 24, Tuning.COL_ROUTE_HOSTILE, 3.0)
@@ -1380,6 +1427,137 @@ func _draw_man(m) -> void:
 ## mark on the league table and another in the fight. One function now.
 func _draw_mark(p: Vector2, club, s: float) -> void:
 	IconBank.draw_icon(self, p, s * 0.5, club.icon_color, club.kit, club.icon)
+
+
+# ------------------------------------------------------------ the contact wheel
+## WHO IS ASKING. A man YOU sent (not a play's route), at contact — the approach
+## or third-man question, not the clinch menu, whose clock is the clinch's own.
+func _wheel_candidate() -> int:
+	if not Tuning.contact_wheel or screen != Screen.FIGHT or skipping:
+		return -1
+	for m in sim.men:
+		if m.team != 0 or m.prompt == null or m.prompt.by_player or m.prompt.committed:
+			continue
+		if m.prompt.menu == Tuning.Menu.GRAPPLED:
+			continue
+		if not m.under_orders() or m.order.from_play:
+			continue
+		return m.idx
+	return -1
+
+
+## The ring's options: his three acts, then Cancel (-1).
+func _wheel_opts(m) -> Array:
+	var out: Array = Tuning.acts_for(m.prompt.menu).duplicate()
+	out.append(-1)
+	return out
+
+
+const WHEEL_R := 70.0
+const WHEEL_BOX := Vector2(104, 50)
+
+
+## The ring's centre: the man, kept far enough inside the list that every option
+## is on the field.
+func _wheel_center(m) -> Vector2:
+	var p := _to_screen(m.pos)
+	var lo := LIST_ORIGIN + Vector2(WHEEL_R + WHEEL_BOX.x * 0.5, WHEEL_R + WHEEL_BOX.y * 0.5)
+	var hi := LIST_ORIGIN + Vector2(Tuning.LIST_H, Tuning.LIST_W) * LIST_SCALE \
+		- Vector2(WHEEL_R + WHEEL_BOX.x * 0.5, WHEEL_R + WHEEL_BOX.y * 0.5)
+	return Vector2(clampf(p.x, lo.x, hi.x), clampf(p.y, lo.y, hi.y))
+
+
+## Up, right, left for the acts; Cancel at the bottom.
+func _wheel_rect(m, i: int) -> Rect2:
+	var dirs: Array[Vector2] = [Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1)]
+	var c := _wheel_center(m) + dirs[i] * WHEEL_R
+	return Rect2(c - WHEEL_BOX * 0.5, WHEEL_BOX)
+
+
+## Which option is under a point: an act, -1 for Cancel, -2 for none. With
+## `by_direction`, a drag released anywhere past the man's own circle counts as
+## the option it points at — the circle command.
+func _wheel_option_at(m, p: Vector2, by_direction: bool = false) -> int:
+	var opts := _wheel_opts(m)
+	for i in opts.size():
+		if _wheel_rect(m, i).grow(4.0).has_point(p):
+			return opts[i]
+	if by_direction:
+		var v := p - _wheel_center(m)
+		if v.length() > 26.0:
+			var dirs: Array[Vector2] = [Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1)]
+			var best := 0
+			for i in dirs.size():
+				if v.normalized().dot(dirs[i]) > v.normalized().dot(dirs[best]):
+					best = i
+			return opts[best]
+	return -2
+
+
+func _wheel_answer(m, opt: int) -> void:
+	if opt == -1:
+		sim.cancel_order(m.idx)
+	else:
+		sim.answer_prompt(m.idx, opt)
+	Audio.play("tap")
+	wheel_man = _wheel_candidate()
+
+
+## GREEN, YELLOW, RED — the chance an option lands.
+func _odds_col(p: float) -> Color:
+	if p >= 0.6:
+		return UiKit.UP
+	if p >= 0.35:
+		return UiKit.YOU
+	return UiKit.DOWN
+
+
+func _draw_wheel(m) -> void:
+	## The fight stops behind it: a dimmer over the list, the man and his target
+	## lit, and a line between them.
+	draw_rect(Rect2(Vector2(-off_x, -off_y), UiKit.screen()), Color(0, 0, 0, 0.45))
+	var t = sim.men[m.prompt.target]
+	var c := _wheel_center(m)
+	draw_line(_to_screen(m.pos), _to_screen(t.pos), COL_HOT, 2.0)
+	draw_arc(_to_screen(t.pos), 22.0, 0.0, TAU, 24, COL_HOT, 2.0)
+	draw_arc(c, WHEEL_R, 0.0, TAU, 48, COL_EDGE, 2.0)
+	var behind: bool = sim.from_behind(m, t)
+	if behind:
+		UiKit.raw(self, font, c + Vector2(-60, -WHEEL_R - 40.0), UiKit.t("FROM BEHIND"),
+			HORIZONTAL_ALIGNMENT_CENTER, 120, 12, UiKit.UP)
+	var opts := _wheel_opts(m)
+	for i in opts.size():
+		var r := _wheel_rect(m, i)
+		var act: int = opts[i]
+		draw_rect(r, COL_PANEL)
+		draw_rect(r, COL_EDGE if act == -1 else Tuning.COL_ROUTE, false, 2.0)
+		var name_ := UiKit.t("Cancel") if act == -1 else Tuning.act_name(act)
+		UiKit.raw(self, font, r.position + Vector2(0, 19), name_,
+			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 15, COL_INK if act != -1 else COL_DIM)
+		if act == -1:
+			continue
+		var o: Dictionary = sim.contact_odds(m.idx, act, t.idx)
+		var line := ""
+		var col := COL_DIM
+		match act:
+			Tuning.Act.HIT:
+				line = UiKit.t("-%d%% balance") % int(round(float(o["dent"]) * 100.0))
+				col = _odds_col(clampf(float(o["dent"]) * 4.0, 0.0, 1.0))
+			Tuning.Act.GRAPPLE:
+				line = UiKit.t("then TD %d%%") % int(round(float(o["p"]) * 100.0))
+				col = _odds_col(float(o["p"]))
+			Tuning.Act.BREAK:
+				line = UiKit.t("frees him")
+				col = UiKit.UP
+			_:
+				line = "%d%%" % int(round(float(o["p"]) * 100.0))
+				col = _odds_col(float(o["p"]))
+		UiKit.raw(self, font, r.position + Vector2(0, 36), line,
+			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 12, col)
+		## THE RED ONE (Pete): the bullrush that bounces off and puts him down.
+		if act == Tuning.Act.BULLRUSH and float(o["fall"]) > 0.0:
+			UiKit.raw(self, font, r.position + Vector2(0, 48), UiKit.t("fall %d%%") % int(round(float(o["fall"]) * 100.0)),
+				HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 11, UiKit.DOWN)
 
 
 # ------------------------------------------------------------------ prompts

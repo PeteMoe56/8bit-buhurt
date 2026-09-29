@@ -289,6 +289,40 @@ static var pread: float = _env("RB_PREAD")
 ##   FRONT_PEN    a hit or bullrush from the FRONT on a clinched man loses this
 ##                share of its damage / this much of its odds — his partner is in
 ##                the way and he can see it coming
+## THE CONTACT WHEEL (Pete, 29 Sep 2026): *"real-time but Blood Bowl pause
+## action wheel feel."* Every value here is OFF (0 / false) until it is measured.
+##   BACK_ARC      a blow landing more than this many degrees off the way a man
+##                 faces is from behind (Pete: "around the 100 degree mark")
+##   BACK_HIT      a hit from behind does this many times its balance damage
+##   BACK_BR       a bullrush from behind gains this on its odds
+##   BACK_HELD     and both are this many times stronger again on a man held in
+##                 a clinch, who cannot turn
+##   BR_FALL       a bullrush that fails puts the man who threw it on the floor
+##                 this often ("you run into them and fall")
+##   SPRINT        a route whose endpoint is held runs at this many times the
+##                 walking pace (1 = no sprint), and costs SPRINT_GAS of the tank
+##                 per second while running
+##   PASS_GRAB / PASS_TRIP  a runner passing within PASS_RANGE of a free enemy is
+##                 grabbed into a clinch / tripped (balance -PASS_TRIP_HIT, and down
+##                 below PASS_TRIP_FLOOR) this often, once per enemy per route
+## THE WHEEL ITSELF: a man you sent freezes the fight at contact and asks.
+## On by default — it is a screen behaviour, not a balance number; the probes
+## answer instantly either way. RB_WHEEL=0 turns it off for comparison.
+static var contact_wheel: bool = OS.get_environment("RB_WHEEL") != "0"
+## How long a finger must rest on a route's endpoint for the man to RUN it.
+const SPRINT_HOLD: float = 0.35
+static var back_arc: float = 100.0 if OS.get_environment("RB_BACK_ARC") == "" else _env("RB_BACK_ARC")
+static var back_hit: float = _env("RB_BACK_HIT")
+static var back_br: float = _env("RB_BACK_BR")
+static var back_held: float = 1.0 if OS.get_environment("RB_BACK_HELD") == "" else _env("RB_BACK_HELD")
+static var br_fall: float = _env("RB_BR_FALL")
+static var sprint: float = 1.0 if OS.get_environment("RB_SPRINT") == "" else _env("RB_SPRINT")
+static var sprint_gas: float = 0.04 if OS.get_environment("RB_SPRINT_GAS") == "" else _env("RB_SPRINT_GAS")
+static var pass_grab: float = _env("RB_PASS_GRAB")
+static var pass_trip: float = _env("RB_PASS_TRIP")
+static var pass_range: float = 26.0 if OS.get_environment("RB_PASS_RANGE") == "" else _env("RB_PASS_RANGE")
+const PASS_TRIP_HIT: float = 0.25
+const PASS_TRIP_FLOOR: float = 0.20
 static var flank_arc: float = 100.0 if OS.get_environment("RB_FLANK_ARC") == "" else _env("RB_FLANK_ARC")
 static var flank_hit: float = _env("RB_FLANK_HIT")
 static var flank_br: float = _env("RB_FLANK_BR")

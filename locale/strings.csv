@@ -848,6 +848,13 @@ ENERGY,ENERGY,ENERGÍA,ÉNERGIE,AUSDAUER,ENERGIA,ENERGIA,ENERGIA,ЭНЕРГИЯ,
 CHOSEN,CHOSEN,ELEGIDO,CHOISI,GEWÄHLT,SCELTO,ESCOLHIDO,WYBRANY,ВЫБРАН,選択済み
 WHO COMES ON FOR,WHO COMES ON FOR,QUIÉN ENTRA POR,QUI ENTRE POUR,WER KOMMT FÜR,CHI ENTRA AL POSTO DI,QUEM ENTRA NO LUGAR DE,KTO WCHODZI ZA,КТО ВЫЙДЕТ ВМЕСТО,交代で入るのは
 Nobody left on the bench.,Nobody left on the bench.,No queda nadie en el banquillo.,Plus personne sur le banc.,Keiner mehr auf der Bank.,Nessuno rimasto in panchina.,Ninguém mais no banco.,Na ławce nikt nie został.,На скамейке никого.,ベンチに誰もいない。
+RUN,RUN,CORRE,COURS,LAUF,CORRI,CORRE,BIEGNIJ,БЕГИ,走れ
+FROM BEHIND,FROM BEHIND,POR DETRÁS,PAR DERRIÈRE,VON HINTEN,DA DIETRO,POR TRÁS,OD TYŁU,СО СПИНЫ,背後から
+Cancel,Cancel,Cancelar,Annuler,Abbrechen,Annulla,Cancelar,Anuluj,Отмена,やめる
+-%d%% balance,-%d%% balance,-%d%% equilibrio,-%d%% équilibre,-%d%% Gleichgewicht,-%d%% equilibrio,-%d%% equilíbrio,-%d%% równowagi,-%d%% равновесия,バランス-%d%%
+then TD %d%%,then TD %d%%,luego derribo %d%%,puis mise au sol %d%%,dann Wurf %d%%,poi atterramento %d%%,depois queda %d%%,potem powalenie %d%%,затем бросок %d%%,次にTD %d%%
+frees him,frees him,lo libera,le libère,befreit ihn,lo libera,o liberta,uwalnia go,освобождает,味方を解放
+fall %d%%,fall %d%%,caída %d%%,chute %d%%,Sturz %d%%,caduta %d%%,queda %d%%,upadek %d%%,падение %d%%,転倒 %d%%
 R%d  %d:%02d,R%d  %d:%02d,A%d  %d:%02d,M%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,Р%d  %d:%02d,R%d  %d:%02d
 %s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s
 of %d,of %d,de %d,sur %d,von %d,di %d,de %d,z %d,из %d,/ %d

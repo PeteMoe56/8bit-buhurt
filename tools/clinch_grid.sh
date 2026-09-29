@@ -13,6 +13,6 @@ while read -r name rest; do
   t="-"
   [ "$m" != "0" ] && t="$(env $envs bash tools/bb.sh probe tactics "$m" 2>&1 | grep 'mean |win' | grep -oE '[0-9.]+$')"
   h=""
-  [ -n "$GRID_HELP" ] && h=" | $(env $envs bash tools/bb.sh probe fightskill "$n" help2 2>&1 | grep '^HELP')"
+  [ -n "$GRID_HELP" ] && h=" | $(env $envs bash tools/bb.sh probe fightskill "$n" help${GRID_HELP_MODE:-2} 2>&1 | grep -E '^(HELP|WHEEL)')"
   echo "$name | $rest | $g | tactics $t$h"
 done < "$1"

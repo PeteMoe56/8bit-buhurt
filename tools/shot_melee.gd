@@ -8,6 +8,7 @@ var want := 600
 var out_path := "user://shot.png"
 var n := 0
 var scene: Node
+var wheel_frames := 0
 
 
 func _initialize() -> void:
@@ -27,6 +28,10 @@ func _initialize() -> void:
 
 func _process(_d: float) -> bool:
 	n += 1
+	## A headless window has no focus, and losing focus pauses the fight
+	## (melee_scene._notification) — a capture tool must not be paused by that.
+	if scene != null and bool(scene.get("paused")):
+		scene.call("_set_paused", false)
 	if n == 4:
 		scene._pick_strategy(Tuning.Strategy.RUSH_LEFT)
 	## The corner waits for a click, so without this the bout never reaches
@@ -43,8 +48,18 @@ func _process(_d: float) -> bool:
 	if want < 0:
 		if scene.sim == null:
 			return false
+		## THE WHEEL (29 Sep): once it is up the fight is frozen, so wait a few
+		## frames for it to be drawn rather than catching the frame it opened.
+		if int(scene.get("wheel_man")) != -1:
+			wheel_frames += 1
+			if wheel_frames >= 4:
+				var wi := root.get_texture().get_image()
+				wi.save_png(out_path)
+				print("wrote %s (wheel) at frame %d" % [out_path, n])
+				return true
+			return false
 		for m in scene.sim.men:
-			if m.team == 0 and m.prompt != null:
+			if m.team == 0 and m.prompt != null and not Tuning.contact_wheel:
 				var im := root.get_texture().get_image()
 				im.save_png(out_path)
 				print("wrote %s (%dx%d) at frame %d" % [out_path, im.get_width(), im.get_height(), n])
