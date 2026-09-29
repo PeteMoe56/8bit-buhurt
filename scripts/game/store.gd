@@ -178,15 +178,28 @@ static func _sellable_here() -> bool:
 ## save file is a wallet that disappears when the player starts a second club.
 static func load_wallet() -> void:
 	owed = 0
-	if not FileAccess.file_exists(wallet_path()):
-		return
-	var f := FileAccess.open(wallet_path(), FileAccess.READ)
+	## THREE DOORS, newest first (29 Sep 2026). `save_wallet` used to delete the
+	## wallet and then rename the new one in, and a kill between the two left
+	## no wallet at all — credits paid for and gone. The live file, then a
+	## finished `.tmp` that never got renamed, then the one before it.
+	for p in [wallet_path(), wallet_path() + ".tmp", wallet_path() + ".bak"]:
+		var d = _read_wallet(p)
+		if d is Dictionary:
+			owed = maxi(0, int(d.get("owed", 0)))
+			return
+
+
+static func _read_wallet(path: String):
+	if not FileAccess.file_exists(path):
+		return null
+	var f := FileAccess.open(path, FileAccess.READ)
 	if f == null:
-		return
+		return null
 	var d = f.get_var()
 	f.close()
 	if d is Dictionary and int(d.get("version", 0)) == WALLET_VERSION:
-		owed = maxi(0, int(d.get("owed", 0)))
+		return d
+	return null
 
 
 ## Written to a temp file and moved into place, so a phone killed mid-write
@@ -203,8 +216,12 @@ static func save_wallet() -> bool:
 	if err != OK:
 		DirAccess.remove_absolute(tmp)
 		return false
+	## The old wallet steps aside to `.bak` rather than being deleted, so there
+	## is no moment with no wallet on disk.
 	if FileAccess.file_exists(path):
-		DirAccess.remove_absolute(path)
+		if FileAccess.file_exists(path + ".bak"):
+			DirAccess.remove_absolute(path + ".bak")
+		DirAccess.rename_absolute(path, path + ".bak")
 	return DirAccess.rename_absolute(tmp, path) == OK
 
 

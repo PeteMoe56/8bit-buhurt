@@ -571,10 +571,31 @@ static func ensure_a_line(s: Season) -> Array[String]:
 	## a mid-season draw from it would come out differently after a reload.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash("emergency:%d:%d:%d" % [s.seed_value, s.world.season, s.world.event])
+	## THE HURT STOP TRAVELLING FIRST. The line is picked from the first
+	## `party_size` travellers, and hurt men still marked to travel held those
+	## places: with thirteen on the books and all of them hurt, five walk-ons
+	## were signed and only three of them made the line.
+	if s.club.starting_five().size() < MeleeClub.LINE_SIZE:
+		for a in s.club.roster:
+			if a.active and not a.fit():
+				a.active = false
 	var guard := 0
 	while s.club.starting_five().size() < MeleeClub.LINE_SIZE and guard < MeleeClub.LINE_SIZE:
 		guard += 1
 		var w := ClubFactory.walk_on(rng, s._uncovered_slot(), s.world.player_tier())
+		## A FULL BOOK DOES NOT MEAN A FORFEIT (29 Sep 2026). At thirteen of
+		## thirteen `sign` refuses, and a club with nobody fit to travel forfeited
+		## week after week, 0-2, without a word. The weakest man who cannot fight
+		## is let go (for his trade value, like any release) to make the room — a
+		## fit man never is — and the note says so.
+		if s.club.roster.size() >= MeleeClub.SQUAD_MAX:
+			var worst: FighterCard = null
+			for f in s.club.roster:
+				if not f.fit() and (worst == null or f.overall() < worst.overall()):
+					worst = f
+			if worst == null or s.release(worst) != "":
+				break
+			s.last_emergency.append(UiKit.t("%s let go to make room") % worst.display_name)
 		if s.club.sign(w) != "":
 			break
 		## If the party is full of injured men, one of them stays home for him.

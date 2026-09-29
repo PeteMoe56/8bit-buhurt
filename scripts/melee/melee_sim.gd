@@ -649,15 +649,38 @@ func answer_prompt(idx: int, act: int) -> bool:
 		return false
 	if not Tuning.acts_for(m.prompt.menu).has(act):
 		return false
+	if m.prompt.menu == Tuning.Menu.GRAPPLED and not clinch_ready(m):
+		return false
 	m.prompt.choice = act
 	m.prompt.by_player = true
 	m.prompt.committed = true
 	prompts_answered += 1
-	## A clinch action has nothing to walk toward, so it lands immediately.
+	## A CLINCH ACTION LANDS ON THE CLINCH'S OWN CLOCK (29 Sep 2026). It used to
+	## land the instant it was tapped, and a failed takedown leaves a man still
+	## tied up — so tapping TAKEDOWN twice a second rolled it five to seven times
+	## for every roll the AI got on its ACT_CLINCH timer, and won 100% of bouts
+	## whatever the numbers. The player chooses WHAT his man does; `next_act`
+	## decides WHEN, exactly as it does for the man across from him: the menu
+	## takes no answer until he is ready (`clinch_ready`), and a ready answer
+	## lands at once. A first cut queued early answers to land later, and a
+	## choice made up to three seconds before it landed was a stale one — taking
+	## the AI's own suggestion that way won 22% against 57% for leaving it alone.
 	if m.prompt.menu == Tuning.Menu.GRAPPLED:
-		_resolve(m, act, m.prompt.target)
-		_close_prompt(m)
+		_clinch_act(m)
 	return true
+
+
+## Can this clinched man act now? The fight screen dims the menu until he can.
+func clinch_ready(m: Man) -> bool:
+	return m.next_act <= 0.0
+
+
+## One clinch action from an answered prompt, then the clinch's clock restarts.
+func _clinch_act(m: Man) -> void:
+	var p: Prompt = m.prompt
+	m.next_act = rng.randf_range(Tuning.ACT_CLINCH[0], Tuning.ACT_CLINCH[1])
+	_resolve(m, p.choice, p.target)
+	_close_prompt(m)
 
 
 # --------------------------------------------------------------------- bench
@@ -1275,11 +1298,19 @@ func _tick_prompt(m: Man) -> void:
 	if not men[m.prompt.target].standing():
 		_close_prompt(m)
 		return
+	## AN OPEN CLINCH MENU WAITS FOR ITS MAN. Its clock only runs once he is
+	## ready to act, so it cannot time out into an action the clinch timer has
+	## not allowed; and until it is answered its suggestion is kept current, so
+	## the highlighted option is what he would do NOW, not when it opened.
+	if m.prompt.menu == Tuning.Menu.GRAPPLED:
+		if not clinch_ready(m):
+			m.prompt.t += Tuning.TICK
+		elif not m.prompt.by_player:
+			m.prompt.choice = _ai_choose(m, men[m.prompt.target], Tuning.Menu.GRAPPLED)
 	if m.prompt.t <= 0.0:
 		m.prompt.committed = true
 		if m.prompt.menu == Tuning.Menu.GRAPPLED:
-			_resolve(m, m.prompt.choice, m.prompt.target)
-			_close_prompt(m)
+			_clinch_act(m)
 
 
 ## What this man would do if left alone. Deliberately competent — auto-play must
@@ -1369,12 +1400,13 @@ func _tick_grapples() -> void:
 			if m.gas_frac() < m.gassed_line():
 				grind *= Tuning.GRAPPLE_GRIND_GASSED
 			_wear(m, foe, grind * Tuning.TICK)
-		if m.next_act <= 0.0:
+		## Ready with the menu open: he waits for the player (the menu's own clock
+		## decides for him if nobody answers), so the timer is not restarted.
+		if m.next_act <= 0.0 and m.prompt == null:
 			m.next_act = rng.randf_range(Tuning.ACT_CLINCH[0], Tuning.ACT_CLINCH[1])
-			if m.prompt == null:
-				var tgt := men[m.target]
-				if tgt.standing():
-					_resolve(m, _ai_choose(m, tgt, Tuning.Menu.GRAPPLED), m.target)
+			var tgt := men[m.target]
+			if tgt.standing():
+				_resolve(m, _ai_choose(m, tgt, Tuning.Menu.GRAPPLED), m.target)
 		## "Break!" — the marshal ends an inactive clinch past ten seconds.
 		if m.grapple_t >= Tuning.GRAPPLE_MIN and m.idle_t >= Tuning.BREAK_INACTIVE:
 			var o := men[m.target] if m.target != -1 else null

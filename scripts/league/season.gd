@@ -245,6 +245,18 @@ func take_job(club_id: int) -> String:
 	_clubs.erase(club_id)
 	var taken := club_for(club_id)
 	_clubs[old_id] = { "club": club, "power": int(world.clubs[old_id]["power"]) }
+	## AND IT KEEPS IT ACROSS A RELOAD (29 Sep 2026). `_clubs` is a cache and is
+	## not saved, so the roster "you built" lived only until the next load — or
+	## the first time its power drifted — and was then rebuilt from the factory:
+	## different men, different results in a reloaded game than a straight one.
+	## A stored roster is what `splinter_rosters` is for: saved, wintered like
+	## any club (aged, coached, retirements, walk-ons) and its power read off
+	## the men. The club you walk INTO stops being one.
+	var kept: Array[FighterCard] = []
+	for f in club.roster:
+		kept.append(f)
+	splinter_rosters[old_id] = kept
+	splinter_rosters.erase(club_id)
 
 	world.player_club = club_id
 	club = taken

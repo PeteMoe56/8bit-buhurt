@@ -129,6 +129,13 @@ func _open_round(club_ids: Array) -> void:
 		stage = Stage.DONE
 		cup_finished.emit(champion)
 		return
+	## AN ODD FIELD WOULD LOSE ITS MIDDLE CLUB — `size() / 2` pairs, and the one
+	## left over was dropped without a word. Every field is 8, 16 or built from
+	## pools today, so it cannot happen; if a change ever makes it happen, it is
+	## an engine ERROR (which fails the test gate) rather than a silent vanishing.
+	if club_ids.size() % 2 == 1:
+		push_error("Cup %s: odd field of %d, club %d would get no match"
+			% [cup_name, club_ids.size(), int(club_ids[club_ids.size() / 2])])
 	var nm: String = String(ROUND_NAMES.get(club_ids.size(), "Round of %d" % club_ids.size()))
 	var day: Array = []
 	## Top seed meets bottom seed. A bracket that pairs 1v2 in the first round is

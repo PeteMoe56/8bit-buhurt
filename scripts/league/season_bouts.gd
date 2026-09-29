@@ -36,7 +36,13 @@ static func _dress_sim(s: Season, sim: MeleeSim, opp_id: int, kind: int, dist: f
 	sim.venue = kind
 	sim.miles = dist
 	sim.corner_time = Grade.corner_time(s.grade, s.custom_grade)
-	sim.big_occasion = int(Session.bout_mood) != UiKit.Mood.NORMAL
+	## ASKED OF THE SEASON, not read off `Session.bout_mood` (29 Sep 2026). The
+	## screen sets that static AFTER `begin_cup_bout` returns, so every fought
+	## cup tie ran with the previous bout's mood (never a big occasion) and the
+	## next league bout inherited the cup's — and a reload reset it, so a bout
+	## replayed from a save came out differently. `mood()` is only ever not
+	## NORMAL while a tie is pending, and a pending tie blocks league bouts.
+	sim.big_occasion = s.mood() != UiKit.Mood.NORMAL
 	## And now that the sim knows the fixture, let the fixture reach the men.
 	sim.dress()
 	## The opposition is coached to its division, on the six-rung ladder Pete

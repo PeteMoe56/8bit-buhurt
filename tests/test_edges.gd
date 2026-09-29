@@ -1,0 +1,214 @@
+extends SceneTree
+## THE EDGES THE FRESH-EYES AUDIT FOUND (28 Sep 2026), each held here.
+##
+##   godot --headless --path . --script res://tests/test_edges.gd
+##
+##   cup nights are big occasions — asked of the season, not of a stale static
+##   a full book with nobody fit still puts five out, and says who went
+##   the club you leave keeps the men you built, across a reload
+##   a save that will not decode is broken (and opens from .bak), not half-built
+##   the decoder's required fields and its source agree
+##   a wallet killed between its two renames is not lost
+
+var failures: Array[String] = []
+var checks: int = 0
+
+
+func _initialize() -> void:
+	print("\n=== 8-Bit Buhurt — the edges ===\n")
+	SaveGame.set_namespace("edges_test")
+	_test_cup_nights_are_big()
+	_test_full_book_still_fields_five()
+	_test_left_club_keeps_its_men()
+	_test_undecodable_save_is_broken()
+	_test_required_fields_match_the_decoder()
+	_test_wallet_survives_the_rename_window()
+	for slot in 3:
+		SaveGame.delete(slot)
+	print("")
+	if failures.is_empty():
+		print("THE EDGES HOLD (%d checks)\n" % checks)
+		quit(0)
+	else:
+		for f in failures:
+			print("FAIL: " + f)
+		print("\n%d FAILED\n" % failures.size())
+		quit(1)
+
+
+func _ok(cond: bool, label: String, detail: String) -> void:
+	checks += 1
+	print("  %s  %s — %s" % ["pass" if cond else "FAIL", label, detail])
+	if not cond:
+		failures.append("%s: %s" % [label, detail])
+
+
+## The static the screen sets is deliberately left WRONG both ways round, which
+## is what it was in play: NORMAL for the cup tie, a cup mood for the league bout.
+func _test_cup_nights_are_big() -> void:
+	var cup_ok := -1
+	var league_ok := -1
+	for b in [4242, 777, 9001]:
+		var s := Season.new(MeleeRosters.starting_club(), int(b))
+		Session.season = s
+		for y in 3:
+			var guard := 0
+			while not s.season_complete() and guard < 60:
+				guard += 1
+				match s.blocked_by():
+					"bid": s.decline_bid(); continue
+					"dilemma": s.answer_dilemma(0); continue
+					"promotion": s.answer_promotion(true); continue
+					"cup":
+						if cup_ok == -1:
+							Session.bout_mood = UiKit.Mood.NORMAL
+							var sim := s.begin_cup_bout()
+							cup_ok = 1 if sim != null and sim.big_occasion else 0
+						s.sim_cup_tie()
+						continue
+				if league_ok == -1 and cup_ok != -1:
+					Session.bout_mood = UiKit.Mood.FINAL
+					var lsim := s.begin_bout()
+					if lsim != null:
+						league_ok = 0 if lsim.big_occasion else 1
+				s.skip_event()
+			if cup_ok != -1 and league_ok != -1:
+				break
+			s.roll_over()
+		if cup_ok != -1 and league_ok != -1:
+			break
+	Session.bout_mood = UiKit.Mood.NORMAL
+	_ok(cup_ok == 1 and league_ok == 1,
+		"a cup tie is a big occasion and the league bout after it is not",
+		"cup tie big: %s, next league bout plain: %s (the screen's static left stale both times)"
+			% [cup_ok == 1, league_ok == 1])
+
+
+## Thirteen on the books, every one of them hurt: the old code could not sign
+## past thirteen and forfeited, 0-2, every week.
+func _test_full_book_still_fields_five() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 5150)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var g := 0
+	while s.club.roster.size() < MeleeClub.SQUAD_MAX and g < 40:
+		g += 1
+		s.club.sign(ClubFactory.walk_on(rng, 0, 0))
+	for f in s.club.roster:
+		f.injury = 3
+	var full := s.club.roster.size()
+	var notes := s.ensure_a_line()
+	var five := s.club.starting_five().size()
+	var told := false
+	for n in notes:
+		if String(n).contains("let go"):
+			told = true
+	_ok(full == MeleeClub.SQUAD_MAX and five >= MeleeClub.LINE_SIZE and told
+			and s.club.roster.size() <= MeleeClub.SQUAD_MAX,
+		"a full book with nobody fit still puts five out, and says who was let go",
+		"%d on the books, all hurt → %d fit in the line, %d on the books after; notes: %s"
+			% [full, five, s.club.roster.size(), str(notes)])
+
+
+func _test_left_club_keeps_its_men() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 777)
+	s.world.season = 8
+	s.coach.reputation = Coach.REP_MAX
+	var old_id := s.world.player_club
+	## Make the men recognisably ours: every one of them a point better.
+	for f in s.club.roster:
+		f.strength = mini(99, f.strength + 7)
+	var before: Array[String] = []
+	for f in s.club.roster:
+		before.append("%s:%d" % [f.display_name, f.overall()])
+	var targets := Jobs.offers(s.coach, s.world)
+	if targets.is_empty():
+		_ok(false, "the club you leave keeps the men you built, across a reload", "no offers to take")
+		return
+	var err := s.take_job(int(targets[0]))
+	SaveGame.save(s, 1)
+	var back := SaveGame.load_slot(1)
+	var after: Array[String] = []
+	if back != null:
+		for f in back.club_for(old_id).roster:
+			after.append("%s:%d" % [f.display_name, f.overall()])
+	_ok(err == "" and back != null and after == before,
+		"the club you leave keeps the men you built, across a reload",
+		"left club's roster after save and load %s the one you built (%d men)"
+			% ["matches" if after == before else "DIFFERS from", before.size()])
+
+
+## A file with a good hash and a missing field: the old loader built a world
+## with a null in the roster and the title screen called the slot healthy.
+func _test_undecodable_save_is_broken() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	SaveGame.save(s, 2)
+	s.skip_event()
+	SaveGame.save(s, 2)            ## now there is a .bak one event behind
+	var d := SaveGame.to_dict(s)
+	(d["club"]["roster"][0] as Dictionary).erase("morale")
+	## Write the damaged dictionary as the slot through the real writer's format,
+	## by saving a season and swapping the body — simplest honest way is to use
+	## the decoder check directly on the dictionary and the loader on the file.
+	var dec_ok := SaveGame.decodable(SaveGame.to_dict(s))
+	var dec_bad := SaveGame.decodable(d)
+	## A damaged main file with a good backup opens from the backup.
+	var p := SaveGame.path_for(2)
+	var f := FileAccess.open(p, FileAccess.WRITE)
+	f.store_var(d, false)            ## no header: unreadable as a slot file
+	f.close()
+	var back := SaveGame.load_slot(2)
+	var from_bak := back != null and back.world.event == 0
+	_ok(dec_ok and not dec_bad and from_bak,
+		"a save that will not decode is refused, and the slot opens from its backup",
+		"whole save decodable: %s; missing a fighter's morale: %s; damaged slot opened from .bak: %s"
+			% [dec_ok, dec_bad, from_bak])
+
+
+## The lists in SaveGame are hand-kept; the decoders are the truth. Read the
+## decoders and require every `d["x"]` they index to be listed.
+func _test_required_fields_match_the_decoder() -> void:
+	var src := FileAccess.get_file_as_string("res://scripts/game/save_game.gd")
+	var bad: Array[String] = []
+	var pairs := [["from_dict", SaveGame.NEED_SEASON, ["splinters"]],
+		["club_from_dict", SaveGame.NEED_CLUB, []],
+		["fighter_from_dict", SaveGame.NEED_FIGHTER, []]]
+	var rx := RegEx.create_from_string('\\bd\\["(\\w+)"\\]')
+	for pr in pairs:
+		var i := src.find("static func %s(" % pr[0])
+		var j := src.find("\nstatic func ", i + 10)
+		var body := src.substr(i, j - i)
+		for m in rx.search_all(body):
+			var k := m.get_string(1)
+			if not (pr[1] as Array).has(k) and not (pr[2] as Array).has(k):
+				bad.append("%s indexes d[\"%s\"] without it being required" % [pr[0], k])
+	_ok(bad.is_empty(), "the save's required fields are exactly what its decoders index",
+		"3 decoders read" if bad.is_empty() else "; ".join(bad))
+
+
+## Kill the app after the old wallet has stepped aside and before the new one
+## is renamed in: the old code had deleted the old one, so nothing was left.
+func _test_wallet_survives_the_rename_window() -> void:
+	var path := Store.wallet_path()
+	for x in [path, path + ".tmp", path + ".bak"]:
+		if FileAccess.file_exists(x):
+			DirAccess.remove_absolute(x)
+	Store.owed = 7
+	Store.save_wallet()
+	Store.owed = 12
+	Store.save_wallet()                       ## live 12, .bak 7
+	## The window: live moved to .bak, .tmp written, rename never happened.
+	DirAccess.rename_absolute(path, path + ".tmp")
+	Store.load_wallet()
+	var from_tmp := Store.owed
+	DirAccess.remove_absolute(path + ".tmp")
+	Store.load_wallet()
+	var from_bak := Store.owed
+	for x in [path, path + ".tmp", path + ".bak"]:
+		if FileAccess.file_exists(x):
+			DirAccess.remove_absolute(x)
+	Store.owed = 0
+	_ok(from_tmp == 12 and from_bak == 7,
+		"a wallet killed between its two renames is not lost",
+		"unrenamed .tmp read back %d (want 12); with only the backup left, %d (want 7)"
+			% [from_tmp, from_bak])

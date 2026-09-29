@@ -1392,20 +1392,31 @@ func _prompt_rect(m, i: int) -> Rect2:
 
 func _draw_prompt(m) -> void:
 	var acts: Array = Tuning.acts_for(m.prompt.menu)
+	## A CLINCHED MAN GETTING READY (29 Sep 2026). The sim takes no clinch
+	## answer until the clinch clock allows one (`MeleeSim.clinch_ready`), so the
+	## menu says so: the buttons are faded and the bar above them fills toward
+	## ready instead of running down. A tap on a faded button does nothing,
+	## which it must be seen to do.
+	var waiting: bool = m.prompt.menu == Tuning.Menu.GRAPPLED and not sim.clinch_ready(m)
+	var fade := Color(1, 1, 1, 0.4 if waiting else 1.0)
 	for i in acts.size():
 		var r := _prompt_rect(m, i)
 		var chosen: bool = acts[i] == m.prompt.choice
 		## The AI's answer is already in the box, highlighted. Letting the timer
 		## run is not a forfeit — it is a delegation, and it should look like one.
 		draw_rect(r, COL_PANEL)
-		draw_rect(r, Tuning.COL_ROUTE if chosen else COL_EDGE, false, 2.0)
+		draw_rect(r, (Tuning.COL_ROUTE if chosen else COL_EDGE) * fade, false, 2.0)
 		UiKit.raw(self, font, r.position + Vector2(0, 20), Tuning.act_name(acts[i]),
 			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 15,
-			COL_INK if chosen else COL_DIM)
+			(COL_INK if chosen else COL_DIM) * fade)
 	var first := _prompt_rect(m, 0)
 	var frac := clampf(m.prompt.t / Tuning.PROMPT_TIME, 0.0, 1.0)
+	var bar_col := Tuning.COL_ROUTE * Color(1, 1, 1, 0.7)
+	if waiting:
+		frac = clampf(1.0 - m.next_act / float(Tuning.ACT_CLINCH[1]), 0.0, 1.0)
+		bar_col = COL_DIM * Color(1, 1, 1, 0.7)
 	draw_rect(Rect2(first.position + Vector2(0, -5.0),
-		Vector2((84.0 * 3.0 + 8.0) * frac, 3.0)), Tuning.COL_ROUTE * Color(1, 1, 1, 0.7))
+		Vector2((84.0 * 3.0 + 8.0) * frac, 3.0)), bar_col)
 
 
 ## WHAT WE ARE ACTUALLY IN. The HUD read `Tuning.FORMATIONS[sim.formations[0]]`,

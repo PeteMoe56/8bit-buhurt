@@ -304,11 +304,70 @@ static func _read(slot: int):
 	var d = _read_file(path_for(slot))
 	## THE BACKUP IS THE SECOND DOOR. A slot whose newest file is torn opens from
 	## the one before it — one event behind is a lot better than gone.
-	if d == null or not (d is Dictionary) or _migrate(d) == null:
+	## And a file that is whole but would not DECODE is as good as torn
+	## (29 Sep 2026): a missing field used to load a half-built world with nulls
+	## in the roster, and `peek` called it a healthy career.
+	if not _usable(d):
 		var b = _read_file(path_for(slot) + ".bak")
-		if b is Dictionary and _migrate(b) != null:
+		if _usable(b):
 			return b
+		return null
 	return d
+
+
+static func _usable(d) -> bool:
+	if d == null or not (d is Dictionary):
+		return false
+	var m = _migrate(d)
+	return m != null and decodable(m)
+
+
+## THE FIELDS THE DECODER INDEXES WITHOUT A DEFAULT — `d["x"]` in `from_dict`,
+## `club_from_dict` and `fighter_from_dict`. Anything read with `.get(x, default)`
+## is optional by construction and deliberately not listed, so an older save
+## that lacks a newer optional field still opens. `test_edges.gd` reads the
+## decoders' source and fails if these lists and the `d["x"]` there disagree.
+const NEED_SEASON := ["club", "clubs", "coach", "cups", "event", "history", "honors",
+	"player_club", "rng_seed", "rng_state", "schedule", "season", "seed", "tables"]
+const NEED_CLUB := ["icon", "icon_color", "kit", "name", "roster", "short"]
+const NEED_FIGHTER := ["active", "agg", "armor", "available", "base", "gas", "kg",
+	"morale", "name", "no", "pos", "str", "tec"]
+
+
+## Would `from_dict` build a whole world from this? Checked up front, because a
+## script error inside a nested decoder does not stop the load — it leaves a
+## null in a typed array and the career carries on broken.
+static func decodable(d: Dictionary) -> bool:
+	for k in NEED_SEASON:
+		if not d.has(k):
+			return false
+	if not (d["club"] is Dictionary) or not _has_all(d["club"], NEED_CLUB):
+		return false
+	if not (d["club"]["roster"] is Array):
+		return false
+	for m in d["club"]["roster"]:
+		if not (m is Dictionary) or not _has_all(m, NEED_FIGHTER):
+			return false
+	var sp = d.get("splinters", {})
+	if not (sp is Dictionary):
+		return false
+	for key in sp:
+		if not (sp[key] is Array):
+			return false
+		for m in sp[key]:
+			if not (m is Dictionary) or not _has_all(m, NEED_FIGHTER):
+				return false
+	if not (d["clubs"] is Array):
+		return false
+	var pc := int(d["player_club"])
+	return pc >= 0 and pc < (d["clubs"] as Array).size()
+
+
+static func _has_all(d: Dictionary, keys: Array) -> bool:
+	for k in keys:
+		if not d.has(k):
+			return false
+	return true
 
 
 static func _read_file(path: String):
