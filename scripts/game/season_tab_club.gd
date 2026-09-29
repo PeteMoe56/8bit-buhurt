@@ -612,7 +612,7 @@ static func _fixture(v: SeasonScene) -> void:
 	## side's tiers are spelled out on the Clubhouse tab and the opponent's were
 	## never shown anywhere, so the one number that explains why the same rating
 	## feels harder two divisions up was invisible.
-	UiKit.right(v, v.font, String(Tuning.AI_SKILL[v.season.ai_tier()]["name"]).to_upper(),
+	UiKit.right(v, v.font, UiKit.t(String(Tuning.AI_SKILL[v.season.ai_tier()]["name"])).to_upper(),
 		Vector2(432, y + 28), 12, UiKit.YOU, 200)
 
 	## ------------------------------------------------- where, and what it pays

@@ -254,7 +254,8 @@ func _hall() -> void:
 		var y := y0 + float(i % 6) * 42.0
 		UiKit.text(self, font, UiKit.clip(String(h.get("name", "?")), 16),
 			Vector2(x, y), 16, UiKit.INK)
-		UiKit.text(self, font, String(h.get("pos", "")), Vector2(x + 190.0, y), 12, UiKit.DIM)
+		## Stored in English (it is saved); translated here, where it is drawn.
+		UiKit.text(self, font, UiKit.t(String(h.get("pos", ""))), Vector2(x + 190.0, y), 12, UiKit.DIM)
 		UiKit.right(self, font, "%d" % int(h.get("rating", 0)),
 			Vector2(x + 330.0, y), 15, UiKit.YOU, 60)
 		UiKit.right(self, font, UiKit.t("S%d") % int(h.get("season", 0)),
@@ -326,7 +327,7 @@ func _mine() -> void:
 	_stat("Seasons run", "%d" % seasons, y); y += 32.0
 	_stat("Promotions", "%d" % promos, y); y += 32.0
 	_stat("Relegations", "%d" % rels, y); y += 32.0
-	_stat("Best finish", "—" if best == 99 else "%s in season %d"
+	_stat("Best finish", "—" if best == 99 else UiKit.t("%s in season %d")
 		% [UiKit.ordinal(best), best_at], y); y += 32.0
 	_stat("Cups won", "%d" % cups, y); y += 32.0
 	_stat("Cup runs", "%d" % finals, y); y += 32.0
@@ -344,12 +345,14 @@ func _mine() -> void:
 		var tag := ""
 		if bool(e.get("promoted", false)):
 			col = UiKit.UP
-			tag = "up"
+			tag = UiKit.t("promoted")
 		elif bool(e.get("relegated", false)):
 			col = UiKit.DOWN
-			tag = "down"
+			## Not "down": that key is a man on the floor, and a translator
+			## given one word for both has to pick one of them.
+			tag = UiKit.t("relegated")
 		UiKit.text(self, font, UiKit.t("S%d") % int(e.get("season", 0)), Vector2(rx + 16.0, ry), 14, UiKit.DIM)
-		UiKit.text(self, font, League.TIERS[int(e.get("tier", 0))]["name"],
+		UiKit.text(self, font, League.tier_name(int(e.get("tier", 0))),
 			Vector2(rx + 60.0, ry), 14, UiKit.INK)
 		UiKit.right(self, font, UiKit.ordinal(int(e.get("position", 0))),
 			Vector2(UiKit.right_edge(100.0), ry), 14, col, 120)
@@ -358,7 +361,7 @@ func _mine() -> void:
 
 
 func _stat(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, label, Vector2(40, y), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t(label), Vector2(40, y), 14, UiKit.DIM)
 	UiKit.right(self, font, value, Vector2(24.0 + (UiKit.span() - 16.0) * 0.5 - 16.0, y), 15, UiKit.INK, 300)
 
 
@@ -402,16 +405,16 @@ func _history() -> void:
 	for i in range(season.world.history.size() - 1,
 			maxi(-1, season.world.history.size() - 13), -1):
 		var e: Dictionary = season.world.history[i]
-		var tag := ""
+		var fin := UiKit.ordinal(int(e["position"]))
 		var col := UiKit.INK
 		if bool(e.get("promoted", false)):
-			tag = "  promoted"
+			fin = UiKit.t("%s, promoted") % fin
 			col = UiKit.UP
 		elif bool(e.get("relegated", false)):
-			tag = "  relegated"
+			fin = UiKit.t("%s, relegated") % fin
 			col = UiKit.DOWN
 		UiKit.text(self, font, UiKit.t("S%d  %s") % [int(e["season"]),
 			League.tier_name(int(e["tier"]))], Vector2(516, y), 15, UiKit.DIM)
-		UiKit.right(self, font, "%s%s" % [UiKit.ordinal(int(e["position"])), tag],
+		UiKit.right(self, font, fin,
 			Vector2(UiKit.right_edge(), y), 15, col, 220)
 		y += 26.0

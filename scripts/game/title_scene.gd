@@ -19,7 +19,9 @@ const SLOT_Y := 176.0
 const SLOT_W := 300.0
 ## The Back / Settings row, between the tagline and the slots.
 const HEADER_BTN_Y := 124.0
-const SLOT_H := 300.0
+## 324 so the Delete row (SLOT_Y+276, 40 tall) sits inside the card with 8 to
+## spare; at 300 it hung 16 pixels off the bottom (29 Sep 2026).
+const SLOT_H := 324.0
 const SLOT_GAP := 12.0
 
 var font: Font
@@ -380,7 +382,7 @@ func _draw() -> void:
 		UiKit.text(self, font,
 			UiKit.clip_px(font, String(info["club"]), 21, SLOT_W - 40.0),
 			Vector2(x + 20, SLOT_Y + 72), 21, UiKit.INK)
-		UiKit.text(self, font, String(info["tier"]), Vector2(x + 20, SLOT_Y + 102), 15, UiKit.YOU)
+		UiKit.text(self, font, UiKit.t(String(info["tier"])), Vector2(x + 20, SLOT_Y + 102), 15, UiKit.YOU)
 		UiKit.text(self, font, UiKit.t("Season %d") % int(info["season"]),
 			Vector2(x + 20, SLOT_Y + 130), 15, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Event %d of %d") % [int(info["event"]), int(info["events"])],

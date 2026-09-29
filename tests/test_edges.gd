@@ -29,6 +29,7 @@ func _initialize() -> void:
 	_test_cup_finish_is_data()
 	_test_dilemma_follows_its_man()
 	_test_broken_cup_is_refused()
+	_test_ticker_speaks_the_language()
 	for slot in 3:
 		SaveGame.delete(slot)
 	print("")
@@ -425,3 +426,30 @@ func _test_broken_cup_is_refused() -> void:
 		"a save whose cup lacks a needed field is refused; one lacking a later field still opens",
 		"cup in the save: %s; whole: %s; without third_place/rng_state: %s; without rounds: %s"
 			% [has_cup, SaveGame.decodable(d), SaveGame.decodable(old), SaveGame.decodable(bad)])
+
+
+## THE TICKER HAD NO TRANSLATION AT ALL (29 Sep 2026): standings, results and
+## every remark were English in every language. In Spanish, none of its English
+## sentence frames may survive, and every remark must come from the table.
+func _test_ticker_speaks_the_language() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	for i in 3:
+		s.skip_event()
+	TranslationServer.set_locale("es")
+	var line := Ticker.line_for(s)
+	var quips_es: Array[String] = []
+	for q in Ticker.QUIPS:
+		quips_es.append(UiKit.t(q))
+	TranslationServer.set_locale("en")
+	var english := []
+	for frame in [" lead the ", " are level at the top", " prop up the table", " beat ", " drew with ", " lost to ", " point"]:
+		if line.contains(frame):
+			english.append(frame.strip_edges())
+	var untranslated := 0
+	for i in Ticker.QUIPS.size():
+		if quips_es[i] == Ticker.QUIPS[i]:
+			untranslated += 1
+	_ok(english.is_empty() and untranslated == 0 and line != "",
+		"the ticker speaks the language on screen",
+		"es line %d chars; English frames found: %s; remarks left in English: %d of %d"
+			% [line.length(), str(english), untranslated, Ticker.QUIPS.size()])

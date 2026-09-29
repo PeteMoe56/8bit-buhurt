@@ -372,12 +372,12 @@ func _cell_at(i: int) -> Vector2:
 func _meeting_row(i: int) -> Dictionary:
 	match i:
 		0:
-			return {"key": "morale", "label": "MORALE", "verb": "Sit him down",
+			return {"key": "morale", "label": UiKit.t("MORALE"), "verb": UiKit.t("Sit him down"),
 				"cc": ClubOffice.negotiate_cost(man), "off": false,
 				"value": man.morale_word(), "col": man.morale_color(),
 				"bar": _roll("morale", man.morale), "bar_col": man.morale_color()}
 		1:
-			return {"key": "kit", "label": "CONDITION", "verb": "The armorer",
+			return {"key": "kit", "label": UiKit.t("CONDITION"), "verb": UiKit.t("The armorer"),
 				"cc": ClubOffice.kit_cost(man), "off": man.armor >= 1.0,
 				"value": "%d%%" % int(round(_roll("kit", man.armor) * 100.0)),
 				"col": UiKit.INK,
@@ -387,7 +387,7 @@ func _meeting_row(i: int) -> Dictionary:
 			if not Career.at_ceiling(man):
 				bar = clampf(_roll("xp", float(man.xp))
 					/ maxf(1.0, float(Career.next_level_at(man))), 0.0, 1.0)
-			return {"key": "level", "label": "XP LEVEL", "verb": "Extra reps",
+			return {"key": "level", "label": UiKit.t("XP LEVEL"), "verb": UiKit.t("Extra reps"),
 				"cc": Career.level_cost(man), "off": Career.at_ceiling(man),
 				"value": str(int(round(_roll("level", float(man.level))))),
 				"col": UiKit.INK, "bar": bar,
@@ -395,8 +395,8 @@ func _meeting_row(i: int) -> Dictionary:
 		_:
 			var bill := ClubOffice.wage_bill(season.club)
 			var cap := maxi(1, season.office.cap())
-			return {"key": "deal", "label": "CONTRACT",
-				"verb": "Re-sign" if man.years <= 0 else "Extend",
+			return {"key": "deal", "label": UiKit.t("CONTRACT"),
+				"verb": UiKit.t("Re-sign") if man.years <= 0 else UiKit.t("Extend"),
 				"cc": season.resign_cost(man) if man.years <= 0 \
 					else season.extend_cost(man), "off": false,
 				"value": ClubOffice.money(int(round(_roll("wage",
@@ -849,5 +849,5 @@ func _the_book() -> void:
 
 
 func _book(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, label, Vector2(R_X + 16, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t(label), Vector2(R_X + 16, y), 13, UiKit.DIM)
 	UiKit.right(self, font, value, Vector2(R_X + COL_W - 16, y), 14, UiKit.INK, 120)

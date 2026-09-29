@@ -73,7 +73,7 @@ const QUIPS: Array[String] = [
 static func _club(season, row: Dictionary) -> String:
 	var cid := int(row.get("club", -1))
 	if cid < 0 or cid >= season.world.clubs.size():
-		return "somebody"
+		return UiKit.t("somebody")
 	return String(season.world.clubs[cid]["name"])
 
 
@@ -97,18 +97,17 @@ static func line_for(season) -> String:
 		var second: Dictionary = rows[1]
 		var gap: int = int(lead.get("points", 0)) - int(second.get("points", 0))
 		if gap > 0:
-			parts.append("%s lead the %s by %d point%s" % [
-				_club(season, lead), season.tier_name(), gap,
-				"" if gap == 1 else "s"])
+			parts.append(UiKit.tn("%s lead the %s by %d point", "%s lead the %s by %d points", gap) % [
+				_club(season, lead), season.tier_name(), gap])
 		else:
-			parts.append("%s and %s are level at the top of the %s" % [
+			parts.append(UiKit.t("%s and %s are level at the top of the %s") % [
 				_club(season, lead), _club(season, second), season.tier_name()])
 
 	## AND WHO IS BOTTOM, because a player near the drop wants to know who is
 	## under him and a player clear of it wants to know he is clear.
 	if rows.size() >= 1:
 		var last: Dictionary = rows[rows.size() - 1]
-		parts.append("%s prop up the table on %d" % [
+		parts.append(UiKit.t("%s prop up the table on %d") % [
 			_club(season, last), int(last.get("points", 0))])
 
 	## THE CLUB'S OWN LAST RESULT, told the way a results service would tell it
@@ -122,9 +121,11 @@ static func line_for(season) -> String:
 			var them := String(r.get("opponent_name", ""))
 			if them == "" and int(r.get("opponent", -1)) >= 0:
 				them = String(season.world.clubs[int(r["opponent"])]["name"])
-			var verb := "beat" if rf > ra else ("drew with" if rf == ra else "lost to")
-			parts.append("%s %s %s %d-%d" % [season.club.display_name, verb,
-				them, rf, ra])
+			## Three whole sentences, not a verb dropped into one: the word order
+			## around the verb is not English's in half the languages.
+			var line := UiKit.t("%s beat %s %d-%d") if rf > ra else (
+				UiKit.t("%s drew with %s %d-%d") if rf == ra else UiKit.t("%s lost to %s %d-%d"))
+			parts.append(line % [season.club.display_name, them, rf, ra])
 
 	## AND THE ODD REMARK. Deterministic on the season and the event, so the line
 	## does not reshuffle itself every time the screen redraws — a ticker whose
@@ -136,9 +137,9 @@ static func line_for(season) -> String:
 		quip_at += 1
 		if quip_at >= QUIP_EVERY - 1:
 			quip_at = 0
-			out.append(QUIPS[(n + i * 7) % QUIPS.size()])
+			out.append(UiKit.t(QUIPS[(n + i * 7) % QUIPS.size()]))
 	if out.is_empty():
-		out.append(QUIPS[n % QUIPS.size()])
+		out.append(UiKit.t(QUIPS[n % QUIPS.size()]))
 	return SEP.join(out)
 
 

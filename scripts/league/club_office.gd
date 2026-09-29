@@ -141,14 +141,25 @@ static func wage_bill(club: MeleeClub) -> int:
 ## Money, written the way a club would write it. At the bottom of the pyramid
 ## every dollar is legible and at the top nobody counts them, so the format has
 ## to do both.
+## The templates go through the table (29 Sep 2026) so a language can put the
+## sign after the number or use its own thousands word; the decimal point is
+## the translator's too, through the same template.
 static func money(n: int) -> String:
 	if n >= 1000000:
-		return "$%.2fM" % (float(n) / 1000000.0)
+		return _decimal(UiKit.t("$%sM"), float(n) / 1000000.0, 2)
 	if n >= 10000:
-		return "$%dk" % int(round(float(n) / 1000.0))
+		return UiKit.t("$%dk") % int(round(float(n) / 1000.0))
 	if n >= 1000:
-		return "$%.1fk" % (float(n) / 1000.0)
-	return "$%d" % n
+		return _decimal(UiKit.t("$%sk"), float(n) / 1000.0, 1)
+	return UiKit.t("$%d") % n
+
+
+## A number with `places` decimals, using the decimal mark the translator gave
+## ("." in English, "," in most of Europe — the key is the English mark itself).
+static func _decimal(template: String, v: float, places: int) -> String:
+	var s := ("%." + str(places) + "f") % v
+	var mark := UiKit.t("decimal mark: .").trim_prefix("decimal mark: ")
+	return template % s.replace(".", mark)
 
 
 func over_cap(club: MeleeClub) -> int:

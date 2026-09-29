@@ -248,7 +248,7 @@ func _sim_controls() -> void:
 func _draw_sim_ask() -> void:
 	UiKit.panel(self, SIM_CARD)
 	var o := String(season.world.clubs[season.opponent_id()]["name"]) \
-		if season.opponent_id() >= 0 else "nobody yet"
+		if season.opponent_id() >= 0 else UiKit.t("nobody yet")
 	UiKit.text(self, font, UiKit.t("SIM THIS ONE?"), Vector2(SIM_CARD.position.x + 28.0,
 		SIM_CARD.position.y + 46.0), 20, UiKit.YOU)
 	UiKit.text(self, font, UiKit.t("The marshals run it without you. The result stands."),

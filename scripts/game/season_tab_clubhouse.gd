@@ -155,7 +155,7 @@ static func _shop_controls(v: SeasonScene) -> void:
 						## purchase. What lands now is whatever is already owed.
 						var got := Store.claim(v.season.office, Session.autosave)
 						v.flash = (UiKit.t("%d credits.") % got) if got > 0 \
-							else "Asked the store. Credits land when it answers."
+							else UiKit.t("Asked the store. Credits land when it answers.")
 					v._rebuild()))
 		## THE BUTTON A PLAYER WHOSE MONEY WENT MISSING WILL LOOK FOR. For a
 		## consumable there is nothing to re-own — the credits were spent — so
@@ -165,7 +165,7 @@ static func _shop_controls(v: SeasonScene) -> void:
 				Store.resolve_pending()
 				var got := Store.claim(v.season.office, Session.autosave)
 				v.flash = (UiKit.t("%d credits.") % got) if got > 0 \
-					else "Asked the store for anything outstanding."
+					else UiKit.t("Asked the store for anything outstanding.")
 				v._rebuild()))
 	v.ui.add_child(UiKit.button(UiKit.t("Back"),
 		Vector2(v.SHOP_CARD.end.x - 184.0, y), Vector2(160, 44), func():
@@ -364,7 +364,7 @@ static func _draw_office(v: SeasonScene) -> void:
 	if bare.is_empty():
 		var best := ""
 		for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
-			best = String(Tuning.AI_SKILL[o.tier_for(role)]["name"])
+			best = UiKit.t(String(Tuning.AI_SKILL[o.tier_for(role)]["name"]))
 			break
 		UiKit.pair(v, v.font, UiKit.t("Every role taught."), UiKit.t("going out %s") % best.to_lower(),
 			Vector2(SeasonScene.NAV_X, y + 20), UiKit.right_edge(), 13, 13, UiKit.UP, UiKit.DIM)

@@ -117,7 +117,7 @@ func _build() -> void:
 ## that is running); the rest is read from the files the export ships
 ## (`include_filter` in export_presets.cfg).
 const LICENCE_FILES := [
-	["Buhurt Rail, Gorget and Maul — SIL Open Font License 1.1", "res://fonts/OFL.txt"],
+	["Buhurt Plate (from Press Start 2P) — SIL Open Font License 1.1", "res://fonts/OFL.txt"],
 	["LanaPixel by eishiya — SIL Open Font License 1.1", "res://fonts/fallback/LanaPixel-OFL.txt"],
 	["Fantasy UI Borders by Kenney — CC0", "res://art/ui/KENNEY-LICENSE.txt"],
 ]

@@ -209,7 +209,10 @@ func _footer() -> void:
 	UiKit.bar(self, Rect2(434, y + 22, 104, 12), float(bill) / float(maxi(1, cap)),
 		UiKit.DOWN if bill > cap else UiKit.YOU)
 	UiKit.right(self, font, _bill_word(bill, cap),
-		Vector2(UiKit.right_edge(422.0), y + 15), 9,
+		## The panel's own right edge less its padding. `right_edge(422)` measured
+		## from the SCREEN's right and only landed inside this fixed panel at 960
+		## wide; at 1260 the figure floated 300 pixels clear of it (29 Sep 2026).
+		Vector2(538.0, y + 15), 9,
 		UiKit.INK if bill <= cap else UiKit.DOWN, 76)
 
 

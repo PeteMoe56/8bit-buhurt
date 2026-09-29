@@ -31,7 +31,7 @@ def unescape(s):
 
 ## LABEL HELPERS whose first argument is display text they translate themselves.
 TN = re.compile(r'UiKit\.tn\(\s*"((?:[^"\\\n]|\\.)*)"\s*,\s*"((?:[^"\\\n]|\\.)*)"')
-HELPER = re.compile(r'(?:\b_line|\b_fin_row)\(\s*"((?:[^"\\\n]|\\.)*)"')
+HELPER = re.compile(r'(?:\b_line|\b_fin_row|\b_stat|\b_book)\(\s*"((?:[^"\\\n]|\\.)*)"')
 
 ## DATA TABLES that hold display text and are translated where they are READ
 ## (`UiKit.t(String(TABLE[i]))`) — a `const` cannot call the translator. Every
@@ -57,8 +57,9 @@ TABLES = {
     "scripts/league/club_event.gd": ["SLOTS", "BUDGETS"],
     "scripts/game/season_tab_finances.gd": ["NET_WORD"],
     "scripts/game/icon_bank.gd": ["ICONS", "PACK_NAME"],
-    "scripts/melee/tuning.gd": ["POS_NAME", "ROLE_NAME", "CONDITION_WORDS", "WEAPON_NAME", "STRATEGIES"],
+    "scripts/melee/tuning.gd": ["POS_NAME", "ROLE_NAME", "CONDITION_WORDS", "WEAPON_NAME", "STRATEGIES", "AI_SKILL"],
     "scripts/game/season_scene.gd": ["OFFICE_ROWS", "RESERVE_SORTS"],
+    "scripts/game/ticker.gd": ["QUIPS"],
 }
 SKIP_FIELDS = {"key", "kind", "path", "id", "file", "art", "sound", "code", "short", "icon", "who", "rival"}
 STR = re.compile(r'"((?:[^"\\\n]|\\.)*)"')

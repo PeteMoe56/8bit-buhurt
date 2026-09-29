@@ -434,7 +434,9 @@ static func to_dict(season: Season) -> Dictionary:
 		"season": w.season,
 		"event": w.event,
 		"events": League.events_in_season(w.player_tier()),
-		"tier_name": season.tier_name(),
+		## English (it is saved); the slot screen translates it when drawn, so a
+		## language change reaches the slot card too (29 Sep 2026).
+		"tier_name": String(League.TIERS[season.world.player_tier()]["name"]),
 
 		"seed": season.seed_value,
 		"rng_seed": w.rng.seed,
