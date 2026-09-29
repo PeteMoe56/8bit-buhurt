@@ -2107,15 +2107,21 @@ func _build_fav_strip(board: Chalkboard) -> void:
 ## turning a favorite into a name is two places that can disagree about which
 ## one slot 3 is.
 func _fav_name(f: Dictionary) -> String:
-	var shape_id := int(f["shape"])
-	for c in _book_calls(shape_id):
+	var c := _fav_call(f)
+	return String(c["name"]) if not c.is_empty() else String(f["key"])
+
+
+## THE ONE RESOLUTION of a favorite to the call it names, or {} if the book no
+## longer has it. `_fav_name` said it asked `_fav_calls` for this and then did
+## the lookup again itself; both ask here now (29 Sep 2026).
+func _fav_call(f: Dictionary) -> Dictionary:
+	for c in _book_calls(int(f["shape"])):
 		if String(c["kind"]) != String(f["kind"]):
 			continue
 		if Chalkboard.fav_key(String(c["kind"]), int(c["id"]),
-				String(c["name"])) != String(f["key"]):
-			continue
-		return String(c["name"])
-	return String(f["key"])
+				String(c["name"])) == String(f["key"]):
+			return c
+	return {}
 
 
 ## WHICH SLOT'S SUB BOX IS OPEN, or -1. Tap SUB beside a man, pick from the
@@ -2177,31 +2183,6 @@ const FAV_STRIP_H := 68.0
 
 func _fit(n: int) -> float:
 	return (PANEL_W - float(maxi(0, n - 1)) * 6.0) / float(maxi(1, n))
-
-
-## What is left inside one of those buttons once the frame, the drop and the
-## content padding have taken theirs. Derived rather than written down, so the
-## day `ICON_PAD` or `FRAME_PX` moves this moves with it.
-## THE NAME GIVES WAY; THE NUMBER NEVER DOES.
-##
-## Fitting the whole string produced "Vance 100." and "Kerrigan." — a condition
-## figure truncated into a different figure, or into no figure at all, on the one
-## screen where that number IS the decision. Clipping at a character count did
-## the same thing for the same reason.
-##
-## So the number's width is reserved first and only the name is measured into
-## what is left. A shortened name is a cosmetic loss; a shortened percentage is
-## a lie.
-func _name_and_condition(f, budget: float) -> String:
-	var cond := "%d%%" % int(round(sim.condition_of(f) * 100.0))
-	var fnt := UiKit.body()
-	var px := UiKit.GRID * 2
-	var keep := fnt.get_string_size(" " + cond, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x
-	return "%s %s" % [UiKit.fit(fnt, f.display_name, px, budget - keep), cond]
-
-
-func _text_budget(n: int) -> float:
-	return _fit(n) - UiKit.DROP_PX - UiKit.FRAME_PX * 2.0 - UiKit.ICON_PAD * 2.0
 
 
 ## THE CORNER, AND THE HALF OF IT THAT DID NOT EXIST.
@@ -2453,17 +2434,11 @@ func _fav_calls() -> Array:
 	var out: Array = []
 	if Session.season != null:
 		for f in Session.season.board.live_favorites():
-			var shape_id := int(f["shape"])
-			for c in _book_calls(shape_id):
-				if String(c["kind"]) != String(f["kind"]):
-					continue
-				if Chalkboard.fav_key(String(c["kind"]), int(c["id"]),
-						String(c["name"])) != String(f["key"]):
-					continue
+			var c := _fav_call(f)
+			if not c.is_empty():
 				var row: Dictionary = c.duplicate()
-				row["shape"] = shape_id
+				row["shape"] = int(f["shape"])
 				out.append(row)
-				break
 	if out.is_empty():
 		for c in _book_calls(_live_shape_id()):
 			var row: Dictionary = c.duplicate()

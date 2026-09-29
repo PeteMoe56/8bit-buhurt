@@ -129,7 +129,7 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 	var d := {
 		"tag": f.pos_name(), "number": f.number, "name": f.display_name,
 		"rating": f.overall(), "dim": out,
-		"band": _pos_color(f),
+		"band": UiKit.pos_color(f),
 		"face": {"rating": f.overall(), "name": f.display_name, "number": f.number},
 		## THE ARMOR BAR IS NOW A PASS/FAIL, not a mood ring. It used to redden
 		## below 0.4, which was a number picked to look about right; it reddens at
@@ -168,16 +168,6 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 	if out:
 		UiKit.right(self, font, f.unfit_reason().to_upper(),
 			Vector2(r.end.x - 8, r.end.y - 24), 11, UiKit.DOWN, 96)
-
-
-func _pos_color(f: FighterCard) -> Color:
-	## Rail, Flanker, Center — three places, three colors, and they are the
-	## same three the melee's own strip uses so a man is the same color on the
-	## roster as he is in the fight.
-	match int(f.pos):
-		Tuning.Pos.CENTER: return UiKit.DOWN
-		Tuning.Pos.FLANK_L, Tuning.Pos.FLANK_R: return UiKit.SELECT
-		_: return UiKit.UP
 
 
 func _footer() -> void:

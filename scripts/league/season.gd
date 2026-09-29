@@ -148,14 +148,6 @@ func _note_grade() -> void:
 	grade_history.append(at)
 
 
-## Was this whole season fought on one grade? The honors screen asks so it can
-## put an asterisk on a title that was not.
-func one_grade_this_season() -> bool:
-	var seen := 0
-	for row in grade_history:
-		if int(row["season"]) == int(world.season):
-			seen += 1
-	return seen <= 1
 ## MATCHED's running value. Ignored by every other grade, and carried anyway so
 ## that switching to MATCHED mid-career does not start you back at the bottom of
 ## the ladder having already won three divisions.

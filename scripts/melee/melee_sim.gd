@@ -934,10 +934,6 @@ func leave_corner() -> void:
 
 
 # ----------------------------------------------------------------- targeting
-func _skill(team: int) -> Dictionary:
-	return Tuning.AI_SKILL[skills[team]]
-
-
 ## Who is coaching THIS man. Falls back to the team's tier when no captain map
 ## has been set.
 func _skill_of(m: Man) -> Dictionary:

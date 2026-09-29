@@ -755,6 +755,16 @@ static func text(ci: CanvasItem, font: Font, s: String, at: Vector2,
 	ci.draw_string(font, at, s, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
 
 
+## A MAN'S PLACE, AS A COLOR — Rail, Flanker, Center. One table: the roster and
+## the market each kept their own copy, and a man has to be the same color on
+## every card he is drawn on.
+static func pos_color(f: FighterCard) -> Color:
+	match int(f.pos):
+		Tuning.Pos.CENTER: return DOWN
+		Tuning.Pos.FLANK_L, Tuning.Pos.FLANK_R: return SELECT
+		_: return UP
+
+
 ## ONE LINE, MADE TO FIT ITS ROOM (29 Sep 2026). `text()` with a width: our
 ## copy at its size if it fits (English always has), else the type steps down
 ## as far as FIT_STEP pixels, and only then is the line cut — through `fit_px`,

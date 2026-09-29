@@ -120,7 +120,14 @@ static func _club_controls(v: SeasonScene) -> void:
 	## dilemma first in the drawing. Three orderings of one rule, and the only
 	## thing keeping them agreeing was that nobody had hit the case where they
 	## differ. The season is asked now.
-	if v.season.promotion_offered():
+	##
+	## AND NOW IT REALLY IS (29 Sep 2026). The comment above said so while the
+	## code below still asked each question itself — promotion FIRST, where
+	## `blocked_by()` puts it LAST — so a season that ended with a cup tie still
+	## to fight showed the promotion choice while the season said "cup". Every
+	## branch is keyed on the one answer now.
+	var block := v.season.blocked_by()
+	if block == "promotion":
 		var pt: Dictionary = v.season.promotion_terms()
 		## SHORT LABELS. "Take the State League" and "Stay in the Backyard Circuit
 		## · save 8 CC" are 218 and 280 pixels of text in 240- and 300-pixel
@@ -146,7 +153,7 @@ static func _club_controls(v: SeasonScene) -> void:
 				v._rebuild(), "shield"))
 		return
 
-	if v.season.bid_open():
+	if block == "bid":
 		v.ui.add_child(UiKit.button(UiKit.t("Tournament bid"), Vector2(24, SeasonScene.action_y()),
 			Vector2(204, 46), func():
 				Session.autosave()
@@ -158,7 +165,7 @@ static func _club_controls(v: SeasonScene) -> void:
 				v.flash = UiKit.t("No tournament this year.")
 				v._rebuild()))
 		return
-	if v.season.cup_pending():
+	if block == "cup":
 		v.ui.add_child(UiKit.button(UiKit.t("Fight the tie"), Vector2(24, SeasonScene.action_y()),
 			Vector2(204, 46), v._fight_cup))
 		## THE DRAW, next to the tie. Carried open since section 22: the screen
@@ -189,7 +196,7 @@ static func _club_controls(v: SeasonScene) -> void:
 	## player is most likely to want to read rather than clear, so it does not go
 	## first — but it does go before the fight, because a dilemma you can walk
 	## past is a notification.
-	if not v.season.dilemma.is_empty():
+	if block == "dilemma":
 		var card := v.season.dilemma_card()
 		var opts: Array = card.get("options", [])
 		var w: float = (UiKit.span(32.0) - float(maxi(0, opts.size() - 1)) * 12.0) / float(maxi(1, opts.size()))
@@ -201,7 +208,7 @@ static func _club_controls(v: SeasonScene) -> void:
 					Session.autosave()
 					v._rebuild()))
 		return
-	if v.season.season_complete():
+	if v.season.ready_to_roll():
 		v.ui.add_child(UiKit.button(UiKit.t("End the season"), Vector2(24, SeasonScene.action_y()),
 			Vector2(424, 46), func():
 				var was := v.season.position()

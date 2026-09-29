@@ -147,7 +147,7 @@ func _draw() -> void:
 		var step := Market.step_word(f.overall(), tier)
 		UiKit.card(self, font, r, {
 			"tag": f.pos_name(), "name": f.display_name, "rating": f.overall(),
-			"band": _pos_color(f),
+			"band": UiKit.pos_color(f),
 			"head_right": step,
 			## `DIM` is a color chosen to recede against the PANEL, and the header
 			## it sits in is a tinted position band — green for a rail, orange for
@@ -175,13 +175,6 @@ func _draw() -> void:
 	_footer()
 	if flash != "":
 		UiKit.text(self, font, flash, Vector2(200, UiKit.screen().y - 30), 13, UiKit.DOWN)
-
-
-func _pos_color(f: FighterCard) -> Color:
-	match int(f.pos):
-		Tuning.Pos.CENTER: return UiKit.DOWN
-		Tuning.Pos.FLANK_L, Tuning.Pos.FLANK_R: return UiKit.SELECT
-		_: return UiKit.UP
 
 
 func _footer() -> void:
