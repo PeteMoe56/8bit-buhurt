@@ -121,8 +121,12 @@ The rest of this file is what those scripts are doing and why.
    **gradle build that outputs an app bundle (AAB) targeting API 36** — Play
    takes new apps only as an AAB, and from 31 Aug 2026 only at API 36, and
    Godot can only do either through gradle. In the editor: *Project → Install
-   Android Build Template…*. That writes `android/` into the project (commit
-   it; it is source). It needs the export templates from step 1.
+   Android Build Template…*. That writes `android/` into the project. It is
+   **not committed** (`.gitignore` has `/android/`): it is Godot's stock
+   template, regenerated on any machine by the same menu item. If it is ever
+   edited — a billing plugin's `.aar` in `android/plugins/`, a manifest
+   change — narrow the ignore to the gradle output and commit the rest. It
+   needs the export templates from step 1.
 
 6. **Build it.**
    ```
