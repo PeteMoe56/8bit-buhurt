@@ -150,13 +150,24 @@ const CORNER_DELTA: float = 4.0
 ## "bills": what the grade does to the dues and the federation's renewals (Pete,
 ## 28 Sep 2026: difficulty reaches the money too). Buildings are not scaled —
 ## what a club chooses to own it pays for at full price on every grade.
+##
+## "swing" / "fall" / "pass": THE CONTACT WHEEL'S THREE DIALS (Pete, 29 Sep 2026:
+## "find the difficulty settings ranges for those as well"). The free swing a
+## man you send lands on arrival (share of a blow), the chance your failed
+## bullrush puts HIM down, and the chance a free enemy grabs or trips your man
+## running past. Measured in `claude/handoff-29-sep.md` (C-6's worst setup: the
+## swing is what lets a good thumb out-fight a bad plan).
 const TABLE := {
-	G.FRIENDLY: { "scale": EASE, "pauses": 1, "corner": CORNER_DELTA, "ceiling": false, "bills": 0.8 },
-	G.SANCTIONED: { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0 },
-	G.FULL_STEEL: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": false, "bills": 1.2 },
+	G.FRIENDLY: { "scale": EASE, "pauses": 1, "corner": CORNER_DELTA, "ceiling": false, "bills": 0.8,
+		"swing": 0.75, "fall": 0.10, "pass": 0.08 },
+	G.SANCTIONED: { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0,
+		"swing": 0.5, "fall": 0.20, "pass": 0.12 },
+	G.FULL_STEEL: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": false, "bills": 1.2,
+		"swing": 0.25, "fall": 0.30, "pass": 0.16 },
 	## SHARES FULL STEEL'S SCALAR, exactly as Retro Bowl's Extreme shares Hard's
 	## -5. The top grade is not a steeper number, it is a rule: see `ceiling`.
-	G.HARD_LIST: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": true, "bills": 1.2 },
+	G.HARD_LIST: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": true, "bills": 1.2,
+		"swing": 0.0, "fall": 0.30, "pass": 0.16 },
 }
 
 
@@ -165,7 +176,8 @@ const TABLE := {
 ## options with advanced settings."* Every dial the presets turn, each with its
 ## own range; the values live on the career (`Season.custom_grade`) and are
 ## handed to every function below, so there is no second copy to drift.
-const CUSTOM_DEFAULT := { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0 }
+const CUSTOM_DEFAULT := { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0,
+	"swing": 0.5, "fall": 0.20, "pass": 0.12 }
 ## [min, max, step] per dial. The strength range is wider than the presets on
 ## purpose: a player who asks for x1.10 is asking for it.
 const DIALS := {
@@ -173,6 +185,9 @@ const DIALS := {
 	"pauses": [-2, 2, 1],
 	"corner": [-8.0, 8.0, 2.0],
 	"bills": [0.5, 1.5, 0.1],
+	"swing": [0.0, 1.0, 0.25],
+	"fall": [0.0, 0.4, 0.1],
+	"pass": [0.0, 0.24, 0.04],
 }
 
 
@@ -326,6 +341,25 @@ static func bills_for(g: int, step: int, custom: Dictionary = {}) -> float:
 	if g == G.MATCHED:
 		return 1.0 + (matched_scale(step) - 1.0) * 5.0
 	return float(_row(g, custom).get("bills", 1.0))
+
+
+## THE WHEEL'S DIALS AT THIS GRADE: {"swing", "fall", "pass"}. MATCHED walks
+## the same span as the presets off its own step (FRIENDLY at its easiest, FULL
+## STEEL at its hardest), like the bills do.
+static func wheel_for(g: int, step: int, custom: Dictionary = {}) -> Dictionary:
+	if g == G.MATCHED:
+		## -1 at FRIENDLY's end .. +1 at FULL STEEL's.
+		var t := (matched_scale(step) - 1.0) / (STEEL - 1.0)
+		var lo: Dictionary = TABLE[G.FRIENDLY] if t < 0.0 else TABLE[G.SANCTIONED]
+		var hi: Dictionary = TABLE[G.SANCTIONED] if t < 0.0 else TABLE[G.FULL_STEEL]
+		var u := t + 1.0 if t < 0.0 else t
+		var out := {}
+		for k in ["swing", "fall", "pass"]:
+			out[k] = lerpf(float(lo[k]), float(hi[k]), clampf(u, 0.0, 1.0))
+		return out
+	var row := _row(g, custom)
+	return {"swing": float(row.get("swing", 0.5)), "fall": float(row.get("fall", 0.2)),
+		"pass": float(row.get("pass", 0.12))}
 
 
 static func name_of(g: int) -> String:

@@ -1534,7 +1534,7 @@ func _draw_wheel(m) -> void:
 		var name_ := UiKit.t("Cancel") if act == -1 else Tuning.act_name(act)
 		## Three lines in the bullrush box (the fall), so it sits higher: at the
 		## old spacing the red line's descenders ran into the frame.
-		var three := act == Tuning.Act.BULLRUSH and Tuning.br_fall > 0.0
+		var three := act == Tuning.Act.BULLRUSH and sim.br_fall > 0.0
 		var y0 := 16.0 if three else 19.0
 		UiKit.raw(self, font, r.position + Vector2(0, y0), name_,
 			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 15, COL_INK if act != -1 else COL_DIM)

@@ -280,6 +280,20 @@ var passes_grabbed: int = 0
 var sent_contacts: int = 0
 ## The share of a full blow the HIT being resolved lands (the free swing's).
 var _hit_mult: float = 1.0
+## THE CONTACT WHEEL'S THREE DIALS FOR THIS BOUT — the grade's (Grade.wheel_for,
+## set by SeasonBouts._dress_sim); a bare sim (probes, tests) takes Tuning's.
+var swing_share: float = Tuning.first_swing_share
+var br_fall: float = Tuning.br_fall
+var pass_grab: float = Tuning.pass_grab
+var pass_trip: float = Tuning.pass_trip
+
+
+## Hand the sim a grade's wheel dials ({"swing", "fall", "pass"}).
+func set_wheel(w: Dictionary) -> void:
+	swing_share = float(w.get("swing", swing_share))
+	br_fall = float(w.get("fall", br_fall))
+	pass_grab = float(w.get("pass", pass_grab))
+	pass_trip = pass_grab
 var passes_tripped: int = 0
 var flank_blows: int = 0
 var front_blows: int = 0
@@ -1235,7 +1249,7 @@ func _step_closing(m: Man) -> void:
 			m.tank = maxf(0.0, m.tank - Tuning.sprint_gas * m.eff_tank() * Tuning.TICK)
 		## RUNNING PAST A FREE MAN (Pete: "Blood Bowl rules where that opponent,
 		## if free, can try to grab or try to trip you at a percentage").
-		if m.under_orders() and (Tuning.pass_grab > 0.0 or Tuning.pass_trip > 0.0):
+		if m.under_orders() and (pass_grab > 0.0 or pass_trip > 0.0):
 			if _pass_by(m):
 				return
 
@@ -1269,10 +1283,10 @@ func _step_closing(m: Man) -> void:
 					and men[tgt.target].team == m.team:
 				tgt.grip_t = Tuning.MATE_GRIP_T
 				tgt.grip_team = m.team
-			if Tuning.first_swing:
+			if swing_share > 0.0:
 				var cd := m.hit_cd
 				m.hit_cd = 0.0
-				_hit_mult = Tuning.first_swing_share
+				_hit_mult = swing_share
 				_resolve(m, Tuning.Act.HIT, tgt.idx)
 				_hit_mult = 1.0
 				## No double blow: a chosen Hit waits out the swing's cooldown
@@ -1657,15 +1671,15 @@ func _pass_by(m: Man) -> bool:
 func pass_odds(m: Man, e: Man) -> Dictionary:
 	var edge := clampf((e.eff_skill() - m.eff_skill()) * 0.006, -0.12, 0.12)
 	var run := m.under_orders() and m.order.sprint
-	var grab := clampf((Tuning.pass_grab + edge) * (0.7 if run else 1.0), 0.0, 0.8)
-	var trip := clampf((Tuning.pass_trip + edge) * (1.4 if run else 1.0), 0.0, 0.8)
+	var grab := clampf((pass_grab + edge) * (0.7 if run else 1.0), 0.0, 0.8)
+	var trip := clampf((pass_trip + edge) * (1.4 if run else 1.0), 0.0, 0.8)
 	return {"grab": grab, "trip": trip}
 
 
 ## HOW OFTEN A FAILED BULLRUSH PUTS THE MAN WHO THREW IT DOWN — more when he is
 ## already rocking, and when he threw himself at someone heavier.
 func bullrush_fall_chance(a: Man, d: Man) -> float:
-	var c := Tuning.br_fall
+	var c := br_fall
 	c += (1.0 - a.stability) * 0.25
 	c += clampf(float(d.card.weight - a.card.weight) * 0.004, -0.10, 0.15)
 	return clampf(c, 0.0, 0.6)
@@ -1684,14 +1698,14 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 	## the odds after it — otherwise the wheel undersells every choice on it.
 	var t_stab := t.stability
 	var swing := 0.0
-	if Tuning.first_swing and m.under_orders() and not m.order.from_play:
-		swing = minf(_hit_amount(m, t) * Tuning.first_swing_share, t.stability)
+	if swing_share > 0.0 and m.under_orders() and not m.order.from_play:
+		swing = minf(_hit_amount(m, t) * swing_share, t.stability)
 		t.stability -= swing
 	match act:
 		Tuning.Act.BULLRUSH:
 			var p := _bullrush_chance(m, t)
 			out["p"] = p
-			out["fall"] = (1.0 - p) * (bullrush_fall_chance(m, t) if Tuning.br_fall > 0.0 else 0.0)
+			out["fall"] = (1.0 - p) * (bullrush_fall_chance(m, t) if br_fall > 0.0 else 0.0)
 		Tuning.Act.TAKEDOWN:
 			out["p"] = _takedown_chance(m, t, t.state == State.GRAPPLED and t.target != m.idx)
 		Tuning.Act.HIT:
@@ -1782,7 +1796,7 @@ func _resolve(m: Man, act: int, target: int) -> void:
 				## far more often than a thumb does, so a fall on everyone's lowered
 				## hands-off play 5 points and brought takedown spam back. The
 				## wheel is where the risk is shown, so the wheel is where it lives.
-				if Tuning.br_fall > 0.0 and m.acting_for_player \
+				if br_fall > 0.0 and m.acting_for_player \
 						and rng.randf() < bullrush_fall_chance(m, t):
 					_put_down(m, t)
 

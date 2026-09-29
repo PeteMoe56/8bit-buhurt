@@ -407,20 +407,23 @@ func _grade_controls() -> void:
 		var x1 := UiKit.right_edge() - 18.0 - 2.0 * DIAL_BTN.x - 6.0
 		for k in DIAL_ROWS.size():
 			var key: String = DIAL_ROWS[k]
-			var y := _dial_y(k) - 18.0
+			var y := _dial_y(k) - 17.0
 			ui.add_child(UiKit.button("-", Vector2(x1, y), DIAL_BTN, func(): _dial(key, -1)))
 			ui.add_child(UiKit.button("+", Vector2(x1 + DIAL_BTN.x + 6.0, y), DIAL_BTN,
 				func(): _dial(key, 1)))
 
 
 ## The rows the read-out prints, in order; the dials follow the same list.
-const DIAL_ROWS: Array[String] = ["scale", "pauses", "corner", "bills", "ceiling"]
-const DIAL_BTN := Vector2(40.0, 24.0)
-const DIAL_ROW_H := 30.0
+## The last three are the contact wheel's (29 Sep 2026), under a rule line.
+const DIAL_ROWS: Array[String] = ["scale", "pauses", "corner", "bills", "ceiling",
+	"swing", "fall", "pass"]
+const DIAL_FIGHT_FROM := 5
+const DIAL_BTN := Vector2(40.0, 22.0)
+const DIAL_ROW_H := 25.0
 
 
 func _dial_y(k: int) -> float:
-	return GRADE_Y + 108.0 + float(k) * DIAL_ROW_H
+	return GRADE_Y + 90.0 + float(k) * DIAL_ROW_H + (8.0 if k >= DIAL_FIGHT_FROM else 0.0)
 
 
 func _dial(key: String, dir: int) -> void:
@@ -475,17 +478,31 @@ func _draw_grade() -> void:
 		[UiKit.t("Every club at its division's top"), UiKit.t("yes") if ceiling else UiKit.t("no"),
 			UiKit.DOWN if ceiling else UiKit.INK],
 	]
+	## THE CONTACT WHEEL (29 Sep 2026). Greener is kinder to you, as above.
+	var w := Grade.wheel_for(g, season.matched_step, cg)
+	var sw := float(w["swing"])
+	var fa := float(w["fall"])
+	var pa := float(w["pass"])
+	rows.append([UiKit.t("Free swing on arrival"),
+		UiKit.t("off") if sw <= 0.0 else "%d%%" % int(round(sw * 100.0)),
+		UiKit.UP if sw > 0.5 else (UiKit.DOWN if sw < 0.5 else UiKit.INK)])
+	rows.append([UiKit.t("Missed bullrush, he falls"), "%d%%" % int(round(fa * 100.0)),
+		UiKit.DOWN if fa > 0.2 else (UiKit.UP if fa < 0.2 else UiKit.INK)])
+	rows.append([UiKit.t("Grabbed or tripped passing"), "%d%%" % int(round(pa * 100.0)),
+		UiKit.DOWN if pa > 0.12 else (UiKit.UP if pa < 0.12 else UiKit.INK)])
 	for k in rows.size():
 		var y := _dial_y(k)
 		UiKit.text(self, font, rows[k][0], Vector2(ix, y), 13, UiKit.DIM)
 		UiKit.text(self, font, rows[k][1], Vector2(ix + 300.0, y), 16, rows[k][2])
+	var ry := _dial_y(DIAL_FIGHT_FROM) - 19.0
+	draw_line(Vector2(ix, ry), Vector2(ix + iw, ry), UiKit.EDGE, 1.0)
 
 	## THE FOOTER SAYS THE TWO THINGS A PLAYER NEEDS AND THE HEADER SAID NEITHER.
 	## Two lines of preamble used to sit at y 108, under a tab strip that runs to
 	## 110 with its drop — text drawn behind a button, which is the exact fault
 	## the layout sweep exists to catch and which a comment at the top of a screen
 	## is always the first to commit.
-	UiKit.text(self, font, UiKit.t("It is saved with the club, not with the settings, and you can change it later."), Vector2(STAT_X, 408.0), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("It is saved with the club, not with the settings, and you can change it later."), Vector2(STAT_X, 452.0), 13, UiKit.DIM)
 
 
 func _save_club() -> void:

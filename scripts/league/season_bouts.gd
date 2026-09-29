@@ -36,6 +36,7 @@ static func _dress_sim(s: Season, sim: MeleeSim, opp_id: int, kind: int, dist: f
 	sim.venue = kind
 	sim.miles = dist
 	sim.corner_time = Grade.corner_time(s.grade, s.custom_grade)
+	sim.set_wheel(Grade.wheel_for(s.grade, s.matched_step, s.custom_grade))
 	## ASKED OF THE SEASON, not read off `Session.bout_mood` (29 Sep 2026). The
 	## screen sets that static AFTER `begin_cup_bout` returns, so every fought
 	## cup tie ran with the previous bout's mood (never a big occasion) and the
