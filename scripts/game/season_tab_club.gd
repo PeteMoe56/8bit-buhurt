@@ -535,10 +535,10 @@ static func _fixture(v: SeasonScene) -> void:
 		## it." is 430 pixels at 14px against a 436-pixel panel, and the first
 		## render lost the last two words — copy the game wrote itself is not
 		## allowed to lose its tail.
-		UiKit.text(v, v.font, UiKit.fit_px(v.font,
+		UiKit.text_fit(v, v.font,
 			UiKit.t("Finished %s. The place is yours if you want it.")
-				% UiKit.ordinal(v.season.position()), 13, SeasonScene.fixture_w() - 40.0),
-			Vector2(44, y + 80), 13, UiKit.DIM)
+				% UiKit.ordinal(v.season.position()),
+			Vector2(44, y + 80), 13, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
 		UiKit.pair(v, v.font,
 			"%s costs %d a season" % [String(t["to"]), int(t["dues_up"])],
 			"you have %d" % int(t["in_hand"]),

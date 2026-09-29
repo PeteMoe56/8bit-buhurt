@@ -148,7 +148,7 @@ func _fighter_controls() -> void:
 	name_edit.position = Vector2(STAT_X, 116)
 	name_edit.size = Vector2(280, 32)
 	name_edit.max_length = 20
-	name_edit.placeholder_text = "His name"
+	name_edit.placeholder_text = UiKit.t("His name")
 	name_edit.text = card.display_name
 	## The card is the working copy of the new man, so typing goes straight on it.
 	name_edit.text_changed.connect(func(t: String): card.display_name = t)
@@ -276,7 +276,7 @@ func _club_controls() -> void:
 	club_name_edit.position = Vector2(STAT_X, 150)
 	club_name_edit.size = Vector2(380, 36)
 	club_name_edit.max_length = 30
-	club_name_edit.placeholder_text = "Club name"
+	club_name_edit.placeholder_text = UiKit.t("Club name")
 	club_name_edit.text = draft_club_name if draft_club_name != null else season.club.display_name
 	club_name_edit.text_changed.connect(func(t: String): draft_club_name = t)
 	ui.add_child(club_name_edit)
@@ -526,7 +526,8 @@ func _draw_fighter() -> void:
 
 	for i in STATS.size():
 		var y := STAT_Y + float(i) * STAT_ROW
-		UiKit.text(self, font, UiKit.t(STAT_LABEL[i]), Vector2(STAT_X, y + 24), 16, UiKit.INK)
+		UiKit.text_fit(self, font, UiKit.t(STAT_LABEL[i]), Vector2(STAT_X, y + 24), 16, UiKit.INK,
+			SLIDER_X - STAT_X - 6.0)
 		UiKit.text(self, font, str(int(card.get(STATS[i]))),
 			Vector2(SLIDER_X + SLIDER_W + 14, y + 24), 16, UiKit.YOU)
 		UiKit.text(self, font, UiKit.t(STAT_BLURB[i]), Vector2(STAT_X, y + 42), 12, UiKit.DIM)
@@ -580,7 +581,9 @@ func _draw_club() -> void:
 
 	UiKit.text(self, font, UiKit.t("One club per save. The colors are free; the marks are not."),
 		Vector2(STAT_X, 126), 14, UiKit.DIM)
-	UiKit.text(self, font, UiKit.t("Name"), Vector2(STAT_X + 390, 176), 13, UiKit.EDGE)
+	## Beside the name field and short of the mark shelf's first button.
+	UiKit.text_fit(self, font, UiKit.t("Name"), Vector2(STAT_X + 390, 176), 13, UiKit.EDGE,
+		BANK_X - (STAT_X + 390) - 6.0)
 	UiKit.text(self, font, UiKit.t("Short"), Vector2(STAT_X + 130, 226), 13, UiKit.EDGE)
 	UiKit.text(self, font, UiKit.t("HOME TOWN"), Vector2(STAT_X, TOWN_Y - 12.0), 11, UiKit.DIM)
 	UiKit.text(self, font, Cities.full_name(season.city()),

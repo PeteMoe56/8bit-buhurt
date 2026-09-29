@@ -291,9 +291,9 @@ static func _draw_office(v: SeasonScene) -> void:
 		## at NAV_X — so it printed through "ON THE LIST" in the right column,
 		## which is text over text and therefore invisible to every check in the
 		## suite. A screenshot saw it.
-		UiKit.text(v, v.font, UiKit.fit_px(v.font,
-			UiKit.t(String(ClubOffice.FACILITIES[f]["blurb"])), 13, SeasonScene.NAV_X - SeasonScene.BAR_X - 16.0),
-			Vector2(SeasonScene.BAR_X, y + 54), 13, UiKit.DIM)
+		UiKit.text_fit(v, v.font, UiKit.t(String(ClubOffice.FACILITIES[f]["blurb"])),
+			Vector2(SeasonScene.BAR_X, y + 54), 13, UiKit.DIM,
+			SeasonScene.NAV_X - SeasonScene.BAR_X - 16.0)
 
 	# ------------------------------------------------------------ the captains
 	## THE CAPTAIN CARDS USED TO BE DRAWN HERE TOO, in full, with their own hire
@@ -373,7 +373,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		## button. The staff room says all of this at length and is one tap away.
 		var names := ""
 		for r in bare:
-			names += ("" if names == "" else " and ") + UiKit.t(String(Tuning.ROLE_NAME[r]))
-		UiKit.text(v, v.font, UiKit.fit_px(v.font,
-			UiKit.t("%s untaught — see the staff room.") % names,
-			13, UiKit.right_edge() - SeasonScene.NAV_X), Vector2(SeasonScene.NAV_X, y + 20), 13, UiKit.DOWN)
+			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
+		UiKit.text_fit(v, v.font, UiKit.t("%s untaught — see the staff room.") % names,
+			Vector2(SeasonScene.NAV_X, y + 20), 13, UiKit.DOWN,
+			UiKit.right_edge() - SeasonScene.NAV_X)

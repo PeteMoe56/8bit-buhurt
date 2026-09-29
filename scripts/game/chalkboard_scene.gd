@@ -191,7 +191,7 @@ func _rebuild() -> void:
 		name_edit.position = Vector2(BOARD.position.x, 48)
 		name_edit.size = Vector2(300, 34)
 		name_edit.max_length = 18
-		name_edit.placeholder_text = "Name it"
+		name_edit.placeholder_text = UiKit.t("Name it")
 		name_edit.text = draft_name if draft_name != null else _current_name()
 		name_edit.text_changed.connect(func(t: String): draft_name = t)
 		ui.add_child(name_edit)

@@ -148,10 +148,10 @@ func _members(o: ClubOffice) -> void:
 	## Two pixels over the panel's right edge at the old three-pixel slop, so it
 	## passed; at one pixel it does not, and two pixels of a dim line hanging off
 	## a frame is still a line hanging off a frame.
-	UiKit.text(self, font, UiKit.t("They stay for a good room, a full bus, a good year."),
-		Vector2(R_X + 16, y), 12, UiKit.EDGE.lightened(0.5))
-	UiKit.text(self, font, UiKit.t("They do not care about your paperwork."),
-		Vector2(R_X + 16, y + 18.0), 12, UiKit.EDGE.lightened(0.5))
+	UiKit.text_fit(self, font, UiKit.t("They stay for a good room, a full bus, a good year."),
+		Vector2(R_X + 16, y), 12, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
+	UiKit.text_fit(self, font, UiKit.t("They do not care about your paperwork."),
+		Vector2(R_X + 16, y + 18.0), 12, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
 
 	var bench_full: bool = season.club.active_eight().size() >= o.travel_slots
 	## THE TWO THE CLUB CAN SEE RIGHT NOW. The third thing members watch — how the

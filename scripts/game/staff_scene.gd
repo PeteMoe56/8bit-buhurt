@@ -65,16 +65,28 @@ func _build() -> void:
 			## The three of them come to 192 in a 204-pixel row, which is why
 			## this fits at all — and `test_layout.gd` is what will say so when a
 			## fourth regime or a longer word makes it stop fitting.
-			var made: Array[Button] = []
+			##
+			## AND WHEN THE WORDS DO NOT FIT (29 Sep 2026) — Russian Тяжёлый /
+			## Обычный / Лёгкий come to 250 in the same 204 — the row is shared in
+			## proportion to them and each button steps its type down to fit
+			## (`UiKit.button`), instead of the row running off its card.
+			var words: Array[String] = []
+			var want: Array[float] = []
+			var total := 0.0
 			for k in 3:
-				var bb := UiKit.button(UiKit.t(String(ClubOffice.REGIME_NAME[k])), Vector2.ZERO,
-					Vector2(40, 36), _set_regime.bind(i, k))
-				made.append(bb)
-				ui.add_child(bb)
+				words.append(UiKit.t(String(ClubOffice.REGIME_NAME[k])))
+				var w := UiKit.body().get_string_size(words[k], HORIZONTAL_ALIGNMENT_LEFT,
+					-1.0, UiKit.GRID * 2).x + UiKit.FRAME_PX * 2.0 + 4.0 + UiKit.DROP_PX
+				want.append(w)
+				total += w
+			var gaps := 8.0
+			var scale := minf(1.0, (CARD_W - gaps) / total)
 			var bx := x
-			for bb in made:
-				bb.position = Vector2(bx, CUR_Y + CARD_H + 8.0)
-				bx += bb.size.x + UiKit.DROP_PX + 4.0
+			for k in 3:
+				var bw := floorf(want[k] * scale)
+				ui.add_child(UiKit.button(words[k], Vector2(bx, CUR_Y + CARD_H + 8.0),
+					Vector2(bw, 36), _set_regime.bind(i, k)))
+				bx += bw + 4.0
 			## KEEP HIM, or let the deal run out. Two controls where there was one,
 			## because a captain you cannot re-sign is a captain you are only ever
 			## losing.
@@ -202,7 +214,8 @@ func _draw() -> void:
 			UiKit.text(self, font, UiKit.t("NO CAPTAIN"), r.position + Vector2(14, 34), 13, UiKit.DOWN)
 			var off := _offer(i)
 			UiKit.text(self, font, String(off["name"]), r.position + Vector2(14, 66), 17, UiKit.INK)
-			UiKit.text(self, font, _roles_of(off), r.position + Vector2(14, 88), 12, UiKit.DIM)
+			UiKit.text_fit(self, font, _roles_of(off), r.position + Vector2(14, 88), 12, UiKit.DIM,
+				r.size.x - 28.0)
 			UiKit.stars(self, r.position + Vector2(14, 98), int(off["grade"]) * 20,
 				UiKit.YOU, 11.0, 3.0)
 
@@ -270,7 +283,10 @@ func _what_it_costs() -> void:
 	var cols := ["", UiKit.t("TRAINING"), UiKit.t("MORALE"), UiKit.t("ARMOR"), UiKit.t("KNOCKS")]
 	var xs := [16.0, 140.0, 226.0, 306.0, 386.0]
 	for i in cols.size():
-		UiKit.text(self, font, cols[i], Vector2(OFFER_X + xs[i], CUR_Y + 54), 10, UiKit.EDGE.lightened(0.5))
+		## Each heading has its column's room; the last runs to the panel's edge.
+		var room: float = (xs[i + 1] - 6.0 if i + 1 < xs.size() else 440.0 - 8.0) - xs[i]
+		UiKit.text_fit(self, font, cols[i], Vector2(OFFER_X + xs[i], CUR_Y + 54), 10,
+			UiKit.EDGE.lightened(0.5), room)
 	var rows := [
 		{"r": ClubOffice.Regime.LIGHT, "t": "×0.6", "m": "+", "a": "+", "k": UiKit.t("rare")},
 		{"r": ClubOffice.Regime.NORMAL, "t": "×1.0", "m": "—", "a": "—", "k": UiKit.t("some")},
@@ -284,15 +300,16 @@ func _what_it_costs() -> void:
 		UiKit.text(self, font, String(row["t"]), Vector2(OFFER_X + xs[1], y), 13, UiKit.INK)
 		UiKit.text(self, font, String(row["m"]), Vector2(OFFER_X + xs[2], y), 13, UiKit.INK)
 		UiKit.text(self, font, String(row["a"]), Vector2(OFFER_X + xs[3], y), 13, UiKit.INK)
-		UiKit.text(self, font, String(row["k"]), Vector2(OFFER_X + xs[4], y), 13,
-			UiKit.DOWN if int(row["r"]) == ClubOffice.Regime.HARD else UiKit.DIM)
+		UiKit.text_fit(self, font, String(row["k"]), Vector2(OFFER_X + xs[4], y), 13,
+			UiKit.DOWN if int(row["r"]) == ClubOffice.Regime.HARD else UiKit.DIM,
+			440.0 - 8.0 - xs[4])
 		y += 30.0
 	## THE SHOUT MOVED INTO THE SENTENCE. The cell said "FIVE TIMES" and in the
 	## real face that column ran to x 971 of a 960 frame — and it was the only
 	## cell in the table not written as a multiplier anyway. The row reads ×5 like
 	## every other figure on it; the line under it is where the shouting belongs.
-	UiKit.text(self, font, UiKit.t("Hard is not a bit riskier than Normal. It is FIVE TIMES."),
-		Vector2(OFFER_X + 16, y + 8), 11, UiKit.EDGE.lightened(0.5))
+	UiKit.text_fit(self, font, UiKit.t("Hard is not a bit riskier than Normal. It is FIVE TIMES."),
+		Vector2(OFFER_X + 16, y + 8), 11, UiKit.EDGE.lightened(0.5), 440.0 - 32.0)
 
 
 ## WHICH OF THE THREE JOBS NOBODY IS TEACHING, and which one the club is known

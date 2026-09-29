@@ -515,8 +515,12 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 		## market needs it: a card that colors the FEE by whether you can pay it
 		## and leaves the WAGE plain lies about half its refusals, which is a
 		## sentence already written on that screen about this exact card.
-		text(ci, font, String(d["note"]), Vector2(r.position.x + 8, y + 70.0), 12,
-			d.get("note_col", DIM))
+		## Its own width, less the right note's box when that shares the line.
+		var nw := r.size.x - 16.0
+		if big and d.has("right_note") and not bool(d.get("right_note_up", false)):
+			nw -= 90.0
+		text_fit(ci, font, String(d["note"]), Vector2(r.position.x + 8, y + 70.0), 12,
+			d.get("note_col", DIM), nw)
 	if big and d.has("right_note"):
 		## `right_note_up` puts it on the star row, whose right side is empty: the
 		## market's ceiling range ("to 55-61") ran into the age and wage on the
@@ -751,8 +755,65 @@ static func text(ci: CanvasItem, font: Font, s: String, at: Vector2,
 	ci.draw_string(font, at, s, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
 
 
+## ONE LINE, MADE TO FIT ITS ROOM (29 Sep 2026). `text()` with a width: our
+## copy at its size if it fits (English always has), else the type steps down
+## as far as FIT_STEP pixels, and only then is the line cut — through `fit_px`,
+## so a cut is still recorded and `test_ink.gd` still fails on it. The French
+## and German drafts ran sixteen fixed one-liners off their panels.
+const FIT_STEP := 3
+const FIT_MIN_PX := 9
+
+static func fit_size(font: Font, s: String, size: int, width: float) -> int:
+	var px := size
+	var floor_px := maxi(size - FIT_STEP, FIT_MIN_PX)
+	while px > floor_px and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT,
+			-1.0, px).x > width:
+		px -= 1
+	return px
+
+
+static func text_fit(ci: CanvasItem, font: Font, s: String, at: Vector2,
+		size: int, col: Color, width: float) -> void:
+	var px := fit_size(font, s, size, width)
+	text(ci, font, fit_px(font, s, px, width), at, px, col)
+
+
+static func right_fit(ci: CanvasItem, font: Font, s: String, at: Vector2,
+		size: int, col: Color, width: float) -> void:
+	right(ci, font, s, at, size, col, width)
+
+
+## A SENTENCE OVER UP TO `lines` LINES, wrapped to `width` — for copy that was
+## written as two hand-split keys ("A new club starts in the" / "Backyard
+## Circuit."), which no other language can translate half by half. Too long
+## for its lines at full size, it steps the type down like `text_fit`; still
+## too long, the last line is cut and recorded. Returns the lines drawn.
+static func para(ci: CanvasItem, font: Font, s: String, at: Vector2, size: int,
+		col: Color, width: float, line_h: float, lines: int = 2) -> int:
+	var px := size
+	var floor_px := maxi(size - FIT_STEP, FIT_MIN_PX)
+	var ls := UiKit.wrap(font, s, width, px)
+	while ls.size() > lines and px > floor_px:
+		px -= 1
+		ls = UiKit.wrap(font, s, width, px)
+	if ls.size() > lines:
+		var rest := " ".join(ls.slice(lines - 1))
+		ls = ls.slice(0, lines - 1)
+		ls.append(rest)
+	for i in ls.size():
+		text(ci, font, fit_px(font, ls[i], px, width), at + Vector2(0, line_h * i), px, col)
+	return ls.size()
+
+
 static func right(ci: CanvasItem, font: Font, s: String, at: Vector2,
 		size: int, col: Color, width: float) -> void:
+	## A BOX IS A PROMISE (29 Sep 2026). Godot clips a string wider than its
+	## box without a word, so "Backyard Circuit limita um lutador c" went out
+	## in Portuguese and no check could see it. Too wide, it steps down and is
+	## cut through `fit_px`, which records it. English has always fit.
+	if width > 0.0 and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size).x > width:
+		size = fit_size(font, s, size, width)
+		s = fit_px(font, s, size, width)
 	_note(font, s, at - Vector2(width, 0), size, HORIZONTAL_ALIGNMENT_RIGHT, width)
 	ci.draw_string(font, at - Vector2(width, 0), s, HORIZONTAL_ALIGNMENT_RIGHT,
 		width, size, col)
@@ -836,14 +897,16 @@ static func pair(ci: CanvasItem, font: Font, label: String, note: String,
 	var room := right_x - (at.x + used + gap)
 	if room <= 0.0:
 		return
-	right(ci, font, fit_px(font, note, note_px, room), Vector2(right_x, at.y),
-		note_px, note_col, room)
+	right_fit(ci, font, note, Vector2(right_x, at.y), note_px, note_col, room)
 
 
 ## Centerd in a box that starts at `at` and runs `width` wide — for a caption
 ## under a button, which is the only thing in the game that wants it.
 static func mid(ci: CanvasItem, font: Font, s: String, at: Vector2,
 		size: int, col: Color, width: float) -> void:
+	if width > 0.0 and font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, size).x > width:
+		size = fit_size(font, s, size, width)
+		s = fit_px(font, s, size, width)
 	_note(font, s, at, size, HORIZONTAL_ALIGNMENT_CENTER, width)
 	ci.draw_string(font, at, s, HORIZONTAL_ALIGNMENT_CENTER, width, size, col)
 
@@ -917,6 +980,8 @@ const FRAME_LIFT := 0.34
 ## How far a button's contents sit inside its own frame. One number, because the
 ## day it looks wrong it should look wrong everywhere at once.
 const ICON_PAD := 10.0
+## The smallest a button's label is drawn before it is allowed to push.
+const BUTTON_MIN_PX := 10
 
 
 ## AN UNFILLED PANEL IS NOT AN OBJECT. `filled = false` is asked for by the
@@ -997,6 +1062,24 @@ static func button(text_: String, at: Vector2, size: Vector2, on_press: Callable
 	if mark != "" and UiIcons.has(mark):
 		need += float(UiIcons.GRID) + 10.0
 	skin(b, clampf((room - need) * 0.5, 2.0, ICON_PAD))
+	## THEN THE TYPE GIVES WAY (29 Sep 2026). A Godot button grows to fit its
+	## label, so a French "Candidature tournoi" pushed 20 px into the button
+	## beside it. Past the smallest inset the label steps down a pixel at a time,
+	## to BUTTON_MIN_PX, rather than moving the button's edge.
+	if need > room - 4.0:
+		var extra := need - body().get_string_size(text_, HORIZONTAL_ALIGNMENT_LEFT,
+			-1.0, GRID * 2).x
+		var px := GRID * 2
+		while px > BUTTON_MIN_PX and body().get_string_size(text_,
+				HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x + extra > room - 4.0:
+			px -= 1
+		b.add_theme_font_size_override("font_size", px)
+	## A Control grows to its contents but never shrinks back, and before it is
+	## in the tree it measures its label in the default theme, not the one it
+	## will draw in (a Japanese ノーマル asked 62 and was sized 74). Put it back
+	## to the rect it was asked for once it is in the tree — deferred, because an
+	## immediate reset is clamped to that stale minimum.
+	b.set_deferred("size", inner)
 	## EVERY BUTTON IN THE GAME TICKS, from one line. Wiring a tap sound at each
 	## call site would mean finding all of them, and then finding the one that
 	## got added last week — the same "a rule enforced at one call site is a rule
@@ -1578,12 +1661,24 @@ static func wrap(font: Font, s: String, width: float, px: int) -> Array[String]:
 	var line := ""
 	for w in s.split(" "):
 		var t: String = w if line == "" else line + " " + w
-		if line != "" and font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT,
-				-1.0, px).x > width:
-			out.append(line)
-			line = w
-		else:
+		if font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x <= width:
 			line = t
+			continue
+		if line != "":
+			out.append(line)
+			line = ""
+		## A "WORD" WIDER THAN THE LINE (29 Sep 2026). Japanese writes a whole
+		## sentence without a space, so splitting on spaces handed the drawer
+		## one unbreakable word and it ran off the panel. It breaks between
+		## characters instead — which is also where Japanese breaks.
+		for ch in w:
+			var t2: String = line + ch
+			if line != "" and font.get_string_size(t2, HORIZONTAL_ALIGNMENT_LEFT,
+					-1.0, px).x > width:
+				out.append(line)
+				line = ch
+			else:
+				line = t2
 	if line != "":
 		out.append(line)
 	return out

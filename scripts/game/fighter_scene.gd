@@ -814,11 +814,11 @@ func _attributes() -> void:
 	## under the last stat's caption. There is exactly one line of room at the
 	## bottom of this panel, so it is one line, on the baseline the contented
 	## version already proved clear.
-	UiKit.text(self, font,
+	UiKit.text_fit(self, font,
 		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
 			else UiKit.t("His ceiling is the overall, not one stat."),
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 11,
-		man.morale_color() if man.angry() else UiKit.EDGE.lightened(0.4))
+		man.morale_color() if man.angry() else UiKit.EDGE.lightened(0.4), COL_W - 32.0)
 
 
 # ------------------------------------------------------------------- column 3
@@ -826,12 +826,10 @@ func _the_book() -> void:
 	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
 	UiKit.text(self, font, UiKit.t("HIS RECORD"), Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	if man.bouts <= 0:
-		UiKit.text(self, font, UiKit.t("He has not fought for you yet."),
-			Vector2(R_X + 16, COL_Y + 64), 13, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("Downs, assists and knocks are"),
-			Vector2(R_X + 16, COL_Y + 92), 12, UiKit.EDGE.lightened(0.5))
-		UiKit.text(self, font, UiKit.t("kept from his first event on."),
-			Vector2(R_X + 16, COL_Y + 110), 12, UiKit.EDGE.lightened(0.5))
+		UiKit.text_fit(self, font, UiKit.t("He has not fought for you yet."),
+			Vector2(R_X + 16, COL_Y + 64), 13, UiKit.DIM, COL_W - 32.0)
+		UiKit.para(self, font, UiKit.t("Downs, assists and knocks are kept from his first event on."),
+			Vector2(R_X + 16, COL_Y + 92), 12, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 18.0)
 		return
 	var y := COL_Y + 56.0
 	_book("Events", "%d" % man.bouts, y); y += 26.0

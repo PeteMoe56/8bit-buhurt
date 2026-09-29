@@ -152,6 +152,54 @@ if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ]; then
   fi
 fi
 
+## THE LANGUAGE SWEEP (29 Sep 2026) — the drawn text and the controls in every
+## draft language, at 960 wide, the narrowest shape a phone hands us. English
+## fit every box because English is what the boxes were measured on; the French
+## and German drafts ran 60 strings off panels, out of columns and under
+## buttons. Run in parallel (each is a separate engine) and judged exactly as
+## run_one judges. RB_LOCALE pins the file; see test_ink / test_layout.
+if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ]; then
+  echo "=== language sweep @960x540"
+  if command -v xvfb-run >/dev/null 2>&1; then
+    locs=(es fr de it pt_BR pl ru ja)
+    pids=()
+    n=0
+    for loc in "${locs[@]}"; do
+      for t in test_ink test_layout; do
+        n=$((n+1))
+        ## test_layout measures nodes and runs headless, as it does in the main
+        ## pass. test_ink needs a display — its own number each, because two
+        ## `xvfb-run -a` started together can pick the same one and one dies.
+        if [ "$t" = test_layout ]; then
+          runner=("$G" --headless)
+        else
+          runner=(xvfb-run -n $((140 + n)) -s "-screen 0 960x540x24" "$G" --audio-driver Dummy --resolution 960x540)
+        fi
+        ( RB_LOCALE="$loc" RB_TIER=fast timeout 900 "${runner[@]}" --path . --script "res://tests/$t.gd" \
+            >"$LOGS/$t@$loc.fast.log" 2>&1; echo $? >"$LOGS/$t@$loc.rc" ) &
+        pids+=($!)
+      done
+    done
+    start=$SECONDS
+    wait "${pids[@]}"
+    for loc in "${locs[@]}"; do
+      for t in test_ink test_layout; do
+        log="$LOGS/$t@$loc.fast.log"; rc="$(cat "$LOGS/$t@$loc.rc")"; rm -f "$LOGS/$t@$loc.rc"
+        ran=$((ran+1))
+        if why="$(judge "$log" "$rc")"; then
+          printf "  ok   %-34s %4ss  %s\n" "$t @$loc" "$((SECONDS-start))" "$(grep -oE 'HOLDS? \([0-9]+ checks\)' "$log" | tail -1)"
+        else
+          printf "  FAIL %-34s %4ss  %s\n" "$t @$loc" "$((SECONDS-start))" "$why"
+          grep -E '^FAIL' "$log" | head -8 | sed 's/^/         /'
+          fails=$((fails+1)); failed_names+=("$t@$loc")
+        fi
+      done
+    done
+  else
+    echo "  FAIL language sweep: no xvfb-run on this machine"; fails=$((fails+1)); failed_names+=("language-sweep")
+  fi
+fi
+
 echo ""
 if [ "$fails" -eq 0 ]; then echo "SUITE GREEN — $ran runs ($TIER)   logs: $LOGS/"; exit 0; fi
 echo "SUITE RED — $fails of $ran runs: ${failed_names[*]}   logs: $LOGS/"; exit 1

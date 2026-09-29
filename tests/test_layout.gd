@@ -61,6 +61,14 @@ const GUTTER := 16.0
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the layout ===\n")
+	## RB_LOCALE (29 Sep 2026): the whole file in one language. The suite runs it
+	## once per draft language at 960 wide, the narrowest shape a phone hands us.
+	var pinned := OS.get_environment("RB_LOCALE")
+	if pinned != "":
+		Settings.load_once()
+		Settings.language = pinned
+		TranslationServer.set_locale(pinned)
+		print("   locale: %s\n" % pinned)
 	_test_a_control_occupies_the_rect_it_asked_for()
 	await _test_no_control_overlaps_another()
 	await _test_nothing_leaves_the_screen()
@@ -181,7 +189,7 @@ func _test_every_button_is_wired_to_something() -> void:
 		await process_frame
 	_ok(deaf.is_empty(), "every button on every screen does something",
 		"%d buttons swept, %d listening to nothing: %s" % [
-			seen, deaf.size(), ", ".join(deaf.slice(0, 6))])
+			seen, deaf.size(), ", ".join(deaf.slice(0, _cap(6)))])
 	_ok(seen > 40, "and the sweep actually found buttons",
 		"%d across %d screens" % [seen, SCREENS.size()])
 
@@ -222,7 +230,7 @@ func _test_the_sub_popup_is_not_a_pile() -> void:
 	_ok(outside.is_empty() and not found.is_empty(),
 		"nothing is pressable outside the sub popup while it is open",
 		"%d controls, %d of them loose: %s" % [found.size(), outside.size(),
-			", ".join(outside.slice(0, 5))])
+			", ".join(outside.slice(0, _cap(5)))])
 	## A GAP, NOT AN ABSENCE OF OVERLAP — and this is the whole reason the bug got
 	## out. `Marsh` ended on y 228 and `Never mind` began on y 228: they do not
 	## intersect, by any arithmetic. `Rect2.intersects` is false for rectangles
@@ -246,7 +254,7 @@ func _test_the_sub_popup_is_not_a_pile() -> void:
 				clash.append("%s / %s" % [found[i]["name"], found[j]["name"]])
 	_ok(clash.is_empty(), "and no two of them are closer than the drop shadow",
 		"%d controls, %d too close: %s" % [found.size(), clash.size(),
-			", ".join(clash.slice(0, 4))])
+			", ".join(clash.slice(0, _cap(4)))])
 	n.queue_free()
 	await process_frame
 
@@ -530,7 +538,7 @@ func _test_no_control_overlaps_another() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "no control sits on or against another",
 		"%d controls across %d pages" % [counted, _pages().size()]
-			if bad.is_empty() else "\n        " + "\n        ".join(bad.slice(0, 8)))
+			if bad.is_empty() else "\n        " + "\n        ".join(bad.slice(0, _cap(8))))
 
 
 func _test_nothing_leaves_the_screen() -> void:
@@ -555,7 +563,7 @@ func _test_nothing_leaves_the_screen() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "nothing runs off the edge",
 		"960x540, every control inside it" if bad.is_empty()
-			else "\n        " + "\n        ".join(bad.slice(0, 8)))
+			else "\n        " + "\n        ".join(bad.slice(0, _cap(8))))
 
 
 ## A CONTROL WITH NO SIZE IS A CONTROL NOBODY CAN PRESS, and it looks exactly
@@ -583,7 +591,7 @@ func _test_every_control_can_be_hit() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "every control is big enough to press",
 		"nothing under 24x18" if bad.is_empty()
-			else "\n        " + "\n        ".join(bad.slice(0, 8)))
+			else "\n        " + "\n        ".join(bad.slice(0, _cap(8))))
 
 
 ## THE HALF THIS FILE CANNOT OTHERWISE SEE.
@@ -680,9 +688,9 @@ func _test_the_team_sheet_columns_do_not_touch() -> void:
 				## read as one word, JRJETZT. A heading needs a gap a reader sees.
 				if a.grow_individual(0.0, 0.0, HEAD_GAP, 0.0).intersection(b).size.x > 0.0:
 					clash.append("%s '%s'/'%s'" % [loc, lc[i]["head"], lc[j]["head"]])
-	TranslationServer.set_locale("en")
+	TranslationServer.set_locale(_home_locale())
 	_ok(clash.is_empty(), "and the headings fit in every language",
-		"%d languages" % locales.size() if clash.is_empty() else ", ".join(clash.slice(0, 6)))
+		"%d languages" % locales.size() if clash.is_empty() else ", ".join(clash.slice(0, _cap(6))))
 	s.queue_free()
 	await process_frame
 
@@ -711,7 +719,7 @@ func _test_the_report_headings_fit() -> void:
 			var prev: float = 200.0 if i == 0 else float(col[order[i - 1]])
 			if float(col[order[i]]) - w < prev + HEAD_GAP:
 				bad.append("%s '%s'" % [loc, word])
-	TranslationServer.set_locale("en")
+	TranslationServer.set_locale(_home_locale())
 	_ok(bad.is_empty(), "the fight report's headings fit in every language",
 		"%d languages x 7" % locales.size() if bad.is_empty() else ", ".join(bad))
 	n.queue_free()
@@ -761,7 +769,7 @@ func _test_nothing_stands_on_the_tab_strip() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "nothing stands on the tab strip",
 		"the five tabs and nothing else" if bad.is_empty()
-			else "\n        " + "\n        ".join(bad.slice(0, 6)))
+			else "\n        " + "\n        ".join(bad.slice(0, _cap(6))))
 
 
 ## A BUTTON NARROWER THAN ITS LABEL DOES NOT CLIP — IT GROWS.
@@ -804,7 +812,7 @@ func _test_no_button_is_smaller_than_its_label() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "no button is smaller than what is in it",
 		"%d buttons, every one big enough for its own label" % counted
-			if bad.is_empty() else "\n        " + "\n        ".join(bad.slice(0, 6)))
+			if bad.is_empty() else "\n        " + "\n        ".join(bad.slice(0, _cap(6))))
 
 
 ## THE HOLE IN THE CHECK ABOVE.
@@ -860,4 +868,16 @@ func _test_no_button_clips_its_own_text() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "no button clips its own text",
 		"%d clipping buttons, every line inside its room" % counted
-			if bad.is_empty() else "\n        " + "\n        ".join(bad.slice(0, 6)))
+			if bad.is_empty() else "\n        " + "\n        ".join(bad.slice(0, _cap(6))))
+
+
+## Where the file was pinned (RB_LOCALE), so a check that walks the languages
+## puts it back there rather than in English.
+func _home_locale() -> String:
+	var p := OS.get_environment("RB_LOCALE")
+	return p if p != "" else "en"
+
+
+## RB_FULL=1 lists every failure instead of the first few.
+func _cap(n: int) -> int:
+	return 100000 if OS.get_environment("RB_FULL") != "" else n

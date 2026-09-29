@@ -36,7 +36,9 @@ var found := {}
 var asked := {}
 ## Proper nouns and credits that are the same in every language.
 const ALLOWED := ["8-BIT", "8-Bit Buhurt", "Buhurt Plate", "BUHURT", "English",
-	"HeatleyBros — \"Game On\"", "COACH", "Coach"]
+	"HeatleyBros — \"Game On\"", "COACH", "Coach",
+	## The short-name box's hint is an example of three letters, not a word.
+	"CLB"]
 
 
 func _initialize() -> void:
@@ -161,6 +163,8 @@ func _sweep(path: String, tab: int) -> void:
 		_check(String(d["text"]), label)
 	for b in _buttons(n):
 		_check(String(b.text), label + " (button)")
+	for e in _edits(n):
+		_check(String(e.placeholder_text), label + " (placeholder)")
 	n.queue_free()
 	await process_frame
 
@@ -179,6 +183,9 @@ func _collect(n: Node, label: String) -> void:
 	for b in _buttons(n):
 		if (b as Button).is_visible_in_tree():
 			_check(String(b.text), label + " (button)")
+	## A text box's grey hint is drawn text too — "His name" was.
+	for e in _edits(n):
+		_check(String(e.placeholder_text), label + " (placeholder)")
 	n.queue_free()
 	await process_frame
 
@@ -231,6 +238,15 @@ func _sweep_dilemma(id: String) -> void:
 	await process_frame
 	await _collect(n, "dilemma " + id)
 	world.dilemma = {}
+
+
+func _edits(n: Node) -> Array:
+	var out: Array = []
+	for c in n.get_children():
+		if c is LineEdit:
+			out.append(c)
+		out.append_array(_edits(c))
+	return out
 
 
 func _buttons(n: Node) -> Array:

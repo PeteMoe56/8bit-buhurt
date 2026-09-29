@@ -365,8 +365,8 @@ func _draw() -> void:
 		if info.is_empty():
 			UiKit.text(self, font, UiKit.t("SLOT %d") % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
 			UiKit.text(self, font, UiKit.t("Empty"), Vector2(x + 20, SLOT_Y + 70), 24, UiKit.DIM)
-			UiKit.text(self, font, UiKit.t("A new club starts in the"), Vector2(x + 20, SLOT_Y + 106), 14, UiKit.DIM)
-			UiKit.text(self, font, UiKit.t("Backyard Circuit."), Vector2(x + 20, SLOT_Y + 126), 14, UiKit.DIM)
+			UiKit.para(self, font, UiKit.t("A new club starts in the Backyard Circuit."),
+				Vector2(x + 20, SLOT_Y + 106), 14, UiKit.DIM, SLOT_W - 40.0, 20.0)
 			continue
 		UiKit.text(self, font, UiKit.t("SLOT %d") % (i + 1), Vector2(x + 20, SLOT_Y + 34), 15, UiKit.DIM)
 		## CLIPPED BY PIXELS, into a box that is measured in pixels. It was

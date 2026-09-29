@@ -169,10 +169,10 @@ func _draw() -> void:
 	## fight" — the figure the whole line exists to deliver — was the half that
 	## fell off. The left of this row ends around 370, so the box can have the
 	## room, and `fit_px` records the cut if it ever needs one anyway.
-	UiKit.right(self, font, UiKit.fit_px(font,
+	UiKit.right_fit(self, font,
 		UiKit.t("%s in  ·  %d%% full  ·  %d CC a home fight") % [
 			UiKit.crowd_word(office.attendance()),
-			int(round(office.fill() * 100.0)), office.crowd_pay()], 13, 420.0),
+			int(round(office.fill() * 100.0)), office.crowd_pay()],
 		Vector2(UiKit.right_edge(120.0), 64), 13, UiKit.DIM, 420.0)
 	## THE METER, because a band you cannot see coming is a band you cannot chase.
 	## Retro Bowl's whole fan bar is this: the player watches it fill and knows a
@@ -197,8 +197,8 @@ func _draw() -> void:
 	_draw_ground()
 	## Clipped to its own column. The National Arena's blurb is long enough to
 	## run under the diary and print through the payout line.
-	UiKit.text(self, font, UiKit.clip(UiKit.t(String(arena.here()["blurb"])), 88),
-		Vector2(24, GROUND.end.y + 26), 13, UiKit.DIM)
+	UiKit.text_fit(self, font, UiKit.t(String(arena.here()["blurb"])),
+		Vector2(24, GROUND.end.y + 26), 13, UiKit.DIM, GROUND.size.x)
 	_draw_diary()
 	## THE FLASH MOVED DOWN, because the tidy button now sits at 444 and it used
 	## to print at 448. **A scrim cannot cover a Button — and it goes the other
@@ -332,8 +332,7 @@ func _draw_diary() -> void:
 		else:
 			var err := arena.can_build(office.tier, office.credits)
 			if err != "":
-				UiKit.text(self, font, UiKit.fit_px(font, err, 12, 340.0),
-					Vector2(RIGHT_X, 168), 12, UiKit.DIM)
+				UiKit.text_fit(self, font, err, Vector2(RIGHT_X, 168), 12, UiKit.DIM, 340.0)
 
 	UiKit.text(self, font, UiKit.t("THE DIARY"), Vector2(RIGHT_X, 270), 15, UiKit.INK)
 	if season.bid_open():
@@ -342,7 +341,8 @@ func _draw_diary() -> void:
 		## moves with the ground he has banked into.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
 		var p := season.bid_preview(offer_i % season.bid_offers.size(), budget_i)
-		UiKit.text(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 424), 12, UiKit.DIM)
+		UiKit.text_fit(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 424), 12, UiKit.DIM,
+			UiKit.screen().x - 24.0 - RIGHT_X)
 		## TWO LINES EACH, because both of these ran off the right of the frame in
 		## the real face — 1021 and 976 of a 960 — and both are sentences the
 		## player is meant to read before spending credits on a date. Breaking

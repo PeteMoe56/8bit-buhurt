@@ -82,6 +82,14 @@ static func frame() -> Rect2:
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the ink ===\n")
+	## RB_LOCALE (29 Sep 2026): the whole file in one language. The suite runs it
+	## once per draft language at 960 wide, the narrowest shape a phone hands us.
+	var pinned := OS.get_environment("RB_LOCALE")
+	if pinned != "":
+		Settings.load_once()
+		Settings.language = pinned
+		TranslationServer.set_locale(pinned)
+		print("   locale: %s\n" % pinned)
 	await _test_nothing_is_drawn_off_the_screen()
 	await _test_no_text_lands_on_a_control()
 	await _test_the_ledger_can_fail()
@@ -235,7 +243,7 @@ func _test_nothing_is_drawn_off_the_screen() -> void:
 	notes.append("ink: %d strings across %d pages" % [seen, SCREENS.size()])
 	_ok(bad.is_empty(), "nothing is drawn off the screen",
 		"%d strings measured%s" % [seen,
-			"" if bad.is_empty() else " — " + "; ".join(bad.slice(0, 6))])
+			"" if bad.is_empty() else " — " + "; ".join(bad.slice(0, _cap(6)))])
 
 
 ## TEXT ON A BUTTON IS THE OTHER HALF of the same failure. A label that grows
@@ -304,7 +312,7 @@ func _test_no_text_lands_on_a_control() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "no drawn text lands on a control",
 		"%d text-control pairs checked%s" % [pairs,
-			"" if bad.is_empty() else " — " + "; ".join(bad.slice(0, 6))])
+			"" if bad.is_empty() else " — " + "; ".join(bad.slice(0, _cap(6)))])
 
 
 func _controls(n: Node, out: Array) -> void:
@@ -643,7 +651,7 @@ func _test_no_text_runs_off_its_panel() -> void:
 		% [seen, paired, SCREENS.size()])
 	_ok(over.is_empty(), "no text runs off the panel it is drawn on",
 		"%d strings paired to a panel%s" % [paired,
-			"" if over.is_empty() else " — " + "; ".join(over.slice(0, 8))])
+			"" if over.is_empty() else " — " + "; ".join(over.slice(0, _cap(8)))])
 
 
 ## The smallest panel containing a point, or null. Smallest rather than last,
@@ -782,10 +790,10 @@ func _test_the_fight_screens_hold_their_ink() -> void:
 		% [seen, FIGHT_STATES.size(), pairs])
 	_ok(off.is_empty(), "the fight screens stay inside the frame",
 		"%d strings measured%s" % [seen,
-			"" if off.is_empty() else " — " + "; ".join(off.slice(0, 6))])
+			"" if off.is_empty() else " — " + "; ".join(off.slice(0, _cap(6)))])
 	_ok(over.is_empty(), "and none of their text lands on a control",
 		"%d pairs checked%s" % [pairs,
-			"" if over.is_empty() else " — " + "; ".join(over.slice(0, 6))])
+			"" if over.is_empty() else " — " + "; ".join(over.slice(0, _cap(6)))])
 
 
 ## --------------------------------------------------- copy against its column
@@ -819,7 +827,7 @@ func _test_no_line_we_wrote_loses_its_tail() -> void:
 	notes.append("the copy: %d strings drawn, %d cut short" % [drawn, cut.size()])
 	_ok(cut.is_empty(), "no line the game wrote itself is cut short by its column",
 		"%d screens read%s" % [SCREENS.size(),
-			"" if cut.is_empty() else " — " + "; ".join(cut.slice(0, 6))])
+			"" if cut.is_empty() else " — " + "; ".join(cut.slice(0, _cap(6)))])
 
 	## AND THE CHECK CAN FAIL, which is the thing a check like this most often
 	## cannot. Same shape as `_test_the_ledger_can_fail` above: set up the exact
@@ -833,3 +841,8 @@ func _test_no_line_we_wrote_loses_its_tail() -> void:
 	_ok(caught.size() == 1 and kept.ends_with("."),
 		"and a line that is cut IS recorded, so the check can fail",
 		"cut to '%s', %d recorded" % [kept, caught.size()])
+
+
+## RB_FULL=1 lists every failure instead of the first few.
+func _cap(n: int) -> int:
+	return 100000 if OS.get_environment("RB_FULL") != "" else n

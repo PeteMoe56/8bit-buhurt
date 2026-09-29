@@ -151,10 +151,10 @@ func _standing(c: Coach) -> void:
 	## WHAT IT COSTS TO HAVE A BAD YEAR, said out loud on the screen that owns the
 	## number. Reputation is additive up and multiplicative down, and a player who
 	## does not know that reads a halving as a bug.
-	UiKit.text(self, font, UiKit.t("Win your division and this climbs."),
-		Vector2(L_X + 16, y), 11, UiKit.EDGE.lightened(0.5))
-	UiKit.text(self, font, UiKit.t("Finish outside the top four and it halves."),
-		Vector2(L_X + 16, y + 16), 11, UiKit.DOWN)
+	UiKit.text_fit(self, font, UiKit.t("Win your division and this climbs."),
+		Vector2(L_X + 16, y), 11, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
+	UiKit.text_fit(self, font, UiKit.t("Finish outside the top four and it halves."),
+		Vector2(L_X + 16, y + 16), 11, UiKit.DOWN, COL_W - 32.0)
 
 
 func _the_book(c: Coach) -> void:
@@ -187,10 +187,8 @@ func _offers(c: Coach) -> void:
 	var offers := Jobs.offers(c, season.world)
 	if offers.is_empty():
 		UiKit.text(self, font, UiKit.t("Nobody, yet."), Vector2(R_X + 16, COL_Y + 62), 15, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("Clubs come for a coach who"), Vector2(R_X + 16, COL_Y + 92), 11,
-			UiKit.EDGE.lightened(0.5))
-		UiKit.text(self, font, UiKit.t("out-rates them. Win something."), Vector2(R_X + 16, COL_Y + 108), 11,
-			UiKit.EDGE.lightened(0.5))
+		UiKit.para(self, font, UiKit.t("Clubs come for a coach who out-rates them. Win something."),
+			Vector2(R_X + 16, COL_Y + 92), 11, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 16.0)
 		return
 	var shown: int = mini(offers.size(), OFFERS_SHOWN)
 	for i in shown:
@@ -210,8 +208,10 @@ func _offers(c: Coach) -> void:
 		UiKit.right(self, font, UiKit.t("and %d more want you") % (offers.size() - shown),
 			Vector2(R_X + COL_W - 16, COL_Y + COL_H - 14), 11, UiKit.DIM, 160)
 	else:
-		UiKit.text(self, font, UiKit.clip(c.offer_blurb(), 40),
-			Vector2(R_X + 16, COL_Y + COL_H - 14), 11, UiKit.EDGE.lightened(0.5))
+		## TWO LINES. It was clipped at forty characters in English too — "A few
+		## clubs are interested in taki..." — which nobody could see was a cut.
+		UiKit.para(self, font, c.offer_blurb(),
+			Vector2(R_X + 16, COL_Y + COL_H - 28), 11, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 14.0)
 
 
 func _line(label: String, value: String, y: float) -> void:

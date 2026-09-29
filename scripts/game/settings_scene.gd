@@ -10,6 +10,8 @@ const PAD := 24.0
 const COL_W := 430.0
 const LEFT_X := 24.0
 const RIGHT_X := 500.0
+## A credit line's room: the panel (COL_W + 6) less its 18 px inset each side.
+const CREDIT_W := COL_W + 6.0 - 36.0
 const TOP := 96.0
 ## HOW FAR APART THE THREE VOLUME ROWS SIT. It was 64 and the panel was 262 tall,
 ## which left the THIS CAREER panel starting at 378 — fine while that panel was a
@@ -218,8 +220,8 @@ func _draw() -> void:
 	## and it was worse: the second line pushed everything below it 18 pixels
 	## down and ran "Built by BonkWorks." out of the bottom of the same panel,
 	## which the same check then caught. One line, made to fit.
-	UiKit.text(self, font, UiKit.t("All other audio written for this game."),
-		Vector2(RIGHT_X + 18, y), 14, UiKit.DIM)
+	UiKit.text_fit(self, font, UiKit.t("All other audio written for this game."),
+		Vector2(RIGHT_X + 18, y), 14, UiKit.DIM, CREDIT_W)
 	y += 24.0
 	UiKit.text(self, font, UiKit.t("TYPE"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
 	y += 20.0
@@ -236,8 +238,8 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("%s  ·  %s") % [String(fc["licence"]), String(fc["url"])],
 		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
 	y += 19.0
-	UiKit.text(self, font, UiKit.t("Buhurt Rail, Gorget and Maul drawn for this game."),
-		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
+	UiKit.text_fit(self, font, UiKit.t("Buhurt Rail, Gorget and Maul drawn for this game."),
+		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5), CREDIT_W)
 	y += 17.0
 	## THE FALLBACK FACE, which draws every letter the Buhurt faces lack. OFL.
 	UiKit.text(self, font, UiKit.t("Other alphabets: LanaPixel by eishiya, SIL OFL 1.1"),
