@@ -1374,7 +1374,7 @@ func _ai_choose(m: Man, tgt: Man, menu: int) -> int:
 			## The tier, in one line. A Green man needs the opponent almost gone
 			## before he recognises the moment; an Elite one takes him while he is
 			## still on his feet.
-			if tgt.stability < float(sk["wear_read"]):
+			if tgt.stability < float(sk["wear_read"]) + Tuning.ai_clinch_throw:
 				return Tuning.Act.TAKEDOWN
 			if agg > Tuning.AI_TD_AGG and tgt.stability < Tuning.AI_TD_WOBBLY:
 				return Tuning.Act.TAKEDOWN

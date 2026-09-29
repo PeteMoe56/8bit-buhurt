@@ -252,6 +252,10 @@ static var sent_walks: bool = false
 static var session_full_week: bool = false
 ## And its price, scaled (1.0 = as shipped).
 static var session_price_scale: float = 1.0
+## And #1: raises every AI tier's "wear_read" by this much, so the AI throws a
+## takedown in the clinch against a steadier man. 0 = as shipped. Read from
+## RB_AI_THROW so `bb bases` can measure pacing under it; unset in the game.
+static var ai_clinch_throw: float = OS.get_environment("RB_AI_THROW").to_float()
 const TD_MIN: float = 0.05
 const TD_MAX: float = 0.45
 const TD_FAIL_EXPOSE: float = 1.2       ## seconds you are takeable after missing
