@@ -12,5 +12,7 @@ while read -r name rest; do
   g="$(env $envs bash tools/bb.sh probe fightskill "$n" gap 2>&1 | grep '^GAP')"
   t="-"
   [ "$m" != "0" ] && t="$(env $envs bash tools/bb.sh probe tactics "$m" 2>&1 | grep 'mean |win' | grep -oE '[0-9.]+$')"
-  echo "$name | $rest | $g | tactics $t"
+  h=""
+  [ -n "$GRID_HELP" ] && h=" | $(env $envs bash tools/bb.sh probe fightskill "$n" help2 2>&1 | grep '^HELP')"
+  echo "$name | $rest | $g | tactics $t$h"
 done < "$1"

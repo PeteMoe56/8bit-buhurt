@@ -18,6 +18,8 @@ var cad := 1
 var light := false
 var worldopp := false
 var orders_total := 0
+var flank_total := 0
+var front_total := 0
 var bouts_total := 0
 func _initialize() -> void:
 	var a := OS.get_cmdline_user_args()
@@ -61,6 +63,17 @@ func _initialize() -> void:
 			orders_total = 0; bouts_total = 0
 			var w := wr(n, pol, -1, -1, 1.0)
 			print("POLICY %-9s win%% %.1f   orders/bout %.1f" % [pol, w, float(orders_total) / maxf(1.0, float(bouts_total))])
+	elif which == "help2":
+		## Routes under the flank rule (29 Sep): hands-off, careful direct help,
+		## careful help routed round the side, and eager help.
+		var out := "HELP"
+		for pol in ["none", "helpfree", "helpflank", "smart"]:
+			orders_total = 0; bouts_total = 0; flank_total = 0; front_total = 0
+			var w := wr(n, pol, -1, -1, 1.0)
+			out += "  %s %.1f" % [pol, w]
+			if pol != "none":
+				out += " (f%d/F%d)" % [flank_total, front_total]
+		print(out)
 	elif which == "gap":
 		## Just the two numbers the clinch decision turns on (29 Sep).
 		var hn := wr(n, "none", -1, -1, 1.0)
@@ -146,8 +159,8 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 					sim.answer_prompt(mm.idx, act)
 			elif pol.begins_with("help"):
 				if k % 36 == 0:
-					send_free(sim)
-				if pol == "helpfree":
+					send_free(sim, pol == "helpflank")
+				if pol == "helpfree" or pol == "helpflank":
 					answer(sim, "smart")
 				elif pol == "helpslow":
 					for mm in sim.men:
@@ -160,6 +173,8 @@ func wr(n: int, pol: String, form: int, strat: int, sc: float) -> float:
 					send(sim)
 			sim.tick()
 		orders_total += sim.orders_issued
+		flank_total += sim.flank_blows
+		front_total += sim.front_blows
 		bouts_total += 1
 		var x := sim.bout_winner()
 		if x == -1: continue
@@ -222,7 +237,7 @@ func answer_one(sim: MeleeSim, m) -> void:
 
 ## Send ONE free man to the nearest enemy who has one of ours tied up, and only
 ## if nobody is already on his way to that enemy.
-func send_free(sim: MeleeSim) -> void:
+func send_free(sim: MeleeSim, flank: bool = false) -> void:
 	if sim.phase != MeleeSim.Phase.LIVE: return
 	var claimed := {}
 	for m in sim.men:
@@ -239,4 +254,28 @@ func send_free(sim: MeleeSim) -> void:
 			if dd < bd: bd = dd; bm = m.idx; bt = e.idx
 	if bm == -1: return
 	var path: Array[Vector2] = []
+	## FLANK: a waypoint off the held man's side — perpendicular to the way he
+	## faces his clinch partner, on whichever side is nearer the man sent.
+	if flank:
+		var e = sim.men[bt]
+		var face: Vector2 = (sim.men[e.target].pos - e.pos).normalized()
+		var side := Vector2(-face.y, face.x)
+		if (sim.men[bm].pos - e.pos).dot(side) < 0.0:
+			side = -side
+		## Out to his side, then round behind him — the man sent arrives from
+		## the back, the way a thumb would draw it.
+		path.append(e.pos + side * 38.0)
+		path.append(e.pos + side * 14.0 - face * 34.0)
+	## FLANK: a waypoint off the held man's side — perpendicular to the way he
+	## faces his clinch partner, on whichever side is nearer the man sent.
+	if flank:
+		var e = sim.men[bt]
+		var face: Vector2 = (sim.men[e.target].pos - e.pos).normalized()
+		var side := Vector2(-face.y, face.x)
+		if (sim.men[bm].pos - e.pos).dot(side) < 0.0:
+			side = -side
+		## Out to his side, then round behind him — the man sent arrives from
+		## the back, the way a thumb would draw it.
+		path.append(e.pos + side * 38.0)
+		path.append(e.pos + side * 14.0 - face * 34.0)
 	sim.give_order(bm, path, bt)

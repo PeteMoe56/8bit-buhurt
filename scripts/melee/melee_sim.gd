@@ -266,6 +266,9 @@ class Man extends RefCounted:
 
 
 var men: Array[Man] = []
+## Probe counters for the flank rule (29 Sep 2026): blows on clinched men.
+var flank_blows: int = 0
+var front_blows: int = 0
 var clubs: Array = []
 var rng := RandomNumberGenerator.new()
 
@@ -1543,8 +1546,30 @@ func _takedown_chance(a: Man, d: Man, gang: bool) -> float:
 	return clampf(c, Tuning.TD_MIN, Tuning.TD_MAX)
 
 
+## WHERE THE BLOW COMES FROM, on a man tied up in a clinch: 1 from the side or
+## behind (outside his front arc, facing the man he holds), -1 from the front,
+## 0 if he is not in a clinch at all.
+func _clinch_side(a: Man, d: Man) -> int:
+	if d.state != State.GRAPPLED or d.target < 0 or d.target == a.idx:
+		return 0
+	var face := men[d.target].pos - d.pos
+	var to_a := a.pos - d.pos
+	if face.length() < 0.01 or to_a.length() < 0.01:
+		return 0
+	var ang := rad_to_deg(face.angle_to(to_a))
+	if absf(ang) > Tuning.flank_arc * 0.5:
+		flank_blows += 1
+		return 1
+	front_blows += 1
+	return -1
+
+
 func _bullrush_chance(a: Man, d: Man) -> float:
 	var c := Tuning.BR_BASE
+	if Tuning.flank_br > 0.0 or Tuning.front_pen > 0.0:
+		match _clinch_side(a, d):
+			1: c += Tuning.flank_br
+			-1: c -= Tuning.front_pen
 	c += (float(a.card.weight) + a.tmod("weight_bonus", 0.0)
 		- float(d.card.weight)) * Tuning.BR_PER_LB
 	c -= d.eff_base() * Tuning.BR_PER_BASE * d.tmod("br_against", 1.0)
@@ -1598,6 +1623,10 @@ func _resolve(m: Man, act: int, target: int) -> void:
 			m.hit_cd = Tuning.HIT_COOLDOWN
 			var amount := Tuning.HIT_STABILITY * t.tmod("hit_stability_against", 1.0) * (
 				0.7 + 0.6 * m.eff_strength() / 99.0)
+			if Tuning.flank_hit > 0.0 or Tuning.front_pen > 0.0:
+				match _clinch_side(m, t):
+					1: amount *= maxf(1.0, Tuning.flank_hit)
+					-1: amount *= 1.0 - Tuning.front_pen
 			_wear(t, m, amount)
 			## AND THE HARNESS, if the man throwing it is Heavy Handed. Floored,
 			## because a trait that can take a man to nothing is a trait that

@@ -279,6 +279,20 @@ static var throw_mine: float = _env("RB_THROW_MINE")
 ##   PREAD         a TAKEDOWN the PLAYER chose on a man below PREAD_AT stability
 ##                 (a good read) gains this much on its odds
 static var pread: float = _env("RB_PREAD")
+## THE FLANK (Pete, 29 Sep 2026): *"make it so bullrushes and swings work when
+## you're hit from the sides and back when grappled... around the 100 degree
+## mark."* A man tied up in a clinch faces the man he holds; an attack from
+## outside his FLANK_ARC-degree front arc is from the side or behind.
+##   FLANK_HIT    a hit from the flank on a clinched man does this many times
+##                its stability damage
+##   FLANK_BR     a bullrush from the flank on a clinched man gains this on its odds
+##   FRONT_PEN    a hit or bullrush from the FRONT on a clinched man loses this
+##                share of its damage / this much of its odds — his partner is in
+##                the way and he can see it coming
+static var flank_arc: float = 100.0 if OS.get_environment("RB_FLANK_ARC") == "" else _env("RB_FLANK_ARC")
+static var flank_hit: float = _env("RB_FLANK_HIT")
+static var flank_br: float = _env("RB_FLANK_BR")
+static var front_pen: float = _env("RB_FRONT_PEN")
 static var pread_at: float = 0.5 if OS.get_environment("RB_PREAD_AT") == "" else _env("RB_PREAD_AT")
 static var session_full_week: bool = true
 static var session_price_scale: float = 0.25
