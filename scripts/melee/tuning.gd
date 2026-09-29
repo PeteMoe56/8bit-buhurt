@@ -246,6 +246,12 @@ const TD_GANG: float = 0.06             ## [the 2-on-1] third man on an occupied
 ##               standing at the range it came up at.
 static var sent_edge: float = 0.0
 static var sent_walks: bool = false
+## AND FOR #11: a PAID session trains the five at the full weekly rate instead
+## of PRACTICE_STARTER's quarter ("his week is mostly Saturday" is true of the
+## free week, not of an extra one the club paid for). OFF.
+static var session_full_week: bool = false
+## And its price, scaled (1.0 = as shipped).
+static var session_price_scale: float = 1.0
 const TD_MIN: float = 0.05
 const TD_MAX: float = 0.45
 const TD_FAIL_EXPOSE: float = 1.2       ## seconds you are takeable after missing

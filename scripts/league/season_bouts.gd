@@ -549,11 +549,13 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 ## built ground and a Hard regime develops men several times faster than a club
 ## with none of it — which is what a staff is FOR, and what the grade on a hire
 ## card has never until now been worth.
-static func _practice(s: Season) -> void:
+static func _practice(s: Season, paid: bool = false) -> void:
 	var five := s.club.starting_five()
+	## Morning decision #11's option, off unless a probe sets it.
+	var full := paid and Tuning.session_full_week
 	for f in s.club.roster:
 		var role := Tuning.role_of(int(f.pos))
-		var got := Career.practice_xp(s.office.coaching(role), five.has(f)) \
+		var got := Career.practice_xp(s.office.coaching(role), five.has(f) and not full) \
 			* s.office.practice_ground() * s.office.regime_xp(role) \
 			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
 		f.xp += maxi(1, int(round(got)))
@@ -570,7 +572,7 @@ static func run_session(s: Season) -> String:
 	var err := s.office.charge_session()
 	if err != "":
 		return err
-	s._practice()
+	_practice(s, true)
 	return ""
 
 

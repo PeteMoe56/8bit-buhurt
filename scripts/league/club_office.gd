@@ -995,7 +995,7 @@ const SLOT_SESSION := "session"
 
 
 func session_cost() -> int:
-	return maxi(1, int(round(SESSION_SHARE
+	return maxi(1, int(round(SESSION_SHARE * Tuning.session_price_scale
 		* float(League.TIERS[clampi(tier, 0, League.TIERS.size() - 1)]["slack"]))))
 
 
