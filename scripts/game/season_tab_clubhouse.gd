@@ -142,7 +142,8 @@ static func _shop_controls(v: SeasonScene) -> void:
 		var pw: float = (v.SHOP_CARD.size.x - pad * 2.0 - 16.0) / float(maxi(1, packs.size()))
 		for i in packs.size():
 			var pk: Dictionary = packs[i]
-			v.ui.add_child(UiKit.button(UiKit.t("%d  ·  %s") % [int(pk["credits"]), String(pk["price"])],
+			## THE STORE'S OWN PRICE, localized, once Play has answered.
+			v.ui.add_child(UiKit.button(UiKit.t("%d  ·  %s") % [int(pk["credits"]), Store.price_word(String(pk["id"]))],
 				Vector2(v.SHOP_CARD.position.x + pad + float(i) * (pw + 8.0),
 					v.SHOP_CARD.position.y + 150.0), Vector2(pw, 46),
 				func(id = String(pk["id"])):
@@ -197,6 +198,11 @@ static func _draw_shop(v: SeasonScene) -> void:
 		UiKit.right(v, v.font, UiKit.t("%d waiting") % Store.owed,
 			Vector2(v.SHOP_CARD.end.x - 24.0, v.SHOP_CARD.position.y + 128.0), 12,
 			UiKit.YOU, 200)
+	## A PENDING PAYMENT (cash at a shop, a slow bank) is not lost and not
+	## credited — say so, or the player buys the pack twice.
+	if Store.available() and Store.pending > 0:
+		UiKit.text(v, v.font, UiKit.t("A payment is pending. Credits land when it clears."),
+			Vector2(v.SHOP_CARD.position.x + 24.0, v.SHOP_CARD.position.y + 128.0), 12, UiKit.DIM)
 
 
 

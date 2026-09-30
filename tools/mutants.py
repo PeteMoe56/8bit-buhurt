@@ -111,6 +111,22 @@ MUTANTS = [
     ('squad armour colour inverted', 'scripts/game/season_tab_squad.gd',
      'return UiKit.UP if a > 0.85 else',
      'return UiKit.UP if a < 0.85 else', ["tests/test_loop.gd"]),
+    # 29 Sep evening: Pete's #2 (billing), #4 (hit floor), #5 (onboarding), the wheel.
+    ('a re-delivered purchase is credited twice', 'scripts/game/store.gd',
+     'if token != "" and receipts.has(token):',
+     'if false and token != "" and receipts.has(token):', ["tests/test_store.gd"]),
+    ('a pending payment is credited', 'scripts/game/store.gd',
+     'if st == PS_PENDING:\n\t\t\tpending += 1\n\t\t\tcontinue',
+     'if st == PS_PENDING:\n\t\t\tpending += 1\n\t\t\tst = PS_PURCHASED', ["tests/test_store.gd"]),
+    ('the bid is asked before bout one', 'scripts/league/season.gd',
+     'if bid_open() and first_bout_done():',
+     'if bid_open():', ["tests/test_season.gd"]),
+    ('a slop strip reaches into the next button', 'scripts/game/ui.gd',
+     'want = minf(want, (r.position.y - me.end.y) * 0.5)',
+     'want = minf(want, (r.position.y - me.end.y) * 2.0)', ["tests/test_audit_ui.gd"]),
+    ('the fight runs under a coach mark', 'scripts/melee/melee_scene.gd',
+     'and wheel_man == -1 \\\n\t\t\tand tip == "":',
+     'and wheel_man == -1 \\\n\t\t\tand true:', ["tests/test_audit_ui.gd"]),
 ]
 
 

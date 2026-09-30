@@ -33,14 +33,21 @@ class_name Store
 ##    `test_store.gd` holds that line.
 ## ---------------------------------------------------------------------------
 ##
-## WHAT IS NOT HERE, and is not pretending to be: Google Play Billing itself.
-## That is an Android plugin — a `.aar` in `android/plugins/`, a gradle build,
-## and an Android build template — none of which can be built in this loop. The
-## seam is `_backend()`: it looks for the plugin's singleton and uses it if it is
-## there. Until it is, the shop says *"not available on this device"* rather than
-## taking a tap and doing nothing, which is the honest failure.
+## GOOGLE PLAY BILLING (Pete, 29 Sep 2026, #2: "premium with helper purchases",
+## three CC packs). Wired to the first-party plugin's `BillingClient`
+## (godot-sdk-integrations/godot-google-play-billing, Godot 4.2+): connect,
+## query the packs for LOCALIZED prices, purchase, take `on_purchase_updated`,
+## credit the wallet, then `consume_purchase` (which also acknowledges). Every
+## purchase token that has been credited is kept in the wallet — THE CLAIM
+## RECEIPT — so a purchase Play re-delivers (a consume that never landed) is
+## consumed again and never credited twice.
 ##
-## See `docs/EXPORTING.md`.
+## The plugin itself is an addon plus the Android build template; neither is in
+## the repo until Pete installs it (docs/EXPORTING.md). Until then `_backend()`
+## finds nothing and the shop says *"not available on this device"* rather than
+## taking a tap and doing nothing. `tests/fake_billing.gd` stands in for the
+## client, with the same methods and signals, so the whole flow is held by
+## `test_store.gd` without a phone.
 
 ## ------------------------------------------------------------------ products
 ## CONSUMABLE, every one of them. Credits are spent, so a player buys the same
@@ -64,8 +71,30 @@ const PRODUCTS: Array[Dictionary] = [
 	{"id": "cc_large",  "credits": 150, "price": "$7.99", "cents": 799},
 ]
 
-## The Android plugin's singleton name. Absent until the plugin is in the build.
-const BILLING_SINGLETON := "GodotGooglePlayBilling"
+## The plugin's GDScript client, as the addon installs it. CHECK ON INSTALL: if
+## the addon lands at another path, this is the one line to change.
+const BILLING_SCRIPT := "res://addons/GodotGooglePlayBilling/BillingClient.gd"
+## The plugin's enums, by value (BillingClient.BillingResponseCode / PurchaseState
+## / ProductType), so this file parses without the addon present.
+const RC_OK := 0
+const RC_USER_CANCELED := 1
+const RC_ITEM_ALREADY_OWNED := 7
+const PS_PURCHASED := 1
+const PS_PENDING := 2
+const PT_INAPP := 0
+## How many credited purchase tokens the receipt keeps. A player would have to
+## buy two hundred packs for the oldest to drop off, and a token that old is not
+## one Play will re-deliver.
+const RECEIPTS_MAX := 200
+
+## The client (the plugin's, or a test's). Null means no store.
+static var client = null
+## Localized price per pack, from the store's own product details.
+static var prices: Dictionary = {}
+## Tokens already credited — the claim receipt. Saved in the wallet.
+static var receipts: Array[String] = []
+## Purchases the store reports as PENDING (a cash payment not yet made).
+static var pending: int = 0
 
 const WALLET_PATH := "user://%swallet.dat"
 ## Tests set this so they never touch a developer's real wallet (same idea as
@@ -79,8 +108,9 @@ static func wallet_path() -> String:
 	if wallet_prefix == "" and OS.get_environment("RB_TIER") != "":
 		return WALLET_PATH % "test_"
 	return WALLET_PATH % wallet_prefix
-## Bumped if the wallet's shape ever changes. It is one integer today.
-const WALLET_VERSION: int = 1
+## Bumped if the wallet's shape ever changes. 2 (29 Sep 2026) adds the receipts;
+## a version-1 wallet still reads.
+const WALLET_VERSION: int = 2
 
 
 enum State { COLD, CONNECTING, READY, UNAVAILABLE }
@@ -122,6 +152,14 @@ static func closed_word() -> String:
 			return UiKit.t("The store is not available on this device.")
 
 
+## THE PRICE TO PRINT: the store's localized one ("1,99 €") once it has answered,
+## the dollar figure on the shelf until then.
+static func price_word(id: String) -> String:
+	if prices.has(id):
+		return String(prices[id])
+	return String(product(id).get("price", ""))
+
+
 static func product(id: String) -> Dictionary:
 	for p in PRODUCTS:
 		if String(p["id"]) == id:
@@ -136,12 +174,20 @@ static func unit_cents(p: Dictionary) -> float:
 
 
 ## ---------------------------------------------------------------- the backend
-## The billing plugin, or null. One place asks, so one place has to change when
+## The billing client, or null. One place asks, so one place has to change when
 ## a second platform arrives.
 static func _backend():
-	if Engine.has_singleton(BILLING_SINGLETON):
-		return Engine.get_singleton(BILLING_SINGLETON)
-	return null
+	if client == null and OS.get_name() == "Android" and ResourceLoader.exists(BILLING_SCRIPT):
+		client = (load(BILLING_SCRIPT) as Script).new()
+	return client
+
+
+## A test hands in its stand-in here; `null` takes it away again.
+static func use_client(c) -> void:
+	client = c
+	prices.clear()
+	pending = 0
+	state = State.COLD
 
 
 ## CALLED AT START-UP, not when the shop is opened.
@@ -152,7 +198,7 @@ static func _backend():
 ## until somebody happens to browse.
 static func connect_backend() -> void:
 	load_wallet()
-	if state == State.CONNECTING:
+	if state == State.CONNECTING or state == State.READY and client != null:
 		return
 	var b = _backend()
 	if b == null:
@@ -160,12 +206,112 @@ static func connect_backend() -> void:
 		## build it is a shop that must stay shut.
 		state = State.READY if _debug() and _sellable_here() else State.UNAVAILABLE
 		return
+	_wire(b)
 	state = State.CONNECTING
-	## The plugin's own handshake. Left as the one line it is, because anything
-	## more elaborate here would be invented rather than tested.
-	if b.has_method("startConnection"):
-		b.startConnection()
+	b.start_connection()
+
+
+## The client's signals, connected once.
+static func _wire(b) -> void:
+	if b.has_meta("store_wired"):
+		return
+	b.set_meta("store_wired", true)
+	b.connected.connect(_on_connected)
+	b.connect_error.connect(_on_connect_error)
+	b.disconnected.connect(_on_disconnected)
+	b.query_product_details_response.connect(_on_product_details)
+	b.on_purchase_updated.connect(_on_purchase_updated)
+	b.query_purchases_response.connect(_on_query_purchases)
+	b.consume_purchase_response.connect(_on_consumed)
+
+
+static func _on_connected() -> void:
 	state = State.READY
+	var ids := PackedStringArray()
+	for p in PRODUCTS:
+		ids.append(String(p["id"]))
+	client.query_product_details(ids, PT_INAPP)
+	## Anything charged and never finished, straight away.
+	client.query_purchases(PT_INAPP)
+
+
+static func _on_connect_error(_code: int, _msg: String) -> void:
+	state = State.UNAVAILABLE
+	last_error = UiKit.t("The store is not available on this device.")
+
+
+static func _on_disconnected() -> void:
+	## Asked again at the next start-up; nothing is lost, the wallet holds it.
+	state = State.COLD
+
+
+## THE LOCALIZED PRICE, read defensively: the plugin's product-details dictionary
+## mirrors Play's ProductDetails, whose one-time price sits under
+## `one_time_purchase_offer_details.formatted_price`.
+static func _on_product_details(r: Dictionary) -> void:
+	if int(r.get("response_code", -99)) != RC_OK:
+		return
+	for d in r.get("product_details", []):
+		if not d is Dictionary:
+			continue
+		var id := String(d.get("product_id", d.get("id", "")))
+		var offer = d.get("one_time_purchase_offer_details", {})
+		var word := ""
+		if offer is Dictionary:
+			word = String(offer.get("formatted_price", ""))
+		if word == "":
+			word = String(d.get("formatted_price", d.get("price", "")))
+		if id != "" and word != "" and not product(id).is_empty():
+			prices[id] = word
+
+
+static func _on_purchase_updated(r: Dictionary) -> void:
+	var code := int(r.get("response_code", -99))
+	if code == RC_USER_CANCELED:
+		last_error = UiKit.t("Purchase canceled. Nothing was charged.")
+		return
+	if code == RC_ITEM_ALREADY_OWNED:
+		## A pack bought and never consumed: finish it rather than refuse it.
+		resolve_pending()
+		return
+	if code != RC_OK:
+		last_error = UiKit.t("The store could not finish that purchase.")
+		return
+	_take(r.get("purchases", []))
+
+
+static func _on_query_purchases(r: Dictionary) -> void:
+	if int(r.get("response_code", -99)) == RC_OK:
+		_take(r.get("purchases", []))
+
+
+## Credit what is PURCHASED (once per token), count what is PENDING, and consume
+## every purchased token — a consume that fails is simply asked again next time,
+## and the receipt stops that second delivery being a second credit.
+static func _take(purchases) -> void:
+	pending = 0
+	if not purchases is Array:
+		return
+	for pu in purchases:
+		if not pu is Dictionary:
+			continue
+		var st := int(pu.get("purchase_state", 0))
+		var token := String(pu.get("purchase_token", ""))
+		if st == PS_PENDING:
+			pending += 1
+			continue
+		if st != PS_PURCHASED or token == "":
+			continue
+		var ok := true
+		for pid in pu.get("product_ids", []):
+			if grant(String(pid), token) != "":
+				ok = false
+		if ok and client != null:
+			client.consume_purchase(token)
+
+
+static func _on_consumed(_r: Dictionary) -> void:
+	pass
 
 
 ## Is this a platform we have decided to sell on at all?
@@ -178,6 +324,7 @@ static func _sellable_here() -> bool:
 ## save file is a wallet that disappears when the player starts a second club.
 static func load_wallet() -> void:
 	owed = 0
+	receipts.clear()
 	## THREE DOORS, newest first (29 Sep 2026). `save_wallet` used to delete the
 	## wallet and then rename the new one in, and a kill between the two left
 	## no wallet at all — credits paid for and gone. The live file, then a
@@ -186,6 +333,9 @@ static func load_wallet() -> void:
 		var d = _read_wallet(p)
 		if d is Dictionary:
 			owed = maxi(0, int(d.get("owed", 0)))
+			receipts.clear()
+			for t in d.get("receipts", []):
+				receipts.append(String(t))
 			return
 
 
@@ -197,7 +347,7 @@ static func _read_wallet(path: String):
 		return null
 	var d = f.get_var()
 	f.close()
-	if d is Dictionary and int(d.get("version", 0)) == WALLET_VERSION:
+	if d is Dictionary and int(d.get("version", 0)) in [1, WALLET_VERSION]:
 		return d
 	return null
 
@@ -210,7 +360,7 @@ static func save_wallet() -> bool:
 	var f := FileAccess.open(tmp, FileAccess.WRITE)
 	if f == null:
 		return false
-	f.store_var({"version": WALLET_VERSION, "owed": maxi(0, owed)}, false)
+	f.store_var({"version": WALLET_VERSION, "owed": maxi(0, owed), "receipts": receipts}, false)
 	var err := f.get_error()
 	f.close()
 	if err != OK:
@@ -270,12 +420,12 @@ static func buy(id: String) -> String:
 	var b = _backend()
 	if b == null:
 		return _stub_buy(p)
-	if b.has_method("purchase"):
-		b.purchase(id)
-		## The grant happens when the store calls back, not here. A store that
-		## credits on the REQUEST is a store that credits a canceled purchase.
-		return ""
-	return UiKit.t("This device cannot take a payment.")
+	## The grant happens when the store calls back (`on_purchase_updated`), not
+	## here. A store that credits on the REQUEST credits a canceled purchase.
+	var launched = b.purchase(id)
+	if launched is Dictionary and int(launched.get("response_code", RC_OK)) != RC_OK:
+		return UiKit.t("The store could not start that purchase.")
+	return ""
 
 
 ## THE ONLY PATH THAT CREATES CREDITS WITHOUT A PAYMENT, and it is fenced twice.
@@ -307,7 +457,10 @@ static func _stub_buy(p: Dictionary) -> String:
 ## failure that matters is a player who paid and did not get credited. An
 ## unacknowledged purchase is re-delivered by the store and lands here twice,
 ## which credits twice; an acknowledged one that was never banked is gone.
-static func grant(id: String) -> String:
+##
+## `token` is the store's purchase token. A token already on the receipt is
+## credited already: it answers "" (nothing to do) and adds nothing.
+static func grant(id: String, token: String = "") -> String:
 	var p := product(id)
 	if p.is_empty():
 		return UiKit.t("There is no such pack.")
@@ -315,14 +468,19 @@ static func grant(id: String) -> String:
 		## Nothing may create credits in a release build without a real store
 		## behind it. This is the line `test_store.gd` exists to hold.
 		return UiKit.t("The store is not available on this device.")
+	if token != "" and receipts.has(token):
+		return ""
 	owed += int(p["credits"])
+	if token != "":
+		receipts.append(token)
+		while receipts.size() > RECEIPTS_MAX:
+			receipts.pop_front()
 	if not save_wallet():
 		owed -= int(p["credits"])
+		if token != "":
+			receipts.erase(token)
 		last_error = UiKit.t("The purchase could not be saved. Nothing was charged twice.")
 		return last_error
-	var b = _backend()
-	if b != null and b.has_method("consumePurchase"):
-		b.consumePurchase(id)
 	return ""
 
 
@@ -335,11 +493,9 @@ static func grant(id: String) -> String:
 ## credits went missing will look for a button.
 static func resolve_pending() -> int:
 	var b = _backend()
-	if b == null:
+	if b == null or state != State.READY:
 		return 0
-	if not b.has_method("queryPurchases"):
-		return 0
-	b.queryPurchases()
+	b.query_purchases(PT_INAPP)
 	## The plugin answers through its own signal; the count is not knowable here
 	## and saying it is would be a number this file made up.
 	return -1

@@ -172,15 +172,34 @@ it on a build machine and keeps the file empty.
 | Splash | The crest on the game's ground colour, filtering off (project.godot `application/boot_splash/*`) |
 | Orientation | **Not set here.** Godot writes `android:screenOrientation` into the manifest from `display/window/handheld/orientation` in `project.godot`, which is 4 — `SENSOR_LANDSCAPE`. It was PORTRAIT under a landscape game until the mobile pass, so `test_export.gd` holds it |
 
-## Real billing needs one more thing
+## Real billing — what Pete does once (29 Sep 2026)
 
-The billing *permission* is in the manifest, and that is all a preset can do.
-The library itself is an Android plugin, which needs `use_gradle_build=true`, an
-Android build template installed from the editor, and the plugin's `.aar` in
-`android/plugins/`.
+The code side is done: `scripts/game/store.gd` speaks the first-party plugin's
+`BillingClient` API (connect, query the packs for localized prices, purchase,
+consume, re-delivery with a claim receipt), and `tests/test_store.gd` drives it
+through a stand-in client. What a repo cannot do for you:
 
-Until that exists, `Store` runs on its stub backend and **says so on the screen**
-rather than pretending a purchase succeeded. See `scripts/game/store.gd`.
+1. **Install the plugin.** Godot Asset Library → "Godot Google Play Billing"
+   (godot-sdk-integrations/godot-google-play-billing, Godot 4.2+), or the
+   release zip into `addons/`. Enable it under Project → Project Settings →
+   Plugins. Check that `BillingClient.gd` landed at
+   `res://addons/GodotGooglePlayBilling/BillingClient.gd` — if not, change
+   `Store.BILLING_SCRIPT` to where it did.
+2. **Android build template** (Project → Install Android Build Template) and
+   `use_gradle_build=true` in the preset (already set).
+3. **Play Console → Monetize → In-app products**, three *managed* products
+   with exactly these ids: `cc_small` (20 CC, $1.99), `cc_medium` (55 CC,
+   $3.99), `cc_large` (150 CC, $7.99). Activate them. The app itself is paid:
+   **$4.99** under Monetize → App pricing.
+4. **License testers** (Play Console → Settings → License testing) with your
+   Google account, and an **internal testing** track upload — purchases only
+   work on a build installed from Play, not side-loaded.
+5. On the phone: buy each pack once, kill the app mid-purchase once, and use
+   "Restore a purchase" once. The wallet and receipt logic is what those three
+   exercise.
+
+Until step 1, `Store` finds no client and **says so on the screen** rather than
+pretending a purchase succeeded.
 
 ## On the emulator
 

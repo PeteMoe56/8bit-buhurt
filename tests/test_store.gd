@@ -26,6 +26,7 @@ func _initialize() -> void:
 	_test_the_wallet_survives_the_app()
 	_test_a_release_build_cannot_mint_credits()
 	_test_the_shop_says_why_it_is_shut()
+	_test_play_billing_end_to_end()
 	_cleanup()
 	print("")
 	for n in notes:
@@ -46,6 +47,81 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 	print("  %s  %s — %s" % ["pass" if cond else "FAIL", label, detail])
 	if not cond:
 		failures.append("%s: %s" % [label, detail])
+
+
+## PETE'S #2 (29 Sep 2026): premium plus three helper packs, through Play
+## Billing. Driven through a stand-in client with Play's own signal shapes.
+func _test_play_billing_end_to_end() -> void:
+	var fake = load("res://tests/fake_billing.gd").new()
+	Store.owed = 0
+	Store.receipts.clear()
+	Store.save_wallet()
+	Store.use_client(fake)
+	Store.connect_backend()
+	var waiting := Store.state == Store.State.CONNECTING
+	fake.connected.emit()
+	var asked: bool = fake.calls.has("query_purchases") and fake.calls.any(
+		func(c): return String(c).begins_with("query_product_details:cc_small,cc_medium,cc_large"))
+	_ok(waiting and Store.available() and asked,
+		"the shop opens when Play connects, and asks for the packs and anything unfinished",
+		"calls: %s" % ", ".join(fake.calls))
+
+	## LOCALIZED PRICES, from the store's own answer.
+	fake.query_product_details_response.emit({"response_code": 0, "product_details": [
+		{"product_id": "cc_small", "one_time_purchase_offer_details": {"formatted_price": "1,99 €"}},
+		{"product_id": "cc_medium", "one_time_purchase_offer_details": {"formatted_price": "3,99 €"}},
+	]})
+	_ok(Store.price_word("cc_small") == "1,99 €" and Store.price_word("cc_large") == "$7.99",
+		"the shelf shows the store's own price, and the list price until it has one",
+		"%s / %s" % [Store.price_word("cc_small"), Store.price_word("cc_large")])
+
+	## A TAP IS A REQUEST, NOT A CREDIT.
+	var err := Store.buy("cc_small")
+	_ok(err == "" and Store.owed == 0 and fake.calls.has("purchase:cc_small"),
+		"a tap starts the purchase and credits nothing yet",
+		"err '%s', owed %d" % [err, Store.owed])
+
+	## Play answers: bought. Credited once, then consumed.
+	fake.on_purchase_updated.emit({"response_code": 0, "purchases": [fake.bought("cc_small", "tok-1")]})
+	var after_buy := Store.owed
+	var consumed_once: bool = fake.consumed == ["tok-1"]
+	## The consume never landed; next launch Play delivers the same purchase again.
+	fake.query_purchases_response.emit({"response_code": 0, "purchases": [fake.bought("cc_small", "tok-1")]})
+	_ok(after_buy == 20 and consumed_once and Store.owed == 20 and fake.consumed.size() == 2,
+		"a purchase is credited once, and a re-delivered one is consumed again but not credited twice",
+		"owed after buy %d, after re-delivery %d; consumed %s" % [after_buy, Store.owed, str(fake.consumed)])
+
+	## THE RECEIPT SURVIVES THE APP.
+	Store.load_wallet()
+	fake.query_purchases_response.emit({"response_code": 0, "purchases": [fake.bought("cc_small", "tok-1")]})
+	_ok(Store.owed == 20 and Store.receipts.has("tok-1"),
+		"the claim receipt is in the wallet, so a relaunch cannot pay the same purchase again",
+		"owed %d, receipts %s" % [Store.owed, str(Store.receipts)])
+
+	## CANCELED AND PENDING PAY NOTHING.
+	fake.on_purchase_updated.emit({"response_code": 1, "purchases": []})
+	var canceled := Store.last_error
+	fake.on_purchase_updated.emit({"response_code": 0, "purchases": [fake.bought("cc_large", "tok-2", 2)]})
+	_ok(Store.owed == 20 and canceled != "" and Store.pending == 1 and not fake.consumed.has("tok-2"),
+		"a canceled purchase and a pending one credit nothing and consume nothing",
+		"owed %d, canceled '%s', pending %d" % [Store.owed, canceled.left(40), Store.pending])
+	## And when the pending one is paid, it lands.
+	fake.query_purchases_response.emit({"response_code": 0, "purchases": [fake.bought("cc_large", "tok-2", 1)]})
+	_ok(Store.owed == 170 and fake.consumed.has("tok-2") and Store.pending == 0,
+		"a pending purchase lands when Play says it is paid",
+		"owed %d" % Store.owed)
+
+	## UNDER RELEASE RULES A REAL CLIENT STILL WORKS — the fence is the stub, not the store.
+	Store.release_rules = true
+	fake.on_purchase_updated.emit({"response_code": 0, "purchases": [fake.bought("cc_medium", "tok-3")]})
+	Store.release_rules = false
+	_ok(Store.owed == 225, "a release build credits a real store's purchase",
+		"owed %d" % Store.owed)
+
+	Store.use_client(null)
+	Store.owed = 0
+	Store.receipts.clear()
+	Store.save_wallet()
 
 
 func _cleanup() -> void:
