@@ -113,7 +113,11 @@ func _flow_new_career_and_first_bout() -> void:
 	var town := String(offered[0]) if not offered.is_empty() else ""
 	if town != "":
 		await _press(town)
-	var in_season := await _arrive("Season.tscn")
+	## A NEW CLUB IS FOUNDED FIRST (playtest 30 Sep #2): the Create screen's
+	## club page, and its gold button takes the career into the season.
+	var founding := await _arrive("Create.tscn")
+	await _press("Found the club  >")
+	var in_season := founding and await _arrive("Season.tscn")
 	var s: Season = Session.season
 	_ok(at_title and in_season and s != null and SaveGame.has_save(0)
 		and s.world.city_of(s.world.player_club) == town,

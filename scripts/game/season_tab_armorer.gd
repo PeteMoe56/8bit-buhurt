@@ -84,7 +84,7 @@ static func _draw_market(v: SeasonScene) -> void:
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
 	if v.qm_pick == null:
-		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness."),
+		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to fix his kit or buy him a better harness."),
 			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
@@ -137,7 +137,7 @@ static func _draw_market(v: SeasonScene) -> void:
 			word = UiKit.t("fix %d CC") % ClubOffice.kit_cost(f)
 			wcol = UiKit.YOU
 		elif Quartermaster.next_grade(f) >= 0:
-			word = UiKit.t("up %d CC") % Quartermaster.upgrade_cost(f)
+			word = UiKit.t("new %d CC") % Quartermaster.upgrade_cost(f)
 			wcol = UiKit.DIM
 		if word != "":
 			UiKit.right_fit(v, v.font, word, Vector2(x + cell, y), 12, wcol, _cost_w(uniform))
@@ -176,7 +176,7 @@ static func _market_controls(v: SeasonScene) -> void:
 	## I afford the bus this week", and that is one button with the answer on it.
 	var third := (UiKit.span() - 16.0) / 3.0
 	if int(led["bill"]) > 0:
-		v.ui.add_child(UiKit.button(UiKit.t("Repair the traveling kit  ·  %d CC") % led["bill"],
+		v.ui.add_child(UiKit.button(UiKit.t("Fix all traveling kit  ·  %d CC") % led["bill"],
 			Vector2(24, SeasonScene.action_y()), Vector2(third, 46), func():
 				var fixed := 0
 				var spent := 0
@@ -196,7 +196,7 @@ static func _market_controls(v: SeasonScene) -> void:
 	if v.qm_pick != null:
 		var nm := UiKit.clip(v.qm_pick.display_name, 9)
 		if not Quartermaster.topped_out(v.qm_pick):
-			var rep_b := UiKit.button(UiKit.t("Repair %s · %d CC") % [nm,
+			var rep_b := UiKit.button(UiKit.t("Fix %s's kit · %d CC") % [nm,
 				ClubOffice.kit_cost(v.qm_pick)],
 				Vector2(24 + third + 8.0, SeasonScene.action_y()), Vector2(third, 46), func():
 					var err := o.repair_kit(v.qm_pick)
@@ -209,7 +209,7 @@ static func _market_controls(v: SeasonScene) -> void:
 			v.ui.add_child(rep_b)
 		var nxt := Quartermaster.next_grade(v.qm_pick)
 		if nxt >= 0:
-			var up_b := UiKit.button(UiKit.t("Upgrade to %s · %d CC") % [
+			var up_b := UiKit.button(UiKit.t("New harness: %s · %d CC") % [
 				UiKit.t(String(Quartermaster.GRADE_NAME[nxt])),
 				Quartermaster.upgrade_cost(v.qm_pick)],
 				Vector2(24 + (third + 8.0) * 2.0, SeasonScene.action_y()), Vector2(third, 46), func():

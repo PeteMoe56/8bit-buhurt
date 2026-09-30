@@ -139,8 +139,16 @@ func _take_city(city: String) -> void:
 	if err != "":
 		_build()
 		return
+	## A NAME OF ITS OWN to start from, not "<town> Free Company" for every
+	## career (playtest 30 Sep #15); the founding screen lets him change it.
+	var suffix: String = LeagueWorld.SECOND[randi() % LeagueWorld.SECOND.size()]
+	var nm := "%s %s" % [city, suffix]
+	s.club.display_name = nm
+	s.club.short_name = s.world._short_of(nm)
+	s.world.clubs[s.world.player_club]["name"] = nm
+	s.world.clubs[s.world.player_club]["short"] = s.club.short_name
 	SaveGame.save(s, slot)
-	_enter(s, slot)
+	_enter(s, slot, true)
 
 
 func _build() -> void:
@@ -300,7 +308,7 @@ func _delete(slot: int) -> void:
 ## slot 1 is open and then play slot 2. It is claimed here, once, into whichever
 ## club he actually opens, and written to that slot immediately — a credit that
 ## is in the office and not in the file is a credit the next crash eats.
-func _enter(s: Season, slot: int) -> void:
+func _enter(s: Season, slot: int, founding := false) -> void:
 	Session.season = s
 	## A career opens on its Club tab.
 	SeasonScene.last_tab = SeasonScene.Tab.CLUB
@@ -310,6 +318,12 @@ func _enter(s: Season, slot: int) -> void:
 	## A CAREER OPENING CUTS THE TRAIL. Everything before this belongs to the
 	## menus, and Back inside a club must never walk out of it into a slot list.
 	UiKit.trail_reset()
+	## A NEW CLUB IS FOUNDED FIRST: name, colours, mark, then the season.
+	if founding:
+		Session.founding = true
+		Session.create_tab = 1
+		UiKit.go("res://scenes/Create.tscn")
+		return
 	UiKit.go("res://scenes/Season.tscn")
 
 

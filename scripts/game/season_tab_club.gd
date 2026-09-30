@@ -482,7 +482,9 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 		## Inset to the same ten pixels a button pads its own label by, so a
 		## column of prose sits over its button rather than over the gap, and the
 		## leftmost one stops touching the edge of the panel.
-		for line in v._wrap(UiKit.t(String(o["blurb"])), int(w / 7.4)):
+		## WRAPPED BY PIXELS, not by a guessed character width (playtest 30 Sep:
+		## "tomorrow" ran into the next column's "He has heard that before").
+		for line in UiKit.wrap(v.font, UiKit.t(String(o["blurb"])), w - 20.0, 14):
 			UiKit.text(v, v.font, line, Vector2(x + 10.0, by), 14, UiKit.DIM)
 			by += 18.0
 		var bill: Array[Dictionary] = Dilemma.costs(o)

@@ -439,7 +439,6 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	elif role == "on the line":
 		v.draw_rect(Rect2(x, y - 20, w, SeasonScene.SQUAD_ROW - 2), UiKit.PANEL)
 	var col := UiKit.INK if role != "reserve" else UiKit.DIM
-	UiKit.text(v, v.font, "#%d" % f.number, Vector2(x + SeasonScene.COL_NUM, y), 14, UiKit.DIM)
 	## FITTED, NOT CLIPPED. The column is a pixel budget and the name is cut to
 	## it — a thirteen-character count let a wide name run into the position.
 	UiKit.text(v, v.font, UiKit.fit(v.font, f.display_name, 16, SeasonScene.COL_NAME_W),
@@ -460,8 +459,8 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	## his own ceiling, because "he is 37 and eight off what he could have been"
 	## is the entire argument for replacing him and the player should not have to
 	## do that subtraction in his head.
-	UiKit.text(v, v.font, "%d" % f.age, Vector2(x + SeasonScene.COL_AGE, y), 13,
-		UiKit.DOWN if f.fading() else UiKit.DIM)
+	## (Age moved to his page with the shirt number and the pay — see the
+	## column table. A fading man still shows: his NOW goes red below.)
 	## WHAT HE IS ON, and how many summers it has left. The wage is the DEAL, not
 	## the market rate — showing the market rate here is what the cap used to bill
 	## and it is the thing the contract layer exists to separate. It turns red the
@@ -473,22 +472,20 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	elif f.years == 1:
 		## GOLD, a warning: green on this sheet means room to grow (round 4).
 		deal_col = UiKit.YOU
-	UiKit.right(v, v.font, ClubOffice.money(ClubOffice.billed(f)),
-		Vector2(x + SeasonScene.COL_WAGE_TO, y), 14, UiKit.DIM, SeasonScene.COL_WAGE_BOX)
 	UiKit.text(v, v.font, (UiKit.t("OUT") if f.years <= 0 else UiKit.t("%dy") % f.years),
-		Vector2(x + SeasonScene.COL_YEARS, y), 12, deal_col)
+		Vector2(x + SeasonScene.COL_YEARS, y), 14, deal_col)
 	## THE TWO NUMBERS, together. Retro Bowl's roster screen is read almost
 	## entirely off rating-and-potential, and the pairing is why: neither one
 	## answers "should I keep him" on its own. The ceiling is dimmed so the
 	## rating still reads first at a glance.
-	UiKit.right(v, v.font, "%d" % f.overall(), Vector2(x + SeasonScene.COL_RATING_TO, y), 16, col,
-		SeasonScene.COL_RATING_BOX)
-	UiKit.right(v, v.font, "%d" % f.potential, Vector2(x + SeasonScene.COL_POT_TO, y), 12,
+	UiKit.right(v, v.font, "%d" % f.overall(), Vector2(x + SeasonScene.COL_RATING_TO, y), 16,
+		UiKit.DOWN if f.fading() else col, SeasonScene.COL_RATING_BOX)
+	UiKit.right(v, v.font, "%d" % f.potential, Vector2(x + SeasonScene.COL_POT_TO, y), 14,
 		UiKit.UP if f.headroom() >= 6 else UiKit.DIM, SeasonScene.COL_POT_BOX)
 	## The prospect wears a mark rather than a word — one man a year, and the
 	## screen has no room for a sentence about him.
 	if v.season.prospect == f:
-		UiKit.text(v, v.font, "*", Vector2(x + 28, y), 16, UiKit.UP)
+		UiKit.text(v, v.font, "*", Vector2(x + SeasonScene.COL_POS - 16.0, y), 16, UiKit.UP)
 
 
 
@@ -535,9 +532,6 @@ static func squad_columns(v: SeasonScene, f: Font, size_hint: int = 0) -> Array:
 		var wd: float = float(hw.call(label))
 		return Rect2(to - wd, 0.0, wd, 14.0)
 
-	out.append({"name": "number", "head": "#", "align": "left",
-		"rect": Rect2(SeasonScene.COL_NUM, 0.0, float(w.call("#13", 13)), 18.0),
-		"head_rect": lhead.call("#", SeasonScene.COL_NUM)})
 	## The name can never exceed its budget, because `UiKit.fit` measures it.
 	out.append({"name": "name", "head": UiKit.t("FIGHTER"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_NAME, 0.0, SeasonScene.COL_NAME_W, 18.0),
@@ -548,25 +542,17 @@ static func squad_columns(v: SeasonScene, f: Font, size_hint: int = 0) -> Array:
 	out.append({"name": "armor", "head": UiKit.t("KIT"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_ARMOR, 0.0, float(w.call("100%", 13)), 18.0),
 		"head_rect": lhead.call(UiKit.t("KIT"), SeasonScene.COL_ARMOR)})
-	out.append({"name": "age", "head": UiKit.t("AGE"), "align": "left",
-		"rect": Rect2(SeasonScene.COL_AGE, 0.0, float(w.call("39", 13)), 18.0),
-		"head_rect": lhead.call(UiKit.t("AGE"), SeasonScene.COL_AGE)})
-	## Right-aligned: the widest string this field can produce, ending at its stop.
-	var wage: float = w.call("$99.9k", 13)
-	out.append({"name": "wage", "head": UiKit.t("PAY"), "align": "right",
-		"rect": Rect2(SeasonScene.COL_WAGE_TO - wage, 0.0, wage, 18.0),
-		"head_rect": rhead.call(UiKit.t("PAY"), SeasonScene.COL_WAGE_TO)})
 	## `YR` AND NOT `DEAL`. Six pixels separate the wage's stop from the years'
 	## and no four-letter word survives that; the field says `3y` and `OUT`, so
 	## the two letters are the whole of the information anyway.
-	out.append({"name": "years", "head": UiKit.t("YR"), "align": "left",
-		"rect": Rect2(SeasonScene.COL_YEARS, 0.0, float(w.call("OUT", 12)), 18.0),
-		"head_rect": lhead.call(UiKit.t("YR"), SeasonScene.COL_YEARS)})
+	out.append({"name": "years", "head": UiKit.t("DEAL"), "align": "left",
+		"rect": Rect2(SeasonScene.COL_YEARS, 0.0, float(w.call("OUT", 14)), 18.0),
+		"head_rect": lhead.call(UiKit.t("DEAL"), SeasonScene.COL_YEARS)})
 	var rating: float = w.call("99", 16)
 	out.append({"name": "rating", "head": UiKit.t("NOW"), "align": "right",
 		"rect": Rect2(SeasonScene.COL_RATING_TO - rating, 0.0, rating, 18.0),
 		"head_rect": rhead.call(UiKit.t("NOW"), SeasonScene.COL_RATING_TO)})
-	var pot: float = w.call("99", 12)
+	var pot: float = w.call("99", 14)
 	## MAX RIDES THE END OF THE ROW rather than the ceiling's own stop. There are
 	## eight spare pixels at 446 and this label needs six of them to clear `NOW`;
 	## the alternative was a third abbreviation nobody would read.

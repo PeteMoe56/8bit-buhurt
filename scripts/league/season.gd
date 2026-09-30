@@ -367,6 +367,7 @@ func sync_power() -> void:
 	## AND WHAT THE GRADE DOES TO THE BILLS, for the same reason: every path
 	## that could have changed the grade or its ladder comes through here.
 	office.bills_scale = Grade.bills_for(grade, matched_step, custom_grade)
+	office.knocks_scale = Grade.knocks_for(grade, matched_step, custom_grade)
 
 
 func opponent_id() -> int:

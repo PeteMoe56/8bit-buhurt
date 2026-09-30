@@ -278,6 +278,21 @@ static func release(o: ClubOffice, i: int) -> void:
 ## ours. The best of them wins rather than the sum: two captains on one role is
 ## already worth something (see `club_specialty`), and adding their stars would
 ## make doubling up the dominant move on every hire screen.
+## THE WINTER CAMP (Pete, playtest 30 Sep: "a weekly increase … dictated by
+## how good the trainer is, then an off-season training camp. Both affected by
+## coaches' skills."). Every club holds one; what it is worth is the grade of
+## whoever teaches each man's role, summed over the eight and quartered — two
+## grade-3 captains covering the line give about six points, nobody gives none.
+const CAMP_DIVISOR := 4.0
+
+
+static func camp_points(o: ClubOffice, eight: Array) -> int:
+	var total := 0
+	for f in eight:
+		total += coaching(o, Tuning.role_of(int(f.pos)))
+	return int(floor(float(total) / CAMP_DIVISOR))
+
+
 static func coaching(o: ClubOffice, role: int) -> int:
 	var best := 0
 	for c in o.captains:

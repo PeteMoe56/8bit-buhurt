@@ -356,7 +356,10 @@ static func _winter_the_splinters(s: Season) -> void:
 
 static func _train(s: Season) -> void:
 	s._ground_used = 0
-	var points := s.office.training_points()
+	## THE CAMP PLUS THE GROUND: the captains' camp every club gets, and what a
+	## Training ground adds on top.
+	s.last_winter["camp"] = s.office.camp_points(s.club.active_eight())
+	var points := s.office.training_points() + int(s.last_winter["camp"])
 	var pool: Array = s.club.roster.duplicate()
 	pool.sort_custom(func(a, b): return a.overall() < b.overall())
 

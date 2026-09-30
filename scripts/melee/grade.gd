@@ -160,15 +160,15 @@ const CORNER_DELTA: float = 4.0
 ## swing is what lets a good thumb out-fight a bad plan).
 const TABLE := {
 	G.FRIENDLY: { "scale": EASE, "pauses": 1, "corner": CORNER_DELTA, "ceiling": false, "bills": 0.8,
-		"swing": 0.75, "fall": 0.10, "pass": 0.08, "read": 0.40 },
+		"swing": 0.75, "fall": 0.10, "pass": 0.08, "read": 0.40, "knocks": 0.4 },
 	G.SANCTIONED: { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0,
-		"swing": 0.5, "fall": 0.20, "pass": 0.12, "read": 0.30 },
+		"swing": 0.5, "fall": 0.20, "pass": 0.12, "read": 0.30, "knocks": 0.6 },
 	G.FULL_STEEL: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": false, "bills": 1.2,
-		"swing": 0.25, "fall": 0.30, "pass": 0.16, "read": 0.20 },
+		"swing": 0.25, "fall": 0.30, "pass": 0.16, "read": 0.20, "knocks": 1.0 },
 	## SHARES FULL STEEL'S SCALAR, exactly as Retro Bowl's Extreme shares Hard's
 	## -5. The top grade is not a steeper number, it is a rule: see `ceiling`.
 	G.HARD_LIST: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": true, "bills": 1.2,
-		"swing": 0.0, "fall": 0.30, "pass": 0.16, "read": 0.10 },
+		"swing": 0.0, "fall": 0.30, "pass": 0.16, "read": 0.10, "knocks": 1.0 },
 }
 
 
@@ -178,7 +178,7 @@ const TABLE := {
 ## own range; the values live on the career (`Season.custom_grade`) and are
 ## handed to every function below, so there is no second copy to drift.
 const CUSTOM_DEFAULT := { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0,
-	"swing": 0.5, "fall": 0.20, "pass": 0.12, "read": 0.30 }
+	"swing": 0.5, "fall": 0.20, "pass": 0.12, "read": 0.30, "knocks": 0.6 }
 ## [min, max, step] per dial. The strength range is wider than the presets on
 ## purpose: a player who asks for x1.10 is asking for it.
 const DIALS := {
@@ -192,6 +192,9 @@ const DIALS := {
 	## THE BULLRUSH READ (Pete, 30 Sep 2026: "balance that for difficulty
 	## settings"): what your bullrush gains on a man under half balance.
 	"read": [0.0, 0.4, 0.1],
+	## HOW OFTEN A KNOCK LANDS (Pete, playtest 30 Sep: "injuries are too
+	## frequent, even on easy"): a share of the regime's injury chance.
+	"knocks": [0.2, 1.0, 0.1],
 }
 
 
@@ -364,6 +367,15 @@ static func wheel_for(g: int, step: int, custom: Dictionary = {}) -> Dictionary:
 	var row := _row(g, custom)
 	return {"swing": float(row.get("swing", 0.5)), "fall": float(row.get("fall", 0.2)),
 		"pass": float(row.get("pass", 0.12)), "read": float(row.get("read", 0.30))}
+
+
+## THE SHARE OF KNOCKS THAT LAND AT THIS GRADE (playtest 30 Sep): Friendly
+## 0.4, Sanctioned 0.6, Full Steel and the Hard List as they always were.
+static func knocks_for(g: int, step: int, custom: Dictionary = {}) -> float:
+	if g == G.MATCHED:
+		var t := (matched_scale(step) - 1.0) / (STEEL - 1.0)
+		return lerpf(0.6, 0.4, -t) if t < 0.0 else lerpf(0.6, 1.0, t)
+	return float(_row(g, custom).get("knocks", 0.6))
 
 
 static func name_of(g: int) -> String:

@@ -94,8 +94,12 @@ static func extension(market_rate: int, age: int, years_left: int) -> int:
 ## other, and the real drain turned out to be retirement with no refill. The
 ## bound went back. What was genuinely wrong was `Season.resign()`'s REFUSAL,
 ## which sent that man to a door that would not open — see the note there.
+## REVERSED BY PETE, playtest 30 Sep 2026: *"You should be able to extend
+## fighters in their last year."* The last year is extendable; re-signing is
+## what a man OUT of contract needs. The fork left is extend (under contract,
+## the discount) or re-sign (out of it, market rate).
 static func can_extend(f: FighterCard) -> bool:
-	return f.years >= 2 and f.years < YEARS_MAX
+	return f.years >= 1 and f.years < YEARS_MAX
 
 
 ## Every deal loses a year at the summer. Returns the men whose deal has now run

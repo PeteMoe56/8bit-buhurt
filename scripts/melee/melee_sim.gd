@@ -81,6 +81,11 @@ class Man extends RefCounted:
 	## Filling a slot he is not listed for. Only a bench swap can cause it.
 	var out_of_pos: bool = false
 	var order: Order = null
+	## HOLDING HIS GROUND (Pete, playtest 30 Sep #13: "stand still has no real
+	## control"). A tap plants him where he stands: he waits for them to come to
+	## him and is braced against a bullrush while he does. A drawn route lifts it.
+	var planted: bool = false
+	var planted_at: Vector2 = Vector2.ZERO
 	var prompt: Prompt = null
 	var tank: float = 1.0
 	var stability: float = 1.0
@@ -600,6 +605,7 @@ func _set_the_line() -> void:
 		m.state = State.CLOSING
 		m.target = -1
 		m.order = null
+		m.planted = false
 		m.prompt = null
 		m.stability = Tuning.STABILITY_MAX
 		m.exposed_t = 0.0
@@ -627,6 +633,7 @@ func give_order(idx: int, path: Array[Vector2], target: int = -1, run: bool = fa
 	var m := men[idx]
 	if m.team != 0 or not m.standing():
 		return false
+	m.planted = false
 	_order(m, path, target, false)
 	m.order.sprint = run and Tuning.sprint > 1.0
 	m.orders_given += 1
@@ -845,6 +852,20 @@ func lineup(team: int) -> Array:
 ##
 ## He becomes the AI's again rather than reverting to the play, which is the same
 ## thing that happens when a drawn route runs out on its own.
+## PLANT HIM. Your man only, on his feet and not tied up; any route he was on
+## goes. Returns whether it took.
+func plant(idx: int) -> bool:
+	if idx < 0 or idx >= men.size():
+		return false
+	var m := men[idx]
+	if m.team != 0 or not m.standing() or m.state == State.GRAPPLED:
+		return false
+	cancel_order(idx)
+	m.planted = true
+	m.planted_at = m.pos
+	return true
+
+
 func cancel_order(idx: int) -> void:
 	var m := men[idx]
 	m.order = null
@@ -1233,6 +1254,9 @@ func _step_closing(m: Man) -> void:
 			m.order = null
 			m.target = -1
 			return
+	elif m.planted:
+		## He does not go looking; whoever comes to him is fought where he stands.
+		goal = m.planted_at
 	elif m.target != -1 and men[m.target].standing():
 		goal = men[m.target].pos
 		homing = true
@@ -1334,11 +1358,21 @@ func _spread_out() -> void:
 		var mid := (m.pos + o.pos) * 0.5
 		var axis := o.pos - m.pos
 		axis = Vector2.DOWN if axis.length() < 0.01 else axis.normalized()
-		m.pos = mid - axis * Tuning.GRAPPLE_GAP * 0.5
-		o.pos = mid + axis * Tuning.GRAPPLE_GAP * 0.5
+		## SETTLED, NOT SNAPPED (playtest 30 Sep #12, "people teleported"): a
+		## pair that binds from further apart than the gap — a grab in passing, a
+		## third man joining a clinch — slides together a little each tick
+		## instead of jumping to the midpoint in one frame.
+		m.pos = m.pos.move_toward(mid - axis * Tuning.GRAPPLE_GAP * 0.5, GRAPPLE_SETTLE)
+		o.pos = o.pos.move_toward(mid + axis * Tuning.GRAPPLE_GAP * 0.5, GRAPPLE_SETTLE)
 	for m in men:
 		m.pos.x = clampf(m.pos.x, Tuning.RAIL_INSET, Tuning.LIST_W - Tuning.RAIL_INSET)
 		m.pos.y = clampf(m.pos.y, Tuning.RAIL_INSET, Tuning.LIST_H - Tuning.RAIL_INSET)
+
+
+## What bracing takes off a bullrush against a planted man.
+const PLANT_BRACE := 0.10
+## How far a clinched man may be pulled toward his partner in one tick.
+const GRAPPLE_SETTLE := 2.5
 
 
 # ------------------------------------------------------------------- prompts
@@ -1759,6 +1793,9 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	c += (float(a.card.weight) + a.tmod("weight_bonus", 0.0)
 		- float(d.card.weight)) * Tuning.BR_PER_LB
 	c -= d.eff_base() * Tuning.BR_PER_BASE * d.tmod("br_against", 1.0)
+	## A PLANTED MAN IS BRACED for it.
+	if d.planted:
+		c -= PLANT_BRACE
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
 	if br_read > 0.0 and (a.acting_for_player or Tuning.br_read_ai) \
 			and d.stability < Tuning.pread_at:

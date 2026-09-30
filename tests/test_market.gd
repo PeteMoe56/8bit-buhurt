@@ -300,9 +300,9 @@ func _test_the_fork_is_a_real_choice() -> void:
 	notes.append("on a $1,000 market rate: re-sign %d, extend with 1 year left %d, with 4 left %d"
 		% [late, one, four])
 	_ok(four < one and one < late and floor_ok
-			and not Contracts.can_extend(last) and Contracts.can_extend(mid),
+			and Contracts.can_extend(last) and Contracts.can_extend(mid),
 		"the fork is a real choice",
-		"the more of the deal you tear up the cheaper it is, bottoming at %d%% of market — and the last year cannot be extended"
+		"the more of the deal you tear up the cheaper it is, bottoming at %d%% of market — and the last year can be extended (Pete, 30 Sep)"
 			% int(round(100.0 * float(four) / float(late))))
 
 

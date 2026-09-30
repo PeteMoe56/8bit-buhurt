@@ -364,7 +364,8 @@ static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
 			var roll := RandomNumberGenerator.new()
 			roll.seed = hash("knock:%d:%d:%d:%s" % [s.world.rng.seed, s.world.season,
 				s.world.event, card.display_name])
-			if roll.randf() > s.office.regime_injury(Tuning.role_of(int(card.pos))):
+			## AND THE GRADE'S SHARE of it (playtest 30 Sep: too many knocks).
+			if roll.randf() > s.office.regime_injury(Tuning.role_of(int(card.pos))) * s.office.knocks_scale:
 				continue
 			var was := card.injury
 			card.injury = maxi(card.injury,

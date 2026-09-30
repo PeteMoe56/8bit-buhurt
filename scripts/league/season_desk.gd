@@ -274,7 +274,7 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		## and a card that set morale directly would be the one place in the game
 		## that could do it.
 		s.office.morale_shift(float(fx["morale"]))
-		said.append(UiKit.t("morale up") if float(fx["morale"]) > 0.0 else UiKit.t("morale down"))
+		said.append(UiKit.t("squad mood up") if float(fx["morale"]) > 0.0 else UiKit.t("squad mood down"))
 	## THE DECK'S `note` CURRENCY IS NOW THE FOLLOWING TOO.
 	##
 	## Fifteen cards were written against five currencies — credits, morale,
@@ -316,14 +316,19 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 			said.append(UiKit.t("%s's ceiling up %d") % [man.display_name, int(fx["potential"])])
 		if fx.has("years"):
 			man.years = clampi(man.years + int(fx["years"]), 0, Contracts.YEARS_MAX)
-			said.append(UiKit.tn("%s on %d year", "%s on %d years", man.years) % [man.display_name, man.years])
+			said.append(UiKit.tn("%s has %d year left", "%s has %d years left", man.years) % [man.display_name, man.years])
 		if fx.has("wage"):
 			man.wage_agreed = maxi(1, int(round(float(ClubOffice.billed(man))
 				* float(fx["wage"]))))
 
 	s.dilemma = {}
 	s.sync_power()
-	return UiKit.t("Done.") if said.is_empty() else "  ".join(said) + "."
+	## JOINED WITH A DOT, and the first letter up (playtest 30 Sep: "morale up
+	## Orr on 1 year" read as one broken sentence).
+	if said.is_empty():
+		return UiKit.t("Done.")
+	var line := "  ·  ".join(said)
+	return line.left(1).to_upper() + line.substr(1) + "."
 
 
 
@@ -455,8 +460,6 @@ static func resign(s: Season, f: FighterCard) -> String:
 	## works: let the deal run out, re-sign him out of contract, which is a state
 	## he sits in visibly for a whole season.
 	if f.years > 0:
-		if f.years == 1:
-			return UiKit.t("%s is in his last year. Let it run out, then re-sign him.") % f.display_name
 		## AND THE OTHER END OF THE SAME FAULT. A man already on the longest deal
 		## the club can write cannot be extended either, so "Extend him instead"
 		## was a dead end there too — one the check below found the moment it was
@@ -501,8 +504,13 @@ static func _negotiated(s: Season, f: FighterCard, raw: int) -> int:
 
 
 
+## HIS MOOD IS ON THIS INVOICE TOO (Pete, playtest 30 Sep: "Wage should
+## dictate contracts, CC should dictate their feelings during negotiations").
+## The wage is the price; the CC you spend on him (a word, the armorer) moves
+## his mood, and his mood moves the wage — the same rate re-signing uses.
 static func extend_cost(s: Season, f: FighterCard) -> int:
-	return s._negotiated(f, Contracts.extension(ClubOffice.wage(f), f.age, f.years))
+	var raw := Contracts.extension(ClubOffice.wage(f), f.age, f.years)
+	return s._negotiated(f, maxi(1, int(round(float(raw) * Contracts.mood_rate(f.morale)))))
 
 
 

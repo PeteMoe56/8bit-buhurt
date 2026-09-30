@@ -91,11 +91,19 @@ func _build() -> void:
 	## is on and sends the player to the grade page, where all six are laid out
 	## with what each one does.
 	if Session.season != null:
-		ui.add_child(UiKit.button(UiKit.t("Change difficulty"),
-			Vector2(CAREER_X + 18, CAREER_Y + 104.0), Vector2(COL_W - 36.0, 38), func():
+		var half := (COL_W - 36.0 - 8.0) * 0.5
+		ui.add_child(UiKit.button(UiKit.t("Difficulty"),
+			Vector2(CAREER_X + 18, CAREER_Y + 104.0), Vector2(half, 38), func():
 				Session.autosave()
 				Session.create_tab = 2
 				UiKit.go("res://scenes/Create.tscn"), "ladder"))
+		## WHERE A PLAYER LOOKS FOR HIS CLUB'S NAME (playtest 30 Sep #2: "it
+		## feels like it should be Settings").
+		ui.add_child(UiKit.button(UiKit.t("Name & badge"),
+			Vector2(CAREER_X + 18 + half + 8.0, CAREER_Y + 104.0), Vector2(half, 38), func():
+				Session.autosave()
+				Session.create_tab = 1
+				UiKit.go("res://scenes/Create.tscn"), "shield"))
 
 	## THE LANGUAGE BUTTON SHOWS WHAT IT CHANGES TO, like the grade's; the panel
 	## says what is in use now. A draft is offered only in a debug build.

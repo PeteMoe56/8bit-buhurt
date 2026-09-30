@@ -154,9 +154,16 @@ func _init(seed_value: int = 0, player_power: int = 42,
 ## miles apart is not a pyramid, it is a travel budget.
 var region: int = Cities.Region.US
 
+## TWENTY-EIGHT, not ten (playtest 30 Sep: "Everyone is Free Company"). Ten
+## words over a hundred-odd clubs put each one on a dozen of them; the real
+## sport's clubs are called after animals, metal and oaths as often as after
+## companies, so the pool is too.
 const SECOND := [
 	"Free Company", "Companions", "Guard", "Club", "Fellowship", "Retinue",
 	"Household", "Brotherhood", "Company", "Chapter",
+	"Wolves", "Bears", "Boars", "Stags", "Ravens", "Griffins", "Lions", "Hounds",
+	"Knights", "Wardens", "Vanguard", "Legion", "Banner", "Shieldwall",
+	"Ironclad", "Hammers", "Steel", "Order",
 ]
 
 

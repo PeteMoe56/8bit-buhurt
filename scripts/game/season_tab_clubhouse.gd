@@ -76,7 +76,7 @@ static func upgrade_word(v: SeasonScene, kind) -> String:
 	var f := int(kind)
 	var l := o.level(f)
 	if f == ClubOffice.Facility.TRAINING:
-		return UiKit.t("Winter points %d → %d") % [l * 3, (l + 1) * 3]
+		return UiKit.t("Camp +%d → +%d") % [l * 3, (l + 1) * 3]
 	if f == ClubOffice.Facility.INFIRMARY and floori((l + 1) / 2.0) > floori(l / 2.0):
 		return UiKit.t("Knocks -%d → -%d") % [floori(l / 2.0), floori((l + 1) / 2.0)]
 	return UiKit.t("Level %d → %d") % [l, l + 1]
@@ -309,9 +309,9 @@ static func _draw_office(v: SeasonScene) -> void:
 		var effect := UiKit.t("not built")
 		match f:
 			ClubOffice.Facility.TRAINING:
-				if o.training_points() > 0:
-					effect = UiKit.tn("%d point a winter", "%d points a winter",
-						o.training_points()) % o.training_points()
+				## THE WINTER CAMP IS THE CAPTAINS' PLUS THE GROUND'S, shown whole.
+				var camp: int = o.camp_points(v.season.club.active_eight()) + o.training_points()
+				effect = UiKit.t("winter camp +%d") % camp
 			ClubOffice.Facility.INFIRMARY:
 				if o.injury_relief() > 0:
 					effect = UiKit.tn("-%d event off a knock", "-%d events off a knock",

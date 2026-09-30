@@ -31,6 +31,30 @@ static func node() -> AppLife:
 func _enter_tree() -> void:
 	_me = self
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	## A WINDOW THAT CHANGES SIZE LAYS THE SCREEN OUT AGAIN (playtest 30 Sep:
+	## fullscreen left the title's buttons where the 960-wide window had put
+	## them). Screens build their controls once, in `_ready`, against the canvas
+	## they were born on; this hands them the new one.
+	var r := get_tree().root
+	if not r.size_changed.is_connected(_resized):
+		r.size_changed.connect(_resized)
+
+
+func _resized() -> void:
+	## Deferred: the canvas size settles after the signal.
+	call_deferred("_relayout")
+
+
+func _relayout() -> void:
+	var s := get_tree().current_scene
+	if s == null:
+		return
+	for m in ["_rebuild", "_build"]:
+		if s.has_method(m):
+			s.call(m)
+			break
+	if s is CanvasItem:
+		(s as CanvasItem).queue_redraw()
 
 
 func _exit_tree() -> void:

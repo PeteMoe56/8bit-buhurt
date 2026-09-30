@@ -152,6 +152,21 @@ func _order() -> Array:
 	var out: Array = []
 	if season == null:
 		return out
+	## ONLY THE MEN WITH A POINT, while a levelling run is on.
+	if Session.level_run:
+		for f in _all_order():
+			if Career.can_place(f):
+				out.append(f)
+		if not out.is_empty():
+			if not out.has(man) and man != null:
+				out.push_front(man)
+			return out
+		Session.level_run = false
+	return _all_order()
+
+
+func _all_order() -> Array:
+	var out: Array = []
 	var line := season.club.starting_five()
 	for f in line:
 		out.append(f)
@@ -317,6 +332,15 @@ func _build() -> void:
 						flash = UiKit.t("%s put a level into %s.") % [man.display_name,
 							Career.stat_name(stat).to_lower()]
 						season.sync_power()
+						## ON TO THE NEXT MAN WAITING, in a levelling run.
+						if Session.level_run and not Career.can_place(man):
+							var left := _all_order().filter(func(x): return x != man and Career.can_place(x))
+							if left.is_empty():
+								Session.level_run = false
+								flash += "  " + UiKit.t("Every level is spent.")
+							else:
+								man = left[0]
+								Session.viewing_fighter = man
 					elif r.get("reason", "") == "not earned":
 						flash = UiKit.said(UiKit.t("%d more xp before he levels.") %
 							int(r.get("short", 0)))
@@ -357,7 +381,9 @@ func _meeting_controls() -> void:
 	for i in 4:
 		var c: Dictionary = _meeting_row(i)
 		var at := _cell_at(i)
-		var b := UiKit.button(UiKit.t("%s · %d CC") % [String(c["verb"]), int(c["cc"])],
+		var price: String = (UiKit.t("%s/wk") % ClubOffice.money(int(c["wage"]))) if c.has("wage") \
+			else (UiKit.t("%d CC") % int(c["cc"]))
+		var b := UiKit.button("%s · %s" % [String(c["verb"]), price],
 			at + Vector2(READ_W + 12.0, 0.0), Vector2(btn_w(), HEAD_H),
 			_buy.bind(String(c["key"])))
 		b.disabled = bool(c["off"])
@@ -412,10 +438,14 @@ func _meeting_row(i: int) -> Dictionary:
 		_:
 			var bill := ClubOffice.wage_bill(season.club)
 			var cap := maxi(1, season.office.cap())
+			## A WAGE, NOT A PRICE IN CC (playtest 30 Sep: "Extend · 34 CC" was
+			## his $34 a week printed as credits). The deal costs nothing today;
+			## the button says what it will pay him.
 			return {"key": "deal", "label": UiKit.t("CONTRACT"),
 				"verb": UiKit.t("Re-sign") if man.years <= 0 else UiKit.t("Extend"),
-				"cc": season.resign_cost(man) if man.years <= 0 \
-					else season.extend_cost(man), "off": false,
+				"wage": season.resign_cost(man) if man.years <= 0 \
+					else season.extend_cost(man), "cc": 0,
+				"off": man.years > 0 and not Contracts.can_extend(man),
 				"value": ClubOffice.money(int(round(_roll("wage",
 					float(man.wage_agreed))))),
 				"col": UiKit.INK,
@@ -886,3 +916,8 @@ func _the_book() -> void:
 func _book(label: String, value: String, y: float) -> void:
 	UiKit.text(self, font, UiKit.t(label), Vector2(R_X + 16, y), 14, UiKit.DIM)
 	UiKit.right(self, font, value, Vector2(R_X + COL_W - 16, y), 14, UiKit.INK, 120)
+
+
+## A levelling run ends when the page is left.
+func _exit_tree() -> void:
+	Session.level_run = false

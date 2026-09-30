@@ -29,6 +29,8 @@ const TAB_W := 160.0
 ## SQUAD one collided with the tab underline.
 const CONTENT_Y := 132.0
 const FLASH_Y := 122.0
+var flash_px := 15
+var flash_room := 0.0
 const ROW_H := 22.0
 ## WHERE THE TABLE STARTS. The club tab is two columns — the fixture on the left
 ## and the division on the right — and with both pinned to their own edge the
@@ -76,7 +78,9 @@ const TABLE_Y := 140.0
 ## it moved, because a handset never changes the 540. A 4:3 tablet gets 720 of
 ## height and the row goes to the bottom of it instead of floating two-thirds
 ## up the screen with a third of a screen of nothing underneath.
-const ACTION_INSET := 64.0
+## 74, not 64 (playtest 30 Sep: the Sim it / Fight row cut into the ticker).
+## A 46-tall button with its 4 px drop now ends 2 px above the 22 px tape.
+const ACTION_INSET := 74.0
 
 
 static func action_y() -> float:
@@ -206,8 +210,11 @@ func _rebuild() -> void:
 	## EACH TAB CARRIES ITS MARK. A row of five words all the same length is
 	## parsed; a row of five marks is recognised, which on a phone held in one
 	## hand is the whole difference. The names stay — an icon alone is a rebus.
-	var names := [UiKit.t("CLUB"), UiKit.t("SQUAD"), UiKit.t("ARMORER"), UiKit.t("CLUBHOUSE"), UiKit.t("FINANCES")]
-	var marks := ["shield", "roster", "armor", "hall", "purse"]
+	## "UPGRADES", NOT "CLUBHOUSE" (playtest 30 Sep #17: "No real obvious way to
+	## upgrade facilities"). The tab is the club's shop of improvements; its
+	## name says so, and it carries the coin.
+	var names := [UiKit.t("CLUB"), UiKit.t("SQUAD"), UiKit.t("ARMORER"), UiKit.t("UPGRADES"), UiKit.t("FINANCES")]
+	var marks := ["shield", "roster", "armor", "coin", "purse"]
 	## THE ARMORER OPENS AFTER BOUT ONE (Pete, 29 Sep 2026, #5). The tabs close up
 	## rather than leave a hole.
 	var shown: Array[int] = []
@@ -545,13 +552,23 @@ func _draw() -> void:
 		## warning — the two messages that most need reading.
 		var room := UiKit.span()
 		var px := 15 if font.get_string_size(flash, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 15).x <= room else 12
-		UiKit.text(self, font, UiKit.clip_px(font, flash, px, room), Vector2(24, FLASH_Y), px, UiKit.YOU)
+		flash_px = px
+		flash_room = room
 	match tab:
 		Tab.CLUB: _draw_club()
 		Tab.SQUAD: _draw_squad()
 		Tab.MARKET: _draw_market()
 		Tab.OFFICE: _draw_office()
 		Tab.FINANCES: _draw_finances()
+	## THE MESSAGE IS A BAR OVER THE TAB, drawn last on its own ground (playtest
+	## 30 Sep: it printed through "THE ARMORER" underneath it).
+	if flash != "":
+		var bar := Rect2(16, FLASH_Y - 17.0, UiKit.span() + 16.0, 24.0)
+		draw_rect(bar, UiKit.PANEL)
+		draw_rect(Rect2(bar.position, Vector2(3, bar.size.y)), UiKit.YOU)
+		draw_rect(bar, UiKit.FRAME, false, 1.0)
+		UiKit.text(self, font, UiKit.clip_px(font, flash, flash_px, flash_room - 8.0),
+			Vector2(28, FLASH_Y), flash_px, UiKit.YOU)
 
 
 func _header() -> void:
@@ -829,18 +846,18 @@ func _draw_squad() -> void:
 ## Six pixels between every field and eight spare at the end. The name budget
 ## gave way from 130 to 100, because a clipped surname is a cosmetic loss and a
 ## wage printed through an age is a lie.
+## SIX FIELDS, NOT NINE (Pete, playtest 30 Sep #4: "too packed … everything
+## kind of blends together"). The shirt number, age and weekly pay moved to the
+## man's own page; the sheet keeps what a manager scans for: who, where, is
+## his kit sound, how long is his deal, what is he and what could he be.
 const SQUAD_W := 446.0
-const COL_NUM := 8.0
-const COL_NAME := 50.0
+const COL_NAME := 10.0
 ## The budget, not a character count. `COL_POS` minus a gap.
-const COL_NAME_W := 94.0
-const COL_POS := 150.0
-const COL_ARMOR := 226.0
-const COL_AGE := 272.0
-const COL_WAGE_TO := 351.0
-const COL_WAGE_BOX := 58.0
-const COL_YEARS := 361.0
-const COL_RATING_TO := 414.0
+const COL_NAME_W := 150.0
+const COL_POS := 172.0
+const COL_ARMOR := 262.0
+const COL_YEARS := 322.0
+const COL_RATING_TO := 404.0
 const COL_RATING_BOX := 40.0
 const COL_POT_TO := 438.0
 const COL_POT_BOX := 24.0

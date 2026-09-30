@@ -47,6 +47,8 @@ func _ready() -> void:
 
 
 func _build() -> void:
+	for c in ui.get_children():
+		c.queue_free()
 	var has_any := false
 	for i in SaveGame.SLOTS:
 		if SaveGame.has_save(i):
@@ -131,8 +133,10 @@ func _draw() -> void:
 		## No art, no invented layout: the wordmark it always drew.
 		UiKit.text(self, font, UiKit.t("8-BIT"), Vector2(center() - 236, 176), 62, UiKit.INK)
 		UiKit.text(self, font, UiKit.t("BUHURT"), Vector2(center() - 8, 176), 62, UiKit.YOU)
-	UiKit.text(self, font, UiKit.t("Run a club.  Take the list.  Climb."),
-		Vector2(center() - 134, tag_y), 16, UiKit.DIM)
+	## CENTRED ON THE LIVE CANVAS (playtest 30 Sep: at fullscreen it sat to the
+	## right of the art, which was centred).
+	UiKit.mid(self, font, UiKit.t("Run a club.  Take the list.  Climb."),
+		Vector2(0, tag_y), 16, UiKit.DIM, UiKit.screen().x)
 
 	## THE TWO DRIFTING BADGES ARE GONE. They were the game's heraldry on a screen
 	## that had no logo, which is exactly what they were for; beside a

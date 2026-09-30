@@ -226,7 +226,10 @@ const FACILITIES := {
 		## 462 pixels against a 440-pixel column, so the clubhouse clipped it to
 		## "…Your captains dec." — which is worse than the shorter sentence,
 		## because a clipped line reads as a bug and a short one reads as a line.
-		"blurb": "Your captains improve fighters over the winter.",
+		## BOTH HALVES OF TRAINING, said (playtest 30 Sep: "Training should be
+		## continuous and just more during an off season" — it already was
+		## weekly, and the line only named the winter).
+		"blurb": "More weekly practice, and a bigger winter camp.",
 		"effect": "%d stat points a season, spread over the squad",
 	},
 	Facility.INFIRMARY: {
@@ -642,6 +645,8 @@ func summer_bill() -> int:
 ## `Season.sync_power()` from `Grade.bills_for`. Not saved: it is derived, and
 ## every load syncs.
 var bills_scale: float = 1.0
+## The grade's share of knocks that land (Grade.knocks_for). Derived, not saved.
+var knocks_scale: float = 0.6
 
 
 func scaled(n: int) -> int:
@@ -1351,6 +1356,11 @@ func release(i: int) -> void:
 ## -> OfficeStaff (office_staff.gd)
 func coaching(role: int) -> int:
 	return OfficeStaff.coaching(self, role)
+
+
+## -> OfficeStaff (office_staff.gd)
+func camp_points(eight: Array) -> int:
+	return OfficeStaff.camp_points(self, eight)
 
 
 ## -> OfficeStaff (office_staff.gd)

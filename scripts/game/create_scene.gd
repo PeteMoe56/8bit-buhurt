@@ -134,7 +134,8 @@ func _rebuild() -> void:
 		tab = Tab.GRADE
 		flash = ""
 		_rebuild()), tab == Tab.GRADE))
-	ui.add_child(UiKit.corner_back("res://scenes/Season.tscn"))
+	if not Session.founding:
+		ui.add_child(UiKit.corner_back("res://scenes/Season.tscn"))
 	if tab == Tab.FIGHTER:
 		_fighter_controls()
 	elif tab == Tab.CLUB:
@@ -395,7 +396,8 @@ func _club_controls() -> void:
 		bank_b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(bank_b)
 
-	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Save the club"), Vector2(BOTTOM_X, 486), Vector2(260, 42),
+	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Found the club  >") if Session.founding
+		else UiKit.t("Save the club"), Vector2(BOTTOM_X, 486), Vector2(260, 42),
 		_save_club)))
 
 
@@ -429,11 +431,11 @@ func _grade_controls() -> void:
 
 ## The rows the read-out prints, in order; the dials follow the same list.
 ## The last three are the contact wheel's (29 Sep 2026), under a rule line.
-const DIAL_ROWS: Array[String] = ["scale", "pauses", "corner", "bills", "ceiling",
+const DIAL_ROWS: Array[String] = ["scale", "pauses", "corner", "bills", "knocks", "ceiling",
 	"swing", "fall", "pass", "read"]
-const DIAL_FIGHT_FROM := 5
+const DIAL_FIGHT_FROM := 6
 const DIAL_BTN := Vector2(40.0, 22.0)
-const DIAL_ROW_H := 23.0
+const DIAL_ROW_H := 21.0
 
 
 func _dial_y(k: int) -> float:
@@ -492,6 +494,9 @@ func _draw_grade() -> void:
 		[UiKit.t("Corner, between rounds"), "%ds" % int(Grade.corner_time(g, cg)), UiKit.INK],
 		[UiKit.t("Dues and renewals"), "x%.1f" % bills,
 			UiKit.DOWN if bills > 1.0 else (UiKit.UP if bills < 1.0 else UiKit.INK)],
+		[UiKit.t("Knocks that land"), "%d%%" % int(round(Grade.knocks_for(g, season.matched_step, cg) * 100.0)),
+			UiKit.UP if Grade.knocks_for(g, season.matched_step, cg) < 0.6
+			else (UiKit.DOWN if Grade.knocks_for(g, season.matched_step, cg) > 0.6 else UiKit.INK)],
 		[UiKit.t("Every club at its division's top"), UiKit.t("yes") if ceiling else UiKit.t("no"),
 			UiKit.DOWN if ceiling else UiKit.INK],
 	]
@@ -536,7 +541,13 @@ func _save_club() -> void:
 	draft_club_short = null
 	## The world carries the club's name for the table, so it has to be told.
 	season.world.clubs[season.world.player_club]["name"] = season.club.display_name
+	season.world.clubs[season.world.player_club]["short"] = season.club.short_name
 	Session.autosave()
+	## FOUNDED: into the season.
+	if Session.founding:
+		Session.founding = false
+		UiKit.go("res://scenes/Season.tscn")
+		return
 	flash = UiKit.t("Saved.")
 	_rebuild()
 
@@ -544,7 +555,13 @@ func _save_club() -> void:
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	UiKit.ground(self)
-	UiKit.text(self, font, UiKit.t("CREATE"), Vector2(24, 40), 22, UiKit.YOU)
+	## FOUNDING SAYS WHAT IT IS (playtest 30 Sep #2).
+	if Session.founding:
+		UiKit.text(self, font, UiKit.t("FOUND YOUR CLUB"), Vector2(24, 40), 22, UiKit.YOU)
+		UiKit.text_fit(self, font, UiKit.t("Name it, color it, pick its mark. Change any of it later from Settings."),
+			Vector2(24, 62), 13, UiKit.DIM, UiKit.right_edge(130.0) - 24.0)
+	else:
+		UiKit.text(self, font, UiKit.t("CREATE"), Vector2(24, 40), 22, UiKit.YOU)
 	## THE CURRENT TAB, marked the way the season hub marks its own (29 Sep 2026):
 	## the three tabs were identical buttons and nothing said which one you were on.
 	draw_rect(Rect2(24.0 + float(tab) * 156.0, 72.0 + 34.0, 150.0, 3.0), UiKit.YOU)

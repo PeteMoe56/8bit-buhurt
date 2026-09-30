@@ -785,6 +785,14 @@ func _release(p: Vector2) -> void:
 		elif man.under_orders() and not man.order.from_play:
 			sim.cancel_order(idx)
 			Audio.play("tap")
+		## A TAP ON A FREE MAN PLANTS HIM (Pete, playtest 30 Sep #13): he holds
+		## his ground, braced, until you draw him a route — or tap him again.
+		elif man.planted:
+			man.planted = false
+			Audio.play("tap")
+		## Not a man running a called play: that is the corner's call.
+		elif not man.under_orders() and sim.plant(idx):
+			Audio.play("tap")
 		draw_path.clear()
 		draw_screen = PackedVector2Array()
 		return
@@ -1458,6 +1466,9 @@ func _draw_man(m) -> void:
 		return
 
 	draw_rect(Rect2(p + Vector2(-w * 0.5, h * 0.46), Vector2(w, 5.0)), Color(0, 0, 0, 0.30))
+	## PLANTED: a gold bar under his feet, the ground he is holding.
+	if m.planted:
+		draw_rect(Rect2(p + Vector2(-w * 0.5 - 4.0, h * 0.5 + 3.0), Vector2(w + 8.0, 3.0)), UiKit.YOU)
 	## A dark void around every silhouette so two overlapping men never fuse into
 	## one shape. This is what keeps a four-man pile readable on a phone.
 	draw_rect(Rect2(p - Vector2(w * 0.5 + 2.0, h * 0.5 + 2.0), Vector2(w + 4.0, h + 4.0)),
@@ -1902,6 +1913,8 @@ func _draw_strip() -> void:
 			s = UiKit.t("on a route")
 		elif m.state == MeleeSim.State.RECOVER:
 			s = UiKit.t("breathing")
+		elif m.planted:
+			s = UiKit.t("holding ground")
 		elif live:
 			s = UiKit.t("on his own")
 		UiKit.raw(self, font, r.position + Vector2(10, 60), s, HORIZONTAL_ALIGNMENT_LEFT,
@@ -1936,12 +1949,18 @@ func _tally(m) -> String:
 ## in the space either side of the centerd fixture text — the gutters they used
 ## to live in are gone now that the list fills the frame, and that is the trade
 ## worth making: the fight gets the screen and the chrome gets the margins.
+## THE BIG FIRST-ORDER HINT IS FOR THE FIRST BOUT ONLY (playtest 30 Sep: "no
+## longer useful after the first fight"). A career that has fought has read it.
+func _veteran() -> bool:
+	return _season() != null and _season().first_bout_done()
+
+
 func _draw_hint() -> void:
 	var open := 0
 	for m in sim.men:
 		if m.prompt != null:
 			open += 1
-	var msg := UiKit.t("Drag a fighter to send him.")
+	var msg := UiKit.t("Drag a fighter to send him. Tap him to hold ground.")
 	if drawing != -1:
 		msg = UiKit.t("Release on ground, or on a man.")
 	elif open > 0:
@@ -1951,7 +1970,7 @@ func _draw_hint() -> void:
 	## NOT TWICE (round 9): while the big first-order band is up, it is the
 	## instruction, and the corner line waits.
 	var band_up: bool = sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 \
-		and wheel_man == -1 and not held
+		and wheel_man == -1 and not held and not _veteran()
 	if not band_up:
 		UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 14, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 14, COL_INK)
 	## SAID IN WORDS (blind review round 3: "0 routes · 0 of 0 calls" unexplained).
@@ -1967,7 +1986,7 @@ func _draw_hint() -> void:
 	## THE FIRST THING TO DO, big, in the empty middle of the list until he has
 	## done it once (blind review round 3: the key instruction was 10 px grey in
 	## a corner).
-	if sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 and wheel_man == -1 and not held:
+	if sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 and wheel_man == -1 and not held and not _veteran():
 		var band := Rect2(LIST_ORIGIN.x + 140.0, 190.0, Tuning.LIST_H * LIST_SCALE - 280.0, 74.0)
 		draw_rect(band, Color(0, 0, 0, 0.55))
 		draw_rect(band, Tuning.COL_MARSHAL, false, 2.0)
@@ -2138,6 +2157,7 @@ func _add_spend_button() -> void:
 	spend_button = UiKit.primary(UiKit.button(UiKit.t("Spend levels (%d)") % waiting.size(),
 		Vector2(REP_PANEL.position.x + 24.0, again_button.position.y), Vector2(260, 48), func():
 			Session.viewing_fighter = waiting[0]
+			Session.level_run = true
 			Session.autosave()
 			UiKit.go_back_to("res://scenes/Fighter.tscn", "res://scenes/Season.tscn"), "up"))
 	ui.add_child(spend_button)

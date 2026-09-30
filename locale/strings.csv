@@ -157,12 +157,14 @@ Another town  >,Another town  >,Otra ciudad  >,Autre ville  >,Andere Stadt  >,Al
 Kit color,Kit color,Color base,Couleur d'armure,Rüstungsfarbe,Colore divisa,Cor da armadura,Kolor zbroi,Цвет доспеха,装備の色
 Mark color,Mark color,Color de marca,Couleur d'emblème,Wappenfarbe,Colore stemma,Cor do emblema,Kolor znaku,Цвет знака,紋章の色
 %s unlocked.,%s unlocked.,%s desbloqueado.,%s débloqué.,%s freigeschaltet.,%s sbloccato.,%s desbloqueado.,Odblokowano: %s.,Открыто: %s.,%s解放。
+Found the club  >,Found the club  >,Fundar el club  >,Fonder le club  >,Klub gründen  >,Fonda il club  >,Fundar o clube  >,Załóż klub  >,Основать клуб  >,クラブ設立  >
 Save the club,Save the club,Guardar el club,Enregistrer le club,Verein sichern,Salva il club,Salvar o clube,Zapisz klub,Сохранить клуб,クラブを保存
 Easiest at the top,Easiest at the top,Lo más fácil arriba,Le plus facile en haut,Oben am leichtesten,Il più facile in alto,O mais fácil no topo,Najłatwiej na górze,Сверху — легче всего,上ほどやさしい
 Opposition strength,Opposition strength,Fuerza rival,Force adverse,Gegnerstärke,Forza avversaria,Força adversária,Siła rywali,Сила соперников,相手の強さ
 Calls from the corner,Calls from the corner,Órdenes desde la esquina,Ordres du coin,Rufe aus der Ecke,Chiamate dall'angolo,Chamadas do canto,Komendy z narożnika,Команды из угла,コーナーからの指示
 "Corner, between rounds","Corner, between rounds","Esquina, entre asaltos","Coin, entre les manches","Ecke, zwischen den Runden","Angolo, tra i round","Canto, entre rounds","Narożnik, między rundami","Угол, между раундами",ラウンド間のコーナー
 Dues and renewals,Dues and renewals,Cuotas y renovaciones,Cotisations et renouvellements,Beiträge und Verlängerungen,Quote e rinnovi,Taxas e renovações,Składki i odnowienia,Взносы и продления,会費と更新料
+Knocks that land,Knocks that land,Golpes que cuentan,Blessures qui passent,"Treffer, die verletzen",Colpi che lasciano il segno,Lesões que acontecem,"Urazy, które wchodzą","Травмы, что случаются",負傷の発生率
 Every club at its division's top,Every club at its division's top,Todos al tope de su división,Tous au sommet de leur division,Alle auf Divisionsspitze,Tutti al top della divisione,Todos no topo da divisão,Każdy na szczycie ligi,Все на пике своей лиги,全クラブが部門最強
 yes,yes,sí,oui,ja,sì,sim,tak,да,あり
 no,no,no,non,nein,no,não,nie,нет,なし
@@ -172,6 +174,8 @@ off,off,no,non,aus,no,não,wył.,выкл.,なし
 Grabbed or tripped passing,Grabbed or tripped passing,Agarrado o zancadilla al pasar,Saisi ou fauché en passant,Beim Vorbeilaufen gepackt,Agguantato o sgambettato,Agarrado ou rasteira ao passar,Złapany lub podcięty w biegu,Схвачен или сбит на бегу,すれ違いで掴み・足払い
 Bullrush on a wobbling man,Bullrush on a wobbling man,Embestida a un rival tambaleante,Charge sur un homme vacillant,Sturmlauf auf Wankenden,Carica su un uomo vacillante,Investida em quem cambaleia,Szarża na chwiejnego,Таран по шатающемуся,ふらつく相手への突進
 "Tap a grade to use it. It is saved with the club, and you can change it later.","Tap a grade to use it. It is saved with the club, and you can change it later.",Toca un grado para usarlo. Se guarda con el club y puedes cambiarlo luego.,Touche un niveau pour l'utiliser. Il est lié au club et modifiable plus tard.,Tippe eine Stufe an. Sie gilt für den Verein und lässt sich später ändern.,Tocca un grado per usarlo. Resta col club e puoi cambiarlo poi.,Toque um nível para usá-lo. Fica salvo no clube e pode mudar depois.,"Dotknij poziomu, by go użyć. Zapisuje się z klubem, zmienisz go później.","Коснись уровня, чтобы выбрать. Он хранится в клубе, можно сменить позже.",難易度をタップで適用。クラブに保存され、後で変更可。
+FOUND YOUR CLUB,FOUND YOUR CLUB,FUNDA TU CLUB,FONDEZ VOTRE CLUB,GRÜNDE DEINEN KLUB,FONDA IL TUO CLUB,FUNDE SEU CLUBE,ZAŁÓŻ SWÓJ KLUB,ОСНУЙТЕ КЛУБ,クラブを設立
+"Name it, color it, pick its mark. Change any of it later from Settings.","Name it, color it, pick its mark. Change any of it later from Settings.","Ponle nombre, colores y emblema. Puedes cambiarlo luego en Ajustes.","Nom, couleurs, emblème. Modifiable ensuite dans Réglages.","Name, Farben, Wappen. Später in den Einstellungen änderbar.","Nome, colori, stemma. Modificabili poi da Impostazioni.","Nome, cores e emblema. Mude depois em Ajustes.","Nazwa, barwy, herb. Zmienisz to później w Ustawieniach.","Имя, цвета, герб. Потом можно сменить в Настройках.",名前・色・紋章を決める。設定からいつでも変更可。
 CREATE,CREATE,CREAR,CRÉER,ERSTELLEN,CREA,CRIAR,STWÓRZ,СОЗДАТЬ,作成
 You have written all four men this club will ever get.,You have written all four men this club will ever get.,Ya has creado a los cuatro hombres que tendrá este club.,Tu as créé les quatre hommes auxquels ce club a droit.,"Du hast alle vier Männer erschaffen, die dieser Verein je bekommt.",Hai creato tutti e quattro gli uomini che questo club avrà mai.,Você já criou os quatro homens que este clube vai ter.,"Stworzyłeś już wszystkich czterech, jakich ten klub dostanie.","Ты создал всех четверых бойцов, что положены клубу.",このクラブで作れる4人を全員作成済みです。
 %d of %d creations left,%d of %d creations left,quedan %d de %d creaciones,reste %d sur %d,noch %d von %d,%d creazioni su %d rimaste,%d de %d criações restantes,zostało %d z %d,осталось %d из %d,作成残り %d／%d
@@ -231,9 +235,12 @@ Pole,Pole,Asta,Hast,Stange,Asta,Haste,Drzewce,Древко,長柄
 %s will carry a %s.,%s will carry a %s.,%s llevará: %s.,%s portera : %s.,%s trägt jetzt ein %s.,%s porterà: %s.,%s vai levar um %s.,%s będzie nosił: %s.,%s получит: %s.,%sは%sを持つ。
 +1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s
 %s put a level into %s.,%s put a level into %s.,%s subió un nivel en %s.,%s a mis un niveau en %s.,%s steckt eine Stufe in %s.,%s ha messo un livello in %s.,%s pôs um nível em %s.,%s wbił poziom w: %s.,%s вложил уровень в %s.,%sが%sにレベルを振った。
+Every level is spent.,Every level is spent.,Todos los niveles gastados.,Tous les niveaux sont dépensés.,Alle Stufen verteilt.,Tutti i livelli spesi.,Todos os níveis gastos.,Wszystkie poziomy wydane.,Все уровни потрачены.,レベルはすべて使った。
 %d more xp before he levels.,%d more xp before he levels.,Le faltan %d xp para subir.,Encore %d xp avant le niveau suivant.,Noch %d XP bis zur nächsten Stufe.,Ancora %d xp al prossimo livello.,Mais %d xp até ele subir de nível.,Jeszcze %d xp do poziomu.,До уровня ещё %d XP.,レベルアップまであと%d XP。
 Nothing left in his %s.,Nothing left in his %s.,No le queda nada en %s.,Plus rien à gagner en %s.,Kein Spielraum mehr in %s.,%s: niente più margine.,Nada mais a extrair em %s.,Nic więcej w: %s.,Больше некуда расти: %s.,%sはもう伸びない。
 Meeting · %s,Meeting · %s,Reunión · %s,Entretien · %s,Gespräch · %s,Colloquio · %s,Reunião · %s,Rozmowa · %s,Разговор · %s,面談 · %s
+%s/wk,%s/wk,%s/sem,%s/sem,%s/Wo,%s/sett,%s/sem,%s/tydz,%s/нед,%s/週
+%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC
 Done,Done,Hecho,Terminé,Fertig,Fatto,Pronto,Gotowe,Готово,完了
 MORALE,MORALE,MORAL,MORAL,MORAL,MORALE,MORAL,MORALE,БОЕВОЙ ДУХ,士気
 Sit him down,Sit him down,Hablar con él,Lui parler,Ins Gebet nehmen,Parlargli,Conversar com ele,Rozmowa,Поговорить,面談する
@@ -277,7 +284,6 @@ He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-s
 Asks at renewal,Asks at renewal,Pide al renovar,Demande au renouvellement,Will bei Verlängerung,Chiede al rinnovo,Pede na renovação,Chce przy odnowieniu,Просит при продлении,更新時の要求
 %s/wk · %dy,%s/wk · %dy,%s/sem · %da,%s/sem · %da,%s/Wo. · %dJ,%s/sett · %da,%s/sem · %da,%s/tydz. · %d l.,%s/нед · %d г.,%s/週 · %d年
 A WORD WITH %s,A WORD WITH %s,UNAS PALABRAS CON %s,UN MOT AVEC %s,EIN WORT MIT %s,DUE PAROLE CON %s,UMA CONVERSA COM %s,ROZMOWA: %s,РАЗГОВОР: %s,%sと話す
-%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC
 club rating %d,club rating %d,media del club %d,note du club %d,Vereinswertung %d,valore club %d,nota do clube %d,ocena klubu %d,рейтинг клуба %d,クラブ能力値 %d
 WHAT HE IS MADE OF,WHAT HE IS MADE OF,DE QUÉ ESTÁ HECHO,CE QU'IL A DANS LE VENTRE,WORAUS ER GEMACHT IST,DI CHE PASTA È FATTO,DO QUE ELE É FEITO,Z CZEGO JEST ZROBIONY,ИЗ ЧЕГО ОН СДЕЛАН,資質
 puts men down,puts men down,tumba hombres,met les hommes au sol,bringt Männer zu Boden,manda a terra,derruba homens,powala ludzi,валит с ног,相手を倒す
@@ -383,7 +389,7 @@ Short of fit men: ,Short of fit men: ,Faltan hombres aptos: ,Pas assez d'hommes 
  and %d more., and %d more., y %d más., et %d autres., und %d weitere., e altri %d., e mais %d., i jeszcze %d., и ещё %d., 他%d人。
 Could not save — your phone may be out of space. The last save is safe.,Could not save — your phone may be out of space. The last save is safe.,No se pudo guardar: puede que tu teléfono no tenga espacio. La última partida guardada está a salvo.,Sauvegarde impossible : ton téléphone manque peut-être de place. La dernière sauvegarde est intacte.,Speichern fehlgeschlagen – vielleicht ist dein Handy voll. Der letzte Spielstand ist sicher.,Salvataggio non riuscito: forse il telefono è pieno. L'ultimo salvataggio è al sicuro.,Não foi possível salvar: talvez o celular esteja sem espaço. O último save está seguro.,Nie udało się zapisać — może brakuje miejsca w telefonie. Ostatni zapis jest bezpieczny.,"Не удалось сохранить — возможно, на телефоне нет места. Последнее сохранение цело.",保存できなかった。端末の空き容量が足りないかもしれない。前回のセーブは無事だ。
 ARMORER,ARMORER,ARMERO,ARMURIER,SCHMIED,ARMAIOLO,ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
-CLUBHOUSE,CLUBHOUSE,SEDE,CLUB-HOUSE,VEREINSHEIM,CLUBHOUSE,SEDE,KLUBOWNIA,КЛУБ,クラブハウス
+UPGRADES,UPGRADES,MEJORAS,AMÉLIORER,AUSBAU,MIGLIORIE,MELHORIAS,ULEPSZENIA,УЛУЧШЕНИЯ,強化
 FINANCES,FINANCES,FINANZAS,FINANCES,FINANZEN,FINANZE,FINANÇAS,FINANSE,ФИНАНСЫ,財務
 Exit,Exit,Salir,Quitter,Beenden,Esci,Sair,Wyjdź,Выход,終了
 Club,Club,Club,Club,Verein,Club,Clube,Klub,Клуб,クラブ
@@ -416,14 +422,14 @@ HARNESS,HARNESS,ARNÉS,HARNAIS,RÜSTUNG,CORAZZA,ARNÊS,ZBROJA,ДОСПЕХ,防�
 KIT,KIT,ARN,ARM,RÜST,ARM,ARM,ZBR,ДОСП,装備
 min,min,mín,min,min,min,mín,min,мин,最低
 NEXT,NEXT,SIG,SUIV,NÄCHST,PROS,PRÓX,NAST,ДАЛЕЕ,次
-Tap a fighter to repair or upgrade his harness.,Tap a fighter to repair or upgrade his harness.,Toca a un luchador para reparar o mejorar su armadura.,Touchez un combattant pour réparer ou améliorer son harnois.,"Tippe auf einen Kämpfer, um seine Rüstung zu flicken oder zu verbessern.",Tocca un lottatore per riparare o migliorare l'armatura.,Toque num lutador para reparar ou melhorar a armadura.,"Dotknij wojownika, by naprawić lub ulepszyć zbroję.","Нажмите на бойца, чтобы починить или улучшить доспех.",選手をタップして鎧を修理・強化。
+Tap a fighter to fix his kit or buy him a better harness.,Tap a fighter to fix his kit or buy him a better harness.,Toca a un luchador para arreglar su equipo o comprarle una armadura mejor.,Touchez un combattant pour réparer son équipement ou lui acheter un meilleur harnois.,"Tippe auf einen Kämpfer, um seine Rüstung zu flicken oder eine bessere zu kaufen.",Tocca un lottatore per sistemargli il kit o comprargli un'armatura migliore.,Toque num lutador para consertar o kit ou comprar uma armadura melhor.,"Dotknij wojownika, by naprawić sprzęt lub kupić lepszą zbroję.",Нажмите на бойца: починить снаряжение или купить доспех лучше.,選手をタップして装備を直すか、良い鎧を買う。
 fix %d CC,fix %d CC,arreglo %d CC,réparer %d CC,flicken %d CC,ripara %d CC,reparo %d CC,napraw %d CC,ремонт %d CC,修理%d CC
-up %d CC,up %d CC,mejora %d CC,améliorer %d CC,besser %d CC,migliora %d CC,melhoria %d CC,lepszy %d CC,лучше %d CC,強化%d CC
-Repair the traveling kit  ·  %d CC,Repair the traveling kit  ·  %d CC,Reparar el equipo de viaje  ·  %d CC,Réparer le matériel  ·  %d CC,Reiseausrüstung reparieren  ·  %d CC,Ripara l'attrezzatura  ·  %d CC,Reparar o equipamento  ·  %d CC,Napraw sprzęt  ·  %d CC,Починить снаряжение  ·  %d CC,遠征装備を修理 · %d CC
+new %d CC,new %d CC,nueva %d CC,neuf %d CC,neu %d CC,nuova %d CC,nova %d CC,nowa %d CC,новый %d CC,新調%d CC
+Fix all traveling kit  ·  %d CC,Fix all traveling kit  ·  %d CC,Arreglar todo el equipo de viaje  ·  %d CC,Réparer tout l'équipement de route  ·  %d CC,Reiserüstung flicken  ·  %d CC,Sistema tutto il kit da trasferta  ·  %d CC,Consertar todo o kit de viagem  ·  %d CC,Napraw sprzęt wyjazdowy  ·  %d CC,Починить всё выездное  ·  %d CC,遠征装備を全修理  ·  %d CC
 Nothing the armorer could do this week.,Nothing the armorer could do this week.,El armero no pudo hacer nada esta semana.,L'armurier n'a rien pu faire cette semaine.,Der Schmied konnte diese Woche nichts tun.,Niente da fare per l'armaiolo questa settimana.,O armeiro não pôde fazer nada esta semana.,Płatnerz nic nie mógł zrobić w tym tygodniu.,На этой неделе оружейнику нечего делать.,今週、武具師にできることはなかった。
 "%d harnesses seen to, %d CC.","%d harnesses seen to, %d CC.","%d arneses revisados, %d CC.","%d armures réparées, %d CC.","%d Rüstungen gerichtet, %d CC.","%d armature sistemate, %d CC.","%d armaduras revisadas, %d CC.","Zbroje naprawione: %d, %d CC.","Доспехов починено: %d, %d CC.",装備%d着を修理、%d CC。
-Repair %s · %d CC,Repair %s · %d CC,Reparar %s · %d CC,Réparer %s · %d CC,%s reparieren · %d CC,Ripara %s · %d CC,Reparar %s · %d CC,Napraw %s · %d CC,Ремонт: %s · %d CC,%sを修理 · %d CC
-Upgrade to %s · %d CC,Upgrade to %s · %d CC,Mejorar a %s · %d CC,Passer à %s · %d CC,Auf %s · %d CC,Passa a %s · %d CC,Melhorar p/ %s · %d CC,Na %s · %d CC,До %s · %d CC,%sへ · %d CC
+Fix %s's kit · %d CC,Fix %s's kit · %d CC,Arreglar equipo de %s · %d CC,Réparer %s · %d CC,%s flicken · %d CC,Sistema kit di %s · %d CC,Consertar kit de %s · %d CC,Napraw: %s · %d CC,Починить: %s · %d CC,%sの装備を修理 · %d CC
+New harness: %s · %d CC,New harness: %s · %d CC,Armadura nueva: %s · %d CC,Nouveau harnois : %s · %d CC,Neue Rüstung: %s · %d CC,Armatura nuova: %s · %d CC,Armadura nova: %s · %d CC,Nowa zbroja: %s · %d CC,Новый доспех: %s · %d CC,新しい鎧: %s · %d CC
 The draw,The draw,El sorteo,Le tirage,Die Auslosung,Il sorteggio,O sorteio,Losowanie,Сетка,組み合わせ
 Take it,Take it,Acéptalo,Accepter,Annehmen,Accetta,Aceitar,Biorę,Беру,受ける
 Up to the %s.,Up to the %s.,Ascenso a %s.,Montée en %s.,Rauf in die %s.,Su in %s.,Sobe para: %s.,Awans: %s.,Наверх: %s.,%sへ昇格。
@@ -477,7 +483,7 @@ Improved.,Improved.,Mejorado.,Amélioré.,Verbessert.,Migliorato.,Melhorado.,Ule
 Open the staff room,Open the staff room,Ir al staff,Voir le staff,Zum Stab,Vai allo staff,Ver a comissão,Idź do sztabu,К штабу,スタッフへ
 Cap %s → %s,Cap %s → %s,Tope %s → %s,Plafond %s → %s,Grenze %s → %s,Tetto %s → %s,Teto %s → %s,Limit %s → %s,Лимит %s → %s,上限 %s → %s
 Places %d → %d,Places %d → %d,Plazas %d → %d,Places %d → %d,Plätze %d → %d,Posti %d → %d,Vagas %d → %d,Miejsca %d → %d,Места %d → %d,座席 %d → %d
-Winter points %d → %d,Winter points %d → %d,Puntos %d → %d,Points %d → %d,Punkte %d → %d,Punti %d → %d,Pontos %d → %d,Punkty %d → %d,Очки %d → %d,冬ポイント %d → %d
+Camp +%d → +%d,Camp +%d → +%d,Campus +%d → +%d,Stage +%d → +%d,Camp +%d → +%d,Ritiro +%d → +%d,Camp +%d → +%d,Obóz +%d → +%d,Сбор +%d → +%d,合宿 +%d → +%d
 Knocks -%d → -%d,Knocks -%d → -%d,Lesión -%d → -%d,Blessure -%d → -%d,Verletzung -%d → -%d,Infortuni -%d → -%d,Lesão -%d → -%d,Urazy -%d → -%d,Травмы -%d → -%d,負傷 -%d → -%d
 Level %d → %d,Level %d → %d,Nivel %d → %d,Niveau %d → %d,Stufe %d → %d,Livello %d → %d,Nível %d → %d,Poziom %d → %d,Уровень %d → %d,レベル %d → %d
 The staff,The staff,El staff,Le staff,Der Stab,Lo staff,A comissão,Sztab,Штаб,スタッフ
@@ -511,14 +517,13 @@ $ = weekly wages,$ = weekly wages,$ = sueldos semanales,$ = salaires hebdo,$ = W
 never raised,never raised,sin subir,jamais relevé,nie erhöht,mai alzato,nunca subiu,nie podnoszony,не поднимался,未引上げ
 raised %d×,raised %d×,subido %d×,relevé %d×,%d× erhöht,alzato %d×,subiu %d×,podniesiony %d×,поднят %d×,%d回引上げ
 not built,not built,sin hacer,à faire,nicht gebaut,non costruito,não construído,niezbudowane,не построено,未建設
+winter camp +%d,winter camp +%d,campus +%d,stage +%d,Camp +%d,ritiro +%d,camp +%d,obóz +%d,сбор +%d,合宿 +%d
 one more level to help,one more level to help,un nivel más para notarlo,encore un niveau pour que ça aide,"noch eine Stufe, dann hilft es",un altro livello e aiuta,mais um nível para ajudar,"jeszcze jeden poziom, by pomogło",ещё уровень — и будет польза,あと1段階で効果あり
 COACHING,COACHING,ENTRENAMIENTO,ENTRAÎNEMENT,TRAINING,ALLENAMENTO,TREINO,TRENING,ТРЕНИРОВКА,指導
 Every role taught.,Every role taught.,Todos los roles enseñados.,Tous les rôles enseignés.,Jede Rolle gelehrt.,Ogni ruolo insegnato.,Tudo ensinado.,Każda rola przećwiczona.,Все роли освоены.,全役割を指導済み。
 fights at %s level,fights at %s level,lucha a nivel %s,se bat au niveau %s,kämpft auf Stufe %s,combatte a livello %s,luta no nível %s,walczy na poziomie %s,дерётся на уровне %s,%sレベルで戦う
  and , and , y , et , und , e , e , i , и ,と
 %s untaught,%s untaught,%s sin enseñar,%s non enseigné,%s ungelehrt,%s non insegnato,%s sem treino,%s bez trenera,%s без тренера,%s 未指導
-%d point a winter,%d point a winter,%d punto por invierno,%d point par hiver,%d Punkt pro Winter,%d punto a inverno,%d ponto por inverno,punkty na zimę: %d,очков за зиму: %d,冬ごとに%dポイント
-%d points a winter,%d points a winter,%d puntos por invierno,%d points par hiver,%d Punkte pro Winter,%d punti a inverno,%d pontos por inverno,punkty na zimę: %d,очков за зиму: %d,冬ごとに%dポイント
 -%d event off a knock,-%d event off a knock,-%d evento por lesión,-%d rencontre par blessure,-%d Event pro Verletzung,-%d evento per infortunio,-%d evento por lesão,-%d zawody na urazie,-%d турнир на травме,負傷ごとに-%d大会
 -%d events off a knock,-%d events off a knock,-%d eventos por lesión,-%d rencontres par blessure,-%d Events pro Verletzung,-%d eventi per infortunio,-%d eventos por lesão,-%d zawody na urazie,-%d турниров на травме,負傷ごとに-%d大会
 The ground,The ground,El estadio,Le stade,Die Arena,L'impianto,O estádio,Stadion,Арена,本拠地
@@ -571,14 +576,13 @@ green = good  ·  gold years = final year,green = good  ·  gold years = final y
 OUT %d,OUT %d,FUERA %d,ABSENT %d,RAUS %d,FUORI %d,FORA %d,URAZ %d,ТРАВМА %d,離脱 %d
 %dy,%dy,%da,%da,%dJ,%da,%da,%dl,%dг,%d年
 ROLE,ROLE,PUESTO,POSTE,ROLLE,RUOLO,POSIÇÃO,ROLA,РОЛЬ,役割
-AGE,AGE,EDAD,ÂGE,ALT,ETÀ,IDADE,WIEK,ВОЗР,年齢
-PAY,PAY,PAGA,PAIE,LOHN,PAGA,PAGA,PŁACA,ПЛАТА,給与
-YR,YR,AÑ,AN,JR,AN,AN,LAT,ЛЕТ,年
+DEAL,DEAL,CONT,ANS,VERTR,CONTR,CONTR,UMOWA,КОНТР,契約
 NOW,NOW,HOY,ACT,IST,ORA,HOJE,AKT,СЕЙЧ,現在
 MAX,MAX,MÁX,MAX,MAX,MAX,MÁX,MAX,МАКС,最大
 Automatic,Automatic,Automático,Automatique,Automatisch,Automatica,Automático,Automatycznie,Автоматически,自動
   (draft),  (draft),  (borrador),  (brouillon),  (Entwurf),  (bozza),  (rascunho),  (szkic),  (черновик),  （下書き）
-Change difficulty,Change difficulty,Cambiar dificultad,Changer la difficulté,Schwierigkeit ändern,Cambia difficoltà,Mudar dificuldade,Zmień poziom,Сменить сложность,難易度を変更
+Difficulty,Difficulty,Dificultad,Difficulté,Schwierigkeit,Difficoltà,Dificuldade,Poziom trudności,Сложность,難易度
+Name & badge,Name & badge,Nombre y escudo,Nom et blason,Name & Wappen,Nome e stemma,Nome e escudo,Nazwa i herb,Имя и герб,名前と紋章
 Credits & licenses,Credits & licenses,Créditos y licencias,Crédits et licences,Credits & Lizenzen,Crediti e licenze,Créditos e licenças,Twórcy i licencje,Авторы и лицензии,クレジットとライセンス
 from %s  ·  %s,from %s  ·  %s,de %s  ·  %s,de %s  ·  %s,aus %s  ·  %s,da %s  ·  %s,de %s  ·  %s,z %s  ·  %s,из %s  ·  %s,出典 %s  ·  %s
 Used under the %s,Used under the %s,Usado bajo %s,Utilisé sous %s,Lizenz: %s,Usata con licenza %s,Usado sob a %s,Na licencji %s,По лицензии %s,%sに基づき使用
@@ -592,7 +596,6 @@ SETTINGS,SETTINGS,AJUSTES,RÉGLAGES,OPTIONEN,IMPOSTAZIONI,CONFIGURAÇÕES,USTAWI
 SOUND,SOUND,SONIDO,SON,TON,AUDIO,SOM,DŹWIĘK,ЗВУК,サウンド
 Saved as you set them.,Saved as you set them.,Se guardan al cambiarlos.,Enregistré à chaque changement.,Wird sofort gesichert.,Salvate mentre le imposti.,Salvo ao ajustar.,Zapisuje się od razu.,Сохраняются сразу.,変更は即保存。
 THIS CAREER,THIS CAREER,ESTA CARRERA,CETTE CARRIÈRE,DIESE KARRIERE,QUESTA CARRIERA,ESTA CARREIRA,TA KARIERA,ЭТА КАРЬЕРА,このキャリア
-Difficulty,Difficulty,Dificultad,Difficulté,Schwierigkeit,Difficoltà,Dificuldade,Poziom trudności,Сложность,難易度
 Open it from the Club menu.,Open it from the Club menu.,Ábrelo desde el menú Club.,Ouvre-le depuis le menu Club.,Öffne es im Club-Menü.,Aprilo dal menu Club.,Abra pelo menu Clube.,Otwórz z menu Klub.,Открой из меню «Клуб».,クラブメニューから開く。
 LANGUAGE,LANGUAGE,IDIOMA,LANGUE,SPRACHE,LINGUA,IDIOMA,JĘZYK,ЯЗЫК,言語
 Automatic (%s),Automatic (%s),Automático (%s),Automatique (%s),Automatisch (%s),Automatico (%s),Automático (%s),Automatycznie (%s),Авто (%s),自動（%s）
@@ -826,8 +829,8 @@ The %s won't fight in a %s. Build a %s first.,The %s won't fight in a %s. Build 
 the other lot,the other lot,los otros,les autres,die anderen,gli altri,os outros,ci drudzy,"те, другие",相手側
 Pick one.,Pick one.,Elige una.,Choisis.,Wähl eins.,Scegline una.,Escolha um.,Wybierz.,Выбери одно.,1つ選んで。
 The club's decision,The club's decision,La decisión del club,La décision du club,Die Entscheidung des Vereins,La decisione del club,Decisão do clube,Decyzja klubu,Решение клуба,クラブの決断
-morale up,morale up,la moral sube,le moral monte,Moral steigt,morale in su,moral em alta,morale w górę,боевой дух вырос,士気上昇
-morale down,morale down,la moral baja,le moral baisse,Moral sinkt,morale in giù,moral em baixa,morale w dół,боевой дух упал,士気低下
+squad mood up,squad mood up,ánimo del equipo al alza,moral en hausse,Stimmung steigt,morale in su,moral do elenco sobe,nastrój drużyny w górę,настрой команды выше,チームの士気アップ
+squad mood down,squad mood down,ánimo del equipo a la baja,moral en baisse,Stimmung sinkt,morale in giù,moral do elenco cai,nastrój drużyny w dół,настрой команды ниже,チームの士気ダウン
 talked about more,talked about more,se habla más del club,on parle plus du club,man redet mehr über uns,se ne parla di più,falam mais do clube,mówią o nas więcej,о нас говорят больше,話題が増えた
 talked about less,talked about less,se habla menos del club,on parle moins du club,man redet weniger über uns,se ne parla di meno,falam menos do clube,mówią o nas mniej,о нас говорят меньше,話題が減った
 %d%% more following,%d%% more following,%d%% más seguidores,%d%% de fidèles en plus,%d%% mehr Anhänger,%d%% di seguito in più,%d%% mais seguidores,%d%% więcej kibiców,фанатов больше на %d%%,フォロワー%d%%増
@@ -843,11 +846,10 @@ Done.,Done.,Hecho.,Fait.,Erledigt.,Fatto.,Pronto.,Gotowe.,Готово.,完了�
 %s is on the longest deal the club can offer.,%s is on the longest deal the club can offer.,%s tiene el contrato más largo que puede ofrecer el club.,%s a le contrat le plus long que le club puisse offrir.,"%s hat schon den längsten Vertrag, den der Verein bieten kann.",%s ha già il contratto più lungo che il club possa offrire.,%s está no contrato mais longo que o clube oferece.,"%s ma najdłuższy kontrakt, jaki klub może dać.","%s уже на самом длинном контракте, что может дать клуб.",%sはクラブが提示できる最長契約中。
 "%s is in the last year of his deal. Let it run out, then re-sign him.","%s is in the last year of his deal. Let it run out, then re-sign him.",%s está en el último año de contrato. Deja que venza y luego renuévalo.,"%s est dans la dernière année de son contrat. Laisse-le expirer, puis re-signe-le.","%s ist im letzten Vertragsjahr. Lass es auslaufen, dann verlängere.","%s è all'ultimo anno. Lascialo scadere, poi rinnovalo.",%s está no último ano de contrato. Deixe acabar e depois renove.,"%s jest w ostatnim roku umowy. Niech wygaśnie, potem podpisz ponownie.","%s в последнем году контракта. Дай ему истечь, потом переподпиши.",%sは契約最終年。満了してから再契約を。
 That deal puts you %s over the cap.,That deal puts you %s over the cap.,Ese contrato te pone %s por encima del tope.,Ce contrat te met %s au-dessus du plafond.,Mit dem Vertrag bist du %s über der Obergrenze.,Con quel contratto sei %s oltre il tetto.,Esse contrato deixa você %s acima do teto.,Ta umowa to %s ponad limit.,Эта сделка — %s сверх лимита.,その契約だと上限を%s超える。
-"%s is in his last year. Let it run out, then re-sign him.","%s is in his last year. Let it run out, then re-sign him.",%s está en su último año. Deja que venza y luego renuévalo.,"%s est dans sa dernière année. Laisse-la filer, puis re-signe-le.","%s ist im letzten Jahr. Lass es auslaufen, dann verlängere.","%s è all'ultimo anno. Lascialo scadere, poi rinnovalo.",%s está no último ano. Deixe acabar e depois renove.,"%s jest w ostatnim roku. Niech wygaśnie, potem podpisz ponownie.","%s в последнем году. Дай контракту истечь, потом переподпиши.",%sは契約最終年。満了してから再契約を。
 %s is already on the longest deal the club can offer.,%s is already on the longest deal the club can offer.,%s ya tiene el contrato más largo que puede ofrecer el club.,%s a déjà le contrat le plus long que le club puisse offrir.,"%s hat schon den längsten Vertrag, den der Verein bieten kann.",%s ha già il contratto più lungo che il club possa offrire.,%s já está no contrato mais longo que o clube oferece.,"%s ma już najdłuższy kontrakt, jaki klub może dać.","%s уже на самом длинном контракте, что может дать клуб.",%sはすでにクラブが提示できる最長契約中。
 %s has %d years left. Extend him instead.,%s has %d years left. Extend him instead.,A %s le quedan %d años. Amplíalo.,%s a encore %d ans de contrat. Prolonge-le plutôt.,%s hat noch %d Jahre. Verlängere lieber.,A %s restano %d anni. Prolungalo invece.,%s tem %d anos restantes. Estenda o contrato.,%s ma jeszcze lat: %d. Lepiej przedłuż.,%s: осталось лет — %d. Лучше продли.,%sは残り%d年。代わりに延長を。
-%s on %d year,%s on %d year,%s: %d año,%s pour %d an,%s für %d Saison,%s per %d anno,%s por %d ano,"%s: kontrakt, lata: %d","%s: контракт, лет: %d",%sと%d年契約
-%s on %d years,%s on %d years,%s: %d años,%s pour %d ans,%s für %d Saisons,%s per %d anni,%s por %d anos,"%s: kontrakt, lata: %d","%s: контракт, лет: %d",%sと%d年契約
+%s has %d year left,%s has %d year left,a %s le queda %d año,%s a encore %d an,%s hat noch %d Jahr,a %s resta %d anno,%s tem %d ano restante,%s ma jeszcze %d rok,у %s остался %d год,%sの契約は残り%d年
+%s has %d years left,%s has %d years left,a %s le quedan %d años,%s a encore %d ans,%s hat noch %d Jahre,a %s restano %d anni,%s tem %d anos restantes,%s ma jeszcze %d lata,у %s осталось %d года,%sの契約は残り%d年
 Finished %s,Finished %s,Acabó %s,Terminé %s,Platz %s,Chiuso %s,Terminou em %s,Miejsce: %s,Место: %s,%sで終了
 Went up,Went up,Ascendió,Monté,Aufgestiegen,Promosso,Subiu,Awans,Повысились,昇格した
 A season of gates,A season of gates,Una temporada de taquillas,Une saison d'affluence,Eine Saison voller Zuschauer,Una stagione di incassi,Uma temporada de bilheteria,Sezon wpływów,Сезон сборов,観客のシーズン
@@ -965,9 +967,10 @@ down,down,en el suelo,au sol,am Boden,a terra,no chão,leży,на земле,ダ
 clinched,clinched,trabado,au corps-à-corps,im Clinch,in presa,agarrado,w klinczu,в клинче,組み合い
 on a route,on a route,en ruta,sur un parcours,auf einem Weg,su un percorso,numa rota,na trasie,по маршруту,ルート上
 breathing,breathing,recuperando aire,reprend son souffle,holt Luft,riprende fiato,recuperando o fôlego,łapie oddech,переводит дух,息を整え中
+holding ground,holding ground,aguanta posición,tient sa position,hält Stellung,tiene la posizione,segura a posição,trzyma pozycję,держит позицию,その場を守る
 on his own,on his own,por su cuenta,livré à lui-même,auf eigene Faust,per conto suo,por conta própria,na własną rękę,сам по себе,自由に
 %d down,%d down,%d derribo,%d mise au sol,%d Niederwurf,%d atterramento,%d queda,%d powalenie,%d сбитие,%dダウン
-Drag a fighter to send him.,Drag a fighter to send him.,Arrastra a un luchador para enviarlo.,Glisse un combattant pour l'envoyer.,"Zieh einen Kämpfer, um ihn zu schicken.",Trascina un combattente per mandarlo.,Arraste um lutador para mandá-lo.,"Przeciągnij zawodnika, by go wysłać.","Перетащи бойца, чтобы отправить.",選手をドラッグして送り出す。
+Drag a fighter to send him. Tap him to hold ground.,Drag a fighter to send him. Tap him to hold ground.,Arrastra a un luchador para enviarlo. Tócalo para que aguante.,Glissez un combattant pour l'envoyer. Touchez-le pour qu'il tienne.,"Zieh einen Kämpfer, um ihn zu schicken. Tippen: Stellung halten.",Trascina un lottatore per mandarlo. Toccalo per fargli tenere la posizione.,Arraste um lutador para enviá-lo. Toque para segurar posição.,"Przeciągnij wojownika, by go wysłać. Dotknij, by trzymał pozycję.","Тяните бойца, чтобы послать. Нажмите — держит позицию.",ドラッグで送り出す。タップでその場を守る。
 "Release on ground, or on a man.","Release on ground, or on a man.",Suelta en el suelo o sobre un hombre.,"Lâche sur le sol, ou sur un homme.",Loslassen auf dem Boden oder auf einem Mann.,"Rilascia a terra, o su un uomo.","Solte no chão, ou num homem.",Puść na polu albo na zawodniku.,Отпусти на землю или на бойца.,地面か相手の上で離す。
 "Options are up — pick, or let him.","Options are up — pick, or let him.","Hay opciones — elige, o deja que elija él.","Options ouvertes — choisis, ou laisse-le faire.","Optionen offen — wähl, oder lass ihn.","Ci sono opzioni — scegli, o lascia fare a lui.","Opções na tela — escolha, ou deixe com ele.",Opcje czekają — wybierz albo zdaj się na niego.,Есть варианты — выбери или доверься ему.,選択肢が出た — 選ぶか、任せる。
 %d sent,%d sent,%d enviados,%d envoyés,%d geschickt,%d mandati,%d enviados,wysłano %d,послано %d,送り出し%d
@@ -1168,7 +1171,7 @@ Light,Light,Suave,Léger,Leicht,Leggero,Leve,Lekki,Лёгкий,軽め
 Normal,Normal,Normal,Normal,Normal,Normale,Normal,Normalny,Обычный,ノーマル
 Hard,Hard,Duro,Dur,Hart,Duro,Difícil,Ciężki,Тяжёлый,ハード
 Training ground,Training ground,Campo de entrenamiento,Terrain d'entraînement,Trainingsplatz,Campo d'allenamento,Centro de Treino,Ośrodek treningowy,Тренировочная база,練習場
-Your captains improve fighters over the winter.,Your captains improve fighters over the winter.,Tus capitanes mejoran a los luchadores en invierno.,Tes capitaines font progresser tes hommes l'hiver.,Deine Ausbilder verbessern Kämpfer über den Winter.,I tuoi capitani migliorano i combattenti durante l'inverno.,Seus capitães melhoram os lutadores no inverno.,Twoi kapitanowie rozwijają zawodników przez zimę.,Наставники подтягивают бойцов за зиму.,コーチが冬の間に選手を鍛える。
+"More weekly practice, and a bigger winter camp.","More weekly practice, and a bigger winter camp.",Más práctica semanal y un campus de invierno mayor.,Plus d'entraînement chaque semaine et un plus gros stage d'hiver.,Mehr Training jede Woche und ein größeres Wintercamp.,Più allenamento a settimana e un ritiro invernale più grande.,Mais treino semanal e um camp de inverno maior.,Więcej treningu co tydzień i większy obóz zimowy.,Больше тренировок каждую неделю и больший зимний сбор.,毎週の練習が増え、冬の合宿も大きくなる。
 "%d stat points a season, spread over the squad","%d stat points a season, spread over the squad","%d puntos de atributo por temporada, repartidos en la plantilla","%d points de stat par saison, répartis dans l'effectif","%d Wertpunkte pro Saison, verteilt auf den Kader","%d punti stat a stagione, distribuiti sulla rosa","%d pontos de atributo por temporada, divididos pelo elenco","Punkty cech na sezon: %d, rozłożone na skład","Очков статов за сезон: %d, по всему составу",シーズンごとに能力%dポイントをチームに配分
 Infirmary,Infirmary,Enfermería,Infirmerie,Krankenstube,Infermeria,Enfermaria,Ambulatorium,Лазарет,医務室
 A knock keeps a man out of fewer events.,A knock keeps a man out of fewer events.,Una lesión deja a un hombre fuera de menos eventos.,Une blessure écarte un homme moins de rencontres.,Eine Verletzung kostet einen Mann weniger Events.,Un infortunio tiene un uomo fuori per meno eventi.,Uma lesão tira o homem de menos eventos.,Uraz trzyma człowieka poza mniejszą liczbą zawodów.,Травмированный пропускает меньше турниров.,負傷による欠場大会が減る。
