@@ -2894,6 +2894,8 @@ func _build_corner() -> void:
 	## has already sent a shape, so the corner opens with it chosen and the
 	## button live; it can only be empty if the player cancels out of the book.
 	fight.disabled = chosen_call.is_empty()
+	if not fight.disabled:
+		UiKit.primary(fight)
 	corner_nodes.append(fight)
 	ui.add_child(fight)
 
