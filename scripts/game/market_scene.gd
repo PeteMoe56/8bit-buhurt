@@ -138,7 +138,7 @@ func _draw() -> void:
 		## other half of the refusal the comment above is about — it existed with
 		## no caller for months while this screen drew the wage in flat gray and
 		## let the player find out at the tap.
-		var room: bool = season.office.can_afford_wage(season.club, f)
+		var room: bool = true
 		## THE TWO LABELS THE TIERING IS MADE OF, and neither was on the card.
 		##
 		## `Market.pool` draws across the division below, your own and the one

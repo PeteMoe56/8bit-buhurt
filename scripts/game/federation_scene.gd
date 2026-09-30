@@ -62,7 +62,9 @@ func _build() -> void:
 				season.sync_power()
 				Session.autosave()
 				_build())
-		ui.add_child(UiKit.primary(btn) if short else btn)
+		## GREY WHEN THE PURSE CANNOT COVER IT, like the Clubhouse's.
+		btn.disabled = cost > o.credits
+		ui.add_child(UiKit.primary(btn) if short and not btn.disabled else btn)
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 

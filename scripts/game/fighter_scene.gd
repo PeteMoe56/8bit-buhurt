@@ -654,7 +654,12 @@ func _the_man() -> void:
 		1.0 if waiting else clampf(float(man.xp) / float(maxi(1, bar)), 0.0, 1.0),
 		UiKit.DIM if capped
 			else (UiKit.YOU if waiting else UiKit.SELECT))
-	_pace(y + 38.0)
+	## A FULL BAR SAYS WHY IT IS FULL (item 2): the level is earned and waiting.
+	if waiting and not capped:
+		UiKit.text_fit(self, font, UiKit.t("Earned. Spend it on a +1 below."),
+			Vector2(L_X + 16, y + 40.0), 12, UiKit.YOU, COL_W - 32.0)
+	else:
+		_pace(y + 38.0)
 	## WHAT HE WILL ASK FOR WHEN THE DEAL ENDS, which is the whole reason a level
 	## is free today. `Contracts.demand` splits the fighter's price from the
 	## relationship's, so both halves are on the screen rather than one number the

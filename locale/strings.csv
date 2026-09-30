@@ -83,7 +83,7 @@ That one is not on the list.,That one is not on the list.,Esa no está en la lis
 FORMATIONS,FORMATIONS,FORMACIONES,FORMATIONS,AUFSTELLUNGEN,FORMAZIONI,FORMAÇÕES,FORMACJE,РАССТАНОВКИ,陣形
 PLAYS,PLAYS,JUGADAS,SCHÉMAS,SPIELZÜGE,SCHEMI,JOGADAS,ZAGRANIA,СХЕМЫ,作戦
 Name it,Name it,Ponle nombre,Nomme-la,Benennen,Dagli un nome,Dê um nome,Nazwij,Назови,名前を付ける
-Unlock a slot — %d CC,Unlock a slot — %d CC,Abrir un hueco — %d CC,Ouvrir un emplacement — %d CC,Platz freischalten — %d CC,Sblocca uno slot — %d CC,Liberar vaga — %d CC,Odblokuj miejsce — %d CC,Открыть ячейку — %d CC,枠を解放 — %d CC
+Buy a slot · %d CC,Buy a slot · %d CC,Comprar hueco · %d CC,Acheter un emplacement · %d CC,Platz kaufen · %d CC,Compra uno slot · %d CC,Comprar vaga · %d CC,Kup miejsce · %d CC,Купить слот · %d CC,枠を購入 · %d CC
 Save,Save,Guardar,Enregistrer,Sichern,Salva,Salvar,Zapisz,Сохранить,保存
 Revert,Revert,Deshacer,Annuler,Verwerfen,Ripristina,Reverter,Cofnij,Отменить,元に戻す
 Delete,Delete,Borrar,Supprimer,Löschen,Elimina,Excluir,Usuń,Удалить,削除
@@ -98,7 +98,7 @@ The line is as far as he may go.,The line is as far as he may go.,La línea es s
 Drag from a man,Drag from a man,Arrastra desde un hombre,Glisse depuis un homme,Zieh von einem Mann,Trascina da un uomo,Arraste de um homem,Przeciągnij od zawodnika,Проведи от бойца,選手からドラッグして
 to draw his route.,to draw his route.,para trazar su ruta.,pour tracer sa route.,seinen Weg.,per il percorso.,para traçar a rota.,by narysować trasę.,чтобы задать путь.,ルートを描く。
 Tap a man to clear his.,Tap a man to clear his.,Toca a uno para borrarla.,Touche un homme pour l'effacer.,"Tippe einen Mann, um sie zu löschen.",Tocca un uomo per cancellarla.,Toque um homem para apagá-la.,"Dotknij, by ją skasować.","Коснись бойца, чтобы стереть.",タップで消去。
-Unlock a slot to start drawing.,Unlock a slot to start drawing.,Desbloquea un hueco para empezar a dibujar.,Débloque un emplacement pour dessiner.,"Schalte einen Platz frei, um zu zeichnen.",Sblocca uno slot per iniziare a disegnare.,Desbloqueie um espaço para desenhar.,"Odblokuj slot, by rysować.","Открой слот, чтобы рисовать.",スロットを解放して作図開始。
+Buy a slot to start drawing.,Buy a slot to start drawing.,Compra un hueco para empezar a dibujar.,Achetez un emplacement pour dessiner.,"Kaufe einen Platz, um zu zeichnen.",Compra uno slot per disegnare.,Compre uma vaga para começar a desenhar.,"Kup miejsce, by zacząć rysować.","Купите слот, чтобы рисовать.",枠を買うと描ける。
 %d of 5 men have a route. The rest go on their own.,%d of 5 men have a route. The rest go on their own.,%d de 5 tienen ruta. El resto va solo.,%d sur 5 ont un trajet. Les autres vont seuls.,%d von 5 haben eine Route. Der Rest geht allein.,%d su 5 hanno un percorso. Gli altri vanno da soli.,%d de 5 têm rota. O resto vai sozinho.,%d z 5 ma trasę. Reszta idzie sama.,У %d из 5 есть маршрут. Остальные сами.,5人中%d人にルート。残りは自由に動く。
 "Everyone up on the line. First to contact, nobody behind.","Everyone up on the line. First to contact, nobody behind.","Todos en la línea. Primeros al choque, nadie detrás.","Tous sur la ligne. Premiers au contact, personne derrière.","Alle an der Linie. Zuerst am Gegner, niemand dahinter.","Tutti sulla linea. Primi al contatto, nessuno dietro.","Todos na linha. Primeiros ao contato, ninguém atrás.","Wszyscy na linii. Pierwsi w kontakcie, nikt z tyłu.","Все на линии. Первые в контакте, сзади никого.",全員ライン上。最初に接触、後ろは無人。
 Everyone on the back rail. They cross the list to you.,Everyone on the back rail. They cross the list to you.,Todos en la valla trasera. Ellos cruzan hacia ti.,Tous à la lice arrière. Ils traversent jusqu'à toi.,Alle an der hinteren Bande. Sie kommen zu dir.,Tutti alla sbarra di fondo. Vengono loro da te.,Todos na grade de trás. Eles cruzam até você.,Wszyscy przy tylnej barierze. Oni idą do ciebie.,Все у задней ограды. Они идут к тебе.,全員後方の柵。相手が来るのを待つ。
@@ -107,6 +107,7 @@ Everyone on the back rail. They cross the list to you.,Everyone on the back rail
 Center held back behind the pairs. Nothing comes through the middle.,Center held back behind the pairs. Nothing comes through the middle.,Centro atrás de las parejas. Nada pasa por el medio.,Centre en retrait des paires. Rien ne passe au milieu.,Center hinter den Paaren. Durch die Mitte kommt nichts.,Centro dietro le coppie. Nulla passa dal centro.,Centro atrás das duplas. Nada passa pelo meio.,Środkowy za parami. Środkiem nic nie przejdzie.,Центр за парами. Через середину не пройти.,センターはペアの後ろ。中央は通さない。
 Center out in front of the pairs. He meets them first.,Center out in front of the pairs. He meets them first.,Centro por delante de las parejas. Llega primero.,Centre devant les paires. Il arrive le premier.,Center vor den Paaren. Er trifft zuerst.,Centro davanti alle coppie. Arriva per primo.,Centro à frente das duplas. Ele chega primeiro.,Środkowy przed parami. Dociera pierwszy.,Центр впереди пар. Он встречает первым.,センターがペアの前。最初に当たる。
 "A flat line, all five level.","A flat line, all five level.","Una línea plana, los cinco a la par.","Une ligne plate, les cinq à niveau.","Eine flache Linie, alle fünf gleichauf.","Una linea piatta, tutti e cinque pari.","Uma linha reta, os cinco nivelados.","Płaska linia, cała piątka równo.","Ровная линия, все пятеро вровень.",横一線、5人が同じ高さ。
+their line,their line,su línea,leur ligne,ihre Linie,la loro linea,linha deles,ich linia,их линия,相手の線
 start line,start line,línea de salida,ligne de départ,Startlinie,linea di partenza,linha de saída,linia startu,линия старта,開始線
 toward them →,toward them →,hacia ellos →,vers eux →,auf sie zu →,verso di loro →,rumo a eles →,w ich stronę →,на них →,相手方向 →
 Sign and leave it all,Sign and leave it all,Firma y déjalo todo,Signer et tout laisser,Unterschreib und lass alles,Firma e lascia tutto,Assinar e largar tudo,Podpisz i zostaw wszystko,Подписать и бросить всё,契約してすべてを去る
@@ -271,6 +272,7 @@ CEILING,CEILING,TECHO,PLAFOND,POTENZIAL,TETTO,TETO,PUŁAP,ПОТОЛОК,潜在�
 LEVEL,LEVEL,NIVEL,NIVEAU,STUFE,LIVELLO,NÍVEL,POZIOM,УРОВЕНЬ,レベル
 1 POINT TO SPEND,1 POINT TO SPEND,1 PUNTO PARA GASTAR,1 POINT À DÉPENSER,1 PUNKT ZU VERGEBEN,1 PUNTO DA SPENDERE,1 PONTO PARA GASTAR,1 PUNKT DO WYDANIA,1 ОЧКО К РАСПРЕДЕЛЕНИЮ,1ポイント使える
 %d / %d xp,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d XP
+Earned. Spend it on a +1 below.,Earned. Spend it on a +1 below.,Ganado: úsalo en un +1.,Acquis : un +1 à placer dessous.,Verdient. Setz ihn unten auf +1.,Guadagnato: usalo con un +1.,Conquistado: use num +1.,Zdobyty. Wydaj na +1 poniżej.,Заработано. Потратьте на +1 ниже.,獲得。下の+1で使おう。
 He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-signera pas.,Er unterschreibt nicht nochmal.,Non rinnoverà.,Ele não vai renovar.,Więcej nie podpisze.,Больше не подпишет.,再契約には応じない。
 Asks at renewal,Asks at renewal,Pide al renovar,Demande au renouvellement,Will bei Verlängerung,Chiede al rinnovo,Pede na renovação,Chce przy odnowieniu,Просит при продлении,更新時の要求
 %s/wk · %dy,%s/wk · %dy,%s/sem · %da,%s/sem · %da,%s/Wo. · %dJ,%s/sett · %da,%s/sem · %da,%s/tydz. · %d l.,%s/нед · %d г.,%s/週 · %d年
@@ -372,6 +374,7 @@ age %d  ·  %s,age %d  ·  %s,edad %d  ·  %s,%d ans  ·  %s,Alter %d  ·  %s,et
 age %d,age %d,edad %d,%d ans,Alter %d,età %d,idade %d,wiek %d,возраст %d,%d歳
 capped,capped,al tope,plafonné,am Limit,al limite,no limite,limit,предел,上限
 to %d,to %d,a %d,à %d,auf %d,a %d,até %d,do %d,до %d,→%d
+kit %d%%,kit %d%%,equipo %d%%,armure %d%%,Rüstung %d%%,kit %d%%,kit %d%%,zbroja %d%%,броня %d%%,装備%d%%
 WAGE BILL,WAGE BILL,NÓMINA,MASSE SALARIALE,LOHNKOSTEN,MONTE STIPENDI,FOLHA SALARIAL,PENSJE,ФОНД ЗАРПЛАТ,人件費
 SQUAD MOOD,SQUAD MOOD,ÁNIMO,MORAL,STIMMUNG,UMORE,CLIMA,NASTRÓJ,НАСТРОЙ,士気
 CLUB RATING,CLUB RATING,NIVEL DEL CLUB,NOTE DU CLUB,VEREINSWERT,VALORE CLUB,NOTA DO CLUBE,OCENA KLUBU,РЕЙТИНГ КЛУБА,クラブ評価
@@ -410,8 +413,10 @@ nothing owing,nothing owing,nada pendiente,rien à payer,nichts offen,nulla da p
 TRAVELING,TRAVELING,DE VIAJE,EN DÉPLACEMENT,REISEKADER,IN TRASFERTA,VIAJANDO,W DRODZE,В ПОЕЗДКЕ,遠征組
 AT HOME,AT HOME,EN CASA,AU CLUB,ZU HAUSE,A CASA,EM CASA,W DOMU,ДОМА,留守組
 HARNESS,HARNESS,ARNÉS,HARNAIS,RÜSTUNG,CORAZZA,ARNÊS,ZBROJA,ДОСПЕХ,防具
+KIT,KIT,ARN,ARM,RÜST,ARM,ARM,ZBR,ДОСП,装備
+min,min,mín,min,min,min,mín,min,мин,最低
 NEXT,NEXT,SIG,SUIV,NÄCHST,PROS,PRÓX,NAST,ДАЛЕЕ,次
-Tap a fighter to repair or upgrade his harness. The tick is the minimum.,Tap a fighter to repair or upgrade his harness. The tick is the minimum.,Toca a un luchador para reparar o mejorar su arnés. La marca es el mínimo.,Touche un combattant pour réparer ou améliorer son harnais. Le trait est le minimum.,"Tippe einen Kämpfer an, um die Rüstung zu reparieren. Der Strich ist das Minimum.",Tocca un lottatore per riparare o migliorare la corazza. La tacca è il minimo.,Toque num lutador para reparar ou melhorar o arnês. A marca é o mínimo.,"Dotknij zawodnika, by naprawić lub ulepszyć zbroję. Kreska to minimum.","Коснись бойца, чтобы починить доспех. Риска — минимум.",選手をタップして防具を修理・強化。目盛りが最低基準。
+Tap a fighter to repair or upgrade his harness.,Tap a fighter to repair or upgrade his harness.,Toca a un luchador para reparar o mejorar su armadura.,Touchez un combattant pour réparer ou améliorer son harnois.,"Tippe auf einen Kämpfer, um seine Rüstung zu flicken oder zu verbessern.",Tocca un lottatore per riparare o migliorare l'armatura.,Toque num lutador para reparar ou melhorar a armadura.,"Dotknij wojownika, by naprawić lub ulepszyć zbroję.","Нажмите на бойца, чтобы починить или улучшить доспех.",選手をタップして鎧を修理・強化。
 fix %d CC,fix %d CC,arreglo %d CC,réparer %d CC,flicken %d CC,ripara %d CC,reparo %d CC,napraw %d CC,ремонт %d CC,修理%d CC
 up %d CC,up %d CC,mejora %d CC,améliorer %d CC,besser %d CC,migliora %d CC,melhoria %d CC,lepszy %d CC,лучше %d CC,強化%d CC
 Repair the traveling kit  ·  %d CC,Repair the traveling kit  ·  %d CC,Reparar el equipo de viaje  ·  %d CC,Réparer le matériel  ·  %d CC,Reiseausrüstung reparieren  ·  %d CC,Ripara l'attrezzatura  ·  %d CC,Reparar o equipamento  ·  %d CC,Napraw sprzęt  ·  %d CC,Починить снаряжение  ·  %d CC,遠征装備を修理 · %d CC
@@ -566,7 +571,6 @@ green = good  ·  gold years = final year,green = good  ·  gold years = final y
 OUT %d,OUT %d,FUERA %d,ABSENT %d,RAUS %d,FUORI %d,FORA %d,URAZ %d,ТРАВМА %d,離脱 %d
 %dy,%dy,%da,%da,%dJ,%da,%da,%dl,%dг,%d年
 ROLE,ROLE,PUESTO,POSTE,ROLLE,RUOLO,POSIÇÃO,ROLA,РОЛЬ,役割
-KIT,KIT,ARN,ARM,RÜST,ARM,ARM,ZBR,ДОСП,装備
 AGE,AGE,EDAD,ÂGE,ALT,ETÀ,IDADE,WIEK,ВОЗР,年齢
 PAY,PAY,PAGA,PAIE,LOHN,PAGA,PAGA,PŁACA,ПЛАТА,給与
 YR,YR,AÑ,AN,JR,AN,AN,LAT,ЛЕТ,年
@@ -927,7 +931,7 @@ XP,XP,XP,XP,EP,XP,XP,XP,ОП,XP
 LVL,LVL,NIV,NIV,STF,LIV,NÍV,POZ,УР,Lv
 AST assists  ·  UP rounds on his feet  ·  OFF carried off,AST assists  ·  UP rounds on his feet  ·  OFF carried off,AST asistencias  ·  UP rondas en pie  ·  OFF retirado,AST passes  ·  UP manches debout  ·  OFF évacué,AST Vorlagen  ·  UP Runden stehend  ·  OFF rausgetragen,AST assist  ·  UP round in piedi  ·  OFF portato via,AST assistências  ·  UP rounds de pé  ·  OFF retirado,AST asysty  ·  UP rundy na nogach  ·  OFF zniesiony,AST передачи  ·  UP раунды на ногах  ·  OFF унесён,AST アシスト  ·  UP 立っていたラウンド  ·  OFF 退場
 #%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s
-LEVEL UP,LEVEL UP,SUBE DE NIVEL,NIVEAU SUPÉRIEUR,STUFE HOCH,LIVELLO SU,SUBIU DE NÍVEL,NOWY POZIOM,НОВЫЙ УРОВЕНЬ,レベルアップ
++1 ready,+1 ready,+1 listo,+1 prêt,+1 bereit,+1 pronto,+1 pronto,+1 gotowy,+1 готов,+1可
 %d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp
 Nobody had anything to say.,Nobody had anything to say.,Nadie tenía nada que decir.,Personne n'avait rien à dire.,Keiner hatte was zu sagen.,Nessuno aveva niente da dire.,Ninguém tinha nada a dizer.,Nikt nie miał nic do powiedzenia.,Никому нечего сказать.,誰も何も言わなかった。
 scroll ^,scroll ^,subir ^,défiler ^,scrollen ^,scorri ^,rolar ^,przewiń ^,листай ^,スクロール ^

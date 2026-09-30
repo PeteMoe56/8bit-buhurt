@@ -98,18 +98,24 @@ func _build() -> void:
 			## RELEASE STANDS OFF (round 8: "right next to +1 yr").
 			## A VERB ON EACH (round 9: "+1 yr" needed one), Release narrower and
 			## apart so both read at the same size.
-			ui.add_child(UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W - 102.0, 38), _extend.bind(i)))
+			var ext := UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
+				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W - 102.0, 38), _extend.bind(i))
+			ext.disabled = ClubOffice.extend_cost(season.office.captains[i]) > season.office.credits
+			ui.add_child(ext)
 			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 58.0),
 				Vector2(92, 38), _release.bind(i))))
 		else:
-			ui.add_child(UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
-				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 42), _hire.bind(i)))
+			var hire := UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
+				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 42), _hire.bind(i))
+			hire.disabled = ClubOffice.cost_of(_offer(i)) > season.office.credits
+			ui.add_child(hire)
 			## PUT THE WORD OUT AGAIN. The list is deterministic from the season so
 			## it does not reshuffle while you read it — which also means a bad crop
 			## is a bad crop for a year unless you pay to turn it over.
-			ui.add_child(UiKit.button(UiKit.t("New names  ·  %d CC") % ClubOffice.REFRESH_COST,
-				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W, 38), _refresh))
+			var fresh := UiKit.button(UiKit.t("New names  ·  %d CC") % ClubOffice.REFRESH_COST,
+				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W, 38), _refresh)
+			fresh.disabled = ClubOffice.REFRESH_COST > season.office.credits
+			ui.add_child(fresh)
 	## AN EXTRA SESSION, AND IT BELONGS ON THIS SCREEN AND NOT THE CLUBHOUSE.
 	##
 	## Pete, 15 Sep 2026: *"we can go with a 'team training' CC sink that may
@@ -140,7 +146,8 @@ func _build() -> void:
 			Session.autosave()
 			_build())
 	## THE SCREEN'S ONE ACTION IS GOLD (round 4).
-	ui.add_child(session_b if idle else UiKit.primary(session_b))
+	session_b.disabled = cost > season.office.credits
+	ui.add_child(session_b if idle or session_b.disabled else UiKit.primary(session_b))
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 

@@ -217,8 +217,13 @@ func _rebuild() -> void:
 			## Only the NEXT slot is for sale. Four buy buttons in a column
 			## would read as four separate things to want.
 			var cost := board.slot_cost(owned)
-			ui.add_child(UiKit.button(UiKit.t("Unlock a slot — %d CC") % cost,
-				Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), _unlock, "lock"))
+			## A PURCHASE, SAID AS ONE (round 11: it looked like a slot): the
+			## coin, the verb and the price, narrower than the rows it sits
+			## among, and grey when the purse cannot cover it.
+			var buy := UiKit.button(UiKit.t("Buy a slot · %d CC") % cost,
+				Vector2(LEFT_X + 20.0, y + 2.0), Vector2(SLOT_W - 40.0, SLOT_H - 4.0), _unlock, "coin")
+			buy.disabled = cost > season.office.credits
+			ui.add_child(buy)
 
 	if slot < owned:
 		save_b = UiKit.primary(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
@@ -341,9 +346,18 @@ func _span() -> float:
 
 ## The drawn field: as tall as the panel, as wide as the list's real proportions
 ## make it at that height, centerd in the panel.
+## HOW MUCH OF THE LIST IS SHOWN: as much as fills the panel at the list's true
+## proportions (round 11: the field used a quarter of the board). What a man
+## may be dragged to is still `_span()`; the rest is greyed, with their start
+## line on it, so the empty ground is the ground between you and them.
+func _view() -> float:
+	var scale := BOARD.size.y / Tuning.LIST_W
+	return minf(1.0, BOARD.size.x / (Tuning.LIST_H * scale))
+
+
 func _field() -> Rect2:
 	var scale := BOARD.size.y / Tuning.LIST_W
-	var w: float = _span() * Tuning.LIST_H * scale
+	var w: float = _view() * Tuning.LIST_H * scale
 	return Rect2(BOARD.position.x + (BOARD.size.x - w) * 0.5, BOARD.position.y,
 		w, BOARD.size.y)
 
@@ -358,7 +372,7 @@ func _inner() -> Rect2:
 
 func _to_screen(v: Vector2) -> Vector2:
 	var f := _inner()
-	return f.position + Vector2(v.y / _span() * f.size.x, v.x * f.size.y)
+	return f.position + Vector2(v.y / _view() * f.size.x, v.x * f.size.y)
 
 
 func _to_norm(p: Vector2) -> Vector2:
@@ -366,7 +380,7 @@ func _to_norm(p: Vector2) -> Vector2:
 	var d := p - f.position
 	return Vector2(
 		clampf(d.y / f.size.y, 0.02, 0.98),
-		clampf(d.x / f.size.x, 0.0, 1.0) * _span())
+		clampf(d.x / f.size.x * _view(), 0.0, _span()))
 
 
 func _mark_at(p: Vector2) -> int:
@@ -478,7 +492,7 @@ func _draw() -> void:
 ## y is depth out from your rail (0 back, 0.15 on the line), x across it.
 func _shape_words() -> String:
 	if slot >= _slots_owned():
-		return UiKit.t("Unlock a slot to start drawing.")
+		return UiKit.t("Buy a slot to start drawing.")
 	if mode == Mode.PLAY:
 		var n := 0
 		for r in routes:
@@ -562,8 +576,14 @@ func _draw_board() -> void:
 	## ground past it is grayed, so the clamp under the finger has a reason on
 	## screen before the finger ever finds it.
 	var lx := _to_screen(Vector2(0.0, Tuning.SET_UP_LINE)).x
-	if mode == Mode.FORMATION:
-		draw_rect(Rect2(lx, f.position.y, f.end.x - lx, f.size.y), Color(0, 0, 0, 0.28))
+	var limit_x := lx if mode == Mode.FORMATION else _to_screen(Vector2(0.0, Tuning.PLAY_MAX_Y)).x
+	draw_rect(Rect2(limit_x, f.position.y, f.end.x - limit_x, f.size.y), Color(0, 0, 0, 0.28))
+	## THEIR START LINE, faint, so the far side reads as the other club's ground.
+	var tx := _to_screen(Vector2(0.0, 1.0 - Tuning.SET_UP_LINE)).x
+	if tx < f.end.x - 4.0:
+		draw_line(Vector2(tx, f.position.y), Vector2(tx, f.end.y), Color(UiKit.DOWN, 0.45), 2.0)
+		UiKit.right(self, font, UiKit.t("their line"), Vector2(tx - 6, f.position.y + 16), 12,
+			Color(UiKit.DOWN, 0.8), 120.0)
 	draw_line(Vector2(lx, f.position.y), Vector2(lx, f.end.y),
 		Color(Tuning.COL_MARSHAL, 0.55), 2.0)
 	UiKit.text(self, font, UiKit.t("start line"), Vector2(lx + 6, f.position.y + 16), 12, Tuning.COL_MARSHAL)

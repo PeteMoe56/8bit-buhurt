@@ -68,8 +68,15 @@ static func _draw_market(v: SeasonScene) -> void:
 		var gx0: float = cx + SeasonScene.QM_NAME_W + 6.0
 		if not uniform:
 			UiKit.text_fit(v, v.font, UiKit.t("HARNESS"), Vector2(gx0, hy), 12, UiKit.DIM, SeasonScene.QM_GRADE_W)
-		UiKit.text_fit(v, v.font, UiKit.t("CONDITION"), Vector2(gx0 + _grade_w(uniform), hy), 12,
-			UiKit.DIM, SeasonScene.QM_BAR_W)
+		## "KIT", AND THE TICK NAMED IN THE HEADING straight over the ticks it
+		## names (item 2: "unlabelled tick"). KIT is the Squad table's word.
+		var bx0: float = gx0 + _grade_w(uniform)
+		var tick_x: float = bx0 + SeasonScene.QM_BAR_W * FighterCard.INSPECTION_MIN
+		## The word goes over the percentages it heads; the bar's heading is the tick.
+		UiKit.text_fit(v, v.font, UiKit.t("KIT"), Vector2(bx0 + SeasonScene.QM_BAR_W + 6.0, hy), 12,
+			UiKit.DIM, 48.0)
+		v.draw_rect(Rect2(tick_x - 1.0, hy - 10.0, 2.0, 12.0), UiKit.DOWN)
+		UiKit.text(v, v.font, UiKit.t("min"), Vector2(tick_x + 4.0, hy), 12, UiKit.DOWN)
 		## NEXT, NOT FIX (round 8: a sound harness showed its upgrade price under
 		## FIX, so 90% "cost" more than 73%). Each row now says which it is.
 		UiKit.right(v, v.font, UiKit.t("NEXT"), Vector2(cx + cell, hy), 12, UiKit.DIM, _cost_w(uniform))
@@ -77,7 +84,7 @@ static func _draw_market(v: SeasonScene) -> void:
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
 	if v.qm_pick == null:
-		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness. The tick is the minimum."),
+		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness."),
 			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
@@ -189,7 +196,7 @@ static func _market_controls(v: SeasonScene) -> void:
 	if v.qm_pick != null:
 		var nm := UiKit.clip(v.qm_pick.display_name, 9)
 		if not Quartermaster.topped_out(v.qm_pick):
-			v.ui.add_child(UiKit.button(UiKit.t("Repair %s · %d CC") % [nm,
+			var rep_b := UiKit.button(UiKit.t("Repair %s · %d CC") % [nm,
 				ClubOffice.kit_cost(v.qm_pick)],
 				Vector2(24 + third + 8.0, SeasonScene.action_y()), Vector2(third, 46), func():
 					var err := o.repair_kit(v.qm_pick)
@@ -197,10 +204,12 @@ static func _market_controls(v: SeasonScene) -> void:
 						else "%s's harness seen to." % v.qm_pick.display_name
 					v.season.sync_power()
 					Session.autosave()
-					v._rebuild()))
+					v._rebuild())
+			rep_b.disabled = ClubOffice.kit_cost(v.qm_pick) > o.credits
+			v.ui.add_child(rep_b)
 		var nxt := Quartermaster.next_grade(v.qm_pick)
 		if nxt >= 0:
-			v.ui.add_child(UiKit.button(UiKit.t("Upgrade to %s · %d CC") % [
+			var up_b := UiKit.button(UiKit.t("Upgrade to %s · %d CC") % [
 				UiKit.t(String(Quartermaster.GRADE_NAME[nxt])),
 				Quartermaster.upgrade_cost(v.qm_pick)],
 				Vector2(24 + (third + 8.0) * 2.0, SeasonScene.action_y()), Vector2(third, 46), func():
@@ -210,4 +219,6 @@ static func _market_controls(v: SeasonScene) -> void:
 							Quartermaster.name_of(v.qm_pick).to_lower()]
 					v.season.sync_power()
 					Session.autosave()
-					v._rebuild(), "coin"))
+					v._rebuild(), "coin")
+			up_b.disabled = Quartermaster.upgrade_cost(v.qm_pick) > o.credits
+			v.ui.add_child(up_b)

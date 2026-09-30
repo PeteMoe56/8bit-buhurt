@@ -910,7 +910,7 @@ var qm_pick: FighterCard = null
 ## How many earnings the clubhouse shows. See the note where they are drawn.
 const QM_PURSE_LINES: int = 3
 
-const QM_ROW := 30.0
+const QM_ROW := 34.0
 const QM_TOP := 66.0
 ## EVERY X ON THIS SCREEN IS DERIVED FROM THE CELL, not typed. The first cut had
 ## four hand-placed columns and a bar width, and on the reserve side they added

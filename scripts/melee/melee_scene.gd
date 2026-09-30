@@ -842,13 +842,20 @@ func _enemy_at(p: Vector2) -> int:
 ##
 ## Nothing in the sim moves. This is a camera, and keeping it a camera is what
 ## lets the whole melee suite go on measuring the same fight.
+## THE MEN STAND INSIDE THE FIELD (item 2: a man on their back rail was drawn
+## half under the side panel). Along the list the positions map onto the field
+## less a sprite's half-width at each end; across it the lanes already clear.
+const LIST_INSET := 16.0
+const LIST_SX := LIST_SCALE * (1.0 - 2.0 * LIST_INSET / (Tuning.LIST_H * LIST_SCALE))
+
+
 func _to_screen(v: Vector2) -> Vector2:
-	return LIST_ORIGIN + Vector2(v.y, v.x) * LIST_SCALE
+	return LIST_ORIGIN + Vector2(LIST_INSET + v.y * LIST_SX, v.x * LIST_SCALE)
 
 
 func _to_list(v: Vector2) -> Vector2:
-	var d := (v - LIST_ORIGIN) / LIST_SCALE
-	return Vector2(d.y, d.x)
+	var d := v - LIST_ORIGIN
+	return Vector2(d.y / LIST_SCALE, (d.x - LIST_INSET) / LIST_SX)
 
 
 # -------------------------------------------------------------------- draw
@@ -1040,7 +1047,9 @@ func _draw_report_table() -> void:
 		if Career.at_ceiling(m.card):
 			_cell("PEAK", "next", y, 10, COL_DIM)
 		elif Career.can_place(m.card):
-			_cell(UiKit.t("LEVEL UP"), "next", y, 12, UiKit.UP)
+			## QUIETER THAN A SHOUT PER ROW (item 2): the Spend button carries the
+			## count; each row only says his is ready.
+			_cell(UiKit.t("+1 ready"), "next", y, 12, UiKit.UP)
 		else:
 			_cell(UiKit.t("%d/%d xp") % [m.card.xp, Career.next_level_at(m.card)],
 				"next", y, 10, COL_INK)
@@ -1979,7 +1988,7 @@ func _draw_calls() -> void:
 	var y := CALL_AT.y + 12.0
 	## NAMED (blind review round 3: two yellow squares with no word).
 	UiKit.raw(self, font, Vector2(CALL_AT.x - 12.0 - float(calls_total) * 20.0 - 130.0, y + 11.0),
-		UiKit.fit(font, UiKit.t("%d HOLDS LEFT") % calls_left, 12, 126.0), HORIZONTAL_ALIGNMENT_RIGHT, 126, 12, COL_DIM)
+		UiKit.fit(font, UiKit.t("%d HOLDS LEFT") % calls_left, 12, 126.0), HORIZONTAL_ALIGNMENT_RIGHT, 126, 12, COL_INK)
 	for i in calls_total:
 		var r := Rect2(CALL_AT.x - 8.0 - float(calls_total - i) * 20.0, y - 2.0, 16.0, 16.0)
 		draw_rect(r, Tuning.COL_MARSHAL if i < calls_left else Color("221e1a"))

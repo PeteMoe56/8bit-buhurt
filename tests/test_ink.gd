@@ -401,7 +401,7 @@ func _name_of(c) -> String:
 ## the face the screen really uses, against the gap to the stop before it.
 const REPORT_TOKENS := {
 	"dn": ["9", 11], "as": ["9", 11], "up": ["9", 11], "off": ["9", 11],
-	"xp": ["+99", 10], "lv": ["99", 11], "next": ["LEVEL UP", 10],
+	"xp": ["+99", 10], "lv": ["99", 11], "next": ["+1 ready", 12],
 }
 const REPORT_ORDER := ["dn", "as", "up", "off", "xp", "lv", "next"]
 ## Where the names and positions end — the first column has to clear them too.

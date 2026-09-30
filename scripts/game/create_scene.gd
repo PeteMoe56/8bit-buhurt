@@ -207,8 +207,11 @@ func _fighter_controls() -> void:
 				who.overall()] + "  >", Vector2(RIGHT_X + 208, 108), Vector2(208, 34), func():
 			replace_i = (replace_i + 1) % out.size()
 			_rebuild()))
-	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
-		Vector2(BOTTOM_X, 486), Vector2(260, 42), _sign)))
+	var sign_b := UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
+		Vector2(BOTTOM_X, 486), Vector2(260, 42), _sign)
+	## GREY WHEN THE PURSE CANNOT COVER HIM; gold only when the tap can land.
+	sign_b.disabled = shop.cost() > season.office.credits
+	ui.add_child(sign_b if sign_b.disabled else UiKit.primary(sign_b))
 	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(BOTTOM_X + 272, 486), Vector2(160, 42), func():
 		card = Workshop.blank()
 		flash = ""
@@ -697,8 +700,11 @@ func _draw_bank(kit: Color, mark: Color) -> void:
 			var tw := font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 26.0
 			var tr := Rect2(at + Vector2(BANK_R - tw, -BANK_R), Vector2(tw, 18))
 			draw_rect(tr, Color(0, 0, 0, 0.78))
-			UiIcons.draw(self, "lock", tr.position + Vector2(4, 5), UiKit.YOU, 1, true)
-			UiKit.text(self, font, tag, tr.position + Vector2(18, 14), 12, UiKit.YOU)
+			## GOLD WHEN HE CAN BUY IT, DIM WHEN HE CANNOT (item 2, 30 Sep).
+			var can: bool = IconBank.cost(id) <= season.office.credits
+			var tc := UiKit.YOU if can else UiKit.DIM
+			UiIcons.draw(self, "lock", tr.position + Vector2(4, 5), tc, 1, true)
+			UiKit.text(self, font, tag, tr.position + Vector2(18, 14), 12, tc)
 
 
 func _bank_slot(i: int) -> Vector2:

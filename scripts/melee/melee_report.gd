@@ -185,9 +185,27 @@ static func news(season) -> Array:
 	var out: Array = []
 	if season == null:
 		return out
+	## ONE CARD A MAN (item 2: Wren had two), and no "level waiting" card: the
+	## table's NEXT column and the Spend levels button already say it. A man
+	## with two things to report shows the weightier one — a knock over a trait
+	## over his work over a mood — because a card holds two lines and a joined
+	## pair would be cut.
+	const RANK := {"knock": 0, "trait": 1, "work": 2, "mood": 3}
+	var order: Array = []
+	var best: Dictionary = {}
 	for c in season.last_changes:
-		out.append(News.new(String(c["who"]), String(c["text"]), int(c["good"]),
-			News.MAN))
+		var kind := String(c.get("kind", ""))
+		if kind == "level":
+			continue
+		var who := String(c["who"])
+		if not best.has(who):
+			order.append(who)
+			best[who] = c
+		elif int(RANK.get(kind, 9)) < int(RANK.get(String(best[who].get("kind", "")), 9)):
+			best[who] = c
+	for who in order:
+		var c: Dictionary = best[who]
+		out.append(News.new(who, String(c["text"]), int(c["good"]), News.MAN))
 	var pos: int = season.world.player_position()
 	var rows: Array = season.table()
 	if pos > 0:
