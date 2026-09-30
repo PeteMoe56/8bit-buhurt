@@ -1266,7 +1266,7 @@ func _draw_corner() -> void:
 			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 46), "%d" % f.overall(),
 				HORIZONTAL_ALIGNMENT_LEFT, 60, 20, COL_INK)
 			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + 60.0, ry + 46),
-				UiKit.fit(font, UiKit.t("%s  ·  fresh") % Tuning.weapon_name(f.weapon), 13, C_BAR_W),
+				UiKit.fit(font, Tuning.weapon_name(f.weapon), 13, C_BAR_W),
 				HORIZONTAL_ALIGNMENT_LEFT, int(C_BAR_W), 13, COL_GOOD)
 			continue
 		## The preview is the OUTGOING man's recovery; a man just swapped in is
@@ -1954,10 +1954,10 @@ func _draw_calls() -> void:
 	## Left of HOLD in the top bar, right-aligned against it.
 	var y := CALL_AT.y + 12.0
 	## NAMED (blind review round 3: two yellow squares with no word).
-	UiKit.raw(self, font, Vector2(CALL_AT.x - 12.0 - float(calls_total) * 16.0 - 90.0, y + 11.0),
+	UiKit.raw(self, font, Vector2(CALL_AT.x - 12.0 - float(calls_total) * 20.0 - 90.0, y + 11.0),
 		UiKit.t("HOLDS"), HORIZONTAL_ALIGNMENT_RIGHT, 86, 12, COL_DIM)
 	for i in calls_total:
-		var r := Rect2(CALL_AT.x - 8.0 - float(calls_total - i) * 16.0, y, 12.0, 12.0)
+		var r := Rect2(CALL_AT.x - 8.0 - float(calls_total - i) * 20.0, y - 2.0, 16.0, 16.0)
 		draw_rect(r, Tuning.COL_MARSHAL if i < calls_left else Color("221e1a"))
 		draw_rect(r, COL_EDGE, false, 1.0)
 

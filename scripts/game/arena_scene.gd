@@ -373,8 +373,8 @@ func _draw_diary() -> void:
 		return
 	if season.booked == null and not season.bid_open():
 		## WHAT THE DEMO IS (round 4: "Run a demo" unexplained).
-		UiKit.text_fit(self, font, UiKit.t("A demo is a small home show. It cannot lose money."),
-			Vector2(RIGHT_X, 446), 13, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X)
+		UiKit.para(self, font, UiKit.t("A demo is a small home show. It cannot lose money."),
+			Vector2(RIGHT_X, 446), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 	if season.booked != null:
 		var away := season.booked.events_away(season.world.event)
 		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(),

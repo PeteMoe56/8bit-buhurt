@@ -94,14 +94,16 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 	var card := v.CLUB_CARD
 	var wanted: int = Jobs.offers(v.season.coach, v.season.world).size()
 	var barred := not v.season.office.shortfalls().is_empty()
+	## TWO COLUMNS WITH A MEANING (round 5: "a mixed bag"): the club's rooms on
+	## the left, the plans and the game on the right, Close filling the grid.
 	var rooms := [
 		[UiKit.t("The staff"), "res://scenes/Staff.tscn", "helm"],
-		[UiKit.t("Records"), "res://scenes/Records.tscn", "book"],
-		[UiKit.t("Your career") + ((UiKit.t("  ·  %d offer") if wanted == 1 else UiKit.t("  ·  %d offers")) % wanted if wanted > 0 else ""), "res://scenes/Coach.tscn", "ladder"],
-		[UiKit.t("The federation") + (UiKit.t("  ·  BARRED") if barred else ""), "res://scenes/Federation.tscn", "banner"],
 		[UiKit.t("Playbook"), "res://scenes/Chalkboard.tscn", "board"],
+		[UiKit.t("Records"), "res://scenes/Records.tscn", "book"],
 		[UiKit.t("Create & difficulty"), "res://scenes/Create.tscn", "anvil"],
+		[UiKit.t("Your career") + ((UiKit.t("  ·  %d offer") if wanted == 1 else UiKit.t("  ·  %d offers")) % wanted if wanted > 0 else ""), "res://scenes/Coach.tscn", "ladder"],
 		[UiKit.t("Settings"), "res://scenes/Settings.tscn", "cog"],
+		[UiKit.t("The federation") + (UiKit.t("  ·  BARRED") if barred else ""), "res://scenes/Federation.tscn", "banner"],
 	]
 	var pad := 24.0
 	var bw := (card.size.x - pad * 2.0 - 16.0) * 0.5
@@ -114,7 +116,7 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 			Session.autosave()
 			UiKit.go(path), String(r[2])))
 	v.ui.add_child(UiKit.button(UiKit.t("Close"),
-		Vector2(card.end.x - pad - 160.0, card.end.y - 60.0), Vector2(160, 44), func():
+		Vector2(card.position.x + pad + bw + 16.0, card.position.y + 72.0 + 3.0 * 58.0), Vector2(bw, 48), func():
 			v.club_menu_open = false
 			v._rebuild()))
 
@@ -255,9 +257,10 @@ static func _draw_office(v: SeasonScene) -> void:
 					fit_men += 1
 			UiKit.pair(v, v.font, label, UiKit.t("%d fit to fight") % fit_men,
 				Vector2(SeasonScene.BAR_X, y), SeasonScene.BAR_X + SeasonScene.BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
+			## ONE SEGMENT A SEAT, filled to the seats he has (round 5: "6 of 8"
+			## beside a bar a third full read as a contradiction).
 			UiKit.meter(v, Rect2(SeasonScene.BAR_X, y + 8, SeasonScene.BAR_W, SeasonScene.BAR_H),
-				o.travel_slots - ClubOffice.TRAVEL_MIN,
-				ClubOffice.TRAVEL_MAX - ClubOffice.TRAVEL_MIN, UiKit.YOU)
+				o.travel_slots, ClubOffice.TRAVEL_MAX, UiKit.YOU)
 			UiKit.pair(v, v.font,
 				UiKit.t("%d of %d") % [o.travel_slots, ClubOffice.TRAVEL_MAX],
 				"a line and no more" if o.travel_slots <= ClubOffice.TRAVEL_MIN
@@ -391,7 +394,7 @@ static func _draw_office(v: SeasonScene) -> void:
 			best = UiKit.t(String(Tuning.AI_SKILL[o.tier_for(role)]["name"]))
 			break
 		UiKit.text_fit(v, v.font, UiKit.t("Every role taught."), Vector2(x, y + 24), 14, UiKit.UP, w)
-		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % best.to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)
+		UiKit.text_fit(v, v.font, UiKit.t("fights at %s level") % best.to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)
 	else:
 		## ONE LINE, and the column is the reason. There are 132 pixels between
 		## the foot of the nav list and the action row for two blocks, and a
@@ -401,4 +404,4 @@ static func _draw_office(v: SeasonScene) -> void:
 		for r in bare:
 			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
 		UiKit.text_fit(v, v.font, UiKit.t("%s untaught") % names, Vector2(x, y + 24), 14, UiKit.DOWN, w)
-		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % UiKit.t(String(Tuning.AI_SKILL[o.tier_for(bare[0])]["name"])).to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)
+		UiKit.text_fit(v, v.font, UiKit.t("fights at %s level") % UiKit.t(String(Tuning.AI_SKILL[o.tier_for(bare[0])]["name"])).to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)

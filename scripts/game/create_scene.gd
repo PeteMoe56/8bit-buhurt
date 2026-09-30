@@ -514,7 +514,7 @@ func _draw_grade() -> void:
 	## 110 with its drop — text drawn behind a button, which is the exact fault
 	## the layout sweep exists to catch and which a comment at the top of a screen
 	## is always the first to commit.
-	UiKit.text(self, font, UiKit.t("It is saved with the club, not with the settings, and you can change it later."), Vector2(STAT_X, 452.0), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Tap a grade to use it. It is saved with the club, and you can change it later."), Vector2(STAT_X, 452.0), 14, UiKit.DIM)
 
 
 func _save_club() -> void:
@@ -558,7 +558,7 @@ func _draw_fighter() -> void:
 		UiKit.text(self, font, UiKit.t("You have written all four men this club will ever get."),
 			Vector2(24, 160), 18, UiKit.DIM)
 		return
-	UiKit.right(self, font, UiKit.t("%d of %d left") % [shop.left(), Workshop.MAX_FIGHTERS],
+	UiKit.right(self, font, UiKit.t("%d of %d creations left") % [shop.left(), Workshop.MAX_FIGHTERS],
 		Vector2(UiKit.right_edge(120.0), 64), 14, UiKit.DIM, 200.0)
 
 	for i in STATS.size():

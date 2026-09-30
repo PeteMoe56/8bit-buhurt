@@ -41,7 +41,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	var was_in: Dictionary = last.get("in", {})
 	var was_out: Dictionary = last.get("out", {})
 
-	UiKit.text(v, v.font, UiKit.t("COMING IN"), Vector2(SeasonScene.FIN_LEFT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("COMING IN, CC"), Vector2(SeasonScene.FIN_LEFT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
 	## LAST YEAR ONLY WHEN THERE WAS ONE (round 4: a column of dashes).
 	_has_last = not last.is_empty() and (ClubOffice.book_total(was_in) != 0 or ClubOffice.book_total(was_out) != 0)
 	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 12, UiKit.DIM, 110)
@@ -55,7 +55,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	v._fin_row("Everything in", in_now, in_was, y, UiKit.INK, 15)
 
 	y += 38.0
-	UiKit.text(v, v.font, UiKit.t("GOING OUT"), Vector2(SeasonScene.FIN_LEFT, y), 14, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("GOING OUT, CC"), Vector2(SeasonScene.FIN_LEFT, y), 14, UiKit.DIM)
 	y += 26.0
 	y = v._fin_block(o.books_out, was_out, ClubOffice.OUT_ORDER, y, UiKit.DOWN)
 	var out_now := ClubOffice.book_total(o.books_out)

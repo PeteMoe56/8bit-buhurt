@@ -165,10 +165,10 @@ off,off,no,non,aus,no,não,wył.,выкл.,なし
 "Missed bullrush, he falls","Missed bullrush, he falls",Embestida fallida: cae,Charge ratée : il tombe,Rammstoß verfehlt: er fällt,Carica mancata: cade,Investida falha: ele cai,Nieudana szarża: upada,Промах тарана: падает,突進失敗で転倒
 Grabbed or tripped passing,Grabbed or tripped passing,Agarrado o zancadilla al pasar,Saisi ou fauché en passant,Beim Vorbeilaufen gepackt,Agguantato o sgambettato,Agarrado ou rasteira ao passar,Złapany lub podcięty w biegu,Схвачен или сбит на бегу,すれ違いで掴み・足払い
 Bullrush on a wobbling man,Bullrush on a wobbling man,Embestida a un rival tambaleante,Charge sur un homme vacillant,Sturmlauf auf Wankenden,Carica su un uomo vacillante,Investida em quem cambaleia,Szarża na chwiejnego,Таран по шатающемуся,ふらつく相手への突進
-"It is saved with the club, not with the settings, and you can change it later.","It is saved with the club, not with the settings, and you can change it later.","Se guarda con el club, no con los ajustes, y puedes cambiarlo más tarde.","C'est enregistré avec le club, pas dans les réglages, et tu peux le changer plus tard.","Das wird mit dem Verein gespeichert, nicht in den Einstellungen, und du kannst es später ändern.","Si salva con il club, non nelle impostazioni, e puoi cambiarlo più tardi.","Fica salvo com o clube, não nas configurações, e você pode mudar depois.","Zapisuje się z klubem, nie w ustawieniach, i możesz to później zmienić.","Это сохраняется вместе с клубом, а не в настройках, и это можно изменить позже.",これは設定ではなくクラブと一緒に保存され、後から変更できる。
+"Tap a grade to use it. It is saved with the club, and you can change it later.","Tap a grade to use it. It is saved with the club, and you can change it later.",Toca un grado para usarlo. Se guarda con el club y puedes cambiarlo luego.,Touche un niveau pour l'utiliser. Il est lié au club et modifiable plus tard.,Tippe eine Stufe an. Sie gilt für den Verein und lässt sich später ändern.,Tocca un grado per usarlo. Resta col club e puoi cambiarlo poi.,Toque um nível para usá-lo. Fica salvo no clube e pode mudar depois.,"Dotknij poziomu, by go użyć. Zapisuje się z klubem, zmienisz go później.","Коснись уровня, чтобы выбрать. Он хранится в клубе, можно сменить позже.",難易度をタップで適用。クラブに保存され、後で変更可。
 CREATE,CREATE,CREAR,CRÉER,ERSTELLEN,CREA,CRIAR,STWÓRZ,СОЗДАТЬ,作成
 You have written all four men this club will ever get.,You have written all four men this club will ever get.,Ya has creado a los cuatro hombres que tendrá este club.,Tu as créé les quatre hommes auxquels ce club a droit.,"Du hast alle vier Männer erschaffen, die dieser Verein je bekommt.",Hai creato tutti e quattro gli uomini che questo club avrà mai.,Você já criou os quatro homens que este clube vai ter.,"Stworzyłeś już wszystkich czterech, jakich ten klub dostanie.","Ты создал всех четверых бойцов, что положены клубу.",このクラブで作れる4人を全員作成済みです。
-%d of %d left,%d of %d left,Quedan %d de %d,%d sur %d restants,%d von %d übrig,%d di %d rimasti,restam %d de %d,Zostało: %d z %d,Осталось %d из %d,残り %d / %d
+%d of %d creations left,%d of %d creations left,quedan %d de %d creaciones,reste %d sur %d,noch %d von %d,%d creazioni su %d rimaste,%d de %d criações restantes,zostało %d z %d,осталось %d из %d,作成残り %d／%d
 Weight,Weight,Peso,Poids,Gewicht,Peso,Peso,Waga,Вес,体重
 %d lb,%d lb,%d lb,%d lb,%d lb,%d lb,%d lb,%d lb,%d фнт,%d lb
 In harness. Decides a bullrush more than anything else.,In harness. Decides a bullrush more than anything else.,Con arnés. Decide una embestida más que nada.,En armure. Pèse sur une charge plus que tout le reste.,In Rüstung. Entscheidet einen Sturmlauf mehr als alles andere.,In armatura. Decide una carica più di ogni altra cosa.,De armadura. Decide uma investida mais que tudo.,W zbroi. O szarży decyduje bardziej niż cokolwiek.,В доспехе. Решает таран больше всего прочего.,装備込み。突進の勝敗を何より左右する。
@@ -309,6 +309,7 @@ Nobody is looking for a club this season.,Nobody is looking for a club this seas
 step up,step up,da el salto,supérieur,Aufstieg,salto,subir,krok wyżej,шаг вверх,格上
 age %d · %s/wk,age %d · %s/wk,%d a · %s/sem,âge %d · %s/sem,%d J. · %s/Wo.,%d a · %s/sett,%d a · %s/sem,%d l. · %s/tydz.,%d л · %s/нед,%d歳 · %s/週
 age %d · over cap,age %d · over cap,edad %d · sobre el tope,âge %d · hors plafond,Alter %d · über Limit,età %d · oltre il tetto,idade %d · acima do teto,wiek %d · ponad limit,возраст %d · сверх лимита,%d歳 · 上限超過
+sign %d CC,sign %d CC,fichar %d CC,signer %d CC,holen %d CC,firma %d CC,contratar %d CC,podpisz %d CC,подписать %d CC,契約 %d CC
 %d CC · can't afford,%d CC · can't afford,%d CC · no alcanza,%d CC · trop cher,%d CC · zu teuer,%d CC · non basta,%d CC · sem dinheiro,%d CC · za drogo,%d CC · не хватает,%d CC · 不足
 BILL,BILL,NÓMINA,SALAIRES,KOSTEN,STIPENDI,FOLHA,RACHUNEK,ФОНД,人件費
 over by %s,over by %s,excede en %s,dépassé de %s,%s drüber,sforato di %s,acima em %s,ponad o %s,превышение: %s,%s超過
@@ -373,7 +374,7 @@ Could not save — your phone may be out of space. The last save is safe.,Could 
 ARMORER,ARMORER,ARMERO,ARMURIER,SCHMIED,ARMAIOLO,ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
 CLUBHOUSE,CLUBHOUSE,SEDE,CLUB-HOUSE,VEREINSHEIM,CLUBHOUSE,SEDE,KLUBOWNIA,КЛУБ,クラブハウス
 FINANCES,FINANCES,FINANZAS,FINANCES,FINANZEN,FINANZE,FINANÇAS,FINANSE,ФИНАНСЫ,財務
-Menu,Menu,Menú,Menu,Menü,Menu,Menu,Menu,Меню,メニュー
+Exit,Exit,Salir,Quitter,Beenden,Esci,Sair,Wyjdź,Выход,終了
 Club,Club,Club,Club,Verein,Club,Clube,Klub,Клуб,クラブ
 Fight: vs %s,Fight: vs %s,Pelea: vs %s,Combat : vs %s,Kampf: vs %s,Scontro: vs %s,Luta: vs %s,Walka: vs %s,Бой: против %s,試合: vs %s
 Next event,Next event,Siguiente evento,Événement suivant,Nächstes Event,Prossimo evento,Próximo evento,Następne zawody,Следующий турнир,次の大会
@@ -466,14 +467,14 @@ Winter points %d → %d,Winter points %d → %d,Puntos %d → %d,Points %d → %
 Knocks -%d → -%d,Knocks -%d → -%d,Lesión -%d → -%d,Blessure -%d → -%d,Verletzung -%d → -%d,Infortuni -%d → -%d,Lesão -%d → -%d,Urazy -%d → -%d,Травмы -%d → -%d,負傷 -%d → -%d
 Level %d → %d,Level %d → %d,Nivel %d → %d,Niveau %d → %d,Stufe %d → %d,Livello %d → %d,Nível %d → %d,Poziom %d → %d,Уровень %d → %d,レベル %d → %d
 The staff,The staff,El staff,Le staff,Der Stab,Lo staff,A comissão,Sztab,Штаб,スタッフ
+Playbook,Playbook,Pizarra,Tactiques,Taktikbuch,Playbook,Cartilha,Taktyki,Тактика,作戦ノート
 Records,Records,Archivo,Archives,Rekorde,Record,Recordes,Kronika,Рекорды,記録
 Your career,Your career,Tu carrera,Ta carrière,Deine Karriere,La tua carriera,Sua carreira,Twoja kariera,Твоя карьера,キャリア
   ·  %d offer,  ·  %d offer,  ·  %d oferta,  ·  %d offre,  ·  %d Angebot,  ·  %d offerta,  ·  %d oferta,  ·  %d oferta,  ·  %d предложение,  ·  オファー%d件
   ·  %d offers,  ·  %d offers,  ·  %d ofertas,  ·  %d offres,  ·  %d Angebote,  ·  %d offerte,  ·  %d ofertas,  ·  %d oferty,  ·  %d предложения,  ·  オファー%d件
+Create & difficulty,Create & difficulty,Crear y dificultad,Création et difficulté,Erstellen & Schwierigkeit,Crea e difficoltà,Criar e dificuldade,Twórz i trudność,Создание и сложность,作成と難易度
 The federation,The federation,La federación,La fédération,Der Verband,La federazione,A federação,Federacja,Федерация,連盟
   ·  BARRED,  ·  BARRED,  ·  VETADO,  ·  EXCLU,  ·  GESPERRT,  ·  ESCLUSO,  ·  SUSPENSO,  ·  ZAWIESZONY,  ·  ОТСТРАНЁН,  ·  資格停止
-Playbook,Playbook,Pizarra,Tactiques,Taktikbuch,Playbook,Cartilha,Taktyki,Тактика,作戦ノート
-Create & difficulty,Create & difficulty,Crear y dificultad,Création et difficulté,Erstellen & Schwierigkeit,Crea e difficoltà,Criar e dificuldade,Twórz i trudność,Создание и сложность,作成と難易度
 Settings,Settings,Ajustes,Réglages,Optionen,Impostazioni,Configurações,Ustawienia,Настройки,設定
 Close,Close,Cerrar,Fermer,Schließen,Chiudi,Fechar,Zamknij,Закрыть,閉じる
 THE CLUB,THE CLUB,EL CLUB,LE CLUB,DER VEREIN,IL CLUB,O CLUBE,KLUB,КЛУБ,クラブ
@@ -498,7 +499,7 @@ not built,not built,sin hacer,à faire,nicht gebaut,non costruito,não construí
 one more level to help,one more level to help,un nivel más para notarlo,encore un niveau pour que ça aide,"noch eine Stufe, dann hilft es",un altro livello e aiuta,mais um nível para ajudar,"jeszcze jeden poziom, by pomogło",ещё уровень — и будет польза,あと1段階で効果あり
 COACHING,COACHING,ENTRENAMIENTO,ENTRAÎNEMENT,TRAINING,ALLENAMENTO,TREINO,TRENING,ТРЕНИРОВКА,指導
 Every role taught.,Every role taught.,Todos los roles enseñados.,Tous les rôles enseignés.,Jede Rolle gelehrt.,Ogni ruolo insegnato.,Tudo ensinado.,Każda rola przećwiczona.,Все роли освоены.,全役割を指導済み。
-going out %s,going out %s,salen %s,dépenses %s,geht raus %s,in uscita %s,saindo %s,wychodzi %s,расход %s,出場 %s
+fights at %s level,fights at %s level,lucha a nivel %s,se bat au niveau %s,kämpft auf Stufe %s,combatte a livello %s,luta no nível %s,walczy na poziomie %s,дерётся на уровне %s,%sレベルで戦う
  and , and , y , et , und , e , e , i , и ,と
 %s untaught,%s untaught,%s sin enseñar,%s non enseigné,%s ungelehrt,%s non insegnato,%s sem treino,%s bez trenera,%s без тренера,%s 未指導
 %d point a winter,%d point a winter,%d punto por invierno,%d point par hiver,%d Punkt pro Winter,%d punto a inverno,%d ponto por inverno,punkty na zimę: %d,очков за зиму: %d,冬ごとに%dポイント
@@ -507,10 +508,10 @@ going out %s,going out %s,salen %s,dépenses %s,geht raus %s,in uscita %s,saindo
 -%d events off a knock,-%d events off a knock,-%d eventos por lesión,-%d rencontres par blessure,-%d Events pro Verletzung,-%d eventi per infortunio,-%d eventos por lesão,-%d zawody na urazie,-%d турниров на травме,負傷ごとに-%d大会
 The ground,The ground,El estadio,Le stade,Die Arena,L'impianto,O estádio,Stadion,Арена,本拠地
 Buy credits,Buy credits,Comprar créditos,Acheter des crédits,Credits kaufen,Compra crediti,Comprar créditos,Kup kredyty,Купить кредиты,クレジット購入
-COMING IN,COMING IN,INGRESOS,RECETTES,EINNAHMEN,ENTRATE,ENTRADAS,WPŁYWY,ПРИХОД,収入
+"COMING IN, CC","COMING IN, CC","ENTRA, CC","RECETTES, CC","EINNAHMEN, CC","ENTRATE, CC","ENTRADAS, CC","WPŁYWY, CC","ДОХОДЫ, CC","収入, CC"
 this year,this year,este año,cette année,dieses Jahr,quest'anno,este ano,w tym roku,в этом году,今年
 last,last,último,dernière,zuletzt,ultimo,último,ostatnio,прошлый,前回
-GOING OUT,GOING OUT,GASTOS,DÉPENSES,AUSGABEN,USCITE,SAÍDAS,WYDATKI,РАСХОД,支出
+"GOING OUT, CC","GOING OUT, CC","SALE, CC","DÉPENSES, CC","AUSGABEN, CC","USCITE, CC","SAÍDAS, CC","WYDATKI, CC","РАСХОДЫ, CC","支出, CC"
 So far this year. Gates and prize money arrive as the events are fought.,So far this year. Gates and prize money arrive as the events are fought.,En lo que va de año. La taquilla y los premios llegan al disputar los eventos.,Depuis le début de l'année. Recettes et primes arrivent au fil des événements.,Bisher in diesem Jahr. Einnahmen und Preisgeld kommen mit den Events.,Finora quest'anno. Incassi e premi arrivano con gli eventi.,Até agora no ano. Bilheteria e prêmios chegam com os eventos.,Jak dotąd w tym roku. Wpływy i nagrody przychodzą z zawodami.,С начала года. Сборы и призовые приходят по ходу турниров.,今年のここまで。入場料と賞金は大会ごとに入る。
 So far this year.,So far this year.,En lo que va de año.,Depuis le début de l'année.,Bisher in diesem Jahr.,Finora quest'anno.,Até agora no ano.,Jak dotąd w tym roku.,С начала года.,今年のここまで。
 "To close it: win, fill the ground, trim wages.","To close it: win, fill the ground, trim wages.","Para cerrarlo: gana, llena el campo, baja sueldos.","Pour combler : gagne, remplis, baisse les salaires.","Ausgleich: siegen, Halle füllen, Löhne senken.","Per chiuderlo: vinci, riempi, taglia gli stipendi.","Para fechar: vença, lote o local, corte salários.","By to zamknąć: wygrywaj, zapełnij, tnij płace.","Как закрыть: побеждай, заполняй зал, режь зарплаты.",埋めるには：勝つ・満員にする・給料を削る。
@@ -925,7 +926,6 @@ STANDING,STANDING,EN PIE,DEBOUT,STEHEND,IN PIEDI,DE PÉ,NA NOGACH,НА НОГА�
 BACK IN,BACK IN,VUELVEN EN,RETOUR DANS,ZURÜCK IN,RIENTRO,VOLTAM EM,POWRÓT ZA,ВЫХОД ЧЕРЕЗ,再開まで
 DOWNED,DOWNED,DERRIBADO,AU SOL,AM BODEN,A TERRA,CAIU,POWALONY,СБИТ,ダウン
 WILL NOT COME OFF,WILL NOT COME OFF,NO QUIERE SALIR,NE VEUT PAS SORTIR,GEHT NICHT RAUS,NON ESCE,NÃO SAI,NIE ZEJDZIE,НЕ УЙДЁТ,交代拒否
-%s  ·  fresh,%s  ·  fresh,%s  ·  fresco,%s  ·  frais,%s  ·  frisch,%s  ·  fresco,%s  ·  descansado,%s  ·  świeży,%s  ·  свеж,%s  ·  万全
 ENERGY,ENERGY,ENERGÍA,ÉNERGIE,AUSDAUER,ENERGIA,ENERGIA,ENERGIA,ЭНЕРГИЯ,体力
 CHOSEN,CHOSEN,ELEGIDO,CHOISI,GEWÄHLT,SCELTO,ESCOLHIDO,WYBRANY,ВЫБРАН,選択済み
 WHO COMES ON FOR,WHO COMES ON FOR,QUIÉN ENTRA POR,QUI ENTRE POUR,WER KOMMT FÜR,CHI ENTRA AL POSTO DI,QUEM ENTRA NO LUGAR DE,KTO WCHODZI ZA,КТО ВЫЙДЕТ ВМЕСТО,交代で入るのは

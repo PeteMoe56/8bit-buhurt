@@ -1252,7 +1252,8 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	b.add_theme_color_override("font_hover_color", INK if touch_ui() else BG)
 	b.add_theme_color_override("font_pressed_color", BG)
 	b.add_theme_color_override("font_focus_color", INK)
-	b.add_theme_color_override("font_disabled_color", EDGE)
+	## A disabled button still says what it is (round 5: "almost invisible").
+	b.add_theme_color_override("font_disabled_color", DIM.darkened(0.15))
 	b.add_theme_constant_override("outline_size", 0)
 	## THREE VALUES, AND THAT IS THE WHOLE HIERARCHY. First pass painted the
 	## ground, the panels and the buttons all one navy, and the sixteen-screen

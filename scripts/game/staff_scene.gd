@@ -299,7 +299,7 @@ func _what_it_costs() -> void:
 			UiKit.EDGE.lightened(0.5), room)
 	var rows := [
 		{"r": ClubOffice.Regime.LIGHT, "t": "×0.6", "m": "+", "a": "+", "k": UiKit.t("rare")},
-		{"r": ClubOffice.Regime.NORMAL, "t": "×1.0", "m": "—", "a": "—", "k": UiKit.t("some")},
+		{"r": ClubOffice.Regime.NORMAL, "t": "×1.0", "m": "=", "a": "=", "k": UiKit.t("some")},
 		{"r": ClubOffice.Regime.HARD, "t": "×1.5", "m": "−", "a": "−", "k": "\u00d75"},
 	]
 	var y := CUR_Y + 84.0

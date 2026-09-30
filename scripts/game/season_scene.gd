@@ -227,7 +227,9 @@ func _rebuild() -> void:
 	## MENU IS NOT BACK. It leaves the career, which is the end of a path rather
 	## than a step back along one — a trail that survived it would send Back from
 	## the front door into somebody's half-finished season.
-	ui.add_child(UiKit.button(UiKit.t("Menu"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
+	## "EXIT", NOT "MENU" (round 5: "Club" and "Menu" side by side, which is
+	## which?). It saves and leaves the career for the title screen.
+	ui.add_child(UiKit.button(UiKit.t("Exit"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
 		Session.autosave()
 		UiKit.trail_reset()
 		UiKit.go("res://scenes/Title.tscn"), "cog"))
