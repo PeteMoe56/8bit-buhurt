@@ -309,7 +309,7 @@ enum Mood { NORMAL, CUP, HOSTED, WORLDS, FINAL }
 const PALETTES := {
 	Mood.NORMAL: {
 		"bg": "2e2a24", "ink": "e8e4d8", "dim": "a59c8b", "panel": "241f1a",
-		"edge": "3d352b", "you": "f2d13c", "up": "6fbf5e", "down": "e05a3c",
+		"edge": "3d352b", "you": "f2d13c", "up": "6fbf5e", "down": "e8664a",
 		"select": "4a5f7a", "track": "14110e", "empty": "2a251f",
 		"name": "",
 	},
@@ -361,7 +361,7 @@ static var FRAME := Color("6e6252")
 static var EDGE := Color("3d352b")
 static var YOU := Color("f2d13c")
 static var UP := Color("6fbf5e")
-static var DOWN := Color("e05a3c")
+static var DOWN := Color("e8664a")
 static var SELECT := Color("4a5f7a")
 ## The track a meter sits in, and an unfilled segment. These were hardcoded
 ## inside `meter` and `bar` — a near-black that looked right on brown and would
@@ -636,6 +636,10 @@ static var _ledger: Array[Dictionary] = []
 ## starts inside a panel and ends outside it is ink running off the edge of the
 ## thing it was drawn on, which no reader can see and no other check can catch.
 static var _panels: Array[Rect2] = []
+## PICTURES DRAWN SINCE THE LEDGER OPENED (30 Sep 2026): a logo or a slot of
+## art is content to the screen checklist's empty-band rule, but is not a panel
+## text has to stay inside, so it keeps a list of its own.
+static var _art: Array[Rect2] = []
 
 
 ## COPY THAT DID NOT FIT THE COLUMN IT WAS WRITTEN FOR — see `fit_px`.
@@ -646,7 +650,18 @@ static func ledger_start() -> void:
 	_ledger_on = true
 	_ledger.clear()
 	_panels.clear()
+	_art.clear()
 	_overrun.clear()
+
+
+## Note a drawn picture's rect for the checklist.
+static func ledger_art(r: Rect2) -> void:
+	if _ledger_on:
+		_art.append(r)
+
+
+static func ledger_arts() -> Array[Rect2]:
+	return _art.duplicate()
 
 
 ## The panels drawn since the ledger opened, in draw order.

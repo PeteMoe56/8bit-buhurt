@@ -123,7 +123,9 @@ func _draw() -> void:
 	var logo := Brand.tex(Brand.LOGO)
 	var tag_y := 262.0
 	if logo != null:
-		draw_texture(logo, Vector2(center() - logo.get_width() * 0.5, 16.0).floor())
+		var at := Vector2(center() - logo.get_width() * 0.5, 16.0).floor()
+		draw_texture(logo, at)
+		UiKit.ledger_art(Rect2(at, logo.get_size()))
 		tag_y = 16.0 + float(logo.get_height()) + 26.0
 	else:
 		## No art, no invented layout: the wordmark it always drew.

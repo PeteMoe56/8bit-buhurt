@@ -82,12 +82,14 @@ func _build() -> void:
 	## PUT THE WORD OUT. The pool is fixed for the summer, deliberately, so that
 	## it does not reshuffle under the player while he compares two men — which
 	## also means a summer with nothing in it stays that way unless he pays.
-	ui.add_child(UiKit.button(UiKit.t("Reroll the list  ·  %d CC") % ClubOffice.REFRESH_COST,
+	var reroll := UiKit.button(UiKit.t("Reroll the list  ·  %d CC") % ClubOffice.REFRESH_COST,
 		Vector2(190, UiKit.screen().y - 56), Vector2(220, 44), func():
 			flash = UiKit.said(season.office.refresh_market())
 			picked = null
 			Session.autosave()
-			_build()))
+			_build())
+	reroll.disabled = ClubOffice.REFRESH_COST > season.office.credits
+	ui.add_child(reroll)
 	if picked != null:
 		var fee := season.market_fee(picked)
 		var short: bool = season.office.credits < fee
@@ -138,7 +140,7 @@ func _draw() -> void:
 		## other half of the refusal the comment above is about — it existed with
 		## no caller for months while this screen drew the wage in flat gray and
 		## let the player find out at the tap.
-		var room: bool = true
+		var room: bool = season.office.can_afford_wage(season.club, f)
 		## THE TWO LABELS THE TIERING IS MADE OF, and neither was on the card.
 		##
 		## `Market.pool` draws across the division below, your own and the one

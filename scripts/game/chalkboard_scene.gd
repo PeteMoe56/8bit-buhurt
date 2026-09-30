@@ -124,8 +124,19 @@ func _sig() -> String:
 
 ## Save lights when the working copy differs from what is on file.
 func _style_save() -> void:
-	if save_b != null and is_instance_valid(save_b):
-		save_b.disabled = _sig() == clean_sig
+	if save_b == null or not is_instance_valid(save_b):
+		return
+	var clean := _sig() == clean_sig
+	if clean == save_b.disabled:
+		return
+	save_b.disabled = clean
+	## GOLD ONLY WHILE THERE IS SOMETHING TO SAVE (checklist C3: never a dead
+	## gold button).
+	if clean:
+		save_b.remove_meta("primary")
+		UiKit.skin(save_b)
+	else:
+		UiKit.primary(save_b)
 
 
 ## Where the five stand while a play is being drawn: the shape the play is tied
@@ -226,8 +237,11 @@ func _rebuild() -> void:
 			ui.add_child(buy)
 
 	if slot < owned:
-		save_b = UiKit.primary(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
-			Vector2(150, 42), _save))
+		save_b = UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
+			Vector2(150, 42), _save)
+		## Starts dead and plain; `_style_save` lights it the moment the board
+		## differs from what is on file.
+		save_b.disabled = true
 		ui.add_child(save_b)
 		_style_save()
 		ui.add_child(UiKit.button(UiKit.t("Revert"), Vector2(BOARD.position.x + 158, 486),
@@ -583,7 +597,7 @@ func _draw_board() -> void:
 	if tx < f.end.x - 4.0:
 		draw_line(Vector2(tx, f.position.y), Vector2(tx, f.end.y), Color(UiKit.DOWN, 0.45), 2.0)
 		UiKit.right(self, font, UiKit.t("their line"), Vector2(tx - 6, f.position.y + 16), 12,
-			Color(UiKit.DOWN, 0.8), 120.0)
+			UiKit.DOWN, 120.0)
 	draw_line(Vector2(lx, f.position.y), Vector2(lx, f.end.y),
 		Color(Tuning.COL_MARSHAL, 0.55), 2.0)
 	UiKit.text(self, font, UiKit.t("start line"), Vector2(lx + 6, f.position.y + 16), 12, Tuning.COL_MARSHAL)

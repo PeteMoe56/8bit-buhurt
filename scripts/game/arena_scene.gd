@@ -102,8 +102,11 @@ func _rebuild() -> void:
 				budget_i = (budget_i + 1) % ClubEvent.BUDGETS.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 450),
-			Vector2(178, 44), _bid)))
+		## GREY WHEN THE DATE AND THE BUDGET TOGETHER ARE MORE THAN THE PURSE.
+		var take := UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 450),
+			Vector2(178, 44), _bid)
+		take.disabled = int(o["bid"]) + int(ClubEvent.BUDGETS[budget_i]["cost"]) > office.credits
+		ui.add_child(take if take.disabled else UiKit.primary(take))
 		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(RIGHT_X + 186, 450),
 			Vector2(178, 44), func():
 				season.decline_bid()

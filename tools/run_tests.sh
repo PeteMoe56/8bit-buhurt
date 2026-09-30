@@ -132,6 +132,8 @@ for tier in "${tiers[@]}"; do
   for t in "${list[@]}"; do
     ## test_shapes needs a real display; it runs in the shape sweep below.
     [ "$(basename "$t")" = "test_shapes.gd" ] && continue
+    ## test_checklist measures bands of the real frame; it runs in the shape sweep.
+    [ "$(basename "$t")" = "test_checklist.gd" ] && continue
     ## The balance tier only re-runs files that have a balance tier. A file marked
     ## "RB_TIER: balance-only" is listed, not run, in the fast tier.
     if [ "$tier" = balance ] && ! grep -q 'RB_TIER' "$t"; then continue; fi
@@ -149,7 +151,7 @@ if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ]; then
   echo "=== shape sweep"
   if command -v xvfb-run >/dev/null 2>&1; then
     for res in 960x540 1170x540 1260x540 960x720; do
-      for t in tests/test_ink.gd tests/test_shapes.gd; do
+      for t in tests/test_ink.gd tests/test_shapes.gd tests/test_checklist.gd; do
         run_one "$t" fast "$res" xvfb-run -a "$G" --audio-driver Dummy --resolution "$res"
       done
     done
