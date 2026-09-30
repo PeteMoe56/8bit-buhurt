@@ -326,12 +326,12 @@ func _build() -> void:
 					Session.autosave()
 					_build())
 			b.disabled = not ok
-			## ONE GOLD BUTTON A SCREEN (checklist C3): the four +1s are one choice,
-			## so their words go green instead (a mark widened them past their
-			## neighbours in fr and pl), and the panel above says why.
+			## GOLD AS ONE CHOICE (before/after review: green on slate lost the
+			## call to action). The four +1s are one decision, so they are one
+			## gold group — checklist C3 counts a group once.
 			if ok:
-				for c in ["font_color", "font_hover_color", "font_focus_color"]:
-					b.add_theme_color_override(c, UiKit.UP)
+				UiKit.primary(b)
+				b.set_meta("primary_group", "level")
 			ui.add_child(b)
 	elif not meeting_open:
 		## --------------------------------------------------- the meeting door

@@ -1165,7 +1165,9 @@ func _draw_news() -> void:
 			UiKit.YOU)
 	for c in plan["caps"]:
 		var cy: float = NEWS_TOP + float(c["y"]) - news_scroll
-		if cy <= NEWS_TOP - 4.0 or cy >= NEWS_TOP + NEWS_H:
+		## A CAPTION WITHOUT ITS CARDS IS A HEADING OVER NOTHING (before/after
+		## review: "THE CLUB" sat on the button row with nothing under it).
+		if cy <= NEWS_TOP - 4.0 or cy + NEWS_CAP_H + NEWS_CARD.y > NEWS_TOP + NEWS_H:
 			continue
 		UiKit.raw(self, font, Vector2(REP_LX, cy + 12.0), String(c["text"]),
 			HORIZONTAL_ALIGNMENT_LEFT, 300, 9, COL_DIM)

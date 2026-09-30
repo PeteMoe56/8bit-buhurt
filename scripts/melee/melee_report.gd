@@ -203,9 +203,21 @@ static func news(season) -> Array:
 			best[who] = c
 		elif int(RANK.get(kind, 9)) < int(RANK.get(String(best[who].get("kind", "")), 9)):
 			best[who] = c
+	## THE SAME SENTENCE ABOUT THREE MEN IS ONE CARD with three names (before/
+	## after review: three cards all reading "1 assist").
+	var by_text: Dictionary = {}
+	var texts: Array = []
 	for who in order:
 		var c: Dictionary = best[who]
-		out.append(News.new(who, String(c["text"]), int(c["good"]), News.MAN))
+		var key := "%s|%d" % [String(c["text"]), int(c["good"])]
+		if not by_text.has(key):
+			by_text[key] = []
+			texts.append(key)
+		by_text[key].append(who)
+	for key in texts:
+		var names: Array = by_text[key]
+		var c: Dictionary = best[names[0]]
+		out.append(News.new(", ".join(names), String(c["text"]), int(c["good"]), News.MAN))
 	var pos: int = season.world.player_position()
 	var rows: Array = season.table()
 	if pos > 0:

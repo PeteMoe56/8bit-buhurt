@@ -232,7 +232,7 @@ func _rebuild() -> void:
 			## coin, the verb and the price, narrower than the rows it sits
 			## among, and grey when the purse cannot cover it.
 			var buy := UiKit.button(UiKit.t("Buy a slot · %d CC") % cost,
-				Vector2(LEFT_X + 20.0, y + 2.0), Vector2(SLOT_W - 40.0, SLOT_H - 4.0), _unlock, "coin")
+				Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), _unlock, "coin")
 			buy.disabled = cost > season.office.credits
 			ui.add_child(buy)
 

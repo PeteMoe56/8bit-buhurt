@@ -169,7 +169,7 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 		UiKit.EDGE.lightened(0.8))
 	## THE BAR SAYS WHAT IT IS (item 2: "the bar on each card has no label").
 	UiKit.right(self, font, UiKit.t("kit %d%%") % int(round(f.armor * 100.0)),
-		Vector2(bar.end.x, bar.position.y - 4.0), 12,
+		Vector2(bar.end.x - 2.0, bar.position.y - 5.0), 12,
 		UiKit.DOWN if not f.passes_inspection() else UiKit.DIM, bar.size.x)
 	## A MOOD YOU CAN SEE WHILE SCANNING. The word only fits on the big card, and
 	## a toxic man you find by tapping into him is a man you find after he has

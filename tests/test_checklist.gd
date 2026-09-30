@@ -11,7 +11,8 @@ extends SceneTree
 ##
 ##   C1  no drawn text under 12 px
 ##   C2  drawn text reaches 4.5:1 against its ground (WCAG body text)
-##   C3  at most ONE gold primary button per screen, and never a disabled one
+##   C3  at most ONE gold primary per screen (a `primary_group` of answers to one
+##       decision counts once), and never a disabled one
 ##   C4  a button that charges more CC than the purse holds is disabled —
 ##       checked with a full purse AND an empty one, so both states are seen
 ##   C5  no empty horizontal band taller than 20% of the frame in the content area
@@ -165,7 +166,8 @@ func _buttons(n: Node, out: Array) -> void:
 		if c is Button and (c as Button).is_visible_in_tree():
 			var b := c as Button
 			out.append({"rect": Rect2(b.get_global_position(), b.size), "text": String(b.text),
-				"disabled": b.disabled, "primary": b.has_meta("primary"), "flat": b.flat})
+				"disabled": b.disabled, "primary": b.has_meta("primary"), "flat": b.flat,
+				"group": String(b.get_meta("primary_group", ""))})
 		_buttons(c, out)
 
 
@@ -221,9 +223,17 @@ func _c2(pages: Array) -> void:
 func _c3(pages: Array) -> void:
 	var bad: Array[String] = []
 	for p in pages:
+		## A GOLD GROUP (the fighter page's four +1s: one decision, four
+		## answers) counts once.
 		var gold: Array[String] = []
+		var groups := {}
 		for b in p["buttons"]:
 			if b["primary"]:
+				var g := String(b["group"])
+				if g != "":
+					if groups.has(g):
+						continue
+					groups[g] = true
 				gold.append(String(b["text"]))
 				if b["disabled"]:
 					bad.append("%s: '%s' is gold and disabled" % [p["page"], b["text"]])
