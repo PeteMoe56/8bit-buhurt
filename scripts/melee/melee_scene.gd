@@ -1199,14 +1199,18 @@ func _draw_corner() -> void:
 			HORIZONTAL_ALIGNMENT_LEFT, 400, 16, UiKit.YOU)
 		## WHO YOU ARE PLANNING AGAINST (round 5: "no information about the
 		## opponent on the screen where you pick a plan against them").
-		var their := 0
-		var n := 0
-		for c in sim.lineup(1):
-			if c != null:
-				their += c.overall()
-				n += 1
-		UiKit.raw(self, font, Vector2(300, 62), UiKit.fit(font, UiKit.t("v %s  ·  their line rated %d") % [
-			sim.clubs[1].display_name, int(round(float(their) / float(maxi(1, n))))], 14, 612.0),
+		## BOTH LINES, side by side (round 9: "show your line's rating too").
+		var rated := [0, 0]
+		for side in 2:
+			var tot := 0
+			var n := 0
+			for c in sim.lineup(side):
+				if c != null:
+					tot += c.overall()
+					n += 1
+			rated[side] = int(round(float(tot) / float(maxi(1, n))))
+		UiKit.raw(self, font, Vector2(300, 62), UiKit.fit(font, UiKit.t("your line %d  ·  v %s  ·  their line %d") % [
+			rated[0], sim.clubs[1].display_name, rated[1]], 14, 612.0),
 			HORIZONTAL_ALIGNMENT_RIGHT, 612, 14, COL_INK)
 	else:
 		UiKit.raw(self, font, Vector2(C_LX, 60), UiKit.t("END OF ROUND %d") % sim.round_no,
@@ -1932,14 +1936,21 @@ func _draw_hint() -> void:
 		msg = UiKit.t("Options are up — pick, or let him.")
 	## 340, not 260: "Options are up — pick, or let him." lost its last word. The
 	## fixture text in the middle starts at about 390.
-	UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 14, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 14, COL_INK)
+	## NOT TWICE (round 9): while the big first-order band is up, it is the
+	## instruction, and the corner line waits.
+	var band_up: bool = sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 \
+		and wheel_man == -1 and not held
+	if not band_up:
+		UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 14, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 14, COL_INK)
 	## SAID IN WORDS (blind review round 3: "0 routes · 0 of 0 calls" unexplained).
 	## NOTHING UNTIL THERE IS SOMETHING TO COUNT (round 8: "Routes 0 · choices
 	## 0/0" was cryptic before the first order).
 	var calls: int = sim.prompts_answered + sim.prompts_timed_out
 	if sim.orders_issued > 0 or calls > 0:
-		UiKit.raw(self, font, Vector2(SCREEN.x - 304, 50), UiKit.fit(font, UiKit.t("%d sent  ·  %d of %d calls made") % [
-			sim.orders_issued, sim.prompts_answered, calls], 14, 280.0),
+		## The calls half only once there has been a call (round 9: "0 of 0").
+		var said: String = UiKit.t("%d sent") % sim.orders_issued if calls == 0 \
+			else UiKit.t("%d sent  ·  %d of %d calls made") % [sim.orders_issued, sim.prompts_answered, calls]
+		UiKit.raw(self, font, Vector2(SCREEN.x - 304, 50), UiKit.fit(font, said, 14, 280.0),
 			HORIZONTAL_ALIGNMENT_RIGHT, 280, 14, COL_DIM)
 	## THE FIRST THING TO DO, big, in the empty middle of the list until he has
 	## done it once (blind review round 3: the key instruction was 10 px grey in
@@ -2803,22 +2814,24 @@ func _draw_splash() -> void:
 	UiKit.raw(self, font, Vector2(0, 104), Venue.title(kind,
 		Cities.full_name(city) if city != "" else "", ground),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 22, UiKit.YOU)
-	## AND HOW FAR IT IS, which is the whole reason the map is real. At home it
-	## says so; on the road it is the number a Homesick man is feeling.
-	if _season() != null:
-		UiKit.raw(self, font, Vector2(0, 130), Venue.trip_word(_splash_miles()),
-			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 12, COL_DIM)
+	## AND HOW FAR IT IS, which is the whole reason the map is real. On the road
+	## it is the number a Homesick man is feeling; at home the heading already
+	## says HOME (round 9: "HOME" and "at home" said it twice). The crowd's line
+	## rides with it, under the venue, instead of floating under the band.
+	var them: String = sim.clubs[1].display_name if _season() == null \
+		else _season().world.clubs[maxi(0, _season().opponent_id())]["name"]
+	var under := Venue.mood_line(kind, String(them).split(" ")[0])
+	if _season() != null and kind != Venue.Kind.HOME:
+		under = Venue.trip_word(_splash_miles()) + "  ·  " + under
+	UiKit.raw(self, font, Vector2(0, 132), under,
+		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 14, COL_INK)
 
 	## THE TWO CLUBS, badge over name over record, either side of the middle.
 	_splash_club(sim.clubs[0], 0, 236.0)
 	_splash_club(sim.clubs[1], 1, 724.0)
-	UiKit.raw(self, font, Vector2(0, 286), "v", HORIZONTAL_ALIGNMENT_CENTER,
-		int(SCREEN.x), 20, COL_DIM)
-	var them: String = sim.clubs[1].display_name if _season() == null \
-		else _season().world.clubs[maxi(0, _season().opponent_id())]["name"]
-	UiKit.raw(self, font, Vector2(0, 392),
-		Venue.mood_line(kind, String(them).split(" ")[0]),
-		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 14, COL_INK)
+	## A "V" YOU CAN SEE (round 9: "the v is tiny").
+	UiKit.raw(self, font, Vector2(0, 232), "V", HORIZONTAL_ALIGNMENT_CENTER,
+		int(SCREEN.x), 40, UiKit.YOU)
 
 
 func _splash_club(club, side: int, cx: float) -> void:
@@ -2843,8 +2856,8 @@ func _splash_club(club, side: int, cx: float) -> void:
 	UiKit.raw(self, font, Vector2(cx - 220.0, 340.0), _season().world.record_line(id),
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 15, COL_INK)
 	## THE MATCHUP IN ONE NUMBER (blind review, 29 Sep: "no rating comparison").
-	UiKit.raw(self, font, Vector2(cx - 220.0, 362.0), UiKit.t("rating %d") % club.power(),
-		HORIZONTAL_ALIGNMENT_CENTER, 440, 12, COL_DIM)
+	UiKit.raw(self, font, Vector2(cx - 220.0, 366.0), UiKit.t("rating %d") % club.power(),
+		HORIZONTAL_ALIGNMENT_CENTER, 440, 15, UiKit.YOU)
 
 
 ## ------------------------------------------------------------- the corner

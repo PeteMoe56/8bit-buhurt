@@ -28,8 +28,11 @@ func _make(which: int) -> void:
 	if which == 0:
 		var cup := Cup.new("Kings Cup", _ids(8), 7, me)
 		cup.sim_others(func(_a, _b): return [3, 1, 4, 2])
+		## ON THE CALENDAR, so the screen shows what cup night shows: the fight.
+		season.world.cups.append(cup)
 		Session.viewing_cup = cup
 	elif which == 1:
+		season.world.cups.clear()
 		var cup := Cup.new("Path of Honor", _ids(8), 11, me)
 		cup.run_all(func(a, b): 
 			var pa := int(season.world.club(a).get("power", 50))

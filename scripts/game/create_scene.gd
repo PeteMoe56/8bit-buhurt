@@ -317,7 +317,7 @@ func _club_controls() -> void:
 		_offer_towns()
 	if not town_offers.is_empty():
 		var town: String = town_offers[0]
-		ui.add_child(UiKit.button(UiKit.t("Move: %s") % Cities.full_name(town),
+		ui.add_child(UiKit.button(UiKit.t("Move to %s") % Cities.full_name(town),
 			Vector2(STAT_X, TOWN_Y), TOWN_CARD, func(t = town):
 				if not UiKit.confirm("move:" + t):
 					flash = UiKit.t("Tap again to move the club to %s.") % Cities.full_name(t)

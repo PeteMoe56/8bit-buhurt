@@ -842,7 +842,7 @@ func _attributes() -> void:
 	## version already proved clear.
 	UiKit.text_fit(self, font,
 		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
-			else UiKit.t("Ceiling is his overall."),
+			else UiKit.t("Ceiling: the most he can reach."),
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 13,
 		man.morale_color() if man.angry() else UiKit.DIM, COL_W - 32.0)
 

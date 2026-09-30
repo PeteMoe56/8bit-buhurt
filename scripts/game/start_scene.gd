@@ -52,8 +52,8 @@ func _build() -> void:
 		if SaveGame.has_save(i):
 			has_any = true
 	var y := 300.0
-	ui.add_child(UiKit.button(UiKit.t("Play"), Vector2(center() - 130, y),
-		Vector2(260, 54), _play))
+	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Play"), Vector2(center() - 130, y),
+		Vector2(260, 54), _play)))
 	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(center() - 130, y + 66),
 		Vector2(260, 46), _settings))
 	## QUIT IS NOT OFFERED ON A PHONE. Mobile platforms have their own way out

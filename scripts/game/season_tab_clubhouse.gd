@@ -119,10 +119,12 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 			Session.autosave()
 			UiKit.go(path), String(r[2])))
 	## QUIETER THAN THE ROOMS (round 6: Close looked like a seventh room).
-	var close_b := UiKit.button(UiKit.t("Close"),
-		Vector2(card.position.x + pad + bw + 16.0, card.position.y + 72.0 + 3.0 * 58.0), Vector2(bw, 48), func():
+	## AN X IN THE CORNER (round 9: a Close tile in the grid read as a room).
+	var close_b := UiKit.button("", Vector2(card.end.x - 56.0, card.position.y + 12.0), Vector2(44, 44), func():
 			v.club_menu_open = false
-			v._rebuild())
+			v._rebuild(), "close")
+	close_b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	close_b.tooltip_text = UiKit.t("Close")
 	v.ui.add_child(close_b)
 
 

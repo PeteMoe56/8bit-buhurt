@@ -64,7 +64,7 @@ func _rebuild() -> void:
 		var err := arena.can_build(office.tier, office.credits)
 		var label := UiKit.t("Build the %s — %d CC") % [UiKit.t(String(arena.next()["name"])), arena.next_cost()]
 		ui.add_child(UiKit.button(label if err == "" else UiKit.t("Locked"),
-			Vector2(RIGHT_X, 212), Vector2(340, 40), _build))
+			Vector2(RIGHT_X, 204), Vector2(340, 40), _build))
 
 	## HAVE IT SEEN TO. On the LEFT, under the picture of the mess, rather than
 	## in the diary column with the build button — a player who has just looked
@@ -91,20 +91,20 @@ func _rebuild() -> void:
 		## what is being chosen; the button is the choice, with a › to say a tap
 		## moves to the next one.
 		ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [UiKit.t(String(o["name"])), int(o["bid"])] + "  >",
-			Vector2(RIGHT_X + PICK_X, 298), Vector2(PICK_W, 38), func():
+			Vector2(RIGHT_X + PICK_X, 306), Vector2(PICK_W, 38), func():
 				offer_i = (offer_i + 1) % season.bid_offers.size()
 				flash = ""
 				_rebuild()))
 		ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [
 				UiKit.t(String(ClubEvent.BUDGETS[budget_i]["name"])),
 				int(ClubEvent.BUDGETS[budget_i]["cost"])] + "  >",
-			Vector2(RIGHT_X + PICK_X, 342), Vector2(PICK_W, 38), func():
+			Vector2(RIGHT_X + PICK_X, 350), Vector2(PICK_W, 38), func():
 				budget_i = (budget_i + 1) % ClubEvent.BUDGETS.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 444),
+		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 450),
 			Vector2(178, 44), _bid)))
-		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(RIGHT_X + 186, 444),
+		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(RIGHT_X + 186, 450),
 			Vector2(178, 44), func():
 				season.decline_bid()
 				Session.autosave()
@@ -112,7 +112,7 @@ func _rebuild() -> void:
 				_rebuild()))
 	elif season.booked == null:
 		var pay: int = ClubEvent.DEMO_PAY[clampi(arena.level, 0, ClubEvent.DEMO_PAY.size() - 1)]
-		var b := UiKit.button(UiKit.t("Run a demo · +%d CC") % pay, Vector2(RIGHT_X, 384),
+		var b := UiKit.button(UiKit.t("Run a demo · +%d CC") % pay, Vector2(RIGHT_X, 392),
 			Vector2(340, 40), _demo)
 		## ONCE A WEEK: after it has run, the button says so instead of refusing.
 		if office.done_this_week("demo"):
@@ -212,6 +212,8 @@ func _draw() -> void:
 	## mechanic from a rendering fault, and no term to look for when he wants to
 	## do something about it. **A state the game draws and does not name is a
 	## state the player reads as a bug.**
+	UiKit.panel(self, Rect2(RIGHT_X - 14.0, 98.0, UiKit.right_edge() - RIGHT_X + 26.0, 154.0))
+	UiKit.panel(self, Rect2(RIGHT_X - 14.0, 258.0, UiKit.right_edge() - RIGHT_X + 26.0, 244.0))
 	UiKit.right(self, font, UiKit.t("Level %d of %d") % [arena.level, Arena.MAX_LEVEL] + "  ·  " + arena.condition_word(),
 		Vector2(UiKit.right_edge(), 118), 14,
 		UiKit.DOWN if arena.shabby() else UiKit.DIM, 240.0)
@@ -360,17 +362,19 @@ func _draw_diary() -> void:
 			if err != "":
 				UiKit.text_fit(self, font, err, Vector2(RIGHT_X, 168), 14, UiKit.DIM, 340.0)
 
-	UiKit.text(self, font, UiKit.t("THE DIARY"), Vector2(RIGHT_X, 270), 15, UiKit.INK)
+	## TWO FRAMED GROUPS (round 9: the right column "floated"): the ground,
+	## and the diary.
+	UiKit.text(self, font, UiKit.t("THE DIARY"), Vector2(RIGHT_X, 282), 15, UiKit.INK)
 	if season.bid_open():
 		## The preview is honest and it is the reason the screen exists: the
 		## player is choosing between numbers, not adjectives, and the number
 		## moves with the ground he has banked into.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
 		var p := season.bid_preview(offer_i % season.bid_offers.size(), budget_i)
-		UiKit.text_fit(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 290), 14, UiKit.DIM,
+		UiKit.text_fit(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 302), 14, UiKit.DIM,
 			UiKit.screen().x - 24.0 - RIGHT_X)
-		UiKit.text_fit(self, font, UiKit.t("When"), Vector2(RIGHT_X, 322), 14, UiKit.INK, PICK_X - 8.0)
-		UiKit.text_fit(self, font, UiKit.t("Budget"), Vector2(RIGHT_X, 366), 14, UiKit.INK, PICK_X - 8.0)
+		UiKit.text_fit(self, font, UiKit.t("When"), Vector2(RIGHT_X, 330), 14, UiKit.INK, PICK_X - 8.0)
+		UiKit.text_fit(self, font, UiKit.t("Budget"), Vector2(RIGHT_X, 374), 14, UiKit.INK, PICK_X - 8.0)
 		## TWO LINES EACH, because both of these ran off the right of the frame in
 		## the real face — 1021 and 976 of a 960 — and both are sentences the
 		## player is meant to read before spending credits on a date. Breaking
@@ -380,27 +384,27 @@ func _draw_diary() -> void:
 		## "Expected" line sat under the button it was about).
 		UiKit.text_fit(self, font, UiKit.t("Event %d  ·  about %d through the gate") % [
 			int(o["event"]) + 1, int(p["heads"])],
-			Vector2(RIGHT_X, 404), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X)
+			Vector2(RIGHT_X, 412), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X)
 		var net := int(p["net"])
 		UiKit.text_fit(self, font, UiKit.t("Expected: %+d CC  ·  %+d CC if you win it") % [net, int(p["best"])],
-			Vector2(RIGHT_X, 426), 15, UiKit.UP if net >= 0 else UiKit.DOWN, UiKit.screen().x - 24.0 - RIGHT_X)
+			Vector2(RIGHT_X, 434), 15, UiKit.UP if net >= 0 else UiKit.DOWN, UiKit.screen().x - 24.0 - RIGHT_X)
 		return
 	if season.booked == null and not season.bid_open():
 		## WHAT THE DEMO IS (round 4: "Run a demo" unexplained).
 		UiKit.para(self, font, UiKit.t("A small home show, once a week. It cannot lose money."),
-			Vector2(RIGHT_X, 446), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
+			Vector2(RIGHT_X, 456), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 	if season.booked != null:
 		var away := season.booked.events_away(season.world.event)
 		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(),
 			UiKit.t("this event") if away == 0 else UiKit.t("in %d events") % away],
-			Vector2(RIGHT_X, 304), 14, UiKit.YOU)
+			Vector2(RIGHT_X, 312), 14, UiKit.YOU)
 		UiKit.para(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
-			Vector2(RIGHT_X, 326), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
+			Vector2(RIGHT_X, 334), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 	else:
 		UiKit.text(self, font, UiKit.t("No tournament this year."),
-			Vector2(RIGHT_X, 304), 14, UiKit.DIM)
+			Vector2(RIGHT_X, 312), 14, UiKit.DIM)
 		UiKit.para(self, font, UiKit.t("The federation offers dates between seasons."),
-			Vector2(RIGHT_X, 326), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
+			Vector2(RIGHT_X, 334), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 
 	if not season.last_show.is_empty():
 		var l := season.last_show
