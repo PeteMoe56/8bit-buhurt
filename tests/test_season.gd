@@ -410,7 +410,12 @@ func _test_one_queue_one_order() -> void:
 		if current_scene != null and current_scene.scene_file_path.ends_with("Season.tscn"):
 			break
 	var v := current_scene
-	## A bid and a card on the table together.
+	## BEFORE BOUT ONE THE BID WAITS (Pete, 29 Sep 2026, #5): a new club opens on
+	## its fight, and the offers are still on the table afterwards.
+	if s.bid_open() and s.blocked_by() == "bid":
+		bad.append("a club that has not fought yet is asked for its tournament bid")
+	## Past the first bout, a bid and a card on the table together.
+	s.results.append({"opponent": -1, "bye": true, "fought": false})
 	s.dilemma = {"id": "van", "man": 0}
 	var seen := await _offered(v)
 	if s.bid_open():

@@ -1130,14 +1130,26 @@ static func button(text_: String, at: Vector2, size: Vector2, on_press: Callable
 ## on it. Only strips, never over the button itself, so hover and pressed states
 ## still come from the button. Where two buttons' strips meet in a gap, the one
 ## added later wins it, which is the nearer-drawn one.
-const HIT_MIN: float = 44.0
-const SLOP_MAX: float = 6.0
+##
+## 56, NOT 44 (Pete, 29 Sep 2026, #4): "56 px minimum hit height; the hit box
+## padded beyond the visible button." So the strips grow to 12 each — and a strip
+## that big would reach into the next button in a stacked column, so once the
+## button is on screen each strip is cut back to half the gap to any button above
+## or below it (`_fit_slop`). A gap is shared, never taken.
+const HIT_MIN: float = 56.0
+const SLOP_MAX: float = 12.0
+const BTN_GROUP := "uikit_button"
 
 
 static func _add_slop(b: Button, inner: Vector2) -> void:
+	b.add_to_group(BTN_GROUP)
 	var slop := clampf((HIT_MIN - inner.y) * 0.5, 0.0, SLOP_MAX)
 	if slop <= 0.0:
 		return
+	b.ready.connect(func() -> void: _fit_slop.call_deferred(b))
+	b.visibility_changed.connect(func() -> void:
+		if b.is_inside_tree() and b.visible:
+			_fit_slop.call_deferred(b))
 	for top in [true, false]:
 		var strip := Control.new()
 		strip.name = "HitSlopTop" if top else "HitSlopBottom"
@@ -1151,6 +1163,35 @@ static func _add_slop(b: Button, inner: Vector2) -> void:
 					and not ev.pressed:
 				b.pressed.emit())
 		b.add_child(strip)
+		strip.set_meta("slop", slop)
+
+
+## Cut each strip back so it never covers another visible button: at most half
+## the gap to the nearest button above (top strip) or below (bottom strip) that
+## shares any of its width.
+static func _fit_slop(b: Button) -> void:
+	if not is_instance_valid(b) or not b.is_inside_tree():
+		return
+	var me := b.get_global_rect()
+	for c in b.get_children():
+		var nm := String(c.name)
+		if not nm.begins_with("HitSlop"):
+			continue
+		var top := nm == "HitSlopTop"
+		var want: float = float(c.get_meta("slop", SLOP_MAX))
+		for o in b.get_tree().get_nodes_in_group(BTN_GROUP):
+			if o == b or not (o as Control).is_visible_in_tree():
+				continue
+			var r := (o as Control).get_global_rect()
+			if r.end.x <= me.position.x or r.position.x >= me.end.x:
+				continue
+			if top and r.end.y <= me.position.y:
+				want = minf(want, (me.position.y - r.end.y) * 0.5)
+			elif not top and r.position.y >= me.end.y:
+				want = minf(want, (r.position.y - me.end.y) * 0.5)
+		want = maxf(0.0, want)
+		(c as Control).size = Vector2(me.size.x, want)
+		(c as Control).position = Vector2(0.0, -want if top else me.size.y)
 
 
 ## A TEXT FIELD IN THE GAME'S OWN TYPE (29 Sep 2026). The name fields on

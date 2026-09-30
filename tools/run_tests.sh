@@ -24,6 +24,9 @@
 ##
 ## Check `uptime` before trusting any timing: a busy machine doubles everything.
 set -u
+## NO COACH MARKS IN THE SWEEPS (29 Sep 2026): they would sit over the screens
+## the sweeps are reading. test_audit_ui turns them back on to test them.
+export RB_NO_TIPS=1
 G="${GODOT:-}"
 if [ -z "$G" ]; then
   for c in /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64 \

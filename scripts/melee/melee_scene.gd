@@ -56,9 +56,13 @@ const CARD_GAP := 6.0
 ## docking it — and that is the answer here too. They sit low, where the men
 ## rarely are, and they are the only things on this screen that eat a click
 ## before `_unhandled_input` sees it.
-const CALL_SIZE := Vector2(158.0, 38.0)
-const CALL_AT := Vector2(140.0, 380.0)
-const SKIP_AT := Vector2(SCREEN.x - 140.0 - 158.0, 380.0)
+##
+## MOVED TO THE TOP BAR (Pete, 29 Sep 2026, #3 (b)): "HOLD and SKIP ROUND go in
+## the top bar beside the clock." Over the ground they sat on lane 5 and covered
+## the men fighting there; the clock row has the room either side of the clock.
+const CALL_SIZE := Vector2(150.0, 36.0)
+const CALL_AT := Vector2(SCREEN.x * 0.5 - 76.0 - 150.0, 4.0)
+const SKIP_AT := Vector2(SCREEN.x * 0.5 + 76.0, 4.0)
 
 ## HOW LONG A CALL LASTS. Six seconds, or until you have given one order —
 ## whichever comes first.
@@ -90,6 +94,10 @@ var hover_enemy := -1
 ## THE CONTACT WHEEL (Pete, 29 Sep 2026). The man whose question is up, or -1;
 ## and where a drag toward an option began, for "circle command" release.
 var wheel_man := -1
+## THE ONE-TIME COACH MARK on screen, "" for none (Pete, 29 Sep 2026, #5). While
+## one is up the fight and the corner clock both wait.
+var tip := ""
+var tip_layer: CanvasLayer = null
 var wheel_drag := false
 ## SPRINT: seconds the drawing finger has rested, and whether it has rested long
 ## enough on the endpoint to make this route a run.
@@ -379,7 +387,8 @@ func _process(delta: float) -> void:
 	## never moved and the grade's corner time (24 s vs 16 s) did nothing — the
 	## corner waited forever. It runs here, on real time, and when it is out the
 	## men go back in on whatever was last chosen (or the push they were on).
-	if screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER and not paused:
+	_maybe_tip()
+	if screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER and not paused and tip == "":
 		sim.corner_t -= delta
 		if sim.corner_t <= 0.0:
 			_corner_time_up()
@@ -392,7 +401,8 @@ func _process(delta: float) -> void:
 			draw_run = true
 	if skipping and not paused:
 		_skip_slice()
-	elif screen == Screen.FIGHT and not Juice.frozen() and not held and not paused and wheel_man == -1:
+	elif screen == Screen.FIGHT and not Juice.frozen() and not held and not paused and wheel_man == -1 \
+			and tip == "":
 		## NO CATCH-UP AFTER A STALL. A hitch or an app resume handed the loop a
 		## huge delta, and the fight fast-forwarded until it caught up.
 		accum = minf(accum + delta, 0.25)
@@ -1797,11 +1807,10 @@ func _draw_hint() -> void:
 func _draw_calls() -> void:
 	if screen != Screen.FIGHT or calls_total <= 0:
 		return
-	var y := CALL_AT.y - 22.0
-	UiKit.raw(self, font, Vector2(CALL_AT.x, y - 4.0), UiKit.t("CALLS"), HORIZONTAL_ALIGNMENT_LEFT,
-		60, 11, COL_DIM)
+	## Left of HOLD in the top bar, right-aligned against it.
+	var y := CALL_AT.y + 12.0
 	for i in calls_total:
-		var r := Rect2(CALL_AT.x + 56.0 + float(i) * 18.0, y - 15.0, 13.0, 13.0)
+		var r := Rect2(CALL_AT.x - 8.0 - float(calls_total - i) * 16.0, y, 12.0, 12.0)
 		draw_rect(r, Tuning.COL_MARSHAL if i < calls_left else Color("221e1a"))
 		draw_rect(r, COL_EDGE, false, 1.0)
 
@@ -1820,6 +1829,64 @@ func _draw_held() -> void:
 	UiKit.raw(self, font, Vector2(band.position.x, band.position.y + 52.0),
 		UiKit.t("give one man an order · %.1fs") % maxf(0.0, hold_t),
 		HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 13, COL_INK)
+
+
+# ------------------------------------------------------------ coach marks
+## TWO, AND ONCE EACH (Pete, 29 Sep 2026, #5: "Draw a route" and "The corner").
+## Only in a career bout — a standalone exhibition never stops for one, and the
+## test runner turns them off (`Settings.tips_enabled`).
+## Literal `t()` calls, so the string extractor sees them.
+static func _tip_words(key: String) -> Array[String]:
+	if key == "corner":
+		return [UiKit.t("The corner"),
+			UiKit.t("Swap a tired man for one from the bench and change the plan. When the clock runs out they go back in.")]
+	return [UiKit.t("Send a fighter"),
+		UiKit.t("Drag from one of your men to an enemy, or to open ground. He goes; the rest fight on their own.")]
+
+
+func _maybe_tip() -> void:
+	if tip != "" or Session.season == null:
+		return
+	var key := ""
+	if screen == Screen.FIGHT and sim.phase == MeleeSim.Phase.LIVE:
+		key = "route"
+	elif screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER:
+		key = "corner"
+	if key == "" or not Settings.tip_due(key):
+		return
+	_show_tip(key)
+
+
+func _show_tip(key: String) -> void:
+	tip = key
+	tip_layer = CanvasLayer.new()
+	tip_layer.layer = 20
+	add_child(tip_layer)
+	var box := Rect2(SCREEN.x * 0.5 - 250.0 + off_x, 140.0 + off_y, 500.0, 196.0)
+	## A full-screen catch, so a tap meant for the tip never lands on the fight.
+	var veil := Control.new()
+	veil.mouse_filter = Control.MOUSE_FILTER_STOP
+	veil.size = UiKit.screen()
+	veil.draw.connect(func() -> void:
+		veil.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.55))
+		UiKit.panel(veil, box)
+		var words := _tip_words(key)
+		UiKit.text(veil, font, words[0], box.position + Vector2(24, 40), 20, UiKit.YOU)
+		UiKit.para(veil, font, words[1], box.position + Vector2(24, 72), 14,
+			UiKit.INK, box.size.x - 48.0, 20.0, 3))
+	tip_layer.add_child(veil)
+	tip_layer.add_child(UiKit.button(UiKit.t("Got it"),
+		box.position + Vector2(box.size.x - 24.0 - 150.0, box.size.y - 58.0), Vector2(150, 44),
+		_close_tip))
+
+
+func _close_tip() -> void:
+	if tip != "":
+		Settings.tip_done(tip)
+	tip = ""
+	if tip_layer != null:
+		tip_layer.queue_free()
+		tip_layer = null
 
 
 # ---------------------------------------------------------------------- UI

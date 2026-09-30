@@ -14,6 +14,8 @@ func _initialize() -> void:
 	Juice.set_enabled(false)
 	_test_confirm_needs_two_taps()
 	_test_a_short_button_has_a_thumb_margin()
+	await _test_stacked_buttons_share_the_gap()
+	await _test_a_coach_mark_shows_once_and_holds_the_fight()
 	await _test_back_closes_the_modal_first()
 	await _test_back_on_the_title_backs_out_of_the_picker()
 	await _test_a_typed_club_name_survives_a_rebuild()
@@ -68,15 +70,99 @@ func _test_a_short_button_has_a_thumb_margin() -> void:
 	for c in b.get_children():
 		if String(c.name).begins_with("HitSlop"):
 			slop += 1
-	var tall := UiKit.button("Go", Vector2(10, 10), Vector2(120, 52), func(): pass)
+	## 60, not 52: the floor is 56 since Pete's #4 (29 Sep).
+	var tall := UiKit.button("Go", Vector2(10, 10), Vector2(120, 60), func(): pass)
 	var none := 0
 	for c in tall.get_children():
 		if String(c.name).begins_with("HitSlop"):
 			none += 1
 	_ok(slop == 2 and none == 0, "a short button gets a thumb margin, a tall one does not",
-		"34 tall: %d strips; 52 tall: %d" % [slop, none])
+		"34 tall: %d strips; 60 tall: %d" % [slop, none])
 	b.free()
 	tall.free()
+
+
+## Pete's #4 (29 Sep): 56 px to hit, but a strip never reaches into the next
+## button — two 34 px buttons 6 px apart split the gap 3 and 3.
+func _test_stacked_buttons_share_the_gap() -> void:
+	var host := Control.new()
+	root.add_child(host)
+	var a := UiKit.button("A", Vector2(10, 10), Vector2(120, 38), func(): pass)
+	var b := UiKit.button("B", Vector2(10, 54), Vector2(120, 38), func(): pass)
+	host.add_child(a)
+	host.add_child(b)
+	await process_frame
+	await process_frame
+	var a_bottom := 0.0
+	var b_top := 0.0
+	var a_top := 0.0
+	for c in a.get_children():
+		if String(c.name) == "HitSlopBottom": a_bottom = (c as Control).size.y
+		if String(c.name) == "HitSlopTop": a_top = (c as Control).size.y
+	for c in b.get_children():
+		if String(c.name) == "HitSlopTop": b_top = (c as Control).size.y
+	var gap := b.get_global_rect().position.y - a.get_global_rect().end.y
+	_ok(absf(a_bottom - gap * 0.5) < 0.6 and absf(b_top - gap * 0.5) < 0.6 and a_top >= 11.0,
+		"stacked buttons share the gap between them, and keep the full margin elsewhere",
+		"gap %.0f: A's bottom strip %.1f, B's top strip %.1f, A's free top strip %.1f"
+			% [gap, a_bottom, b_top, a_top])
+	host.queue_free()
+	await process_frame
+
+
+## Pete's #5 (29 Sep): the first live fight shows "Send a fighter", the fight
+## waits while it is up, and once dismissed it never shows again.
+func _test_a_coach_mark_shows_once_and_holds_the_fight() -> void:
+	var was_path := Settings.path
+	var was_on := Settings.tips_enabled
+	Settings.load_once()
+	Settings.path = "user://test_tips.cfg"
+	Settings.tips_enabled = true
+	Settings.tips_seen.clear()
+	Session.season = Season.new(MeleeRosters.starting_club(), 4242)
+	var first := await _live_fight()
+	var sim: MeleeSim = first.get("sim")
+	var t0 := sim.round_t
+	for i in 10:
+		if bool(first.get("paused")):
+			first.call("_set_paused", false)
+		await process_frame
+	var shown := String(first.get("tip"))
+	var held := is_equal_approx(sim.round_t, t0)
+	first.call("_close_tip")
+	var remembered := Settings.tips_seen.has("route")
+	first.queue_free()
+	await process_frame
+	var again := await _live_fight()
+	var t1 := (again.get("sim") as MeleeSim).round_t
+	for i in 10:
+		if bool(again.get("paused")):
+			again.call("_set_paused", false)
+		await process_frame
+	var second := String(again.get("tip"))
+	var runs := (again.get("sim") as MeleeSim).round_t > t1
+	again.queue_free()
+	await process_frame
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.path))
+	Settings.path = was_path
+	Settings.tips_enabled = was_on
+	Settings.tips_seen.clear()
+	Session.season = null
+	_ok(shown == "route" and held and remembered and second == "" and runs,
+		"the route tip shows on the first fight, holds it, and never shows again",
+		"first '%s', clock held %s, remembered %s, second fight '%s' and its clock runs %s" % [shown, held, remembered, second, runs])
+
+
+func _live_fight() -> Node:
+	var m: Node = (load("res://scenes/Melee.tscn") as PackedScene).instantiate()
+	root.add_child(m)
+	await process_frame
+	await process_frame
+	m.call("_set_paused", false)
+	(m.get("sim") as MeleeSim).phase = MeleeSim.Phase.LIVE
+	m.set("screen", 2)
+	await process_frame
+	return m
 
 
 func _test_back_closes_the_modal_first() -> void:

@@ -28,6 +28,11 @@ static func load_once() -> void:
 		sfx = clampf(float(cfg.get_value("audio", "sfx", sfx)), 0.0, 1.0)
 		interface = clampf(float(cfg.get_value("audio", "ui", interface)), 0.0, 1.0)
 		language = String(cfg.get_value("general", "language", ""))
+		var seen = cfg.get_value("general", "tips_seen", [])
+		tips_seen.clear()
+		if seen is Array:
+			for k in seen:
+				tips_seen.append(String(k))
 	apply()
 	apply_language()
 
@@ -38,7 +43,30 @@ static func save_to_disk() -> void:
 	cfg.set_value("audio", "sfx", sfx)
 	cfg.set_value("audio", "ui", interface)
 	cfg.set_value("general", "language", language)
+	cfg.set_value("general", "tips_seen", tips_seen)
 	cfg.save(path)
+
+
+# ---------------------------------------------------------------------- tips
+## THE ONE-TIME COACH MARKS (Pete, 29 Sep 2026, #5: "Draw a route" and "The
+## corner"). Kept with the device, not the save: a player who starts a second
+## club has already been shown how to draw a route.
+static var tips_seen: Array[String] = []
+## The test runner exports RB_NO_TIPS=1: a sweep that walks every screen must see
+## the screens, not a coach mark over them. `test_audit_ui` turns it back on to
+## hold the tips themselves.
+static var tips_enabled: bool = OS.get_environment("RB_NO_TIPS") == ""
+
+
+static func tip_due(key: String) -> bool:
+	load_once()
+	return tips_enabled and not tips_seen.has(key)
+
+
+static func tip_done(key: String) -> void:
+	if not tips_seen.has(key):
+		tips_seen.append(key)
+		save_to_disk()
 
 
 # ------------------------------------------------------------------ language

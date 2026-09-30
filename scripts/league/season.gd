@@ -926,7 +926,9 @@ const CUT_LIKED: float = -0.05
 
 
 func blocked_by() -> String:
-	if bid_open():
+	## NOT BEFORE THE FIRST BOUT (Pete, 29 Sep 2026, #5): a new club opens on its
+	## next fight. The offers wait on the table; they are asked after bout one.
+	if bid_open() and first_bout_done():
 		return "bid"
 	if cup_pending():
 		return "cup"
@@ -941,6 +943,12 @@ func blocked_by() -> String:
 	if promotion_offered():
 		return "promotion"
 	return ""
+
+
+## Has this career fought (or simmed) anything yet? Onboarding (#5) hides the
+## tournament bid and the Armorer until it has.
+func first_bout_done() -> bool:
+	return world.season > 1 or coach.seasons > 0 or not results.is_empty()
 
 
 # ------------------------------------------------------- take it or stay down

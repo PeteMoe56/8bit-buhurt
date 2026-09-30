@@ -188,8 +188,18 @@ func _rebuild() -> void:
 	## hand is the whole difference. The names stay — an icon alone is a rebus.
 	var names := [UiKit.t("CLUB"), UiKit.t("SQUAD"), UiKit.t("ARMORER"), UiKit.t("CLUBHOUSE"), UiKit.t("FINANCES")]
 	var marks := ["shield", "roster", "armor", "hall", "purse"]
+	## THE ARMORER OPENS AFTER BOUT ONE (Pete, 29 Sep 2026, #5). The tabs close up
+	## rather than leave a hole.
+	var shown: Array[int] = []
 	for i in names.size():
-		ui.add_child(UiKit.button(names[i], Vector2(24 + float(i) * (TAB_W + 6.0), TAB_Y),
+		if i == Tab.MARKET and not season.first_bout_done():
+			continue
+		shown.append(i)
+	if tab == Tab.MARKET and not shown.has(Tab.MARKET):
+		tab = Tab.CLUB
+	for slot in shown.size():
+		var i: int = shown[slot]
+		ui.add_child(UiKit.button(names[i], Vector2(24 + float(slot) * (TAB_W + 6.0), TAB_Y),
 			Vector2(TAB_W, TAB_H), func():
 				tab = i
 				picked = null
@@ -425,7 +435,11 @@ func _draw() -> void:
 		_draw_shop()
 		return
 	## Button's own styling is the one thing here that is not mine to draw.
-	draw_rect(Rect2(24 + float(tab) * (TAB_W + 6.0), TAB_Y + TAB_H, TAB_W, 3), UiKit.YOU)
+	## The slot, not the index: before bout one the Armorer's tab is not there.
+	var slot := tab
+	if not season.first_bout_done() and tab > Tab.MARKET:
+		slot -= 1
+	draw_rect(Rect2(24 + float(slot) * (TAB_W + 6.0), TAB_Y + TAB_H, TAB_W, 3), UiKit.YOU)
 	if flash != "":
 		## BY PIXELS, ACROSS THE WHOLE WIDTH, and smaller when it is long. It was
 		## cut at 58 characters, which dropped the winter report off the end of
