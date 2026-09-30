@@ -1537,7 +1537,7 @@ func _odds_col(p: float) -> Color:
 		return UiKit.UP
 	if p >= 0.35:
 		return UiKit.YOU
-	return UiKit.DOWN
+	return UiKit.INK
 
 
 func _draw_wheel(m) -> void:

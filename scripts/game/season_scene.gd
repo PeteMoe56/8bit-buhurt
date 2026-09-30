@@ -253,7 +253,11 @@ func _next_controls() -> void:
 	## And a picked man owns the Armorer's (Repair, Upgrade).
 	if tab == Tab.MARKET and qm_pick != null:
 		return
-	var label := UiKit.t("Next event")
+	## SAYS WHAT IS NEXT (blind review round 2: "Next event" with crossed swords
+	## read as close). "vs ATL" for a fight, "Bye" when there is nobody.
+	var opp := season.opponent_id()
+	var label := (UiKit.t("Fight: vs %s") % String(season.world.clubs[opp].get("short", "?"))) if opp >= 0 \
+		else UiKit.t("Next event")
 	var go := _fight
 	if season.season_complete():
 		label = UiKit.t("End the season")
@@ -273,7 +277,7 @@ func _next_controls() -> void:
 			_rebuild()
 	## THE MARK IS THE CROSSED SWORDS, not a ▶: the pixel fonts have no arrow.
 	ui.add_child(UiKit.primary(UiKit.button(label, Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
-		Vector2(NEXT_W, 46), go, "crossed")))
+		Vector2(NEXT_W, 46), go, "sword")))
 ## -> SeasonClubTab (season_tab_club.gd)
 func _club_controls() -> void:
 	SeasonClubTab._club_controls(self)

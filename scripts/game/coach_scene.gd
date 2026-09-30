@@ -67,9 +67,13 @@ func _build() -> void:
 		var cid: int = offers[i]
 		## Taking a job leaves this club for good: it is a danger button, and the
 		## second tap says so.
-		ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Sign and leave it all") if confirm_take == cid else UiKit.t("Consider the job"),
+		## NEUTRAL UNTIL IT BITES (round 2: a job offer in the Delete style read as
+		## destructive). Considering is harmless; the second tap, "Sign and leave
+		## it all", is the one that gives something up, and it is red.
+		var job := UiKit.button(UiKit.t("Sign and leave it all") if confirm_take == cid else UiKit.t("Consider the job"),
 			Vector2(R_X + 16, offer_row_y(i) + OFFER_BUTTON_DY),
-			Vector2(COL_W - 32, OFFER_BUTTON_H), _take.bind(cid))))
+			Vector2(COL_W - 32, OFFER_BUTTON_H), _take.bind(cid))
+		ui.add_child(UiKit.danger(job) if confirm_take == cid else job)
 	if confirm_take >= 0:
 		ui.add_child(UiKit.button(UiKit.t("Stay"), Vector2(190, UiKit.screen().y - 56),
 			Vector2(150, 44), func():

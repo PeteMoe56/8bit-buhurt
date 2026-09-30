@@ -769,10 +769,17 @@ static func text(ci: CanvasItem, font: Font, s: String, at: Vector2,
 ## A MAN'S PLACE, AS A COLOR — Rail, Flanker, Center. One table: the roster and
 ## the market each kept their own copy, and a man has to be the same color on
 ## every card he is drawn on.
+## POSITION COLORS THAT MEAN NOTHING ELSE (Pete, 29 Sep 2026). Center was the
+## alarm red and Flank the button slate, so a Center read as a problem and a
+## Flanker as a button. Red is for danger only; slate is for controls only.
+const POS_CENTER := Color("9b72cf")
+const POS_FLANK := Color("e0913c")
+
+
 static func pos_color(f: FighterCard) -> Color:
 	match int(f.pos):
-		Tuning.Pos.CENTER: return DOWN
-		Tuning.Pos.FLANK_L, Tuning.Pos.FLANK_R: return SELECT
+		Tuning.Pos.CENTER: return POS_CENTER
+		Tuning.Pos.FLANK_L, Tuning.Pos.FLANK_R: return POS_FLANK
 		_: return UP
 
 
