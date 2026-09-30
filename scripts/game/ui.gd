@@ -1284,7 +1284,9 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	b.add_theme_stylebox_override("hover", _sb(SELECT if touch_ui() else YOU, FRAME, DROP_PX, pad))
 	b.add_theme_stylebox_override("pressed", _sb(YOU, FRAME, 0.0, pad))
 	b.add_theme_stylebox_override("focus", _sb(SELECT, YOU, DROP_PX, pad))
-	b.add_theme_stylebox_override("disabled", _sb(TRACK, EDGE, 0.0, pad))
+	## A DISABLED BUTTON IS STILL A BUTTON (round 10: the dark, flat box read
+	## as a text field): the same shape and drop, the colour drained out of it.
+	b.add_theme_stylebox_override("disabled", _sb(SELECT.lerp(PANEL, 0.7), EDGE, DROP_PX, pad))
 
 
 ## BUTTON KINDS (29 Sep 2026, blind review #4: "one button style does every

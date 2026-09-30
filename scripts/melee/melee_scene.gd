@@ -1530,7 +1530,7 @@ func _wheel_opts(m) -> Array:
 const WHEEL_RI := 36.0      ## inner edge of a side — clears the man's own circle
 const WHEEL_RO := 80.0      ## outer edge: 44px of thumb, the touch floor
 const WHEEL_HALF := 43.0    ## each side spans ±43°, a 4° gap between sides
-const WHEEL_LABEL := 96.0   ## where a side's words start, from the centre
+const WHEEL_LABEL := 110.0  ## where a side's words start, from the centre
 const WHEEL_CANCEL := Vector2(96.0, 36.0)
 ## Direction of each option, degrees clockwise from up: acts 0/1/2, then Cancel.
 const WHEEL_DIRS := [0.0, 90.0, 270.0, 180.0]
@@ -1541,7 +1541,7 @@ func _wheel_center(m) -> Vector2:
 	var p := _to_screen(m.pos)
 	## Room for the ring and its words on every side, so no option leaves the list.
 	## Above: the top side and its three lines. Below: Cancel and the drag hint.
-	var lo := LIST_ORIGIN + Vector2(WHEEL_LABEL + 180.0, WHEEL_RO + 58.0)
+	var lo := LIST_ORIGIN + Vector2(WHEEL_LABEL + 180.0, WHEEL_RO + 70.0)
 	var hi := LIST_ORIGIN + Vector2(Tuning.LIST_H, Tuning.LIST_W) * LIST_SCALE \
 		- Vector2(WHEEL_LABEL + 180.0, WHEEL_RI + 80.0)
 	return Vector2(clampf(p.x, lo.x, minf(hi.x, maxf(lo.x, hi.x))),
@@ -1676,8 +1676,9 @@ func _draw_wheel(m) -> void:
 		var align := HORIZONTAL_ALIGNMENT_CENTER
 		var top := at.y - 8.0
 		if deg == 0.0:
+			## CLEAR OF THE RING (round 10: the labels touched it).
 			at = c + Vector2(-lw * 0.5, -WHEEL_RO)
-			top = at.y - 54.0
+			top = at.y - 66.0
 		elif deg == 90.0:
 			align = HORIZONTAL_ALIGNMENT_LEFT
 			top = at.y - 22.0

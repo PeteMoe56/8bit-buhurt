@@ -217,7 +217,7 @@ Take to events,Take to events,Llevar a los eventos,Emmener aux événements,Mitn
 %s cannot be left at home: %s.,%s cannot be left at home: %s.,%s no puede quedarse en casa: %s.,%s ne peut pas rester au club : %s.,%s kann nicht zu Hause bleiben: %s.,%s non può restare a casa: %s.,%s não pode ficar em casa: %s.,%s nie może zostać w domu: %s.,%s не может остаться дома: %s.,%sは留守番できない：%s。
 %s cannot travel: %s.,%s cannot travel: %s.,%s no puede viajar: %s.,%s ne peut pas voyager : %s.,%s kann nicht mitreisen: %s.,%s non può viaggiare: %s.,%s não pode viajar: %s.,%s nie może jechać: %s.,%s не может ехать: %s.,%sは遠征できない：%s。
 need eight,need eight,faltan ocho,il en faut huit,braucht acht,servono otto,precisa de oito,trzeba ósemki,нужно восемь,8人必要
-"A club travels with eight, so %s cannot be left at home.","A club travels with eight, so %s cannot be left at home.","Un club viaja con ocho, así que %s no puede quedarse en casa.",Un club voyage à huit : %s ne peut pas rester à la maison.,"Ein Klub reist mit acht, also muss %s mit.","Un club viaggia in otto, quindi %s non può restare a casa.","Um clube viaja com oito, então %s não pode ficar em casa.","Klub jeździ w ósemkę, więc %s nie może zostać w domu.","Клуб едет ввосьмером, так что %s не может остаться дома.",クラブは8人で遠征する。%sは外せない。
+"Every seat on the bus must be filled, so %s travels.","Every seat on the bus must be filled, so %s travels.","Cada plaza del autobús debe ocuparse, así que %s viaja.",Chaque place du bus doit être prise : %s part.,"Jeder Platz im Bus muss besetzt sein, also fährt %s mit.","Ogni posto sul pullman va occupato, quindi %s parte.","Todo lugar no ônibus precisa ser ocupado, então %s viaja.","Każde miejsce w autobusie musi być zajęte, więc %s jedzie.","Все места в автобусе должны быть заняты, так что %s едет.",バスの席は全て埋める必要がある。%sは遠征する。
 In the Hall,In the Hall,En el Salón,Au Panthéon,In der Ruhmeshalle,Nella Hall of Fame,No Hall da Fama,W Galerii Sław,В Зале славы,殿堂入り
 Tag for the Hall,Tag for the Hall,Marcar para el Salón,Proposer au Panthéon,Für die Ruhmeshalle vormerken,Segna per la Hall of Fame,Marcar p/ o Hall da Fama,Oznacz do Galerii,В Зал славы?,殿堂候補に指定
 %s taken out of the Hall.,%s taken out of the Hall.,%s sale del Salón.,%s retiré du Panthéon.,%s aus der Ruhmeshalle genommen.,%s tolto dalla Hall of Fame.,%s retirado do Hall da Fama.,%s usunięty z Galerii.,%s убран из Зала славы.,%sを殿堂から外した。
@@ -225,7 +225,6 @@ Tag for the Hall,Tag for the Hall,Marcar para el Salón,Proposer au Panthéon,F�
 %s · %s/wk,%s · %s/wk,%s · %s/sem,%s · %s/sem,%s · %s/Wo.,%s · %s/sett,%s · %s/sem,%s · %s/tydz.,%s · %s/нед,%s · %s/週
 Re-sign,Re-sign,Renovar,Re-signer,Verlängern,Rinnova,Renovar,Nowy kontrakt,Переподписать,再契約
 Extend now,Extend now,Renovar ya,Prolonger,Jetzt verlängern,Rinnova ora,Renovar já,Przedłuż teraz,Продлить сейчас,今延長
-Weapon: %s,Weapon: %s,Arma: %s,Arme : %s,Waffe: %s,Arma: %s,Arma: %s,Broń: %s,Оружие: %s,武器：%s
 Sword,Sword,Espada,Épée,Schwert,Spada,Espada,Miecz,Меч,剣
 Pole,Pole,Asta,Hast,Stange,Asta,Haste,Drzewce,Древко,長柄
 %s will carry a %s.,%s will carry a %s.,%s llevará: %s.,%s portera : %s.,%s trägt jetzt ein %s.,%s porterà: %s.,%s vai levar um %s.,%s będzie nosił: %s.,%s получит: %s.,%sは%sを持つ。

@@ -233,7 +233,7 @@ func _build() -> void:
 		else UiKit.t("%s cannot travel: %s.")) % [man.display_name, bus_why])
 	## "need eight" said as a rule (round 8: "cryptic").
 	if on_eight and bus_why == UiKit.t("need eight"):
-		bus_note = UiKit.t("A club travels with eight, so %s cannot be left at home.") % man.display_name
+		bus_note = UiKit.t("Every seat on the bus must be filled, so %s travels.") % man.display_name
 	ui.add_child(bus_b)
 
 	## THE CONTRACT, as one control with the price on it — the same fork the
@@ -274,14 +274,16 @@ func _build() -> void:
 	ui.add_child(UiKit.arrow(true, Vector2(PAGE_NEXT_X, y), Vector2(44, 44), _page.bind(1)))
 	## HIS WEAPON, and a tap changes it. Sword-and-shield or polearm — a line-up
 	## decision, so it costs nothing and can be changed between any two events.
-	ui.add_child(UiKit.button(UiKit.t("Weapon: %s") % (UiKit.t("Sword") if man.weapon == Tuning.Weapon.SWORD_SHIELD else UiKit.t("Pole")),
+	## THE WEAPON AS ITS MARK AND A WORD (round 10: "Weapon: Sword" touched the
+	## button's edges).
+	ui.add_child(UiKit.button(UiKit.t("Sword") if man.weapon == Tuning.Weapon.SWORD_SHIELD else UiKit.t("Pole"),
 		Vector2(PAGE_NEXT_X + 52.0, y), Vector2(UiKit.right_edge() - PAGE_NEXT_X - 52.0, 44), func():
 			man.weapon = Tuning.Weapon.POLEARM if man.weapon == Tuning.Weapon.SWORD_SHIELD \
 				else Tuning.Weapon.SWORD_SHIELD
 			flash = UiKit.t("%s will carry a %s.") % [man.display_name,
 				Tuning.weapon_name(man.weapon).to_lower()]
 			Session.autosave()
-			_build()))
+			_build(), "sword"))
 
 	## ------------------------------------------------------------ the level
 	## WHERE THE POINT GOES, and it is a row of real buttons rather than a

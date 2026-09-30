@@ -244,7 +244,7 @@ func _rebuild() -> void:
 	if calls > 0:
 		var pip := ColorRect.new()
 		pip.color = UiKit.YOU
-		pip.position = Vector2(CLUB_BTN_W - 12.0, -8.0)
+		pip.position = Vector2(CLUB_BTN_W - 14.0, -4.0)
 		pip.size = Vector2(20, 20)
 		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var n := Label.new()

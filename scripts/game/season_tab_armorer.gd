@@ -128,7 +128,7 @@ static func _draw_market(v: SeasonScene) -> void:
 			wcol = UiKit.DOWN
 		elif not Quartermaster.topped_out(f):
 			word = UiKit.t("fix %d CC") % ClubOffice.kit_cost(f)
-			wcol = UiKit.INK
+			wcol = UiKit.YOU
 		elif Quartermaster.next_grade(f) >= 0:
 			word = UiKit.t("up %d CC") % Quartermaster.upgrade_cost(f)
 			wcol = UiKit.DIM

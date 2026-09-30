@@ -202,7 +202,7 @@ func _draw() -> void:
 	## Retro Bowl's whole fan bar is this: the player watches it fill and knows a
 	## raise is close. A number alone does not do that — 71 and 74 read the same
 	## and one of them is a fight away from paying more.
-	_meter(Vector2(UiKit.right_edge(320.0), 68), 320.0)
+	_meter(Vector2(UiKit.right_edge() - 320.0, 68), 320.0)
 	## THE TWO AXES, SIDE BY SIDE, because they are the two axes and a player
 	## needs to see that they are different things: the level is what the league
 	## lets him build and the condition is what he keeps it in.
