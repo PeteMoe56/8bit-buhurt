@@ -80,20 +80,23 @@ func _rebuild() -> void:
 		## THE BID. Two dials on one screen, both spent the moment he takes it —
 		## the date and the promotion.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
-		ui.add_child(UiKit.button(UiKit.t("Date: %s — %d CC") % [UiKit.t(String(o["name"])), int(o["bid"])],
+		## PICKERS SAY THEY ARE PICKERS (blind review, 29 Sep: they read as
+		## purchases). A tap moves to the next option; nothing is spent until
+		## "Take the date".
+		ui.add_child(UiKit.button(UiKit.t("Date: %s — %d CC  ·  change") % [UiKit.t(String(o["name"])), int(o["bid"])],
 			Vector2(RIGHT_X, 280), Vector2(340, 36), func():
 				offer_i = (offer_i + 1) % season.bid_offers.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.button(UiKit.t("Budget: %s — %d CC") % [
+		ui.add_child(UiKit.button(UiKit.t("Budget: %s — %d CC  ·  change") % [
 				UiKit.t(String(ClubEvent.BUDGETS[budget_i]["name"])),
 				int(ClubEvent.BUDGETS[budget_i]["cost"])],
 			Vector2(RIGHT_X, 322), Vector2(340, 36), func():
 				budget_i = (budget_i + 1) % ClubEvent.BUDGETS.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 364),
-			Vector2(166, 40), _bid))
+		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 364),
+			Vector2(166, 40), _bid)))
 		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(RIGHT_X + 174, 364),
 			Vector2(166, 40), func():
 				season.decline_bid()
@@ -353,9 +356,11 @@ func _draw_diary() -> void:
 		UiKit.text(self, font, UiKit.t("%d CC spent") % int(p["cost"]),
 			Vector2(RIGHT_X, 460), 13, UiKit.DIM)
 		var net := int(p["net"])
-		UiKit.text(self, font, UiKit.t("%+d before the podium,") % net,
+		## A NUMBER WITH A NAME (blind review, 29 Sep: "a useful projection written
+		## as a riddle").
+		UiKit.text(self, font, UiKit.t("Expected: %+d CC") % net,
 			Vector2(RIGHT_X, 484), 15, UiKit.UP if net >= 0 else UiKit.DOWN)
-		UiKit.text(self, font, UiKit.t("up to %+d if you win it") % int(p["best"]),
+		UiKit.text(self, font, UiKit.t("%+d CC if you win it") % int(p["best"]),
 			Vector2(RIGHT_X, UiKit.bottom(34.0)), 13, UiKit.UP if net >= 0 else UiKit.DOWN)
 		return
 	if season.booked != null:

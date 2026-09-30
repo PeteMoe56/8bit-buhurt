@@ -72,7 +72,10 @@ func _draw() -> void:
 	UiKit.ground(self)
 	if cup == null:
 		UiKit.text(self, font, UiKit.t("NO CUP RUNNING"), Vector2(24, 40), 22, UiKit.YOU)
-		UiKit.text(self, font, UiKit.t("Nothing is drawn yet."), Vector2(24, 72), 14, UiKit.DIM)
+		## Not reachable from the season screen (its button shows only with a cup
+		## to show), but a screen that can be opened says what belongs on it.
+		UiKit.para(self, font, UiKit.t("The cups are drawn during the season. A club in good standing with the federation is entered, and the draw appears here with your road through it."),
+			Vector2(24, 72), 14, UiKit.DIM, UiKit.span(), 20.0, 3)
 		return
 	if cup.has_pools and cup.stage == Cup.Stage.POOLS:
 		_pools()

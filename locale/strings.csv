@@ -2,8 +2,8 @@ keys,en,es,fr,de,it,pt_BR,pl,ru,ja
 Build the %s — %d CC,Build the %s — %d CC,Construir %s — %d CC,Construire : %s — %d CC,%s bauen — %d CC,Costruisci %s — %d CC,Construir %s — %d CC,Zbuduj: %s — %d CC,Построить: %s — %d CC,%sを建設 — %d CC
 Locked,Locked,Bloqueado,Verrouillé,Gesperrt,Bloccato,Bloqueado,Zablokowane,Закрыто,ロック中
 Have it seen to — %d CC,Have it seen to — %d CC,Que lo arreglen — %d CC,Faire réparer — %d CC,Instand setzen — %d CC,Fallo sistemare — %d CC,Mandar consertar — %d CC,Napraw to — %d CC,Привести в порядок — %d CC,修理する — %d CC
-Date: %s — %d CC,Date: %s — %d CC,Fecha: %s — %d CC,Date : %s — %d CC,Termin: %s — %d CC,Data: %s — %d CC,Data: %s — %d CC,Termin: %s — %d CC,Дата: %s — %d CC,日程: %s — %d CC
-Budget: %s — %d CC,Budget: %s — %d CC,Presupuesto: %s — %d CC,Budget : %s — %d CC,Budget: %s — %d CC,Budget: %s — %d CC,Verba: %s — %d CC,Budżet: %s — %d CC,Бюджет: %s — %d CC,予算: %s — %d CC
+Date: %s — %d CC  ·  change,Date: %s — %d CC  ·  change,Fecha: %s — %d CC  ·  cambiar,Date : %s — %d CC  ·  changer,Termin: %s — %d CC  ·  ändern,Data: %s — %d CC  ·  cambia,Data: %s — %d CC  ·  mudar,Termin: %s — %d CC  ·  zmień,Дата: %s — %d CC  ·  сменить,日程：%s — %d CC · 変更
+Budget: %s — %d CC  ·  change,Budget: %s — %d CC  ·  change,Presupuesto: %s — %d CC  ·  cambiar,Budget : %s — %d CC  ·  changer,Budget: %s — %d CC  ·  ändern,Budget: %s — %d CC  ·  cambia,Verba: %s — %d CC  ·  mudar,Budżet: %s — %d CC  ·  zmień,Бюджет: %s — %d CC  ·  сменить,予算：%s — %d CC · 変更
 Take the date,Take the date,Aceptar la fecha,Prendre la date,Termin nehmen,Prendi la data,Aceitar a data,Bierz termin,Взять дату,日程を取る
 Pass this year,Pass this year,Paso este año,Passer cette année,Dieses Jahr passen,Passa quest'anno,Passar este ano,Nie w tym roku,Пропустить год,今年は見送る
 No tournament this year.,No tournament this year.,Sin torneo este año.,Pas de tournoi cette année.,Kein Turnier dieses Jahr.,Nessun torneo quest'anno.,Sem torneio este ano.,W tym roku bez turnieju.,В этом году турнира нет.,今年はトーナメントなし。
@@ -24,8 +24,8 @@ Needs the %s,Needs the %s,Requiere %s,Requiert : %s,Braucht: %s,Richiede %s,Exig
 THE DIARY,THE DIARY,LA AGENDA,L'AGENDA,DER KALENDER,IL DIARIO,A AGENDA,TERMINARZ,ДНЕВНИК,日誌
 Event %d  ·  about %d through the gate,Event %d  ·  about %d through the gate,Jornada %d  ·  unos %d por taquilla,Journée %d  ·  environ %d entrées,Spieltag %d  ·  etwa %d am Tor,Giornata %d  ·  circa %d ai cancelli,Rodada %d  ·  cerca de %d de público,Kolejka %d  ·  wejść: ok. %d,Тур %d  ·  зрителей около %d,第%d節  ·  入場 約%d人
 %d CC spent,%d CC spent,%d CC gastados,%d CC dépensés,%d CC ausgegeben,%d CC spesi,%d CC gastos,Wydano %d CC,Потрачено %d CC,%d CC 支出
-"%+d before the podium,","%+d before the podium,","%+d antes del podio,","%+d avant le podium,","%+d vor dem Podium,","%+d prima del podio,","%+d antes do pódio,","%+d przed podium,","%+d до пьедестала,",表彰台前に%+d、
-up to %+d if you win it,up to %+d if you win it,hasta %+d si lo ganas,jusqu'à %+d si tu le gagnes,"bis %+d, wenn du gewinnst",fino a %+d se lo vinci,até %+d se você vencer,"do %+d, jeśli wygrasz","до %+d, если победишь",優勝すれば最大%+d
+Expected: %+d CC,Expected: %+d CC,Previsto: %+d CC,Prévu : %+d CC,Erwartet: %+d CC,Previsto: %+d CC,Previsto: %+d CC,Przewidywane: %+d CC,Ожидается: %+d CC,見込み：%+d CC
+%+d CC if you win it,%+d CC if you win it,%+d CC si lo ganas,%+d CC si tu le gagnes,%+d CC mit Sieg,%+d CC se lo vinci,%+d CC se vencer,%+d CC po wygranej,%+d CC при победе,優勝なら%+d CC
 "%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s",%s、%s
 this event,this event,esta jornada,cette journée,diesen Spieltag,questa giornata,nesta rodada,w tej kolejce,в этом туре,今節
 in %d events,in %d events,en %d jornadas,dans %d journées,in %d Spieltagen,tra %d giornate,em %d rodadas,za %d kol.,осталось туров: %d,%d節後
@@ -36,7 +36,7 @@ LAST TIME OUT,LAST TIME OUT,LA ÚLTIMA VEZ,LA DERNIÈRE FOIS,ZULETZT,L'ULTIMA VO
  · %s, · %s, · %s, · %s, · %s, · %s, · %s, · %s, · %s, · %s
 Back,Back,Volver,Retour,Zurück,Indietro,Voltar,Wróć,Назад,戻る
 NO CUP RUNNING,NO CUP RUNNING,NO HAY COPA EN CURSO,AUCUNE COUPE EN COURS,KEIN POKAL LÄUFT,NESSUNA COPPA ATTIVA,SEM COPA EM CURSO,BRAK PUCHARU,КУБКА СЕЙЧАС НЕТ,カップ開催なし
-Nothing is drawn yet.,Nothing is drawn yet.,Aún no hay sorteo.,Rien n'est encore tiré.,Noch nichts ausgelost.,Ancora nessun sorteggio.,Nada sorteado ainda.,Nic jeszcze nie rozlosowano.,Жеребьёвки ещё не было.,組み合わせ未定。
+"The cups are drawn during the season. A club in good standing with the federation is entered, and the draw appears here with your road through it.","The cups are drawn during the season. A club in good standing with the federation is entered, and the draw appears here with your road through it.","Las copas se sortean durante la temporada. Un club en regla con la federación entra, y el cuadro aparece aquí con tu camino.","Les coupes sont tirées pendant la saison. Un club en règle avec la fédération est engagé, et le tableau apparaît ici avec ton parcours.",Die Pokale werden während der Saison ausgelost. Ein Verein in gutem Stand beim Verband ist dabei; die Auslosung erscheint hier mit deinem Weg.,Le coppe si sorteggiano durante la stagione. Un club in regola con la federazione è iscritto e il tabellone appare qui con il tuo percorso.,"As copas são sorteadas durante a temporada. Um clube em dia com a federação entra, e a chave aparece aqui com o seu caminho.","Puchary losuje się w trakcie sezonu. Klub w porządku z federacją jest zgłoszony, a drabinka pojawi się tu z twoją drogą.","Кубки разыгрываются по ходу сезона. Клуб без нарушений перед федерацией заявлен, и сетка появится здесь с твоим путём.",カップはシーズン中に抽選。連盟の基準を満たすクラブが出場し、組み合わせと道のりがここに出ます。
 %d clubs  ·  seeded  ·  one leg,%d clubs  ·  seeded  ·  one leg,%d clubes  ·  por ranking  ·  partido único,%d clubs  ·  têtes de série  ·  match unique,%d Vereine  ·  gesetzt  ·  ein Kampf,%d club  ·  teste di serie  ·  gara secca,%d clubes  ·  ranqueados  ·  jogo único,klubów: %d  ·  rozstawienie  ·  jeden mecz,Клубов: %d  ·  посев  ·  один бой,%dクラブ  ·  シード制  ·  一発勝負
 NOT YOUR CUP,NOT YOUR CUP,NO ES TU COPA,PAS TA COUPE,NICHT DEIN POKAL,NON È LA TUA COPPA,NÃO É SUA COPA,NIE TWÓJ PUCHAR,НЕ ТВОЙ КУБОК,出場権なし
 You were not,You were not,No te invitaron,Tu n'as pas été,Du wurdest dieses,Non sei stato,Você não foi,Nie dostałeś,Тебя в этом году,今年は
@@ -86,8 +86,13 @@ Revert,Revert,Deshacer,Annuler,Verwerfen,Ripristina,Reverter,Cofnij,Отмени
 Delete,Delete,Borrar,Supprimer,Löschen,Elimina,Excluir,Usuń,Удалить,削除
 Slot unlocked.,Slot unlocked.,Hueco desbloqueado.,Emplacement débloqué.,Platz frei.,Slot sbloccato.,Espaço desbloqueado.,Slot odblokowany.,Слот открыт.,スロット解放。
 Saved.,Saved.,Guardado.,Enregistré.,Gesichert.,Salvato.,Salvo.,Zapisano.,Сохранено.,保存しました。
+Tap Delete again to erase it for good.,Tap Delete again to erase it for good.,Toca Borrar otra vez para eliminarlo del todo.,Touche Supprimer encore pour l'effacer.,"Tippe noch einmal auf Löschen, um es endgültig zu löschen.",Tocca di nuovo Elimina per cancellarlo.,Toque em Apagar de novo para apagar de vez.,"Dotknij Usuń jeszcze raz, by skasować na dobre.","Нажми «Удалить» ещё раз, чтобы стереть.",もう一度削除で完全に消去。
 Deleted.,Deleted.,Borrado.,Supprimé.,Gelöscht.,Eliminato.,Excluído.,Usunięto.,Удалено.,削除しました。
 PLAYBOOK,PLAYBOOK,PIZARRA,TACTIQUES,TAKTIKBUCH,PLAYBOOK,CARTILHA,TAKTYKI,ТАКТИКА,作戦ノート
+Drag a man to where he starts.,Drag a man to where he starts.,Arrastra a un hombre a su inicio.,Glisse un homme à son départ.,Zieh einen Mann an seinen Start.,Trascina un uomo alla partenza.,Arraste um homem até o início.,Przeciągnij zawodnika na start.,Перетащи бойца на старт.,選手を開始位置へ。
+The line is as far as he may go.,The line is as far as he may go.,La línea es su límite.,Le trait est sa limite.,Die Linie ist die Grenze.,La linea è il limite.,A linha é o limite.,Linia to granica.,Черта — предел.,線が限界。
+Drag from a man,Drag from a man,Arrastra desde un hombre,Glisse depuis un homme,Zieh von einem Mann,Trascina da un uomo,Arraste de um homem,Przeciągnij od zawodnika,Проведи от бойца,選手からドラッグして
+to draw his route.,to draw his route.,para trazar su ruta.,pour tracer sa route.,seinen Weg.,per il percorso.,para traçar a rota.,by narysować trasę.,чтобы задать путь.,ルートを描く。
 toward them →,toward them →,hacia ellos →,vers eux →,auf sie zu →,verso di loro →,rumo a eles →,w ich stronę →,на них →,相手方向 →
 Unlock a slot to start drawing.,Unlock a slot to start drawing.,Desbloquea un hueco para empezar a dibujar.,Débloque un emplacement pour dessiner.,"Schalte einen Platz frei, um zu zeichnen.",Sblocca uno slot per iniziare a disegnare.,Desbloqueie um espaço para desenhar.,"Odblokuj slot, by rysować.","Открой слот, чтобы рисовать.",スロットを解放して作図開始。
 Sign and leave it all,Sign and leave it all,Firma y déjalo todo,Signer et tout laisser,Unterschreib und lass alles,Firma e lascia tutto,Assinar e largar tudo,Podpisz i zostaw wszystko,Подписать и бросить всё,契約してすべてを去る
@@ -280,9 +285,11 @@ Best event,Best event,Mejor tarde,Meilleur après-midi,Bester Nachmittag,Miglior
 Rounds standing,Rounds standing,Rondas en pie,Manches debout,Runden gestanden,Round in piedi,Rounds de pé,Rundy na nogach,Раундов на ногах,立ち残りラウンド
 Carried off,Carried off,Lesionado,Évacué,Verletzt raus,Portato via,Carregado,Zniesiony,Унесён,負傷退場
 New names  ·  %d CC,New names  ·  %d CC,Nuevos nombres  ·  %d CC,Nouveaux noms  ·  %d CC,Neue Namen  ·  %d CC,Nuovi nomi  ·  %d CC,Novos nomes  ·  %d CC,Nowe nazwiska  ·  %d CC,Новые имена  ·  %d CC,新顔を探す  ·  %d CC
+Can't afford %s  ·  %d CC,Can't afford %s  ·  %d CC,No alcanza para %s  ·  %d CC,Trop cher : %s  ·  %d CC,Zu teuer: %s  ·  %d CC,Non ti basta: %s  ·  %d CC,Sem verba: %s  ·  %d CC,Za drogo: %s  ·  %d CC,Не хватает: %s  ·  %d CC,資金不足：%s · %d CC
 Sign %s  ·  %d CC,Sign %s  ·  %d CC,Fichar a %s  ·  %d CC,Signer %s  ·  %d CC,%s holen  ·  %d CC,Ingaggia %s  ·  %d CC,Contratar %s  ·  %d CC,Podpisz: %s  ·  %d CC,Подписать %s  ·  %d CC,%sと契約  ·  %d CC
 FREE AGENTS,FREE AGENTS,AGENTES LIBRES,AGENTS LIBRES,FREIE KÄMPFER,SVINCOLATI,AGENTES LIVRES,WOLNI ZAWODNICY,СВОБОДНЫЕ АГЕНТЫ,フリーエージェント
 Season %d  ·  %s,Season %d  ·  %s,Temporada %d  ·  %s,Saison %d  ·  %s,Saison %d  ·  %s,Stagione %d  ·  %s,Temporada %d  ·  %s,Sezon %d  ·  %s,Сезон %d  ·  %s,シーズン%d  ·  %s
+Tap a man to sign him. A red price is more than you have.,Tap a man to sign him. A red price is more than you have.,Toca a un hombre para ficharlo. Un precio en rojo supera lo que tienes.,Touche un homme pour le recruter. Un prix en rouge dépasse tes moyens.,"Tippe einen Mann an, um ihn zu holen. Ein roter Preis ist mehr, als du hast.",Tocca un uomo per ingaggiarlo. Un prezzo rosso supera ciò che hai.,Toque num homem para contratá-lo. Preço em vermelho é mais do que você tem.,"Dotknij zawodnika, by go podpisać. Czerwona cena to więcej, niż masz.","Нажми на бойца, чтобы подписать. Красная цена — больше, чем у тебя есть.",選手をタップして契約。赤い価格は予算オーバー。
 Nobody is looking for a club this season.,Nobody is looking for a club this season.,Nadie busca club esta temporada.,Personne ne cherche de club cette saison.,Diese Saison sucht keiner einen Verein.,Nessuno cerca un club questa stagione.,Ninguém procura clube nesta temporada.,W tym sezonie nikt nie szuka klubu.,В этом сезоне клуб никто не ищет.,今シーズンはクラブを探している選手がいない。
 step up,step up,da el salto,supérieur,Aufstieg,salto,subir,krok wyżej,шаг вверх,格上
 age %d · %s/wk,age %d · %s/wk,edad %d · %s/sem,âge %d · %s/sem,Alter %d · %s/Wo.,età %d · %s/sett,idade %d · %s/sem,wiek %d · %s/tydz.,возраст %d · %s/нед,%d歳 · %s/週
@@ -311,6 +318,7 @@ Nobody in it yet.,Nobody in it yet.,Aún no hay nadie.,Personne pour l'instant.,
 "Who belongs in here is your judgment, not the game's.","Who belongs in here is your judgment, not the game's.","Quién merece estar aquí lo decides tú, no el juego.","Qui mérite d'y être, c'est à toi d'en juger, pas au jeu.","Wer hier reingehört, entscheidest du, nicht das Spiel.","Chi merita di stare qui lo decidi tu, non il gioco.","Quem merece estar aqui é você quem julga, não o jogo.","Kto tu należy, oceniasz ty, nie gra.","Кому тут место — решаешь ты, не игра.",誰がふさわしいかは、ゲームではなくあなたが決める。
 S%d,S%d,T%d,S%d,S%d,S%d,T%d,S%d,С%d,S%d
 CLUB RECORDS,CLUB RECORDS,RÉCORDS DEL CLUB,RECORDS DU CLUB,VEREINSREKORDE,RECORD DEL CLUB,RECORDES DO CLUBE,REKORDY KLUBU,РЕКОРДЫ КЛУБА,クラブ記録
+RECORD,RECORD,MARCA,RECORD,REKORD,RECORD,RECORDE,REKORD,РЕКОРД,記録
 HELD BY,HELD BY,POSEEDOR,DÉTENU PAR,GEHALTEN VON,DETENTORE,DE QUEM,KTO,ДЕРЖАТЕЛЬ,保持者
 SET,SET,LOGRADO,ÉTABLI,AM,STABILITO,QUANDO,KIEDY,КОГДА,樹立
 Nothing yet. The record starts at your first event.,Nothing yet. The record starts at your first event.,Nada aún. El récord empieza en tu primer evento.,Rien pour l'instant. Le record commence à ta première rencontre.,Noch nichts. Die Rekorde beginnen mit deinem ersten Kampftag.,Ancora niente. I record partono dal tuo primo evento.,Nada ainda. O recorde começa no seu primeiro evento.,Jeszcze nic. Rekordy liczą się od twoich pierwszych zawodów.,Пока пусто. Рекорды пойдут с первого турнира.,まだなし。記録は初戦から始まる。
@@ -332,7 +340,9 @@ Best finish,Best finish,Mejor puesto,Meilleur classement,Beste Platzierung,Migli
 Cups won,Cups won,Copas ganadas,Coupes gagnées,Pokalsiege,Coppe vinte,Copas vencidas,Wygrane puchary,Выиграно кубков,カップ優勝
 Cup runs,Cup runs,Buenas copas,Beaux parcours,Pokalläufe,Cammini in coppa,Boas campanhas,Udane puchary,Кубковые рывки,カップ好走
 Now,Now,Ahora,Actuellement,Jetzt,Ora,Agora,Teraz,Сейчас,現在
-ROSTER,ROSTER,PLANTILLA,EFFECTIF,KADER,ROSA,ELENCO,KADRA,СОСТАВ,選手名簿
+Table,Table,Tabla,Tableau,Tabelle,Tabella,Tabela,Tabela,Таблица,表
+Cards,Cards,Fichas,Cartes,Karten,Carte,Cartas,Karty,Карточки,カード
+SQUAD,SQUAD,PLANTILLA,EFFECTIF,KADER,ROSA,ELENCO,SKŁAD,СОСТАВ,チーム
 THE LINE,THE LINE,LA LÍNEA,LA LIGNE,DIE LINIE,LA LINEA,A LINHA,LINIA,ЛИНИЯ,先発
 THE BENCH AND THE RESERVE,THE BENCH AND THE RESERVE,EL BANQUILLO Y LA RESERVA,LE BANC ET LA RÉSERVE,BANK UND RESERVE,PANCHINA E RISERVE,O BANCO E A RESERVA,ŁAWKA I REZERWA,СКАМЕЙКА И РЕЗЕРВ,ベンチと控え
 %d  ·  age %d  ·  %s,%d  ·  age %d  ·  %s,%d  ·  %d a.  ·  %s,%d  ·  âge %d  ·  %s,%d  ·  %d J.  ·  %s,%d  ·  età %d  ·  %s,%d  ·  %d a.  ·  %s,%d  ·  wiek %d  ·  %s,%d  ·  %d л.  ·  %s,%d  ·  %d歳  ·  %s
@@ -344,7 +354,6 @@ WAGE BILL,WAGE BILL,NÓMINA,MASSE SALARIALE,LOHNKOSTEN,MONTE STIPENDI,FOLHA SALA
 Short of fit men: ,Short of fit men: ,Faltan hombres aptos: ,Pas assez d'hommes aptes : ,Zu wenig fitte Männer: ,Mancano uomini: ,Faltam homens aptos: ,Brak zdolnych do walki: ,Не хватает здоровых: ,出場可能な選手が不足: 
  and %d more., and %d more., y %d más., et %d autres., und %d weitere., e altri %d., e mais %d., i jeszcze %d., и ещё %d., 他%d人。
 Could not save — your phone may be out of space. The last save is safe.,Could not save — your phone may be out of space. The last save is safe.,No se pudo guardar: puede que tu teléfono no tenga espacio. La última partida guardada está a salvo.,Sauvegarde impossible : ton téléphone manque peut-être de place. La dernière sauvegarde est intacte.,Speichern fehlgeschlagen – vielleicht ist dein Handy voll. Der letzte Spielstand ist sicher.,Salvataggio non riuscito: forse il telefono è pieno. L'ultimo salvataggio è al sicuro.,Não foi possível salvar: talvez o celular esteja sem espaço. O último save está seguro.,Nie udało się zapisać — może brakuje miejsca w telefonie. Ostatni zapis jest bezpieczny.,"Не удалось сохранить — возможно, на телефоне нет места. Последнее сохранение цело.",保存できなかった。端末の空き容量が足りないかもしれない。前回のセーブは無事だ。
-SQUAD,SQUAD,PLANTILLA,EFFECTIF,KADER,ROSA,ELENCO,SKŁAD,СОСТАВ,チーム
 ARMORER,ARMORER,ARMERO,ARMURIER,SCHMIED,ARMAIOLO,ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
 CLUBHOUSE,CLUBHOUSE,SEDE,CLUB-HOUSE,VEREINSHEIM,CLUBHOUSE,SEDE,KLUBOWNIA,КЛУБ,クラブハウス
 FINANCES,FINANCES,FINANZAS,FINANCES,FINANZEN,FINANZE,FINANÇAS,FINANSE,ФИНАНСЫ,財務
@@ -406,7 +415,7 @@ Needs a %s. You have a %s.,Needs a %s. You have a %s.,Necesita: %s. Tienes: %s.,
 %s costs %d a season,%s costs %d a season,%s cuesta %d por temporada,%s coûte %d par saison,%s kostet %d pro Saison,%s costa %d a stagione,%s custa %d por temporada,%s kosztuje %d na sezon,%s стоит %d за сезон,%sは1シーズン%d
 you have %d,you have %d,tienes %d,tu as %d,du hast %d,hai %d,você tem %d,masz %d,у тебя %d,所持%d
 Three dates on offer,Three dates on offer,Tres fechas disponibles,Trois dates proposées,Drei Termine im Angebot,Tre date disponibili,Três datas oferecidas,Trzy terminy do wyboru,Три даты на выбор,3つの日程候補
-"Pick a week to hold your own, or pass on the year.","Pick a week to hold your own, or pass on the year.","Elige una semana para organizar el tuyo, o pasa este año.","Choisis une semaine pour organiser le tien, ou passe l'année.",Wähl eine Woche für dein eigenes Turnier oder setz dieses Jahr aus.,"Scegli una settimana per organizzare il tuo, o salta l'anno.","Escolha uma semana para seu próprio torneio, ou passe o ano.",Wybierz tydzień na własny turniej albo odpuść ten rok.,Выбери неделю для своего турнира или пропусти год.,自主開催する週を選ぶか、今年は見送る。
+"Pick a week to hold your own, or pass on the year, at the Arena.","Pick a week to hold your own, or pass on the year, at the Arena.","Elige una semana para organizar el tuyo, o pasa este año, en la Arena.","Choisis une semaine pour organiser le tien, ou passe ton tour, à l'Arène.","Wähle eine Woche für dein eigenes Turnier oder setz aus, in der Arena.","Scegli una settimana per il tuo, o salta l'anno, nell'Arena.","Escolha uma semana para o seu, ou passe o ano, na Arena.","Wybierz tydzień na własny turniej albo odpuść rok, na Arenie.",Выбери неделю для своего турнира или пропусти год — на Арене.,アリーナで開催週を選ぶか、今年は見送る。
 rating %d  ·  win or you are out,rating %d  ·  win or you are out,media %d  ·  gana o estás fuera,note %d  ·  gagne ou tu es éliminé,Wertung %d  ·  gewinn oder du bist raus,valore %d  ·  vinci o sei fuori,nota %d  ·  vença ou está fora,ocena %d  ·  wygraj albo odpadasz,рейтинг %d  ·  победа или вылет,能力値 %d  ·  負ければ敗退
 Finished %s of %d in the %s.,Finished %s of %d in the %s.,Acabaste %s de %d en %s.,Terminé %s sur %d en %s.,Platz %s von %d in der %s.,Chiuso %s su %d in %s.,Terminou em %s de %d em: %s.,Miejsce %s z %d w: %s.,Место %s из %d: %s.,%s / %d（%s）で終了。
 The cups and the summer are next.,The cups and the summer are next.,"Luego, las copas y el verano.",Les coupes et l'été arrivent.,Als Nächstes die Pokale und der Sommer.,Ora le coppe e l'estate.,As copas e o verão vêm a seguir.,Dalej puchary i lato.,Дальше — кубки и лето.,次はカップ戦と夏。
@@ -468,6 +477,8 @@ COMING IN,COMING IN,INGRESOS,RECETTES,EINNAHMEN,ENTRATE,ENTRADAS,WPŁYWY,ПРИ�
 this year,this year,este año,cette année,dieses Jahr,quest'anno,este ano,w tym roku,в этом году,今年
 last,last,último,dernière,zuletzt,ultimo,último,ostatnio,прошлый,前回
 GOING OUT,GOING OUT,GASTOS,DÉPENSES,AUSGABEN,USCITE,SAÍDAS,WYDATKI,РАСХОД,支出
+So far this year. Gates and prize money arrive as the events are fought.,So far this year. Gates and prize money arrive as the events are fought.,En lo que va de año. La taquilla y los premios llegan al disputar los eventos.,Depuis le début de l'année. Recettes et primes arrivent au fil des événements.,Bisher in diesem Jahr. Einnahmen und Preisgeld kommen mit den Events.,Finora quest'anno. Incassi e premi arrivano con gli eventi.,Até agora no ano. Bilheteria e prêmios chegam com os eventos.,Jak dotąd w tym roku. Wpływy i nagrody przychodzą z zawodami.,С начала года. Сборы и призовые приходят по ходу турниров.,今年のここまで。入場料と賞金は大会ごとに入る。
+So far this year.,So far this year.,En lo que va de año.,Depuis le début de l'année.,Bisher in diesem Jahr.,Finora quest'anno.,Até agora no ano.,Jak dotąd w tym roku.,С начала года.,今年のここまで。
 Pays a year,Pays a year,Paga al año,Rapporte par an,Bringt im Jahr,Rende all'anno,Paga por ano,Płaci rocznie,В год,年間収入
 The summer bill,The summer bill,La factura de verano,La facture d'été,Die Sommerrechnung,Il conto d'estate,A conta do verão,Rachunek na lato,Летний счёт,夏の請求額
 %d CC  ·  %d short,%d CC  ·  %d short,%d CC  ·  faltan %d,%d CC  ·  il manque %d,%d CC  ·  %d fehlen,%d CC  ·  ne mancano %d,%d CC  ·  faltam %d,%d CC  ·  brakuje: %d,%d CC  ·  не хватает: %d,%d CC  ·  不足 %d
@@ -482,7 +493,6 @@ CC is the club's money. $ is what the men are paid each week.,CC is the club's m
 Everything in,Everything in,Total ingresos,Total recettes,Alle Einnahmen,Tutte le entrate,Total de entradas,Wszystkie wpływy,Весь приход,収入合計
 Everything out,Everything out,Total gastos,Total dépenses,Alle Ausgaben,Tutte le uscite,Total de saídas,Wszystkie wydatki,Весь расход,支出合計
 age %d-%d  ·  rated %d-%d,age %d-%d  ·  rated %d-%d,edad %d-%d  ·  media %d-%d,âge %d-%d  ·  noté %d-%d,Alter %d-%d  ·  Wertung %d-%d,età %d-%d  ·  valore %d-%d,idade %d-%d  ·  nota %d-%d,wiek %d-%d  ·  ocena %d-%d,возраст %d-%d  ·  рейтинг %d-%d,%d-%d歳  ·  能力値%d-%d
-Cards,Cards,Fichas,Cartes,Karten,Carte,Cartas,Karty,Карточки,カード
 Reserve by %s,Reserve by %s,Reserva por %s,Réserve par %s,Reserve nach %s,Riserve per %s,Reserva por %s,Rezerwa wg: %s,Резерв по: %s,控え（%s順）
 Free agents,Free agents,Agentes libres,Agents libres,Freie Kämpfer,Svincolati,Agentes livres,Wolni zawodnicy,Свободные агенты,フリーエージェント
 Club record,Club record,Récord del club,Record du club,Vereinsbilanz,Record del club,Recorde do clube,Rekord klubu,Рекорд клуба,クラブ記録
@@ -515,7 +525,17 @@ NOW,NOW,HOY,ACT,IST,ORA,HOJE,AKT,СЕЙЧ,現在
 MAX,MAX,MÁX,MAX,MAX,MAX,MÁX,MAX,МАКС,最大
 Automatic,Automatic,Automático,Automatique,Automatisch,Automatica,Automático,Automatycznie,Автоматически,自動
   (draft),  (draft),  (borrador),  (brouillon),  (Entwurf),  (bozza),  (rascunho),  (szkic),  (черновик),  （下書き）
-Licenses,Licenses,Licencias,Licences,Lizenzen,Licenze,Licenças,Licencje,Лицензии,ライセンス
+Change difficulty,Change difficulty,Cambiar dificultad,Changer la difficulté,Schwierigkeit ändern,Cambia difficoltà,Mudar dificuldade,Zmień poziom,Сменить сложность,難易度を変更
+Switch to %s,Switch to %s,Cambiar a %s,Passer en %s,Wechseln zu %s,Passa a %s,Mudar para %s,Przełącz na %s,Переключить на %s,%sに切替
+Credits & licenses,Credits & licenses,Créditos y licencias,Crédits et licences,Credits & Lizenzen,Crediti e licenze,Créditos e licenças,Twórcy i licencje,Авторы и лицензии,クレジットとライセンス
+from %s  ·  %s,from %s  ·  %s,de %s  ·  %s,de %s  ·  %s,aus %s  ·  %s,da %s  ·  %s,de %s  ·  %s,z %s  ·  %s,из %s  ·  %s,出典 %s  ·  %s
+Used under the %s,Used under the %s,Usado bajo %s,Utilisé sous %s,Lizenz: %s,Usata con licenza %s,Usado sob a %s,Na licencji %s,По лицензии %s,%sに基づき使用
+All other audio written for this game.,All other audio written for this game.,El resto del audio se compuso para este juego.,Tous les autres sons ont été créés pour ce jeu.,Alle anderen Klänge für dieses Spiel geschrieben.,Tutto l'altro audio è scritto per questo gioco.,Todo o resto do áudio foi feito para este jogo.,Reszta dźwięku napisana dla tej gry.,Остальной звук создан для этой игры.,その他の音声は本作オリジナル。
+after %s,after %s,a partir de %s,d'après %s,nach %s,ispirato a %s,baseada em %s,wg %s,по мотивам %s,%sに基づく
+%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s
+"Buhurt Rail, Gorget and Maul drawn for this game.","Buhurt Rail, Gorget and Maul drawn for this game.","Buhurt Rail, Gorget y Maul, dibujadas para este juego.","Buhurt Rail, Gorget et Maul dessinées pour ce jeu.","Buhurt Rail, Gorget und Maul für dieses Spiel gezeichnet.","Buhurt Rail, Gorget e Maul disegnati per questo gioco.","Buhurt Rail, Gorget e Maul desenhadas para este jogo.","Buhurt Rail, Gorget i Maul narysowane dla tej gry.","Шрифты Buhurt Rail, Gorget и Maul нарисованы для этой игры.",Buhurt Rail、Gorget、Maulは本作のために作成。
+"Other alphabets: LanaPixel by eishiya, SIL OFL 1.1","Other alphabets: LanaPixel by eishiya, SIL OFL 1.1","Otros alfabetos: LanaPixel de eishiya, SIL OFL 1.1","Autres alphabets : LanaPixel par eishiya, SIL OFL 1.1","Andere Schriften: LanaPixel von eishiya, SIL OFL 1.1","Altri alfabeti: LanaPixel di eishiya, SIL OFL 1.1","Outros alfabetos: LanaPixel de eishiya, SIL OFL 1.1","Inne alfabety: LanaPixel, eishiya, SIL OFL 1.1","Другие алфавиты: LanaPixel, eishiya, SIL OFL 1.1",他の文字: LanaPixel（eishiya）SIL OFL 1.1
+Built by BonkWorks.,Built by BonkWorks.,Hecho por BonkWorks.,Créé par BonkWorks.,Gebaut von BonkWorks.,Realizzato da BonkWorks.,Feito pela BonkWorks.,Zrobione przez BonkWorks.,Сделано в BonkWorks.,制作: BonkWorks。
 Close,Close,Cerrar,Fermer,Schließen,Chiudi,Fechar,Zamknij,Закрыть,閉じる
 SETTINGS,SETTINGS,AJUSTES,RÉGLAGES,OPTIONEN,IMPOSTAZIONI,CONFIGURAÇÕES,USTAWIENIA,НАСТРОЙКИ,設定
 SOUND,SOUND,SONIDO,SON,TON,AUDIO,SOM,DŹWIĘK,ЗВУК,サウンド
@@ -524,18 +544,7 @@ THIS CAREER,THIS CAREER,ESTA CARRERA,CETTE CARRIÈRE,DIESE KARRIERE,QUESTA CARRI
 Difficulty,Difficulty,Dificultad,Difficulté,Schwierigkeit,Difficoltà,Dificuldade,Poziom trudności,Сложность,難易度
 "Open it from Clubhouse, Your career.","Open it from Clubhouse, Your career.","Ábrelo desde Sede, Tu carrera.","Accessible depuis Club-house, Ta carrière.",Im Vereinsheim unter Deine Karriere.,"Aprila da Clubhouse, La tua carriera.","Abra em Sede, Sua carreira.","Otwórz z Klubowni, Twoja kariera.",Открывается в Клуб → Твоя карьера.,クラブハウスの「キャリア」から開く。
 LANGUAGE,LANGUAGE,IDIOMA,LANGUE,SPRACHE,LINGUA,IDIOMA,JĘZYK,ЯЗЫК,言語
-CREDITS,CREDITS,CRÉDITOS,CRÉDITS,CREDITS,RICONOSCIMENTI,CRÉDITOS,AUTORZY,АВТОРЫ,クレジット
-MUSIC,MUSIC,MÚSICA,MUSIQUE,MUSIK,MUSICA,MÚSICA,MUZYKA,МУЗЫКА,音楽
-from %s  ·  %s,from %s  ·  %s,de %s  ·  %s,de %s  ·  %s,aus %s  ·  %s,da %s  ·  %s,de %s  ·  %s,z %s  ·  %s,из %s  ·  %s,出典 %s  ·  %s
-Used under the %s,Used under the %s,Usado bajo %s,Utilisé sous %s,Lizenz: %s,Usata con licenza %s,Usado sob a %s,Na licencji %s,По лицензии %s,%sに基づき使用
-All other audio written for this game.,All other audio written for this game.,El resto del audio se compuso para este juego.,Tous les autres sons ont été créés pour ce jeu.,Alle anderen Klänge für dieses Spiel geschrieben.,Tutto l'altro audio è scritto per questo gioco.,Todo o resto do áudio foi feito para este jogo.,Reszta dźwięku napisana dla tej gry.,Остальной звук создан для этой игры.,その他の音声は本作オリジナル。
-TYPE,TYPE,TIPO,TYPOGRAPHIE,SCHRIFT,CARATTERI,FONTE,CZCIONKA,ШРИФТ,書体
-after %s,after %s,a partir de %s,d'après %s,nach %s,ispirato a %s,baseada em %s,wg %s,по мотивам %s,%sに基づく
-%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s,%s  ·  %s
-"Buhurt Rail, Gorget and Maul drawn for this game.","Buhurt Rail, Gorget and Maul drawn for this game.","Buhurt Rail, Gorget y Maul, dibujadas para este juego.","Buhurt Rail, Gorget et Maul dessinées pour ce jeu.","Buhurt Rail, Gorget und Maul für dieses Spiel gezeichnet.","Buhurt Rail, Gorget e Maul disegnati per questo gioco.","Buhurt Rail, Gorget e Maul desenhadas para este jogo.","Buhurt Rail, Gorget i Maul narysowane dla tej gry.","Шрифты Buhurt Rail, Gorget и Maul нарисованы для этой игры.",Buhurt Rail、Gorget、Maulは本作のために作成。
-"Other alphabets: LanaPixel by eishiya, SIL OFL 1.1","Other alphabets: LanaPixel by eishiya, SIL OFL 1.1","Otros alfabetos: LanaPixel de eishiya, SIL OFL 1.1","Autres alphabets : LanaPixel par eishiya, SIL OFL 1.1","Andere Schriften: LanaPixel von eishiya, SIL OFL 1.1","Altri alfabeti: LanaPixel di eishiya, SIL OFL 1.1","Outros alfabetos: LanaPixel de eishiya, SIL OFL 1.1","Inne alfabety: LanaPixel, eishiya, SIL OFL 1.1","Другие алфавиты: LanaPixel, eishiya, SIL OFL 1.1",他の文字: LanaPixel（eishiya）SIL OFL 1.1
-GAME,GAME,JUEGO,JEU,SPIEL,GIOCO,JOGO,GRA,ИГРА,ゲーム
-Built by BonkWorks.,Built by BonkWorks.,Hecho por BonkWorks.,Créé par BonkWorks.,Gebaut von BonkWorks.,Realizzato da BonkWorks.,Feito pela BonkWorks.,Zrobione przez BonkWorks.,Сделано в BonkWorks.,制作: BonkWorks。
+ABOUT,ABOUT,ACERCA DE,À PROPOS,ÜBER,INFO,SOBRE,O GRZE,ОБ ИГРЕ,情報
 +1yr · %d,+1yr · %d,+1a · %d,+1an · %d,+1J · %d,+1a · %d,+1ano · %d,+1 rok · %d,+1 г. · %d,+1年 · %d
 Release,Release,Despedir,Renvoyer,Entlassen,Licenzia,Dispensar,Zwolnij,Уволить,解雇
 Hire  ·  %d CC,Hire  ·  %d CC,Contratar  ·  %d CC,Engager  ·  %d CC,Einstellen  ·  %d CC,Assumi  ·  %d CC,Contratar  ·  %d CC,Zatrudnij  ·  %d CC,Нанять  ·  %d CC,雇用  ·  %d CC
@@ -593,6 +602,13 @@ Set it aside,Set it aside,Apartarlo,Mettre de côté,Beiseitelegen,Mettilo da pa
 Continue,Continue,Continuar,Continuer,Weiter,Continua,Continuar,Kontynuuj,Продолжить,続ける
 Delete it for good,Delete it for good,Borrarlo para siempre,Supprimer pour de bon,Endgültig löschen,Eliminalo per sempre,Excluir de vez,Usuń na zawsze,Удалить навсегда,完全に削除
 Keep it,Keep it,Conservarlo,La garder,Behalten,Tienilo,Manter,Zostaw,Оставить,残す
+some time ago,some time ago,hace un tiempo,il y a un moment,vor einer Weile,tempo fa,há um tempo,jakiś czas temu,некоторое время назад,少し前
+just now,just now,ahora mismo,à l'instant,gerade eben,proprio ora,agora mesmo,przed chwilą,только что,たった今
+%d minutes ago,%d minutes ago,hace %d minutos,il y a %d minutes,vor %d Minuten,%d minuti fa,há %d minutos,%d minut temu,%d мин. назад,%d分前
+1 hour ago,1 hour ago,hace 1 hora,il y a 1 heure,vor 1 Stunde,1 ora fa,há 1 hora,godzinę temu,час назад,1時間前
+%d hours ago,%d hours ago,hace %d horas,il y a %d heures,vor %d Stunden,%d ore fa,há %d horas,%d godz. temu,%d ч. назад,%d時間前
+yesterday,yesterday,ayer,hier,gestern,ieri,ontem,wczoraj,вчера,昨日
+%d days ago,%d days ago,hace %d días,il y a %d jours,vor %d Tagen,%d giorni fa,há %d dias,%d dni temu,%d дн. назад,%d日前
 "Slot %d could not be opened. The file was kept aside, not deleted.","Slot %d could not be opened. The file was kept aside, not deleted.","No se pudo abrir la ranura %d. El archivo se apartó, no se borró.","Impossible d'ouvrir la partie %d. Le fichier a été mis de côté, pas supprimé.","Platz %d ließ sich nicht öffnen. Die Datei wurde beiseitegelegt, nicht gelöscht.","Impossibile aprire lo slot %d. Il file è stato messo da parte, non eliminato.","O slot %d não pôde ser aberto. O arquivo foi guardado à parte, não excluído.","Nie da się otworzyć slotu %d. Plik odłożono, nie usunięto.","Слот %d не открылся. Файл отложен, не удалён.",スロット%dを開けませんでした。ファイルは削除せず退避しました。
 Run a club. Take the list. Climb.,Run a club. Take the list. Climb.,Dirige un club. Salta a la liza. Asciende.,Dirige un club. Prends la lice. Grimpe.,Führ den Verein. Nimm die Schranken. Steig auf.,Guida un club. Scendi in lizza. Sali.,Comande um clube. Tome a liça. Suba.,Prowadź klub. Wejdź w szranki. Wspinaj się.,Веди клуб. Займи ристалище. Поднимайся.,クラブを率いろ。試合場に立て。上を目指せ。
 WHERE ARE YOU FROM?,WHERE ARE YOU FROM?,¿DE DÓNDE ERES?,D'OÙ VIENS-TU ?,WO KOMMST DU HER?,DI DOVE SEI?,DE ONDE VOCÊ É?,SKĄD JESTEŚ?,ОТКУДА ТЫ?,出身地は？
@@ -603,7 +619,8 @@ a newer version of the game.,a newer version of the game.,una versión más nuev
 Empty,Empty,Vacía,Vide,Leer,Vuoto,Vazio,Pusty,Пусто,空き
 A new club starts in the Backyard Circuit.,A new club starts in the Backyard Circuit.,Un club nuevo empieza en el Backyard Circuit.,Un nouveau club commence dans le Backyard Circuit.,Ein neuer Verein beginnt im Backyard Circuit.,Un nuovo club parte dal Backyard Circuit.,Um clube novo começa no Backyard Circuit.,Nowy klub zaczyna w Backyard Circuit.,Новый клуб начинает в Backyard Circuit.,新しいクラブはBackyard Circuitから始まる。
 Event %d of %d,Event %d of %d,Evento %d de %d,Rencontre %d sur %d,Kampftag %d von %d,Evento %d di %d,Evento %d de %d,Zawody %d z %d,Турнир %d из %d,大会 %d / %d
-T,T,T,T,T,T,T,T,Т,T
+Played %s,Played %s,Jugado %s,Joué %s,Gespielt %s,Giocato %s,Jogado %s,Grane %s,Играли %s,プレイ：%s
+LAST PLAYED,LAST PLAYED,ÚLTIMA,DERNIÈRE,ZULETZT,ULTIMA,ÚLTIMA,OSTATNIA,ПОСЛЕДНЯЯ,前回
 ...,...,...,...,...,...,...,...,...,...
 %dst,%dst,%dº,%der,%d.,%dº,%dº,%d.,%d,%d位
 %dnd,%dnd,%dº,%de,%d.,%dº,%dº,%d.,%d,%d位
@@ -868,7 +885,7 @@ BEFORE THE CHARGE,BEFORE THE CHARGE,ANTES DE LA CARGA,AVANT LA CHARGE,VOR DEM AN
 %s v %s,%s v %s,%s v %s,%s c. %s,%s v %s,%s v %s,%s x %s,%s v %s,%s против %s,%s 対 %s
 END OF ROUND %d,END OF ROUND %d,FIN DEL ASALTO %d,FIN DE LA MANCHE %d,ENDE RUNDE %d,FINE ROUND %d,FIM DO ROUND %d,KONIEC RUNDY %d,КОНЕЦ РАУНДА %d,第%dラウンド終了
 STANDING,STANDING,EN PIE,DEBOUT,STEHEND,IN PIEDI,DE PÉ,NA NOGACH,НА НОГАХ,残存
-TOOK,TOOK,DURÓ,DURÉE,DAUER,DURATA,DUROU,CZAS,ВРЕМЯ,所要
+BACK IN,BACK IN,VUELVEN EN,RETOUR DANS,ZURÜCK IN,RIENTRO,VOLTAM EM,POWRÓT ZA,ВЫХОД ЧЕРЕЗ,再開まで
 DOWNED,DOWNED,DERRIBADO,AU SOL,AM BODEN,A TERRA,CAIU,POWALONY,СБИТ,ダウン
 WILL NOT COME OFF,WILL NOT COME OFF,NO QUIERE SALIR,NE VEUT PAS SORTIR,GEHT NICHT RAUS,NON ESCE,NÃO SAI,NIE ZEJDZIE,НЕ УЙДЁТ,交代拒否
 TD %d,TD %d,DER %d,MS %d,TD %d,AT %d,QD %d,PW %d,СБ %d,撃倒 %d
@@ -882,8 +899,10 @@ FROM BEHIND,FROM BEHIND,POR DETRÁS,PAR DERRIÈRE,VON HINTEN,DA DIETRO,POR TRÁS
 Cancel,Cancel,Cancelar,Annuler,Abbrechen,Annulla,Cancelar,Anuluj,Отмена,やめる
 -%d%% balance,-%d%% balance,-%d%% equilibrio,-%d%% équilibre,-%d%% Gleichgewicht,-%d%% equilibrio,-%d%% equilíbrio,-%d%% równowagi,-%d%% равновесия,バランス-%d%%
 then TD %d%%,then TD %d%%,luego derribo %d%%,puis mise au sol %d%%,dann Wurf %d%%,poi atterramento %d%%,depois queda %d%%,potem powalenie %d%%,затем бросок %d%%,次にTD %d%%
-frees him,frees him,lo libera,le libère,befreit ihn,lo libera,o liberta,uwalnia go,освобождает,味方を解放
+frees your man,frees your man,libera a tu hombre,libère ton homme,befreit deinen Mann,libera il tuo uomo,liberta seu homem,uwalnia twojego,освобождает своего,味方を解放
 fall %d%%,fall %d%%,caída %d%%,chute %d%%,Sturz %d%%,caduta %d%%,queda %d%%,upadek %d%%,падение %d%%,転倒 %d%%
+puts him down,puts him down,lo derriba,le met au sol,bringt ihn zu Boden,lo atterra,derruba ele,powala go,валит его,ダウンさせる
+%d%% chance,%d%% chance,%d%% de éxito,%d%% de chance,%d%% Chance,%d%% di riuscita,%d%% de chance,%d%% szans,шанс %d%%,成功%d%%
 R%d  %d:%02d,R%d  %d:%02d,A%d  %d:%02d,M%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,Р%d  %d:%02d,R%d  %d:%02d
 %s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s
 of %d,of %d,de %d,sur %d,von %d,di %d,de %d,z %d,из %d,/ %d
@@ -906,6 +925,7 @@ Send a fighter,Send a fighter,Envía a un luchador,Envoie un combattant,Schick e
 Got it,Got it,Entendido,Compris,Verstanden,Capito,Entendi,Jasne,Понятно,了解
 SKIP ROUND,SKIP ROUND,SALTAR ASALTO,PASSER LA MANCHE,RUNDE AUSLASSEN,SALTA ROUND,PULAR ROUND,POMIŃ RUNDĘ,ПРОПУСТИТЬ РАУНД,ラウンドをスキップ
 Next bout,Next bout,Siguiente combate,Combat suivant,Nächster Kampf,Prossimo scontro,Próximo combate,Następna walka,Следующий бой,次の試合
+Spend levels (%d),Spend levels (%d),Gastar niveles (%d),Placer les niveaux (%d),Stufen vergeben (%d),Spendi livelli (%d),Usar níveis (%d),Rozdaj poziomy (%d),Потратить уровни (%d),レベルを振る (%d)
 A play you drew.,A play you drew.,Una jugada que dibujaste.,Un schéma que tu as tracé.,Ein Spielzug von dir.,Uno schema che hai disegnato.,Uma jogada sua.,Twoje zagranie.,Твоя схема.,自分で描いた作戦。
 THE PLAYBOOK — %s,THE PLAYBOOK — %s,PIZARRA — %s,LES TACTIQUES — %s,DAS TAKTIKBUCH — %s,IL PLAYBOOK — %s,A CARTILHA — %s,TAKTYKI — %s,ТАКТИКА — %s,作戦ノート — %s
 "tap to star, %d of %d","tap to star, %d of %d","toca para marcar, %d de %d","touche pour marquer, %d sur %d","Stern antippen, %d von %d","tocca la stella, %d di %d","toque p/ destacar, %d de %d","stuknij, by oznaczyć, %d z %d","отметь звездой, %d из %d",タップでお気に入り、%d / %d

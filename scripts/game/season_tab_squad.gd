@@ -112,6 +112,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 	## THE SAME MEN AS CARDS (Pete, 29 Sep 2026: Squad and Roster are one screen
 	## with a Table | Cards switch). The row makes room for the hub's Next event.
 	if v.picked == null:
+		## TABLE | CARDS: this is Table; Cards opens the card view of the same men.
 		v.ui.add_child(UiKit.button(UiKit.t("Cards"), Vector2(588, SeasonScene.action_y()),
 		Vector2(116, 46), func():
 			Session.autosave()

@@ -83,6 +83,9 @@ var font: Font
 var season: Season
 var ui: CanvasLayer
 var tab: int = Tab.CLUB
+## THE TAB YOU LEFT FROM IS THE TAB YOU COME BACK TO. Open Free agents or the
+## cards from Squad, press Back, and you are on Squad again — not the Club tab.
+static var last_tab: int = Tab.CLUB
 var flash := ""
 ## The counter, open or shut. A modal on this screen for the same reason the
 ## fighter's meeting card is one: real money deserves a deliberate stop.
@@ -99,6 +102,8 @@ func _ready() -> void:
 	if Session.season == null:
 		Session.season = Season.new(MeleeRosters.starting_club(), randi())
 	season = Session.season
+	## Something to answer first (a card, a tie, promotion) opens on the Club tab.
+	tab = last_tab if season.blocked_by() == "" else Tab.CLUB
 	## A bout walked out of on the last run — said once.
 	if season.last_interrupted != "":
 		flash = season.last_interrupted
@@ -226,6 +231,7 @@ func _rebuild() -> void:
 		Tab.OFFICE: _office_controls()
 		Tab.FINANCES: _finances_controls()
 	_next_controls()
+	last_tab = tab
 	queue_redraw()
 
 

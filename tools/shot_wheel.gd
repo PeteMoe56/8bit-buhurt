@@ -30,6 +30,8 @@ func _process(_d: float) -> bool:
 	if scene != null and bool(scene.get("paused")):
 		scene.call("_set_paused", false)
 	if n == 6:
+		## Off the walk-out properly: its button is a corner node.
+		scene.call("_clear_corner")
 		scene.set("screen", 2)
 		var sim: MeleeSim = scene.sim
 		sim.phase = MeleeSim.Phase.LIVE

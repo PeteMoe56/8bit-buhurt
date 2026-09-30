@@ -197,16 +197,16 @@ func _rebuild() -> void:
 		name_edit.text_changed.connect(func(t: String): draft_name = t)
 		ui.add_child(name_edit)
 
-		ui.add_child(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
-			Vector2(150, 42), _save))
+		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
+			Vector2(150, 42), _save)))
 		ui.add_child(UiKit.button(UiKit.t("Revert"), Vector2(BOARD.position.x + 158, 486),
 			Vector2(130, 42), func():
 				_load_slot(slot)
 				flash = ""
 				_rebuild()))
 		if slot < _drawn():
-			ui.add_child(UiKit.button(UiKit.t("Delete"), Vector2(BOARD.position.x + 296, 486),
-				Vector2(130, 42), _delete))
+			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Delete"), Vector2(BOARD.position.x + 296, 486),
+				Vector2(130, 42), _delete)))
 		if mode == Mode.PLAY:
 			ui.add_child(UiKit.button(_bind_label(), Vector2(BOARD.position.x + 434, 486),
 				Vector2(206, 42), _cycle_binding))
@@ -264,6 +264,11 @@ func _save() -> void:
 
 
 func _delete() -> void:
+	## TWO TAPS (blind review, 29 Sep: Delete beside Save, one tap).
+	if not UiKit.confirm("board-delete:%d:%d" % [mode, slot]):
+		flash = UiKit.t("Tap Delete again to erase it for good.")
+		_rebuild()
+		return
 	var err := board.delete_formation(slot) if mode == Mode.FORMATION \
 		else board.delete_play(slot)
 	if err != "":
@@ -406,6 +411,16 @@ func _draw() -> void:
 	_draw_board()
 	if flash != "":
 		UiKit.text(self, font, flash, Vector2(BOARD.position.x, 92 - 8), 14, UiKit.DIM)
+	if true:
+		## HOW TO USE THE BOARD (blind review, 29 Sep: "nothing tells the player
+		## how to edit").
+		var hw := BOARD.position.x - LEFT_X - 16.0
+		if mode == Mode.FORMATION:
+			UiKit.text_fit(self, font, UiKit.t("Drag a man to where he starts."), Vector2(LEFT_X, 430.0), 13, UiKit.DIM, hw)
+			UiKit.text_fit(self, font, UiKit.t("The line is as far as he may go."), Vector2(LEFT_X, 448.0), 13, UiKit.DIM, hw)
+		else:
+			UiKit.text_fit(self, font, UiKit.t("Drag from a man"), Vector2(LEFT_X, 430.0), 13, UiKit.DIM, hw)
+			UiKit.text_fit(self, font, UiKit.t("to draw his route."), Vector2(LEFT_X, 448.0), 13, UiKit.DIM, hw)
 
 
 func _draw_slots() -> void:

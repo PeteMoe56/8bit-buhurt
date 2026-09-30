@@ -83,8 +83,10 @@ func _build() -> void:
 	## with a width of 200; a third at 820 would have run 84px off a 960 screen.
 	var labels := [UiKit.t("This year"), UiKit.t("The club"), UiKit.t("History"), UiKit.t("The Hall"), UiKit.t("Your record")]
 	for i in labels.size():
-		ui.add_child(UiKit.selected(UiKit.button(labels[i], Vector2(_tab_x(i), UiKit.screen().y - 56),
-			Vector2(TAB_W, 44), func(p = i): page = p; _build()), i == page))
+		## TABS AT THE TOP, like every other tabbed screen (blind review, 29 Sep:
+		## the page tabs shared the bottom row with Back and looked like buttons).
+		ui.add_child(UiKit.selected(UiKit.button(labels[i], Vector2(_tab_x(i), 16.0),
+			Vector2(TAB_W, 40), func(p = i): page = p; _build()), i == page))
 	queue_redraw()
 
 
@@ -94,11 +96,8 @@ func _draw() -> void:
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
 	UiKit.text(self, font, UiKit.t("RECORDS"), Vector2(24, 46), 26, UiKit.INK)
-	UiKit.right(self, font, UiKit.t("Season %d") % season.world.season,
-		Vector2(UiKit.screen().x - 24, 46), 14, UiKit.DIM, 220)
-	## The selected tab, marked where the button is — a Button cannot carry it
-	## without a theme and a theme is not worth one underline.
-	draw_rect(Rect2(_tab_x(page), UiKit.screen().y - 60, TAB_W, 3), UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("Season %d") % season.world.season,
+		Vector2(24, 72), 13, UiKit.DIM)
 	match page:
 		Page.YEAR: _year()
 		Page.CLUB: _club()
@@ -265,6 +264,9 @@ func _hall() -> void:
 func _club() -> void:
 	UiKit.panel(self, Rect2(24, 88, UiKit.span(), 340))
 	UiKit.text(self, font, UiKit.t("CLUB RECORDS"), Vector2(40, 114), 12, UiKit.DIM)
+	## A HEADING OVER EVERY COLUMN (blind review, 29 Sep: the dashes sat under
+	## no heading and read as misaligned).
+	UiKit.right(self, font, UiKit.t("RECORD"), Vector2(UiKit.right_edge(360.0), 114), 11, UiKit.EDGE.lightened(0.5), 120)
 	UiKit.right(self, font, UiKit.t("HELD BY"), Vector2(UiKit.right_edge(170.0), 114), 11, UiKit.EDGE.lightened(0.5), 180)
 	UiKit.right(self, font, UiKit.t("SET"), Vector2(UiKit.right_edge(48.0), 114), 11, UiKit.EDGE.lightened(0.5), 120)
 	var y := 152.0

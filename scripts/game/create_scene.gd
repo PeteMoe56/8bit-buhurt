@@ -95,6 +95,9 @@ func _ready() -> void:
 		Session.season = Season.new(MeleeRosters.starting_club(), randi())
 	season = Session.season
 	shop = season.workshop
+	if Session.create_tab >= 0:
+		tab = Session.create_tab
+		Session.create_tab = -1
 	card = Workshop.blank()
 	kit_i = maxi(0, IconBank.KIT_COLORS.find(season.club.kit))
 	mark_col_i = maxi(0, IconBank.MARK_COLORS.find(season.club.icon_color))

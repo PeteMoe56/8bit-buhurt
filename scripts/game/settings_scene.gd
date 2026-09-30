@@ -28,8 +28,10 @@ const SOUND_H := 218.0
 const CAREER_Y := TOP + 238.0
 const CAREER_H := 136.0
 ## LANGUAGE, under the credits: one cycling button, like the grade's.
-const LANG_Y := TOP + 356.0
+const LANG_Y := TOP
 const LANG_H := 80.0
+const ABOUT_Y := TOP + 100.0
+const ABOUT_H := 132.0
 
 var font: Font
 var ui: CanvasLayer
@@ -81,16 +83,16 @@ func _build() -> void:
 	## row of buttons in a 430-pixel panel and a dropdown is a control this game
 	## does not otherwise have; the button shows what it will change TO, which is
 	## the one thing a cycling control has to do to not be a guess.
+	## ONE HOME FOR THE DIFFICULTY (blind review, 29 Sep: a cycling button that
+	## showed the NEXT grade read as the current one). Settings says which grade
+	## is on and sends the player to the grade page, where all six are laid out
+	## with what each one does.
 	if Session.season != null:
-		var order: Array[int] = Grade.ORDER
-		var at := order.find(Session.season.grade)
-		var next: int = order[(maxi(0, at) + 1) % order.size()]
-		ui.add_child(UiKit.button(Grade.name_of(next),
+		ui.add_child(UiKit.button(UiKit.t("Change difficulty"),
 			Vector2(LEFT_X + 18, CAREER_Y + 90.0), Vector2(COL_W - 36.0, 36), func():
-				Session.season.set_grade(next)
 				Session.autosave()
-				Audio.play("tap")
-				_build()))
+				Session.create_tab = 2
+				UiKit.go("res://scenes/Create.tscn"), "ladder"))
 
 	## THE LANGUAGE BUTTON SHOWS WHAT IT CHANGES TO, like the grade's; the panel
 	## says what is in use now. A draft is offered only in a debug build.
@@ -98,15 +100,19 @@ func _build() -> void:
 	if langs.size() > 1:
 		var li := langs.find(Settings.language)
 		var nxt: String = langs[(maxi(0, li) + 1) % langs.size()]
-		ui.add_child(UiKit.button(Settings.language_name(nxt),
+		## SAYS IT IS A SWITCH (blind review, 29 Sep: "English" beside "English").
+		ui.add_child(UiKit.button(UiKit.t("Switch to %s") % Settings.language_name(nxt),
 			Vector2(RIGHT_X + 18, LANG_Y + 32.0), Vector2(COL_W - 30.0, 36), func():
 				Settings.set_language(nxt)
 				Audio.play("tap")
 				_build()))
 	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(LEFT_X, UiKit.bottom(58.0)),
 		Vector2(160, 46), _back))
-	ui.add_child(UiKit.button(UiKit.t("Licenses"), Vector2(LEFT_X + 176.0, UiKit.bottom(58.0)),
-		Vector2(160, 46), _show_licences))
+	## THE CREDITS LIVE BEHIND THEIR OWN BUTTON (blind review, 29 Sep: they took
+	## half the screen and outranked the settings). Every line is still there, in
+	## full, above the licence texts.
+	ui.add_child(UiKit.button(UiKit.t("Credits & licenses"), Vector2(RIGHT_X + 18, ABOUT_Y + 76.0),
+		Vector2(COL_W - 30.0, 40), _show_licences, "scroll"))
 	queue_redraw()
 
 
@@ -125,8 +131,31 @@ const LICENCE_FILES := [
 var _licences: Control = null
 
 
+static func credits_text() -> String:
+	var out: Array[String] = ["CREDITS", "", "MUSIC"]
+	for c in Settings.credit_lines():
+		out.append(String(c["line"]))
+		out.append(UiKit.t("from %s  ·  %s") % [String(c["from"]), String(c["url"])])
+		out.append(UiKit.t("Used under the %s") % String(c["licence"]))
+		out.append("")
+	out.append(UiKit.t("All other audio written for this game."))
+	out.append("")
+	out.append("TYPE")
+	var fc := Settings.face_credit()
+	out.append(String(fc["name"]))
+	out.append(UiKit.t("after %s") % String(fc["from"]))
+	out.append(UiKit.t("%s  ·  %s") % [String(fc["licence"]), String(fc["url"])])
+	out.append(UiKit.t("Buhurt Rail, Gorget and Maul drawn for this game."))
+	out.append(UiKit.t("Other alphabets: LanaPixel by eishiya, SIL OFL 1.1"))
+	out.append("")
+	out.append("GAME")
+	out.append(Brand.short_name())
+	out.append(UiKit.t("Built by BonkWorks."))
+	return "\n".join(out)
+
+
 static func licence_text() -> String:
-	var parts: Array[String] = []
+	var parts: Array[String] = [credits_text()]
 	parts.append("Godot Engine — MIT License\n\n" + Engine.get_license_text())
 	for pair in LICENCE_FILES:
 		var body := FileAccess.get_file_as_string(String(pair[1]))
@@ -268,56 +297,9 @@ func _draw() -> void:
 		+ ("" if Settings.language != "" else "  ·  " + Settings.language_name(Settings.resolved())),
 		Vector2(RIGHT_X + 18, LANG_Y + 22.0), RIGHT_X + COL_W - 12.0, 15, 13, UiKit.DIM, UiKit.INK)
 
-	# --------------------------------------------------------------- credits
-	UiKit.panel(self, Rect2(RIGHT_X, TOP, COL_W + 6, 348))
-	UiKit.text(self, font, UiKit.t("CREDITS"), Vector2(RIGHT_X + 18, TOP + 30), 15, UiKit.DIM)
-	var y := TOP + 62.0
-	UiKit.text(self, font, UiKit.t("MUSIC"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
-	y += 26.0
-	for c in Settings.credit_lines():
-		UiKit.text(self, font, UiKit.clip(String(c["line"]), 42),
-			Vector2(RIGHT_X + 18, y), 16, UiKit.INK)
-		y += 21.0
-		UiKit.text(self, font, UiKit.t("from %s  ·  %s") % [String(c["from"]), String(c["url"])],
-			Vector2(RIGHT_X + 18, y), 13, UiKit.DIM)
-		y += 19.0
-		UiKit.text(self, font, UiKit.t("Used under the %s") % String(c["licence"]),
-			Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
-		y += 24.0
-	## SHORTER, BECAUSE IT DID NOT FIT. Seventeen pixels over the panel's right
-	## edge — invisible to every check until `test_ink.gd` learned to pair a
-	## string with the box it was drawn on, and invisible by eye because the
-	## overhang is one short word on a dim line. Wrapping it was the first fix
-	## and it was worse: the second line pushed everything below it 18 pixels
-	## down and ran "Built by BonkWorks." out of the bottom of the same panel,
-	## which the same check then caught. One line, made to fit.
-	UiKit.text_fit(self, font, UiKit.t("All other audio written for this game."),
-		Vector2(RIGHT_X + 18, y), 14, UiKit.DIM, CREDIT_W)
-	y += 24.0
-	UiKit.text(self, font, UiKit.t("TYPE"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
-	y += 20.0
-	var fc := Settings.face_credit()
-	## TWO LINES, because the credit is generated and its length is not ours to
-	## choose: the face's name and the face it is after are both somebody else's
-	## words. On one line at 13px in the real face it ran to x 973 of a 960 frame.
-	## A credit that is cut off is a licence condition that is not met.
-	UiKit.text(self, font, String(fc["name"]), Vector2(RIGHT_X + 18, y), 13, UiKit.INK)
-	y += 17.0
-	UiKit.text(self, font, UiKit.t("after %s") % String(fc["from"]),
-		Vector2(RIGHT_X + 18, y), 12, UiKit.INK)
-	y += 19.0
-	UiKit.text(self, font, UiKit.t("%s  ·  %s") % [String(fc["licence"]), String(fc["url"])],
-		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
-	y += 19.0
-	UiKit.text_fit(self, font, UiKit.t("Buhurt Rail, Gorget and Maul drawn for this game."),
-		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5), CREDIT_W)
-	y += 17.0
-	## THE FALLBACK FACE, which draws every letter the Buhurt faces lack. OFL.
-	UiKit.text(self, font, UiKit.t("Other alphabets: LanaPixel by eishiya, SIL OFL 1.1"),
-		Vector2(RIGHT_X + 18, y), 12, UiKit.EDGE.lightened(0.5))
-	y += 24.0
-	UiKit.text(self, font, UiKit.t("GAME"), Vector2(RIGHT_X + 18, y), 13, UiKit.YOU)
-	y += 22.0
-	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, y), 16, UiKit.INK)
-	y += 21.0
-	UiKit.text(self, font, UiKit.t("Built by BonkWorks."), Vector2(RIGHT_X + 18, y), 13, UiKit.DIM)
+	# ----------------------------------------------------------------- about
+	UiKit.panel(self, Rect2(RIGHT_X, ABOUT_Y, COL_W + 6, ABOUT_H))
+	UiKit.text(self, font, UiKit.t("ABOUT"), Vector2(RIGHT_X + 18, ABOUT_Y + 26), 15, UiKit.DIM)
+	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, ABOUT_Y + 50), 16, UiKit.INK)
+	UiKit.text_fit(self, font, UiKit.t("Built by BonkWorks."),
+		Vector2(RIGHT_X + 18, ABOUT_Y + 68), 12, UiKit.DIM, COL_W - 30.0)

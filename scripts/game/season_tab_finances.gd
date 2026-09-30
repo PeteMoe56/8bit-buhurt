@@ -63,6 +63,12 @@ static func _draw_finances(v: SeasonScene) -> void:
 	var net := in_now - out_now
 	v._fin_row(NET_WORD[0] if net >= 0 else NET_WORD[1], net, in_was - out_was, y,
 		UiKit.UP if net >= 0 else UiKit.DOWN, 17)
+	## WHAT THE NUMBER IS AND WHAT TO DO ABOUT IT (blind review, 29 Sep: "SHORT
+	## -31" alarmed with no guidance). It is this year so far, not a forecast.
+	var words := UiKit.t("So far this year. Gates and prize money arrive as the events are fought.") \
+		if net < 0 else UiKit.t("So far this year.")
+	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 20.0), 12, UiKit.DIM,
+		SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0, 15.0, 2)
 
 	v._fin_ground()
 

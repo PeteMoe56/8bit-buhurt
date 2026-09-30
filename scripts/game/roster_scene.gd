@@ -54,6 +54,14 @@ func _build() -> void:
 		b.modulate = Color(1, 1, 1, 0)
 		ui.add_child(b)
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
+	## TABLE | CARDS (Pete, 29 Sep 2026: Squad and Roster are one screen). This is
+	## the Cards view; Table is the Squad tab.
+	ui.add_child(UiKit.button(UiKit.t("Table"), Vector2(UiKit.screen().x - 24.0 - 150.0 - 256.0, 14.0),
+		Vector2(120, 44), func():
+			SeasonScene.last_tab = SeasonScene.Tab.SQUAD
+			UiKit.go("res://scenes/Season.tscn"), "roster"))
+	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("Cards"), Vector2(UiKit.screen().x - 24.0 - 150.0 - 128.0, 14.0),
+		Vector2(120, 44), func(): pass, "roster")))
 	queue_redraw()
 
 
@@ -96,7 +104,7 @@ func _draw() -> void:
 	Audio.for_mood(UiKit.mood, false)
 	UiKit.ground(self)
 
-	UiKit.text(self, font, UiKit.t("ROSTER"), Vector2(24, 46), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("SQUAD"), Vector2(24, 46), 26, UiKit.INK)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.screen().x - 24, 46), 18, UiKit.YOU, 200)
 	UiKit.text(self, font, UiKit.t("THE LINE"), Vector2(24, 78), 12, UiKit.DIM)

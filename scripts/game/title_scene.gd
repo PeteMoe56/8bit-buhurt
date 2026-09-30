@@ -151,6 +151,7 @@ func _build() -> void:
 		queue_redraw()
 		return
 	slots.clear()
+	var goes := {}
 	for i in SaveGame.SLOTS:
 		var info := SaveGame.peek(i)
 		slots.append(info)
@@ -162,16 +163,21 @@ func _build() -> void:
 			ui.add_child(UiKit.button(UiKit.t("Set it aside"), Vector2(x + 20, SLOT_Y + 216),
 				Vector2(SLOT_W - 40, 52), _set_aside.bind(i)))
 		else:
-			ui.add_child(UiKit.button(UiKit.t("Continue"), Vector2(x + 20, SLOT_Y + 216),
-				Vector2(SLOT_W - 40, 52), _continue.bind(i)))
+			var go := UiKit.button(UiKit.t("Continue"), Vector2(x + 20, SLOT_Y + 216),
+				Vector2(SLOT_W - 40, 52), _continue.bind(i))
+			ui.add_child(go)
+			goes[i] = go
 			## The destructive half moves UP when armed, so the finger that
 			## tapped Delete is not resting on the button that confirms it.
 			if confirm_delete == i:
-				ui.add_child(UiKit.button(UiKit.t("Delete it for good"),
-					Vector2(x + 20, SLOT_Y + 216), Vector2(SLOT_W - 40, 46), _delete.bind(i)))
+				ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Delete it for good"),
+					Vector2(x + 20, SLOT_Y + 216), Vector2(SLOT_W - 40, 46), _delete.bind(i))))
 			else:
-				ui.add_child(UiKit.button(UiKit.t("Delete"), Vector2(x + 20, SLOT_Y + 276),
-					Vector2(SLOT_W - 40, 40), _delete.bind(i)))
+				ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Delete"), Vector2(x + 20, SLOT_Y + 276),
+					Vector2(SLOT_W - 40, 40), _delete.bind(i))))
+	## THE CAREER YOU WERE PLAYING IS THE PRIMARY ACTION on this screen.
+	if goes.has(_latest()):
+		UiKit.primary(goes[_latest()])
 	## Settings lives on the title screen rather than inside a season, because
 	## the credits are in there and the licence for the menu music wants them
 	## reachable without starting a club.
@@ -193,6 +199,40 @@ func _build() -> void:
 				confirm_delete = -1
 				_build()))
 	queue_redraw()
+
+
+## "just now", "20 minutes ago", "yesterday", "3 days ago". Both ends are read as
+## the same local wall clock the save wrote, so the difference is true.
+static func _ago(saved: String) -> String:
+	if saved == "":
+		return UiKit.t("some time ago")
+	var then := Time.get_unix_time_from_datetime_string(saved)
+	var now := Time.get_unix_time_from_datetime_string(Time.get_datetime_string_from_system(false))
+	var mins := int(maxf(0.0, float(now - then)) / 60.0)
+	if mins < 2:
+		return UiKit.t("just now")
+	if mins < 60:
+		return UiKit.t("%d minutes ago") % mins
+	var hours := mins / 60
+	if hours < 24:
+		return UiKit.t("1 hour ago") if hours == 1 else UiKit.t("%d hours ago") % hours
+	var days := hours / 24
+	return UiKit.t("yesterday") if days == 1 else UiKit.t("%d days ago") % days
+
+
+## The slot saved most recently, or -1.
+func _latest() -> int:
+	var best := -1
+	var best_t := ""
+	for i in slots.size():
+		var info: Dictionary = slots[i]
+		if info.is_empty() or info.get("broken", false):
+			continue
+		var t := String(info.get("saved", ""))
+		if best == -1 or t > best_t:
+			best = i
+			best_t = t
+	return best
 
 
 ## BACK: out of the town picker, out of a delete confirm, else to the front door.
@@ -260,6 +300,8 @@ func _delete(slot: int) -> void:
 ## is in the office and not in the file is a credit the next crash eats.
 func _enter(s: Season, slot: int) -> void:
 	Session.season = s
+	## A career opens on its Club tab.
+	SeasonScene.last_tab = SeasonScene.Tab.CLUB
 	Session.slot = slot
 	if slot >= 0:
 		Store.claim(s.office, func() -> bool: return SaveGame.save(s, slot))
@@ -390,7 +432,11 @@ func _draw() -> void:
 			Vector2(x + 20, SLOT_Y + 130), 15, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Event %d of %d") % [int(info["event"]), int(info["events"])],
 			Vector2(x + 20, SLOT_Y + 152), 15, UiKit.DIM)
-		UiKit.text(self, font, String(info["saved"]).replace(UiKit.t("T"), "  "),
-			Vector2(x + 20, SLOT_Y + 186), 12, UiKit.EDGE.lightened(0.4))
+		## HOW LONG AGO, NOT A TIMESTAMP (blind review, 29 Sep), and which slot
+		## was played last.
+		UiKit.text(self, font, UiKit.t("Played %s") % _ago(String(info["saved"])),
+			Vector2(x + 20, SLOT_Y + 186), 13, UiKit.DIM)
+		if i == _latest():
+			UiKit.right(self, font, UiKit.t("LAST PLAYED"), Vector2(x + SLOT_W - 20, SLOT_Y + 34), 12, UiKit.YOU, 160)
 	if notice != "":
 		UiKit.text(self, font, notice, Vector2(SLOT_X, SLOT_Y + SLOT_H + 28), 14, UiKit.DOWN)

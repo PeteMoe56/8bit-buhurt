@@ -62,6 +62,9 @@ static var viewing_fighter: FighterCard = null
 ## lands on the page the player last chose rather than on whichever one some
 ## button picked for him a hour ago.
 static var records_page: int = -1
+## Which tab Create opens on, set by a button that sends the player there (the
+## Settings "Change difficulty" opens it on GRADE). Cleared on read.
+static var create_tab: int = -1
 
 
 static func in_season() -> bool:

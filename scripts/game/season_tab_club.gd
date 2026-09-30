@@ -154,16 +154,14 @@ static func _club_controls(v: SeasonScene) -> void:
 		return
 
 	if block == "bid":
-		v.ui.add_child(UiKit.button(UiKit.t("Tournament bid"), Vector2(24, SeasonScene.action_y()),
-			Vector2(204, 46), func():
+		## THE BID IS DECIDED IN ONE PLACE, THE ARENA (Pete, 29 Sep 2026), where the
+		## dates, the budgets and what each would earn are in front of you. The
+		## Club tab sends you there; taking or passing happens there.
+		v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Tournament bid"),
+			Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0), SeasonScene.action_y()),
+			Vector2(SeasonScene.NEXT_W, 46), func():
 				Session.autosave()
-				UiKit.go("res://scenes/Arena.tscn"), "gate"))
-		v.ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(244, SeasonScene.action_y()),
-			Vector2(204, 46), func():
-				v.season.decline_bid()
-				Session.autosave()
-				v.flash = UiKit.t("No tournament this year.")
-				v._rebuild()))
+				UiKit.go("res://scenes/Arena.tscn"), "gate")))
 		return
 	if block == "cup":
 		v.ui.add_child(UiKit.button(UiKit.t("Fight the cup bout"), Vector2(24, SeasonScene.action_y()),
@@ -582,7 +580,7 @@ static func _fixture(v: SeasonScene) -> void:
 		## mid-sentence, and nobody read it as a fault because a sentence that
 		## stops at a panel edge looks like a sentence that stops.
 		var by := y + 80.0
-		for line in UiKit.wrap(v.font, UiKit.t("Pick a week to hold your own, or pass on the year."),
+		for line in UiKit.wrap(v.font, UiKit.t("Pick a week to hold your own, or pass on the year, at the Arena."),
 				SeasonScene.fixture_w() - 40.0, 14):
 			UiKit.text(v, v.font, String(line), Vector2(44, by), 14, UiKit.DIM)
 			by += 18.0

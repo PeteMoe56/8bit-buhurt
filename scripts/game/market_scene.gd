@@ -87,14 +87,17 @@ func _build() -> void:
 			Session.autosave()
 			_build()))
 	if picked != null:
-		ui.add_child(UiKit.button(UiKit.t("Sign %s  ·  %d CC")
-			% [UiKit.clip(picked.display_name, 12), season.market_fee(picked)],
+		var fee := season.market_fee(picked)
+		var short: bool = season.office.credits < fee
+		var sign := UiKit.button((UiKit.t("Can't afford %s  ·  %d CC") if short else UiKit.t("Sign %s  ·  %d CC"))
+			% [UiKit.clip(picked.display_name, 12), fee],
 			Vector2(560, UiKit.screen().y - 56), Vector2(376, 44), func():
 				flash = UiKit.said(season.sign_from_market(picked))
 				if flash == "":
 					picked = null
 				Session.autosave()
-				_build()))
+				_build())
+		ui.add_child(sign if short else UiKit.primary(sign))
 	queue_redraw()
 
 
@@ -109,6 +112,10 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("Season %d  ·  %s") % [season.world.season, season.tier_name()],
 		Vector2(24, 78), 12, UiKit.DIM)
 
+	## WHAT TO DO (blind review, 29 Sep: "no Sign button").
+	if picked == null:
+		UiKit.right(self, font, UiKit.t("Tap a man to sign him. A red price is more than you have."),
+			Vector2(UiKit.screen().x - 24, 78), 12, UiKit.DIM, 560)
 	var slots := _slots()
 	if slots.is_empty():
 		UiKit.text(self, font, UiKit.t("Nobody is looking for a club this season."),

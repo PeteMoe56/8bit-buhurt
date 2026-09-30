@@ -1742,6 +1742,19 @@ static func trail_reset() -> void:
 	_trail.clear()
 
 
+## GO SOMEWHERE WHOSE BACK IS NOT HERE. The fight report sends the player to a
+## fighter's card; Back from that card must land in the clubhouse, never in the
+## finished bout (which would start it again).
+static func go_back_to(path: String, back_to: String) -> void:
+	if Juice.wiping():
+		return
+	disarm()
+	Audio.play("wipe")
+	_trail.clear()
+	_trail.append(back_to)
+	Juice.go(path)
+
+
 ## For the suite: how deep the trail is, without handing out the trail itself.
 static func trail_depth() -> int:
 	return _trail.size()

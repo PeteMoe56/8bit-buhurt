@@ -547,6 +547,7 @@ func _on_bout_finished(_w: int) -> void:
 		Session.clear_bout()
 		Session.autosave()
 		again_button.text = UiKit.t("Back to the clubhouse")
+		_add_spend_button()
 	_quips_cache = []
 	_news_cache = []
 	screen = Screen.REPORT
@@ -1193,7 +1194,10 @@ func _draw_corner() -> void:
 		var head := [
 			[UiKit.t("STANDING"), "%d - %d" % [standing, _line_size(0) - standing],
 				COL_GOOD if standing >= 3 else COL_HOT],
-			[UiKit.t("TOOK"), "%d:%02d" % [int(sim.round_t) / 60, int(sim.round_t) % 60], COL_INK],
+			## THE CORNER'S OWN CLOCK (blind review, 29 Sep: "the countdown is not
+			## visible"). How long the round took mattered less than how long is left.
+			[UiKit.t("BACK IN"), "0:%02d" % int(ceil(maxf(0.0, sim.corner_t))),
+				COL_HOT if sim.corner_t < 6.0 else COL_INK],
 			[UiKit.t("ROUNDS"), "%d - %d" % [sim.rounds_won[0], sim.rounds_won[1]], COL_INK],
 		]
 		for i in head.size():
@@ -1468,24 +1472,34 @@ func _wheel_opts(m) -> Array:
 
 
 const WHEEL_R := 70.0
-const WHEEL_BOX := Vector2(104, 50)
+const WHEEL_BOX := Vector2(116, 54)
 
 
 ## The ring's centre: the man, kept far enough inside the list that every option
 ## is on the field.
 func _wheel_center(m) -> Vector2:
 	var p := _to_screen(m.pos)
-	var lo := LIST_ORIGIN + Vector2(WHEEL_R + WHEEL_BOX.x * 0.5, WHEEL_R + WHEEL_BOX.y * 0.5)
-	var hi := LIST_ORIGIN + Vector2(Tuning.LIST_H, Tuning.LIST_W) * LIST_SCALE \
-		- Vector2(WHEEL_R + WHEEL_BOX.x * 0.5, WHEEL_R + WHEEL_BOX.y * 0.5)
+	var reach := Vector2(WHEEL_GAP.x + WHEEL_BOX.x, WHEEL_GAP.y + WHEEL_BOX.y)
+	var lo := LIST_ORIGIN + reach
+	var hi := LIST_ORIGIN + Vector2(Tuning.LIST_H, Tuning.LIST_W) * LIST_SCALE - reach
 	return Vector2(clampf(p.x, lo.x, hi.x), clampf(p.y, lo.y, hi.y))
 
 
 ## Up, right, left for the acts; Cancel at the bottom.
+## THE BOXES CLEAR THE MAN (blind review, 29 Sep: the boxes sat on the sprite
+## and on each other). Each is pushed out by its own half-size plus a gap, so
+## the four never touch and the man in the middle stays visible.
+const WHEEL_GAP := Vector2(34.0, 30.0)
+const WHEEL_CANCEL := Vector2(96.0, 36.0)
+
+
 func _wheel_rect(m, i: int) -> Rect2:
-	var dirs: Array[Vector2] = [Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1)]
-	var c := _wheel_center(m) + dirs[i] * WHEEL_R
-	return Rect2(c - WHEEL_BOX * 0.5, WHEEL_BOX)
+	var c0 := _wheel_center(m)
+	match i:
+		0: return Rect2(c0 + Vector2(-WHEEL_BOX.x * 0.5, -WHEEL_GAP.y - WHEEL_BOX.y), WHEEL_BOX)
+		1: return Rect2(c0 + Vector2(WHEEL_GAP.x, -WHEEL_BOX.y * 0.5), WHEEL_BOX)
+		2: return Rect2(c0 + Vector2(-WHEEL_GAP.x - WHEEL_BOX.x, -WHEEL_BOX.y * 0.5), WHEEL_BOX)
+	return Rect2(c0 + Vector2(-WHEEL_CANCEL.x * 0.5, WHEEL_GAP.y), WHEEL_CANCEL)
 
 
 ## Which option is under a point: an act, -1 for Cancel, -2 for none. With
@@ -1534,48 +1548,51 @@ func _draw_wheel(m) -> void:
 	var c := _wheel_center(m)
 	draw_line(_to_screen(m.pos), _to_screen(t.pos), COL_HOT, 2.0)
 	draw_arc(_to_screen(t.pos), 22.0, 0.0, TAU, 24, COL_HOT, 2.0)
-	draw_arc(c, WHEEL_R, 0.0, TAU, 48, COL_EDGE, 2.0)
+	draw_arc(c, 26.0, 0.0, TAU, 32, COL_EDGE, 2.0)
 	var behind: bool = sim.from_behind(m, t)
 	if behind:
-		UiKit.raw(self, font, c + Vector2(-60, -WHEEL_R - 40.0), UiKit.t("FROM BEHIND"),
-			HORIZONTAL_ALIGNMENT_CENTER, 120, 12, UiKit.UP)
+		UiKit.raw(self, font, c + Vector2(-80, -WHEEL_GAP.y - WHEEL_BOX.y - 8.0), UiKit.t("FROM BEHIND"),
+			HORIZONTAL_ALIGNMENT_CENTER, 160, 12, UiKit.UP)
+	## EVERY BOX READS THE SAME WAY (blind review, 29 Sep: "22%" beside "-23%
+	## balance" mixed a chance with an effect): the act, its chance, what it does.
 	var opts := _wheel_opts(m)
 	for i in opts.size():
 		var r := _wheel_rect(m, i)
 		var act: int = opts[i]
 		draw_rect(r, COL_PANEL)
-		draw_rect(r, COL_EDGE if act == -1 else Tuning.COL_ROUTE, false, 2.0)
-		var name_ := UiKit.t("Cancel") if act == -1 else Tuning.act_name(act)
-		## Three lines in the bullrush box (the fall), so it sits higher: at the
-		## old spacing the red line's descenders ran into the frame.
-		var three := act == Tuning.Act.BULLRUSH and sim.br_fall > 0.0
-		var y0 := 16.0 if three else 19.0
-		UiKit.raw(self, font, r.position + Vector2(0, y0), name_,
-			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 15, COL_INK if act != -1 else COL_DIM)
+		draw_rect(r, COL_EDGE.lightened(0.3) if act == -1 else Tuning.COL_ROUTE, false, 2.0)
 		if act == -1:
+			UiKit.raw(self, font, r.position + Vector2(0, 24), UiKit.t("Cancel"),
+				HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 14, COL_INK)
 			continue
+		UiKit.raw(self, font, r.position + Vector2(0, 16), Tuning.act_name(act),
+			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 14, COL_INK)
 		var o: Dictionary = sim.contact_odds(m.idx, act, t.idx)
-		var line := ""
-		var col := COL_DIM
+		var p_land := 1.0
+		var effect := ""
+		var effect_col := COL_DIM
 		match act:
 			Tuning.Act.HIT:
-				line = UiKit.t("-%d%% balance") % int(round(float(o["dent"]) * 100.0))
-				col = _odds_col(clampf(float(o["dent"]) * 4.0, 0.0, 1.0))
+				effect = UiKit.t("-%d%% balance") % int(round(float(o["dent"]) * 100.0))
 			Tuning.Act.GRAPPLE:
-				line = UiKit.t("then TD %d%%") % int(round(float(o["p"]) * 100.0))
-				col = _odds_col(float(o["p"]))
+				effect = UiKit.t("then TD %d%%") % int(round(float(o["p"]) * 100.0))
 			Tuning.Act.BREAK:
-				line = UiKit.t("frees him")
-				col = UiKit.UP
+				effect = UiKit.t("frees your man")
+			Tuning.Act.BULLRUSH:
+				p_land = float(o["p"])
+				if float(o["fall"]) > 0.0:
+					## THE RED ONE (Pete): the bullrush that bounces off and puts HIM down.
+					effect = UiKit.t("fall %d%%") % int(round(float(o["fall"]) * 100.0))
+					effect_col = UiKit.DOWN
+				else:
+					effect = UiKit.t("puts him down")
 			_:
-				line = "%d%%" % int(round(float(o["p"]) * 100.0))
-				col = _odds_col(float(o["p"]))
-		UiKit.raw(self, font, r.position + Vector2(0, y0 + 16.0 if three else 36.0), line,
-			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 12, col)
-		## THE RED ONE (Pete): the bullrush that bounces off and puts him down.
-		if act == Tuning.Act.BULLRUSH and float(o["fall"]) > 0.0:
-			UiKit.raw(self, font, r.position + Vector2(0, y0 + 29.0), UiKit.t("fall %d%%") % int(round(float(o["fall"]) * 100.0)),
-				HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 11, UiKit.DOWN)
+				p_land = float(o["p"])
+				effect = UiKit.t("puts him down")
+		UiKit.raw(self, font, r.position + Vector2(0, 32), UiKit.t("%d%% chance") % int(round(p_land * 100.0)),
+			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 12, _odds_col(p_land))
+		UiKit.raw(self, font, r.position + Vector2(0, 47), effect,
+			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 11, effect_col)
 
 
 # ------------------------------------------------------------------ prompts
@@ -1909,7 +1926,7 @@ func _build_ui() -> void:
 	## round time the skip is spending. `test_icons.gd` scans for a mark a screen
 	## asks for and cannot find, so a made-up name fails the suite rather than
 	## rendering a button with a hole in it.
-	call_button = UiKit.button(UiKit.t("HOLD"), CALL_AT, CALL_SIZE, _hold, "speaker")
+	call_button = UiKit.button(UiKit.t("HOLD"), CALL_AT, CALL_SIZE, _hold, "cursor")
 	skip_button = UiKit.button(UiKit.t("SKIP ROUND"), SKIP_AT, CALL_SIZE, _skip_round, "clock")
 	call_button.visible = false
 	skip_button.visible = false
@@ -1938,6 +1955,33 @@ func _build_ui() -> void:
 	again_button.position = Vector2(350, REP_PANEL.end.y - 48.0 - 14.0)
 	again_button.visible = false
 	ui.add_child(again_button)
+
+
+## LEVELS WAITING GET A BUTTON (blind review, 29 Sep: "LEVEL UP" four times and
+## no way from here to spend one). It opens the first man with one to place;
+## his card has the rest.
+var spend_button: Button = null
+
+
+func _add_spend_button() -> void:
+	if spend_button != null:
+		spend_button.queue_free()
+		spend_button = null
+	if Session.season == null:
+		return
+	var waiting: Array[FighterCard] = []
+	for f in Session.season.club.active_eight():
+		if Career.can_place(f):
+			waiting.append(f)
+	if waiting.is_empty():
+		UiKit.primary(again_button)
+		return
+	spend_button = UiKit.primary(UiKit.button(UiKit.t("Spend levels (%d)") % waiting.size(),
+		Vector2(REP_PANEL.position.x + 24.0, again_button.position.y), Vector2(260, 48), func():
+			Session.viewing_fighter = waiting[0]
+			Session.autosave()
+			UiKit.go_back_to("res://scenes/Fighter.tscn", "res://scenes/Season.tscn"), "up"))
+	ui.add_child(spend_button)
 
 
 ## EVERY BUTTON IN THE FIGHT, SKINNED LIKE EVERY OTHER BUTTON IN THE GAME.
