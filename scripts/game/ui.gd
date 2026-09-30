@@ -205,7 +205,7 @@ const FACE_CREDIT := {
 	"from": "Press Start 2P by Cody Boisclair",
 	"url": "zone38.net",
 	"licence": "SIL Open Font License 1.1",
-	"note": "Modified: proportional spacing. Renamed as the license requires.",
+	"note": "Modified: proportional spacing, a clearer percent sign. Renamed as the license requires.",
 	"ours": "Buhurt Rail, Gorget and Maul drawn for this game.",
 }
 
@@ -1285,6 +1285,35 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 ##             selection is a shape, not a 2 px line
 ##
 ## Anything unmarked is secondary, the slate it always was.
+## A SLIDER A THUMB CAN HOLD (round 4: the engine's 12 px handle). A 22x30
+## gold block on a 10 px track, the fill in the dim gold of a bar.
+static var _grab: ImageTexture = null
+static func skin_slider(s: Slider) -> Slider:
+	if _grab == null:
+		var img := Image.create(22, 24, false, Image.FORMAT_RGBA8)
+		img.fill(FRAME)
+		img.fill_rect(Rect2i(2, 2, 18, 20), YOU)
+		img.fill_rect(Rect2i(9, 6, 1, 12), YOU.darkened(0.35))
+		img.fill_rect(Rect2i(12, 6, 1, 12), YOU.darkened(0.35))
+		_grab = ImageTexture.create_from_image(img)
+	s.add_theme_icon_override("grabber", _grab)
+	s.add_theme_icon_override("grabber_highlight", _grab)
+	var track := StyleBoxFlat.new()
+	track.bg_color = TRACK
+	track.border_color = EDGE
+	track.set_border_width_all(1)
+	track.content_margin_top = 5.0
+	track.content_margin_bottom = 5.0
+	s.add_theme_stylebox_override("slider", track)
+	var fill := StyleBoxFlat.new()
+	fill.bg_color = YOU.darkened(0.3)
+	fill.content_margin_top = 5.0
+	fill.content_margin_bottom = 5.0
+	s.add_theme_stylebox_override("grabber_area", fill)
+	s.add_theme_stylebox_override("grabber_area_highlight", fill)
+	return s
+
+
 static func primary(b: Button) -> Button:
 	## Marked, so a test can ask which button on a screen is THE one.
 	b.set_meta("primary", true)

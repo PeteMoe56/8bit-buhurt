@@ -179,16 +179,21 @@ func _draw() -> void:
 	## fight" — the figure the whole line exists to deliver — was the half that
 	## fell off. The left of this row ends around 370, so the box can have the
 	## room, and `fit_px` records the cut if it ever needs one anyway.
+	## THE CROWD, ALONE IN THE CORNER (round 4: level, condition and crowd were
+	## stacked over one bar with two meanings). The ground's level and state
+	## moved to THE GROUND's own heading.
 	UiKit.right_fit(self, font,
-		UiKit.t("%s in  ·  %d%% full  ·  %d CC a home fight") % [
+		UiKit.t("CROWD  %s in  ·  %d%% full  ·  %d CC a home fight") % [
 			UiKit.crowd_word(office.attendance()),
 			int(round(office.fill() * 100.0)), office.crowd_pay()],
-		Vector2(UiKit.right_edge(120.0), 64), 14, UiKit.DIM, 420.0)
+		Vector2(UiKit.right_edge(), 30), 14, UiKit.INK, 560.0)
+	UiKit.right(self, font, UiKit.t("the bar fills toward the next pay rise"),
+		Vector2(UiKit.right_edge(), 74), 12, UiKit.DIM, 440.0)
 	## THE METER, because a band you cannot see coming is a band you cannot chase.
 	## Retro Bowl's whole fan bar is this: the player watches it fill and knows a
 	## raise is close. A number alone does not do that — 71 and 74 read the same
 	## and one of them is a fight away from paying more.
-	_meter(Vector2(520, 76), 320.0)
+	_meter(Vector2(UiKit.right_edge(320.0), 42), 320.0)
 	## THE TWO AXES, SIDE BY SIDE, because they are the two axes and a player
 	## needs to see that they are different things: the level is what the league
 	## lets him build and the condition is what he keeps it in.
@@ -198,11 +203,9 @@ func _draw() -> void:
 	## mechanic from a rendering fault, and no term to look for when he wants to
 	## do something about it. **A state the game draws and does not name is a
 	## state the player reads as a bug.**
-	UiKit.right(self, font, UiKit.t("Level %d of %d") % [arena.level, Arena.MAX_LEVEL],
-		Vector2(UiKit.right_edge(120.0), 40), 14, UiKit.DIM, 200.0)
-	UiKit.right(self, font, arena.condition_word(),
-		Vector2(UiKit.right_edge(120.0), 22), 13,
-		UiKit.DOWN if arena.shabby() else UiKit.DIM, 200.0)
+	UiKit.right(self, font, UiKit.t("Level %d of %d") % [arena.level, Arena.MAX_LEVEL] + "  ·  " + arena.condition_word(),
+		Vector2(UiKit.right_edge(), 118), 14,
+		UiKit.DOWN if arena.shabby() else UiKit.DIM, 240.0)
 
 	_draw_ground()
 	## Clipped to its own column. The National Arena's blurb is long enough to

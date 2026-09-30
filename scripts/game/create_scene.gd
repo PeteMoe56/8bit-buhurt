@@ -169,6 +169,7 @@ func _fighter_controls() -> void:
 		## extra height is the part a thumb actually lands on.
 		sl.position = Vector2(SLIDER_X, y + 6)
 		sl.size = Vector2(SLIDER_W, 28)
+		UiKit.skin_slider(sl)
 		sl.min_value = 1
 		sl.max_value = int(lim["stat"])
 		sl.step = 1
@@ -183,6 +184,7 @@ func _fighter_controls() -> void:
 	var w := HSlider.new()
 	w.position = Vector2(SLIDER_X, STAT_Y + 5.0 * STAT_ROW + 6.0)
 	w.size = Vector2(SLIDER_W, 28)
+	UiKit.skin_slider(w)
 	w.min_value = 130
 	w.max_value = 340
 	w.step = 1

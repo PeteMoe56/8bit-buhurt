@@ -199,8 +199,8 @@ func _rebuild() -> void:
 			## Only the NEXT slot is for sale. Four buy buttons in a column
 			## would read as four separate things to want.
 			var cost := board.slot_cost(owned)
-			ui.add_child(UiKit.button(UiKit.t("Unlock — %d CC") % cost,
-				Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), _unlock))
+			ui.add_child(UiKit.button(UiKit.t("Unlock a slot — %d CC") % cost,
+				Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), _unlock, "lock"))
 
 	if slot < owned:
 		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
@@ -507,7 +507,8 @@ func _draw_slots() -> void:
 		if i >= owned:
 			UiKit.panel(self, r, false)
 			if i > owned:
-				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 12, y + 28), 14, UiKit.DIM)
+				UiKit.icon(self, "lock", Vector2(LEFT_X + 10, y + 14), UiKit.DIM)
+				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 32, y + 28), 14, UiKit.DIM)
 			continue
 		if i == slot:
 			continue    ## the name field sits here
@@ -539,7 +540,7 @@ func _draw_board() -> void:
 		draw_rect(Rect2(lx, f.position.y, f.end.x - lx, f.size.y), Color(0, 0, 0, 0.28))
 	draw_line(Vector2(lx, f.position.y), Vector2(lx, f.end.y),
 		Color(Tuning.COL_MARSHAL, 0.55), 2.0)
-	UiKit.text(self, font, "15%", Vector2(lx + 6, f.position.y + 16), 12, Tuning.COL_MARSHAL)
+	UiKit.text(self, font, UiKit.t("start line"), Vector2(lx + 6, f.position.y + 16), 12, Tuning.COL_MARSHAL)
 	UiKit.right(self, font, UiKit.t("toward them →"),
 		Vector2(f.end.x - 8, f.end.y - 10), 14, UiKit.DIM, 160.0)
 
