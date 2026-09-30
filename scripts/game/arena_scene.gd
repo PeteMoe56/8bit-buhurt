@@ -62,7 +62,7 @@ func _rebuild() -> void:
 
 	if not arena.at_top():
 		var err := arena.can_build(office.tier, office.credits)
-		var label := UiKit.t("Build the %s — %d CC") % [UiKit.t(String(arena.next()["name"])), arena.next_cost()]
+		var label := UiKit.t("Build the %s · %d CC") % [UiKit.t(String(arena.next()["name"])), arena.next_cost()]
 		ui.add_child(UiKit.button(label if err == "" else UiKit.t("Locked"),
 			Vector2(RIGHT_X, 204), Vector2(340, 40), _build))
 

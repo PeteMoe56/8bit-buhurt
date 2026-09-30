@@ -308,7 +308,7 @@ func _next_controls() -> void:
 	elif block != "":
 		match block:
 			"bid": label = UiKit.t("Tournament bid")
-			"cup": label = UiKit.t("Cup bout")
+			"cup": label = UiKit.t("Fight the cup bout")
 			"dilemma": label = UiKit.t("A decision")
 			"promotion": label = UiKit.t("Promotion")
 		go = func():

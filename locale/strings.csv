@@ -1,5 +1,5 @@
 keys,en,es,fr,de,it,pt_BR,pl,ru,ja
-Build the %s — %d CC,Build the %s — %d CC,Construir %s — %d CC,Construire : %s — %d CC,%s bauen — %d CC,Costruisci %s — %d CC,Construir %s — %d CC,Zbuduj: %s — %d CC,Построить: %s — %d CC,%sを建設 — %d CC
+Build the %s · %d CC,Build the %s · %d CC,Construir %s · %d CC,Construire : %s · %d CC,%s bauen · %d CC,Costruisci %s · %d CC,Construir %s · %d CC,Zbuduj: %s · %d CC,Построить: %s · %d CC,%sを建設 · %d CC
 Locked,Locked,Bloqueado,Verrouillé,Gesperrt,Bloccato,Bloqueado,Zablokowane,Закрыто,ロック中
 Have it seen to — %d CC,Have it seen to — %d CC,Que lo arreglen — %d CC,Faire réparer — %d CC,Instand setzen — %d CC,Fallo sistemare — %d CC,Mandar consertar — %d CC,Napraw to — %d CC,Привести в порядок — %d CC,修理する — %d CC
 %s · %d CC,%s · %d CC,%s · %d CC,%s · %d CC,%s · %d CC,%s · %d CC,%s · %d CC,%s · %d CC,%s · %d CC,%s · %d CC
@@ -157,7 +157,7 @@ Kit color,Kit color,Color base,Couleur d'armure,Rüstungsfarbe,Colore divisa,Cor
 Mark color,Mark color,Color de marca,Couleur d'emblème,Wappenfarbe,Colore stemma,Cor do emblema,Kolor znaku,Цвет знака,紋章の色
 %s unlocked.,%s unlocked.,%s desbloqueado.,%s débloqué.,%s freigeschaltet.,%s sbloccato.,%s desbloqueado.,Odblokowano: %s.,Открыто: %s.,%s解放。
 Save the club,Save the club,Guardar el club,Enregistrer le club,Verein sichern,Salva il club,Salvar o clube,Zapisz klub,Сохранить клуб,クラブを保存
-"Easier at the top, harder down the list","Easier at the top, harder down the list","Más fácil arriba, más difícil abajo","Plus facile en haut, plus dur en bas","Oben leichter, unten schwerer","Più facile in alto, più difficile in basso","Mais fácil em cima, mais difícil embaixo","Łatwiej u góry, trudniej niżej","Выше — легче, ниже — сложнее",上ほど易しく、下ほど難しい
+Easiest at the top,Easiest at the top,Lo más fácil arriba,Le plus facile en haut,Oben am leichtesten,Il più facile in alto,O mais fácil no topo,Najłatwiej na górze,Сверху — легче всего,上ほどやさしい
 Opposition strength,Opposition strength,Fuerza rival,Force adverse,Gegnerstärke,Forza avversaria,Força adversária,Siła rywali,Сила соперников,相手の強さ
 Calls from the corner,Calls from the corner,Órdenes desde la esquina,Ordres du coin,Rufe aus der Ecke,Chiamate dall'angolo,Chamadas do canto,Komendy z narożnika,Команды из угла,コーナーからの指示
 "Corner, between rounds","Corner, between rounds","Esquina, entre asaltos","Coin, entre les manches","Ecke, zwischen den Runden","Angolo, tra i round","Canto, entre rounds","Narożnik, między rundami","Угол, между раундами",ラウンド間のコーナー
@@ -388,7 +388,7 @@ Fight: vs %s,Fight: vs %s,Pelea: vs %s,Combat : vs %s,Kampf: vs %s,Scontro: vs %
 Next event,Next event,Siguiente evento,Événement suivant,Nächstes Event,Prossimo evento,Próximo evento,Następne zawody,Следующий турнир,次の大会
 End the season,End the season,Cerrar la temporada,Terminer la saison,Saison beenden,Chiudi la stagione,Encerrar a temporada,Zakończ sezon,Завершить сезон,シーズン終了
 Tournament bid,Tournament bid,Candidatura a torneo,Candidature tournoi,Turnierbewerbung,Candidatura torneo,Proposta de torneio,Oferta turnieju,Заявка на турнир,トーナメント招致
-Cup bout,Cup bout,Combate de copa,Combat de coupe,Pokalkampf,Incontro di coppa,Luta da copa,Walka pucharowa,Кубковый бой,カップ戦
+Fight the cup bout,Fight the cup bout,Jugar el cruce,Disputer le match,Kampf bestreiten,Combatti la sfida,Lutar o confronto,Stocz mecz,Биться,試合に出る
 A decision,A decision,Una decisión,Une décision,Eine Entscheidung,Una decisione,Uma decisão,Decyzja,Решение,決断
 Promotion,Promotion,Ascenso,Montée,Aufstieg,Promozione,Acesso,Awans,Повышение,昇格
 Sim it,Sim it,Simular,Simuler,Simulieren,Simula,Simular,Symuluj,Авто,自動試合
@@ -425,7 +425,6 @@ Up to the %s.,Up to the %s.,Ascenso a %s.,Montée en %s.,Rauf in die %s.,Su in %
 Stay down  ·  save %d CC,Stay down  ·  save %d CC,Quedarse  ·  ahorra %d CC,Rester en bas  ·  %d CC d'économie,Unten bleiben  ·  %d CC sparen,Resta giù  ·  risparmi %d CC,Ficar  ·  poupar %d CC,Zostań niżej  ·  oszczędź %d CC,Остаться  ·  экономия %d CC,残留  ·  %d CC節約
 Tap again to turn promotion down for this year.,Tap again to turn promotion down for this year.,Toca de nuevo para rechazar el ascenso este año.,Touche encore pour refuser la montée cette année.,Nochmal tippen: Aufstieg dieses Jahr ablehnen.,Tocca ancora per rifiutare la promozione quest'anno.,Toque de novo para recusar o acesso este ano.,"Stuknij znowu, by odrzucić awans na ten rok.","Нажми ещё раз, чтобы отказаться от повышения.",もう一度タップで今年の昇格を辞退。
 Staying in the %s another year.,Staying in the %s another year.,Otro año en %s.,Encore un an en %s.,Noch ein Jahr in der %s.,Resti in %s un altro anno.,Mais um ano em: %s.,Kolejny rok w: %s.,Ещё год: %s.,もう一年%sに残留。
-Fight the cup bout,Fight the cup bout,Jugar el cruce,Disputer le match,Kampf bestreiten,Combatti la sfida,Lutar o confronto,Stocz mecz,Биться,試合に出る
 Tap Sim it again to hand the cup bout to the AI.,Tap Sim it again to hand the cup bout to the AI.,Toca Simular otra vez para dejar el cruce a la IA.,Touche encore Simuler pour confier le match à l'IA.,"Nochmal auf Simulieren tippen, die KI übernimmt.",Tocca ancora Simula per affidare la sfida all'IA.,Toque em Simular de novo para entregar o confronto à IA.,"Stuknij znowu Symuluj, by oddać mecz AI.",Нажми «Авто» ещё раз — бой проведёт ИИ.,もう一度「自動試合」をタップでAIに任せる。
 %s %s simulated.,%s %s simulated.,%s %s simulado.,%s %s simulé.,%s %s simuliert.,%s %s simulato.,%s %s simulado.,Zasymulowano: %s %s.,%s %s: сыграно без тебя.,%s %s を自動処理。
 "%s, finished %s. Now in the %s.%s%s","%s, finished %s. Now in the %s.%s%s","%s, acabó %s. Ahora en %s.%s%s","%s, terminé %s. Désormais en %s.%s%s","%s, Platz %s. Jetzt in der %s.%s%s","%s, chiuso %s. Ora in %s.%s%s","%s, terminou em %s. Agora em: %s.%s%s","%s, miejsce: %s. Teraz: %s.%s%s",%s: место %s. Теперь: %s.%s%s,%s、%sで終了。現在%s所属。%s%s

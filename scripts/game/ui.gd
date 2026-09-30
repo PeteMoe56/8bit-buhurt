@@ -413,7 +413,9 @@ static func mood_name() -> String:
 static func meter(ci: CanvasItem, r: Rect2, filled: int, total: int, col: Color) -> void:
 	ci.draw_rect(r, TRACK)
 	var pad := 3.0
-	var w := (r.size.x - pad * float(total + 1)) / float(total)
+	## WHOLE PIXELS, so every segment is the same width (round 11: a wide sixth
+	## segment was counted as two).
+	var w := floorf((r.size.x - pad * float(total + 1)) / float(total))
 	for i in total:
 		var seg := Rect2(r.position.x + pad + float(i) * (w + pad), r.position.y + pad,
 			w, r.size.y - pad * 2.0)
