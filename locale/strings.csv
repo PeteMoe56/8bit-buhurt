@@ -11,7 +11,7 @@ Built. %s.,Built. %s.,Construido. %s.,Construit. %s.,Gebaut. %s.,Costruito. %s.,
 "Swept, patched and put right. %d CC.","Swept, patched and put right. %d CC.","Barrido, parcheado y en orden. %d CC.","Balayé, rapiécé, remis d'aplomb. %d CC.","Gefegt, geflickt, gerichtet. %d CC.","Spazzato, rattoppato, sistemato. %d CC.","Varrido, remendado e em ordem. %d CC.","Zamiecione, połatane, naprawione. %d CC.","Подметено, залатано, в порядке. %d CC.",掃除と補修を済ませた。%d CC。
 %s is yours. The rest of the year is preparation.,%s is yours. The rest of the year is preparation.,%s es tuyo. El resto del año es preparación.,"%s est à toi. Le reste de l'année, on prépare.",%s gehört dir. Der Rest des Jahres ist Vorbereitung.,%s è tuo. Il resto dell'anno è preparazione.,%s é seu. O resto do ano é preparação.,%s — twoje. Reszta roku to przygotowania.,%s — твой. Остаток года — подготовка.,%sはあなたのもの。残りの一年は準備期間です。
 Demo run. %d CC.,Demo run. %d CC.,Prueba hecha. %d CC.,Démo lancée. %d CC.,Schaukampf. %d CC.,Prova fatta. %d CC.,Demo feita. %d CC.,Pokaz odbyty. %d CC.,Показ проведён. %d CC.,デモ開催。%d CC。
-%s  ·  %s  ·  %s fans  ·  %d CC,%s  ·  %s  ·  %s fans  ·  %d CC,%s  ·  %s  ·  %s hinchas  ·  %d CC,%s  ·  %s  ·  %s fans  ·  %d CC,%s  ·  %s  ·  %s Fans  ·  %d CC,%s  ·  %s  ·  %s tifosi  ·  %d CC,%s  ·  %s  ·  %s torcedores  ·  %d CC,%s  ·  %s  ·  kibice: %s  ·  %d CC,%s  ·  %s  ·  фанаты: %s  ·  %d CC,%s  ·  %s  ·  ファン%s人  ·  %d CC
+%s  ·  %s  ·  %s fans,%s  ·  %s  ·  %s fans,%s  ·  %s  ·  %s hinchas,%s  ·  %s  ·  %s fans,%s  ·  %s  ·  %s Fans,%s  ·  %s  ·  %s tifosi,%s  ·  %s  ·  %s torcedores,%s  ·  %s  ·  kibice: %s,%s  ·  %s  ·  фанаты: %s,%s  ·  %s  ·  ファン%s人
 CROWD  %s in  ·  %d%% full  ·  %d CC a home fight,CROWD  %s in  ·  %d%% full  ·  %d CC a home fight,PÚBLICO  %s dentro  ·  %d%% lleno  ·  %d CC por combate en casa,PUBLIC  %s entrés  ·  rempli à %d%%  ·  %d CC le combat à domicile,PUBLIKUM  %s da  ·  %d%% voll  ·  %d CC pro Heimkampf,PUBBLICO  %s dentro  ·  pieno al %d%%  ·  %d CC in casa,PÚBLICO  %s de público  ·  %d%% cheio  ·  %d CC por luta em casa,PUBLICZNOŚĆ  %s widzów  ·  %d%% pełno  ·  %d CC za mecz u siebie,ПУБЛИКА  %s зрит.  ·  %d%% мест  ·  %d CC за дом. бой,観客  入場%s  ·  収容率%d%%  ·  ホーム試合%d CC
 the bar fills toward the next pay rise,the bar fills toward the next pay rise,la barra se llena hacia la próxima subida,la barre monte vers la prochaine hausse,der Balken füllt sich zur nächsten Erhöhung,la barra sale verso il prossimo aumento,a barra enche até o próximo aumento,pasek rośnie do następnej podwyżki,полоса растёт к следующей прибавке,バーは次の増収へ向けて伸びる
 Level %d of %d,Level %d of %d,Nivel %d de %d,Niveau %d sur %d,Stufe %d von %d,Livello %d di %d,Nível %d de %d,Poziom %d z %d,Уровень %d из %d,レベル %d / %d
@@ -184,15 +184,14 @@ One club per save. The colors are free; the marks are not.,One club per save. Th
 CLUB NAME,CLUB NAME,NOMBRE DEL CLUB,NOM DU CLUB,VEREINSNAME,NOME DEL CLUB,NOME DO CLUBE,NAZWA KLUBU,НАЗВАНИЕ КЛУБА,クラブ名
 SHORT NAME,SHORT NAME,ABREVIATURA,SIGLE,KÜRZEL,SIGLA,SIGLA,SKRÓT,СОКРАЩЕНИЕ,略称
 HOME TOWN,HOME TOWN,CIUDAD,VILLE D'ORIGINE,HEIMATSTADT,CITTÀ,CIDADE NATAL,MIASTO,РОДНОЙ ГОРОД,ホームタウン
-Meet it · %d CC,Meet it · %d CC,Cumplir · %d CC,Se conformer · %d CC,Erfüllen · %d CC,Mettiti in regola · %d CC,Cumprir · %d CC,Spełnij · %d CC,Выполнить · %d CC,満たす · %d CC
-Get ahead · %d CC,Get ahead · %d CC,Adelantarse · %d CC,Anticiper · %d CC,Vorsorgen · %d CC,Anticipa · %d CC,Adiantar · %d CC,Wyprzedź · %d CC,На вырост · %d CC,先取り · %d CC
+Level %d → %d · %d CC,Level %d → %d · %d CC,Nivel %d → %d · %d CC,Niveau %d → %d · %d CC,Stufe %d → %d · %d CC,Livello %d → %d · %d CC,Nível %d → %d · %d CC,Poziom %d → %d · %d CC,Уровень %d → %d · %d CC,レベル%d → %d · %d CC
 FEDERATION,FEDERATION,FEDERACIÓN,FÉDÉRATION,VERBAND,FEDERAZIONE,FEDERAÇÃO,FEDERACJA,ФЕДЕРАЦИЯ,連盟
 Two masters: the federation's rules and your members.,Two masters: the federation's rules and your members.,Dos amos: las normas de la federación y tus socios.,Deux maîtres : les règles de la fédération et tes adhérents.,Zwei Herren: die Regeln des Verbands und deine Mitglieder.,Due padroni: le regole della federazione e i tuoi soci.,Dois senhores: as regras da federação e seus sócios.,Dwóch panów: przepisy federacji i twoi członkowie.,Два хозяина: правила федерации и твои члены клуба.,二人の主人：連盟の規則と会員たち。
 THE FEDERATION,THE FEDERATION,LA FEDERACIÓN,LA FÉDÉRATION,DER VERBAND,LA FEDERAZIONE,A FEDERAÇÃO,FEDERACJA,ФЕДЕРАЦИЯ,連盟
 %s rules,%s rules,%s,%s,%s,%s,%s,Zasady: %s,Правила: %s,%sの規定
 %d of %d needed,%d of %d needed,%d de %d necesarios,%d sur %d requis,%d von %d nötig,%d di %d richiesti,%d de %d exigidos,Potrzeba: %d z %d,%d из %d нужных,%d / %d 必要
-Level %d · needed in %s,Level %d · needed in %s,Nivel %d · exigido en %s,Niveau %d · requis en %s,Stufe %d · Pflicht in %s,Livello %d · richiesto in %s,Nível %d · exigido na %s,Poziom %d · wymagany w %s,Уровень %d · нужен в %s,レベル%d・%sで必要
-Level %d · not needed here,Level %d · not needed here,Nivel %d · no hace falta aquí,Niveau %d · pas requis ici,Stufe %d · hier nicht nötig,Livello %d · qui non serve,Nível %d · não exigido aqui,Poziom %d · tu niewymagany,Уровень %d · здесь не нужен,レベル%d・ここでは不要
+needed in %s,needed in %s,exigido en %s,requis en %s,Pflicht in %s,richiesto in %s,exigido na %s,wymagany w %s,нужен в %s,%sで必要
+not needed here,not needed here,aquí no se exige,pas requis ici,hier nicht nötig,qui non serve,não exigido aqui,tu niewymagany,здесь не нужен,ここでは不要
 In good standing. You may be entered for the cups.,In good standing. You may be entered for the cups.,En regla. Puedes inscribirte en las copas.,En règle. Tu peux être inscrit aux coupes.,Alles in Ordnung. Du darfst zu den Pokalen.,In regola. Puoi essere iscritto alle coppe.,Em dia. Você pode ser inscrito nas copas.,Wszystko w porządku. Możesz grać w pucharach.,На хорошем счету. Можно заявляться на кубки.,資格あり。カップに出場できます。
 NOT ENTERED FOR THE CUPS,NOT ENTERED FOR THE CUPS,SIN INSCRIPCIÓN EN LAS COPAS,NON INSCRIT AUX COUPES,NICHT FÜR DIE POKALE GEMELDET,NON ISCRITTO ALLE COPPE,NÃO INSCRITO NAS COPAS,BEZ ZGŁOSZENIA DO PUCHARÓW,НЕ ЗАЯВЛЕН НА КУБКИ,カップ出場資格なし
 Short on: ,Short on: ,Falta: ,Il manque : ,Es fehlt: ,Manca: ,Falta: ,Brakuje: ,Не хватает: ,不足: 
@@ -267,7 +266,7 @@ Known for,Known for,Conocido por,Réputé pour,Bekannt für,Noto per,Conhecido p
 RATING,RATING,MEDIA,NOTE,WERTUNG,VALORE,NOTA,OCENA,РЕЙТИНГ,能力値
 CEILING,CEILING,TECHO,PLAFOND,POTENZIAL,TETTO,TETO,PUŁAP,ПОТОЛОК,潜在能力
 LEVEL,LEVEL,NIVEL,NIVEAU,STUFE,LIVELLO,NÍVEL,POZIOM,УРОВЕНЬ,レベル
-1 POINT TO SPEND BELOW,1 POINT TO SPEND BELOW,1 PUNTO PARA GASTAR,1 POINT À DÉPENSER,1 PUNKT UNTEN ZU VERGEBEN,1 PUNTO DA SPENDERE,1 PONTO PARA GASTAR,1 PUNKT DO WYDANIA NIŻEJ,1 ОЧКО — РАСПРЕДЕЛИ НИЖЕ,下で1ポイント使える
+1 POINT TO SPEND,1 POINT TO SPEND,1 PUNTO PARA GASTAR,1 POINT À DÉPENSER,1 PUNKT ZU VERGEBEN,1 PUNTO DA SPENDERE,1 PONTO PARA GASTAR,1 PUNKT DO WYDANIA,1 ОЧКО К РАСПРЕДЕЛЕНИЮ,1ポイント使える
 %d / %d xp,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d XP
 He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-signera pas.,Er unterschreibt nicht nochmal.,Non rinnoverà.,Ele não vai renovar.,Więcej nie podpisze.,Больше не подпишет.,再契約には応じない。
 Asks at renewal,Asks at renewal,Pide al renovar,Demande au renouvellement,Will bei Verlängerung,Chiede al rinnovo,Pede na renovação,Chce przy odnowieniu,Просит при продлении,更新時の要求
@@ -372,6 +371,8 @@ THE BENCH AND THE RESERVE,THE BENCH AND THE RESERVE,EL BANQUILLO Y LA RESERVA,LE
 capped,capped,al tope,plafonné,am Limit,al limite,no limite,limit,предел,上限
 to %d,to %d,a %d,à %d,auf %d,a %d,até %d,do %d,до %d,→%d
 WAGE BILL,WAGE BILL,NÓMINA,MASSE SALARIALE,LOHNKOSTEN,MONTE STIPENDI,FOLHA SALARIAL,PENSJE,ФОНД ЗАРПЛАТ,人件費
+SQUAD MOOD,SQUAD MOOD,ÁNIMO,MORAL,STIMMUNG,UMORE,CLIMA,NASTRÓJ,НАСТРОЙ,士気
+CLUB RATING,CLUB RATING,NIVEL DEL CLUB,NOTE DU CLUB,VEREINSWERT,VALORE CLUB,NOTA DO CLUBE,OCENA KLUBU,РЕЙТИНГ КЛУБА,クラブ評価
 %s / %s  ·  over by %s,%s / %s  ·  over by %s,%s / %s  ·  excede en %s,%s / %s  ·  dépassé de %s,%s / %s  ·  %s drüber,%s / %s  ·  sforato di %s,%s / %s  ·  excede %s,%s / %s  ·  ponad o %s,%s / %s  ·  сверх на %s,%s / %s ・ %s超過
 Short of fit men: ,Short of fit men: ,Faltan hombres aptos: ,Pas assez d'hommes aptes : ,Zu wenig fitte Männer: ,Mancano uomini: ,Faltam homens aptos: ,Brak zdolnych do walki: ,Не хватает здоровых: ,出場可能な選手が不足: 
  and %d more., and %d more., y %d más., et %d autres., und %d weitere., e altri %d., e mais %d., i jeszcze %d., и ещё %d., 他%d人。
@@ -399,7 +400,6 @@ Against %s.,Against %s.,Contra %s.,Contre %s.,Gegen %s.,Contro %s.,Contra %s.,Ry
 Nothing to fight.,Nothing to fight.,Nada que disputar.,Rien à disputer.,Nichts zu kämpfen.,Niente da combattere.,Nada para lutar.,Nie ma z kim walczyć.,Боёв нет.,試合なし。
 Bye this event.,Bye this event.,Evento libre.,Exempt cette rencontre.,Diesmal spielfrei.,Riposo in questo evento.,Folga neste evento.,Pauza w tych zawodach.,В этот раз — пропуск.,今大会は不戦。
 %s  ·  Season %d  ·  rating %d,%s  ·  Season %d  ·  rating %d,%s  ·  Temporada %d  ·  media %d,%s  ·  Saison %d  ·  note %d,%s  ·  Saison %d  ·  Wertung %d,%s  ·  Stagione %d  ·  valore %d,%s  ·  Temporada %d  ·  nota %d,%s  ·  Sezon %d  ·  ocena %d,%s  ·  Сезон %d  ·  рейтинг %d,%s  ·  シーズン%d  ·  能力値 %d
-SQUAD MOOD,SQUAD MOOD,ÁNIMO,MORAL,STIMMUNG,UMORE,CLIMA,NASTRÓJ,НАСТРОЙ,士気
 THE ARMORER,THE ARMORER,EL ARMERO,L'ARMURIER,DER SCHMIED,L'ARMAIOLO,O ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
 %d CC in hand,%d CC in hand,%d CC en caja,%d CC en caisse,%d CC in der Hand,%d CC in cassa,%d CC em caixa,%d CC w kasie,На руках %d CC,所持 %d CC
 Every traveling harness passes inspection.,Every traveling harness passes inspection.,Todos los arneses del viaje pasan la inspección.,Tous les harnois du voyage passent l'inspection.,Jede Reiserüstung besteht die Prüfung.,Ogni armatura in trasferta passa l'ispezione.,Toda armadura da viagem passa na inspeção.,Każda zbroja w drodze przechodzi kontrolę.,Все доспехи в поездке проходят проверку.,遠征組のアーマーはすべて検査合格。
@@ -667,6 +667,7 @@ Pre-season,Pre-season,Pretemporada,Avant-saison,Vorbereitung,Pre-stagione,Pré-t
 Event %d of %d,Event %d of %d,Evento %d de %d,Rencontre %d sur %d,Kampftag %d von %d,Evento %d di %d,Evento %d de %d,Zawody %d z %d,Турнир %d из %d,大会 %d / %d
 Played %s,Played %s,Jugado %s,Joué %s,Gespielt %s,Giocato %s,Jogado %s,Grane %s,Играли %s,プレイ：%s
 LAST PLAYED,LAST PLAYED,ÚLTIMA,DERNIÈRE,ZULETZT,ULTIMA,ÚLTIMA,OSTATNIA,ПОСЛЕДНЯЯ,前回
+rated %d,rated %d,nivel %d,note %d,Wert %d,valore %d,nota %d,ocena %d,рейтинг %d,評価%d
 ...,...,...,...,...,...,...,...,...,...
 %dst,%dst,%dº,%der,%d.,%dº,%dº,%d.,%d,%d位
 %dnd,%dnd,%dº,%de,%d.,%dº,%dº,%d.,%d,%d位
@@ -925,6 +926,7 @@ NEXT,NEXT,SIG,SUIV,NÄCHST,PROS,PRÓX,NAST,ДАЛЕЕ,次
 AST assists  ·  UP rounds on his feet  ·  OFF carried off,AST assists  ·  UP rounds on his feet  ·  OFF carried off,AST asistencias  ·  UP rondas en pie  ·  OFF retirado,AST passes  ·  UP manches debout  ·  OFF évacué,AST Vorlagen  ·  UP Runden stehend  ·  OFF rausgetragen,AST assist  ·  UP round in piedi  ·  OFF portato via,AST assistências  ·  UP rounds de pé  ·  OFF retirado,AST asysty  ·  UP rundy na nogach  ·  OFF zniesiony,AST передачи  ·  UP раунды на ногах  ·  OFF унесён,AST アシスト  ·  UP 立っていたラウンド  ·  OFF 退場
 #%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s
 LEVEL UP,LEVEL UP,SUBE DE NIVEL,NIVEAU SUPÉRIEUR,STUFE HOCH,LIVELLO SU,SUBIU DE NÍVEL,NOWY POZIOM,НОВЫЙ УРОВЕНЬ,レベルアップ
+%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp,%d/%d xp
 Nobody had anything to say.,Nobody had anything to say.,Nadie tenía nada que decir.,Personne n'avait rien à dire.,Keiner hatte was zu sagen.,Nessuno aveva niente da dire.,Ninguém tinha nada a dizer.,Nikt nie miał nic do powiedzenia.,Никому нечего сказать.,誰も何も言わなかった。
 scroll ^,scroll ^,subir ^,défiler ^,scrollen ^,scorri ^,rolar ^,przewiń ^,листай ^,スクロール ^
 more v,more v,más v,suite v,mehr v,altro v,mais v,więcej v,ещё v,続き v
@@ -1374,8 +1376,8 @@ Proper,Proper,Como es debido,Correct,Ordentlich,Come si deve,Decente,Porządnie,
 Travel money for four visiting clubs and a real advertisement.,Travel money for four visiting clubs and a real advertisement.,Viaje pagado para cuatro clubes visitantes y publicidad de verdad.,Les frais de voyage de quatre clubs invités et une vraie pub.,Reisegeld für vier Gastvereine und echte Werbung.,Soldi per il viaggio di quattro club ospiti e una vera pubblicità.,Verba de viagem para quatro clubes visitantes e publicidade de verdade.,Pieniądze na dojazd dla czterech klubów gości i prawdziwa reklama.,Дорога для четырёх клубов-гостей и настоящая реклама.,遠征クラブ4つ分の交通費と本物の広告。
 All in,All in,A por todas,Tapis,Alles rein,Tutto dentro,Tudo ou nada,Na całość,Ва-банк,全力
 "Name clubs, a stream and a week of promotion. Fill the house or wear it.","Name clubs, a stream and a week of promotion. Fill the house or wear it.","Clubes de nombre, retransmisión y una semana de promoción. Llena el recinto o paga las consecuencias.","Des clubs connus, un stream et une semaine de promo. Remplis la salle ou assume.","Namhafte Vereine, ein Stream und eine Woche Werbung. Mach das Haus voll oder trag die Folgen.","Club di nome, una diretta e una settimana di promozione. Riempi la sala o paghi.","Clubes famosos, transmissão e uma semana de divulgação. Lote a casa ou pague o preço.","Znane kluby, stream i tydzień promocji. Wypełnij halę albo ponieś koszty.","Именитые клубы, трансляция и неделя рекламы. Собери зал — или отвечай.",有名クラブ、配信、1週間の宣伝。満員にするか、赤字をかぶるか。
-LEFT OVER,LEFT OVER,SOBRANTE,RESTE,ÜBRIG,AVANZO,SOBRA,NADWYŻKA,ОСТАЛОСЬ,残金
-SHORT,SHORT,FALTA,MANQUE,FEHLT,AMMANCO,FALTA,NIEDOBÓR,НЕХВАТКА,不足
+AHEAD SO FAR,AHEAD SO FAR,A FAVOR POR AHORA,EN AVANCE,BISHER IM PLUS,IN ATTIVO FINORA,POSITIVO ATÉ AGORA,NA PLUSIE,ПОКА В ПЛЮСЕ,ここまで黒字
+SHORT SO FAR,SHORT SO FAR,EN CONTRA POR AHORA,DÉFICIT POUR L'INSTANT,BISHER IM MINUS,IN PASSIVO FINORA,NEGATIVO ATÉ AGORA,NA MINUSIE,ПОКА В МИНУСЕ,ここまで赤字
 Bar,Bar,Barra,Barre,Balken,Fascia,Barra,Belka,Полоса,横帯
 Band,Band,Banda,Bande,Streifen,Banda,Faixa,Pas,Лента,帯
 Slash,Slash,Tajo,Entaille,Schräge,Sbarra,Diagonal,Skos,Косая,斜線

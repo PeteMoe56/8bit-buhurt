@@ -513,13 +513,12 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 			else clip_px(font, String(d.get("name", "")), 12, r.size.x - 16.0 - (24.0 if d.has("number") else 0.0)),
 		Vector2(r.position.x + 8, y + (26.0 if big else 20.0)),
 		17 if big else 12, DOWN if dim_it else INK)
-	if d.has("rating"):
-		stars(ci, Vector2(r.position.x + 8, y + (36.0 if big else 28.0)),
-			int(d["rating"]), YOU, 11.0 if big else 8.0, 3.0 if big else 2.0)
-		## THE NUMBER ON THE SMALL CARD TOO (round 4: bench cards had only
-		## stars, and a half star cannot be read at this size).
-		if not big:
-			right(ci, font, "%d" % int(d["rating"]), Vector2(r.end.x - 6, y + 34.0), 13, YOU, 40)
+	if d.has("rating") and big:
+		stars(ci, Vector2(r.position.x + 8, y + 36.0), int(d["rating"]), YOU, 11.0, 3.0)
+	elif d.has("rating"):
+		## THE NUMBER, NOT 8 px STARS, on a small card (round 7: half stars at
+		## this size cannot be read), and said as a rating.
+		text(ci, font, UiKit.t("rated %d") % int(d["rating"]), Vector2(r.position.x + 8, y + 36.0), 13, YOU)
 
 	if big and d.has("note"):
 		## `note_col` is optional and defaults to the dim it always was. The

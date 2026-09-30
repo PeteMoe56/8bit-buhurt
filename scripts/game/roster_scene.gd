@@ -193,13 +193,14 @@ func _footer() -> void:
 		Vector2(568, y + 18), 11, UiKit.INK if bill <= cap else UiKit.DOWN, 220)
 
 	UiKit.panel(self, Rect2(596, y, 150, 44))
-	UiKit.text(self, font, UiKit.t("MORALE"), Vector2(608, y + 18), 11, UiKit.DIM)
-	UiKit.text(self, font, "%d%%" % int(round(season.office.morale * 100.0)),
-		Vector2(608, y + 36), 15, UiKit.INK)
+	## ONE WORD FOR ONE THING: the hub says "SQUAD MOOD: Flying" (round 7).
+	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(608, y + 18), 12, UiKit.DIM)
+	UiKit.text_fit(self, font, season.office.morale_word(),
+		Vector2(608, y + 36), 15, UiKit.UP if season.office.morale >= 0.6 else UiKit.INK, 130.0)
 
 	UiKit.panel(self, Rect2(760, y, 176, 44))
-	UiKit.text(self, font, UiKit.t("CLUB"), Vector2(772, y + 18), 11, UiKit.DIM)
-	UiKit.stars(self, Vector2(772, y + 24), season.club.power(), UiKit.YOU, 12.0, 4.0)
+	UiKit.text(self, font, UiKit.t("CLUB RATING"), Vector2(772, y + 18), 12, UiKit.DIM)
+	UiKit.text(self, font, "%d" % season.club.power(), Vector2(772, y + 38), 16, UiKit.YOU)
 
 
 ## THE WAGE BILL, AND BY HOW MUCH IT IS OVER.

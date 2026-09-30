@@ -166,8 +166,9 @@ func _demo() -> void:
 func _draw() -> void:
 	UiKit.ground(self)
 	UiKit.text(self, font, arena.arena_name().to_upper(), Vector2(24, 40), 22, UiKit.YOU)
-	UiKit.text(self, font, UiKit.t("%s  ·  %s  ·  %s fans  ·  %d CC") % [
-		office.note_word(), _capacity_word(), _fans_word(), office.credits],
+	## THE PURSE IS TOP RIGHT NOW; the subtitle no longer repeats it (round 7).
+	UiKit.text(self, font, UiKit.t("%s  ·  %s  ·  %s fans") % [
+		office.note_word(), _capacity_word(), _fans_word()],
 		Vector2(24, 64), 14, UiKit.DIM)
 	## THE ONE NUMBER, said two ways: how many came, and what share of the room
 	## that was. It used to be notoriety and a turnout percentage derived from it

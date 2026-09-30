@@ -120,18 +120,20 @@ func _rebuild() -> void:
 	club_name_edit = null
 	club_short_edit = null
 
-	ui.add_child(UiKit.button(UiKit.t("FIGHTER"), Vector2(24, 72), Vector2(150, 34), func():
+	## THE SAME SELECTED STYLE AS EVERY OTHER TAB ROW (round 7: an underline
+	## here, a gold frame elsewhere).
+	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("FIGHTER"), Vector2(24, 72), Vector2(150, 34), func():
 		tab = Tab.FIGHTER
 		flash = ""
-		_rebuild()))
-	ui.add_child(UiKit.button(UiKit.t("CLUB"), Vector2(180, 72), Vector2(150, 34), func():
+		_rebuild()), tab == Tab.FIGHTER))
+	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("CLUB"), Vector2(180, 72), Vector2(150, 34), func():
 		tab = Tab.CLUB
 		flash = ""
-		_rebuild()))
-	ui.add_child(UiKit.button(UiKit.t("GRADE"), Vector2(336, 72), Vector2(150, 34), func():
+		_rebuild()), tab == Tab.CLUB))
+	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("GRADE"), Vector2(336, 72), Vector2(150, 34), func():
 		tab = Tab.GRADE
 		flash = ""
-		_rebuild()))
+		_rebuild()), tab == Tab.GRADE))
 	ui.add_child(UiKit.corner_back("res://scenes/Season.tscn"))
 	if tab == Tab.FIGHTER:
 		_fighter_controls()

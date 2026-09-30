@@ -629,12 +629,13 @@ func _the_man() -> void:
 	## written for a case a peak-as-a-wall rule created, and that rule lasted one
 	## pass. Only 99 in all four gets a man there now, and a screen that keeps
 	## explaining a rule the game no longer has is the `xp_cost` ladder again.
-	var word := UiKit.t("1 POINT TO SPEND BELOW") if waiting else UiKit.t("%d / %d xp") % [man.xp, bar]
+	var word := UiKit.t("1 POINT TO SPEND") if waiting else UiKit.t("%d / %d xp") % [man.xp, bar]
 	var tint := UiKit.YOU if waiting else UiKit.DIM
 	if capped:
 		word = UiKit.t("at his ceiling")
 		tint = UiKit.EDGE.lightened(0.5)
-	UiKit.right(self, font, word, Vector2(L_X + COL_W - 16, y), 14, tint, 210)
+	## MEASURED AGAINST "LEVEL 1" (round 7: the two printed through each other).
+	UiKit.right_fit(self, font, word, Vector2(L_X + COL_W - 16, y), 14, tint, COL_W - 32.0 - 76.0)
 	UiKit.bar(self, Rect2(L_X + 16, y + 12, COL_W - 32, 14),
 		1.0 if waiting else clampf(float(man.xp) / float(maxi(1, bar)), 0.0, 1.0),
 		UiKit.DIM if capped

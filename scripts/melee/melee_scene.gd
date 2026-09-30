@@ -1042,7 +1042,7 @@ func _draw_report_table() -> void:
 		elif Career.can_place(m.card):
 			_cell(UiKit.t("LEVEL UP"), "next", y, 12, UiKit.UP)
 		else:
-			_cell("%d/%d" % [m.card.xp, Career.next_level_at(m.card)],
+			_cell(UiKit.t("%d/%d xp") % [m.card.xp, Career.next_level_at(m.card)],
 				"next", y, 10, COL_INK)
 		i += 1
 
@@ -1275,7 +1275,7 @@ func _draw_corner() -> void:
 				HORIZONTAL_ALIGNMENT_LEFT, 60, 20, COL_INK)
 			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + 60.0, ry + 46),
 				UiKit.fit(font, Tuning.weapon_name(f.weapon), 13, C_BAR_W),
-				HORIZONTAL_ALIGNMENT_LEFT, int(C_BAR_W), 13, COL_GOOD)
+				HORIZONTAL_ALIGNMENT_LEFT, int(C_BAR_W), 13, COL_INK)
 			continue
 		## The preview is the OUTGOING man's recovery; a man just swapped in is
 		## shown as he is, not with somebody else's rest added on.
@@ -1962,8 +1962,8 @@ func _draw_calls() -> void:
 	## Left of HOLD in the top bar, right-aligned against it.
 	var y := CALL_AT.y + 12.0
 	## NAMED (blind review round 3: two yellow squares with no word).
-	UiKit.raw(self, font, Vector2(CALL_AT.x - 12.0 - float(calls_total) * 20.0 - 90.0, y + 11.0),
-		UiKit.t("%d HOLDS LEFT") % calls_left, HORIZONTAL_ALIGNMENT_RIGHT, 86, 12, COL_DIM)
+	UiKit.raw(self, font, Vector2(CALL_AT.x - 12.0 - float(calls_total) * 20.0 - 130.0, y + 11.0),
+		UiKit.fit(font, UiKit.t("%d HOLDS LEFT") % calls_left, 12, 126.0), HORIZONTAL_ALIGNMENT_RIGHT, 126, 12, COL_DIM)
 	for i in calls_total:
 		var r := Rect2(CALL_AT.x - 8.0 - float(calls_total - i) * 20.0, y - 2.0, 16.0, 16.0)
 		draw_rect(r, Tuning.COL_MARSHAL if i < calls_left else Color("221e1a"))

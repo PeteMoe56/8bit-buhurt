@@ -8,7 +8,7 @@ extends RefCounted
 
 
 ## The foot of the books, either way; `_fin_row` translates it.
-const NET_WORD := ["LEFT OVER", "SHORT"]
+const NET_WORD := ["AHEAD SO FAR", "SHORT SO FAR"]
 
 
 static func _finances_controls(v: SeasonScene) -> void:

@@ -321,8 +321,7 @@ func _test_the_rebuilt_screen() -> void:
 			del = c
 	_ok(edits == 1, "one name field", "%d LineEdit on the screen" % edits)
 	_ok(scene.MARK_R * 2.0 >= 44.0, "the men are a thumb wide", "%d px" % int(scene.MARK_R * 2.0))
-	_ok(del != null and del.disabled, "Delete cannot take the last formation",
-		"found %s, disabled %s" % [str(del != null), str(del.disabled if del != null else false)])
+	_ok(del == null, "Delete cannot take the last formation", "no Delete on the screen")
 	_ok(String(scene.call("_shape_words")).begins_with(UiKit.t("Center out in front")),
 		"the line says what the shape does", String(scene.call("_shape_words")))
 	## A man dragged is the nearest one, even where two thumbs' worth overlap.

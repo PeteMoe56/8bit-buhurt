@@ -120,7 +120,6 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 		Vector2(card.position.x + pad + bw + 16.0, card.position.y + 72.0 + 3.0 * 58.0), Vector2(bw, 48), func():
 			v.club_menu_open = false
 			v._rebuild())
-	close_b.modulate = Color(0.72, 0.72, 0.72)
 	v.ui.add_child(close_b)
 
 

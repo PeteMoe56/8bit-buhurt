@@ -215,9 +215,12 @@ func _rebuild() -> void:
 		if slot < _drawn():
 			var del := UiKit.danger(UiKit.button(UiKit.t("Delete"), Vector2(BOARD.end.x - 120.0, 486),
 				Vector2(120, 42), _delete))
-			if mode == Mode.FORMATION and board.formations.size() <= 1:
-				del.disabled = true
-			ui.add_child(del)
+			## NOT SHOWN AT ALL on the last formation (round 7: a disabled Delete
+			## still read as a button).
+			if not (mode == Mode.FORMATION and board.formations.size() <= 1):
+				ui.add_child(del)
+			else:
+				del.free()
 		if mode == Mode.PLAY:
 			ui.add_child(UiKit.button(_bind_label(), Vector2(BOARD.position.x + 296, 486),
 				Vector2(206, 42), _cycle_binding))

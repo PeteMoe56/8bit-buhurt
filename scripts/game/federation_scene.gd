@@ -53,7 +53,9 @@ func _build() -> void:
 		## of the rule: bring it up, and it is the button that matters. Already
 		## there: raising it is getting ahead of the division above.
 		var short: bool = o.rule_level(r) < Federation.required(o.tier, r)
-		var btn := UiKit.button((UiKit.t("Meet it · %d CC") if short else UiKit.t("Get ahead · %d CC")) % cost,
+		## THE CLUBHOUSE'S PATTERN: level now → next · price (round 7).
+		var lv := o.rule_level(r)
+		var btn := UiKit.button(UiKit.t("Level %d → %d · %d CC") % [lv, lv + 1, cost],
 			Vector2(L_X + COL_W - 196.0, _row_y(i) + 8.0), Vector2(184, 38), func(rule = r):
 				flash_tone = 0
 				flash = UiKit.said(o.raise_rule(rule))
@@ -113,12 +115,14 @@ func _federation(o: ClubOffice) -> void:
 			var w := COL_W - 230.0
 			var tick := L_X + 16.0 + w * (float(want) / float(Federation.MAX_LEVEL))
 			draw_rect(Rect2(tick - 1.0, y + 15.0, 2.0, 20.0), UiKit.INK)
-		## BESIDE THE BAR'S END, never under the button (round 4: they overlapped).
-		UiKit.text_fit(self, font, (UiKit.t("%d of %d needed") % [have, want]) if want > 0
-			else ((UiKit.t("Level %d · needed in %s") % [have, League.tier_name(o.tier + 1)])
+		## ON THE RULE'S OWN LINE, right of its name (round 7: under the bar it ran
+		## into the next rule and the standing line).
+		var nw := font.get_string_size(UiKit.t(String(Federation.RULE_NAME[r])), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+		UiKit.right_fit(self, font, (UiKit.t("%d of %d needed") % [have, want]) if want > 0
+			else ((UiKit.t("needed in %s") % League.tier_name(o.tier + 1))
 				if o.tier + 1 < League.TIERS.size() and Federation.required(o.tier + 1, r) > have
-				else (UiKit.t("Level %d · not needed here") % have)), Vector2(L_X + 16, y + 58),
-			13, UiKit.DOWN if short else UiKit.DIM, COL_W - 32.0)
+				else UiKit.t("not needed here")), Vector2(L_X + COL_W - 16, y),
+			13, UiKit.DOWN if short else UiKit.DIM, COL_W - 48.0 - nw)
 
 	var y2 := COL_Y + COL_H - 46.0
 	var shorts := o.shortfalls()
