@@ -358,6 +358,7 @@ ARMORER,ARMORER,ARMERO,ARMURIER,SCHMIED,ARMAIOLO,ARMEIRO,PŁATNERZ,ОРУЖЕЙ�
 CLUBHOUSE,CLUBHOUSE,SEDE,CLUB-HOUSE,VEREINSHEIM,CLUBHOUSE,SEDE,KLUBOWNIA,КЛУБ,クラブハウス
 FINANCES,FINANCES,FINANZAS,FINANCES,FINANZEN,FINANZE,FINANÇAS,FINANSE,ФИНАНСЫ,財務
 Menu,Menu,Menú,Menu,Menü,Menu,Menu,Menu,Меню,メニュー
+Club,Club,Club,Club,Verein,Club,Clube,Klub,Клуб,クラブ
 Fight: vs %s,Fight: vs %s,Pelea: vs %s,Combat : vs %s,Kampf: vs %s,Scontro: vs %s,Luta: vs %s,Walka: vs %s,Бой: против %s,試合: vs %s
 Next event,Next event,Siguiente evento,Événement suivant,Nächstes Event,Prossimo evento,Próximo evento,Następne zawody,Следующий турнир,次の大会
 End the season,End the season,Cerrar la temporada,Terminer la saison,Saison beenden,Chiudi la stagione,Encerrar a temporada,Zakończ sezon,Завершить сезон,シーズン終了
@@ -434,19 +435,24 @@ RD rounds won minus lost  ·  MG downs for minus against,RD rounds won minus los
   ·  green goes up,  ·  green goes up,  ·  verde asciende,  ·  vert monte,  ·  grün steigt auf,  ·  verde sale,  ·  verde sobe,  ·  zielony awansuje,  ·  зелёные вверх,  ·  緑は昇格
   ·  red goes down,  ·  red goes down,  ·  rojo desciende,  ·  rouge descend,  ·  rot steigt ab,  ·  rosso scende,  ·  vermelho cai,  ·  czerwony spada,  ·  красные вниз,  ·  赤は降格
 %2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d
+ · %d CC, · %d CC, · %d CC, · %d CC, · %d CC, · %d CC, · %d CC, · %d CC, · %d CC, · %d CC
+Improved.,Improved.,Mejorado.,Amélioré.,Verbessert.,Migliorato.,Melhorado.,Ulepszono.,Улучшено.,改善した。
+Open the staff room,Open the staff room,Ir al staff,Voir le staff,Zum Stab,Vai allo staff,Ver a comissão,Idź do sztabu,К штабу,スタッフへ
+Cap %s → %s,Cap %s → %s,Tope %s → %s,Plafond %s → %s,Grenze %s → %s,Tetto %s → %s,Teto %s → %s,Limit %s → %s,Лимит %s → %s,上限 %s → %s
+Places %d → %d,Places %d → %d,Plazas %d → %d,Places %d → %d,Plätze %d → %d,Posti %d → %d,Vagas %d → %d,Miejsca %d → %d,Места %d → %d,座席 %d → %d
+Winter points %d → %d,Winter points %d → %d,Puntos %d → %d,Points %d → %d,Punkte %d → %d,Punti %d → %d,Pontos %d → %d,Punkty %d → %d,Очки %d → %d,冬ポイント %d → %d
+Knocks -%d → -%d,Knocks -%d → -%d,Lesión -%d → -%d,Blessure -%d → -%d,Verletzung -%d → -%d,Infortuni -%d → -%d,Lesão -%d → -%d,Urazy -%d → -%d,Травмы -%d → -%d,負傷 -%d → -%d
+Level %d → %d,Level %d → %d,Nivel %d → %d,Niveau %d → %d,Stufe %d → %d,Livello %d → %d,Nível %d → %d,Poziom %d → %d,Уровень %d → %d,レベル %d → %d
 The staff,The staff,El staff,Le staff,Der Stab,Lo staff,A comissão,Sztab,Штаб,スタッフ
 Records,Records,Archivo,Archives,Rekorde,Record,Recordes,Kronika,Рекорды,記録
-Your career%s,Your career%s,Tu carrera%s,Ta carrière%s,Deine Karriere%s,La tua carriera%s,Sua carreira%s,Twoja kariera%s,Твоя карьера%s,キャリア%s
+Your career,Your career,Tu carrera,Ta carrière,Deine Karriere,La tua carriera,Sua carreira,Twoja kariera,Твоя карьера,キャリア
   ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d
-The federation%s,The federation%s,La federación%s,La fédération%s,Der Verband%s,La federazione%s,A federação%s,Federacja%s,Федерация%s,連盟%s
+The federation,The federation,La federación,La fédération,Der Verband,La federazione,A federação,Federacja,Федерация,連盟
   ·  BARRED,  ·  BARRED,  ·  VETADO,  ·  EXCLU,  ·  GESPERRT,  ·  ESCLUSO,  ·  SUSPENSO,  ·  ZAWIESZONY,  ·  ОТСТРАНЁН,  ·  資格停止
-Raise,Raise,Subir,Relever,Erhöhen,Alza,Aumentar,Podnieś,Поднять,上げる
-Add a seat,Add a seat,+1 plaza,+1 place,Platz dazu,+1 posto,+1 vaga,Dodaj miejsce,Ещё место,枠を追加
-Build,Build,Construir,Construire,Bauen,Costruisci,Construir,Zbuduj,Построить,建設
-Upgrade,Upgrade,Mejorar,Améliorer,Ausbauen,Migliora,Melhorar,Rozbuduj,Улучшить,強化
-Improved.,Improved.,Mejorado.,Amélioré.,Verbessert.,Migliorato.,Melhorado.,Ulepszono.,Улучшено.,改善した。
 Playbook,Playbook,Pizarra,Tactiques,Taktikbuch,Playbook,Cartilha,Taktyki,Тактика,作戦ノート
 Create,Create,Crear,Créer,Erstellen,Crea,Criar,Stwórz,Создать,作成
+Close,Close,Cerrar,Fermer,Schließen,Chiudi,Fechar,Zamknij,Закрыть,閉じる
+THE CLUB,THE CLUB,EL CLUB,LE CLUB,DER VEREIN,IL CLUB,O CLUBE,KLUB,КЛУБ,クラブ
 %d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s
 %d credits.,%d credits.,%d créditos.,%d crédits.,%d Credits.,%d crediti.,%d créditos.,Kredyty: %d.,Кредитов: %d.,%dクレジット。
 Asked the store. Credits land when it answers.,Asked the store. Credits land when it answers.,Pedido a la tienda. Los créditos llegan cuando responda.,Demande envoyée à la boutique. Les crédits arrivent à sa réponse.,"Beim Store angefragt. Die Credits kommen, sobald er antwortet.",Richiesta inviata allo store. I crediti arrivano alla risposta.,Pedido enviado à loja. Os créditos chegam quando ela responder.,Zapytano sklep. Kredyty dotrą po odpowiedzi.,Запрос отправлен в магазин. Кредиты придут после ответа.,ストアに問い合わせ中。応答があればクレジットが届きます。
@@ -463,11 +469,11 @@ A payment is pending. Credits land when it clears.,A payment is pending. Credits
 %d raises · next %d CC,%d raises · next %d CC,%d mejoras · próx. %d CC,%d hausses · puis %d CC,%d Erhöh. · dann %d CC,%d aumenti · prossimo %d CC,%d aumentos · próximo %d CC,podwyżki: %d · kolejna %d CC,Повышений: %d · след. %d CC,昇給%d回 · 次は%d CC
 not built,not built,sin hacer,à faire,nicht gebaut,non costruito,não construído,niezbudowane,не построено,未建設
 one more level to help,one more level to help,un nivel más para notarlo,encore un niveau pour que ça aide,"noch eine Stufe, dann hilft es",un altro livello e aiuta,mais um nível para ajudar,"jeszcze jeden poziom, by pomogło",ещё уровень — и будет польза,あと1段階で効果あり
-ON THE LIST,ON THE LIST,EN LA LIZA,EN LICE,AUF DER LISTE,IN LIZZA,NA LISTA,W SZRANKACH,НА РИСТАЛИЩЕ,試合場
+COACHING,COACHING,ENTRENAMIENTO,ENTRAÎNEMENT,TRAINING,ALLENAMENTO,TREINO,TRENING,ТРЕНИРОВКА,指導
 Every role taught.,Every role taught.,Todos los roles enseñados.,Tous les rôles enseignés.,Jede Rolle gelehrt.,Ogni ruolo insegnato.,Tudo ensinado.,Każda rola przećwiczona.,Все роли освоены.,全役割を指導済み。
 going out %s,going out %s,salen %s,dépenses %s,geht raus %s,in uscita %s,saindo %s,wychodzi %s,расход %s,出場 %s
  and , and , y , et , und , e , e , i , и ,と
-%s untaught — see the staff room.,%s untaught — see the staff room.,%s sin enseñar — ver el staff.,%s non enseigné — voir la salle du staff.,%s nicht gelehrt — siehe Stab.,%s non insegnato — vedi lo staff.,%s sem treino — veja a comissão.,Nieprzećwiczone: %s — zajrzyj do sztabu.,%s не освоено — загляни в штаб.,%sが未指導 — スタッフ室へ。
+%s untaught,%s untaught,%s sin enseñar,%s non enseigné,%s ungelehrt,%s non insegnato,%s sem treino,%s bez trenera,%s без тренера,%s 未指導
 %d point a winter,%d point a winter,%d punto por invierno,%d point par hiver,%d Punkt pro Winter,%d punto a inverno,%d ponto por inverno,punkty na zimę: %d,очков за зиму: %d,冬ごとに%dポイント
 %d points a winter,%d points a winter,%d puntos por invierno,%d points par hiver,%d Punkte pro Winter,%d punti a inverno,%d pontos por inverno,punkty na zimę: %d,очков за зиму: %d,冬ごとに%dポイント
 -%d event off a knock,-%d event off a knock,-%d evento por lesión,-%d rencontre par blessure,-%d Event pro Verletzung,-%d evento per infortunio,-%d evento por lesão,-%d zawody na urazie,-%d турнир на травме,負傷ごとに-%d大会
@@ -537,7 +543,6 @@ after %s,after %s,a partir de %s,d'après %s,nach %s,ispirato a %s,baseada em %s
 "Buhurt Rail, Gorget and Maul drawn for this game.","Buhurt Rail, Gorget and Maul drawn for this game.","Buhurt Rail, Gorget y Maul, dibujadas para este juego.","Buhurt Rail, Gorget et Maul dessinées pour ce jeu.","Buhurt Rail, Gorget und Maul für dieses Spiel gezeichnet.","Buhurt Rail, Gorget e Maul disegnati per questo gioco.","Buhurt Rail, Gorget e Maul desenhadas para este jogo.","Buhurt Rail, Gorget i Maul narysowane dla tej gry.","Шрифты Buhurt Rail, Gorget и Maul нарисованы для этой игры.",Buhurt Rail、Gorget、Maulは本作のために作成。
 "Other alphabets: LanaPixel by eishiya, SIL OFL 1.1","Other alphabets: LanaPixel by eishiya, SIL OFL 1.1","Otros alfabetos: LanaPixel de eishiya, SIL OFL 1.1","Autres alphabets : LanaPixel par eishiya, SIL OFL 1.1","Andere Schriften: LanaPixel von eishiya, SIL OFL 1.1","Altri alfabeti: LanaPixel di eishiya, SIL OFL 1.1","Outros alfabetos: LanaPixel de eishiya, SIL OFL 1.1","Inne alfabety: LanaPixel, eishiya, SIL OFL 1.1","Другие алфавиты: LanaPixel, eishiya, SIL OFL 1.1",他の文字: LanaPixel（eishiya）SIL OFL 1.1
 Built by BonkWorks.,Built by BonkWorks.,Hecho por BonkWorks.,Créé par BonkWorks.,Gebaut von BonkWorks.,Realizzato da BonkWorks.,Feito pela BonkWorks.,Zrobione przez BonkWorks.,Сделано в BonkWorks.,制作: BonkWorks。
-Close,Close,Cerrar,Fermer,Schließen,Chiudi,Fechar,Zamknij,Закрыть,閉じる
 SETTINGS,SETTINGS,AJUSTES,RÉGLAGES,OPTIONEN,IMPOSTAZIONI,CONFIGURAÇÕES,USTAWIENIA,НАСТРОЙКИ,設定
 SOUND,SOUND,SONIDO,SON,TON,AUDIO,SOM,DŹWIĘK,ЗВУК,サウンド
 Saved as you set them.,Saved as you set them.,Se guardan al cambiarlos.,Enregistré à chaque changement.,Wird sofort gesichert.,Salvate mentre le imposti.,Salvo ao ajustar.,Zapisuje się od razu.,Сохраняются сразу.,変更は即保存。
@@ -980,7 +985,6 @@ A properly sanctioned fight. Their numbers mean what they say.,A properly sancti
 "They came to end it. One fewer call from the corner, and a shorter breather.","They came to end it. One fewer call from the corner, and a shorter breather.",Vienen a acabar. Una orden menos desde la esquina y menos respiro.,"Ils viennent pour en finir. Un ordre de moins au coin, et une pause plus courte.",Sie wollen es beenden. Ein Ruf weniger aus der Ecke und kürzere Pausen.,"Sono venuti a chiuderla. Una chiamata in meno dall'angolo, e meno respiro.",Vieram para acabar com a luta. Uma chamada a menos do canto e menos descanso.,Przyszli to zakończyć. O jedną komendę z narożnika mniej i krótsza przerwa.,Пришли закончить дело. На одну команду из угла меньше и короче передышка.,相手は決着をつけに来る。コーナーからの指示が1回少なく、休憩も短い。
 "Full Steel, and every club in the country fights at the top of its division whatever its rating says.","Full Steel, and every club in the country fights at the top of its division whatever its rating says.","Acero Total, y todos los clubes del país luchan al tope de su división diga lo que diga su media.","Plein Acier, et chaque club du pays combat au sommet de sa division, quelle que soit sa note.","Voller Stahl, und jeder Verein im Land kämpft auf Divisionsspitze, egal was seine Wertung sagt.","Acciaio Pieno, e ogni club del paese combatte al top della sua divisione, qualunque sia il suo valore.","Aço Pleno, e todo clube do país luta no topo da divisão, diga a nota o que disser.","Pełna Stal, a każdy klub w kraju walczy jak szczyt swojej ligi, bez względu na ocenę.","Полная сталь, и каждый клуб страны бьётся на пике своей лиги, что бы ни говорил рейтинг.",フルスチールに加え、国中の全クラブが能力値に関係なく部門最強として戦う。
 Your own dials. Set each one below.,Your own dials. Set each one below.,Tus propios ajustes. Fija cada uno abajo.,Tes propres réglages. Règle chacun ci-dessous.,Deine eigenen Regler. Stell jeden unten ein.,Le tue manopole. Regola ognuna qui sotto.,Seus próprios ajustes. Defina cada um abaixo.,Twoje własne pokrętła. Ustaw każde poniżej.,Свои настройки. Задай каждую ниже.,自分で調整。以下で個別に設定。
-THE CLUB,THE CLUB,EL CLUB,LE CLUB,DER VEREIN,IL CLUB,O CLUBE,KLUB,КЛУБ,クラブ
 THE MEN,THE MEN,LOS HOMBRES,LES HOMMES,DIE MÄNNER,GLI UOMINI,OS HOMENS,ZAWODNICY,БОЙЦЫ,選手たち
 None,None,Ninguno,Aucun,Keine,Nessuno,Nenhum,Brak,Нет,なし
 Grinder,Grinder,Picador,Broyeur,Malocher,Macinatore,Moedor,Mielacz,Жернов,粘り屋
@@ -1394,7 +1398,6 @@ Somebody's mother has written in about the language at the last event. Fair.,Som
 Facilities,Facilities,Instalaciones,Installations,Anlagen,Strutture,Instalações,Obiekty,Постройки,施設
 Kit and harness,Kit and harness,Equipo y arnés,Armures et équipement,Rüstung und Ausrüstung,Armature e protezioni,Armadura e equipamento,Sprzęt i zbroje,Доспехи и снаряжение,装備と防具
 The squad,The squad,La plantilla,L'effectif,Der Kader,La rosa,O elenco,Skład,Состав,チーム
-The federation,The federation,La federación,La fédération,Der Verband,La federazione,A federação,Federacja,Федерация,連盟
 Travel,Travel,Viajes,Déplacements,Reisen,Trasferte,Viagens,Podróże,Дорога,遠征
 Prize money,Prize money,Premios,Primes,Preisgeld,Premi in denaro,Premiação,Nagrody,Призовые,賞金
 Tournaments,Tournaments,Torneos,Tournois,Turniere,Tornei,Torneios,Turnieje,Турниры,トーナメント

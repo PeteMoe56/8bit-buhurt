@@ -14,50 +14,10 @@ static func _office_row_y(v: SeasonScene, i: int) -> float:
 
 
 static func _office_controls(v: SeasonScene) -> void:
-	## The staff room and the book, both of which outgrew a tab.
-	## THE THREE SCREENS THAT OUTGREW A TAB, in the right column that the captain
-	## cards used to fill. They were at y=70, 116 and 162 — straight through the
-	## HONORS tab and then through the captain panel underneath it, which a
-	## screenshot shows instantly and reasoning about coordinates never does.
-	v.ui.add_child(UiKit.button(UiKit.t("The staff"), Vector2(SeasonScene.NAV_X + SeasonScene.NAV_PAD, SeasonScene.CONTENT_Y + 28 + SeasonScene.NAV_ROW * 0),
-		Vector2(SeasonScene.NAV_W - SeasonScene.NAV_PAD * 2.0, SeasonScene.NAV_BTN_H), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Staff.tscn"), "helm"))
-	v.ui.add_child(UiKit.button(UiKit.t("Records"), Vector2(SeasonScene.NAV_X + SeasonScene.NAV_PAD, SeasonScene.CONTENT_Y + 28 + SeasonScene.NAV_ROW * 1),
-		Vector2(SeasonScene.NAV_W - SeasonScene.NAV_PAD * 2.0, SeasonScene.NAV_BTN_H), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Records.tscn"), "book"))
-	## YOU. The only screen in the game that is not about the club, and it carries
-	## a mark when somebody wants you — a job offer the player never notices is
-	## the same as no job offer.
-	var wanted: int = Jobs.offers(v.season.coach, v.season.world).size()
-	v.ui.add_child(UiKit.button(UiKit.t("Your career%s") % (UiKit.t("  ·  %d") % wanted if wanted > 0 else ""),
-		Vector2(SeasonScene.NAV_X + SeasonScene.NAV_PAD, SeasonScene.CONTENT_Y + 28 + SeasonScene.NAV_ROW * 2), Vector2(SeasonScene.NAV_W - SeasonScene.NAV_PAD * 2.0, SeasonScene.NAV_BTN_H), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Coach.tscn"), "ladder"))
-	## THE FEDERATION CARRIES ITS OWN WARNING. Being quietly not entered for the
-	## cups is the most expensive thing that can happen to a club without a
-	## message, and the player earns his place on the table where he can see it.
-	var shorts := v.season.office.shortfalls()
-	v.ui.add_child(UiKit.button(UiKit.t("The federation%s") % (UiKit.t("  ·  BARRED") if not shorts.is_empty() else ""),
-		Vector2(SeasonScene.NAV_X + SeasonScene.NAV_PAD, SeasonScene.CONTENT_Y + 28 + SeasonScene.NAV_ROW * 3), Vector2(SeasonScene.NAV_W - SeasonScene.NAV_PAD * 2.0, SeasonScene.NAV_BTN_H), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Federation.tscn"), "banner"))
-
-	## THE COUNTER MOVED TO FINANCES, and so did the arena button on the action
-	## row below. Pete, 15 Sep 2026: *"Clubhouse is too crowded."*
-	##
-	## He is right and the count says why: this tab carried four progress bars
-	## with a price button each, five nav buttons, three action buttons, a purse
-	## ledger and a coaching warning — sixteen controls and two readouts on one
-	## screen. Both of the ones that left are about MONEY and there is now a page
-	## about money; the arena is on it with the numbers that explain it, and the
-	## counter belongs next to the balance it adds to rather than next to the
-	## buildings.
-	##
-	## **A hub is defined by what it does not hold.** Everything still here is
-	## either a thing this club owns or a room in it.
-
+	## UPGRADES ONLY (Pete, 29 Sep 2026, round 2). The rooms moved to the Club
+	## menu in the header; what is left on this tab is everything the club buys,
+	## and every button says what it buys: the number now, an arrow, the number
+	## after, and the price.
 	var o := v.season.office
 	for i in SeasonScene.OFFICE_ROWS.size():
 		var row: Dictionary = SeasonScene.OFFICE_ROWS[i]
@@ -69,52 +29,101 @@ static func _office_controls(v: SeasonScene) -> void:
 		if cost <= 0:
 			continue
 		var kind = row["kind"]
-		## A VERB AND A PRICE (blind review, 29 Sep: "⚙ 4 CC" did not say what
-		## buying does). The bar beside it says what the row is.
-		var verb := UiKit.t("Raise") if is_cap else (UiKit.t("Add a seat") if is_travel else (
-			UiKit.t("Build") if o.level(int(kind)) <= 0 else UiKit.t("Upgrade")))
-		v.ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [verb, cost],
-			Vector2(SeasonScene.BAR_X + SeasonScene.BAR_W + 14.0, v._office_row_y(i) + 10.0), Vector2(132, 34), func():
+		var b := UiKit.button(upgrade_word(v, kind) + UiKit.t(" · %d CC") % cost,
+			Vector2(UPGRADE_X, v._office_row_y(i) + 6.0), Vector2(UPGRADE_W, 34), func():
 				var err: String = o.raise_cap() if is_cap else (
 					o.buy_travel_slot() if is_travel else o.upgrade(int(kind)))
 				v.flash = UiKit.said(err) if err != "" else UiKit.t("Improved.")
 				Session.autosave()
-				v._rebuild(), "coin"))
+				v._rebuild(), "coin")
+		v.ui.add_child(b)
+	## THE ALERT IS A LINK (round 1 #9): a role going out untaught opens the
+	## staff room, where the fix is.
+	if not o.untaught().is_empty():
+		v.ui.add_child(UiKit.button(UiKit.t("Open the staff room"),
+			Vector2(SIDE_X + 16.0, SIDE_Y + 104.0), Vector2(side_w() - 32.0, 44), func():
+				Session.autosave()
+				UiKit.go("res://scenes/Staff.tscn"), "helm"))
 
-	## THE GROUND GETS ITS OWN SCREEN, because it is not a facility bar — it is a
-	## picture of your club with your own badge painted on the floor of it, and a
-	## diary. It sat in this list as "HOME GROUND" and was five levels of a
-	## progress bar; that is exactly why it needed replacing.
-	## THE ONLY LEVER ON MORALE. Everything else moves it at you — results, the
-	## regime, a cut, a difficult man after a loss — and until this button there
-	## was nothing the player could do about any of it on purpose.
-	## AND IT SAYS WHEN IT CANNOT BE PRESSED. `can_boost()` folds the money and
-	## the once-a-week throttle into one answer and had no caller — so the button
-	## looked live every time and spent a tap to say no.
-	## "A NIGHT OUT" IS GONE. Pete, 15 Sep 2026: *"A night out is pretty dumb,
-	## take that out."*
-	##
-	## `Season.boost_morale()` and `ClubOffice.can_boost()` are left alone and
-	## still tested — morale is real, it is pushed around by results and regimes
-	## and cuts, and a club still wants somewhere to spend on it. What was dumb
-	## was THIS: a button on the busiest row in the game whose whole offer was
-	## "pay four credits, feel slightly better", competing for a thumb with the
-	## chalkboard and the arena.
-	##
-	## The ones that are left are all places you GO. That is a coherent row.
-	var third := (UiKit.span() - 16.0) / 3.0
-	v.ui.add_child(UiKit.button(UiKit.t("Playbook"), Vector2(24, SeasonScene.action_y()),
-		Vector2(third, 46), func():
+
+## Where the upgrade buttons sit and how wide: wide enough for "Cap $1,250 →
+## $1,438 · 10 CC", and the column beside them keeps the coaching summary.
+const UPGRADE_X := SeasonScene.BAR_X + SeasonScene.BAR_W + 14.0
+const UPGRADE_W := 262.0
+const SIDE_X := UPGRADE_X + UPGRADE_W + 18.0
+const SIDE_Y := SeasonScene.CONTENT_Y + 24.0
+
+
+static func side_w() -> float:
+	return UiKit.right_edge() - SIDE_X
+
+
+## BEFORE → AFTER, for the button. What one more step of this buys, measured by
+## taking the step on a copy of the number rather than written out a second time.
+static func upgrade_word(v: SeasonScene, kind) -> String:
+	var o := v.season.office
+	if kind is String and kind == "cap":
+		var now := o.cap()
+		o.cap_level += 1
+		var then := o.cap()
+		o.cap_level -= 1
+		return UiKit.t("Cap %s → %s") % [ClubOffice.money(now), ClubOffice.money(then)]
+	if kind is String and kind == "travel":
+		return UiKit.t("Places %d → %d") % [o.travel_slots, o.travel_slots + 1]
+	var f := int(kind)
+	var l := o.level(f)
+	if f == ClubOffice.Facility.TRAINING:
+		return UiKit.t("Winter points %d → %d") % [l * 3, (l + 1) * 3]
+	if f == ClubOffice.Facility.INFIRMARY and floori((l + 1) / 2.0) > floori(l / 2.0):
+		return UiKit.t("Knocks -%d → -%d") % [floori(l / 2.0), floori((l + 1) / 2.0)]
+	return UiKit.t("Level %d → %d") % [l, l + 1]
+
+
+## ---------------------------------------------------------------- the Club menu
+## How many of the rooms are asking for you: job offers, and a federation bar.
+static func club_calls(v: SeasonScene) -> int:
+	var n := 0
+	if Jobs.offers(v.season.coach, v.season.world).size() > 0:
+		n += 1
+	if not v.season.office.shortfalls().is_empty():
+		n += 1
+	return n
+
+
+static func _club_menu_controls(v: SeasonScene) -> void:
+	var card := v.CLUB_CARD
+	var wanted: int = Jobs.offers(v.season.coach, v.season.world).size()
+	var barred := not v.season.office.shortfalls().is_empty()
+	var rooms := [
+		[UiKit.t("The staff"), "res://scenes/Staff.tscn", "helm"],
+		[UiKit.t("Records"), "res://scenes/Records.tscn", "book"],
+		[UiKit.t("Your career") + (UiKit.t("  ·  %d") % wanted if wanted > 0 else ""), "res://scenes/Coach.tscn", "ladder"],
+		[UiKit.t("The federation") + (UiKit.t("  ·  BARRED") if barred else ""), "res://scenes/Federation.tscn", "banner"],
+		[UiKit.t("Playbook"), "res://scenes/Chalkboard.tscn", "board"],
+		[UiKit.t("Create"), "res://scenes/Create.tscn", "anvil"],
+	]
+	var pad := 24.0
+	var bw := (card.size.x - pad * 2.0 - 16.0) * 0.5
+	for i in rooms.size():
+		var r: Array = rooms[i]
+		var at := Vector2(card.position.x + pad + float(i % 2) * (bw + 16.0),
+			card.position.y + 72.0 + float(i / 2) * 58.0)
+		v.ui.add_child(UiKit.button(String(r[0]), at, Vector2(bw, 48), func(path = String(r[1])):
+			v.club_menu_open = false
 			Session.autosave()
-			UiKit.go("res://scenes/Chalkboard.tscn"), "board"))
-	v.ui.add_child(UiKit.button(UiKit.t("Create"), Vector2(24 + third + 8.0, SeasonScene.action_y()),
-		Vector2(third, 46), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Create.tscn"), "anvil"))
-	## AND THE ARENA IS ON THE FINANCES PAGE NOW — see the note above. Two
-	## buttons across the row rather than three, which is `third` being a
-	## deliberate width rather than a division: the row keeps its proportions and
-	## the space where the arena was is space, which is the point of the exercise.
+			UiKit.go(path), String(r[2])))
+	v.ui.add_child(UiKit.button(UiKit.t("Close"),
+		Vector2(card.end.x - pad - 160.0, card.end.y - 60.0), Vector2(160, 44), func():
+			v.club_menu_open = false
+			v._rebuild()))
+
+
+static func _draw_club_menu(v: SeasonScene) -> void:
+	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(v, v.CLUB_CARD)
+	UiKit.mid(v, v.font, UiKit.t("THE CLUB"),
+		Vector2(v.CLUB_CARD.position.x, v.CLUB_CARD.position.y + 38.0), 19, UiKit.INK,
+		v.CLUB_CARD.size.x)
 
 
 
@@ -216,9 +225,7 @@ static func _draw_office(v: SeasonScene) -> void:
 	## THE CREST GOES HERE AND ON THREE OTHER SCREENS. The clubhouse is the room
 	## the player comes back to, the trophy cabinet, the bracket and the title —
 	## four places, out of sixteen. Everywhere would be wallpaper.
-	UiKit.ornament(v, UiKit.ORN_CREST,
-		Rect2(SeasonScene.NAV_X, SeasonScene.CONTENT_Y, SeasonScene.NAV_W, 28 + SeasonScene.NAV_ROW * float(SeasonScene.NAV_BUTTONS - 1)
-			+ SeasonScene.NAV_BTN_H + 2.0), UiKit.FRAME, 24.0)
+	UiKit.ornament(v, UiKit.ORN_CREST, Rect2(SIDE_X, SIDE_Y, side_w(), 164.0), UiKit.FRAME, 24.0)
 
 	## NO HINT BAR, AND THAT IS SETTLED. `UiKit.hints()` was deleted on
 	## 15 Sep 2026 — see the note where it used to live in `ui.gd`. It had never
@@ -305,7 +312,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		## suite. A screenshot saw it.
 		UiKit.text_fit(v, v.font, UiKit.t(String(ClubOffice.FACILITIES[f]["blurb"])),
 			Vector2(SeasonScene.BAR_X, y + 54), 13, UiKit.DIM,
-			SeasonScene.NAV_X - SeasonScene.BAR_X - 16.0)
+			SIDE_X - SeasonScene.BAR_X - 16.0)
 
 	# ------------------------------------------------------------ the captains
 	## THE CAPTAIN CARDS USED TO BE DRAWN HERE TOO, in full, with their own hire
@@ -334,7 +341,9 @@ static func _draw_office(v: SeasonScene) -> void:
 	## was cut to 12 because two blocks were fighting for 112 pixels, and with one
 	## block left there is room to breathe — which is the whole of Pete's
 	## *"Clubhouse is too crowded"* in one number.
-	var y := SeasonScene.CONTENT_Y + 28.0 + SeasonScene.NAV_ROW * float(SeasonScene.NAV_BUTTONS - 1) + SeasonScene.NAV_BTN_H + 26.0
+	var y := SIDE_Y + 40.0
+	var x := SIDE_X + 16.0
+	var w := side_w() - 32.0
 	## THE PURSE LEDGER WENT TO THE FINANCES PAGE, and it was already broken here.
 	##
 	## It was three lines of "what came in" under the nav list — Pete's item 25 of
@@ -369,15 +378,15 @@ static func _draw_office(v: SeasonScene) -> void:
 	## on a screen that is one tap away and is not full. **A summary that repeats
 	## the screen it points at is two screens disagreeing about which of them is
 	## the authority.** So: the headline, and the sentence that says what to do.
-	UiKit.text(v, v.font, UiKit.t("ON THE LIST"), Vector2(SeasonScene.NAV_X, y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("COACHING"), Vector2(x, y), 13, UiKit.DIM)
 	var bare := o.untaught()
 	if bare.is_empty():
 		var best := ""
 		for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
 			best = UiKit.t(String(Tuning.AI_SKILL[o.tier_for(role)]["name"]))
 			break
-		UiKit.pair(v, v.font, UiKit.t("Every role taught."), UiKit.t("going out %s") % best.to_lower(),
-			Vector2(SeasonScene.NAV_X, y + 20), UiKit.right_edge(), 13, 13, UiKit.UP, UiKit.DIM)
+		UiKit.text_fit(v, v.font, UiKit.t("Every role taught."), Vector2(x, y + 24), 14, UiKit.UP, w)
+		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % best.to_lower(), Vector2(x, y + 46), 13, UiKit.DIM, w)
 	else:
 		## ONE LINE, and the column is the reason. There are 132 pixels between
 		## the foot of the nav list and the action row for two blocks, and a
@@ -386,6 +395,5 @@ static func _draw_office(v: SeasonScene) -> void:
 		var names := ""
 		for r in bare:
 			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
-		UiKit.text_fit(v, v.font, UiKit.t("%s untaught — see the staff room.") % names,
-			Vector2(SeasonScene.NAV_X, y + 20), 13, UiKit.DOWN,
-			UiKit.right_edge() - SeasonScene.NAV_X)
+		UiKit.text_fit(v, v.font, UiKit.t("%s untaught") % names, Vector2(x, y + 24), 14, UiKit.DOWN, w)
+		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % UiKit.t(String(Tuning.AI_SKILL[o.tier_for(bare[0])]["name"])).to_lower(), Vector2(x, y + 46), 13, UiKit.DIM, w)

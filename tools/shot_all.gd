@@ -30,6 +30,8 @@ const SCREENS := [
 	["19_create_club", "res://scenes/Create.tscn", 1],
 	["20_create_grade", "res://scenes/Create.tscn", 2],
 	["21_bracket", "res://scenes/Bracket.tscn", -1],
+	## 100 + tab: that tab with the Club menu open over it.
+	["22_club_menu", "res://scenes/Season.tscn", 103],
 ]
 
 var out_dir := "user://all"
@@ -80,7 +82,9 @@ func _process(_d: float) -> bool:
 		if Session.season != null:
 			node.set("season", Session.season)
 	elif n == 3 and int(row[2]) >= 0:
-		node.set("tab", int(row[2]))
+		node.set("tab", int(row[2]) % 100)
+		if int(row[2]) >= 100:
+			node.set("club_menu_open", true)
 		if node.has_method("_rebuild"):
 			node.call("_rebuild")
 	elif n == 7:

@@ -55,16 +55,19 @@ static func table_x() -> float:
 ## Kept as functions with the same 960-wide answers the constants had, so the
 ## `test_ink.gd` purse check and this screen still read one source.
 const PURSE_W := 150.0
+## The Club button's width, and how far the purse and mood moved left for it.
+const CLUB_BTN_W := 104.0
+const HEADER_SHIFT := CLUB_BTN_W + 8.0
 const PURSE_H := 38.0
 const PURSE_SIZE: int = 20
 
 
 static func purse_box() -> Rect2:
-	return Rect2(UiKit.right_edge(356.0), 12.0, PURSE_W, PURSE_H)
+	return Rect2(UiKit.right_edge(356.0 + HEADER_SHIFT), 12.0, PURSE_W, PURSE_H)
 
 
 static func purse_at() -> Vector2:
-	return Vector2(UiKit.right_edge(338.0), 38.0)
+	return Vector2(UiKit.right_edge(338.0 + HEADER_SHIFT), 38.0)
 
 
 const TABLE_Y := 140.0
@@ -90,6 +93,10 @@ var flash := ""
 ## The counter, open or shut. A modal on this screen for the same reason the
 ## fighter's meeting card is one: real money deserves a deliberate stop.
 var shop_open := false
+## THE CLUB MENU (Pete, 29 Sep 2026, round 2): the rooms — staff, records,
+## career, federation, playbook, create — left the Clubhouse tab for a list
+## behind one header button, so the tab holds only the things you buy.
+var club_menu_open := false
 ## The squad screen's whole interaction: pick a man, then pick who he trades
 ## places with. Two taps, no modal, and the second tap is on a list you are
 ## already looking at.
@@ -126,6 +133,10 @@ func _ready() -> void:
 ## BACK (Android back / Esc), via AppLife. A modal closes first; then back to
 ## the Club tab; then out to the title, the same as Menu.
 func go_back() -> bool:
+	if club_menu_open:
+		club_menu_open = false
+		_rebuild()
+		return true
 	if shop_open:
 		shop_open = false
 		_rebuild()
@@ -185,6 +196,10 @@ func _rebuild() -> void:
 		_sim_controls()
 		queue_redraw()
 		return
+	if club_menu_open:
+		SeasonClubhouseTab._club_menu_controls(self)
+		queue_redraw()
+		return
 	## Five tabs across 960 with the Menu button on the right, so they narrow
 	## rather than the row wrapping — a wrapped tab row on a landscape phone
 	## screen eats the first line of every page behind it.
@@ -216,6 +231,13 @@ func _rebuild() -> void:
 		Session.autosave()
 		UiKit.trail_reset()
 		UiKit.go("res://scenes/Title.tscn"), "cog"))
+	## THE ROOMS, beside Menu. It carries a count when one of them wants you (a
+	## job offer, a federation bar) — an alert behind a menu has to show on it.
+	var calls := SeasonClubhouseTab.club_calls(self)
+	ui.add_child(UiKit.button(UiKit.t("Club") + (" · %d" % calls if calls > 0 else ""),
+		Vector2(UiKit.right_edge(98.0 + 8.0 + CLUB_BTN_W), 14), Vector2(CLUB_BTN_W, 36), func():
+			club_menu_open = true
+			_rebuild(), "hall"))
 	## The tape's own control goes with the tab's, so leaving the club tab takes
 	## it down and nothing has to remember to.
 	_tape_label = null
@@ -479,6 +501,9 @@ func _draw() -> void:
 	if sim_asking:
 		_draw_sim_ask()
 		return
+	if club_menu_open:
+		SeasonClubhouseTab._draw_club_menu(self)
+		return
 	if shop_open:
 		## AND NOT THE TAB'S UNDERLINE EITHER. `_rebuild` stopped building the tab
 		## buttons under the modal; this used to draw the gold bar that marks
@@ -513,9 +538,11 @@ func _header() -> void:
 	draw_rect(Rect2(0, 0, UiKit.screen().x, 62), UiKit.PANEL)
 	UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
 		season.club.icon_color, int(season.club.icon))
-	UiKit.text(self, font, UiKit.clip(String(w["name"]), 28), Vector2(68, 28), 20, UiKit.INK)
-	UiKit.text(self, font, UiKit.t("%s  ·  Season %d  ·  rating %d") % [
-		season.tier_name(), season.world.season, int(w["power"])],
+	## MEASURED AGAINST THE PURSE, which moved left for the Club button.
+	var room := purse_box().position.x - 68.0 - 12.0
+	UiKit.text(self, font, UiKit.clip_px(font, String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
+	UiKit.text(self, font, UiKit.clip_px(font, UiKit.t("%s  ·  Season %d  ·  rating %d") % [
+		season.tier_name(), season.world.season, int(w["power"])], 14, room),
 		Vector2(68, 50), 14, UiKit.DIM)
 	## The credit balance rides in the header on every tab, the way Retro Bowl
 	## keeps it in the corner. A currency you have to go and look up is one you
@@ -528,8 +555,8 @@ func _header() -> void:
 	UiKit.panel(self, purse_box())
 	UiKit.purse(self, font, season.office.credits, purse_at(), PURSE_SIZE, UiKit.YOU)
 	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.
-	UiKit.text(self, font, UiKit.t("MOOD"), Vector2(UiKit.right_edge(194.0), 20), 11, UiKit.DIM)
-	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0), 40), 16,
+	UiKit.text(self, font, UiKit.t("MOOD"), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 20), 11, UiKit.DIM)
+	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 40), 16,
 		UiKit.UP if season.office.morale >= 0.6 else
 		(UiKit.DOWN if season.office.morale < 0.35 else UiKit.DIM))
 
@@ -944,12 +971,14 @@ const NAV_BTN_H := 36.0
 ## Where the counter sits: under the four nav buttons, above the action row.
 ## The shop is a modal; this is the panel it draws in.
 var SHOP_CARD := Rect2(200.0, 120.0, 560.0, 300.0)
+var CLUB_CARD := Rect2(200.0, 96.0, 560.0, 340.0)
 
 
 func _centre_modals() -> void:
 	var w := UiKit.screen().x
 	SIM_CARD.position.x = floorf((w - SIM_CARD.size.x) * 0.5)
 	SHOP_CARD.position.x = floorf((w - SHOP_CARD.size.x) * 0.5)
+	CLUB_CARD.position.x = floorf((w - CLUB_CARD.size.x) * 0.5)
 ## -> SeasonClubhouseTab (season_tab_clubhouse.gd)
 func _office_row_y(i: int) -> float:
 	return SeasonClubhouseTab._office_row_y(self, i)
