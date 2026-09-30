@@ -369,8 +369,8 @@ Cards,Cards,Fichas,Cartes,Karten,Carte,Cartas,Karty,Карточки,カード
 SQUAD,SQUAD,PLANTILLA,EFFECTIF,KADER,ROSA,ELENCO,SKŁAD,СОСТАВ,チーム
 THE LINE,THE LINE,LA LÍNEA,LA LIGNE,DIE LINIE,LA LINEA,A LINHA,LINIA,ЛИНИЯ,先発
 THE BENCH AND THE RESERVE,THE BENCH AND THE RESERVE,EL BANQUILLO Y LA RESERVA,LE BANC ET LA RÉSERVE,BANK UND RESERVE,PANCHINA E RISERVE,O BANCO E A RESERVA,ŁAWKA I REZERWA,СКАМЕЙКА И РЕЗЕРВ,ベンチと控え
-%d  ·  age %d  ·  %s,%d  ·  age %d  ·  %s,%d  ·  %d a.  ·  %s,%d  ·  âge %d  ·  %s,%d  ·  %d J.  ·  %s,%d  ·  età %d  ·  %s,%d  ·  %d a.  ·  %s,%d  ·  wiek %d  ·  %s,%d  ·  %d л.  ·  %s,%d  ·  %d歳  ·  %s
-%d  ·  age %d,%d  ·  age %d,%d  ·  %d a.,%d  ·  âge %d,%d  ·  %d J.,%d  ·  età %d,%d  ·  %d a.,%d  ·  wiek %d,%d  ·  %d л.,%d  ·  %d歳
+age %d  ·  %s,age %d  ·  %s,edad %d  ·  %s,%d ans  ·  %s,Alter %d  ·  %s,età %d  ·  %s,idade %d  ·  %s,wiek %d  ·  %s,возраст %d  ·  %s,%d歳  ·  %s
+age %d,age %d,edad %d,%d ans,Alter %d,età %d,idade %d,wiek %d,возраст %d,%d歳
 capped,capped,al tope,plafonné,am Limit,al limite,no limite,limit,предел,上限
 to %d,to %d,a %d,à %d,auf %d,a %d,até %d,do %d,до %d,→%d
 WAGE BILL,WAGE BILL,NÓMINA,MASSE SALARIALE,LOHNKOSTEN,MONTE STIPENDI,FOLHA SALARIAL,PENSJE,ФОНД ЗАРПЛАТ,人件費
@@ -502,8 +502,9 @@ A payment is pending. Credits land when it clears.,A payment is pending. Credits
 $ = weekly wages,$ = weekly wages,$ = sueldos semanales,$ = salaires hebdo,$ = Wochenlöhne,$ = paghe settimanali,$ = salários semanais,$ = tygodniówki,$ = недельные зарплаты,$ = 週給
 "CC = club money, spent here","CC = club money, spent here","CC = dinero del club, se gasta aquí","CC = argent du club, dépensé ici","CC = Vereinsgeld, hier ausgegeben","CC = soldi del club, spesi qui","CC = dinheiro do clube, gasto aqui","CC = pieniądze klubu, wydawane tu","CC = деньги клуба, тратятся здесь",CC = クラブ資金（ここで使う）
 %d fit to fight,%d fit to fight,%d aptos,%d aptes,%d einsatzbereit,%d abili,%d aptos,%d zdolnych,%d в строю,%d人出場可
-%d on the bench · %d swap,%d on the bench · %d swap,%d en el banquillo · %d cambio,%d sur le banc · %d changement,%d auf der Bank · %d Wechsel,%d in panchina · %d cambio,%d no banco · %d troca,na ławce: %d · zmiany: %d,На скамейке: %d · замен: %d,ベンチ%d人 · 交代%d回
-%d on the bench · %d swaps,%d on the bench · %d swaps,%d en el banquillo · %d cambios,%d sur le banc · %d changements,%d auf der Bank · %d Wechsel,%d in panchina · %d cambi,%d no banco · %d trocas,na ławce: %d · zmiany: %d,На скамейке: %d · замен: %d,ベンチ%d人 · 交代%d回
+%d seats,%d seats,%d plazas,%d places,%d Plätze,%d posti,%d vagas,%d miejsc,%d мест,%d席
+%d on the bench · %d swap,%d on the bench · %d swap,%d en el banquillo · %d cambio,%d au banc · %d changement,%d auf der Bank · %d Wechsel,%d in panchina · %d cambio,%d no banco · %d troca,na ławce: %d · zmiany: %d,На скамейке: %d · замен: %d,ベンチ%d人 · 交代%d回
+%d on the bench · %d swaps,%d on the bench · %d swaps,%d en el banquillo · %d cambios,%d au banc · %d changements,%d auf der Bank · %d Wechsel,%d in panchina · %d cambi,%d no banco · %d trocas,na ławce: %d · zmiany: %d,На скамейке: %d · замен: %d,ベンチ%d人 · 交代%d回
 never raised,never raised,sin subir,jamais relevé,nie erhöht,mai alzato,nunca subiu,nie podnoszony,не поднимался,未引上げ
 raised %d×,raised %d×,subido %d×,relevé %d×,%d× erhöht,alzato %d×,subiu %d×,podniesiony %d×,поднят %d×,%d回引上げ
 not built,not built,sin hacer,à faire,nicht gebaut,non costruito,não construído,niezbudowane,не построено,未建設
@@ -523,8 +524,8 @@ Buy credits,Buy credits,Comprar créditos,Acheter des crédits,Credits kaufen,Co
 this year,this year,este año,cette année,dieses Jahr,quest'anno,este ano,w tym roku,в этом году,今年
 last,last,último,dernière,zuletzt,ultimo,último,ostatnio,прошлый,前回
 "GOING OUT, CC","GOING OUT, CC","SALE, CC","DÉPENSES, CC","AUSGABEN, CC","USCITE, CC","SAÍDAS, CC","WYDATKI, CC","РАСХОДЫ, CC","支出, CC"
-So far this year. Gates and prize money arrive as the events are fought.,So far this year. Gates and prize money arrive as the events are fought.,En lo que va de año. La taquilla y los premios llegan al disputar los eventos.,Depuis le début de l'année. Recettes et primes arrivent au fil des événements.,Bisher in diesem Jahr. Einnahmen und Preisgeld kommen mit den Events.,Finora quest'anno. Incassi e premi arrivano con gli eventi.,Até agora no ano. Bilheteria e prêmios chegam com os eventos.,Jak dotąd w tym roku. Wpływy i nagrody przychodzą z zawodami.,С начала года. Сборы и призовые приходят по ходу турниров.,今年のここまで。入場料と賞金は大会ごとに入る。
-So far this year.,So far this year.,En lo que va de año.,Depuis le début de l'année.,Bisher in diesem Jahr.,Finora quest'anno.,Até agora no ano.,Jak dotąd w tym roku.,С начала года.,今年のここまで。
+This year so far. %d CC in hand now; gates and prizes arrive as events are fought.,This year so far. %d CC in hand now; gates and prizes arrive as events are fought.,Este año hasta ahora. %d CC en caja; taquilla y premios llegan con cada evento.,Cette année jusqu'ici. %d CC en caisse ; recettes et primes arrivent avec les événements.,Dieses Jahr bisher. %d CC in der Kasse; Einnahmen und Preise kommen mit den Events.,Quest'anno finora. %d CC in cassa; incassi e premi arrivano con gli eventi.,Este ano até agora. %d CC em caixa; bilheteria e prêmios chegam com os eventos.,W tym roku do tej pory. %d CC w kasie; wpływy i nagrody przychodzą z turniejami.,Этот год пока. В кассе %d CC; сборы и призы придут с турнирами.,今年ここまで。手元に%d CC。入場料と賞金は大会ごとに入る。
+This year so far. %d CC in hand now.,This year so far. %d CC in hand now.,Este año hasta ahora. %d CC en caja.,Cette année jusqu'ici. %d CC en caisse.,Dieses Jahr bisher. %d CC in der Kasse.,Quest'anno finora. %d CC in cassa.,Este ano até agora. %d CC em caixa.,W tym roku do tej pory. %d CC w kasie.,Этот год пока. В кассе %d CC.,今年ここまで。手元に%d CC。
 "To close it: win, fill the ground, trim wages.","To close it: win, fill the ground, trim wages.","Para cerrarlo: gana, llena el campo, baja sueldos.","Pour combler : gagne, remplis, baisse les salaires.","Ausgleich: siegen, Halle füllen, Löhne senken.","Per chiuderlo: vinci, riempi, taglia gli stipendi.","Para fechar: vença, lote o local, corte salários.","By to zamknąć: wygrywaj, zapełnij, tnij płace.","Как закрыть: побеждай, заполняй зал, режь зарплаты.",埋めるには：勝つ・満員にする・給料を削る。
 Signings & training,Signings & training,Fichajes y entreno,Recrues et séances,Transfers & Training,Acquisti e allenamento,Contratações e treino,Transfery i trening,Трансферы и тренировки,補強と練習
 Pays a year,Pays a year,Paga al año,Rapporte par an,Bringt im Jahr,Rende all'anno,Paga por ano,Płaci rocznie,В год,年間収入

@@ -513,7 +513,11 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 			else clip_px(font, String(d.get("name", "")), 12, r.size.x - 16.0 - (24.0 if d.has("number") else 0.0)),
 		Vector2(r.position.x + 8, y + (26.0 if big else 20.0)),
 		17 if big else 12, DOWN if dim_it else INK)
-	if d.has("rating") and big:
+	if d.has("rating") and big and bool(d.get("rating_word", false)):
+		## ONE WAY TO SAY A RATING (round 9: big cards had stars and a grey
+		## number, small cards "rated 42" in gold). Squad and market say it this way.
+		text(ci, font, UiKit.t("rated %d") % int(d["rating"]), Vector2(r.position.x + 8, y + 47.0), 15, YOU)
+	elif d.has("rating") and big:
 		stars(ci, Vector2(r.position.x + 8, y + 36.0), int(d["rating"]), YOU, 11.0, 3.0)
 	elif d.has("rating"):
 		## THE NUMBER, NOT 8 px STARS, on a small card (round 7: half stars at

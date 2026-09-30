@@ -114,6 +114,9 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 		var r: Array = rooms[i]
 		var at := Vector2(card.position.x + pad + float(i % 2) * (bw + 16.0),
 			card.position.y + 72.0 + float(i / 2) * 58.0)
+		## THE ODD ONE OUT SITS IN THE MIDDLE, not under a hole.
+		if i == rooms.size() - 1 and rooms.size() % 2 == 1:
+			at.x = card.get_center().x - bw * 0.5
 		v.ui.add_child(UiKit.button(String(r[0]), at, Vector2(bw, 48), func(path = String(r[1])):
 			v.club_menu_open = false
 			Session.autosave()
@@ -269,7 +272,9 @@ static func _draw_office(v: SeasonScene) -> void:
 			UiKit.meter(v, Rect2(SeasonScene.BAR_X, y + 8, SeasonScene.BAR_W, SeasonScene.BAR_H),
 				o.travel_slots, ClubOffice.TRAVEL_MAX, UiKit.YOU)
 			UiKit.pair(v, v.font,
-				UiKit.t("%d of %d") % [o.travel_slots, ClubOffice.TRAVEL_MAX],
+				## SAID AS SEATS AND A LIMIT (round 9: "6 of 8" beside "6 → 7" read as
+				## two different counts).
+				UiKit.t("%d seats") % o.travel_slots,
 				"a line and no more" if o.travel_slots <= ClubOffice.TRAVEL_MIN
 					## SHORT ENOUGH FOR THE 220px IT IS GIVEN. The first version said
 					## "2 swaps in the corner" and the screenshot printed "2 swaps

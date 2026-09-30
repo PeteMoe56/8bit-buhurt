@@ -148,8 +148,9 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 	}
 	if big:
 		var flag := f.morale_flag()
-		d["note"] = (UiKit.t("%d  ·  age %d  ·  %s") % [f.overall(), f.age, flag]) if flag != "" \
-			else (UiKit.t("%d  ·  age %d") % [f.overall(), f.age])
+		d["rating_word"] = true
+		d["note"] = (UiKit.t("age %d  ·  %s") % [f.age, flag]) if flag != "" \
+			else (UiKit.t("age %d") % f.age)
 		## A man at his ceiling has nowhere to go, and that is worth seeing on
 		## the card rather than two taps away — it is the whole reason to prefer
 		## a 39 who can reach 60 over a 45 who cannot.

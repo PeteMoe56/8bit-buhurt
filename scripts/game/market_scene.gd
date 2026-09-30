@@ -155,7 +155,7 @@ func _draw() -> void:
 		var tier: int = season.world.player_tier()
 		var step := Market.step_word(f.overall(), tier)
 		UiKit.card(self, font, r, {
-			"tag": f.pos_name(), "name": f.display_name, "rating": f.overall(),
+			"tag": f.pos_name(), "name": f.display_name, "rating": f.overall(), "rating_word": true,
 			## A SLIM BAND (round 6: the colored header was 40% of the card).
 			"head_frac": 0.2,
 			"band": UiKit.pos_color(f),

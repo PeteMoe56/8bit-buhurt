@@ -7,7 +7,7 @@ extends Node2D
 ## `ClubOffice.Regime`, whose numbers are Retro Bowl's own, read out of the
 ## shipped build rather than invented.
 
-const CARD_W := 200.0
+const CARD_W := 218.0
 const CARD_H := 124.0
 const CUR_Y := 96.0
 const OFFER_X := 496.0
@@ -99,9 +99,9 @@ func _build() -> void:
 			## A VERB ON EACH (round 9: "+1 yr" needed one), Release narrower and
 			## apart so both read at the same size.
 			ui.add_child(UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W - 92.0, 38), _extend.bind(i)))
-			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 80.0, CUR_Y + CARD_H + 58.0),
-				Vector2(80, 38), _release.bind(i))))
+				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W - 102.0, 38), _extend.bind(i)))
+			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 58.0),
+				Vector2(92, 38), _release.bind(i))))
 		else:
 			ui.add_child(UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
 				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 42), _hire.bind(i)))
@@ -289,7 +289,7 @@ func _regime_color(r: int) -> Color:
 ## WHAT THE THREE REGIMES ACTUALLY TRADE, on the screen where you pick one.
 ## A decision whose consequences are in a wiki is not a decision.
 func _what_it_costs() -> void:
-	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, 236.0))
+	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, 206.0))
 	UiKit.text(self, font, UiKit.t("WHAT A REGIME COSTS"), Vector2(OFFER_X + 16, CUR_Y + 26),
 		12, UiKit.DIM)
 	var cols := ["", UiKit.t("TRAINING"), UiKit.t("MORALE"), UiKit.t("ARMOR"), UiKit.t("KNOCKS")]
