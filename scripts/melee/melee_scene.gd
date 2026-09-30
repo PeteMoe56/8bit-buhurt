@@ -1053,7 +1053,7 @@ func _draw_quips() -> void:
 	var total := 0.0
 	for q in rows:
 		var lines := UiKit.wrap(font, q.text, REP_RW - 34.0, 9)
-		var h := 24.0 + float(lines.size()) * 12.0 + 8.0
+		var h := 24.0 + float(lines.size()) * 14.0 + 8.0
 		if y + h > QUIP_TOP and y < QUIP_TOP + QUIP_H:
 			var box := Rect2(REP_RX, y, REP_RW - 10.0, h)
 			draw_rect(box, COL_PANEL.lightened(0.05))
@@ -1062,7 +1062,7 @@ func _draw_quips() -> void:
 			UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 16.0), q.who,
 				HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 10, _tone_color(q.tone))
 			for k in lines.size():
-				UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 30.0 + float(k) * 12.0),
+				UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 30.0 + float(k) * 14.0),
 					String(lines[k]), HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 9, COL_DIM)
 		y += h + 6.0
 		total += h + 6.0
@@ -1164,7 +1164,7 @@ func _draw_news() -> void:
 			HORIZONTAL_ALIGNMENT_LEFT, int(NEWS_CARD.x - 24.0), 10, COL_INK)
 		var body := UiKit.wrap(font, n.text, NEWS_CARD.x - 24.0, 9)
 		for k in mini(2, body.size()):
-			UiKit.raw(self, font, Vector2(bx + 12.0, by + 33.0 + float(k) * 11.0),
+			UiKit.raw(self, font, Vector2(bx + 12.0, by + 32.0 + float(k) * 13.0),
 				String(body[k]), HORIZONTAL_ALIGNMENT_LEFT,
 				int(NEWS_CARD.x - 24.0), 9, _tone_color(n.tone))
 
@@ -1277,12 +1277,16 @@ func _draw_corner() -> void:
 	if sub_open >= 0 and sub_box.size.x > 0.0:
 		draw_rect(Rect2(Vector2(-off_x, -off_y), UiKit.screen()), Color(0, 0, 0, 0.7))
 		UiKit.panel(self, sub_box)
-		UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD, 32),
-			UiKit.t("WHO COMES ON FOR"), HORIZONTAL_ALIGNMENT_LEFT,
-			int(sub_box.size.x - SUB_PAD * 2.0), 9, COL_DIM)
-		UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD + 112.0, 33),
+		## ONE LINE, MEASURED (blind review, 29 Sep: "WHO COMES ON FORILES" — the
+		## name sat at a fixed 112 px that the label outgrew).
+		var head := UiKit.t("WHO COMES ON FOR")
+		var head_w := font.get_string_size(head, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD, 33),
+			head, HORIZONTAL_ALIGNMENT_LEFT,
+			int(sub_box.size.x - SUB_PAD * 2.0), 12, COL_DIM)
+		UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD + head_w + 10.0, 33),
 			sub_for.to_upper(), HORIZONTAL_ALIGNMENT_LEFT,
-			int(sub_box.size.x - SUB_PAD * 2.0 - 112.0), 13, UiKit.YOU)
+			int(sub_box.size.x - SUB_PAD * 2.0 - head_w - 10.0), 15, UiKit.YOU)
 		## A rule under the head, so the list below it reads as a list and not as
 		## three buttons that happen to be under a sentence.
 		draw_line(sub_box.position + Vector2(SUB_PAD, 46.0),
@@ -1791,7 +1795,9 @@ func _draw_hint() -> void:
 		msg = UiKit.t("Release on ground, or on a man.")
 	elif open > 0:
 		msg = UiKit.t("Options are up — pick, or let him.")
-	UiKit.raw(self, font, Vector2(24, 50), msg, HORIZONTAL_ALIGNMENT_LEFT, 260, 13, COL_DIM)
+	## 340, not 260: "Options are up — pick, or let him." lost its last word. The
+	## fixture text in the middle starts at about 390.
+	UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 13, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 13, COL_DIM)
 	UiKit.raw(self, font, Vector2(SCREEN.x - 284, 50), UiKit.t("%d routes · %d of %d calls") % [
 		sim.orders_issued, sim.prompts_answered,
 		sim.prompts_answered + sim.prompts_timed_out],

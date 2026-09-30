@@ -1055,6 +1055,7 @@ static func button(text_: String, at: Vector2, size: Vector2, on_press: Callable
 	b.text = text_
 	if mark != "" and UiIcons.has(mark):
 		b.icon = UiIcons.texture(mark, INK, 1)
+		b.set_meta("mark", mark)
 		b.add_theme_constant_override("h_separation", 10)
 		b.expand_icon = false
 	b.position = at
@@ -1254,6 +1255,54 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	b.add_theme_stylebox_override("pressed", _sb(YOU, FRAME, 0.0, pad))
 	b.add_theme_stylebox_override("focus", _sb(SELECT, YOU, DROP_PX, pad))
 	b.add_theme_stylebox_override("disabled", _sb(TRACK, EDGE, 0.0, pad))
+
+
+## BUTTON KINDS (29 Sep 2026, blind review #4: "one button style does every
+## job"). A button is made with `button()` as always, then marked:
+##
+##   primary   gold fill, dark type — THE thing to do on this screen, one per screen
+##   danger    dark fill, red frame and type — destroys or gives something up;
+##             pair it with `UiKit.confirm` so it takes two taps
+##   selected  the chosen tab / option / regime: gold frame, filled lighter, so a
+##             selection is a shape, not a 2 px line
+##
+## Anything unmarked is secondary, the slate it always was.
+static func primary(b: Button) -> Button:
+	var pad := float(b.get_theme_stylebox("normal").content_margin_left)
+	b.add_theme_stylebox_override("normal", _sb(YOU, FRAME, DROP_PX, pad))
+	b.add_theme_stylebox_override("hover", _sb(YOU if touch_ui() else YOU.lightened(0.15), FRAME, DROP_PX, pad))
+	b.add_theme_stylebox_override("focus", _sb(YOU, INK, DROP_PX, pad))
+	b.add_theme_stylebox_override("pressed", _sb(YOU.darkened(0.2), FRAME, 0.0, pad))
+	for c in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
+		b.add_theme_color_override(c, BG)
+	if b.icon != null and b.has_meta("mark"):
+		b.icon = UiIcons.texture(String(b.get_meta("mark")), BG, 1)
+	return b
+
+
+static func danger(b: Button) -> Button:
+	var pad := float(b.get_theme_stylebox("normal").content_margin_left)
+	b.add_theme_stylebox_override("normal", _sb(PANEL, DOWN, DROP_PX, pad))
+	b.add_theme_stylebox_override("hover", _sb(PANEL, DOWN, DROP_PX, pad))
+	b.add_theme_stylebox_override("focus", _sb(PANEL, DOWN.lightened(0.2), DROP_PX, pad))
+	b.add_theme_stylebox_override("pressed", _sb(DOWN, FRAME, 0.0, pad))
+	for c in ["font_color", "font_hover_color", "font_focus_color"]:
+		b.add_theme_color_override(c, DOWN)
+	b.add_theme_color_override("font_pressed_color", BG)
+	if b.icon != null and b.has_meta("mark"):
+		b.icon = UiIcons.texture(String(b.get_meta("mark")), DOWN, 1)
+	return b
+
+
+static func selected(b: Button, on: bool = true) -> Button:
+	if not on:
+		return b
+	var pad := float(b.get_theme_stylebox("normal").content_margin_left)
+	var fill := SELECT.lightened(0.28)
+	b.add_theme_stylebox_override("normal", _sb(fill, YOU, DROP_PX, pad))
+	b.add_theme_stylebox_override("hover", _sb(fill, YOU, DROP_PX, pad))
+	b.add_theme_stylebox_override("focus", _sb(fill, YOU, DROP_PX, pad))
+	return b
 
 
 ## THE TWO PLACES BACK LIVES, and only two.
@@ -1748,6 +1797,11 @@ static func clip_px(font: Font, s: String, px: int, width: float) -> String:
 ## either missing half the message"*. A caller that gets the lines back can size
 ## its card to them, or take the first two and know it is taking the first two.
 static func wrap(font: Font, s: String, width: float, px: int) -> Array[String]:
+	## THE SAME FLOOR THE DRAW USES (29 Sep 2026). Callers asked to wrap at 9 or
+	## 10 px and `raw`/`text` then drew at MIN_PX 11, so every wrapped line was
+	## wider than the width it was wrapped to and lost its tail ("That is t
+	## winter" in the fight report). Wrap at the size it will actually be drawn.
+	px = maxi(px, MIN_PX)
 	var out: Array[String] = []
 	var line := ""
 	for w in s.split(" "):

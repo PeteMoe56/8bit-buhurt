@@ -84,8 +84,9 @@ func _build() -> void:
 			var bx := x
 			for k in 3:
 				var bw := floorf(want[k] * scale)
-				ui.add_child(UiKit.button(words[k], Vector2(bx, CUR_Y + CARD_H + 8.0),
-					Vector2(bw, 36), _set_regime.bind(i, k)))
+				ui.add_child(UiKit.selected(UiKit.button(words[k], Vector2(bx, CUR_Y + CARD_H + 8.0),
+					Vector2(bw, 36), _set_regime.bind(i, k)),
+					k == int(season.office.captains[i].get("regime", ClubOffice.Regime.NORMAL))))
 				bx += bw + 4.0
 			## KEEP HIM, or let the deal run out. Two controls where there was one,
 			## because a captain you cannot re-sign is a captain you are only ever

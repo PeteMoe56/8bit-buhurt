@@ -83,8 +83,8 @@ func _build() -> void:
 	## with a width of 200; a third at 820 would have run 84px off a 960 screen.
 	var labels := [UiKit.t("This year"), UiKit.t("The club"), UiKit.t("History"), UiKit.t("The Hall"), UiKit.t("Your record")]
 	for i in labels.size():
-		ui.add_child(UiKit.button(labels[i], Vector2(_tab_x(i), UiKit.screen().y - 56),
-			Vector2(TAB_W, 44), func(p = i): page = p; _build()))
+		ui.add_child(UiKit.selected(UiKit.button(labels[i], Vector2(_tab_x(i), UiKit.screen().y - 56),
+			Vector2(TAB_W, 44), func(p = i): page = p; _build()), i == page))
 	queue_redraw()
 
 

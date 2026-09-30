@@ -392,7 +392,7 @@ func _club_controls() -> void:
 func _grade_controls() -> void:
 	for i in Grade.ORDER.size():
 		var g: int = Grade.ORDER[i]
-		ui.add_child(UiKit.button(Grade.short_of(g),
+		ui.add_child(UiKit.selected(UiKit.button(Grade.short_of(g),
 			Vector2(STAT_X, GRADE_Y + float(i) * GRADE_ROW), GRADE_BTN, func():
 				## THROUGH THE SEASON'S OWN VERB. This wrote the two fields by
 				## hand, and the day the grade became changeable from a second
@@ -401,7 +401,7 @@ func _grade_controls() -> void:
 				season.set_grade(g)
 				Session.autosave()
 				_rebuild(),
-			"cursor" if g == season.grade else ""))
+			"cursor" if g == season.grade else ""), g == season.grade))
 	## THE ADVANCED SETTINGS: on CUSTOM, every read-out row gets its own − and +.
 	if season.grade == Grade.G.CUSTOM:
 		var x1 := UiKit.right_edge() - 18.0 - 2.0 * DIAL_BTN.x - 6.0

@@ -109,8 +109,11 @@ static func _squad_controls(v: SeasonScene) -> void:
 	## label read "HONORS" and the tap opened the roster. Shipped, invisible,
 	## and found by `test_layout.gd` the first time it drove every tab instead of
 	## only the default one.
-	v.ui.add_child(UiKit.button(UiKit.t("Roster"), Vector2(UiKit.right_edge(200.0), SeasonScene.action_y()),
-		Vector2(200, 46), func():
+	## THE SAME MEN AS CARDS (Pete, 29 Sep 2026: Squad and Roster are one screen
+	## with a Table | Cards switch). The row makes room for the hub's Next event.
+	if v.picked == null:
+		v.ui.add_child(UiKit.button(UiKit.t("Cards"), Vector2(588, SeasonScene.action_y()),
+		Vector2(116, 46), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Roster.tscn"), "roster"))
 	## ONE BUTTON THAT CYCLES, not four that are three-quarters wrong at any
@@ -138,7 +141,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 	var sw := UiKit.t(String(SeasonScene.RESERVE_SORTS[(v.reserve_sort + 1) % SeasonScene.RESERVE_SORTS.size()]["word"]))
 	if v.picked == null:
 		v.ui.add_child(UiKit.button(UiKit.t("Reserve by %s") % sw,
-			Vector2(24, SeasonScene.action_y()), Vector2(200, 46), func():
+			Vector2(24, SeasonScene.action_y()), Vector2(180, 46), func():
 				v.reserve_sort = (v.reserve_sort + 1) % SeasonScene.RESERVE_SORTS.size()
 				v._rebuild(), "roster"))
 
@@ -155,7 +158,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 	## Direction calls the cap and that had no screen at all.
 	if v.picked == null:
 		v.ui.add_child(UiKit.button(UiKit.t("Free agents"),
-			Vector2(UiKit.right_edge(416.0), SeasonScene.action_y()), Vector2(200, 46), func():
+			Vector2(400, SeasonScene.action_y()), Vector2(180, 46), func():
 				Session.autosave()
 				UiKit.go("res://scenes/Market.tscn"), "coin"))
 
@@ -171,8 +174,8 @@ static func _squad_controls(v: SeasonScene) -> void:
 	## state already wants all three for Cut, Prospect and Extend; a fourth button
 	## underneath one of those is a button that works until it does not.
 	if v.picked == null:
-		v.ui.add_child(UiKit.button(UiKit.t("Club record"), Vector2(244, SeasonScene.action_y()),
-			Vector2(204, 46), func():
+		v.ui.add_child(UiKit.button(UiKit.t("Club record"), Vector2(212, SeasonScene.action_y()),
+			Vector2(180, 46), func():
 				Session.autosave()
 				Session.records_page = Records.Page.HISTORY
 				UiKit.go("res://scenes/Records.tscn"), "trophy"))

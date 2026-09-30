@@ -199,11 +199,11 @@ func _rebuild() -> void:
 		tab = Tab.CLUB
 	for slot in shown.size():
 		var i: int = shown[slot]
-		ui.add_child(UiKit.button(names[i], Vector2(24 + float(slot) * (TAB_W + 6.0), TAB_Y),
+		ui.add_child(UiKit.selected(UiKit.button(names[i], Vector2(24 + float(slot) * (TAB_W + 6.0), TAB_Y),
 			Vector2(TAB_W, TAB_H), func():
 				tab = i
 				picked = null
-				_rebuild(), marks[i]))
+				_rebuild(), marks[i]), i == tab))
 	## MENU IS NOT BACK. It leaves the career, which is the end of a path rather
 	## than a step back along one — a trail that survived it would send Back from
 	## the front door into somebody's half-finished season.
@@ -225,7 +225,45 @@ func _rebuild() -> void:
 		Tab.MARKET: _market_controls()
 		Tab.OFFICE: _office_controls()
 		Tab.FINANCES: _finances_controls()
+	_next_controls()
 	queue_redraw()
+
+
+## THE WAY FORWARD, on every tab (29 Sep 2026, blind review #1: "the core loop
+## has no obvious path forward"). Bottom right, gold, the one primary button on
+## the hub. It fights the next event, or names what has to be answered first and
+## goes there. On the Club tab a blocker's own buttons are the way forward, so it
+## steps aside for them.
+const NEXT_W := 220.0
+
+
+func _next_controls() -> void:
+	var block := season.blocked_by()
+	if tab == Tab.CLUB and (block != "" or season.season_complete()):
+		return
+	## A picked man owns the Squad tab's row (Trade, Prospect, Extend).
+	if tab == Tab.SQUAD and picked != null:
+		return
+	var label := UiKit.t("Next event")
+	var go := _fight
+	if season.season_complete():
+		label = UiKit.t("End the season")
+		go = func(): tab = Tab.CLUB; _rebuild()
+	elif block != "":
+		match block:
+			"bid": label = UiKit.t("Tournament bid")
+			"cup": label = UiKit.t("Cup bout")
+			"dilemma": label = UiKit.t("A decision")
+			"promotion": label = UiKit.t("Promotion")
+		go = func():
+			if block == "bid":
+				Session.autosave()
+				UiKit.go("res://scenes/Arena.tscn")
+				return
+			tab = Tab.CLUB
+			_rebuild()
+	ui.add_child(UiKit.primary(UiKit.button(label + "  ▶", Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
+		Vector2(NEXT_W, 46), go)))
 ## -> SeasonClubTab (season_tab_club.gd)
 func _club_controls() -> void:
 	SeasonClubTab._club_controls(self)

@@ -200,9 +200,13 @@ func _offers(c: Coach) -> void:
 		## rows rather than as a column of names and a column of buttons.
 		if i > 0:
 			draw_rect(Rect2(R_X + 16, y - 22.0, COL_W - 32, 1.0), UiKit.EDGE)
-		UiKit.text(self, font, UiKit.clip(String(club["name"]), 18),
+		## THE NAME GETS THE ROOM THE DIVISION DOES NOT USE (blind review, 29 Sep:
+		## "Milwaukee Free Co." ran into "Backyard Circuit"). Measured, not counted.
+		var tier_word := League.tier_name(int(club["tier"]))
+		var tier_w := font.get_string_size(tier_word, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+		UiKit.text(self, font, UiKit.clip_px(font, String(club["name"]), 15, COL_W - 32.0 - tier_w - 12.0),
 			Vector2(R_X + 16, y), 15, UiKit.UP if dream else UiKit.INK)
-		UiKit.right(self, font, League.tier_name(int(club["tier"])),
+		UiKit.right(self, font, tier_word,
 			Vector2(R_X + COL_W - 16, y), 11, UiKit.DIM, 140)
 	if offers.size() > shown:
 		UiKit.right(self, font, UiKit.t("and %d more want you") % (offers.size() - shown),

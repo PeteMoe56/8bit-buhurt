@@ -256,12 +256,13 @@ static func _club_controls(v: SeasonScene) -> void:
 	## **A decision offered twice is a decision the player makes once and then
 	## has to remember he already made.** The pre-fight screen keeps it, because
 	## that is where the evidence is.
-	v.ui.add_child(UiKit.button(UiKit.t("Fight it"), Vector2(24, SeasonScene.action_y()),
-		Vector2(204, 46), v._fight, "crossed"))
+	## FIGHT IT IS NOW THE HUB'S "NEXT EVENT", bottom right and gold, on every
+	## tab (SeasonScene._next_controls) — one way forward, in one place.
 	## AND SIM ASKS FIRST. It is the one button on this screen that spends a
 	## fixture and cannot be undone — the result is written, the week ticks, kit
 	## wears — and it sat one accidental thumb away from the button beside it.
-	v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(244, SeasonScene.action_y()), Vector2(204, 46),
+	v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0 + 204.0 + 12.0),
+		SeasonScene.action_y()), Vector2(204, 46),
 		func():
 			v.sim_asking = true
 			v._rebuild(), "clock"))
@@ -358,8 +359,14 @@ static func _schedule(v: SeasonScene) -> void:
 				v.season.world.player_club if home else opp)
 			tail = "%s  ·  %d CC" % [Arena.arena_name_of(int(gr["level"])),
 				v.season.gate_for_fixture(opp, home)]
+		## THE NAME TAKES WHAT THE GROUND AND THE GATE LEAVE — measured, so a long
+		## club name and a long translated ground never cut each other's tail.
+		var tail_w := v.font.get_string_size(tail, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var num := UiKit.t("%d.  %s") % [int(r["event"]), ""]
+		var num_w := v.font.get_string_size(num, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		var room := SeasonScene.fixture_w() - 16.0 - 46.0 - tail_w - 16.0 - num_w
 		UiKit.pair(v, v.font, UiKit.t("%d.  %s") % [int(r["event"]),
-			UiKit.clip_px(v.font, nm, 13, 150.0)], tail,
+			UiKit.clip_px(v.font, nm, 13, clampf(room, 60.0, 240.0))], tail,
 			Vector2(46, y), SeasonScene.fixture_w() - 16.0, 13, 12, col, UiKit.DIM)
 		y += 20.0
 
