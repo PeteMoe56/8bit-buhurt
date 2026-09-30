@@ -36,6 +36,7 @@ func _initialize() -> void:
 	_test_formation_dependent_plays()
 	_test_deleting_a_formation_a_play_needs()
 	_test_the_board_saves()
+	_test_the_rebuilt_screen()
 
 	print("")
 	for n in notes:
@@ -295,3 +296,36 @@ func _season() -> Season:
 	var s := Season.new(MeleeRosters.starting_club(), 77)
 	s.office.credits = 60
 	return s
+
+
+## THE REBUILD (Pete, 29 Sep 2026): one name field, men a thumb wide, Delete
+## held back from the last formation, and a line saying what the shape does.
+func _test_the_rebuilt_screen() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	s.office.credits = 60
+	s.board.unlock_formation(s.office)
+	s.board.save_formation(0, "Bunker", [Vector2(0.10, 0.02), Vector2(0.28, 0.02),
+		Vector2(0.50, 0.13), Vector2(0.72, 0.02), Vector2(0.90, 0.02)])
+	Session.season = s
+	var scene: Node = load("res://scenes/Chalkboard.tscn").instantiate()
+	root.add_child(scene)
+	## _initialize runs before the tree ticks, so _ready has not fired yet.
+	if scene.ui == null:
+		scene.call("_ready")
+	var edits := 0
+	var del: Button = null
+	for c in scene.ui.get_children():
+		if c is LineEdit:
+			edits += 1
+		if c is Button and (c as Button).text == UiKit.t("Delete"):
+			del = c
+	_ok(edits == 1, "one name field", "%d LineEdit on the screen" % edits)
+	_ok(scene.MARK_R * 2.0 >= 44.0, "the men are a thumb wide", "%d px" % int(scene.MARK_R * 2.0))
+	_ok(del != null and del.disabled, "Delete cannot take the last formation",
+		"found %s, disabled %s" % [str(del != null), str(del.disabled if del != null else false)])
+	_ok(String(scene.call("_shape_words")).begins_with(UiKit.t("Center out in front")),
+		"the line says what the shape does", String(scene.call("_shape_words")))
+	## A man dragged is the nearest one, even where two thumbs' worth overlap.
+	var at: Vector2 = scene.call("_to_screen", scene.spots[2])
+	_ok(int(scene.call("_mark_at", at + Vector2(3, 3))) == 2, "a press picks the nearest man", "Center")
+	scene.queue_free()

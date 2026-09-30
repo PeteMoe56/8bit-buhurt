@@ -26,15 +26,19 @@ enum Mode { FORMATION, PLAY }
 ## of the list across two thirds of the screen would have the player placing men
 ## against a picture of a shape he is not making — the one thing a positioning
 ## tool cannot do.
-const BOARD := Rect2(292.0, 96.0, 640.0, 376.0)
+## THE REBUILD (Pete, 29 Sep 2026, round 2): a big centred field, 44px men,
+## one name field, a line saying what the shape does, Delete held back from
+## the last formation.
+const BOARD := Rect2(288.0, 92.0, 648.0, 376.0)
 ## How far up the list each mode shows. The formation band plus enough ground in
 ## front of it to see that there IS ground in front of it.
-const FORMATION_SPAN: float = 0.32
+## 0.50, not 0.32: the legal band is the same 15%, drawn half as wide again.
+const FORMATION_SPAN: float = 0.50
 const LEFT_X := 24.0
-const SLOT_Y := 150.0
-const SLOT_H := 40.0
-const SLOT_W := 250.0
-const MARK_R := 13.0
+const SLOT_Y := 128.0
+const SLOT_H := 44.0
+const SLOT_W := 240.0
+const MARK_R := 22.0
 
 var font: Font
 var season: Season
@@ -136,22 +140,34 @@ func _rebuild() -> void:
 	## padding pushed FORMATIONS past its own box and Godot grew the control to
 	## suit, straight through PLAYS beside it. A button narrower than its label
 	## is now a test failure rather than a silent overlap.
-	ui.add_child(UiKit.button(UiKit.t("FORMATIONS"), Vector2(LEFT_X, 72), Vector2(152, 34), func():
+	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("FORMATIONS"), Vector2(LEFT_X, 78), Vector2(144, 38), func():
 		mode = Mode.FORMATION
 		flash = ""
 		_load_slot(0)
-		_rebuild()))
-	ui.add_child(UiKit.button(UiKit.t("PLAYS"), Vector2(LEFT_X + 158, 72), Vector2(100, 34), func():
+		_rebuild()), mode == Mode.FORMATION))
+	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("PLAYS"), Vector2(LEFT_X + 150, 78), Vector2(90, 38), func():
 		mode = Mode.PLAY
 		flash = ""
 		_load_slot(0)
-		_rebuild()))
+		_rebuild()), mode == Mode.PLAY))
 	ui.add_child(UiKit.corner_back("res://scenes/Season.tscn"))
 
 	var owned := _slots_owned()
 	for i in Chalkboard.SLOTS:
 		var y := SLOT_Y + float(i) * (SLOT_H + 6.0)
-		if i < owned:
+		if i < owned and i == slot:
+			## ONE NAME FIELD: the picked row IS the name. It used to be a row
+			## showing the name and a second box above the board editing it.
+			name_edit = LineEdit.new()
+			UiKit.skin_edit(name_edit)
+			name_edit.position = Vector2(LEFT_X, y)
+			name_edit.size = Vector2(SLOT_W, SLOT_H)
+			name_edit.max_length = 18
+			name_edit.placeholder_text = UiKit.t("Name it")
+			name_edit.text = draft_name if draft_name != null else _current_name()
+			name_edit.text_changed.connect(func(t: String): draft_name = t)
+			ui.add_child(name_edit)
+		elif i < owned:
 			var take := i
 			## FLAT, AND THAT IS THE WHOLE OF #18 AND #19.
 			##
@@ -187,16 +203,6 @@ func _rebuild() -> void:
 				Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), _unlock))
 
 	if slot < owned:
-		name_edit = LineEdit.new()
-		UiKit.skin_edit(name_edit)
-		name_edit.position = Vector2(BOARD.position.x, 48)
-		name_edit.size = Vector2(300, 34)
-		name_edit.max_length = 18
-		name_edit.placeholder_text = UiKit.t("Name it")
-		name_edit.text = draft_name if draft_name != null else _current_name()
-		name_edit.text_changed.connect(func(t: String): draft_name = t)
-		ui.add_child(name_edit)
-
 		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
 			Vector2(150, 42), _save)))
 		ui.add_child(UiKit.button(UiKit.t("Revert"), Vector2(BOARD.position.x + 158, 486),
@@ -204,11 +210,16 @@ func _rebuild() -> void:
 				_load_slot(slot)
 				flash = ""
 				_rebuild()))
+		## DELETE STANDS APART, at the far end of the row, and cannot take the
+		## last formation the club has drawn.
 		if slot < _drawn():
-			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Delete"), Vector2(BOARD.position.x + 296, 486),
-				Vector2(130, 42), _delete)))
+			var del := UiKit.danger(UiKit.button(UiKit.t("Delete"), Vector2(BOARD.end.x - 120.0, 486),
+				Vector2(120, 42), _delete))
+			if mode == Mode.FORMATION and board.formations.size() <= 1:
+				del.disabled = true
+			ui.add_child(del)
 		if mode == Mode.PLAY:
-			ui.add_child(UiKit.button(_bind_label(), Vector2(BOARD.position.x + 434, 486),
+			ui.add_child(UiKit.button(_bind_label(), Vector2(BOARD.position.x + 296, 486),
 				Vector2(206, 42), _cycle_binding))
 	queue_redraw()
 
@@ -315,13 +326,19 @@ func _field() -> Rect2:
 
 ## Normalised (x across the line, y out from your own rail) to screen, rotated
 ## exactly like the melee: y runs left to right, x runs top to bottom.
+## THE MEN SIT INSIDE THE FRAME: positions map onto the field shrunk by a
+## man's radius, so a man on the back rail is drawn whole rather than half off.
+func _inner() -> Rect2:
+	return _field().grow(-MARK_R)
+
+
 func _to_screen(v: Vector2) -> Vector2:
-	var f := _field()
+	var f := _inner()
 	return f.position + Vector2(v.y / _span() * f.size.x, v.x * f.size.y)
 
 
 func _to_norm(p: Vector2) -> Vector2:
-	var f := _field()
+	var f := _inner()
 	var d := p - f.position
 	return Vector2(
 		clampf(d.y / f.size.y, 0.02, 0.98),
@@ -330,10 +347,14 @@ func _to_norm(p: Vector2) -> Vector2:
 
 func _mark_at(p: Vector2) -> int:
 	var five: Array = spots if mode == Mode.FORMATION else _play_spots()
+	var best := -1
+	var best_d := MARK_R + 6.0
 	for i in five.size():
-		if _to_screen(five[i]).distance_to(p) <= MARK_R + 10.0:
-			return i
-	return -1
+		var d := _to_screen(five[i]).distance_to(p)
+		if d <= best_d:
+			best_d = d
+			best = i
+	return best
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -404,23 +425,78 @@ func _release(_p: Vector2) -> void:
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
 	UiKit.ground(self)
-	UiKit.text(self, font, UiKit.t("PLAYBOOK"), Vector2(LEFT_X, 40), 22, UiKit.YOU)
-	UiKit.purse(self, font, season.office.credits,
-		Vector2(LEFT_X, 122), 14, UiKit.DIM)
+	## LITERAL TITLE, THE VOICE UNDER IT (Pete, 29 Sep 2026).
+	UiKit.text(self, font, UiKit.t("PLAYBOOK"), Vector2(LEFT_X, 40), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("Your shapes and your openings."), Vector2(LEFT_X, 62), 13, UiKit.DIM)
+	UiKit.purse(self, font, season.office.credits, Vector2(UiKit.right_edge(), 40), 18, UiKit.YOU, 200)
 	_draw_slots()
 	_draw_board()
-	if flash != "":
-		UiKit.text(self, font, flash, Vector2(BOARD.position.x, 92 - 8), 14, UiKit.DIM)
-	if true:
-		## HOW TO USE THE BOARD (blind review, 29 Sep: "nothing tells the player
-		## how to edit").
-		var hw := BOARD.position.x - LEFT_X - 16.0
-		if mode == Mode.FORMATION:
-			UiKit.text_fit(self, font, UiKit.t("Drag a man to where he starts."), Vector2(LEFT_X, 430.0), 13, UiKit.DIM, hw)
-			UiKit.text_fit(self, font, UiKit.t("The line is as far as he may go."), Vector2(LEFT_X, 448.0), 13, UiKit.DIM, hw)
-		else:
-			UiKit.text_fit(self, font, UiKit.t("Drag from a man"), Vector2(LEFT_X, 430.0), 13, UiKit.DIM, hw)
-			UiKit.text_fit(self, font, UiKit.t("to draw his route."), Vector2(LEFT_X, 448.0), 13, UiKit.DIM, hw)
+	## WHAT THIS SHAPE DOES, over the field; a message takes its place.
+	var line := flash if flash != "" else _shape_words()
+	UiKit.text_fit(self, font, line, Vector2(BOARD.position.x, 80.0), 14,
+		UiKit.YOU if flash != "" else UiKit.INK, BOARD.size.x)
+	## HOW TO USE THE BOARD (blind review, 29 Sep: "nothing tells the player
+	## how to edit").
+	var hw := SLOT_W
+	var hy := SLOT_Y + float(Chalkboard.SLOTS) * (SLOT_H + 6.0) + 22.0
+	if mode == Mode.FORMATION:
+		UiKit.text_fit(self, font, UiKit.t("Drag a man to where he starts."), Vector2(LEFT_X, hy), 13, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("The line is as far as he may go."), Vector2(LEFT_X, hy + 18.0), 13, UiKit.DIM, hw)
+	else:
+		UiKit.text_fit(self, font, UiKit.t("Drag from a man"), Vector2(LEFT_X, hy), 13, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("to draw his route."), Vector2(LEFT_X, hy + 18.0), 13, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("Tap a man to clear his."), Vector2(LEFT_X, hy + 36.0), 13, UiKit.DIM, hw)
+
+
+## WHAT THE SHAPE DOES, in a line — a preset's own blurb, or read off the spots.
+## y is depth out from your rail (0 back, 0.15 on the line), x across it.
+func _shape_words() -> String:
+	if slot >= _slots_owned():
+		return UiKit.t("Unlock a slot to start drawing.")
+	if mode == Mode.PLAY:
+		var n := 0
+		for r in routes:
+			if not (r as Array).is_empty():
+				n += 1
+		return UiKit.t("%d of 5 men have a route. The rest go on their own.") % n
+	for k in Tuning.FORMATIONS:
+		var same := true
+		var pre: Array = Tuning.FORMATIONS[k]["spots"]
+		for i in 5:
+			if (pre[i] as Vector2).distance_to(spots[i]) > 0.01:
+				same = false
+		if same:
+			return UiKit.t(String(Tuning.FORMATIONS[k]["blurb"]))
+	return _describe(spots)
+
+
+static func _describe(sp: Array) -> String:
+	var ys: Array[float] = []
+	for v in sp:
+		ys.append((v as Vector2).y)
+	var up := 0
+	var back := 0
+	for y in ys:
+		if y >= 0.10:
+			up += 1
+		elif y <= 0.05:
+			back += 1
+	if up == 5:
+		return UiKit.t("Everyone up on the line. First to contact, nobody behind.")
+	if back == 5:
+		return UiKit.t("Everyone on the back rail. They cross the list to you.")
+	var left := (ys[0] + ys[1]) * 0.5
+	var right := (ys[3] + ys[4]) * 0.5
+	if left - right > 0.05:
+		return UiKit.t("The left pair leads, the right pair waits.")
+	if right - left > 0.05:
+		return UiKit.t("The right pair leads, the left pair waits.")
+	var pairs := (left + right) * 0.5
+	if pairs - ys[2] > 0.05:
+		return UiKit.t("Center held back behind the pairs. Nothing comes through the middle.")
+	if ys[2] - pairs > 0.05:
+		return UiKit.t("Center out in front of the pairs. He meets them first.")
+	return UiKit.t("A flat line, all five level.")
 
 
 func _draw_slots() -> void:
@@ -431,20 +507,22 @@ func _draw_slots() -> void:
 		if i >= owned:
 			UiKit.panel(self, r, false)
 			if i > owned:
-				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 12, y + 26), 14, UiKit.DIM)
+				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 12, y + 28), 14, UiKit.DIM)
 			continue
-		UiKit.panel(self, r, i == slot)
+		if i == slot:
+			continue    ## the name field sits here
+		UiKit.panel(self, r, false)
 		var nm := ""
 		if mode == Mode.FORMATION:
 			nm = String(board.formations[i]["name"]) if i < board.formations.size() else "— empty —"
 		else:
 			nm = String(board.plays[i]["name"]) if i < board.plays.size() else "— empty —"
-		UiKit.text(self, font, UiKit.clip(nm, 20), Vector2(LEFT_X + 12, y + 26),
-			16, UiKit.INK if i == slot else UiKit.DIM)
+		UiKit.text(self, font, UiKit.clip(nm, 20), Vector2(LEFT_X + 12, y + 28),
+			16, UiKit.INK)
 		if mode == Mode.PLAY and i < board.plays.size():
 			var f := int(board.plays[i]["formation"])
 			var tag := "any" if f == Chalkboard.UNIVERSAL else UiKit.clip(board.formation_name(f), 10)
-			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 26), 12, UiKit.DIM, 120.0)
+			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 28), 13, UiKit.DIM, 120.0)
 
 
 func _draw_board() -> void:
@@ -456,7 +534,7 @@ func _draw_board() -> void:
 	## The set-up line, painted rather than explained — and in formation mode the
 	## ground past it is grayed, so the clamp under the finger has a reason on
 	## screen before the finger ever finds it.
-	var lx := f.position.x + Tuning.SET_UP_LINE / _span() * f.size.x
+	var lx := _to_screen(Vector2(0.0, Tuning.SET_UP_LINE)).x
 	if mode == Mode.FORMATION:
 		draw_rect(Rect2(lx, f.position.y, f.end.x - lx, f.size.y), Color(0, 0, 0, 0.28))
 	draw_line(Vector2(lx, f.position.y), Vector2(lx, f.end.y),
@@ -466,12 +544,7 @@ func _draw_board() -> void:
 		Vector2(f.end.x - 8, f.end.y - 10), 13, UiKit.DIM, 160.0)
 
 	if slot >= _slots_owned():
-		## BESIDE THE FIELD, not across it (29 Sep 2026): drawn on the field it ran
-		## over the centre line. The board's open left side is empty until a slot
-		## is unlocked, which is exactly when this shows.
-		UiKit.para(self, font, UiKit.t("Unlock a slot to start drawing."),
-			Vector2(BOARD.position.x + 8.0, f.position.y + 40.0), 16, UiKit.DIM,
-			f.position.x - BOARD.position.x - 24.0, 22.0, 3)
+		## Nothing to draw: the line over the field says to unlock a slot.
 		return
 
 	var five: Array = spots if mode == Mode.FORMATION else _play_spots()
@@ -483,10 +556,13 @@ func _draw_board() -> void:
 	for i in five.size():
 		var at := _to_screen(five[i])
 		var live: bool = (mode == Mode.FORMATION and dragging == i) or drawing == i
-		draw_circle(at, MARK_R, UiKit.YOU if live else Tuning.COL_STEEL)
-		draw_arc(at, MARK_R, 0.0, TAU, 20, Tuning.COL_STEEL_DARK, 2.0)
-		UiKit.text(self, font, UiKit.t(String(Tuning.POS_NAME[i])).substr(0, 1),
-			at + Vector2(-4, 5), 14, Tuning.COL_GROUND)
+		## THE POSITION COLOURS the rest of the game uses (Rail green, Flanker
+		## orange, Center purple); gold under the finger.
+		var col: Color = UiKit.UP if i == 0 or i == 4 else (UiKit.POS_FLANK if i != 2 else UiKit.POS_CENTER)
+		draw_circle(at, MARK_R, UiKit.YOU if live else col)
+		draw_arc(at, MARK_R, 0.0, TAU, 32, Tuning.COL_STEEL_DARK, 2.0)
+		UiKit.raw(self, font, at + Vector2(-MARK_R, 7), UiKit.t(String(Tuning.POS_NAME[i])).substr(0, 1),
+			HORIZONTAL_ALIGNMENT_CENTER, int(MARK_R * 2.0), 20, Tuning.COL_GROUND)
 
 
 func _draw_route(from: Vector2, leg: Array, col: Color) -> void:
