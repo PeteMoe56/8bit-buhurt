@@ -632,7 +632,7 @@ func _the_man() -> void:
 	if capped:
 		word = UiKit.t("at his ceiling")
 		tint = UiKit.EDGE.lightened(0.5)
-	UiKit.right(self, font, word, Vector2(L_X + COL_W - 16, y), 12, tint, 210)
+	UiKit.right(self, font, word, Vector2(L_X + COL_W - 16, y), 13, tint, 210)
 	UiKit.bar(self, Rect2(L_X + 16, y + 12, COL_W - 32, 14),
 		1.0 if waiting else clampf(float(man.xp) / float(maxi(1, bar)), 0.0, 1.0),
 		UiKit.EDGE.lightened(0.4) if capped
@@ -645,11 +645,11 @@ func _the_man() -> void:
 	var asks: Dictionary = Contracts.demand(man)
 	if bool(asks["refuses"]):
 		UiKit.text(self, font, UiKit.t("He will not sign again."),
-			Vector2(L_X + 16, y + 56), 12, UiKit.DOWN)
+			Vector2(L_X + 16, y + 56), 13, UiKit.DOWN)
 	else:
 		## TWO PRICES, NAMED APART (blind review, 29 Sep: "$23 disagrees with $24").
 		## Extending now and re-signing when the deal runs out are different deals.
-		UiKit.text(self, font, UiKit.t("When his deal ends"), Vector2(L_X + 16, y + 56), 11, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("When his deal ends"), Vector2(L_X + 16, y + 56), 13, UiKit.DIM)
 		## The price the club would actually pay (a Negotiator captain included),
 		## from the same function `Season.resign` charges.
 		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])
@@ -834,7 +834,7 @@ func _the_book() -> void:
 		UiKit.text_fit(self, font, UiKit.t("He has not fought for you yet."),
 			Vector2(R_X + 16, COL_Y + 64), 13, UiKit.DIM, COL_W - 32.0)
 		UiKit.para(self, font, UiKit.t("Downs, assists and knocks are kept from his first event on."),
-			Vector2(R_X + 16, COL_Y + 92), 12, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 18.0)
+			Vector2(R_X + 16, COL_Y + 92), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 18.0)
 		return
 	var y := COL_Y + 56.0
 	_book("Events", "%d" % man.bouts, y); y += 26.0

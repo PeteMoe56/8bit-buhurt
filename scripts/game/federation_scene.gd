@@ -74,7 +74,7 @@ func _draw() -> void:
 	## LITERAL TITLE, THE VOICE UNDER IT (Pete, 29 Sep 2026).
 	UiKit.text(self, font, UiKit.t("FEDERATION"), Vector2(24, 40), 26, UiKit.INK)
 	UiKit.text(self, font, UiKit.t("Two masters: the federation's rules and your members."),
-		Vector2(24, 62), 12, UiKit.DIM)
+		Vector2(24, 62), 13, UiKit.DIM)
 	UiKit.purse(self, font, o.credits, Vector2(UiKit.screen().x - 24, 46),
 		18, UiKit.YOU, 200)
 	_federation(o)
@@ -120,18 +120,18 @@ func _federation(o: ClubOffice) -> void:
 	var y2 := COL_Y + COL_H - 46.0
 	var shorts := o.shortfalls()
 	if shorts.is_empty():
-		UiKit.text(self, font, UiKit.t("In good standing. You may be entered for the cups."),
-			Vector2(L_X + 16, y2), 12, UiKit.UP)
+		UiKit.text_fit(self, font, UiKit.t("In good standing. You may be entered for the cups."),
+			Vector2(L_X + 16, y2), 13, UiKit.UP, COL_W - 32.0)
 	else:
 		UiKit.text(self, font, UiKit.t("NOT ENTERED FOR THE CUPS"), Vector2(L_X + 16, y2), 13, UiKit.DOWN)
 		UiKit.text_fit(self, font, UiKit.t("Short on: ") + UiKit.t(", ").join(shorts),
-			Vector2(L_X + 16, y2 + 18.0), 11, UiKit.DOWN, COL_W - 32.0)
+			Vector2(L_X + 16, y2 + 18.0), 13, UiKit.DOWN, COL_W - 32.0)
 	## ITS OWN LINE (29 Sep 2026). It sat on the same baseline as "In good
 	## standing…" and the two printed through each other, in English and worse
 	## in German. Under the standing line when that is one line, and under the
 	## shortfall list when there is one.
 	UiKit.right(self, font, UiKit.t("%d CC a year to hold") % o.federation_upkeep(),
-		Vector2(L_X + COL_W - 16, y2 + (18.0 if shorts.is_empty() else 36.0)), 12, UiKit.DIM, 220)
+		Vector2(L_X + COL_W - 16, y2 + (18.0 if shorts.is_empty() else 36.0)), 13, UiKit.DIM, 220)
 
 
 func _members(o: ClubOffice) -> void:
@@ -162,9 +162,9 @@ func _members(o: ClubOffice) -> void:
 	## passed; at one pixel it does not, and two pixels of a dim line hanging off
 	## a frame is still a line hanging off a frame.
 	UiKit.text_fit(self, font, UiKit.t("They stay for a good room, a full bus, a good year."),
-		Vector2(R_X + 16, y), 12, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
+		Vector2(R_X + 16, y), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
 	UiKit.text_fit(self, font, UiKit.t("They do not care about your paperwork."),
-		Vector2(R_X + 16, y + 18.0), 12, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
+		Vector2(R_X + 16, y + 18.0), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
 
 	var bench_full: bool = season.club.active_eight().size() >= o.travel_slots
 	## THE TWO THE CLUB CAN SEE RIGHT NOW. The third thing members watch — how the

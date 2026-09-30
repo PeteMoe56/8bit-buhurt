@@ -160,7 +160,7 @@ func _year() -> void:
 	if played.is_empty():
 		UiKit.text(self, font, UiKit.t("Nothing fought yet."), Vector2(40, 160), 16, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Every event is written down here, with the grade you fought it at."),
-			Vector2(40, 190), 12, UiKit.EDGE.lightened(0.5))
+			Vector2(40, 190), 13, UiKit.EDGE.lightened(0.5))
 		return
 	var hdr := UiKit.EDGE.lightened(0.5)
 	for c in YEAR_COLS:
@@ -190,7 +190,7 @@ func _year() -> void:
 	UiKit.right(self, font, "%+d" % pts_all, Vector2(UiKit.right_edge(200.0), 414), 13,
 		UiKit.UP if pts_all > 0 else (UiKit.DOWN if pts_all < 0 else UiKit.DIM), 60)
 	UiKit.right(self, font, UiKit.t("now at %s") % Grade.short_of(season.grade).to_lower(),
-		Vector2(UiKit.right_edge(48.0), 414), 11, UiKit.EDGE.lightened(0.5), 200)
+		Vector2(UiKit.right_edge(48.0), 414), 13, UiKit.EDGE.lightened(0.5), 200)
 
 
 func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
@@ -238,9 +238,9 @@ func _hall() -> void:
 	if season.world.hall.is_empty():
 		UiKit.text(self, font, UiKit.t("Nobody in it yet."), Vector2(40, 160), 16, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Tag a fighter on his own page, while he is still playing."),
-			Vector2(40, 190), 12, UiKit.EDGE.lightened(0.5))
+			Vector2(40, 190), 13, UiKit.EDGE.lightened(0.5))
 		UiKit.text(self, font, UiKit.t("Who belongs in here is your judgment, not the game's."),
-			Vector2(40, 210), 12, UiKit.EDGE.lightened(0.5))
+			Vector2(40, 210), 13, UiKit.EDGE.lightened(0.5))
 		return
 	## TWO COLUMNS. Twelve names down one side would run off the panel, and the
 	## cap is twelve — so the layout has to hold the maximum rather than the
@@ -289,7 +289,7 @@ func _club() -> void:
 			Vector2(40, y + 14), 13, UiKit.DIM)
 	else:
 		UiKit.text(self, font, UiKit.t("A record keeps the man's name even after he has gone home."),
-			Vector2(40, y + 14), 11, UiKit.EDGE.lightened(0.5))
+			Vector2(40, y + 14), 13, UiKit.EDGE.lightened(0.5))
 
 
 ## THE MANAGER'S OWN RECORD, which is the one number a career-long save is for

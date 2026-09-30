@@ -395,7 +395,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 		## should say which is which.
 		if kind == "bench" and last_kind == "on the line":
 			UiKit.text(v, v.font, UiKit.t("BENCH — two may come on each corner"),
-				Vector2(24, y - 24), 12, UiKit.DIM)
+				Vector2(24, y - 24), 13, UiKit.DIM)
 		v._man_row(row["card"], y, kind, x)
 		last_kind = kind
 	if v.season.club.reserves().is_empty():
@@ -414,7 +414,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## "this man is not in the eight", and a key that explains the absence of a
 	## problem is a key nobody finishes reading.
 	UiKit.text(v, v.font, UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow"),
-		Vector2(24, SeasonScene._squad_key_y()), 11, UiKit.DIM)
+		Vector2(24, SeasonScene._squad_key_y()), 13, UiKit.DIM)
 
 
 

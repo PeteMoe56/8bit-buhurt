@@ -265,4 +265,4 @@ func _pools() -> void:
 					int(row.get("mf", 0)) - int(row.get("ma", 0))],
 				Vector2(px + 426, ry), 13, col, 240)
 	UiKit.text(self, font, UiKit.t("Top %d of each pool make the knockout.") % Cup.POOLS_ADVANCE,
-		Vector2(194, UiKit.bottom(16.0)), 12, UiKit.DIM)
+		Vector2(194, UiKit.bottom(16.0)), 13, UiKit.DIM)

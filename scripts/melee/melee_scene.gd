@@ -1299,7 +1299,7 @@ func _draw_corner() -> void:
 		if sim.bench(0).is_empty():
 			UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD, _sub_row_y(0) + 26.0),
 				UiKit.t("Nobody left on the bench."), HORIZONTAL_ALIGNMENT_LEFT,
-				int(sub_box.size.x - SUB_PAD * 2.0), 11, COL_DIM)
+				int(sub_box.size.x - SUB_PAD * 2.0), 13, COL_DIM)
 
 
 ## The sim man standing in a given slot of our line, or null before the men are

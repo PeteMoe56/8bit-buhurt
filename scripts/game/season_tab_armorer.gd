@@ -60,7 +60,7 @@ static func _draw_market(v: SeasonScene) -> void:
 	## rows are the buttons; the line on each bar is the marshals' minimum.
 	if v.qm_pick == null:
 		UiKit.text(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness. The line on each bar is the inspection minimum."),
-			Vector2(24, SeasonScene.action_y() - 14.0), 12, UiKit.DIM)
+			Vector2(24, SeasonScene.action_y() - 14.0), 13, UiKit.DIM)
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
 		var y: float = row["y"]

@@ -463,7 +463,7 @@ func _draw_board() -> void:
 		Color(Tuning.COL_MARSHAL, 0.55), 2.0)
 	UiKit.text(self, font, "15%", Vector2(lx + 6, f.position.y + 16), 12, Tuning.COL_MARSHAL)
 	UiKit.right(self, font, UiKit.t("toward them →"),
-		Vector2(f.end.x - 8, f.end.y - 10), 12, UiKit.DIM, 160.0)
+		Vector2(f.end.x - 8, f.end.y - 10), 13, UiKit.DIM, 160.0)
 
 	if slot >= _slots_owned():
 		## BESIDE THE FIELD, not across it (29 Sep 2026): drawn on the field it ran

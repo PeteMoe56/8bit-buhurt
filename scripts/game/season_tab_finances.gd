@@ -67,7 +67,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	## -31" alarmed with no guidance). It is this year so far, not a forecast.
 	var words := UiKit.t("So far this year. Gates and prize money arrive as the events are fought.") \
 		if net < 0 else UiKit.t("So far this year.")
-	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 20.0), 12, UiKit.DIM,
+	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 20.0), 13, UiKit.DIM,
 		SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0, 15.0, 2)
 
 	v._fin_ground()
@@ -193,10 +193,10 @@ static func _fin_ground(v: SeasonScene) -> void:
 	## that it is a different KIND of income, and this is the page about that.
 	UiKit.pair(v, v.font, Arena.sells(a.level),
 		UiKit.t("%d CC a home event") % Arena.counter_take(a.level, o.attendance()),
-		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 12, 13,
+		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13,
 		UiKit.EDGE.lightened(0.35), UiKit.DIM)
 	## TWO CURRENCIES, SAID ONCE (Pete, 29 Sep 2026, #7): CC is the club's money
 	## and $ is the men's pay. Both appear across the game; this is the page
 	## about money, so this is where the difference is written down.
 	UiKit.text_fit(v, v.font, UiKit.t("CC is the club's money. $ is what the men are paid each week."),
-		Vector2(SeasonScene.FIN_RIGHT, y + 26.0), 12, UiKit.DIM, UiKit.right_edge() - SeasonScene.FIN_RIGHT)
+		Vector2(SeasonScene.FIN_RIGHT, y + 26.0), 13, UiKit.DIM, UiKit.right_edge() - SeasonScene.FIN_RIGHT)

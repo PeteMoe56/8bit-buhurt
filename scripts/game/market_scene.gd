@@ -115,7 +115,7 @@ func _draw() -> void:
 	## WHAT TO DO (blind review, 29 Sep: "no Sign button").
 	if picked == null:
 		UiKit.right(self, font, UiKit.t("Tap a man to sign him. A red price is more than you have."),
-			Vector2(UiKit.screen().x - 24, 78), 12, UiKit.DIM, 560)
+			Vector2(UiKit.screen().x - 24, 78), 13, UiKit.DIM, 560)
 	var slots := _slots()
 	if slots.is_empty():
 		UiKit.text(self, font, UiKit.t("Nobody is looking for a club this season."),

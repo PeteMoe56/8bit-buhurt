@@ -334,7 +334,7 @@ func _draw_diary() -> void:
 		else:
 			var err := arena.can_build(office.tier, office.credits)
 			if err != "":
-				UiKit.text_fit(self, font, err, Vector2(RIGHT_X, 168), 12, UiKit.DIM, 340.0)
+				UiKit.text_fit(self, font, err, Vector2(RIGHT_X, 168), 13, UiKit.DIM, 340.0)
 
 	UiKit.text(self, font, UiKit.t("THE DIARY"), Vector2(RIGHT_X, 270), 15, UiKit.INK)
 	if season.bid_open():
@@ -343,7 +343,7 @@ func _draw_diary() -> void:
 		## moves with the ground he has banked into.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
 		var p := season.bid_preview(offer_i % season.bid_offers.size(), budget_i)
-		UiKit.text_fit(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 424), 12, UiKit.DIM,
+		UiKit.text_fit(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 424), 13, UiKit.DIM,
 			UiKit.screen().x - 24.0 - RIGHT_X)
 		## TWO LINES EACH, because both of these ran off the right of the frame in
 		## the real face — 1021 and 976 of a 960 — and both are sentences the
@@ -369,12 +369,12 @@ func _draw_diary() -> void:
 			UiKit.t("this event") if away == 0 else UiKit.t("in %d events") % away],
 			Vector2(RIGHT_X, 304), 13, UiKit.YOU)
 		UiKit.text(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
-			Vector2(RIGHT_X, 326), 12, UiKit.DIM)
+			Vector2(RIGHT_X, 326), 13, UiKit.DIM)
 	else:
 		UiKit.text(self, font, UiKit.t("No tournament this year."),
 			Vector2(RIGHT_X, 304), 13, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("The federation offers dates between seasons."),
-			Vector2(RIGHT_X, 326), 12, UiKit.DIM)
+			Vector2(RIGHT_X, 326), 13, UiKit.DIM)
 
 	if not season.last_show.is_empty():
 		var l := season.last_show

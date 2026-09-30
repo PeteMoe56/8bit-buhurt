@@ -558,13 +558,13 @@ func _draw_fighter() -> void:
 			SLIDER_X - STAT_X - 6.0)
 		UiKit.text(self, font, str(int(card.get(STATS[i]))),
 			Vector2(SLIDER_X + SLIDER_W + 14, y + 24), 16, UiKit.YOU)
-		UiKit.text(self, font, UiKit.t(STAT_BLURB[i]), Vector2(STAT_X, y + 42), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t(STAT_BLURB[i]), Vector2(STAT_X, y + 45), 13, UiKit.DIM)
 	var wy := STAT_Y + 5.0 * STAT_ROW
 	UiKit.text(self, font, UiKit.t("Weight"), Vector2(STAT_X, wy + 24), 16, UiKit.INK)
 	UiKit.text(self, font, UiKit.t("%d lb") % card.weight,
 		Vector2(SLIDER_X + SLIDER_W + 14, wy + 24), 16, UiKit.YOU)
 	UiKit.text(self, font, UiKit.t("In harness. Decides a bullrush more than anything else."),
-		Vector2(STAT_X, wy + 42), 12, UiKit.DIM)
+		Vector2(STAT_X, wy + 45), 13, UiKit.DIM)
 
 	## THE CEILING, DRAWN. The bar fills to his rating and the marshal's line
 	## sits at what the division allows, so the cap is a place on screen rather

@@ -196,7 +196,7 @@ static func _draw_shop(v: SeasonScene) -> void:
 		Vector2(v.SHOP_CARD.position.x, v.SHOP_CARD.position.y + 34.0), 19, UiKit.INK,
 		v.SHOP_CARD.size.x)
 	UiKit.mid(v, v.font, UiKit.t("Spent on levels, kit, the cap and the bus."),
-		Vector2(v.SHOP_CARD.position.x, v.SHOP_CARD.position.y + 60.0), 12, UiKit.DIM,
+		Vector2(v.SHOP_CARD.position.x, v.SHOP_CARD.position.y + 60.0), 13, UiKit.DIM,
 		v.SHOP_CARD.size.x)
 	UiKit.text(v, v.font, UiKit.t("In hand"), Vector2(v.SHOP_CARD.position.x + 24.0,
 		v.SHOP_CARD.position.y + 104.0), 13, UiKit.DIM)
@@ -215,7 +215,7 @@ static func _draw_shop(v: SeasonScene) -> void:
 	## credited — say so, or the player buys the pack twice.
 	if Store.available() and Store.pending > 0:
 		UiKit.text(v, v.font, UiKit.t("A payment is pending. Credits land when it clears."),
-			Vector2(v.SHOP_CARD.position.x + 24.0, v.SHOP_CARD.position.y + 128.0), 12, UiKit.DIM)
+			Vector2(v.SHOP_CARD.position.x + 24.0, v.SHOP_CARD.position.y + 128.0), 13, UiKit.DIM)
 
 
 

@@ -454,7 +454,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	## needs its own legend.
 	UiKit.right(v, v.font, UiKit.t("%s = the squad's mood   ·   %s = your renown")
 		% [UiKit.t(Dilemma.FX_WORD["morale"]), UiKit.t(Dilemma.FX_WORD["note"])],
-		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 12, UiKit.DIM, 400.0)
+		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 13, UiKit.DIM, 400.0)
 	for i in opts.size():
 		var o: Dictionary = opts[i]
 		var x := 24.0 + float(i) * (w + 12.0)
@@ -702,13 +702,21 @@ static func _table(v: SeasonScene) -> void:
 	## player there has read it for years.
 	var key_y := SeasonScene.TABLE_Y + 22.0 + float(rows.size()) * SeasonScene.ROW_H + 4.0
 	if key_y < SeasonScene.action_y() - 16.0:
-		var key := UiKit.t("RD rounds won minus lost  ·  MG downs for minus against")
+		## TWO LINES AT 13 (the sentence floor, 29 Sep 2026) where one at 11 was.
+		var room := UiKit.screen().x - SeasonScene.table_x() - 32.0
+		var colors := ""
 		if up > 0 and not top_flight:
-			key += UiKit.t("  ·  green goes up")
+			colors = UiKit.t("green goes up")
 		if down > 0:
-			key += UiKit.t("  ·  red goes down")
-		UiKit.text(v, v.font, UiKit.fit(v.font, key, 11, UiKit.screen().x - SeasonScene.table_x() - 24.0),
-			Vector2(SeasonScene.table_x() + 8.0, key_y), 11, UiKit.DIM)
+			colors += ("" if colors == "" else UiKit.t("  ·  ")) + UiKit.t("red goes down")
+		var lines := [UiKit.t("RD rounds won minus lost"), UiKit.t("MG downs for minus against")]
+		if colors != "":
+			lines.append(colors)
+		for li in lines.size():
+			var ly := key_y + float(li) * 17.0
+			if ly > SeasonScene.action_y() - 16.0:
+				break
+			UiKit.text_fit(v, v.font, String(lines[li]), Vector2(SeasonScene.table_x() + 8.0, ly), 13, UiKit.DIM, room)
 	v.draw_rect(Rect2(SeasonScene.table_x(), SeasonScene.TABLE_Y, UiKit.screen().x - SeasonScene.table_x() - 24, 1), UiKit.EDGE)
 	for i in rows.size():
 		var r: Dictionary = rows[i]

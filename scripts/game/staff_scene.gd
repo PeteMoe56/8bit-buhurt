@@ -267,7 +267,7 @@ func _trait_word() -> void:
 		y += 40.0
 	if said == 0:
 		UiKit.text(self, font, UiKit.t("Neither of them brings anything but the coaching."),
-			Vector2(OFFER_X, y), 11, UiKit.EDGE.lightened(0.5))
+			Vector2(OFFER_X, y), 13, UiKit.EDGE.lightened(0.5))
 
 
 func _regime_color(r: int) -> Color:
@@ -315,7 +315,7 @@ func _what_it_costs() -> void:
 	## cell in the table not written as a multiplier anyway. The row reads ×5 like
 	## every other figure on it; the line under it is where the shouting belongs.
 	UiKit.text_fit(self, font, UiKit.t("Hard is not a bit riskier than Normal. It is FIVE TIMES."),
-		Vector2(OFFER_X + 16, y + 8), 11, UiKit.EDGE.lightened(0.5), 440.0 - 32.0)
+		Vector2(OFFER_X + 16, y + 8), 13, UiKit.EDGE.lightened(0.5), 440.0 - 32.0)
 
 
 ## WHICH OF THE THREE JOBS NOBODY IS TEACHING, and which one the club is known
@@ -339,10 +339,10 @@ func _coverage() -> void:
 	if spec >= 0:
 		UiKit.text(self, font, UiKit.t("Club specialty: %s, training ×%.2f")
 			% [UiKit.t(String(Tuning.ROLE_NAME[spec])), ClubOffice.SPECIALTY_XP],
-			Vector2(24, y), 12, UiKit.UP)
+			Vector2(24, y), 13, UiKit.UP)
 	elif o.presence() > 0.0:
 		UiKit.text(self, font, UiKit.t("No specialty — but the room is a happier one."),
-			Vector2(24, y), 12, UiKit.YOU)
+			Vector2(24, y), 13, UiKit.YOU)
 	y += 24.0
 	var roles := [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]
 	for i in roles.size():

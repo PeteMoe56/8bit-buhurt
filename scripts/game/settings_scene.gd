@@ -302,4 +302,4 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("ABOUT"), Vector2(RIGHT_X + 18, ABOUT_Y + 26), 15, UiKit.DIM)
 	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, ABOUT_Y + 50), 16, UiKit.INK)
 	UiKit.text_fit(self, font, UiKit.t("Built by BonkWorks."),
-		Vector2(RIGHT_X + 18, ABOUT_Y + 68), 12, UiKit.DIM, COL_W - 30.0)
+		Vector2(RIGHT_X + 18, ABOUT_Y + 68), 13, UiKit.DIM, COL_W - 30.0)
