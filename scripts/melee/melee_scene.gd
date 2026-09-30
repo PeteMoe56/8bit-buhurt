@@ -1529,9 +1529,9 @@ func _wheel_center(m) -> Vector2:
 	var p := _to_screen(m.pos)
 	## Room for the ring and its words on every side, so no option leaves the list.
 	## Above: the top side and its three lines. Below: Cancel and the drag hint.
-	var lo := LIST_ORIGIN + Vector2(WHEEL_LABEL + 96.0, WHEEL_RO + 58.0)
+	var lo := LIST_ORIGIN + Vector2(WHEEL_LABEL + 180.0, WHEEL_RO + 58.0)
 	var hi := LIST_ORIGIN + Vector2(Tuning.LIST_H, Tuning.LIST_W) * LIST_SCALE \
-		- Vector2(WHEEL_LABEL + 96.0, WHEEL_RI + 80.0)
+		- Vector2(WHEEL_LABEL + 180.0, WHEEL_RI + 80.0)
 	return Vector2(clampf(p.x, lo.x, minf(hi.x, maxf(lo.x, hi.x))),
 		clampf(p.y, lo.y, maxf(lo.y, hi.y)))
 
@@ -1658,7 +1658,7 @@ func _draw_wheel(m) -> void:
 				effect = UiKit.t("puts him down")
 		## The words sit outside the side: above the top one, beside the others,
 		## aligned away from the ring so they never cross it.
-		var lw := 150.0
+		var lw := 176.0
 		var at := c + _dir(deg) * WHEEL_LABEL
 		var align := HORIZONTAL_ALIGNMENT_CENTER
 		var top := at.y - 8.0
