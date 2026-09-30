@@ -66,7 +66,7 @@ const SLOTS := [
 	},
 	{
 		"name": "Midseason", "at": 0.50,
-		"blurb": "Half a season to build something worth coming to.",
+		"blurb": "Half a season to build something.",
 	},
 	{
 		"name": "Run-in", "at": 0.85,

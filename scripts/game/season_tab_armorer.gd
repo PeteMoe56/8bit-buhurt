@@ -48,7 +48,7 @@ static func _draw_market(v: SeasonScene) -> void:
 	UiKit.pair(v, v.font, head,
 		("%d CC to put the eight right" % led["bill"]) if int(led["bill"]) > 0
 			else UiKit.t("nothing owing"),
-		Vector2(24, SeasonScene.CONTENT_Y + 26), UiKit.right_edge(), 14, 13, head_col, UiKit.DIM)
+		Vector2(24, SeasonScene.CONTENT_Y + 26), UiKit.right_edge(), 14, 14, head_col, UiKit.DIM)
 
 	var cell := v._qm_cell()
 	UiKit.text(v, v.font, UiKit.t("TRAVELING"), Vector2(24, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22),
@@ -59,8 +59,8 @@ static func _draw_market(v: SeasonScene) -> void:
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
 	if v.qm_pick == null:
-		UiKit.text(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness. The line on each bar is the inspection minimum."),
-			Vector2(24, SeasonScene.action_y() - 14.0), 13, UiKit.DIM)
+		UiKit.text(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness. The tick is the minimum."),
+			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.DIM)
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
 		var y: float = row["y"]

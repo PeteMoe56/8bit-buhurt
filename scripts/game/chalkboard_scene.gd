@@ -427,7 +427,7 @@ func _draw() -> void:
 	UiKit.ground(self)
 	## LITERAL TITLE, THE VOICE UNDER IT (Pete, 29 Sep 2026).
 	UiKit.text(self, font, UiKit.t("PLAYBOOK"), Vector2(LEFT_X, 40), 26, UiKit.INK)
-	UiKit.text(self, font, UiKit.t("Your shapes and your openings."), Vector2(LEFT_X, 62), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Your shapes and your openings."), Vector2(LEFT_X, 62), 14, UiKit.DIM)
 	UiKit.purse(self, font, season.office.credits, Vector2(UiKit.right_edge(), 40), 18, UiKit.YOU, 200)
 	_draw_slots()
 	_draw_board()
@@ -440,12 +440,12 @@ func _draw() -> void:
 	var hw := SLOT_W
 	var hy := SLOT_Y + float(Chalkboard.SLOTS) * (SLOT_H + 6.0) + 22.0
 	if mode == Mode.FORMATION:
-		UiKit.text_fit(self, font, UiKit.t("Drag a man to where he starts."), Vector2(LEFT_X, hy), 13, UiKit.DIM, hw)
-		UiKit.text_fit(self, font, UiKit.t("The line is as far as he may go."), Vector2(LEFT_X, hy + 18.0), 13, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("Drag a man to where he starts."), Vector2(LEFT_X, hy), 14, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("The line is as far as he may go."), Vector2(LEFT_X, hy + 18.0), 14, UiKit.DIM, hw)
 	else:
-		UiKit.text_fit(self, font, UiKit.t("Drag from a man"), Vector2(LEFT_X, hy), 13, UiKit.DIM, hw)
-		UiKit.text_fit(self, font, UiKit.t("to draw his route."), Vector2(LEFT_X, hy + 18.0), 13, UiKit.DIM, hw)
-		UiKit.text_fit(self, font, UiKit.t("Tap a man to clear his."), Vector2(LEFT_X, hy + 36.0), 13, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("Drag from a man"), Vector2(LEFT_X, hy), 14, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("to draw his route."), Vector2(LEFT_X, hy + 18.0), 14, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, UiKit.t("Tap a man to clear his."), Vector2(LEFT_X, hy + 36.0), 14, UiKit.DIM, hw)
 
 
 ## WHAT THE SHAPE DOES, in a line — a preset's own blurb, or read off the spots.
@@ -522,7 +522,7 @@ func _draw_slots() -> void:
 		if mode == Mode.PLAY and i < board.plays.size():
 			var f := int(board.plays[i]["formation"])
 			var tag := "any" if f == Chalkboard.UNIVERSAL else UiKit.clip(board.formation_name(f), 10)
-			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 28), 13, UiKit.DIM, 120.0)
+			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 28), 14, UiKit.DIM, 120.0)
 
 
 func _draw_board() -> void:
@@ -541,7 +541,7 @@ func _draw_board() -> void:
 		Color(Tuning.COL_MARSHAL, 0.55), 2.0)
 	UiKit.text(self, font, "15%", Vector2(lx + 6, f.position.y + 16), 12, Tuning.COL_MARSHAL)
 	UiKit.right(self, font, UiKit.t("toward them →"),
-		Vector2(f.end.x - 8, f.end.y - 10), 13, UiKit.DIM, 160.0)
+		Vector2(f.end.x - 8, f.end.y - 10), 14, UiKit.DIM, 160.0)
 
 	if slot >= _slots_owned():
 		## Nothing to draw: the line over the field says to unlock a slot.

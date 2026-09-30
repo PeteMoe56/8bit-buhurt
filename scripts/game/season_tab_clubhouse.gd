@@ -196,10 +196,10 @@ static func _draw_shop(v: SeasonScene) -> void:
 		Vector2(v.SHOP_CARD.position.x, v.SHOP_CARD.position.y + 34.0), 19, UiKit.INK,
 		v.SHOP_CARD.size.x)
 	UiKit.mid(v, v.font, UiKit.t("Spent on levels, kit, the cap and the bus."),
-		Vector2(v.SHOP_CARD.position.x, v.SHOP_CARD.position.y + 60.0), 13, UiKit.DIM,
+		Vector2(v.SHOP_CARD.position.x, v.SHOP_CARD.position.y + 60.0), 14, UiKit.DIM,
 		v.SHOP_CARD.size.x)
 	UiKit.text(v, v.font, UiKit.t("In hand"), Vector2(v.SHOP_CARD.position.x + 24.0,
-		v.SHOP_CARD.position.y + 104.0), 13, UiKit.DIM)
+		v.SHOP_CARD.position.y + 104.0), 14, UiKit.DIM)
 	UiKit.right(v, v.font, UiKit.t("%d CC") % v.season.office.credits,
 		Vector2(v.SHOP_CARD.end.x - 24.0, v.SHOP_CARD.position.y + 104.0), 15, UiKit.YOU, 200)
 	if not Store.available():
@@ -215,7 +215,7 @@ static func _draw_shop(v: SeasonScene) -> void:
 	## credited — say so, or the player buys the pack twice.
 	if Store.available() and Store.pending > 0:
 		UiKit.text(v, v.font, UiKit.t("A payment is pending. Credits land when it clears."),
-			Vector2(v.SHOP_CARD.position.x + 24.0, v.SHOP_CARD.position.y + 128.0), 13, UiKit.DIM)
+			Vector2(v.SHOP_CARD.position.x + 24.0, v.SHOP_CARD.position.y + 128.0), 14, UiKit.DIM)
 
 
 
@@ -248,7 +248,7 @@ static func _draw_office(v: SeasonScene) -> void:
 			for f2 in v.season.club.roster:
 				if f2.fit():
 					fit_men += 1
-			UiKit.pair(v, v.font, label, UiKit.t("%d fit on books") % fit_men,
+			UiKit.pair(v, v.font, label, UiKit.t("%d fit") % fit_men,
 				Vector2(SeasonScene.BAR_X, y), SeasonScene.BAR_X + SeasonScene.BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
 			UiKit.meter(v, Rect2(SeasonScene.BAR_X, y + 8, SeasonScene.BAR_W, SeasonScene.BAR_H),
 				o.travel_slots - ClubOffice.TRAVEL_MIN,
@@ -278,7 +278,7 @@ static func _draw_office(v: SeasonScene) -> void:
 				UiKit.DOWN if bill > cap else UiKit.YOU)
 			UiKit.pair(v, v.font,
 				UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-				UiKit.t("%d raises · next %d CC") % [o.cap_level, o.cap_cost()],
+				UiKit.t("raised %d×") % o.cap_level,
 				Vector2(SeasonScene.BAR_X, y + 54), SeasonScene.BAR_X + SeasonScene.BAR_W, 14, 12,
 				UiKit.DOWN if bill > cap else UiKit.INK, UiKit.DIM)
 			continue
@@ -311,7 +311,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		## which is text over text and therefore invisible to every check in the
 		## suite. A screenshot saw it.
 		UiKit.text_fit(v, v.font, UiKit.t(String(ClubOffice.FACILITIES[f]["blurb"])),
-			Vector2(SeasonScene.BAR_X, y + 54), 13, UiKit.DIM,
+			Vector2(SeasonScene.BAR_X, y + 54), 14, UiKit.DIM,
 			SIDE_X - SeasonScene.BAR_X - 16.0)
 
 	# ------------------------------------------------------------ the captains
@@ -378,7 +378,7 @@ static func _draw_office(v: SeasonScene) -> void:
 	## on a screen that is one tap away and is not full. **A summary that repeats
 	## the screen it points at is two screens disagreeing about which of them is
 	## the authority.** So: the headline, and the sentence that says what to do.
-	UiKit.text(v, v.font, UiKit.t("COACHING"), Vector2(x, y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("COACHING"), Vector2(x, y), 14, UiKit.DIM)
 	var bare := o.untaught()
 	if bare.is_empty():
 		var best := ""
@@ -386,7 +386,7 @@ static func _draw_office(v: SeasonScene) -> void:
 			best = UiKit.t(String(Tuning.AI_SKILL[o.tier_for(role)]["name"]))
 			break
 		UiKit.text_fit(v, v.font, UiKit.t("Every role taught."), Vector2(x, y + 24), 14, UiKit.UP, w)
-		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % best.to_lower(), Vector2(x, y + 46), 13, UiKit.DIM, w)
+		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % best.to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)
 	else:
 		## ONE LINE, and the column is the reason. There are 132 pixels between
 		## the foot of the nav list and the action row for two blocks, and a
@@ -396,4 +396,4 @@ static func _draw_office(v: SeasonScene) -> void:
 		for r in bare:
 			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
 		UiKit.text_fit(v, v.font, UiKit.t("%s untaught") % names, Vector2(x, y + 24), 14, UiKit.DOWN, w)
-		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % UiKit.t(String(Tuning.AI_SKILL[o.tier_for(bare[0])]["name"])).to_lower(), Vector2(x, y + 46), 13, UiKit.DIM, w)
+		UiKit.text_fit(v, v.font, UiKit.t("going out %s") % UiKit.t(String(Tuning.AI_SKILL[o.tier_for(bare[0])]["name"])).to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)

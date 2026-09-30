@@ -125,7 +125,7 @@ func _draw() -> void:
 	UiKit.text(self, font, c.display_name.to_upper(), Vector2(24, 40), 26, UiKit.INK)
 	## THE BUTTON THAT OPENS THIS SAYS "Your career"; so does the screen.
 	UiKit.text(self, font, UiKit.t("Your career: your record, your standing and who wants you."),
-		Vector2(24, 62), 13, UiKit.DIM)
+		Vector2(24, 62), 14, UiKit.DIM)
 	UiKit.right(self, font, UiKit.t("Season %d") % season.world.season,
 		Vector2(UiKit.screen().x - 24, 46), 16, UiKit.DIM, 220)
 
@@ -161,9 +161,9 @@ func _standing(c: Coach) -> void:
 	## number. Reputation is additive up and multiplicative down, and a player who
 	## does not know that reads a halving as a bug.
 	UiKit.text_fit(self, font, UiKit.t("Win your division and this climbs."),
-		Vector2(L_X + 16, y), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
+		Vector2(L_X + 16, y), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
 	UiKit.text_fit(self, font, UiKit.t("Outside the top four, it halves."),
-		Vector2(L_X + 16, y + 16), 13, UiKit.DOWN, COL_W - 32.0)
+		Vector2(L_X + 16, y + 16), 14, UiKit.DOWN, COL_W - 32.0)
 
 
 func _the_book(c: Coach) -> void:
@@ -179,15 +179,15 @@ func _the_book(c: Coach) -> void:
 	]
 	var y := COL_Y + 62.0
 	for row in rows:
-		UiKit.text(self, font, String(row[0]), Vector2(M_X + 16, y), 13, UiKit.DIM)
+		UiKit.text(self, font, String(row[0]), Vector2(M_X + 16, y), 14, UiKit.DIM)
 		UiKit.right(self, font, String(row[1]), Vector2(M_X + COL_W - 16, y), 14,
 			UiKit.DOWN if String(row[0]) == UiKit.t("Relegations") and c.relegations > 0 else UiKit.INK, 140)
 		y += 30.0
 	if c.fought() == 0:
-		UiKit.para(self, font, UiKit.t("It fills in when your first season ends."), Vector2(M_X + 16, y + 8), 13, UiKit.DIM, COL_W - 32.0, 17.0)
+		UiKit.para(self, font, UiKit.t("It fills in when your first season ends."), Vector2(M_X + 16, y + 8), 14, UiKit.DIM, COL_W - 32.0, 17.0)
 	else:
 		UiKit.text(self, font, UiKit.t("This follows you. The club does not."),
-			Vector2(M_X + 16, COL_Y + COL_H - 14), 13, UiKit.EDGE.lightened(0.5))
+			Vector2(M_X + 16, COL_Y + COL_H - 14), 14, UiKit.EDGE.lightened(0.5))
 
 
 func _offers(c: Coach) -> void:
@@ -197,7 +197,7 @@ func _offers(c: Coach) -> void:
 	if offers.is_empty():
 		UiKit.text(self, font, UiKit.t("Nobody, yet."), Vector2(R_X + 16, COL_Y + 62), 15, UiKit.DIM)
 		UiKit.para(self, font, UiKit.t("Clubs come for a coach who out-rates them. Win something."),
-			Vector2(R_X + 16, COL_Y + 92), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 16.0)
+			Vector2(R_X + 16, COL_Y + 92), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 16.0)
 		return
 	var shown: int = mini(offers.size(), OFFERS_SHOWN)
 	for i in shown:
@@ -219,14 +219,14 @@ func _offers(c: Coach) -> void:
 			Vector2(R_X + COL_W - 16, y), 11, UiKit.DIM, 140)
 	if offers.size() > shown:
 		UiKit.right(self, font, UiKit.t("and %d more want you") % (offers.size() - shown),
-			Vector2(R_X + COL_W - 16, COL_Y + COL_H - 14), 13, UiKit.DIM, 160)
+			Vector2(R_X + COL_W - 16, COL_Y + COL_H - 14), 14, UiKit.DIM, 160)
 	else:
 		## TWO LINES. It was clipped at forty characters in English too — "A few
 		## clubs are interested in taki..." — which nobody could see was a cut.
 		UiKit.para(self, font, c.offer_blurb(),
-			Vector2(R_X + 16, COL_Y + COL_H - 34), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 17.0)
+			Vector2(R_X + 16, COL_Y + COL_H - 34), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 17.0)
 
 
 func _line(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, UiKit.t(label), Vector2(L_X + 16, y), 13, UiKit.DIM)
-	UiKit.right(self, font, UiKit.clip(value, 18), Vector2(L_X + COL_W - 16, y), 13, UiKit.INK, 190)
+	UiKit.text(self, font, UiKit.t(label), Vector2(L_X + 16, y), 14, UiKit.DIM)
+	UiKit.right(self, font, UiKit.clip(value, 18), Vector2(L_X + COL_W - 16, y), 14, UiKit.INK, 190)

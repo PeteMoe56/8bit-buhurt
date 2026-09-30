@@ -299,6 +299,11 @@ func _check(t: String, where: String) -> void:
 			probe = probe.replace(String(nm), "")
 	if letters.search(probe) == null:
 		return
+	## THE MIDDLE OF A WRAPPED PARAGRAPH (30 Sep 2026, the 14 px pass): a
+	## sentence over three lines has a middle line with neither bracket. It is
+	## translated if it is a piece of some key as the table renders it.
+	if _inside_a_key(s):
+		return
 	if not found.has(s):
 		found[s] = {}
 	found[s][where] = true
@@ -342,3 +347,21 @@ func _scripts(dir: String) -> Array[String]:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_scripts(dir.path_join(d)))
 	return out
+
+
+var _rendered := ""
+
+
+func _inside_a_key(frag: String) -> bool:
+	if frag.length() < 8:
+		return false
+	if _rendered == "":
+		var f := FileAccess.open("res://locale/strings.csv", FileAccess.READ)
+		var parts: PackedStringArray = []
+		f.get_csv_line()
+		while not f.eof_reached():
+			var row := f.get_csv_line()
+			if row.size() > 0 and row[0] != "":
+				parts.append(TranslationServer.translate(row[0]))
+		_rendered = "\n".join(parts)
+	return _rendered.contains(frag)

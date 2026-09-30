@@ -324,7 +324,7 @@ func _test_the_workshop_saves() -> void:
 	var names: Array = []
 	for f in back.club.roster:
 		names.append(f.display_name)
-	var owned_back: bool = back.workshop.owns(12) and back.workshop.owns(5) and back.workshop.owned.size() == IconBank.starter().size() + 2
+	var owned_back: bool = back.workshop.owns(12) and back.workshop.owns(7) and back.workshop.owned.size() == IconBank.starter().size() + 2
 	_ok(owned_back and back != null and back.workshop.made == 2 and back.workshop.cost() == 7
 			and names.has("Hollis Vane") and names.has("Ord Tarrow")
 			and back.club.display_name == "Bonk Works"

@@ -340,9 +340,9 @@ func _draw_sim_ask() -> void:
 	UiKit.text(self, font, UiKit.t("The marshals run it without you. The result stands."),
 		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 76.0), 14, UiKit.INK)
 	UiKit.text(self, font, UiKit.t("Your men still take the week: kit wears, the room moves."),
-		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 98.0), 13, UiKit.DIM)
+		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 98.0), 14, UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("Against %s.") % o,
-		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 124.0), 13, UiKit.DIM)
+		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 124.0), 14, UiKit.DIM)
 
 
 func _fight_cup() -> void:
@@ -604,7 +604,7 @@ func _banner() -> void:
 	if occ != "":
 		line += "  ·  " + occ
 	var w := font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-	UiKit.text(self, font, line, Vector2((UiKit.screen().x - w) * 0.5, UiKit.screen().y - 3.0), 13, UiKit.BG)
+	UiKit.text(self, font, line, Vector2((UiKit.screen().x - w) * 0.5, UiKit.screen().y - 3.0), 14, UiKit.BG)
 ## -> SeasonClubTab (season_tab_club.gd)
 func _draw_club() -> void:
 	SeasonClubTab._draw_club(self)

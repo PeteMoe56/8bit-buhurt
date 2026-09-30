@@ -118,7 +118,7 @@ func _bracket_rounds() -> int:
 func _tree() -> void:
 	var first := _bracket_field()
 	UiKit.text(self, font, UiKit.t("%d clubs  ·  seeded  ·  one leg") % first,
-		Vector2(24, 64), 13, UiKit.DIM)
+		Vector2(24, 64), 14, UiKit.DIM)
 	## EVERY ROUND THE CUP WILL HAVE, not just the ones it has opened.
 	##
 	## `cup.rounds` only grows as the cup advances, so deriving the column count
@@ -212,11 +212,11 @@ func _road() -> void:
 			var his: int = int(m["rb"]) if int(m["a"]) == me else int(m["ra"])
 			var won: bool = int(m.get("winner", -1)) == me
 			UiKit.text(self, font, UiKit.t("%s  %d-%d") % [UiKit.t("WON") if won else UiKit.t("OUT"), mine, his],
-				Vector2(ROAD_X + 16, y + 44), 13, UiKit.UP if won else UiKit.DOWN)
+				Vector2(ROAD_X + 16, y + 44), 14, UiKit.UP if won else UiKit.DOWN)
 			if not won:
 				done = true
 		else:
-			UiKit.text(self, font, UiKit.t("to fight"), Vector2(ROAD_X + 16, y + 44), 13, UiKit.YOU)
+			UiKit.text(self, font, UiKit.t("to fight"), Vector2(ROAD_X + 16, y + 44), 14, UiKit.YOU)
 		y += 64.0
 	if cup.champion >= 0:
 		UiKit.text(self, font, UiKit.t("CHAMPION"), Vector2(ROAD_X + 16, 430), 11, UiKit.DIM)
@@ -233,14 +233,14 @@ func _pools() -> void:
 		Vector2(24, 40), 22, UiKit.YOU)
 	UiKit.text(self, font, UiKit.t("%d clubs  ·  %d pools  ·  top %d go through")
 		% [cup.entrants.size(), cup.pools.size(), Cup.POOLS_ADVANCE],
-		Vector2(24, 64), 13, UiKit.DIM)
+		Vector2(24, 64), 14, UiKit.DIM)
 	for p in cup.pools.size():
 		var px := 24.0 + float(p % 2) * 468.0
 		## 176 tall at 184 apart (was 192 at 212): the pools end at 460 now, above
 		## the bottom-left Back that every screen shares (#14).
 		var py := 92.0 + float(p / 2) * 184.0
 		UiKit.panel(self, Rect2(px, py, 444, 176))
-		UiKit.text(self, font, UiKit.t("POOL %s") % char(65 + p), Vector2(px + 18, py + 28), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("POOL %s") % char(65 + p), Vector2(px + 18, py + 28), 14, UiKit.DIM)
 		UiKit.right(self, font, UiKit.t("P   W   D   L   MARGIN"), Vector2(px + 426, py + 28),
 			12, UiKit.DIM, 240)
 		## REAL ROWS. The mockup made these up and printed a club on minus one
@@ -263,6 +263,6 @@ func _pools() -> void:
 					## there is no "margin" field and asking for one silently
 					## returned zero for every club in every pool.
 					int(row.get("mf", 0)) - int(row.get("ma", 0))],
-				Vector2(px + 426, ry), 13, col, 240)
+				Vector2(px + 426, ry), 14, col, 240)
 	UiKit.text(self, font, UiKit.t("Top %d of each pool make the knockout.") % Cup.POOLS_ADVANCE,
-		Vector2(194, UiKit.bottom(16.0)), 13, UiKit.DIM)
+		Vector2(194, UiKit.bottom(16.0)), 14, UiKit.DIM)

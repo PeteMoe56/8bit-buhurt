@@ -391,7 +391,7 @@ func _draw() -> void:
 			Vector2(CITY_AT.x, CITY_AT.y - 34), 20, UiKit.YOU)
 		UiKit.text(self, font,
 			"Your town names the club, and it is where you play at home.",
-			Vector2(CITY_AT.x, CITY_AT.y - 12), 13, UiKit.DIM)
+			Vector2(CITY_AT.x, CITY_AT.y - 12), 14, UiKit.DIM)
 		## THE AREA UNDER EACH NAME. Drawn rather than put in the button, because
 		## a two-line button either clips the second line or shrinks the first,
 		## and the first is the one being chosen.
@@ -435,7 +435,7 @@ func _draw() -> void:
 		## HOW LONG AGO, NOT A TIMESTAMP (blind review, 29 Sep), and which slot
 		## was played last.
 		UiKit.text(self, font, UiKit.t("Played %s") % _ago(String(info["saved"])),
-			Vector2(x + 20, SLOT_Y + 186), 13, UiKit.DIM)
+			Vector2(x + 20, SLOT_Y + 186), 14, UiKit.DIM)
 		if i == _latest():
 			UiKit.right(self, font, UiKit.t("LAST PLAYED"), Vector2(x + SLOT_W - 20, SLOT_Y + 34), 12, UiKit.YOU, 160)
 	if notice != "":

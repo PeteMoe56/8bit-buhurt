@@ -97,7 +97,7 @@ func _draw() -> void:
 	UiKit.ground(self)
 	UiKit.text(self, font, UiKit.t("RECORDS"), Vector2(24, 46), 26, UiKit.INK)
 	UiKit.text(self, font, UiKit.t("Season %d") % season.world.season,
-		Vector2(24, 72), 13, UiKit.DIM)
+		Vector2(24, 72), 14, UiKit.DIM)
 	match page:
 		Page.YEAR: _year()
 		Page.CLUB: _club()
@@ -160,7 +160,7 @@ func _year() -> void:
 	if played.is_empty():
 		UiKit.text(self, font, UiKit.t("Nothing fought yet."), Vector2(40, 160), 16, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Every event is written down here, with the grade you fought it at."),
-			Vector2(40, 190), 13, UiKit.EDGE.lightened(0.5))
+			Vector2(40, 190), 14, UiKit.EDGE.lightened(0.5))
 		return
 	var hdr := UiKit.EDGE.lightened(0.5)
 	for c in YEAR_COLS:
@@ -184,13 +184,13 @@ func _year() -> void:
 	var pts_all: int = int(sum["diff"])
 	UiKit.text(self, font, UiKit.t("%d fought") % int(sum["fought"])
 		+ ("" if int(sum["simmed"]) == 0 else ", %d simulated" % int(sum["simmed"])),
-		Vector2(40, 414), 13, UiKit.DIM)
+		Vector2(40, 414), 14, UiKit.DIM)
 	UiKit.right(self, font, "%d-%d" % [int(sum["rf"]), int(sum["ra"])],
-		Vector2(UiKit.right_edge(260.0), 414), 13, UiKit.INK, 120)
+		Vector2(UiKit.right_edge(260.0), 414), 14, UiKit.INK, 120)
 	UiKit.right(self, font, "%+d" % pts_all, Vector2(UiKit.right_edge(200.0), 414), 13,
 		UiKit.UP if pts_all > 0 else (UiKit.DOWN if pts_all < 0 else UiKit.DIM), 60)
 	UiKit.right(self, font, UiKit.t("now at %s") % Grade.short_of(season.grade).to_lower(),
-		Vector2(UiKit.right_edge(48.0), 414), 13, UiKit.EDGE.lightened(0.5), 200)
+		Vector2(UiKit.right_edge(48.0), 414), 14, UiKit.EDGE.lightened(0.5), 200)
 
 
 func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
@@ -203,9 +203,9 @@ func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
 	## and nobody has ever needed it explained.
 	var away := not bool(r.get("home", true))
 	UiKit.text(self, font, ("@" if away else " ") + UiKit.clip(nm, 17),
-		Vector2(cx + 26.0, y), 13, UiKit.DIM if away else UiKit.INK)
+		Vector2(cx + 26.0, y), 14, UiKit.DIM if away else UiKit.INK)
 	UiKit.right(self, font, "%d-%d" % [int(r.get("rf", 0)), int(r.get("ra", 0))],
-		Vector2(cx + year_col_w() - 176.0, y), 13, UiKit.INK, 90)
+		Vector2(cx + year_col_w() - 176.0, y), 14, UiKit.INK, 90)
 	var pts: int = int(r.get("margin", 0))
 	UiKit.right(self, font, "%+d" % pts, Vector2(cx + year_col_w() - 120.0, y), 13,
 		UiKit.UP if pts > 0 else (UiKit.DOWN if pts < 0 else UiKit.DIM), 50)
@@ -238,9 +238,9 @@ func _hall() -> void:
 	if season.world.hall.is_empty():
 		UiKit.text(self, font, UiKit.t("Nobody in it yet."), Vector2(40, 160), 16, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Tag a fighter on his own page, while he is still playing."),
-			Vector2(40, 190), 13, UiKit.EDGE.lightened(0.5))
+			Vector2(40, 190), 14, UiKit.EDGE.lightened(0.5))
 		UiKit.text(self, font, UiKit.t("Who belongs in here is your judgment, not the game's."),
-			Vector2(40, 210), 13, UiKit.EDGE.lightened(0.5))
+			Vector2(40, 210), 14, UiKit.EDGE.lightened(0.5))
 		return
 	## TWO COLUMNS. Twelve names down one side would run off the panel, and the
 	## cap is twelve — so the layout has to hold the maximum rather than the
@@ -282,14 +282,14 @@ func _club() -> void:
 			UiKit.right(self, font, UiKit.clip(String(rec["holder"]), 18),
 				Vector2(UiKit.right_edge(170.0), y), 14, UiKit.INK, 180)
 			UiKit.right(self, font, UiKit.t("S%d") % int(rec["season"]),
-				Vector2(UiKit.right_edge(48.0), y), 13, UiKit.DIM, 120)
+				Vector2(UiKit.right_edge(48.0), y), 14, UiKit.DIM, 120)
 		y += 40.0
 	if not any:
 		UiKit.text(self, font, UiKit.t("Nothing yet. The record starts at your first event."),
-			Vector2(40, y + 14), 13, UiKit.DIM)
+			Vector2(40, y + 14), 14, UiKit.DIM)
 	else:
 		UiKit.text(self, font, UiKit.t("A record keeps the man's name even after he has gone home."),
-			Vector2(40, y + 14), 13, UiKit.EDGE.lightened(0.5))
+			Vector2(40, y + 14), 14, UiKit.EDGE.lightened(0.5))
 
 
 ## THE MANAGER'S OWN RECORD, which is the one number a career-long save is for
@@ -380,7 +380,7 @@ func _stat(label: String, value: String, y: float) -> void:
 func _history() -> void:
 	var h: Array = season.honors()
 	var y := 100.0
-	UiKit.text(self, font, UiKit.t("TROPHIES"), Vector2(24, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("TROPHIES"), Vector2(24, y), 14, UiKit.DIM)
 	y += 30.0
 	var any := false
 	for i in range(h.size() - 1, maxi(-1, h.size() - 11), -1):
@@ -399,7 +399,7 @@ func _history() -> void:
 		UiKit.text(self, font, UiKit.t("Nothing yet."), Vector2(40, y), 15, UiKit.DIM)
 
 	y = 100.0
-	UiKit.text(self, font, UiKit.t("SEASONS"), Vector2(500, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("SEASONS"), Vector2(500, y), 14, UiKit.DIM)
 	y += 30.0
 	if season.world.history.is_empty():
 		UiKit.text(self, font, UiKit.t("This is your first."), Vector2(516, y), 15, UiKit.DIM)

@@ -280,7 +280,7 @@ func _offer_towns() -> void:
 func _club_controls() -> void:
 	club_name_edit = LineEdit.new()
 	UiKit.skin_edit(club_name_edit)
-	club_name_edit.position = Vector2(STAT_X, 150)
+	club_name_edit.position = Vector2(STAT_X, 152)
 	club_name_edit.size = Vector2(380, 36)
 	club_name_edit.max_length = 30
 	club_name_edit.placeholder_text = UiKit.t("Club name")
@@ -290,7 +290,7 @@ func _club_controls() -> void:
 
 	club_short_edit = LineEdit.new()
 	UiKit.skin_edit(club_short_edit)
-	club_short_edit.position = Vector2(STAT_X, 200)
+	club_short_edit.position = Vector2(STAT_X, 208)
 	club_short_edit.size = Vector2(120, 36)
 	club_short_edit.max_length = 4
 	club_short_edit.placeholder_text = "CLB"
@@ -313,7 +313,7 @@ func _club_controls() -> void:
 		_offer_towns()
 	if not town_offers.is_empty():
 		var town: String = town_offers[0]
-		ui.add_child(UiKit.button(UiKit.t("Move to %s") % Cities.full_name(town),
+		ui.add_child(UiKit.button(UiKit.t("Move: %s") % Cities.full_name(town),
 			Vector2(STAT_X, TOWN_Y), TOWN_CARD, func(t = town):
 				if not UiKit.confirm("move:" + t):
 					flash = UiKit.t("Tap again to move the club to %s.") % Cities.full_name(t)
@@ -328,18 +328,22 @@ func _club_controls() -> void:
 					Session.autosave()
 				_offer_towns()
 				_rebuild()))
-		ui.add_child(UiKit.button(UiKit.t("Somewhere else"),
+		ui.add_child(UiKit.button(UiKit.t("Another town  >"),
 			Vector2(STAT_X + TOWN_CARD.x + 8.0, TOWN_Y),
 			Vector2(200, TOWN_CARD.y), func():
 				_offer_towns()
 				_rebuild()))
 
-	ui.add_child(UiKit.button(UiKit.t("Kit color"), Vector2(STAT_X, 258), Vector2(150, 34), func():
+	## EACH CARRIES ITS COLOUR (blind review round 3: "Kit color and Mark
+	## color don't show the current colour"): a swatch inside the button.
+	var kit_b := UiKit.button(UiKit.t("Kit color") + "  >", Vector2(STAT_X, 258), Vector2(150, 34), func():
 		kit_i = (kit_i + 1) % IconBank.KIT_COLORS.size()
-		_rebuild()))
-	ui.add_child(UiKit.button(UiKit.t("Mark color"), Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
+		_rebuild())
+	ui.add_child(_swatched(kit_b, IconBank.KIT_COLORS[kit_i]))
+	var mark_b := UiKit.button(UiKit.t("Mark color") + "  >", Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
 		mark_col_i = (mark_col_i + 1) % IconBank.MARK_COLORS.size()
-		_rebuild()))
+		_rebuild())
+	ui.add_child(_swatched(mark_b, IconBank.MARK_COLORS[mark_col_i]))
 
 	## THE BANK, as a shelf you can see rather than a cycle button you have to
 	## tap twenty times. A mark you do not own is drawn anyway, dimmed, with its
@@ -498,7 +502,7 @@ func _draw_grade() -> void:
 		UiKit.UP if rd > 0.3 else (UiKit.DOWN if rd < 0.3 else UiKit.INK)])
 	for k in rows.size():
 		var y := _dial_y(k)
-		UiKit.text(self, font, rows[k][0], Vector2(ix, y), 13, UiKit.DIM)
+		UiKit.text(self, font, rows[k][0], Vector2(ix, y), 14, UiKit.DIM)
 		UiKit.text(self, font, rows[k][1], Vector2(ix + 300.0, y), 16, rows[k][2])
 	var ry := _dial_y(DIAL_FIGHT_FROM) - 19.0
 	draw_line(Vector2(ix, ry), Vector2(ix + iw, ry), UiKit.EDGE, 1.0)
@@ -508,7 +512,7 @@ func _draw_grade() -> void:
 	## 110 with its drop — text drawn behind a button, which is the exact fault
 	## the layout sweep exists to catch and which a comment at the top of a screen
 	## is always the first to commit.
-	UiKit.text(self, font, UiKit.t("It is saved with the club, not with the settings, and you can change it later."), Vector2(STAT_X, 452.0), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("It is saved with the club, not with the settings, and you can change it later."), Vector2(STAT_X, 452.0), 14, UiKit.DIM)
 
 
 func _save_club() -> void:
@@ -561,13 +565,13 @@ func _draw_fighter() -> void:
 			SLIDER_X - STAT_X - 6.0)
 		UiKit.text(self, font, str(int(card.get(STATS[i]))),
 			Vector2(SLIDER_X + SLIDER_W + 14, y + 24), 16, UiKit.YOU)
-		UiKit.text(self, font, UiKit.t(STAT_BLURB[i]), Vector2(STAT_X, y + 45), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t(STAT_BLURB[i]), Vector2(STAT_X, y + 45), 14, UiKit.DIM)
 	var wy := STAT_Y + 5.0 * STAT_ROW
 	UiKit.text(self, font, UiKit.t("Weight"), Vector2(STAT_X, wy + 24), 16, UiKit.INK)
 	UiKit.text(self, font, UiKit.t("%d lb") % card.weight,
 		Vector2(SLIDER_X + SLIDER_W + 14, wy + 24), 16, UiKit.YOU)
 	UiKit.text(self, font, UiKit.t("In harness. Decides a bullrush more than anything else."),
-		Vector2(STAT_X, wy + 45), 13, UiKit.DIM)
+		Vector2(STAT_X, wy + 45), 14, UiKit.DIM)
 
 	## THE CEILING, DRAWN. The bar fills to his rating and the marshal's line
 	## sits at what the division allows, so the cap is a place on screen rather
@@ -582,8 +586,8 @@ func _draw_fighter() -> void:
 		Tuning.COL_MARSHAL, 2.0)
 	UiKit.text(self, font, "%d" % card.overall(), Vector2(RIGHT_X, 232), 20,
 		UiKit.DOWN if over else UiKit.INK)
-	UiKit.right(self, font, UiKit.t("%s caps a made man at %d") % [String(lim["tier"]), ceiling],
-		Vector2(RIGHT_X + 340, 232), 13, UiKit.DIM, 300.0)
+	UiKit.right(self, font, UiKit.t("Cap for a made man: %d") % ceiling,
+		Vector2(RIGHT_X + 340, 232), 14, UiKit.DIM, 300.0)
 
 	var wage := ClubOffice.wage(card)
 	var cap := season.office.cap()
@@ -602,7 +606,7 @@ func _draw_fighter() -> void:
 
 	var err := Workshop.fighter_legal(card, season.office.tier)
 	if err != "" and card.display_name.strip_edges() != "":
-		UiKit.text(self, font, err, Vector2(RIGHT_X, 404), 13, UiKit.DOWN)
+		UiKit.text(self, font, err, Vector2(RIGHT_X, 404), 14, UiKit.DOWN)
 
 
 func _draw_club() -> void:
@@ -613,9 +617,9 @@ func _draw_club() -> void:
 	UiKit.text(self, font, UiKit.t("One club per save. The colors are free; the marks are not."),
 		Vector2(STAT_X, 126), 14, UiKit.DIM)
 	## Beside the name field and short of the mark shelf's first button.
-	UiKit.text_fit(self, font, UiKit.t("Name"), Vector2(STAT_X + 390, 176), 13, UiKit.DIM,
-		BANK_X - (STAT_X + 390) - 6.0)
-	UiKit.text(self, font, UiKit.t("Short"), Vector2(STAT_X + 130, 226), 13, UiKit.DIM)
+	## LABELS ABOVE THEIR FIELDS (blind review round 3: they sat to the right).
+	UiKit.text(self, font, UiKit.t("CLUB NAME"), Vector2(STAT_X, 148), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("SHORT NAME"), Vector2(STAT_X, 204), 12, UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("HOME TOWN"), Vector2(STAT_X, TOWN_Y - 12.0), 11, UiKit.DIM)
 	UiKit.text(self, font, Cities.full_name(season.city()),
 		Vector2(STAT_X + 96.0, TOWN_Y - 11.0), 14, UiKit.YOU)
@@ -633,7 +637,7 @@ func _draw_club() -> void:
 	var bad := Workshop.identity_legal(
 		club_name_edit.text if club_name_edit != null else "xxx", short, kit, mark)
 	if bad != "":
-		UiKit.text(self, font, bad, Vector2(STAT_X + 300.0, UiKit.bottom(28.0)), 13, UiKit.DOWN)
+		UiKit.text(self, font, bad, Vector2(STAT_X + 300.0, UiKit.bottom(28.0)), 14, UiKit.DOWN)
 
 	_draw_bank(kit, mark)
 
@@ -642,6 +646,19 @@ func _draw_club() -> void:
 ## own colors at half strength rather than as a padlock: the question the
 ## player is answering is "do I want to wear that", and he cannot answer it from
 ## a padlock.
+## A colour square inside a button, left of its words, which step right to clear it.
+func _swatched(b: Button, col: Color) -> Button:
+	var sw := ColorRect.new()
+	sw.color = col
+	sw.size = Vector2(16, 16)
+	sw.position = Vector2(10, (b.size.y - 16.0) * 0.5 - 2.0)
+	sw.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(sw)
+	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	b.text = "    " + b.text
+	return b
+
+
 func _draw_bank(kit: Color, mark: Color) -> void:
 	var packs := IconBank.packs()
 	var shelf := IconBank.in_pack(packs[pack_i % packs.size()])
@@ -661,9 +678,15 @@ func _draw_bank(kit: Color, mark: Color) -> void:
 		var k: Color = kit if have else kit.darkened(0.42)
 		var m: Color = mark if have else Color(mark, 0.45)
 		UiKit.badge(self, at, BANK_R, k, m, id)
-		var label := IconBank.icon_name(id) if have else "%d CC" % IconBank.cost(id)
-		UiKit.text(self, font, label, at + Vector2(-BANK_R, BANK_R + 16), 12,
+		## ITS NAME EITHER WAY, and the price beside it when it is not his
+		## (blind review round 3: locked marks showed a price and no name).
+		var nm := IconBank.icon_name(id)
+		UiKit.text(self, font, nm, at + Vector2(-BANK_R, BANK_R + 16), 12,
 			UiKit.INK if have else UiKit.DIM)
+		if not have:
+			var w := font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+			UiKit.text(self, font, "%d CC" % IconBank.cost(id), at + Vector2(-BANK_R + w + 6.0, BANK_R + 16), 12,
+				UiKit.YOU)
 
 
 func _bank_slot(i: int) -> Vector2:

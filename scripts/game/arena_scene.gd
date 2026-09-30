@@ -19,6 +19,9 @@ extends Node2D
 
 const GROUND := Rect2(24.0, 96.0, 520.0, 300.0)
 const RIGHT_X := 572.0
+## The diary's pickers sit right of their labels ("When", "Budget").
+const PICK_X := 110.0
+const PICK_W := 254.0
 ## Where the arena images live once they exist. One folder, one file per level,
 ## named by level — so adding a seventh ground is a data change and a file, not
 ## a code change.
@@ -83,22 +86,26 @@ func _rebuild() -> void:
 		## PICKERS SAY THEY ARE PICKERS (blind review, 29 Sep: they read as
 		## purchases). A tap moves to the next option; nothing is spent until
 		## "Take the date".
-		ui.add_child(UiKit.button(UiKit.t("Date: %s — %d CC  ·  change") % [UiKit.t(String(o["name"])), int(o["bid"])],
-			Vector2(RIGHT_X, 280), Vector2(340, 36), func():
+		## A LABEL, THEN A PICKER THAT SAYS IT PICKS (blind review round 3: "the
+		## diary buttons merge a value and an action"). The word on the left is
+		## what is being chosen; the button is the choice, with a › to say a tap
+		## moves to the next one.
+		ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [UiKit.t(String(o["name"])), int(o["bid"])] + "  >",
+			Vector2(RIGHT_X + PICK_X, 298), Vector2(PICK_W, 38), func():
 				offer_i = (offer_i + 1) % season.bid_offers.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.button(UiKit.t("Budget: %s — %d CC  ·  change") % [
+		ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [
 				UiKit.t(String(ClubEvent.BUDGETS[budget_i]["name"])),
-				int(ClubEvent.BUDGETS[budget_i]["cost"])],
-			Vector2(RIGHT_X, 322), Vector2(340, 36), func():
+				int(ClubEvent.BUDGETS[budget_i]["cost"])] + "  >",
+			Vector2(RIGHT_X + PICK_X, 342), Vector2(PICK_W, 38), func():
 				budget_i = (budget_i + 1) % ClubEvent.BUDGETS.size()
 				flash = ""
 				_rebuild()))
-		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 364),
-			Vector2(166, 40), _bid)))
-		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(RIGHT_X + 174, 364),
-			Vector2(166, 40), func():
+		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Take the date"), Vector2(RIGHT_X, 444),
+			Vector2(178, 44), _bid)))
+		ui.add_child(UiKit.button(UiKit.t("Pass this year"), Vector2(RIGHT_X + 186, 444),
+			Vector2(178, 44), func():
 				season.decline_bid()
 				Session.autosave()
 				flash = UiKit.t("No tournament this year.")
@@ -176,7 +183,7 @@ func _draw() -> void:
 		UiKit.t("%s in  ·  %d%% full  ·  %d CC a home fight") % [
 			UiKit.crowd_word(office.attendance()),
 			int(round(office.fill() * 100.0)), office.crowd_pay()],
-		Vector2(UiKit.right_edge(120.0), 64), 13, UiKit.DIM, 420.0)
+		Vector2(UiKit.right_edge(120.0), 64), 14, UiKit.DIM, 420.0)
 	## THE METER, because a band you cannot see coming is a band you cannot chase.
 	## Retro Bowl's whole fan bar is this: the player watches it fill and knows a
 	## raise is close. A number alone does not do that — 71 and 74 read the same
@@ -200,8 +207,8 @@ func _draw() -> void:
 	_draw_ground()
 	## Clipped to its own column. The National Arena's blurb is long enough to
 	## run under the diary and print through the payout line.
-	UiKit.text_fit(self, font, UiKit.t(String(arena.here()["blurb"])),
-		Vector2(24, GROUND.end.y + 26), 13, UiKit.DIM, GROUND.size.x)
+	UiKit.para(self, font, UiKit.t(String(arena.here()["blurb"])),
+		Vector2(24, GROUND.end.y + 24), 14, UiKit.DIM, GROUND.size.x, 18.0)
 	_draw_diary()
 	## THE FLASH MOVED DOWN, because the tidy button now sits at 444 and it used
 	## to print at 448. **A scrim cannot cover a Button — and it goes the other
@@ -222,10 +229,10 @@ func _meter(at: Vector2, w: float) -> void:
 	var fill: float = office.crowd_meter()
 	for i in n:
 		var x: float = at.x + float(i) * (seg + gap)
-		draw_rect(Rect2(Vector2(x, at.y), Vector2(seg, 5.0)), UiKit.BG.lerp(UiKit.DIM, 0.35))
+		draw_rect(Rect2(Vector2(x, at.y), Vector2(seg, 8.0)), UiKit.BG.lerp(UiKit.DIM, 0.35))
 		var how: float = 1.0 if i < band else (fill if i == band else 0.0)
 		if how > 0.0:
-			draw_rect(Rect2(Vector2(x, at.y), Vector2(seg * how, 5.0)), UiKit.YOU)
+			draw_rect(Rect2(Vector2(x, at.y), Vector2(seg * how, 8.0)), UiKit.YOU)
 
 
 func _fans_word() -> String:
@@ -306,11 +313,11 @@ func _draw_diary() -> void:
 	UiKit.text(self, font, UiKit.t("THE GROUND"), Vector2(RIGHT_X, 118), 15, UiKit.INK)
 	if arena.at_top():
 		UiKit.text(self, font, UiKit.t("Built as far as a club can build."),
-			Vector2(RIGHT_X, 146), 13, UiKit.DIM)
+			Vector2(RIGHT_X, 146), 14, UiKit.DIM)
 	else:
 		var n := arena.next()
 		UiKit.text(self, font, UiKit.t("Next: %s, holds %d") % [String(n["name"]), int(n["capacity"])],
-			Vector2(RIGHT_X, 146), 13, UiKit.DIM)
+			Vector2(RIGHT_X, 146), 14, UiKit.DIM)
 		## AND WHICH DIVISION IT NEEDS. `arena.next_tier()` was written for this
 		## screen — its own comment says so — and then never called, so the one
 		## thing the player most needs to know was only ever visible inside a
@@ -330,11 +337,11 @@ func _draw_diary() -> void:
 		var locked := need > office.tier
 		if locked:
 			UiKit.text(self, font, UiKit.t("Needs the %s") % League.tier_name(need),
-				Vector2(RIGHT_X, 168), 13, UiKit.DOWN)
+				Vector2(RIGHT_X, 168), 14, UiKit.DOWN)
 		else:
 			var err := arena.can_build(office.tier, office.credits)
 			if err != "":
-				UiKit.text_fit(self, font, err, Vector2(RIGHT_X, 168), 13, UiKit.DIM, 340.0)
+				UiKit.text_fit(self, font, err, Vector2(RIGHT_X, 168), 14, UiKit.DIM, 340.0)
 
 	UiKit.text(self, font, UiKit.t("THE DIARY"), Vector2(RIGHT_X, 270), 15, UiKit.INK)
 	if season.bid_open():
@@ -343,42 +350,40 @@ func _draw_diary() -> void:
 		## moves with the ground he has banked into.
 		var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
 		var p := season.bid_preview(offer_i % season.bid_offers.size(), budget_i)
-		UiKit.text_fit(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 424), 13, UiKit.DIM,
+		UiKit.text_fit(self, font, UiKit.t(String(o["blurb"])), Vector2(RIGHT_X, 290), 14, UiKit.DIM,
 			UiKit.screen().x - 24.0 - RIGHT_X)
+		UiKit.text_fit(self, font, UiKit.t("When"), Vector2(RIGHT_X, 322), 14, UiKit.INK, PICK_X - 8.0)
+		UiKit.text_fit(self, font, UiKit.t("Budget"), Vector2(RIGHT_X, 366), 14, UiKit.INK, PICK_X - 8.0)
 		## TWO LINES EACH, because both of these ran off the right of the frame in
 		## the real face — 1021 and 976 of a 960 — and both are sentences the
 		## player is meant to read before spending credits on a date. Breaking
 		## them at the natural clause beats shrinking a figure somebody is about
 		## to make a decision on.
-		UiKit.text(self, font, UiKit.t("Event %d  ·  about %d through the gate") % [
+		## THE SUM, ABOVE THE BUTTON IT DECIDES (blind review round 3: the
+		## "Expected" line sat under the button it was about).
+		UiKit.text_fit(self, font, UiKit.t("Event %d  ·  about %d through the gate") % [
 			int(o["event"]) + 1, int(p["heads"])],
-			Vector2(RIGHT_X, 442), 13, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("%d CC spent") % int(p["cost"]),
-			Vector2(RIGHT_X, 460), 13, UiKit.DIM)
+			Vector2(RIGHT_X, 404), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X)
 		var net := int(p["net"])
-		## A NUMBER WITH A NAME (blind review, 29 Sep: "a useful projection written
-		## as a riddle").
-		UiKit.text(self, font, UiKit.t("Expected: %+d CC") % net,
-			Vector2(RIGHT_X, 484), 15, UiKit.UP if net >= 0 else UiKit.DOWN)
-		UiKit.text(self, font, UiKit.t("%+d CC if you win it") % int(p["best"]),
-			Vector2(RIGHT_X, UiKit.bottom(34.0)), 13, UiKit.UP if net >= 0 else UiKit.DOWN)
+		UiKit.text_fit(self, font, UiKit.t("Expected: %+d CC  ·  %+d CC if you win it") % [net, int(p["best"])],
+			Vector2(RIGHT_X, 426), 15, UiKit.UP if net >= 0 else UiKit.DOWN, UiKit.screen().x - 24.0 - RIGHT_X)
 		return
 	if season.booked != null:
 		var away := season.booked.events_away(season.world.event)
 		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(),
 			UiKit.t("this event") if away == 0 else UiKit.t("in %d events") % away],
-			Vector2(RIGHT_X, 304), 13, UiKit.YOU)
+			Vector2(RIGHT_X, 304), 14, UiKit.YOU)
 		UiKit.text(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
-			Vector2(RIGHT_X, 326), 13, UiKit.DIM)
+			Vector2(RIGHT_X, 326), 14, UiKit.DIM)
 	else:
 		UiKit.text(self, font, UiKit.t("No tournament this year."),
-			Vector2(RIGHT_X, 304), 13, UiKit.DIM)
+			Vector2(RIGHT_X, 304), 14, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("The federation offers dates between seasons."),
-			Vector2(RIGHT_X, 326), 13, UiKit.DIM)
+			Vector2(RIGHT_X, 326), 14, UiKit.DIM)
 
 	if not season.last_show.is_empty():
 		var l := season.last_show
-		UiKit.text(self, font, UiKit.t("LAST TIME OUT"), Vector2(RIGHT_X, 466), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("LAST TIME OUT"), Vector2(RIGHT_X, 466), 14, UiKit.DIM)
 		var f := Cup.finish_words(String(l.get("finish", "")))
 		UiKit.text(self, font, UiKit.t("%s · %d in · %+d cr%s") % [
 			String(l.get("kind", "?")), int(l.get("heads", 0)), int(l.get("net", 0)),

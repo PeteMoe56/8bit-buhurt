@@ -33,7 +33,7 @@ const BANNER_W := 106.0
 const BANNER_TOP := 58.0
 
 const COL_INK := Color("e8e4d8")
-const COL_DIM := Color("968c78")
+const COL_DIM := Color("a59c8b")
 const COL_PANEL := Color("241f1a")
 const COL_EDGE := Color("3d352b")
 const COL_HOT := Color("e05a3c")
@@ -1060,18 +1060,18 @@ func _draw_quips() -> void:
 	var y := QUIP_TOP - quip_scroll
 	var total := 0.0
 	for q in rows:
-		var lines := UiKit.wrap(font, q.text, REP_RW - 34.0, 9)
-		var h := 24.0 + float(lines.size()) * 14.0 + 8.0
+		var lines := UiKit.wrap(font, q.text, REP_RW - 34.0, 13)
+		var h := 26.0 + float(lines.size()) * 17.0 + 8.0
 		if y + h > QUIP_TOP and y < QUIP_TOP + QUIP_H:
 			var box := Rect2(REP_RX, y, REP_RW - 10.0, h)
 			draw_rect(box, COL_PANEL.lightened(0.05))
 			draw_rect(box, COL_EDGE, false, 1.0)
 			draw_rect(Rect2(REP_RX, y, 3.0, h), _tone_color(q.tone))
-			UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 16.0), q.who,
-				HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 10, _tone_color(q.tone))
+			UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 17.0), q.who,
+				HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 13, _tone_color(q.tone))
 			for k in lines.size():
-				UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 30.0 + float(k) * 14.0),
-					String(lines[k]), HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 9, COL_DIM)
+				UiKit.raw(self, font, Vector2(REP_RX + 12.0, y + 34.0 + float(k) * 17.0),
+					String(lines[k]), HORIZONTAL_ALIGNMENT_LEFT, REP_RW - 24, 13, COL_DIM)
 		y += h + 6.0
 		total += h + 6.0
 	quip_over = maxf(0.0, total - 6.0 - QUIP_H)
@@ -1306,7 +1306,7 @@ func _draw_corner() -> void:
 		if sim.bench(0).is_empty():
 			UiKit.raw(self, font, sub_box.position + Vector2(SUB_PAD, _sub_row_y(0) + 26.0),
 				UiKit.t("Nobody left on the bench."), HORIZONTAL_ALIGNMENT_LEFT,
-				int(sub_box.size.x - SUB_PAD * 2.0), 13, COL_DIM)
+				int(sub_box.size.x - SUB_PAD * 2.0), 14, COL_DIM)
 
 
 ## The sim man standing in a given slot of our line, or null before the men are
@@ -1652,8 +1652,8 @@ func _draw_wheel(m) -> void:
 		UiKit.raw(self, font, Vector2(at.x, top + 14.0), Tuning.act_name(act), align, int(lw), 16,
 			UiKit.YOU if hot else COL_INK)
 		UiKit.raw(self, font, Vector2(at.x, top + 31.0), chance_s,
-			align, int(lw), 13, _odds_col(p_land))
-		UiKit.raw(self, font, Vector2(at.x, top + 47.0), effect, align, int(lw), 13, effect_col)
+			align, int(lw), 14, _odds_col(p_land))
+		UiKit.raw(self, font, Vector2(at.x, top + 47.0), effect, align, int(lw), 14, effect_col)
 	if wheel_drag and wheel_hot != -2:
 		UiKit.raw(self, font, c + Vector2(-120, WHEEL_RI + (94.0 if behind else 76.0)),
 			UiKit.t("Lift to commit") if wheel_hot != -1 else UiKit.t("Lift to cancel"),
@@ -1828,7 +1828,7 @@ func _draw_strip() -> void:
 		UiKit.raw(self, font, r.position + Vector2(10, 22), UiKit.t("#%d %s") % [m.card.number, m.card.display_name],
 			HORIZONTAL_ALIGNMENT_LEFT, int(CARD_W - 16), 15, ink)
 		UiKit.raw(self, font, r.position + Vector2(10, 42), m.card.pos_name(),
-			HORIZONTAL_ALIGNMENT_LEFT, int(CARD_W - 16), 13, COL_DIM)
+			HORIZONTAL_ALIGNMENT_LEFT, int(CARD_W - 16), 14, COL_DIM)
 		## HIS AFTERNOON SO FAR, right-aligned onto the position line — which
 		## carries one short word and has had the rest of its width doing nothing
 		## since the strip was built. Silent at nought and nought, because a card
@@ -1929,7 +1929,7 @@ func _draw_held() -> void:
 		HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 26, Tuning.COL_MARSHAL)
 	UiKit.raw(self, font, Vector2(band.position.x, band.position.y + 52.0),
 		UiKit.t("give one man an order · %.1fs") % maxf(0.0, hold_t),
-		HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 13, COL_INK)
+		HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 14, COL_INK)
 
 
 # ------------------------------------------------------------ coach marks
@@ -2734,7 +2734,7 @@ func _draw_splash() -> void:
 	var home_id := _splash_host()
 	var city := _season().world.city_of(home_id) if (_season() != null and home_id >= 0) else ""
 	UiKit.raw(self, font, Vector2(0, 74), UiKit.t(String(Venue.NAME[kind])).to_upper(),
-		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 13, COL_DIM)
+		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 14, COL_DIM)
 	var ground := UiKit.t("Their ground")
 	if kind == Venue.Kind.HOME:
 		## A standalone bout has no arena to name, and used to fall through to
@@ -2760,7 +2760,7 @@ func _draw_splash() -> void:
 		else _season().world.clubs[maxi(0, _season().opponent_id())]["name"]
 	UiKit.raw(self, font, Vector2(0, 392),
 		Venue.mood_line(kind, String(them).split(" ")[0]),
-		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 13, COL_INK)
+		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 14, COL_INK)
 
 
 func _splash_club(club, side: int, cx: float) -> void:

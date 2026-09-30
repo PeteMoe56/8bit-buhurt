@@ -166,5 +166,7 @@ static func starting_club() -> MeleeClub:
 	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", START_POWER, true)
 	c.kit = IconBank.KIT_COLORS[0]
 	c.icon_color = IconBank.MARK_COLORS[0]
-	c.icon = 5
+	## Diamond, not the Saltire: a red X on the badge read as a close button
+	## on four screens (blind review round 3, 30 Sep 2026).
+	c.icon = 7
 	return c

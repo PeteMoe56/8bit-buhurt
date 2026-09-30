@@ -525,7 +525,7 @@ func _draw() -> void:
 		## 13px line's descenders were inside the buttons' own drop shadow, which
 		## is what "when pressed, it's hidden" was describing.
 		UiKit.text(self, font, UiKit.fit_px(font, flash, 13, UiKit.span()),
-			Vector2(24, UiKit.screen().y - 76), 13, UiKit.DOWN)
+			Vector2(24, UiKit.screen().y - 76), 14, UiKit.DOWN)
 	elif bus_note != "":
 		## UNDER THE TITLE, NOT ABOVE THE BUTTONS. The first cut put it on the
 		## same line the flash uses — and the ink sweep failed it at all four
@@ -538,7 +538,7 @@ func _draw() -> void:
 		## frame, so it needs somewhere that is free every frame — and the strip
 		## under the fighter's name is the only band on this screen that is.
 		UiKit.text(self, font, UiKit.fit_px(font, bus_note, 13, UiKit.span()),
-			Vector2(24, 74), 13, UiKit.DIM)
+			Vector2(24, 74), 14, UiKit.DIM)
 
 
 # ------------------------------------------------------------------- column 1
@@ -566,7 +566,7 @@ func _the_man() -> void:
 	## HIS MOOD, and it belongs on this list rather than in a panel of its own:
 	## it is a fact about the man in the same way his weight is, and it is the one
 	## on the list that you can do something about this week.
-	UiKit.text(self, font, UiKit.t("Morale"), Vector2(L_X + 16, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Morale"), Vector2(L_X + 16, y), 14, UiKit.DIM)
 	UiKit.right(self, font, man.morale_word(), Vector2(L_X + COL_W - 16, y), 13,
 		man.morale_color(), 210)
 	y += ROW
@@ -585,9 +585,9 @@ func _the_man() -> void:
 	## half that costs you something.
 	if man.trait_id != FighterTrait.T.NONE:
 		var flaw := FighterTrait.is_flaw(man.trait_id)
-		UiKit.text(self, font, UiKit.t("Known for"), Vector2(L_X + 16, y), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Known for"), Vector2(L_X + 16, y), 14, UiKit.DIM)
 		UiKit.right(self, font, FighterTrait.name_of(man.trait_id),
-			Vector2(L_X + COL_W - 16, y), 13, UiKit.DOWN if flaw else UiKit.UP, 210)
+			Vector2(L_X + COL_W - 16, y), 14, UiKit.DOWN if flaw else UiKit.UP, 210)
 		y += 17.0
 		for line in UiKit.wrap(font, FighterTrait.blurb_of(man.trait_id),
 				COL_W - 32.0, 11):
@@ -632,7 +632,7 @@ func _the_man() -> void:
 	if capped:
 		word = UiKit.t("at his ceiling")
 		tint = UiKit.EDGE.lightened(0.5)
-	UiKit.right(self, font, word, Vector2(L_X + COL_W - 16, y), 13, tint, 210)
+	UiKit.right(self, font, word, Vector2(L_X + COL_W - 16, y), 14, tint, 210)
 	UiKit.bar(self, Rect2(L_X + 16, y + 12, COL_W - 32, 14),
 		1.0 if waiting else clampf(float(man.xp) / float(maxi(1, bar)), 0.0, 1.0),
 		UiKit.EDGE.lightened(0.4) if capped
@@ -645,11 +645,11 @@ func _the_man() -> void:
 	var asks: Dictionary = Contracts.demand(man)
 	if bool(asks["refuses"]):
 		UiKit.text(self, font, UiKit.t("He will not sign again."),
-			Vector2(L_X + 16, y + 56), 13, UiKit.DOWN)
+			Vector2(L_X + 16, y + 56), 14, UiKit.DOWN)
 	else:
 		## TWO PRICES, NAMED APART (blind review, 29 Sep: "$23 disagrees with $24").
 		## Extending now and re-signing when the deal runs out are different deals.
-		UiKit.text(self, font, UiKit.t("When his deal ends"), Vector2(L_X + 16, y + 56), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("When his deal ends"), Vector2(L_X + 16, y + 56), 14, UiKit.DIM)
 		## The price the club would actually pay (a Negotiator captain included),
 		## from the same function `Season.resign` charges.
 		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])
@@ -724,7 +724,7 @@ func _draw_meeting() -> void:
 		UiKit.FRAME)
 	UiKit.mid(self, font, UiKit.t("club rating %d")
 		% int(round(_roll("power", float(season.club.power())))),
-		Vector2(card().position.x, ry + 20.0), 13, UiKit.DIM, card().size.x)
+		Vector2(card().position.x, ry + 20.0), 14, UiKit.DIM, card().size.x)
 
 
 func _draw_cell(i: int) -> void:
@@ -760,8 +760,8 @@ func _draw_cell(i: int) -> void:
 
 
 func _line(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, UiKit.t(label), Vector2(L_X + 16, y), 13, UiKit.DIM)
-	UiKit.right(self, font, value, Vector2(L_X + COL_W - 16, y), 13, UiKit.INK, 210)
+	UiKit.text(self, font, UiKit.t(label), Vector2(L_X + 16, y), 14, UiKit.DIM)
+	UiKit.right(self, font, value, Vector2(L_X + COL_W - 16, y), 14, UiKit.INK, 210)
 
 
 # ------------------------------------------------------------------- column 2
@@ -821,8 +821,8 @@ func _attributes() -> void:
 	## version already proved clear.
 	UiKit.text_fit(self, font,
 		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
-			else UiKit.t("Ceiling means overall, not one stat."),
-		Vector2(M_X + 16, COL_Y + COL_H - 14), 11,
+			else UiKit.t("Ceiling is his overall."),
+		Vector2(M_X + 16, COL_Y + COL_H - 14), 13,
 		man.morale_color() if man.angry() else UiKit.EDGE.lightened(0.4), COL_W - 32.0)
 
 
@@ -831,10 +831,10 @@ func _the_book() -> void:
 	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
 	UiKit.text(self, font, UiKit.t("HIS RECORD"), Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	if man.bouts <= 0:
-		UiKit.text_fit(self, font, UiKit.t("He has not fought for you yet."),
-			Vector2(R_X + 16, COL_Y + 64), 13, UiKit.DIM, COL_W - 32.0)
-		UiKit.para(self, font, UiKit.t("Downs, assists and knocks are kept from his first event on."),
-			Vector2(R_X + 16, COL_Y + 92), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 18.0)
+		UiKit.text_fit(self, font, UiKit.t("No events for you yet."),
+			Vector2(R_X + 16, COL_Y + 64), 14, UiKit.DIM, COL_W - 32.0)
+		UiKit.para(self, font, UiKit.t("His record starts at his first event."),
+			Vector2(R_X + 16, COL_Y + 92), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 18.0)
 		return
 	var y := COL_Y + 56.0
 	_book("Events", "%d" % man.bouts, y); y += 26.0
@@ -846,12 +846,12 @@ func _the_book() -> void:
 	_book("Carried off", "%d" % man.knocks, y); y += 34.0
 	UiKit.text(self, font, UiKit.t("HONORS"), Vector2(R_X + 16, y), 11, UiKit.DIM)
 	if man.honors <= 0:
-		UiKit.text(self, font, UiKit.t("Nothing yet."), Vector2(R_X + 16, y + 22), 13, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Nothing yet."), Vector2(R_X + 16, y + 22), 14, UiKit.DIM)
 	else:
 		UiKit.text(self, font, (UiKit.t("%d cup") if man.honors == 1 else UiKit.t("%d cups")) % man.honors,
 			Vector2(R_X + 16, y + 22), 16, UiKit.YOU)
 
 
 func _book(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, UiKit.t(label), Vector2(R_X + 16, y), 13, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t(label), Vector2(R_X + 16, y), 14, UiKit.DIM)
 	UiKit.right(self, font, value, Vector2(R_X + COL_W - 16, y), 14, UiKit.INK, 120)

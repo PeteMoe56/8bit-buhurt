@@ -373,12 +373,12 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## screen whose order is a choice rather than a fact.
 	UiKit.text(v, v.font, UiKit.t("RESERVE — by %s") % UiKit.t(String(
 		SeasonScene.RESERVE_SORTS[v.reserve_sort % SeasonScene.RESERVE_SORTS.size()]["word"])),
-		Vector2(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y), 13, UiKit.DIM)
+		Vector2(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
 	## The cap, where the decision is: every man on this screen costs against it.
 	var bill := ClubOffice.wage_bill(v.season.club)
 	var cap := v.season.office.cap()
 	UiKit.right(v, v.font, UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-		Vector2(UiKit.right_edge(), SeasonScene.CONTENT_Y), 13, UiKit.DOWN if bill > cap else UiKit.DIM, 300)
+		Vector2(UiKit.right_edge(), SeasonScene.CONTENT_Y), 14, UiKit.DOWN if bill > cap else UiKit.DIM, 300)
 	## THE HEADINGS, over both columns, before any man is drawn.
 	v._squad_head(24.0, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_HEAD_Y)
 	if not v.season.club.reserves().is_empty():
@@ -395,7 +395,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 		## should say which is which.
 		if kind == "bench" and last_kind == "on the line":
 			UiKit.text(v, v.font, UiKit.t("BENCH — two may come on each corner"),
-				Vector2(24, y - 24), 13, UiKit.DIM)
+				Vector2(24, y - 24), 14, UiKit.DIM)
 		v._man_row(row["card"], y, kind, x)
 		last_kind = kind
 	if v.season.club.reserves().is_empty():
@@ -414,7 +414,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## "this man is not in the eight", and a key that explains the absence of a
 	## problem is a key nobody finishes reading.
 	UiKit.text(v, v.font, UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow"),
-		Vector2(24, SeasonScene._squad_key_y()), 13, UiKit.DIM)
+		Vector2(24, SeasonScene._squad_key_y()), 14, UiKit.DIM)
 
 
 
@@ -426,7 +426,7 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	elif role == "on the line":
 		v.draw_rect(Rect2(x, y - 20, w, SeasonScene.SQUAD_ROW - 2), UiKit.PANEL)
 	var col := UiKit.INK if role != "reserve" else UiKit.DIM
-	UiKit.text(v, v.font, "#%d" % f.number, Vector2(x + SeasonScene.COL_NUM, y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, "#%d" % f.number, Vector2(x + SeasonScene.COL_NUM, y), 14, UiKit.DIM)
 	## FITTED, NOT CLIPPED. The column is a pixel budget and the name is cut to
 	## it — a thirteen-character count let a wide name run into the position.
 	UiKit.text(v, v.font, UiKit.fit(v.font, f.display_name, 16, SeasonScene.COL_NAME_W),
@@ -434,14 +434,14 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	## An injury is the most important thing on a team sheet, so it goes where a
 	## position would and takes the color that means "deal with this".
 	if f.injury > 0:
-		UiKit.text(v, v.font, UiKit.t("OUT %d") % f.injury, Vector2(x + SeasonScene.COL_POS, y), 13, UiKit.DOWN)
+		UiKit.text(v, v.font, UiKit.t("OUT %d") % f.injury, Vector2(x + SeasonScene.COL_POS, y), 14, UiKit.DOWN)
 	else:
-		UiKit.text(v, v.font, Tuning.pos_name(int(f.pos)), Vector2(x + SeasonScene.COL_POS, y), 13, UiKit.DIM)
+		UiKit.text(v, v.font, Tuning.pos_name(int(f.pos)), Vector2(x + SeasonScene.COL_POS, y), 14, UiKit.DIM)
 	## Kit is this game's salary cap and already costs him base, so it belongs on
 	## the team sheet next to the rating it is quietly subtracting from.
 	var armor_col := armor_col(f.armor)
 	UiKit.text(v, v.font, "%3d%%" % int(round(f.armor * 100.0)),
-		Vector2(x + SeasonScene.COL_ARMOR, y), 13, armor_col)
+		Vector2(x + SeasonScene.COL_ARMOR, y), 14, armor_col)
 	## AGE, and it is not decoration — see scripts/game/career.gd. Marked when he
 	## is past the age at which not-being-put-down peaks and has fallen a way from
 	## his own ceiling, because "he is 37 and eight off what he could have been"
@@ -460,7 +460,7 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	elif f.years == 1:
 		deal_col = UiKit.UP
 	UiKit.right(v, v.font, ClubOffice.money(ClubOffice.billed(f)),
-		Vector2(x + SeasonScene.COL_WAGE_TO, y), 13, UiKit.DIM, SeasonScene.COL_WAGE_BOX)
+		Vector2(x + SeasonScene.COL_WAGE_TO, y), 14, UiKit.DIM, SeasonScene.COL_WAGE_BOX)
 	UiKit.text(v, v.font, (UiKit.t("OUT") if f.years <= 0 else UiKit.t("%dy") % f.years),
 		Vector2(x + SeasonScene.COL_YEARS, y), 12, deal_col)
 	## THE TWO NUMBERS, together. Retro Bowl's roster screen is read almost

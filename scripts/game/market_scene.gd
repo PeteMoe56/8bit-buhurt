@@ -12,11 +12,13 @@ extends Node2D
 ## does. A market that shows one of them is a market that lies about half its
 ## refusals.
 
-const CARD_W := 146.0
+## THREE A ROW, TWICE THE SIZE (blind review round 3: "the cards fill the top
+## 45% and the rest is empty").
+const CARD_W := 292.0
 const CARD_H := 158.0
 const GAP := 12.0
 const TOP := 96.0
-const PER_ROW := 6
+const PER_ROW := 3
 
 var font: Font
 var ui: CanvasLayer
@@ -115,7 +117,7 @@ func _draw() -> void:
 	## WHAT TO DO (blind review, 29 Sep: "no Sign button").
 	if picked == null:
 		UiKit.right(self, font, UiKit.t("Tap a man to sign him. A red price is more than you have."),
-			Vector2(UiKit.screen().x - 24, 78), 13, UiKit.DIM, 560)
+			Vector2(UiKit.screen().x - 24, 78), 14, UiKit.DIM, 560)
 	var slots := _slots()
 	if slots.is_empty():
 		UiKit.text(self, font, UiKit.t("Nobody is looking for a club this season."),
@@ -181,7 +183,7 @@ func _draw() -> void:
 
 	_footer()
 	if flash != "":
-		UiKit.text(self, font, flash, Vector2(200, UiKit.screen().y - 30), 13, UiKit.DOWN)
+		UiKit.text(self, font, flash, Vector2(200, UiKit.screen().y - 30), 14, UiKit.DOWN)
 
 
 func _footer() -> void:
@@ -197,7 +199,7 @@ func _footer() -> void:
 	## `test_ink.gd`, which named it on its first run. It goes in the gap that is
 	## actually free.
 	var y := UiKit.screen().y - 56.0
-	UiKit.panel(self, Rect2(424, y, 124, 44))
+	UiKit.panel(self, Rect2(420, y, 132, 44))
 	## A HUNDRED AND TWENTY-FOUR PIXELS, AND IT HAS TO HOLD THREE THINGS.
 	##
 	## The panel was moved here to get out from under the New names button — and
@@ -212,15 +214,15 @@ func _footer() -> void:
 	## left, the figure right-aligned into the 76 that are left, and the bar under
 	## both. And the figure is short — `_bill_word`'s long form does not fit in 76
 	## pixels at any size, which is why it now has a short form.
-	UiKit.text(self, font, UiKit.t("BILL"), Vector2(434, y + 15), 9, UiKit.DIM)
-	UiKit.bar(self, Rect2(434, y + 22, 104, 12), float(bill) / float(maxi(1, cap)),
+	UiKit.text(self, font, UiKit.t("BILL"), Vector2(428, y + 15), 12, UiKit.DIM)
+	UiKit.bar(self, Rect2(428, y + 24, 116, 12), float(bill) / float(maxi(1, cap)),
 		UiKit.DOWN if bill > cap else UiKit.YOU)
 	UiKit.right(self, font, _bill_word(bill, cap),
 		## The panel's own right edge less its padding. `right_edge(422)` measured
 		## from the SCREEN's right and only landed inside this fixed panel at 960
 		## wide; at 1260 the figure floated 300 pixels clear of it (29 Sep 2026).
-		Vector2(538.0, y + 15), 9,
-		UiKit.INK if bill <= cap else UiKit.DOWN, 76)
+		Vector2(546.0, y + 15), 12,
+		UiKit.INK if bill <= cap else UiKit.DOWN, 84)
 
 
 ## THE WAGE BILL, AND BY HOW MUCH IT IS OVER.

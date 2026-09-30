@@ -38,7 +38,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	var was_in: Dictionary = last.get("in", {})
 	var was_out: Dictionary = last.get("out", {})
 
-	UiKit.text(v, v.font, UiKit.t("COMING IN"), Vector2(SeasonScene.FIN_LEFT, SeasonScene.CONTENT_Y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("COMING IN"), Vector2(SeasonScene.FIN_LEFT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
 	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
 	UiKit.right(v, v.font, UiKit.t("last"), Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
 	var y := SeasonScene.CONTENT_Y + 26.0
@@ -49,7 +49,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	v._fin_row("Everything in", in_now, in_was, y, UiKit.INK, 15)
 
 	y += 38.0
-	UiKit.text(v, v.font, UiKit.t("GOING OUT"), Vector2(SeasonScene.FIN_LEFT, y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("GOING OUT"), Vector2(SeasonScene.FIN_LEFT, y), 14, UiKit.DIM)
 	y += 26.0
 	y = v._fin_block(o.books_out, was_out, ClubOffice.OUT_ORDER, y, UiKit.DOWN)
 	var out_now := ClubOffice.book_total(o.books_out)
@@ -67,7 +67,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	## -31" alarmed with no guidance). It is this year so far, not a forecast.
 	var words := UiKit.t("So far this year. Gates and prize money arrive as the events are fought.") \
 		if net < 0 else UiKit.t("So far this year.")
-	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 20.0), 13, UiKit.DIM,
+	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 20.0), 14, UiKit.DIM,
 		SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0, 15.0, 2)
 
 	v._fin_ground()
@@ -133,7 +133,7 @@ static func _fin_block(v: SeasonScene, now: Dictionary, was: Dictionary, order: 
 static func _fin_ground(v: SeasonScene) -> void:
 	var o := v.season.office
 	var a := o.arena
-	UiKit.text(v, v.font, UiKit.t("THE GROUND"), Vector2(SeasonScene.FIN_RIGHT, SeasonScene.CONTENT_Y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("THE GROUND"), Vector2(SeasonScene.FIN_RIGHT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
 	var y := SeasonScene.CONTENT_Y + 28.0
 	UiKit.pair(v, v.font, a.arena_name(), a.condition_word(),
 		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 16, 13, UiKit.INK,
@@ -146,14 +146,14 @@ static func _fin_ground(v: SeasonScene) -> void:
 	var full := a.retainer_full()
 	if pays >= full:
 		UiKit.pair(v, v.font, UiKit.t("Pays a year"), UiKit.t("%d CC") % full,
-			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM, UiKit.DIM)
 	else:
 		## SHORTER THAN IT WAS. "%d CC — %d lost to the state of it" finished at
 		## 958 of a 960 canvas and `UiKit.pair` right-aligns, so on any narrower
 		## shape the sentence walked back over its own label.
 		UiKit.pair(v, v.font, UiKit.t("Pays a year"),
 			"%d CC  ·  %d lost to neglect" % [pays, full - pays],
-			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DOWN)
+			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM, UiKit.DOWN)
 	y += 22.0
 
 	## THE WHOLE SUMMER, not just the ground's share of it: dues, every building
@@ -163,40 +163,40 @@ static func _fin_ground(v: SeasonScene) -> void:
 	var short := bill - o.credits
 	UiKit.pair(v, v.font, UiKit.t("The summer bill"),
 		(UiKit.t("%d CC") % bill) if short <= 0 else (UiKit.t("%d CC  ·  %d short") % [bill, short]),
-		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM,
+		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM,
 		UiKit.DIM if short <= 0 else UiKit.DOWN)
 	y += 22.0
 	if a.condition < 0.999 and a.level >= Arena.WEARS_FROM_LEVEL:
 		UiKit.pair(v, v.font, UiKit.t("Putting it right"), UiKit.t("%d CC") % a.upkeep_cost(),
-			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.YOU)
+			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM, UiKit.YOU)
 	else:
 		UiKit.pair(v, v.font, UiKit.t("Putting it right"), UiKit.t("nothing to do"),
-			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM,
+			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM,
 			UiKit.EDGE.lightened(0.35))
 
 	## AND THE CROWD, because it is the other half of what a ground earns and it
 	## is the half the probes found nobody was being told about: at the bottom of
 	## the pyramid the gate is worth about a credit and a half a SEASON.
 	y += 34.0
-	UiKit.text(v, v.font, UiKit.t("THE CROWD"), Vector2(SeasonScene.FIN_RIGHT, y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("THE CROWD"), Vector2(SeasonScene.FIN_RIGHT, y), 14, UiKit.DIM)
 	y += 26.0
 	UiKit.pair(v, v.font, UiKit.t("They put through the door"),
 		UiKit.t("%s  ·  %d%% full") % [UiKit.crowd_word(o.attendance()),
 			int(round(o.fill() * 100.0))],
-		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM, UiKit.DIM)
 	y += 22.0
 	UiKit.pair(v, v.font, UiKit.t("A home fight pays"), UiKit.t("%d CC") % o.crowd_pay(),
-		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13, UiKit.DIM, UiKit.DIM)
+		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM, UiKit.DIM)
 	y += 22.0
 	## AND THE BAR, which is the half that does not swing with the results. It is
 	## on this page rather than the arena's because the whole reason it exists is
 	## that it is a different KIND of income, and this is the page about that.
 	UiKit.pair(v, v.font, Arena.sells(a.level),
-		UiKit.t("%d CC a home event") % Arena.counter_take(a.level, o.attendance()),
-		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 13, 13,
+		UiKit.t("%d CC") % Arena.counter_take(a.level, o.attendance()),
+		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 13,
 		UiKit.EDGE.lightened(0.35), UiKit.DIM)
 	## TWO CURRENCIES, SAID ONCE (Pete, 29 Sep 2026, #7): CC is the club's money
 	## and $ is the men's pay. Both appear across the game; this is the page
 	## about money, so this is where the difference is written down.
-	UiKit.text_fit(v, v.font, UiKit.t("CC is the club's money. $ is what the men are paid each week."),
-		Vector2(SeasonScene.FIN_RIGHT, y + 26.0), 13, UiKit.DIM, UiKit.right_edge() - SeasonScene.FIN_RIGHT)
+	UiKit.text_fit(v, v.font, UiKit.t("CC is club money. $ is weekly pay."),
+		Vector2(SeasonScene.FIN_RIGHT, y + 26.0), 14, UiKit.DIM, UiKit.right_edge() - SeasonScene.FIN_RIGHT)

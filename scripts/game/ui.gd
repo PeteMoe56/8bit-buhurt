@@ -308,13 +308,13 @@ enum Mood { NORMAL, CUP, HOSTED, WORLDS, FINAL }
 ## changed instead.
 const PALETTES := {
 	Mood.NORMAL: {
-		"bg": "2e2a24", "ink": "e8e4d8", "dim": "968c78", "panel": "241f1a",
+		"bg": "2e2a24", "ink": "e8e4d8", "dim": "a59c8b", "panel": "241f1a",
 		"edge": "3d352b", "you": "f2d13c", "up": "6fbf5e", "down": "e05a3c",
 		"select": "4a5f7a", "track": "14110e", "empty": "2a251f",
 		"name": "",
 	},
 	Mood.CUP: {
-		"bg": "1b2230", "ink": "dfe7f2", "dim": "8494ab", "panel": "141a26",
+		"bg": "1b2230", "ink": "dfe7f2", "dim": "8696ad", "panel": "141a26",
 		"edge": "2c3a4e", "you": "f2d13c", "up": "6fbf5e", "down": "e0603c",
 		"select": "3c5a86", "track": "0d1119", "empty": "222c3c",
 		"name": "CUP NIGHT",
@@ -332,7 +332,7 @@ const PALETTES := {
 		"name": "WORLDS",
 	},
 	Mood.FINAL: {
-		"bg": "2a1315", "ink": "f6dcd6", "dim": "b08078", "panel": "1d0c0e",
+		"bg": "2a1315", "ink": "f6dcd6", "dim": "b2837b", "panel": "1d0c0e",
 		"edge": "4a2422", "you": "ffd24a", "up": "7fca62", "down": "ff5a44",
 		"select": "6e2a2c", "track": "160708", "empty": "331618",
 		"name": "THE FINAL",
@@ -345,7 +345,7 @@ const PALETTES := {
 static var mood: int = Mood.NORMAL
 static var BG := Color("2e2a24")
 static var INK := Color("e8e4d8")
-static var DIM := Color("968c78")
+static var DIM := Color("a59c8b")
 static var PANEL := Color("241f1a")
 ## TWO JOBS, TWO CONSTANTS. `EDGE` was both **the color a box is drawn in** and
 ## **the quietest ink on the screen**. Those want opposite things — a rule wants
@@ -499,7 +499,7 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 	elif d.has("head_right"):
 		right(ci, font, String(d["head_right"]).to_upper(),
 			Vector2(r.end.x - 8, head.position.y + (18.0 if big else 14.0)),
-			11 if big else 9, Color(d.get("head_right_col", INK)), 84)
+			12 if big else 9, Color(d.get("head_right_col", INK)), 140 if r.size.x > 200.0 else 84)
 
 	var dim_it: bool = bool(d.get("dim", false))
 	var y := r.position.y + hh
@@ -748,7 +748,7 @@ static func ledger_keys() -> Array:
 ## the difficulty blurb. Every draw below is floored here, once, rather than at
 ## four hundred call sites; `fit_size` steps down to it and no further, so
 ## copy that no longer fits is cut and recorded, and `test_ink` names it.
-const MIN_PX := 11
+const MIN_PX := 12
 
 
 static func raw(ci: CanvasItem, font: Font, at: Vector2, s: String,

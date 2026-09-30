@@ -254,7 +254,7 @@ func _draw() -> void:
 	## an absence with no explanation is indistinguishable from an omission, and
 	## that is exactly what it was mistaken for.
 	UiKit.text(self, font, UiKit.t("Saved as you set them."),
-		Vector2(LEFT_X + 2, TOP + SOUND_H + 12.0), 13, UiKit.EDGE.lightened(0.5))
+		Vector2(LEFT_X + 2, TOP + SOUND_H + 12.0), 14, UiKit.EDGE.lightened(0.5))
 
 	## ITS OWN PANEL, because it is its own kind of thing. The first cut put it
 	## inside the SOUND box's last six pixels and it landed on "Saved as you set
@@ -289,7 +289,7 @@ func _draw() -> void:
 		UiKit.text(self, font, UiKit.t("Difficulty"), Vector2(LEFT_X + 18, gy + 48.0),
 			17, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Open it from Clubhouse, Your career."),
-			Vector2(LEFT_X + 18, gy + 68.0), 13, UiKit.DIM)
+			Vector2(LEFT_X + 18, gy + 68.0), 14, UiKit.DIM)
 
 	# -------------------------------------------------------------- language
 	UiKit.panel(self, Rect2(RIGHT_X, LANG_Y, COL_W + 6, LANG_H))
@@ -302,4 +302,4 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("ABOUT"), Vector2(RIGHT_X + 18, ABOUT_Y + 26), 15, UiKit.DIM)
 	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, ABOUT_Y + 50), 16, UiKit.INK)
 	UiKit.text_fit(self, font, UiKit.t("Built by BonkWorks."),
-		Vector2(RIGHT_X + 18, ABOUT_Y + 68), 13, UiKit.DIM, COL_W - 30.0)
+		Vector2(RIGHT_X + 18, ABOUT_Y + 68), 14, UiKit.DIM, COL_W - 30.0)

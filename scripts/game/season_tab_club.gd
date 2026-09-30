@@ -313,7 +313,7 @@ static func _schedule(v: SeasonScene) -> void:
 	## neither of which knew the other's height. Same shape as the clubhouse,
 	## twice, today.
 	var y := SeasonScene.CONTENT_Y + 186.0
-	UiKit.text(v, v.font, UiKit.t("WHAT IS LEFT"), Vector2(24, y), 13, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("WHAT IS LEFT"), Vector2(24, y), 14, UiKit.DIM)
 	y += 24.0
 	for i in rest.size():
 		var r: Dictionary = rest[i]
@@ -454,7 +454,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	## needs its own legend.
 	UiKit.right(v, v.font, UiKit.t("%s = the squad's mood   ·   %s = your renown")
 		% [UiKit.t(Dilemma.FX_WORD["morale"]), UiKit.t(Dilemma.FX_WORD["note"])],
-		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 13, UiKit.DIM, 400.0)
+		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 14, UiKit.DIM, 400.0)
 	for i in opts.size():
 		var o: Dictionary = opts[i]
 		var x := 24.0 + float(i) * (w + 12.0)
@@ -463,14 +463,14 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 		## column of prose sits over its button rather than over the gap, and the
 		## leftmost one stops touching the edge of the panel.
 		for line in v._wrap(UiKit.t(String(o["blurb"])), int(w / 7.4)):
-			UiKit.text(v, v.font, line, Vector2(x + 10.0, by), 13, UiKit.DIM)
+			UiKit.text(v, v.font, line, Vector2(x + 10.0, by), 14, UiKit.DIM)
 			by += 18.0
 		var bill: Array[Dictionary] = Dilemma.costs(o)
 		## AN OPTION THAT ASKS NOTHING SAYS SO. A blank where the other two cards
 		## have figures reads as a card the game forgot to price, which is the
 		## opposite of what a free choice should feel like.
 		if bill.is_empty():
-			UiKit.text(v, v.font, UiKit.t("costs nothing"), Vector2(x + 10.0, by + 2.0), 13, UiKit.DIM)
+			UiKit.text(v, v.font, UiKit.t("costs nothing"), Vector2(x + 10.0, by + 2.0), 14, UiKit.DIM)
 			continue
 		## EACH FIGURE IN ITS OWN COLOR, laid out by measuring what has already
 		## been drawn rather than by joining a string — a single color for the
@@ -480,7 +480,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 		for j in bill.size():
 			var e: Dictionary = bill[j]
 			if j > 0:
-				UiKit.text(v, v.font, " · ", Vector2(fx, by + 2.0), 13, UiKit.DIM)
+				UiKit.text(v, v.font, " · ", Vector2(fx, by + 2.0), 14, UiKit.DIM)
 				fx += v.font.get_string_size(" · ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
 			var t := String(e["text"])
 			UiKit.text(v, v.font, t, Vector2(fx, by + 2.0), 13,
@@ -561,11 +561,11 @@ static func _fixture(v: SeasonScene) -> void:
 			UiKit.text_fit(v, v.font,
 				UiKit.t("Finished %s. The place is yours if you want it.")
 					% UiKit.ordinal(v.season.position()),
-				Vector2(44, y + 80), 13, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
+				Vector2(44, y + 80), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
 		else:
 			UiKit.text_fit(v, v.font,
 				UiKit.t("Needs a %s. You have a %s.") % [String(t["arena_need"]), String(t["arena_have"])],
-				Vector2(44, y + 80), 13, UiKit.DOWN, SeasonScene.fixture_w() - 40.0)
+				Vector2(44, y + 80), 14, UiKit.DOWN, SeasonScene.fixture_w() - 40.0)
 		UiKit.pair(v, v.font,
 			UiKit.t("%s costs %d a season") % [String(t["to"]), int(t["dues_up"])],
 			UiKit.t("you have %d") % int(t["in_hand"]),
@@ -716,7 +716,7 @@ static func _table(v: SeasonScene) -> void:
 			var ly := key_y + float(li) * 17.0
 			if ly > SeasonScene.action_y() - 16.0:
 				break
-			UiKit.text_fit(v, v.font, String(lines[li]), Vector2(SeasonScene.table_x() + 8.0, ly), 13, UiKit.DIM, room)
+			UiKit.text_fit(v, v.font, String(lines[li]), Vector2(SeasonScene.table_x() + 8.0, ly), 14, UiKit.DIM, room)
 	v.draw_rect(Rect2(SeasonScene.table_x(), SeasonScene.TABLE_Y, UiKit.screen().x - SeasonScene.table_x() - 24, 1), UiKit.EDGE)
 	for i in rows.size():
 		var r: Dictionary = rows[i]
@@ -755,13 +755,13 @@ static func _table(v: SeasonScene) -> void:
 					SeasonScene.ROW_H - 2), Color(edge.r, edge.g, edge.b, 0.10))
 			v.draw_rect(Rect2(SeasonScene.table_x(), y - 15, 4, SeasonScene.ROW_H - 2), edge)
 		var col := UiKit.YOU if mine else UiKit.INK
-		UiKit.text(v, v.font, "%2d" % (i + 1), Vector2(SeasonScene.table_x() + 12, y), 13, UiKit.DIM)
+		UiKit.text(v, v.font, "%2d" % (i + 1), Vector2(SeasonScene.table_x() + 12, y), 14, UiKit.DIM)
 		## Clipped to the room there is, not to 24 characters: at 24 "Oklahoma
 		## City Gunslingers" lost its last word with a hundred pixels to spare
 		## before the numbers (29 Sep 2026).
 		UiKit.text(v, v.font, UiKit.clip_px(v.font, String(v.season.world.clubs[cid]["name"]), 13,
-			stat_x - (SeasonScene.table_x() + 38) - 10), Vector2(SeasonScene.table_x() + 38, y), 13, col)
+			stat_x - (SeasonScene.table_x() + 38) - 10), Vector2(SeasonScene.table_x() + 38, y), 14, col)
 		UiKit.text(v, v.font, UiKit.t("%2d %2d %2d %2d  %+3d  %+3d  %2d") % [
 			int(r["played"]), int(r["won"]), int(r["drawn"]), int(r["lost"]),
 			League.round_diff(r), League.margin_diff(r), int(r["points"])],
-			Vector2(stat_x, y), 13, col)
+			Vector2(stat_x, y), 14, col)
