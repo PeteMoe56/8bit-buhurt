@@ -45,9 +45,15 @@ static func _draw_market(v: SeasonScene) -> void:
 		## already in it is a failure; drawing both in the same red loses the only
 		## distinction the line exists to make.
 		head_col = UiKit.YOU
+	## ONE WORD FOR THIRTEEN IDENTICAL CELLS (round 6: "Borrowed" on every row).
+	var grades := {}
+	for row in v._qm_rows():
+		grades[Quartermaster.name_of(row["card"])] = true
+	var uniform: bool = grades.size() == 1
 	UiKit.pair(v, v.font, head,
-		("%d CC to put the eight right" % led["bill"]) if int(led["bill"]) > 0
-			else UiKit.t("nothing owing"),
+		(("%d CC to put the eight right" % led["bill"]) if int(led["bill"]) > 0
+			else UiKit.t("nothing owing"))
+			+ ((UiKit.t("  ·  every harness %s") % String(grades.keys()[0])) if uniform else ""),
 		Vector2(24, SeasonScene.CONTENT_Y + 26), UiKit.right_edge(), 14, 14, head_col, UiKit.DIM)
 
 	var cell := v._qm_cell()
@@ -60,7 +66,8 @@ static func _draw_market(v: SeasonScene) -> void:
 	for cx in [24.0, 24.0 + cell + SeasonScene.QM_GAP]:
 		var hy := SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22
 		var gx0: float = cx + SeasonScene.QM_NAME_W + 6.0
-		UiKit.text_fit(v, v.font, UiKit.t("HARNESS"), Vector2(gx0, hy), 12, UiKit.DIM, SeasonScene.QM_GRADE_W)
+		if not uniform:
+			UiKit.text_fit(v, v.font, UiKit.t("HARNESS"), Vector2(gx0, hy), 12, UiKit.DIM, SeasonScene.QM_GRADE_W)
 		UiKit.text_fit(v, v.font, UiKit.t("CONDITION"), Vector2(gx0 + SeasonScene.QM_GRADE_W + 6.0, hy), 12,
 			UiKit.DIM, SeasonScene.QM_BAR_W)
 		UiKit.right(v, v.font, UiKit.t("FIX"), Vector2(cx + cell, hy), 12, UiKit.DIM, SeasonScene.QM_COST_W)
@@ -84,7 +91,8 @@ static func _draw_market(v: SeasonScene) -> void:
 		UiKit.text(v, v.font, UiKit.clip_px(v.font, f.display_name, 14, SeasonScene.QM_NAME_W),
 			Vector2(x, y), 14, UiKit.INK if bus else UiKit.DIM)
 		var gx := x + SeasonScene.QM_NAME_W + 6.0
-		UiKit.text(v, v.font, UiKit.clip_px(v.font, Quartermaster.name_of(f), 12,
+		if not uniform:
+			UiKit.text(v, v.font, UiKit.clip_px(v.font, Quartermaster.name_of(f), 12,
 			SeasonScene.QM_GRADE_W), Vector2(gx, y), 12,
 			UiKit.UP if Quartermaster.grade_of(f) >= Quartermaster.Grade.FITTED
 			else UiKit.DIM)

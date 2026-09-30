@@ -186,14 +186,16 @@ func _draw() -> void:
 		UiKit.t("CROWD  %s in  ·  %d%% full  ·  %d CC a home fight") % [
 			UiKit.crowd_word(office.attendance()),
 			int(round(office.fill() * 100.0)), office.crowd_pay()],
-		Vector2(UiKit.right_edge(), 30), 14, UiKit.INK, 560.0)
+		Vector2(UiKit.right_edge(), 58), 14, UiKit.INK, 560.0)
 	UiKit.right(self, font, UiKit.t("the bar fills toward the next pay rise"),
-		Vector2(UiKit.right_edge(), 74), 12, UiKit.DIM, 440.0)
+		Vector2(UiKit.right_edge(), 94), 12, UiKit.DIM, 440.0)
+	## THE PURSE WHERE IT IS ON EVERY OTHER SCREEN (round 6).
+	UiKit.purse(self, font, office.credits, Vector2(UiKit.right_edge(), 32), 18, UiKit.YOU, 200)
 	## THE METER, because a band you cannot see coming is a band you cannot chase.
 	## Retro Bowl's whole fan bar is this: the player watches it fill and knows a
 	## raise is close. A number alone does not do that — 71 and 74 read the same
 	## and one of them is a fight away from paying more.
-	_meter(Vector2(UiKit.right_edge(320.0), 42), 320.0)
+	_meter(Vector2(UiKit.right_edge(320.0), 68), 320.0)
 	## THE TWO AXES, SIDE BY SIDE, because they are the two axes and a player
 	## needs to see that they are different things: the level is what the league
 	## lets him build and the condition is what he keeps it in.

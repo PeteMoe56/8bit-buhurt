@@ -450,6 +450,9 @@ func _dial(key: String, dir: int) -> void:
 
 func _draw_grade() -> void:
 	var g := season.grade
+	## WHICH WAY IS HARDER (round 6: "nothing shows the grades run easy to hard").
+	UiKit.text_fit(self, font, UiKit.t("Easier at the top, harder down the list"),
+		Vector2(STAT_X, GRADE_Y - 10.0), 12, UiKit.DIM, GRADE_TEXT_X - STAT_X - 12.0)
 	## THE PANEL FILLS THE COLUMN. It was 384 wide and the second read-out was
 	## printed at x 708, which is 36 pixels PAST its own right edge — the figure
 	## was sitting on the background outside the frame that was meant to contain

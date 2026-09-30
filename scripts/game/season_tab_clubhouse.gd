@@ -115,10 +115,13 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 			v.club_menu_open = false
 			Session.autosave()
 			UiKit.go(path), String(r[2])))
-	v.ui.add_child(UiKit.button(UiKit.t("Close"),
+	## QUIETER THAN THE ROOMS (round 6: Close looked like a seventh room).
+	var close_b := UiKit.button(UiKit.t("Close"),
 		Vector2(card.position.x + pad + bw + 16.0, card.position.y + 72.0 + 3.0 * 58.0), Vector2(bw, 48), func():
 			v.club_menu_open = false
-			v._rebuild()))
+			v._rebuild())
+	close_b.modulate = Color(0.72, 0.72, 0.72)
+	v.ui.add_child(close_b)
 
 
 static func _draw_club_menu(v: SeasonScene) -> void:
