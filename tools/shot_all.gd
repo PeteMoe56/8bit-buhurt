@@ -59,6 +59,9 @@ func _initialize() -> void:
 	world.board.save_formation(0, "Strong Right",
 		world.board.spots_for(Tuning.Formation.TWO_ONE_TWO))
 	## A few results on the table, so the club tab is mid-season, not day one.
+	## The start-of-year bid would block every event, so it is passed first.
+	if world.bid_open():
+		world.decline_bid()
 	for k in 3:
 		if world.blocked_by() == "":
 			world.skip_event()

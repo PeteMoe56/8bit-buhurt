@@ -162,10 +162,20 @@ static func _club_controls(v: SeasonScene) -> void:
 			Vector2(SeasonScene.NEXT_W, 46), func():
 				Session.autosave()
 				UiKit.go("res://scenes/Arena.tscn"), "gate")))
+		## AND THE CARD ITSELF IS THE WAY IN (blind review round 3: "looks like a
+		## card but doesn't look tappable"). A flat hit box over the drawn card,
+		## which draws its own "Choose at the Arena >" as the cue.
+		var hit := UiKit.button("", Vector2(24, SeasonScene.CONTENT_Y + 20.0),
+			Vector2(SeasonScene.fixture_w(), SeasonScene.FIXTURE_H), func():
+				Session.autosave()
+				UiKit.go("res://scenes/Arena.tscn"))
+		hit.flat = true
+		hit.focus_mode = Control.FOCUS_NONE
+		v.ui.add_child(hit)
 		return
 	if block == "cup":
-		v.ui.add_child(UiKit.button(UiKit.t("Fight the cup bout"), Vector2(24, SeasonScene.action_y()),
-			Vector2(204, 46), v._fight_cup))
+		v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight the cup bout"), Vector2(24, SeasonScene.action_y()),
+			Vector2(204, 46), v._fight_cup)))
 		## THE DRAW, next to the tie. Carried open since section 22: the screen
 		## could say who you were fighting and never who else was left, which is
 		## the one thing a cup has that a league does not.
@@ -314,6 +324,10 @@ static func _schedule(v: SeasonScene) -> void:
 	## twice, today.
 	var y := SeasonScene.CONTENT_Y + 186.0
 	UiKit.text(v, v.font, UiKit.t("WHAT IS LEFT"), Vector2(24, y), 14, UiKit.DIM)
+	## THE KEY FOR THE TWO COLUMNS NOBODY EXPLAINED (blind review round 3:
+	## "A/H prefixes never explained").
+	UiKit.right(v, v.font, UiKit.t("H home  ·  A away"),
+		Vector2(SeasonScene.fixture_w() + 8.0, y), 12, UiKit.DIM, SeasonScene.fixture_w() - 140.0)
 	y += 24.0
 	for i in rest.size():
 		var r: Dictionary = rest[i]
@@ -334,7 +348,7 @@ static func _schedule(v: SeasonScene) -> void:
 		## fixture list is for: **a fact you have to hunt for on a five-row list
 		## is a fact that is not on the list.**
 		if opp >= 0:
-			UiKit.text(v, v.font, UiKit.t("H") if home else UiKit.t("A"), Vector2(28, y), 13,
+			UiKit.text(v, v.font, UiKit.t("H") if home else UiKit.t("A"), Vector2(28, y), 14,
 				UiKit.YOU if home else UiKit.EDGE.lightened(0.4))
 		## AND WHAT THE AFTERNOON IS WORTH, which is the new half. The gate is
 		## multiplied by the ground it is fought in, so a trip to somebody's
@@ -579,11 +593,10 @@ static func _fixture(v: SeasonScene) -> void:
 		## edge — it is in the very first screenshot in `shots/`, clipped
 		## mid-sentence, and nobody read it as a fault because a sentence that
 		## stops at a panel edge looks like a sentence that stops.
-		var by := y + 80.0
-		for line in UiKit.wrap(v.font, UiKit.t("Pick a week to hold your own, or pass on the year, at the Arena."),
-				SeasonScene.fixture_w() - 40.0, 14):
-			UiKit.text(v, v.font, String(line), Vector2(44, by), 14, UiKit.DIM)
-			by += 18.0
+		UiKit.text_fit(v, v.font, UiKit.t("Hold your own event this year, or pass."),
+			Vector2(44, y + 80), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
+		UiKit.right(v, v.font, UiKit.t("Choose at the Arena  >"),
+			Vector2(r.end.x - 16.0, y + 104), 14, UiKit.YOU, SeasonScene.fixture_w() - 40.0)
 		return
 	var cup := v.season.pending_cup()
 	if cup != null:
@@ -673,10 +686,11 @@ static func _last_event(v: SeasonScene) -> void:
 		else (UiKit.t("Last: lost to %s %d-%d (%+d)%s") if rf < ra \
 		else UiKit.t("Last: drew with %s %d-%d (%+d)%s"))
 	var col := UiKit.UP if rf > ra else (UiKit.DOWN if rf < ra else UiKit.DIM)
-	UiKit.text(v, v.font, line % [
+	## FITTED TO ITS COLUMN: it ran into the table's key (blind review round 3).
+	UiKit.text_fit(v, v.font, line % [
 		UiKit.clip(String(v.season.world.clubs[int(e["opponent"])]["name"]), 22), rf, ra,
 		int(e["margin"]), "" if bool(e["fought"]) else UiKit.t("  ·  simmed")],
-		Vector2(28, y), 14, col)
+		Vector2(28, y), 14, col, SeasonScene.fixture_w() - 8.0)
 
 
 

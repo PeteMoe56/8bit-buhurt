@@ -55,6 +55,15 @@ static func _draw_market(v: SeasonScene) -> void:
 		12, UiKit.DIM)
 	UiKit.text(v, v.font, UiKit.t("AT HOME"),
 		Vector2(24 + cell + SeasonScene.QM_GAP, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)
+	## COLUMN HEADINGS (blind review round 3: "Borrowed" x13 and an unlabelled
+	## "3 CC" told the player nothing). Over both halves.
+	for cx in [24.0, 24.0 + cell + SeasonScene.QM_GAP]:
+		var hy := SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22
+		var gx0: float = cx + SeasonScene.QM_NAME_W + 6.0
+		UiKit.text_fit(v, v.font, UiKit.t("HARNESS"), Vector2(gx0, hy), 12, UiKit.DIM, SeasonScene.QM_GRADE_W)
+		UiKit.text_fit(v, v.font, UiKit.t("CONDITION"), Vector2(gx0 + SeasonScene.QM_GRADE_W + 6.0, hy), 12,
+			UiKit.DIM, SeasonScene.QM_BAR_W)
+		UiKit.right(v, v.font, UiKit.t("FIX"), Vector2(cx + cell, hy), 12, UiKit.DIM, SeasonScene.QM_COST_W)
 
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
@@ -66,8 +75,9 @@ static func _draw_market(v: SeasonScene) -> void:
 		var y: float = row["y"]
 		var x: float = row["x"]
 		var bus: bool = row["bus"]
-		if v.qm_pick == f:
-			v.draw_rect(Rect2(x - 4.0, y - 20, cell + 8.0, SeasonScene.QM_ROW - 4), UiKit.SELECT)
+		## EVERY ROW IS A BUTTON AND NOW LOOKS LIKE ONE: a plate under it.
+		v.draw_rect(Rect2(x - 4.0, y - 20, cell + 8.0, SeasonScene.QM_ROW - 4),
+			UiKit.SELECT if v.qm_pick == f else UiKit.PANEL)
 
 		## A MAN IN THE RESERVE IS DRAWN QUIETER. His kit still wears, but he is
 		## not the one the marshals are about to look at.
@@ -91,8 +101,8 @@ static func _draw_market(v: SeasonScene) -> void:
 			else (UiKit.UP if f.inspection_margin() >= Quartermaster.RISK_MARGIN
 				else UiKit.YOU)
 		UiKit.bar(v, r, clampf(f.armor, 0.0, 1.0), col)
-		v.draw_rect(Rect2(r.position.x + r.size.x * FighterCard.INSPECTION_MIN,
-			r.position.y - 2, 1.0, r.size.y + 4), UiKit.DOWN)
+		v.draw_rect(Rect2(r.position.x + r.size.x * FighterCard.INSPECTION_MIN - 1.0,
+			r.position.y - 3, 2.0, r.size.y + 6), UiKit.DOWN)
 		if Quartermaster.ceiling(f) < 0.999:
 			v.draw_rect(Rect2(r.position.x + r.size.x * Quartermaster.ceiling(f),
 				r.position.y - 2, 1.0, r.size.y + 4), UiKit.EDGE)

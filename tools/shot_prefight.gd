@@ -11,6 +11,7 @@ var stage := 0
 var sc: Node = null
 
 func _initialize() -> void:
+	Settings.tips_enabled = false
 	Session.season = Season.new(MeleeRosters.starting_club(), 20260914)
 	Session.bout = null
 	sc = load("res://scenes/Melee.tscn").instantiate()

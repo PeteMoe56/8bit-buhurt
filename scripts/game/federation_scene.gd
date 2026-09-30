@@ -54,7 +54,7 @@ func _build() -> void:
 		## there: raising it is getting ahead of the division above.
 		var short: bool = o.rule_level(r) < Federation.required(o.tier, r)
 		var btn := UiKit.button((UiKit.t("Meet it · %d CC") if short else UiKit.t("Get ahead · %d CC")) % cost,
-			Vector2(L_X + COL_W - 144.0, _row_y(i) + 8.0), Vector2(132, 34), func(rule = r):
+			Vector2(L_X + COL_W - 184.0, _row_y(i) + 8.0), Vector2(172, 36), func(rule = r):
 				flash_tone = 0
 				flash = UiKit.said(o.raise_rule(rule))
 				season.sync_power()
@@ -104,7 +104,7 @@ func _federation(o: ClubOffice) -> void:
 		var short: bool = have < want
 		UiKit.text(self, font, UiKit.t(String(Federation.RULE_NAME[r])), Vector2(L_X + 16, y),
 			14, UiKit.DOWN if short else UiKit.INK)
-		UiKit.meter(self, Rect2(L_X + 16, y + 18, COL_W - 180.0, 14),
+		UiKit.meter(self, Rect2(L_X + 16, y + 18, COL_W - 216.0, 14),
 			have, Federation.MAX_LEVEL, UiKit.DOWN if short else UiKit.UP)
 		## THE LINE YOU HAVE TO REACH, drawn ON the meter. A requirement the
 		## player has to work out by being refused is a requirement he meets once,
@@ -130,8 +130,9 @@ func _federation(o: ClubOffice) -> void:
 	## standing…" and the two printed through each other, in English and worse
 	## in German. Under the standing line when that is one line, and under the
 	## shortfall list when there is one.
-	UiKit.right(self, font, UiKit.t("%d CC a year to hold") % o.federation_upkeep(),
-		Vector2(L_X + COL_W - 16, y2 + (18.0 if shorts.is_empty() else 36.0)), 14, UiKit.DIM, 220)
+	if o.federation_upkeep() > 0:
+		UiKit.right(self, font, UiKit.t("%d CC a year to hold") % o.federation_upkeep(),
+			Vector2(L_X + COL_W - 16, y2 + (18.0 if shorts.is_empty() else 36.0)), 14, UiKit.DIM, 220)
 
 
 func _members(o: ClubOffice) -> void:
@@ -148,8 +149,8 @@ func _members(o: ClubOffice) -> void:
 	## DUES ARE A BILL, not income. They are charged at the roll-over for the
 	## division the club is about to enter; this screen still printed them as
 	## "Dues a year" coming in and "Left over" as dues minus upkeep.
-	_line("League dues a year", "-%d CC" % o.dues(), y); y += 26.0
-	_line("Paperwork upkeep", "-%d CC" % o.federation_upkeep(), y); y += 26.0
+	_line("League dues a year", ("-%d CC" if o.dues() > 0 else "%d CC") % o.dues(), y); y += 26.0
+	_line("Paperwork upkeep", ("-%d CC" if o.federation_upkeep() > 0 else "%d CC") % o.federation_upkeep(), y); y += 26.0
 	var net := -(o.dues() + o.federation_upkeep())
 	UiKit.text(self, font, UiKit.t("The federation costs"), Vector2(R_X + 16, y), 14, UiKit.DIM)
 	UiKit.right(self, font, UiKit.t("%s%d CC") % ["+" if net >= 0 else "", net],
@@ -174,8 +175,8 @@ func _members(o: ClubOffice) -> void:
 	var bits: Array[String] = []
 	bits.append(UiKit.t("room %s") % o.morale_word().to_lower())
 	bits.append(UiKit.t("bus full") if bench_full else UiKit.t("bus short"))
-	UiKit.text(self, font, "  ·  ".join(bits), Vector2(R_X + 16, y + 44.0), 13,
-		UiKit.DOWN if not bench_full or o.morale < 0.38 else UiKit.INK)
+	UiKit.text_fit(self, font, UiKit.t("Right now: %s") % "  ·  ".join(bits), Vector2(R_X + 16, y + 44.0), 14,
+		UiKit.DOWN if not bench_full or o.morale < 0.38 else UiKit.INK, COL_W - 32.0)
 
 
 func _line(label: String, value: String, y: float) -> void:

@@ -67,8 +67,13 @@ static func _draw_finances(v: SeasonScene) -> void:
 	## -31" alarmed with no guidance). It is this year so far, not a forecast.
 	var words := UiKit.t("So far this year. Gates and prize money arrive as the events are fought.") \
 		if net < 0 else UiKit.t("So far this year.")
-	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 20.0), 14, UiKit.DIM,
-		SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0, 15.0, 2)
+	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 22.0), 14, UiKit.DIM,
+		SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0, 18.0, 2)
+	## AND THE LEVERS, by name (blind review round 3: "no path to fix it").
+	if net < 0:
+		UiKit.text_fit(v, v.font, UiKit.t("To close it: win, fill the ground, trim wages."),
+			Vector2(SeasonScene.FIN_LEFT + 14.0, y + 62.0), 14, UiKit.YOU,
+			SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0)
 
 	v._fin_ground()
 

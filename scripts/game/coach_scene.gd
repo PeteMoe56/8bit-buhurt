@@ -22,11 +22,13 @@ const R_X := 644.0
 ## club below it: three offers, and the one you tapped was not the one you meant.
 ## The fix is the spacing, but the reason it stays fixed is that there is now one
 ## place to change it.
-const OFFER_PITCH := 84.0
+## Name, then its division, then the button: two offers a column, each with
+## room to say where it is (round 3: the name and division cut each other).
+const OFFER_PITCH := 104.0
 const OFFER_NAME_DY := 50.0
-const OFFER_BUTTON_DY := 66.0
-const OFFER_BUTTON_H := 34.0
-const OFFERS_SHOWN := 3
+const OFFER_BUTTON_DY := 74.0
+const OFFER_BUTTON_H := 36.0
+const OFFERS_SHOWN := 2
 
 
 static func offer_row_y(i: int) -> float:
@@ -84,10 +86,7 @@ func _build() -> void:
 	## THE DIFFICULTY LIVES WITH THE CAREER, and Settings can only change it while
 	## a career is open — which it never was, because Settings was reachable only
 	## from the title screen, where no career is. This is the door from inside.
-	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(356, UiKit.screen().y - 56),
-		Vector2(150, 44), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Settings.tscn"), "cog"))
+	## SETTINGS MOVED TO THE CLUB MENU (30 Sep 2026), the door from inside a career.
 	queue_redraw()
 
 
@@ -122,9 +121,10 @@ func _draw() -> void:
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
 	var c := season.coach
-	UiKit.text(self, font, c.display_name.to_upper(), Vector2(24, 40), 26, UiKit.INK)
-	## THE BUTTON THAT OPENS THIS SAYS "Your career"; so does the screen.
-	UiKit.text(self, font, UiKit.t("Your career: your record, your standing and who wants you."),
+	## THE BUTTON THAT OPENS THIS SAYS "Your career"; so does the title now
+	## (blind review round 3: the menu said one thing and the screen "COACH").
+	UiKit.text(self, font, UiKit.t("YOUR CAREER"), Vector2(24, 40), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("Your record, your standing and who wants you."),
 		Vector2(24, 62), 14, UiKit.DIM)
 	UiKit.right(self, font, UiKit.t("Season %d") % season.world.season,
 		Vector2(UiKit.screen().x - 24, 46), 16, UiKit.DIM, 220)
@@ -186,8 +186,8 @@ func _the_book(c: Coach) -> void:
 	if c.fought() == 0:
 		UiKit.para(self, font, UiKit.t("It fills in when your first season ends."), Vector2(M_X + 16, y + 8), 14, UiKit.DIM, COL_W - 32.0, 17.0)
 	else:
-		UiKit.text(self, font, UiKit.t("This follows you. The club does not."),
-			Vector2(M_X + 16, COL_Y + COL_H - 14), 14, UiKit.EDGE.lightened(0.5))
+		UiKit.text_fit(self, font, UiKit.t("This follows you. The club does not."),
+			Vector2(M_X + 16, COL_Y + COL_H - 14), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
 
 
 func _offers(c: Coach) -> void:
@@ -212,11 +212,9 @@ func _offers(c: Coach) -> void:
 		## THE NAME GETS THE ROOM THE DIVISION DOES NOT USE (blind review, 29 Sep:
 		## "Milwaukee Free Co." ran into "Backyard Circuit"). Measured, not counted.
 		var tier_word := League.tier_name(int(club["tier"]))
-		var tier_w := font.get_string_size(tier_word, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
-		UiKit.text(self, font, UiKit.clip_px(font, String(club["name"]), 15, COL_W - 32.0 - tier_w - 12.0),
-			Vector2(R_X + 16, y), 15, UiKit.UP if dream else UiKit.INK)
-		UiKit.right(self, font, tier_word,
-			Vector2(R_X + COL_W - 16, y), 11, UiKit.DIM, 140)
+		UiKit.text(self, font, UiKit.clip_px(font, String(club["name"]), 16, COL_W - 32.0),
+			Vector2(R_X + 16, y), 16, UiKit.UP if dream else UiKit.INK)
+		UiKit.text_fit(self, font, tier_word, Vector2(R_X + 16, y + 17.0), 13, UiKit.DIM, COL_W - 32.0)
 	if offers.size() > shown:
 		UiKit.right(self, font, UiKit.t("and %d more want you") % (offers.size() - shown),
 			Vector2(R_X + COL_W - 16, COL_Y + COL_H - 14), 14, UiKit.DIM, 160)

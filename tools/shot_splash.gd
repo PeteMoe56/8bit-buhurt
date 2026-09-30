@@ -13,6 +13,7 @@ const KINDS := ["home", "away", "neutral"]
 
 
 func _initialize() -> void:
+	Settings.tips_enabled = false
 	## A FIXED GLOBAL SEED, FIRST — `melee_scene._ready()` opens a standalone
 	## exhibition with `_new_bout(randi())` and Godot seeds the global stream
 	## randomly at startup, so without this the picture changes every run and the

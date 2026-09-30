@@ -97,10 +97,11 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 	var rooms := [
 		[UiKit.t("The staff"), "res://scenes/Staff.tscn", "helm"],
 		[UiKit.t("Records"), "res://scenes/Records.tscn", "book"],
-		[UiKit.t("Your career") + (UiKit.t("  ·  %d") % wanted if wanted > 0 else ""), "res://scenes/Coach.tscn", "ladder"],
+		[UiKit.t("Your career") + ((UiKit.t("  ·  %d offer") if wanted == 1 else UiKit.t("  ·  %d offers")) % wanted if wanted > 0 else ""), "res://scenes/Coach.tscn", "ladder"],
 		[UiKit.t("The federation") + (UiKit.t("  ·  BARRED") if barred else ""), "res://scenes/Federation.tscn", "banner"],
 		[UiKit.t("Playbook"), "res://scenes/Chalkboard.tscn", "board"],
-		[UiKit.t("Create"), "res://scenes/Create.tscn", "anvil"],
+		[UiKit.t("Create & difficulty"), "res://scenes/Create.tscn", "anvil"],
+		[UiKit.t("Settings"), "res://scenes/Settings.tscn", "cog"],
 	]
 	var pad := 24.0
 	var bw := (card.size.x - pad * 2.0 - 16.0) * 0.5

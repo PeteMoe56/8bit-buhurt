@@ -15,6 +15,7 @@ var scene: Node
 
 
 func _initialize() -> void:
+	Settings.tips_enabled = false
 	seed(20260914)
 	var a := OS.get_cmdline_user_args()
 	if a.size() > 0:

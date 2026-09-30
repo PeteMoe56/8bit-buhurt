@@ -246,7 +246,9 @@ func _build() -> void:
 	var tagged: bool = season.world.in_hall(man.display_name)
 	## THE STAR IS AN ICON, not a character: no face this game ships draws ★.
 	ui.add_child(UiKit.button(UiKit.t("In the Hall") if tagged else UiKit.t("Tag for the Hall"),
-		Vector2(330, 14), Vector2(210, 34), func():
+		## IN HIS RECORD'S PANEL, under the honors it is about (blind review
+		## round 3: it sat cramped in the page header).
+		Vector2(R_X + 16, COL_Y + COL_H - 48), Vector2(COL_W - 32, 38), func():
 			if tagged:
 				season.world.untag_from_hall(man.display_name)
 				flash = UiKit.t("%s taken out of the Hall.") % man.display_name
@@ -261,12 +263,12 @@ func _build() -> void:
 			Session.autosave()
 			_build()))
 
-	ui.add_child(UiKit.button("<", Vector2(700, y), Vector2(56, 44), _page.bind(-1)))
-	ui.add_child(UiKit.button(">", Vector2(764, y), Vector2(56, 44), _page.bind(1)))
+	ui.add_child(UiKit.button("<", Vector2(640, y), Vector2(56, 44), _page.bind(-1)))
+	ui.add_child(UiKit.button(">", Vector2(702, y), Vector2(56, 44), _page.bind(1)))
 	## HIS WEAPON, and a tap changes it. Sword-and-shield or polearm — a line-up
 	## decision, so it costs nothing and can be changed between any two events.
-	ui.add_child(UiKit.button(UiKit.t("Sword") if man.weapon == Tuning.Weapon.SWORD_SHIELD else UiKit.t("Pole"),
-		Vector2(828, y), Vector2(108, 44), func():
+	ui.add_child(UiKit.button(UiKit.t("Weapon: %s") % (UiKit.t("Sword") if man.weapon == Tuning.Weapon.SWORD_SHIELD else UiKit.t("Pole")),
+		Vector2(766, y), Vector2(170, 44), func():
 			man.weapon = Tuning.Weapon.POLEARM if man.weapon == Tuning.Weapon.SWORD_SHIELD \
 				else Tuning.Weapon.SWORD_SHIELD
 			flash = UiKit.t("%s will carry a %s.") % [man.display_name,
@@ -649,7 +651,7 @@ func _the_man() -> void:
 	else:
 		## TWO PRICES, NAMED APART (blind review, 29 Sep: "$23 disagrees with $24").
 		## Extending now and re-signing when the deal runs out are different deals.
-		UiKit.text(self, font, UiKit.t("When his deal ends"), Vector2(L_X + 16, y + 56), 14, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("Asks at renewal"), Vector2(L_X + 16, y + 56), 14, UiKit.DIM)
 		## The price the club would actually pay (a Negotiator captain included),
 		## from the same function `Season.resign` charges.
 		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])
