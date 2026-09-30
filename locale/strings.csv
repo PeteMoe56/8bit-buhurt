@@ -194,6 +194,7 @@ NOT ENTERED FOR THE CUPS,NOT ENTERED FOR THE CUPS,SIN INSCRIPCIÓN EN LAS COPAS,
 Short on: ,Short on: ,Falta: ,Il manque : ,Es fehlt: ,Manca: ,Falta: ,Brakuje: ,Не хватает: ,不足: 
 ", ",", ",", ",", ",", ",", ",", ",", ",", ",、
 %d CC a year to hold,%d CC a year to hold,%d CC al año para mantenerla,%d CC par an pour la garder,%d CC im Jahr zum Halten,%d CC l'anno per restare,%d CC por ano para manter,%d CC rocznie za członkostwo,%d CC в год за статус,維持費 年%d CC
+Ahead now = ready for the division above.,Ahead now = ready for the division above.,Adelantarse = listo para la división superior.,D'avance = prêt pour la division au-dessus.,Vorsorge = bereit für die Liga darüber.,In anticipo = pronto per la divisione sopra.,Adiantado = pronto para a divisão acima.,Z wyprzedzeniem = gotowy na wyższą ligę.,Заранее = готов к лиге выше.,先行 = 上位リーグの準備
 THE MEMBERS,THE MEMBERS,LOS SOCIOS,LES MEMBRES,DIE MITGLIEDER,I SOCI,OS SÓCIOS,CZŁONKOWIE,ЧЛЕНЫ КЛУБА,会員
 %d following,%d following,%d seguidores,%d fidèles,%d Anhänger,%d al seguito,%d seguidores,obserwujących: %d,С тобой: %d,フォロワー%d
 The federation costs,The federation costs,La federación cuesta,La fédération coûte,Der Verband kostet,La federazione costa,A federação custa,Federacja kosztuje,Федерация стоит,連盟の費用
@@ -394,7 +395,7 @@ Against %s.,Against %s.,Contra %s.,Contre %s.,Gegen %s.,Contro %s.,Contra %s.,Ry
 Nothing to fight.,Nothing to fight.,Nada que disputar.,Rien à disputer.,Nichts zu kämpfen.,Niente da combattere.,Nada para lutar.,Nie ma z kim walczyć.,Боёв нет.,試合なし。
 Bye this event.,Bye this event.,Evento libre.,Exempt cette rencontre.,Diesmal spielfrei.,Riposo in questo evento.,Folga neste evento.,Pauza w tych zawodach.,В этот раз — пропуск.,今大会は不戦。
 %s  ·  Season %d  ·  rating %d,%s  ·  Season %d  ·  rating %d,%s  ·  Temporada %d  ·  media %d,%s  ·  Saison %d  ·  note %d,%s  ·  Saison %d  ·  Wertung %d,%s  ·  Stagione %d  ·  valore %d,%s  ·  Temporada %d  ·  nota %d,%s  ·  Sezon %d  ·  ocena %d,%s  ·  Сезон %d  ·  рейтинг %d,%s  ·  シーズン%d  ·  能力値 %d
-MOOD,MOOD,ÁNIMO,MORAL,STIMMUNG,MORALE,MORAL,NASTRÓJ,НАСТРОЙ,士気
+SQUAD MOOD,SQUAD MOOD,ÁNIMO,MORAL,STIMMUNG,UMORE,CLIMA,NASTRÓJ,НАСТРОЙ,士気
 THE ARMORER,THE ARMORER,EL ARMERO,L'ARMURIER,DER SCHMIED,L'ARMAIOLO,O ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
 %d CC in hand,%d CC in hand,%d CC en caja,%d CC en caisse,%d CC in der Hand,%d CC in cassa,%d CC em caixa,%d CC w kasie,На руках %d CC,所持 %d CC
 Every traveling harness passes inspection.,Every traveling harness passes inspection.,Todos los arneses del viaje pasan la inspección.,Tous les harnois du voyage passent l'inspection.,Jede Reiserüstung besteht die Prüfung.,Ogni armatura in trasferta passa l'ispezione.,Toda armadura da viagem passa na inspeção.,Każda zbroja w drodze przechodzi kontrolę.,Все доспехи в поездке проходят проверку.,遠征組のアーマーはすべて検査合格。
@@ -469,13 +470,13 @@ Level %d → %d,Level %d → %d,Nivel %d → %d,Niveau %d → %d,Stufe %d → %d
 The staff,The staff,El staff,Le staff,Der Stab,Lo staff,A comissão,Sztab,Штаб,スタッフ
 Playbook,Playbook,Pizarra,Tactiques,Taktikbuch,Playbook,Cartilha,Taktyki,Тактика,作戦ノート
 Records,Records,Archivo,Archives,Rekorde,Record,Recordes,Kronika,Рекорды,記録
+Create & difficulty,Create & difficulty,Crear y dificultad,Création et difficulté,Erstellen & Schwierigkeit,Crea e difficoltà,Criar e dificuldade,Twórz i trudność,Создание и сложность,作成と難易度
 Your career,Your career,Tu carrera,Ta carrière,Deine Karriere,La tua carriera,Sua carreira,Twoja kariera,Твоя карьера,キャリア
   ·  %d offer,  ·  %d offer,  ·  %d oferta,  ·  %d offre,  ·  %d Angebot,  ·  %d offerta,  ·  %d oferta,  ·  %d oferta,  ·  %d предложение,  ·  オファー%d件
   ·  %d offers,  ·  %d offers,  ·  %d ofertas,  ·  %d offres,  ·  %d Angebote,  ·  %d offerte,  ·  %d ofertas,  ·  %d oferty,  ·  %d предложения,  ·  オファー%d件
-Create & difficulty,Create & difficulty,Crear y dificultad,Création et difficulté,Erstellen & Schwierigkeit,Crea e difficoltà,Criar e dificuldade,Twórz i trudność,Создание и сложность,作成と難易度
+Settings,Settings,Ajustes,Réglages,Optionen,Impostazioni,Configurações,Ustawienia,Настройки,設定
 The federation,The federation,La federación,La fédération,Der Verband,La federazione,A federação,Federacja,Федерация,連盟
   ·  BARRED,  ·  BARRED,  ·  VETADO,  ·  EXCLU,  ·  GESPERRT,  ·  ESCLUSO,  ·  SUSPENSO,  ·  ZAWIESZONY,  ·  ОТСТРАНЁН,  ·  資格停止
-Settings,Settings,Ajustes,Réglages,Optionen,Impostazioni,Configurações,Ustawienia,Настройки,設定
 Close,Close,Cerrar,Fermer,Schließen,Chiudi,Fechar,Zamknij,Закрыть,閉じる
 THE CLUB,THE CLUB,EL CLUB,LE CLUB,DER VEREIN,IL CLUB,O CLUBE,KLUB,КЛУБ,クラブ
 %d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s
@@ -550,6 +551,7 @@ BENCH — two may come on each corner,BENCH — two may come on each corner,BANQ
 Nobody.,Nobody.,Nadie.,Personne.,Keiner.,Nessuno.,Ninguém.,Nikt.,Никого.,なし。
 "NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow","NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow","HOY es lo que es, MÁX lo que podría ser  ·  rojo = hay que actuar  ·  verde = margen para crecer","ACT : ce qu'il est, MAX : ce qu'il pourrait être  ·  rouge = à régler  ·  vert = marge de progression","IST: was er ist, MAX: was er sein könnte  ·  rot = kümmer dich drum  ·  grün = Luft nach oben","ORA è ciò che è, MAX ciò che potrebbe essere  ·  rosso = da sistemare  ·  verde = margine di crescita","HOJE é o que ele é, MÁX o que ele pode ser  ·  vermelho = resolva  ·  verde = espaço para crescer","AKT — kim jest, MAX — kim może być  ·  czerwony = do załatwienia  ·  zielony = jest miejsce na rozwój","СЕЙЧ — какой он есть, МАКС — каким может стать  ·  красный = разберись  ·  зелёный = есть куда расти",現在は今の実力、最大は伸びしろの上限  ·  赤 = 要対応  ·  緑 = 成長の余地あり
 "NOW is what he is, MAX what he could be  ·  green = room to grow","NOW is what he is, MAX what he could be  ·  green = room to grow","HOY es lo que es, MÁX lo que podría ser  ·  verde = margen para crecer","ACT : ce qu'il est, MAX : ce qu'il pourrait être  ·  vert = marge de progression","IST: was er ist, MAX: was er sein könnte  ·  grün = Luft nach oben","ORA è ciò che è, MAX ciò che potrebbe essere  ·  verde = margine di crescita","HOJE é o que ele é, MÁX o que ele pode ser  ·  verde = espaço para crescer","AKT — kim jest, MAX — kim może być  ·  zielony = jest miejsce na rozwój","СЕЙЧ — какой он есть, МАКС — каким может стать  ·  зелёный = есть куда расти",現在は今の実力、最大は伸びしろの上限  ·  緑 = 成長の余地あり
+Tap a man for his page  ·  KIT green = sound harness,Tap a man for his page  ·  KIT green = sound harness,Toca a un hombre para ver su ficha  ·  KIT verde = arnés en buen estado,Touche un homme pour sa fiche  ·  KIT vert = harnais sain,Tippe einen Mann für seine Seite  ·  KIT grün = Rüstung in Ordnung,Tocca un uomo per la sua scheda  ·  KIT verde = corazza a posto,Toque num homem para a ficha  ·  KIT verde = arnês em dia,"Dotknij zawodnika, by zobaczyć kartę  ·  KIT zielony = zbroja w porządku",Коснись бойца для карточки  ·  KIT зелёный = доспех в порядке,選手をタップで詳細  ·  KIT緑＝防具良好
 OUT %d,OUT %d,FUERA %d,ABSENT %d,RAUS %d,FUORI %d,FORA %d,URAZ %d,ТРАВМА %d,離脱 %d
 %dy,%dy,%da,%da,%dJ,%da,%da,%dl,%dг,%d年
 ROLE,ROLE,PUESTO,POSTE,ROLLE,RUOLO,POSIÇÃO,ROLA,РОЛЬ,役割
@@ -920,7 +922,7 @@ Nobody had anything to say.,Nobody had anything to say.,Nadie tenía nada que de
 scroll ^,scroll ^,subir ^,défiler ^,scrollen ^,scorri ^,rolar ^,przewiń ^,листай ^,スクロール ^
 more v,more v,más v,suite v,mehr v,altro v,mais v,więcej v,ещё v,続き v
 BEFORE THE CHARGE,BEFORE THE CHARGE,ANTES DE LA CARGA,AVANT LA CHARGE,VOR DEM ANSTURM,PRIMA DELLA CARICA,ANTES DA CARGA,PRZED SZARŻĄ,ПЕРЕД АТАКОЙ,突撃前
-%s v %s,%s v %s,%s v %s,%s c. %s,%s v %s,%s v %s,%s x %s,%s v %s,%s против %s,%s 対 %s
+v %s  ·  their line rated %d,v %s  ·  their line rated %d,vs %s  ·  su línea: %d,c. %s  ·  leur ligne : %d,gg. %s  ·  ihre Linie: %d,vs %s  ·  la loro linea: %d,vs %s  ·  linha deles: %d,vs %s  ·  ich linia: %d,против %s  ·  их линия: %d,vs %s  ·  相手ライン %d
 END OF ROUND %d,END OF ROUND %d,FIN DEL ASALTO %d,FIN DE LA MANCHE %d,ENDE RUNDE %d,FINE ROUND %d,FIM DO ROUND %d,KONIEC RUNDY %d,КОНЕЦ РАУНДА %d,第%dラウンド終了
 STANDING,STANDING,EN PIE,DEBOUT,STEHEND,IN PIEDI,DE PÉ,NA NOGACH,НА НОГАХ,残存
 BACK IN,BACK IN,VUELVEN EN,RETOUR DANS,ZURÜCK IN,RIENTRO,VOLTAM EM,POWRÓT ZA,ВЫХОД ЧЕРЕЗ,再開まで

@@ -422,6 +422,9 @@ static func _draw_squad(v: SeasonScene) -> void:
 	var key := UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow") if any_red \
 		else UiKit.t("NOW is what he is, MAX what he could be  ·  green = room to grow")
 	UiKit.text_fit(v, v.font, key, Vector2(24, SeasonScene._squad_key_y()), 14, UiKit.DIM, UiKit.span())
+	## THE ROWS ARE BUTTONS (round 5: "nothing shows rows can be tapped").
+	UiKit.text_fit(v, v.font, UiKit.t("Tap a man for his page  ·  KIT green = sound harness"),
+		Vector2(24, SeasonScene._squad_key_y() - 20.0), 14, UiKit.INK, UiKit.span())
 
 
 

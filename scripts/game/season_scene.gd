@@ -557,7 +557,7 @@ func _header() -> void:
 	UiKit.panel(self, purse_box())
 	UiKit.purse(self, font, season.office.credits, purse_at(), PURSE_SIZE, UiKit.YOU)
 	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.
-	UiKit.text(self, font, UiKit.t("MOOD"), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 20), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 20), 12, UiKit.DIM)
 	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 40), 16,
 		UiKit.UP if season.office.morale >= 0.6 else
 		(UiKit.DOWN if season.office.morale < 0.35 else UiKit.DIM))
@@ -812,15 +812,15 @@ func _draw_squad() -> void:
 ## wage printed through an age is a lie.
 const SQUAD_W := 446.0
 const COL_NUM := 8.0
-const COL_NAME := 44.0
+const COL_NAME := 50.0
 ## The budget, not a character count. `COL_POS` minus a gap.
-const COL_NAME_W := 100.0
+const COL_NAME_W := 94.0
 const COL_POS := 150.0
 const COL_ARMOR := 226.0
 const COL_AGE := 272.0
 const COL_WAGE_TO := 351.0
 const COL_WAGE_BOX := 58.0
-const COL_YEARS := 357.0
+const COL_YEARS := 361.0
 const COL_RATING_TO := 414.0
 const COL_RATING_BOX := 40.0
 const COL_POT_TO := 438.0

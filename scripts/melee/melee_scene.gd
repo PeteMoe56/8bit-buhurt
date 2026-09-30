@@ -1040,7 +1040,7 @@ func _draw_report_table() -> void:
 		if Career.at_ceiling(m.card):
 			_cell("PEAK", "next", y, 10, COL_DIM)
 		elif Career.can_place(m.card):
-			_cell(UiKit.t("LEVEL UP"), "next", y, 10, UiKit.YOU)
+			_cell(UiKit.t("LEVEL UP"), "next", y, 12, UiKit.UP)
 		else:
 			_cell("%d/%d" % [m.card.xp, Career.next_level_at(m.card)],
 				"next", y, 10, COL_INK)
@@ -1152,8 +1152,8 @@ func _draw_news() -> void:
 	if news_over > 0.5:
 		var at_end: bool = news_scroll >= news_over - 0.5
 		UiKit.raw(self, font, Vector2(936.0 - REP_LX - 60.0, NEWS_TOP - 10.0),
-			UiKit.t("scroll ^") if at_end else UiKit.t("more v"), HORIZONTAL_ALIGNMENT_RIGHT, 60, 9,
-			COL_DIM)
+			UiKit.t("scroll ^") if at_end else UiKit.t("more v"), HORIZONTAL_ALIGNMENT_RIGHT, 60, 14,
+			UiKit.YOU)
 	for c in plan["caps"]:
 		var cy: float = NEWS_TOP + float(c["y"]) - news_scroll
 		if cy <= NEWS_TOP - 4.0 or cy >= NEWS_TOP + NEWS_H:
@@ -1197,9 +1197,17 @@ func _draw_corner() -> void:
 	if first:
 		UiKit.raw(self, font, Vector2(C_LX, 60), UiKit.t("BEFORE THE CHARGE"),
 			HORIZONTAL_ALIGNMENT_LEFT, 400, 16, UiKit.YOU)
-		UiKit.raw(self, font, Vector2(440, 62), UiKit.t("%s v %s") % [
-			sim.clubs[0].display_name, sim.clubs[1].display_name],
-			HORIZONTAL_ALIGNMENT_LEFT, 440, 9, COL_DIM)
+		## WHO YOU ARE PLANNING AGAINST (round 5: "no information about the
+		## opponent on the screen where you pick a plan against them").
+		var their := 0
+		var n := 0
+		for c in sim.lineup(1):
+			if c != null:
+				their += c.overall()
+				n += 1
+		UiKit.raw(self, font, Vector2(300, 62), UiKit.fit(font, UiKit.t("v %s  ·  their line rated %d") % [
+			sim.clubs[1].display_name, int(round(float(their) / float(maxi(1, n))))], 14, 612.0),
+			HORIZONTAL_ALIGNMENT_RIGHT, 612, 14, COL_INK)
 	else:
 		UiKit.raw(self, font, Vector2(C_LX, 60), UiKit.t("END OF ROUND %d") % sim.round_no,
 			HORIZONTAL_ALIGNMENT_LEFT, 400, 16, UiKit.YOU)

@@ -134,6 +134,10 @@ func _federation(o: ClubOffice) -> void:
 	if o.federation_upkeep() > 0:
 		UiKit.right(self, font, UiKit.t("%d CC a year to hold") % o.federation_upkeep(),
 			Vector2(L_X + COL_W - 16, y2 + (18.0 if shorts.is_empty() else 36.0)), 14, UiKit.DIM, 220)
+	elif shorts.is_empty():
+		## WHY BUY WHAT IS NOT NEEDED (round 5).
+		UiKit.text_fit(self, font, UiKit.t("Ahead now = ready for the division above."),
+			Vector2(L_X + 16, y2 + 20.0), 13, UiKit.DIM, COL_W - 32.0)
 
 
 func _members(o: ClubOffice) -> void:

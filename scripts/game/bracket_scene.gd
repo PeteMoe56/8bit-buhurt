@@ -161,8 +161,9 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 	if id >= 0:
 		UiKit.text(self, font, "%d" % (cup.entrants.find(id) + 1),
 			Vector2(at.x + 8, at.y + 19), 12, UiKit.DIM)
-		UiKit.text(self, font, UiKit.clip(_name(id), 16),
-			Vector2(at.x + 24, at.y + 19), 14, col)
+		## FITTED, NOT CUT AT 16 CHARACTERS (round 5: "New Orleans Gua.").
+		UiKit.text_fit(self, font, _name(id),
+			Vector2(at.x + 24, at.y + 19), 14, col, w - 24.0 - (34.0 if played else 8.0))
 	else:
 		UiKit.text(self, font, "—", Vector2(at.x + 24, at.y + 19), 14, UiKit.DIM)
 	if played:
