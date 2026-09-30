@@ -17,6 +17,8 @@ const COL_W := 288.0
 ## level became something the player spends.
 const LEVEL_ROW_Y := 430.0
 const ROW_H := 40.0
+## The footer's ">" — the page count sits between it and "<" at 640.
+const PAGE_NEXT_X := 748.0
 const GAP := 8.0
 ## The meeting button is the fixed thing in that band and the +1 buttons divide
 ## what is left, because the meeting button's label is the one whose width the
@@ -229,6 +231,9 @@ func _build() -> void:
 	## answers to one question.
 	bus_note = ("" if bus_why == "" else (UiKit.t("%s cannot be left at home: %s.") if on_eight
 		else UiKit.t("%s cannot travel: %s.")) % [man.display_name, bus_why])
+	## "need eight" said as a rule (round 8: "cryptic").
+	if on_eight and bus_why == UiKit.t("need eight"):
+		bus_note = UiKit.t("A club travels with eight, so %s cannot be left at home.") % man.display_name
 	ui.add_child(bus_b)
 
 	## THE CONTRACT, as one control with the price on it — the same fork the
@@ -263,12 +268,14 @@ func _build() -> void:
 			Session.autosave()
 			_build()))
 
-	ui.add_child(UiKit.button("<", Vector2(640, y), Vector2(56, 44), _page.bind(-1)))
-	ui.add_child(UiKit.button(">", Vector2(702, y), Vector2(56, 44), _page.bind(1)))
+	## THE ARROWS AROUND THE COUNT THEY MOVE (round 8: "group the arrows with
+	## the counter"). "3 of 13" is drawn between them in `_draw`.
+	ui.add_child(UiKit.arrow(false, Vector2(640, y), Vector2(44, 44), _page.bind(-1)))
+	ui.add_child(UiKit.arrow(true, Vector2(PAGE_NEXT_X, y), Vector2(44, 44), _page.bind(1)))
 	## HIS WEAPON, and a tap changes it. Sword-and-shield or polearm — a line-up
 	## decision, so it costs nothing and can be changed between any two events.
 	ui.add_child(UiKit.button(UiKit.t("Weapon: %s") % (UiKit.t("Sword") if man.weapon == Tuning.Weapon.SWORD_SHIELD else UiKit.t("Pole")),
-		Vector2(766, y), Vector2(170, 44), func():
+		Vector2(PAGE_NEXT_X + 52.0, y), Vector2(UiKit.right_edge() - PAGE_NEXT_X - 52.0, 44), func():
 			man.weapon = Tuning.Weapon.POLEARM if man.weapon == Tuning.Weapon.SWORD_SHIELD \
 				else Tuning.Weapon.SWORD_SHIELD
 			flash = UiKit.t("%s will carry a %s.") % [man.display_name,
@@ -317,6 +324,9 @@ func _build() -> void:
 					Session.autosave()
 					_build())
 			b.disabled = not ok
+			## GOLD WHEN THE POINT IS WAITING (round 8): the one thing to do here.
+			if ok:
+				UiKit.primary(b)
 			ui.add_child(b)
 	elif not meeting_open:
 		## --------------------------------------------------- the meeting door
@@ -348,9 +358,9 @@ func _meeting_controls() -> void:
 		b.disabled = bool(c["off"])
 		ui.add_child(b)
 	var fy := card_close_y()
-	ui.add_child(UiKit.button("<", Vector2(card().position.x + PAD, fy),
+	ui.add_child(UiKit.arrow(false, Vector2(card().position.x + PAD, fy),
 		Vector2(52, 40), _page.bind(-1)))
-	ui.add_child(UiKit.button(">", Vector2(card().position.x + PAD + 58.0, fy),
+	ui.add_child(UiKit.arrow(true, Vector2(card().position.x + PAD + 58.0, fy),
 		Vector2(52, 40), _page.bind(1)))
 	ui.add_child(UiKit.button(UiKit.t("Done"),
 		Vector2(card().position.x + card().size.x - PAD - 130.0, fy),
@@ -508,9 +518,11 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("%s  —  %s") % [man.pos_name().to_upper(),
 		man.display_name.to_upper()], Vector2(24, 46), 24, UiKit.INK)
 	var order := _order()
-	UiKit.right(self, font, UiKit.t("#%d   ·   %d of %d") % [man.number,
-		order.find(man) + 1, order.size()],
-		Vector2(UiKit.screen().x - 24, 46), 14, UiKit.DIM, 260)
+	UiKit.right(self, font, "#%d" % man.number,
+		Vector2(UiKit.screen().x - 24, 46), 18, UiKit.DIM, 80)
+	if not meeting_open:
+		UiKit.mid(self, font, UiKit.t("%d of %d") % [order.find(man) + 1, order.size()],
+			Vector2(684, UiKit.screen().y - 28.0), 13, UiKit.INK, PAGE_NEXT_X - 684.0)
 
 	_the_man()
 	_attributes()
@@ -646,6 +658,12 @@ func _the_man() -> void:
 	## relationship's, so both halves are on the screen rather than one number the
 	## player has to take on trust.
 	var asks: Dictionary = Contracts.demand(man)
+	## ONLY WHEN IT SAYS SOMETHING THE EXTEND BUTTON DOES NOT (round 8: the panel
+	## was too full). Same price, same years: the button below already says it.
+	var same: bool = man.years > 0 and not bool(asks["refuses"]) \
+		and season.resign_cost(man) == season.extend_cost(man)
+	if same:
+		return
 	if bool(asks["refuses"]):
 		UiKit.text(self, font, UiKit.t("He will not sign again."),
 			Vector2(L_X + 16, y + 56), 14, UiKit.DOWN)

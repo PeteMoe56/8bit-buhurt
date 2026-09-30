@@ -25,6 +25,10 @@ const COL_W := 226.0
 const COL_GAP := 12.0
 const ROAD_X := 748.0
 const ROAD_W := 188.0
+## The tree's band: under the round headings, clear of Back (round 8: Back
+## crowded the last tie).
+const TREE_TOP := 120.0
+const TREE_H := 340.0
 
 var font: Font
 var ui: CanvasLayer
@@ -49,7 +53,27 @@ func _ready() -> void:
 	## BOTTOM-LEFT IN BOTH MODES (#14) — it was top-right in pools and
 	## bottom-right in the knockout, two places in one scene.
 	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, h() - 56), Vector2(150, 44), _back))
+	## THE FIGHT FROM THE DRAW (round 8: "there's no fight button"). Only when
+	## this is the cup whose tie is waiting on the player tonight.
+	if Session.season != null and cup != null and cup == Session.season.pending_cup() \
+			and Session.season.blocked_by() == "cup":
+		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight the tie"),
+			Vector2(ROAD_X, h() - 56), Vector2(ROAD_W, 44), _fight, "sword")))
 	queue_redraw()
+
+
+## The same hand-over as the Club tab's "Fight the cup bout".
+func _fight() -> void:
+	var s := Session.season
+	var sim := s.begin_cup_bout()
+	if sim == null:
+		return
+	s.mark_bout_live(true)
+	Session.autosave()
+	Session.bout = sim
+	Session.bout_is_cup = true
+	Session.bout_mood = s.mood()
+	UiKit.go("res://scenes/Melee.tscn")
 
 
 func _back() -> void:
@@ -133,10 +157,21 @@ func _tree() -> void:
 		var ties: int = int(pow(2.0, float(n_cols - 1 - i)))
 		var label: String = String(Cup.ROUND_NAMES.get(ties * 2, "Round of %d" % (ties * 2)))
 		UiKit.text(self, font, label.to_upper(), Vector2(x, 106), 12, UiKit.DIM)
-		var span := 368.0 / float(maxi(1, ties))
+		var span := TREE_H / float(maxi(1, ties))
 		for j in ties:
-			var y := 126.0 + span * float(j) + span * 0.5 - 32.0
+			var y := TREE_TOP + span * float(j) + span * 0.5 - 30.0
 			_tie(Vector2(x, y), COL_W, day[j] if j < day.size() else {}, i)
+			## THE LINES THAT MAKE IT A BRACKET (round 8: "no connecting lines").
+			## From the middle of this tie to the middle of the one it feeds.
+			if i < n_cols - 1:
+				var mid_y := y + 30.0
+				var nspan := TREE_H / float(maxi(1, ties >> 1))
+				var ny := TREE_TOP + nspan * float(j >> 1) + nspan * 0.5
+				var ex := x + COL_W
+				var hx := ex + COL_GAP * 0.5
+				draw_line(Vector2(ex, mid_y), Vector2(hx, mid_y), UiKit.FRAME, 2.0)
+				draw_line(Vector2(hx, mid_y), Vector2(hx, ny), UiKit.FRAME, 2.0)
+				draw_line(Vector2(hx, ny), Vector2(ex + COL_GAP, ny), UiKit.FRAME, 2.0)
 
 
 func _tie(at: Vector2, w: float, m: Dictionary, round_i: int) -> void:
@@ -176,7 +211,7 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 ## answer "who do I fight next", which is the question the player actually came
 ## with. Both, on one screen, is why this variant was chosen over either alone.
 func _road() -> void:
-	UiKit.panel(self, Rect2(ROAD_X, 96, ROAD_W, 366))
+	UiKit.panel(self, Rect2(ROAD_X, 96, ROAD_W, 364 - 8))
 	if me < 0:
 		UiKit.text(self, font, UiKit.t("NOT YOUR CUP"), Vector2(ROAD_X + 16, 126), 12, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("You were not"), Vector2(ROAD_X + 16, 160), 14, UiKit.DIM)
@@ -203,11 +238,11 @@ func _road() -> void:
 			## simply not your business any more.
 			UiKit.text(self, font, "—" if done else UiKit.t("not there yet"),
 				Vector2(ROAD_X + 16, y + 24), 14, UiKit.DIM)
-			y += 64.0
+			y += 58.0
 			continue
 		var opp: int = int(m["b"]) if int(m["a"]) == me else int(m["a"])
-		UiKit.text(self, font, UiKit.clip_px(font, _name(opp), 14, ROAD_W - 32.0),
-			Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK)
+		UiKit.text_fit(self, font, _name(opp),
+			Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK, ROAD_W - 32.0)
 		if bool(m.get("played", false)):
 			var mine: int = int(m["ra"]) if int(m["a"]) == me else int(m["rb"])
 			var his: int = int(m["rb"]) if int(m["a"]) == me else int(m["ra"])
@@ -218,7 +253,7 @@ func _road() -> void:
 				done = true
 		else:
 			UiKit.text(self, font, UiKit.t("to fight"), Vector2(ROAD_X + 16, y + 44), 14, UiKit.YOU)
-		y += 64.0
+		y += 78.0
 	if cup.champion >= 0:
 		UiKit.text(self, font, UiKit.t("CHAMPION"), Vector2(ROAD_X + 16, 430), 11, UiKit.DIM)
 		UiKit.text(self, font, UiKit.clip(_name(cup.champion), 17),

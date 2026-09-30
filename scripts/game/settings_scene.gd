@@ -25,7 +25,10 @@ const ROW_STEP := 52.0
 const SOUND_H := 218.0
 ## The career panel, and the Back button riding the bottom of whatever shape the
 ## screen turned out to be rather than a literal 470.
-const CAREER_Y := TOP + 230.0
+## IN THE RIGHT COLUMN, under About (round 8: the right column was empty and
+## the left one pressed Back against the career box).
+const CAREER_X := RIGHT_X
+const CAREER_Y := TOP + 250.0
 const CAREER_H := 150.0
 ## LANGUAGE, under the credits: one cycling button, like the grade's.
 const LANG_Y := TOP
@@ -89,7 +92,7 @@ func _build() -> void:
 	## with what each one does.
 	if Session.season != null:
 		ui.add_child(UiKit.button(UiKit.t("Change difficulty"),
-			Vector2(LEFT_X + 18, CAREER_Y + 104.0), Vector2(COL_W - 36.0, 38), func():
+			Vector2(CAREER_X + 18, CAREER_Y + 104.0), Vector2(COL_W - 36.0, 38), func():
 				Session.autosave()
 				Session.create_tab = 2
 				UiKit.go("res://scenes/Create.tscn"), "ladder"))
@@ -103,11 +106,11 @@ func _build() -> void:
 		## to English" beside "Automatic · English" contradicted itself).
 		var prv: String = langs[(maxi(0, li) - 1 + langs.size()) % langs.size()]
 		var nxt: String = langs[(maxi(0, li) + 1) % langs.size()]
-		ui.add_child(UiKit.button("<", Vector2(RIGHT_X + 18, LANG_Y + 32.0), Vector2(52, 38), func():
+		ui.add_child(UiKit.arrow(false, Vector2(RIGHT_X + 18, LANG_Y + 32.0), Vector2(52, 38), func():
 			Settings.set_language(prv)
 			Audio.play("tap")
 			_build()))
-		ui.add_child(UiKit.button(">", Vector2(RIGHT_X + COL_W - 46.0, LANG_Y + 32.0), Vector2(52, 38), func():
+		ui.add_child(UiKit.arrow(true, Vector2(RIGHT_X + COL_W - 46.0, LANG_Y + 32.0), Vector2(52, 38), func():
 			Settings.set_language(nxt)
 			Audio.play("tap")
 			_build()))
@@ -269,11 +272,11 @@ func _draw() -> void:
 	## TALLER, because it holds a control now rather than a sentence explaining
 	## that the control is elsewhere. 82 was the height of the signpost.
 	var gy := CAREER_Y
-	UiKit.panel(self, Rect2(LEFT_X, gy, COL_W, CAREER_H))
-	UiKit.text(self, font, UiKit.t("THIS CAREER"), Vector2(LEFT_X + 18, gy + 24), 15, UiKit.DIM)
+	UiKit.panel(self, Rect2(CAREER_X, gy, COL_W, CAREER_H))
+	UiKit.text(self, font, UiKit.t("THIS CAREER"), Vector2(CAREER_X + 18, gy + 24), 15, UiKit.DIM)
 	if Session.season != null:
 		UiKit.pair(self, font, UiKit.t("Difficulty"), Grade.name_of(Session.season.grade),
-			Vector2(LEFT_X + 18, gy + 48.0), LEFT_X + COL_W - 18.0, 17, 15,
+			Vector2(CAREER_X + 18, gy + 48.0), CAREER_X + COL_W - 18.0, 17, 15,
 			UiKit.INK, UiKit.YOU)
 		## WHAT THE ONE HE IS ON ACTUALLY DOES, not what the next one does. The
 		## button below says where a tap goes; this line says where he is, and a
@@ -287,12 +290,12 @@ func _draw() -> void:
 		## Their numbers me." Two lines at 12px is the box being honest about how
 		## much room it has.
 		UiKit.para(self, font, Grade.blurb_of(Session.season.grade),
-			Vector2(LEFT_X + 18, gy + 70.0), 14, UiKit.DIM, COL_W - 36.0, 18.0)
+			Vector2(CAREER_X + 18, gy + 70.0), 14, UiKit.DIM, COL_W - 36.0, 18.0)
 	else:
-		UiKit.text(self, font, UiKit.t("Difficulty"), Vector2(LEFT_X + 18, gy + 48.0),
+		UiKit.text(self, font, UiKit.t("Difficulty"), Vector2(CAREER_X + 18, gy + 48.0),
 			17, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("Open it from the Club menu."),
-			Vector2(LEFT_X + 18, gy + 68.0), 14, UiKit.DIM)
+			Vector2(CAREER_X + 18, gy + 68.0), 14, UiKit.DIM)
 
 	# -------------------------------------------------------------- language
 	UiKit.panel(self, Rect2(RIGHT_X, LANG_Y, COL_W + 6, LANG_H))

@@ -327,7 +327,9 @@ static func _schedule(v: SeasonScene) -> void:
 	## neither of which knew the other's height. Same shape as the clubhouse,
 	## twice, today.
 	var y := SeasonScene.CONTENT_Y + 186.0
-	UiKit.text(v, v.font, UiKit.t("WHAT IS LEFT"), Vector2(24, y), 14, UiKit.DIM)
+	## SAYS WHICH COMPETITION (round 8: league fixtures under a cup tie read as
+	## the cup's).
+	UiKit.text(v, v.font, UiKit.t("LEAGUE STILL TO COME"), Vector2(24, y), 14, UiKit.DIM)
 	## THE KEY FOR THE TWO COLUMNS NOBODY EXPLAINED (blind review round 3:
 	## "A/H prefixes never explained").
 	UiKit.right(v, v.font, UiKit.t("H home  ·  A away"),

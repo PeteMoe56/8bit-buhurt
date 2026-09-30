@@ -236,10 +236,29 @@ func _rebuild() -> void:
 	## THE ROOMS, beside Menu. It carries a count when one of them wants you (a
 	## job offer, a federation bar) — an alert behind a menu has to show on it.
 	var calls := SeasonClubhouseTab.club_calls(self)
-	ui.add_child(UiKit.button(UiKit.t("Club") + (" · %d" % calls if calls > 0 else ""),
+	var club_b := UiKit.button(UiKit.t("Club"),
 		Vector2(UiKit.right_edge(98.0 + 8.0 + CLUB_BTN_W), 14), Vector2(CLUB_BTN_W, 36), func():
 			club_menu_open = true
-			_rebuild(), "hall"))
+			_rebuild(), "hall")
+	## THE COUNT AS A BADGE ON THE CORNER (round 8: "Club · 1" read as a label).
+	if calls > 0:
+		var pip := ColorRect.new()
+		pip.color = UiKit.YOU
+		pip.position = Vector2(CLUB_BTN_W - 12.0, -8.0)
+		pip.size = Vector2(20, 20)
+		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var n := Label.new()
+		n.text = str(calls)
+		n.add_theme_font_override("font", font)
+		n.add_theme_font_size_override("font_size", 14)
+		n.add_theme_color_override("font_color", UiKit.BG)
+		n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		n.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		n.size = Vector2(20, 20)
+		n.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pip.add_child(n)
+		club_b.add_child(pip)
+	ui.add_child(club_b)
 	## The tape's own control goes with the tab's, so leaving the club tab takes
 	## it down and nothing has to remember to.
 	_tape_label = null

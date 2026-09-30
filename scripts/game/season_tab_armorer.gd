@@ -68,9 +68,11 @@ static func _draw_market(v: SeasonScene) -> void:
 		var gx0: float = cx + SeasonScene.QM_NAME_W + 6.0
 		if not uniform:
 			UiKit.text_fit(v, v.font, UiKit.t("HARNESS"), Vector2(gx0, hy), 12, UiKit.DIM, SeasonScene.QM_GRADE_W)
-		UiKit.text_fit(v, v.font, UiKit.t("CONDITION"), Vector2(gx0 + SeasonScene.QM_GRADE_W + 6.0, hy), 12,
+		UiKit.text_fit(v, v.font, UiKit.t("CONDITION"), Vector2(gx0 + _grade_w(uniform), hy), 12,
 			UiKit.DIM, SeasonScene.QM_BAR_W)
-		UiKit.right(v, v.font, UiKit.t("FIX"), Vector2(cx + cell, hy), 12, UiKit.DIM, SeasonScene.QM_COST_W)
+		## NEXT, NOT FIX (round 8: a sound harness showed its upgrade price under
+		## FIX, so 90% "cost" more than 73%). Each row now says which it is.
+		UiKit.right(v, v.font, UiKit.t("NEXT"), Vector2(cx + cell, hy), 12, UiKit.DIM, _cost_w(uniform))
 
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
@@ -103,7 +105,7 @@ static func _draw_market(v: SeasonScene) -> void:
 		## I" is a look rather than a subtraction. And the ceiling of his grade,
 		## so the gap he can NEVER close is visible — which is the whole sales
 		## pitch for the next harness and the one thing a percentage hides.
-		var bx := gx + SeasonScene.QM_GRADE_W + 6.0
+		var bx := gx + _grade_w(uniform)
 		var r := Rect2(bx, y - 11, SeasonScene.QM_BAR_W, 13)
 		var col := UiKit.DOWN if not f.passes_inspection() \
 			else (UiKit.UP if f.inspection_margin() >= Quartermaster.RISK_MARGIN
@@ -125,14 +127,25 @@ static func _draw_market(v: SeasonScene) -> void:
 			word = UiKit.t("OUT")
 			wcol = UiKit.DOWN
 		elif not Quartermaster.topped_out(f):
-			word = "%d CC" % ClubOffice.kit_cost(f)
+			word = UiKit.t("fix %d CC") % ClubOffice.kit_cost(f)
+			wcol = UiKit.INK
 		elif Quartermaster.next_grade(f) >= 0:
-			word = "%d CC" % Quartermaster.upgrade_cost(f)
+			word = UiKit.t("up %d CC") % Quartermaster.upgrade_cost(f)
 			wcol = UiKit.DIM
 		if word != "":
-			UiKit.right(v, v.font, word, Vector2(x + cell, y), 12, wcol, SeasonScene.QM_COST_W)
+			UiKit.right_fit(v, v.font, word, Vector2(x + cell, y), 12, wcol, _cost_w(uniform))
 
 
+
+
+## With one grade on every row the HARNESS column is not drawn, and its room
+## goes to the NEXT column.
+static func _grade_w(uniform: bool) -> float:
+	return 0.0 if uniform else SeasonScene.QM_GRADE_W + 6.0
+
+
+static func _cost_w(uniform: bool) -> float:
+	return SeasonScene.QM_COST_W + (SeasonScene.QM_GRADE_W + 6.0 if uniform else 0.0)
 
 
 static func _market_controls(v: SeasonScene) -> void:

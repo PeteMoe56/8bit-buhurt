@@ -62,6 +62,10 @@ var bind_to: int = Chalkboard.UNIVERSAL
 var dragging: int = -1          ## which of the five is under the finger
 var drawing: int = -1           ## which of the five is having a route drawn
 var raw: PackedVector2Array = PackedVector2Array()
+## WHAT THE SLOT LOOKED LIKE WHEN IT WAS LOADED OR SAVED, so Save can sit dead
+## until something changes (round 8: Save was gold before any edit).
+var clean_sig := ""
+var save_b: Button
 
 
 func _ready() -> void:
@@ -110,6 +114,18 @@ func _load_slot(i: int) -> void:
 		else:
 			routes = Chalkboard.blank_routes()
 			bind_to = Chalkboard.UNIVERSAL
+	## A slot never saved is a change already; one on file starts clean.
+	clean_sig = _sig() if i < _drawn() else ""
+
+
+func _sig() -> String:
+	return "%s|%s|%d|%s" % [str(spots), str(routes), bind_to, str(draft_name)]
+
+
+## Save lights when the working copy differs from what is on file.
+func _style_save() -> void:
+	if save_b != null and is_instance_valid(save_b):
+		save_b.disabled = _sig() == clean_sig
 
 
 ## Where the five stand while a play is being drawn: the shape the play is tied
@@ -165,7 +181,9 @@ func _rebuild() -> void:
 			name_edit.max_length = 18
 			name_edit.placeholder_text = UiKit.t("Name it")
 			name_edit.text = draft_name if draft_name != null else _current_name()
-			name_edit.text_changed.connect(func(t: String): draft_name = t)
+			name_edit.text_changed.connect(func(t: String):
+				draft_name = t
+				_style_save())
 			ui.add_child(name_edit)
 		elif i < owned:
 			var take := i
@@ -203,8 +221,10 @@ func _rebuild() -> void:
 				Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), _unlock, "lock"))
 
 	if slot < owned:
-		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
-			Vector2(150, 42), _save)))
+		save_b = UiKit.primary(UiKit.button(UiKit.t("Save"), Vector2(BOARD.position.x, 486),
+			Vector2(150, 42), _save))
+		ui.add_child(save_b)
+		_style_save()
 		ui.add_child(UiKit.button(UiKit.t("Revert"), Vector2(BOARD.position.x + 158, 486),
 			Vector2(130, 42), func():
 				_load_slot(slot)
@@ -274,6 +294,7 @@ func _save() -> void:
 		return
 	Session.autosave()
 	flash = UiKit.t("Saved.")
+	clean_sig = _sig()
 	_rebuild()
 
 
@@ -427,6 +448,7 @@ func _release(_p: Vector2) -> void:
 
 # ------------------------------------------------------------------ drawing
 func _draw() -> void:
+	_style_save()
 	UiKit.ground(self)
 	## LITERAL TITLE, THE VOICE UNDER IT (Pete, 29 Sep 2026).
 	UiKit.text(self, font, UiKit.t("PLAYBOOK"), Vector2(LEFT_X, 40), 26, UiKit.INK)

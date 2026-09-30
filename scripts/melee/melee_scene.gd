@@ -1596,7 +1596,8 @@ func _odds_col(p: float) -> Color:
 		return UiKit.UP
 	if p >= 0.35:
 		return UiKit.YOU
-	return UiKit.INK
+	## A LONG SHOT IS A RISK, and says so (round 8: 5% in white read as neutral).
+	return UiKit.DOWN.lightened(0.2)
 
 
 func _draw_wheel(m) -> void:
@@ -1933,10 +1934,13 @@ func _draw_hint() -> void:
 	## fixture text in the middle starts at about 390.
 	UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 14, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 14, COL_INK)
 	## SAID IN WORDS (blind review round 3: "0 routes · 0 of 0 calls" unexplained).
-	UiKit.raw(self, font, Vector2(SCREEN.x - 304, 50), UiKit.fit(font, UiKit.t("Routes %d  ·  choices %d/%d") % [
-		sim.orders_issued, sim.prompts_answered,
-		sim.prompts_answered + sim.prompts_timed_out], 14, 280.0),
-		HORIZONTAL_ALIGNMENT_RIGHT, 280, 14, COL_DIM)
+	## NOTHING UNTIL THERE IS SOMETHING TO COUNT (round 8: "Routes 0 · choices
+	## 0/0" was cryptic before the first order).
+	var calls: int = sim.prompts_answered + sim.prompts_timed_out
+	if sim.orders_issued > 0 or calls > 0:
+		UiKit.raw(self, font, Vector2(SCREEN.x - 304, 50), UiKit.fit(font, UiKit.t("%d sent  ·  %d of %d calls made") % [
+			sim.orders_issued, sim.prompts_answered, calls], 14, 280.0),
+			HORIZONTAL_ALIGNMENT_RIGHT, 280, 14, COL_DIM)
 	## THE FIRST THING TO DO, big, in the empty middle of the list until he has
 	## done it once (blind review round 3: the key instruction was 10 px grey in
 	## a corner).

@@ -203,12 +203,12 @@ func _fighter_controls() -> void:
 	var out := _cuttable()
 	if not out.is_empty():
 		var who: FighterCard = out[replace_i % out.size()]
-		ui.add_child(UiKit.button(UiKit.t("Replaces: %s (%d)") % [UiKit.clip(who.display_name, 14),
-				who.overall()], Vector2(RIGHT_X + 208, 108), Vector2(208, 34), func():
+		ui.add_child(UiKit.button(UiKit.t("Replaces: %s (%d)") % [UiKit.clip(who.display_name, 12),
+				who.overall()] + "  >", Vector2(RIGHT_X + 208, 108), Vector2(208, 34), func():
 			replace_i = (replace_i + 1) % out.size()
 			_rebuild()))
-	ui.add_child(UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
-		Vector2(BOTTOM_X, 486), Vector2(260, 42), _sign))
+	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
+		Vector2(BOTTOM_X, 486), Vector2(260, 42), _sign)))
 	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(BOTTOM_X + 272, 486), Vector2(160, 42), func():
 		card = Workshop.blank()
 		flash = ""
@@ -392,8 +392,8 @@ func _club_controls() -> void:
 		bank_b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(bank_b)
 
-	ui.add_child(UiKit.button(UiKit.t("Save the club"), Vector2(BOTTOM_X, 486), Vector2(260, 42),
-		_save_club))
+	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Save the club"), Vector2(BOTTOM_X, 486), Vector2(260, 42),
+		_save_club)))
 
 
 ## ------------------------------------------------------------------ the grade

@@ -419,12 +419,15 @@ static func _draw_squad(v: SeasonScene) -> void:
 	for f in v.season.club.roster:
 		if f.injury > 0 or f.fading() or f.years <= 0 or f.armor < 0.6:
 			any_red = true
-	var key := UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow") if any_red \
-		else UiKit.t("NOW is what he is, MAX what he could be  ·  green = room to grow")
-	UiKit.text_fit(v, v.font, key, Vector2(24, SeasonScene._squad_key_y()), 14, UiKit.DIM, UiKit.span())
-	## THE ROWS ARE BUTTONS (round 5: "nothing shows rows can be tapped").
-	UiKit.text_fit(v, v.font, UiKit.t("Tap a man for his page  ·  KIT green = sound  ·  gold years = final year"),
-		Vector2(24, SeasonScene._squad_key_y() - 20.0), 14, UiKit.INK, UiKit.span())
+	## ONE LINE (round 8: "cut the two-line legend"). The verb in ink, the key
+	## in dim after it.
+	var tap := UiKit.t("Tap a man for his page")
+	var key := (UiKit.t("green = good  ·  gold years = final year  ·  red = deal with it") if any_red
+		else UiKit.t("green = good  ·  gold years = final year"))
+	var ky: float = SeasonScene._squad_key_y()
+	UiKit.text(v, v.font, tap, Vector2(24, ky), 14, UiKit.INK)
+	var tw: float = v.font.get_string_size(tap, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 18.0
+	UiKit.text_fit(v, v.font, key, Vector2(24 + tw, ky), 14, UiKit.DIM, UiKit.span() - tw)
 
 
 

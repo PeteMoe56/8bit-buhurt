@@ -36,6 +36,9 @@ static func _office_controls(v: SeasonScene) -> void:
 				v.flash = UiKit.said(err) if err != "" else UiKit.t("Improved.")
 				Session.autosave()
 				v._rebuild(), "coin")
+		## GREY WHEN THE PURSE CANNOT COVER IT (round 8: "a grey state when you
+		## can't afford it").
+		b.disabled = cost > o.credits
 		v.ui.add_child(b)
 	## THE ALERT IS A LINK (round 1 #9): a role going out untaught opens the
 	## staff room, where the fix is.

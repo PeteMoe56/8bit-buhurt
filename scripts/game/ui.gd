@@ -1159,6 +1159,14 @@ const SLOP_MAX: float = 12.0
 const BTN_GROUP := "uikit_button"
 
 
+## A PAGE ARROW: the chevron drawn as an icon, because the face's "<" is a
+## six-pixel glyph (round 8: "the arrows are about 6px").
+static func arrow(right_: bool, at: Vector2, size: Vector2, on_press: Callable) -> Button:
+	var b := button("", at, size, on_press, "right" if right_ else "left")
+	b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	return b
+
+
 static func _add_slop(b: Button, inner: Vector2) -> void:
 	b.add_to_group(BTN_GROUP)
 	var slop := clampf((HIT_MIN - inner.y) * 0.5, 0.0, SLOP_MAX)

@@ -111,8 +111,14 @@ func _rebuild() -> void:
 				flash = UiKit.t("No tournament this year.")
 				_rebuild()))
 	elif season.booked == null:
-		ui.add_child(UiKit.button(UiKit.t("Run a demo"), Vector2(RIGHT_X, 384),
-			Vector2(340, 40), _demo))
+		var pay: int = ClubEvent.DEMO_PAY[clampi(arena.level, 0, ClubEvent.DEMO_PAY.size() - 1)]
+		var b := UiKit.button(UiKit.t("Run a demo · +%d CC") % pay, Vector2(RIGHT_X, 384),
+			Vector2(340, 40), _demo)
+		## ONCE A WEEK: after it has run, the button says so instead of refusing.
+		if office.done_this_week("demo"):
+			b.text = UiKit.t("Demo done this week")
+			b.disabled = true
+		ui.add_child(b)
 	queue_redraw()
 
 
@@ -269,8 +275,13 @@ func _draw_ground() -> void:
 		draw_rect(g, UiKit.PANEL)
 		## A slot says what it is waiting for. A blank box says the screen is
 		## broken.
-		UiKit.text(self, font, UiKit.t("%s  —  artwork to come") % arena.arena_name(),
-			g.position + Vector2(18, 30), 15, UiKit.DIM)
+		## THE GROUND AS A TITLED CARD until its picture lands (round 8: "artwork to
+		## come" read as an unfinished screen). Its name and the two numbers that
+		## describe it, centered; the picture replaces all of it.
+		var gc := g.get_center()
+		UiKit.mid(self, font, arena.arena_name().to_upper(), Vector2(g.position.x + 20.0, gc.y - 18.0), 22, UiKit.INK, g.size.x - 40.0)
+		UiKit.mid(self, font, UiKit.t("Level %d  ·  %s") % [arena.level, _capacity_word()],
+			Vector2(g.position.x + 20.0, gc.y + 12.0), 14, UiKit.DIM, g.size.x - 40.0)
 		## The file path and the pixel size that used to follow were notes for
 		## whoever draws the art, printed to the player (29 Sep 2026). They are
 		## in docs/ART.md; the slot only says what it is waiting for.
@@ -376,7 +387,7 @@ func _draw_diary() -> void:
 		return
 	if season.booked == null and not season.bid_open():
 		## WHAT THE DEMO IS (round 4: "Run a demo" unexplained).
-		UiKit.para(self, font, UiKit.t("A demo is a small home show. It cannot lose money."),
+		UiKit.para(self, font, UiKit.t("A small home show, once a week. It cannot lose money."),
 			Vector2(RIGHT_X, 446), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 	if season.booked != null:
 		var away := season.booked.events_away(season.world.event)

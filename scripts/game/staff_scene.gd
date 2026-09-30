@@ -8,7 +8,7 @@ extends Node2D
 ## shipped build rather than invented.
 
 const CARD_W := 200.0
-const CARD_H := 150.0
+const CARD_H := 124.0
 const CUR_Y := 96.0
 const OFFER_X := 496.0
 const OFFER_W := 200.0
@@ -84,8 +84,9 @@ func _build() -> void:
 			var bx := x
 			for k in 3:
 				var bw := floorf(want[k] * scale)
+				## 42 TALL (round 8: "about 24px, too small to tap well").
 				ui.add_child(UiKit.selected(UiKit.button(words[k], Vector2(bx, CUR_Y + CARD_H + 8.0),
-					Vector2(bw, 36), _set_regime.bind(i, k)),
+					Vector2(bw, 42), _set_regime.bind(i, k)),
 					k == int(season.office.captains[i].get("regime", ClubOffice.Regime.NORMAL))))
 				bx += bw + 4.0
 			## KEEP HIM, or let the deal run out. Two controls where there was one,
@@ -94,18 +95,19 @@ func _build() -> void:
 			var half := (CARD_W - 6.0) / 2.0
 			## "+1 yr · 3 CC", and Release in the destructive style, two taps
 			## (round 4: "· 3" had no unit and Release looked like its neighbour).
+			## RELEASE STANDS OFF (round 8: "right next to +1 yr").
 			ui.add_child(UiKit.button(UiKit.t("+1 yr · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(half + 4.0, 36), _extend.bind(i)))
-			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + half + 18.0, CUR_Y + CARD_H + 50.0),
-				Vector2(half - 18.0, 36), _release.bind(i))))
+				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(half + 8.0, 38), _extend.bind(i)))
+			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + half + 34.0, CUR_Y + CARD_H + 58.0),
+				Vector2(half - 34.0, 38), _release.bind(i))))
 		else:
 			ui.add_child(UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
-				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 36), _hire.bind(i)))
+				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 42), _hire.bind(i)))
 			## PUT THE WORD OUT AGAIN. The list is deterministic from the season so
 			## it does not reshuffle while you read it — which also means a bad crop
 			## is a bad crop for a year unless you pay to turn it over.
 			ui.add_child(UiKit.button(UiKit.t("New names  ·  %d CC") % ClubOffice.REFRESH_COST,
-				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(CARD_W, 34), _refresh))
+				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W, 38), _refresh))
 	## AN EXTRA SESSION, AND IT BELONGS ON THIS SCREEN AND NOT THE CLUBHOUSE.
 	##
 	## Pete, 15 Sep 2026: *"we can go with a 'team training' CC sink that may
@@ -207,6 +209,7 @@ func _draw() -> void:
 				"foot": UiKit.t("%s  ·  %dy") % [UiKit.t(String(ClubOffice.REGIME_NAME[reg])),
 					int(c.get("years", ClubOffice.CAPTAIN_YEARS))],
 				"foot_col": UiKit.DOWN if int(c.get("years", 9)) <= 1 else _regime_color(reg),
+				"head_frac": 0.2,
 			}, true)
 			## The mark on the selected regime button, which a Button cannot
 			## carry itself without a theme.
@@ -254,7 +257,7 @@ func _roles_of(c: Dictionary) -> String:
 ## room for the whole sentence rather than thirty characters of it.
 func _trait_word() -> void:
 	var o := season.office
-	var y := CUR_Y + CARD_H + 110.0
+	var y := CUR_Y + CARD_H + 124.0
 	UiKit.text(self, font, UiKit.t("WHAT ELSE THEY BRING"), Vector2(OFFER_X, y), 12, UiKit.DIM)
 	y += 24.0
 	var said := 0
@@ -284,7 +287,7 @@ func _regime_color(r: int) -> Color:
 ## WHAT THE THREE REGIMES ACTUALLY TRADE, on the screen where you pick one.
 ## A decision whose consequences are in a wiki is not a decision.
 func _what_it_costs() -> void:
-	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, CARD_H + 86.0))
+	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, 236.0))
 	UiKit.text(self, font, UiKit.t("WHAT A REGIME COSTS"), Vector2(OFFER_X + 16, CUR_Y + 26),
 		12, UiKit.DIM)
 	var cols := ["", UiKit.t("TRAINING"), UiKit.t("MORALE"), UiKit.t("ARMOR"), UiKit.t("KNOCKS")]

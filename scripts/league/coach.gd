@@ -102,7 +102,7 @@ func standing() -> String:
 		return UiKit.t("Widely known")
 	if reputation >= 6:
 		return UiKit.t("Making waves")
-	return UiKit.t("Unknown")
+	return UiKit.t("Unranked")
 
 
 ## Which of the four letters arrives, as an index. Same four bands as the words
