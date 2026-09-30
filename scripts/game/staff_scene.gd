@@ -92,10 +92,12 @@ func _build() -> void:
 			## because a captain you cannot re-sign is a captain you are only ever
 			## losing.
 			var half := (CARD_W - 6.0) / 2.0
-			ui.add_child(UiKit.button(UiKit.t("+1yr · %d") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(half, 34), _extend.bind(i)))
-			ui.add_child(UiKit.button(UiKit.t("Release"), Vector2(x + half + 6.0, CUR_Y + CARD_H + 50.0),
-				Vector2(half, 34), _release.bind(i)))
+			## "+1 yr · 3 CC", and Release in the destructive style, two taps
+			## (round 4: "· 3" had no unit and Release looked like its neighbour).
+			ui.add_child(UiKit.button(UiKit.t("+1 yr · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
+				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(half + 14.0, 36), _extend.bind(i)))
+			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + half + 26.0, CUR_Y + CARD_H + 50.0),
+				Vector2(half - 20.0, 36), _release.bind(i))))
 		else:
 			ui.add_child(UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
 				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 36), _hire.bind(i)))
@@ -121,9 +123,9 @@ func _build() -> void:
 	var cost := season.office.session_cost()
 	var idle: bool = season.office.captains.is_empty()
 	## AND WHAT IT BUYS, per man in the five (decision #11).
-	ui.add_child(UiKit.button(UiKit.t("Session  ·  +%d XP each  ·  %d CC") % [
+	var session_b := UiKit.button(UiKit.t("Session  ·  +%d XP each  ·  %d CC") % [
 			SeasonBouts.session_xp(season), cost],
-		Vector2(UiKit.right_edge(280.0), UiKit.screen().y - 56), Vector2(280, 44),
+		Vector2(UiKit.right_edge(300.0), UiKit.screen().y - 56), Vector2(300, 46),
 		func():
 			flash_tone = 0
 			flash = UiKit.said(season.run_session()) if not idle \
@@ -132,7 +134,9 @@ func _build() -> void:
 				flash = UiKit.t("A week's work in one afternoon.")
 				flash_tone = 1
 			Session.autosave()
-			_build()))
+			_build())
+	## THE SCREEN'S ONE ACTION IS GOLD (round 4).
+	ui.add_child(session_b if idle else UiKit.primary(session_b))
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 

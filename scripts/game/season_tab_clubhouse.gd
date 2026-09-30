@@ -227,6 +227,10 @@ static func _draw_office(v: SeasonScene) -> void:
 	## the player comes back to, the trophy cabinet, the bracket and the title —
 	## four places, out of sixteen. Everywhere would be wallpaper.
 	UiKit.ornament(v, UiKit.ORN_CREST, Rect2(SIDE_X, SIDE_Y, side_w(), 164.0), UiKit.FRAME, 24.0)
+	## THE TWO CURRENCIES, ON THE PAGE THAT SPENDS BOTH (round 4: the cap is in
+	## $ and its price in CC, and the key lived on another tab).
+	UiKit.text_fit(v, v.font, UiKit.t("$ = weekly wages"), Vector2(SIDE_X + 4.0, SIDE_Y + 196.0), 14, UiKit.DIM, side_w())
+	UiKit.text_fit(v, v.font, UiKit.t("CC = club money, spent here"), Vector2(SIDE_X + 4.0, SIDE_Y + 216.0), 14, UiKit.DIM, side_w())
 
 	## NO HINT BAR, AND THAT IS SETTLED. `UiKit.hints()` was deleted on
 	## 15 Sep 2026 — see the note where it used to live in `ui.gd`. It had never
@@ -249,7 +253,7 @@ static func _draw_office(v: SeasonScene) -> void:
 			for f2 in v.season.club.roster:
 				if f2.fit():
 					fit_men += 1
-			UiKit.pair(v, v.font, label, UiKit.t("%d fit") % fit_men,
+			UiKit.pair(v, v.font, label, UiKit.t("%d fit to fight") % fit_men,
 				Vector2(SeasonScene.BAR_X, y), SeasonScene.BAR_X + SeasonScene.BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
 			UiKit.meter(v, Rect2(SeasonScene.BAR_X, y + 8, SeasonScene.BAR_W, SeasonScene.BAR_H),
 				o.travel_slots - ClubOffice.TRAVEL_MIN,
@@ -279,7 +283,7 @@ static func _draw_office(v: SeasonScene) -> void:
 				UiKit.DOWN if bill > cap else UiKit.YOU)
 			UiKit.pair(v, v.font,
 				UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-				UiKit.t("raised %d×") % o.cap_level,
+				(UiKit.t("never raised") if o.cap_level <= 0 else UiKit.t("raised %d×") % o.cap_level),
 				Vector2(SeasonScene.BAR_X, y + 54), SeasonScene.BAR_X + SeasonScene.BAR_W, 14, 12,
 				UiKit.DOWN if bill > cap else UiKit.INK, UiKit.DIM)
 			continue

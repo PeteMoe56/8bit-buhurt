@@ -113,7 +113,7 @@ YOUR CAREER,YOUR CAREER,TU CARRERA,TA CARRIÈRE,DEINE KARRIERE,LA TUA CARRIERA,S
 "Your record, your standing and who wants you.","Your record, your standing and who wants you.","Tu historial, tu posición y quién te quiere.","Ton bilan, ta cote et qui te veut.","Deine Bilanz, dein Ruf und wer dich will.","Il tuo record, la tua fama e chi ti vuole.","Seu histórico, sua reputação e quem te quer.","Twój bilans, pozycja i kto cię chce.","Твой счёт, репутация и кто тебя хочет.",戦績、評価、そして誘い。
 Season %d,Season %d,Temporada %d,Saison %d,Saison %d,Stagione %d,Temporada %d,Sezon %d,Сезон %d,シーズン%d
 YOUR STANDING,YOUR STANDING,TU REPUTACIÓN,TA COTE,DEIN ANSEHEN,IL TUO PRESTIGIO,SUA POSIÇÃO,TWOJA POZYCJA,ТВОЙ СТАТУС,あなたの評価
-%d of %d,%d of %d,%d de %d,%d sur %d,%d von %d,%d di %d,%d de %d,%d z %d,%d из %d,%d / %d
+reputation %d of %d,reputation %d of %d,reputación %d de %d,réputation %d sur %d,Ruf %d von %d,reputazione %d su %d,reputação %d de %d,reputacja %d z %d,репутация %d из %d,評判 %d／%d
 Win your division and this climbs.,Win your division and this climbs.,Gana tu división y esto sube.,Gagne ta division et elle monte.,"Gewinn deine Liga, dann steigt es.",Vinci la divisione e sale.,Vença sua divisão e isto sobe.,"Wygraj dywizję, a to wzrośnie.",Выиграй дивизион — и он вырастет.,所属リーグで優勝すれば上がります。
 "Outside the top four, it halves.","Outside the top four, it halves.",Fuera del top 4: a la mitad.,Hors du top 4 : divisée par deux.,Unter Top 4: halbiert.,"Fuori dai primi quattro, si dimezza.","Fora do top 4, cai pela metade.",Poza top 4: połowa.,Вне первой четвёрки — упадёт вдвое.,5位以下なら半減します。
 YOUR RECORD,YOUR RECORD,TU HISTORIAL,TON BILAN,DEINE BILANZ,IL TUO RECORD,SEU HISTÓRICO,TWÓJ BILANS,ТВОЯ ИСТОРИЯ,あなたの戦績
@@ -124,7 +124,7 @@ Cups,Cups,Copas,Coupes,Pokale,Coppe,Copas,Puchary,Кубки,カップ
 Promotions,Promotions,Ascensos,Montées,Aufstiege,Promozioni,Acessos,Awanse,Повышения,昇格
 Relegations,Relegations,Descensos,Descentes,Abstiege,Retrocessioni,Rebaixamentos,Spadki,Вылеты,降格
 It fills in when your first season ends.,It fills in when your first season ends.,Se llena al acabar tu primera temporada.,Se remplit à la fin de ta première saison.,Füllt sich nach deiner ersten Saison.,Si riempie a fine prima stagione.,Preenche ao fim da primeira temporada.,Wypełni się po pierwszym sezonie.,Заполнится после первого сезона.,最初のシーズン終了後に記録されます。
-This follows you. The club does not.,This follows you. The club does not.,"Esto te sigue. El club, no.","Ça, ça te suit. Le club, non.",Das bleibt bei dir. Der Verein nicht.,Questo ti segue. Il club no.,"Isto segue você. O clube, não.",To idzie za tobą. Klub nie.,Это идёт с тобой. Клуб — нет.,これはあなたについてきます。クラブはついてきません。
+"It follows you, not the club.","It follows you, not the club.","Te sigue a ti, no al club.","Il te suit, pas le club.","Er folgt dir, nicht dem Verein.","Segue te, non il club.","Segue você, não o clube.","Idzie za tobą, nie za klubem.","Он следует за тобой, не за клубом.",クラブでなく君についてくる。
 WHO WANTS YOU,WHO WANTS YOU,QUIÉN TE QUIERE,QUI TE VEUT,WER DICH WILL,CHI TI VUOLE,QUEM QUER VOCÊ,KTO CIĘ CHCE,КТО ТЕБЯ ЗОВЁТ,オファー
 "Nobody, yet.","Nobody, yet.","Nadie, aún.","Personne, encore.",Noch keiner.,"Nessuno, per ora.","Ninguém, ainda.",Nikt. Na razie.,Пока никто.,まだ誰も。
 Clubs come for a coach who out-rates them. Win something.,Clubs come for a coach who out-rates them. Win something.,Los clubes buscan a un entrenador que los supere en media. Gana algo.,Les clubs veulent un coach qui les surclasse. Gagne quelque chose.,"Vereine holen Trainer, die besser sind als sie. Gewinn was.",I club cercano un allenatore che vale più di loro. Vinci qualcosa.,Clubes procuram um técnico que os supere. Ganhe alguma coisa.,"Kluby chcą trenera, który przerasta je oceną. Wygraj coś.","Клубы зовут тренера, который сильнее их. Выиграй что-нибудь.",クラブが欲しがるのは格上のコーチ。何かを勝ち取れ。
@@ -185,7 +185,7 @@ Two masters: the federation's rules and your members.,Two masters: the federatio
 THE FEDERATION,THE FEDERATION,LA FEDERACIÓN,LA FÉDÉRATION,DER VERBAND,LA FEDERAZIONE,A FEDERAÇÃO,FEDERACJA,ФЕДЕРАЦИЯ,連盟
 %s rules,%s rules,%s,%s,%s,%s,%s,Zasady: %s,Правила: %s,%sの規定
 %d of %d needed,%d of %d needed,%d de %d necesarios,%d sur %d requis,%d von %d nötig,%d di %d richiesti,%d de %d exigidos,Potrzeba: %d z %d,%d из %d нужных,%d / %d 必要
-Level %d · not required in this division,Level %d · not required in this division,Nivel %d · no obligatorio en esta división,Niveau %d · non requis dans cette division,Stufe %d · in dieser Liga nicht nötig,Livello %d · non richiesto in questa divisione,Nível %d · não exigido nesta divisão,Poziom %d · niewymagany w tej lidze,Уровень %d · в этом дивизионе не нужен,レベル%d・この部では不要
+Level %d · not needed here,Level %d · not needed here,Nivel %d · no hace falta aquí,Niveau %d · pas requis ici,Stufe %d · hier nicht nötig,Livello %d · qui non serve,Nível %d · não exigido aqui,Poziom %d · tu niewymagany,Уровень %d · здесь не нужен,レベル%d・ここでは不要
 In good standing. You may be entered for the cups.,In good standing. You may be entered for the cups.,En regla. Puedes inscribirte en las copas.,En règle. Tu peux être inscrit aux coupes.,Alles in Ordnung. Du darfst zu den Pokalen.,In regola. Puoi essere iscritto alle coppe.,Em dia. Você pode ser inscrito nas copas.,Wszystko w porządku. Możesz grać w pucharach.,На хорошем счету. Можно заявляться на кубки.,資格あり。カップに出場できます。
 NOT ENTERED FOR THE CUPS,NOT ENTERED FOR THE CUPS,SIN INSCRIPCIÓN EN LAS COPAS,NON INSCRIT AUX COUPES,NICHT FÜR DIE POKALE GEMELDET,NON ISCRITTO ALLE COPPE,NÃO INSCRITO NAS COPAS,BEZ ZGŁOSZENIA DO PUCHARÓW,НЕ ЗАЯВЛЕН НА КУБКИ,カップ出場資格なし
 Short on: ,Short on: ,Falta: ,Il manque : ,Es fehlt: ,Manca: ,Falta: ,Brakuje: ,Не хватает: ,不足: 
@@ -296,7 +296,7 @@ Per event,Per event,Por evento,Par rencontre,Pro Event,Per evento,Por evento,Na 
 Best event,Best event,Mejor tarde,Meilleur après-midi,Bester Nachmittag,Miglior pomeriggio,Melhor tarde,Najlepszy dzień,Лучший день,最高の一日
 Rounds standing,Rounds standing,Rondas en pie,Manches debout,Runden gestanden,Round in piedi,Rounds de pé,Rundy na nogach,Раундов на ногах,立ち残りラウンド
 Carried off,Carried off,Lesionado,Évacué,Verletzt raus,Portato via,Carregado,Zniesiony,Унесён,負傷退場
-New names  ·  %d CC,New names  ·  %d CC,Nuevos nombres  ·  %d CC,Nouveaux noms  ·  %d CC,Neue Namen  ·  %d CC,Nuovi nomi  ·  %d CC,Novos nomes  ·  %d CC,Nowe nazwiska  ·  %d CC,Новые имена  ·  %d CC,新顔を探す  ·  %d CC
+Reroll the list  ·  %d CC,Reroll the list  ·  %d CC,Nueva lista  ·  %d CC,Nouvelle liste  ·  %d CC,Neue Liste  ·  %d CC,Nuova lista  ·  %d CC,Nova lista  ·  %d CC,Nowa lista  ·  %d CC,Новый список  ·  %d CC,リスト更新  ·  %d CC
 Can't afford %s  ·  %d CC,Can't afford %s  ·  %d CC,No alcanza para %s  ·  %d CC,Trop cher : %s  ·  %d CC,Zu teuer: %s  ·  %d CC,Non ti basta: %s  ·  %d CC,Sem verba: %s  ·  %d CC,Za drogo: %s  ·  %d CC,Не хватает: %s  ·  %d CC,資金不足：%s · %d CC
 Sign %s  ·  %d CC,Sign %s  ·  %d CC,Fichar a %s  ·  %d CC,Signer %s  ·  %d CC,%s holen  ·  %d CC,Ingaggia %s  ·  %d CC,Contratar %s  ·  %d CC,Podpisz: %s  ·  %d CC,Подписать %s  ·  %d CC,%sと契約  ·  %d CC
 FREE AGENTS,FREE AGENTS,AGENTES LIBRES,AGENTS LIBRES,FREIE KÄMPFER,SVINCOLATI,AGENTES LIVRES,WOLNI ZAWODNICY,СВОБОДНЫЕ АГЕНТЫ,フリーエージェント
@@ -316,6 +316,7 @@ The Hall,The Hall,El Salón de la Fama,Le Panthéon,Die Ruhmeshalle,La Hall of F
 Your record,Your record,Tu historial,Ton bilan,Deine Bilanz,Il tuo record,Seu histórico,Twój bilans,Твоя история,あなたの戦績
 RECORDS,RECORDS,ARCHIVO,ARCHIVES,REKORDE,RECORD,RECORDES,KRONIKA,РЕКОРДЫ,記録
 THE SEASON SO FAR,THE SEASON SO FAR,LA TEMPORADA HASTA AHORA,LA SAISON EN COURS,DIE SAISON BISHER,LA STAGIONE FIN QUI,A TEMPORADA ATÉ AQUI,SEZON DOTĄD,СЕЗОН ПОКА,今シーズンの戦績
+%d of %d,%d of %d,%d de %d,%d sur %d,%d von %d,%d di %d,%d de %d,%d z %d,%d из %d,%d / %d
 Nothing fought yet.,Nothing fought yet.,Nada disputado aún.,Rien de disputé encore.,Noch nichts gekämpft.,Ancora nessuno scontro.,Nada lutado ainda.,Jeszcze bez walk.,Боёв ещё не было.,まだ試合なし。
 "Every event is written down here, with the grade you fought it at.","Every event is written down here, with the grade you fought it at.","Aquí queda anotado cada evento, con el grado al que lo disputaste.","Chaque rencontre est notée ici, avec le rang où tu l'as disputée.","Jeder Kampftag steht hier, mit der Stufe, auf der du gekämpft hast.","Ogni evento è annotato qui, col grado a cui l'hai combattuto.","Todo evento fica anotado aqui, com o grau em que você lutou.","Każde zawody są tu zapisane, ze stopniem, na jakim walczyłeś.","Здесь записан каждый турнир и ранг, на котором ты бился.",全大会がここに、戦った等級とともに記録される。
 OPPONENT,OPPONENT,RIVAL,ADVERSAIRE,GEGNER,AVVERSARIO,ADVERSÁRIO,RYWAL,СОПЕРНИК,対戦相手
@@ -483,9 +484,12 @@ COACHING CREDITS,COACHING CREDITS,CRÉDITOS DE ENTRENADOR,CRÉDITS D'ENTRAÎNEME
 In hand,In hand,En caja,En caisse,In der Hand,In cassa,Em caixa,W kasie,На руках,所持
 %d waiting,%d waiting,%d pendientes,%d en attente,%d offen,%d in attesa,%d esperando,czeka: %d,Ждут: %d,%d件待ち
 A payment is pending. Credits land when it clears.,A payment is pending. Credits land when it clears.,Hay un pago pendiente. Los créditos llegan al confirmarse.,Un paiement est en attente. Les crédits arrivent à sa validation.,Eine Zahlung steht aus. Die Credits kommen danach.,Un pagamento è in attesa. I crediti arrivano alla conferma.,Um pagamento está pendente. Os créditos chegam quando confirmar.,Płatność oczekuje. Kredyty wpłyną po zaksięgowaniu.,Платёж в обработке. Кредиты придут после оплаты.,支払い保留中。完了後にクレジットが届きます。
-%d fit,%d fit,%d aptos,%d aptes,%d fit,%d in forma,%d aptos,%d zdolnych,%d в строю,%d人健康
+$ = weekly wages,$ = weekly wages,$ = sueldos semanales,$ = salaires hebdo,$ = Wochenlöhne,$ = paghe settimanali,$ = salários semanais,$ = tygodniówki,$ = недельные зарплаты,$ = 週給
+"CC = club money, spent here","CC = club money, spent here","CC = dinero del club, se gasta aquí","CC = argent du club, dépensé ici","CC = Vereinsgeld, hier ausgegeben","CC = soldi del club, spesi qui","CC = dinheiro do clube, gasto aqui","CC = pieniądze klubu, wydawane tu","CC = деньги клуба, тратятся здесь",CC = クラブ資金（ここで使う）
+%d fit to fight,%d fit to fight,%d aptos,%d aptes,%d einsatzbereit,%d abili,%d aptos,%d zdolnych,%d в строю,%d人出場可
 %d on the bench · %d swap,%d on the bench · %d swap,%d en el banquillo · %d cambio,%d sur le banc · %d changement,%d auf der Bank · %d Wechsel,%d in panchina · %d cambio,%d no banco · %d troca,na ławce: %d · zmiany: %d,На скамейке: %d · замен: %d,ベンチ%d人 · 交代%d回
 %d on the bench · %d swaps,%d on the bench · %d swaps,%d en el banquillo · %d cambios,%d sur le banc · %d changements,%d auf der Bank · %d Wechsel,%d in panchina · %d cambi,%d no banco · %d trocas,na ławce: %d · zmiany: %d,На скамейке: %d · замен: %d,ベンチ%d人 · 交代%d回
+never raised,never raised,sin subir,jamais relevé,nie erhöht,mai alzato,nunca subiu,nie podnoszony,не поднимался,未引上げ
 raised %d×,raised %d×,subido %d×,relevé %d×,%d× erhöht,alzato %d×,subiu %d×,podniesiony %d×,поднят %d×,%d回引上げ
 not built,not built,sin hacer,à faire,nicht gebaut,non costruito,não construído,niezbudowane,не построено,未建設
 one more level to help,one more level to help,un nivel más para notarlo,encore un niveau pour que ça aide,"noch eine Stufe, dann hilft es",un altro livello e aiuta,mais um nível para ajudar,"jeszcze jeden poziom, by pomogło",ещё уровень — и будет польза,あと1段階で効果あり
@@ -541,6 +545,7 @@ RESERVE — by %s,RESERVE — by %s,RESERVA — por %s,RÉSERVE — par %s,RESER
 BENCH — two may come on each corner,BENCH — two may come on each corner,BANQUILLO — pueden entrar dos por esquina,BANC — deux peuvent entrer à chaque coin,BANK — zwei dürfen je Ecke rein,PANCHINA — due possono entrare a ogni angolo,BANCO — dois podem entrar a cada canto,ŁAWKA — dwóch może wejść w każdym narożniku,СКАМЕЙКА — до двух замен в каждом углу,ベンチ — コーナーごとに2人まで交代可
 Nobody.,Nobody.,Nadie.,Personne.,Keiner.,Nessuno.,Ninguém.,Nikt.,Никого.,なし。
 "NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow","NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow","HOY es lo que es, MÁX lo que podría ser  ·  rojo = hay que actuar  ·  verde = margen para crecer","ACT : ce qu'il est, MAX : ce qu'il pourrait être  ·  rouge = à régler  ·  vert = marge de progression","IST: was er ist, MAX: was er sein könnte  ·  rot = kümmer dich drum  ·  grün = Luft nach oben","ORA è ciò che è, MAX ciò che potrebbe essere  ·  rosso = da sistemare  ·  verde = margine di crescita","HOJE é o que ele é, MÁX o que ele pode ser  ·  vermelho = resolva  ·  verde = espaço para crescer","AKT — kim jest, MAX — kim może być  ·  czerwony = do załatwienia  ·  zielony = jest miejsce na rozwój","СЕЙЧ — какой он есть, МАКС — каким может стать  ·  красный = разберись  ·  зелёный = есть куда расти",現在は今の実力、最大は伸びしろの上限  ·  赤 = 要対応  ·  緑 = 成長の余地あり
+"NOW is what he is, MAX what he could be  ·  green = room to grow","NOW is what he is, MAX what he could be  ·  green = room to grow","HOY es lo que es, MÁX lo que podría ser  ·  verde = margen para crecer","ACT : ce qu'il est, MAX : ce qu'il pourrait être  ·  vert = marge de progression","IST: was er ist, MAX: was er sein könnte  ·  grün = Luft nach oben","ORA è ciò che è, MAX ciò che potrebbe essere  ·  verde = margine di crescita","HOJE é o que ele é, MÁX o que ele pode ser  ·  verde = espaço para crescer","AKT — kim jest, MAX — kim może być  ·  zielony = jest miejsce na rozwój","СЕЙЧ — какой он есть, МАКС — каким может стать  ·  зелёный = есть куда расти",現在は今の実力、最大は伸びしろの上限  ·  緑 = 成長の余地あり
 OUT %d,OUT %d,FUERA %d,ABSENT %d,RAUS %d,FUORI %d,FORA %d,URAZ %d,ТРАВМА %d,離脱 %d
 %dy,%dy,%da,%da,%dJ,%da,%da,%dl,%dг,%d年
 ROLE,ROLE,PUESTO,POSTE,ROLLE,RUOLO,POSIÇÃO,ROLA,РОЛЬ,役割
@@ -571,9 +576,10 @@ Open it from the Club menu.,Open it from the Club menu.,Ábrelo desde el menú C
 LANGUAGE,LANGUAGE,IDIOMA,LANGUE,SPRACHE,LINGUA,IDIOMA,JĘZYK,ЯЗЫК,言語
 Automatic (%s),Automatic (%s),Automático (%s),Automatique (%s),Automatisch (%s),Automatico (%s),Automático (%s),Automatycznie (%s),Авто (%s),自動（%s）
 ABOUT,ABOUT,ACERCA DE,À PROPOS,ÜBER,INFO,SOBRE,O GRZE,ОБ ИГРЕ,情報
-+1yr · %d,+1yr · %d,+1a · %d,+1an · %d,+1J · %d,+1a · %d,+1ano · %d,+1 rok · %d,+1 г. · %d,+1年 · %d
++1 yr · %d CC,+1 yr · %d CC,+1 año · %d CC,+1 an · %d CC,+1 J. · %d CC,+1 anno · %d CC,+1 ano · %d CC,+1 rok · %d CC,+1 год · %d CC,+1年 · %d CC
 Release,Release,Despedir,Renvoyer,Entlassen,Licenzia,Dispensar,Zwolnij,Уволить,解雇
 Hire  ·  %d CC,Hire  ·  %d CC,Contratar  ·  %d CC,Engager  ·  %d CC,Einstellen  ·  %d CC,Assumi  ·  %d CC,Contratar  ·  %d CC,Zatrudnij  ·  %d CC,Нанять  ·  %d CC,雇用  ·  %d CC
+New names  ·  %d CC,New names  ·  %d CC,Nuevos nombres  ·  %d CC,Nouveaux noms  ·  %d CC,Neue Namen  ·  %d CC,Nuovi nomi  ·  %d CC,Novos nomes  ·  %d CC,Nowe nazwiska  ·  %d CC,Новые имена  ·  %d CC,新顔を探す  ·  %d CC
 Session  ·  +%d XP each  ·  %d CC,Session  ·  +%d XP each  ·  %d CC,Sesión  ·  +%d XP c/u  ·  %d CC,Séance  ·  +%d XP chacun  ·  %d CC,Einheit  ·  +%d XP je  ·  %d CC,Sessione  ·  +%d XP a testa  ·  %d CC,Sessão  ·  +%d XP cada  ·  %d CC,Sesja  ·  +%d XP na głowę  ·  %d CC,Сессия  ·  +%d XP каждому  ·  %d CC,練習  ·  各+%d XP  ·  %d CC
 Nobody is teaching. A session with no captain is a warm-up.,Nobody is teaching. A session with no captain is a warm-up.,Nadie enseña. Una sesión sin capitán es un calentamiento.,"Personne n'enseigne. Une séance sans capitaine, c'est un échauffement.",Keiner lehrt. Eine Einheit ohne Ausbilder ist Aufwärmen.,Nessuno insegna. Una sessione senza capitano è un riscaldamento.,Ninguém está ensinando. Treino sem capitão é aquecimento.,Nikt nie uczy. Trening bez kapitana to rozgrzewka.,Никто не учит. Занятие без наставника — просто разминка.,指導者なし。コーチ不在の練習はただの準備運動。
 A week's work in one afternoon.,A week's work in one afternoon.,El trabajo de una semana en una tarde.,Une semaine de travail en un après-midi.,Eine Woche Arbeit an einem Nachmittag.,Una settimana di lavoro in un pomeriggio.,O trabalho de uma semana numa tarde.,Tydzień pracy w jedno popołudnie.,Неделя работы за один день.,一週間分の練習を午後だけで。
@@ -644,6 +650,7 @@ This file is damaged or from,This file is damaged or from,Este archivo está da�
 a newer version of the game.,a newer version of the game.,una versión más nueva del juego.,d'une version plus récente du jeu.,von einer neueren Spielversion.,una versione più recente del gioco.,uma versão mais nova do jogo.,nowszej wersji gry.,в более новой версии игры.,新しいバージョンのものです。
 Empty,Empty,Vacía,Vide,Leer,Vuoto,Vazio,Pusty,Пусто,空き
 A new club starts in the Backyard Circuit.,A new club starts in the Backyard Circuit.,Un club nuevo empieza en el Backyard Circuit.,Un nouveau club commence dans le Backyard Circuit.,Ein neuer Verein beginnt im Backyard Circuit.,Un nuovo club parte dal Backyard Circuit.,Um clube novo começa no Backyard Circuit.,Nowy klub zaczyna w Backyard Circuit.,Новый клуб начинает в Backyard Circuit.,新しいクラブはBackyard Circuitから始まる。
+Pre-season,Pre-season,Pretemporada,Avant-saison,Vorbereitung,Pre-stagione,Pré-temporada,Przed sezonem,Предсезонка,プレシーズン
 Event %d of %d,Event %d of %d,Evento %d de %d,Rencontre %d sur %d,Kampftag %d von %d,Evento %d di %d,Evento %d de %d,Zawody %d z %d,Турнир %d из %d,大会 %d / %d
 Played %s,Played %s,Jugado %s,Joué %s,Gespielt %s,Giocato %s,Jogado %s,Grane %s,Играли %s,プレイ：%s
 LAST PLAYED,LAST PLAYED,ÚLTIMA,DERNIÈRE,ZULETZT,ULTIMA,ÚLTIMA,OSTATNIA,ПОСЛЕДНЯЯ,前回
@@ -915,6 +922,7 @@ STANDING,STANDING,EN PIE,DEBOUT,STEHEND,IN PIEDI,DE PÉ,NA NOGACH,НА НОГА�
 BACK IN,BACK IN,VUELVEN EN,RETOUR DANS,ZURÜCK IN,RIENTRO,VOLTAM EM,POWRÓT ZA,ВЫХОД ЧЕРЕЗ,再開まで
 DOWNED,DOWNED,DERRIBADO,AU SOL,AM BODEN,A TERRA,CAIU,POWALONY,СБИТ,ダウン
 WILL NOT COME OFF,WILL NOT COME OFF,NO QUIERE SALIR,NE VEUT PAS SORTIR,GEHT NICHT RAUS,NON ESCE,NÃO SAI,NIE ZEJDZIE,НЕ УЙДЁТ,交代拒否
+%s  ·  fresh,%s  ·  fresh,%s  ·  fresco,%s  ·  frais,%s  ·  frisch,%s  ·  fresco,%s  ·  descansado,%s  ·  świeży,%s  ·  свеж,%s  ·  万全
 ENERGY,ENERGY,ENERGÍA,ÉNERGIE,AUSDAUER,ENERGIA,ENERGIA,ENERGIA,ЭНЕРГИЯ,体力
 CHOSEN,CHOSEN,ELEGIDO,CHOISI,GEWÄHLT,SCELTO,ESCOLHIDO,WYBRANY,ВЫБРАН,選択済み
 WHO COMES ON FOR,WHO COMES ON FOR,QUIÉN ENTRA POR,QUI ENTRE POUR,WER KOMMT FÜR,CHI ENTRA AL POSTO DI,QUEM ENTRA NO LUGAR DE,KTO WCHODZI ZA,КТО ВЫЙДЕТ ВМЕСТО,交代で入るのは
@@ -922,8 +930,8 @@ Nobody left on the bench.,Nobody left on the bench.,No queda nadie en el banquil
 RUN,RUN,CORRE,COURS,LAUF,CORRI,CORRE,BIEGNIJ,БЕГИ,走れ
 FROM BEHIND,FROM BEHIND,POR DETRÁS,PAR DERRIÈRE,VON HINTEN,DA DIETRO,POR TRÁS,OD TYŁU,СО СПИНЫ,背後から
 Cancel,Cancel,Cancelar,Annuler,Abbrechen,Annulla,Cancelar,Anuluj,Отмена,やめる
--%d%% balance,-%d%% balance,-%d%% equilibrio,-%d%% équilibre,-%d%% Gleichgewicht,-%d%% equilibrio,-%d%% equilíbrio,-%d%% równowagi,-%d%% равновесия,バランス-%d%%
-then TD %d%%,then TD %d%%,luego derribo %d%%,puis mise au sol %d%%,dann Wurf %d%%,poi atterramento %d%%,depois queda %d%%,potem powalenie %d%%,затем бросок %d%%,次にTD %d%%
+his balance -%d%%,his balance -%d%%,su equilibrio -%d%%,son équilibre -%d%%,sein Stand -%d%%,suo equilibrio -%d%%,equilíbrio dele -%d%%,jego balans -%d%%,его баланс -%d%%,相手の体勢 -%d%%
+then takedown %d%%,then takedown %d%%,luego derribo %d%%,puis projection %d%%,dann Wurf %d%%,poi atterramento %d%%,depois queda %d%%,potem obalenie %d%%,потом бросок %d%%,続けてテイクダウン %d%%
 frees your man,frees your man,libera a tu hombre,libère ton homme,befreit deinen Mann,libera il tuo uomo,liberta seu homem,uwalnia twojego,освобождает своего,味方を解放
 fall %d%%,fall %d%%,caída %d%%,chute %d%%,Sturz %d%%,caduta %d%%,queda %d%%,upadek %d%%,падение %d%%,転倒 %d%%
 puts him down,puts him down,lo derriba,le met au sol,bringt ihn zu Boden,lo atterra,derruba ele,powala go,валит его,ダウンさせる
@@ -937,7 +945,7 @@ down,down,en el suelo,au sol,am Boden,a terra,no chão,leży,на земле,ダ
 clinched,clinched,trabado,au corps-à-corps,im Clinch,in presa,agarrado,w klinczu,в клинче,組み合い
 on a route,on a route,en ruta,sur un parcours,auf einem Weg,su un percorso,numa rota,na trasie,по маршруту,ルート上
 breathing,breathing,recuperando aire,reprend son souffle,holt Luft,riprende fiato,recuperando o fôlego,łapie oddech,переводит дух,息を整え中
-loose,loose,libre,libre,frei,libero,livre,wolny,свободен,フリー
+on his own,on his own,por su cuenta,livré à lui-même,auf eigene Faust,per conto suo,por conta própria,na własną rękę,сам по себе,自由に
 %d down,%d down,%d derribo,%d mise au sol,%d Niederwurf,%d atterramento,%d queda,%d powalenie,%d сбитие,%dダウン
 Drag a fighter to send him.,Drag a fighter to send him.,Arrastra a un luchador para enviarlo.,Glisse un combattant pour l'envoyer.,"Zieh einen Kämpfer, um ihn zu schicken.",Trascina un combattente per mandarlo.,Arraste um lutador para mandá-lo.,"Przeciągnij zawodnika, by go wysłać.","Перетащи бойца, чтобы отправить.",選手をドラッグして送り出す。
 "Release on ground, or on a man.","Release on ground, or on a man.",Suelta en el suelo o sobre un hombre.,"Lâche sur le sol, ou sur un homme.",Loslassen auf dem Boden oder auf einem Mann.,"Rilascia a terra, o su un uomo.","Solte no chão, ou num homem.",Puść na polu albo na zawodniku.,Отпусти на землю или на бойца.,地面か相手の上で離す。
@@ -1358,10 +1366,10 @@ LEFT OVER,LEFT OVER,SOBRANTE,RESTE,ÜBRIG,AVANZO,SOBRA,NADWYŻKA,ОСТАЛОС�
 SHORT,SHORT,FALTA,MANQUE,FEHLT,AMMANCO,FALTA,NIEDOBÓR,НЕХВАТКА,不足
 Bar,Bar,Barra,Barre,Balken,Fascia,Barra,Belka,Полоса,横帯
 Band,Band,Banda,Bande,Streifen,Banda,Faixa,Pas,Лента,帯
-Slash,Slash,Tajo,Entaille,Schrägbalken,Sbarra,Diagonal,Skos,Косая,斜線
+Slash,Slash,Tajo,Entaille,Schräge,Sbarra,Diagonal,Skos,Косая,斜線
 Disc,Disc,Disco,Disque,Scheibe,Disco,Disco,Krążek,Диск,円
 Cross,Cross,Cruz,Croix,Kreuz,Croce,Cruz,Krzyż,Крест,十字
-Saltire,Saltire,Aspa,Sautoir,Andreaskreuz,Decusse,Sautor,Krzyż skośny,Андреевский крест,斜め十字
+Saltire,Saltire,Aspa,Sautoir,Kreuz X,Decusse,Sautor,Krzyż X,Косой крест,斜め十字
 Chevron,Chevron,Cheurón,Chevron,Sparren,Scaglione,Chevron,Krokiew,Шеврон,山形
 Diamond,Diamond,Rombo,Losange,Raute,Rombo,Losango,Romb,Ромб,菱形
 Bolt,Bolt,Rayo,Éclair,Blitz,Fulmine,Raio,Piorun,Молния,稲妻

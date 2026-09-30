@@ -173,8 +173,10 @@ func _build() -> void:
 				ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Delete it for good"),
 					Vector2(x + 20, SLOT_Y + 216), Vector2(SLOT_W - 40, 46), _delete.bind(i))))
 			else:
-				ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Delete"), Vector2(x + 20, SLOT_Y + 276),
-					Vector2(SLOT_W - 40, 40), _delete.bind(i))))
+				## SMALL, IN THE CORNER, CLEAR OF CONTINUE (round 4: 8 px under it at
+				## the same width). Still two taps.
+				ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Delete"), Vector2(x + SLOT_W - 150, SLOT_Y + 284),
+					Vector2(130, 36), _delete.bind(i))))
 	## THE CAREER YOU WERE PLAYING IS THE PRIMARY ACTION on this screen.
 	if goes.has(_latest()):
 		UiKit.primary(goes[_latest()])
@@ -430,7 +432,8 @@ func _draw() -> void:
 		UiKit.text(self, font, UiKit.t(String(info["tier"])), Vector2(x + 20, SLOT_Y + 102), 15, UiKit.YOU)
 		UiKit.text(self, font, UiKit.t("Season %d") % int(info["season"]),
 			Vector2(x + 20, SLOT_Y + 130), 15, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("Event %d of %d") % [int(info["event"]), int(info["events"])],
+		UiKit.text(self, font, (UiKit.t("Pre-season") if int(info["event"]) <= 0
+			else UiKit.t("Event %d of %d") % [int(info["event"]), int(info["events"])]),
 			Vector2(x + 20, SLOT_Y + 152), 15, UiKit.DIM)
 		## HOW LONG AGO, NOT A TIMESTAMP (blind review, 29 Sep), and which slot
 		## was played last.

@@ -31,6 +31,9 @@ static func _finances_controls(v: SeasonScene) -> void:
 
 
 
+static var _has_last := true
+
+
 ## THE YEAR IN HAND AND THE YEAR BEFORE IT, in two columns.
 static func _draw_finances(v: SeasonScene) -> void:
 	var o := v.season.office
@@ -39,8 +42,11 @@ static func _draw_finances(v: SeasonScene) -> void:
 	var was_out: Dictionary = last.get("out", {})
 
 	UiKit.text(v, v.font, UiKit.t("COMING IN"), Vector2(SeasonScene.FIN_LEFT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
-	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
-	UiKit.right(v, v.font, UiKit.t("last"), Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 11, UiKit.EDGE.lightened(0.35), 90)
+	## LAST YEAR ONLY WHEN THERE WAS ONE (round 4: a column of dashes).
+	_has_last = not last.is_empty() and (ClubOffice.book_total(was_in) != 0 or ClubOffice.book_total(was_out) != 0)
+	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 12, UiKit.EDGE.lightened(0.35), 110)
+	if _has_last:
+		UiKit.right(v, v.font, UiKit.t("last"), Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 12, UiKit.EDGE.lightened(0.35), 90)
 	var y := SeasonScene.CONTENT_Y + 26.0
 	y = v._fin_block(o.books_in, was_in, ClubOffice.IN_ORDER, y, UiKit.UP)
 	var in_now := ClubOffice.book_total(o.books_in)
@@ -87,8 +93,9 @@ static func _fin_row(v: SeasonScene, label: String, now: int, was: int, y: float
 	## LAST YEAR IS DIMMED, ALWAYS, whatever this year's line is doing. It is
 	## context, not news — coloring it would put two equally loud numbers on one
 	## row and the eye would have to work out which one is the present.
-	UiKit.right(v, v.font, "—" if was == 0 else "%d" % was,
-		Vector2(SeasonScene.FIN_WAS, y), maxi(11, px - 2), UiKit.EDGE.lightened(0.4), 90)
+	if _has_last:
+		UiKit.right(v, v.font, "—" if was == 0 else "%d" % was,
+			Vector2(SeasonScene.FIN_WAS, y), maxi(12, px - 2), UiKit.EDGE.lightened(0.4), 90)
 
 
 

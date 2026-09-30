@@ -25,8 +25,8 @@ const ROW_STEP := 52.0
 const SOUND_H := 218.0
 ## The career panel, and the Back button riding the bottom of whatever shape the
 ## screen turned out to be rather than a literal 470.
-const CAREER_Y := TOP + 238.0
-const CAREER_H := 136.0
+const CAREER_Y := TOP + 230.0
+const CAREER_H := 150.0
 ## LANGUAGE, under the credits: one cycling button, like the grade's.
 const LANG_Y := TOP
 const LANG_H := 80.0
@@ -89,7 +89,7 @@ func _build() -> void:
 	## with what each one does.
 	if Session.season != null:
 		ui.add_child(UiKit.button(UiKit.t("Change difficulty"),
-			Vector2(LEFT_X + 18, CAREER_Y + 90.0), Vector2(COL_W - 36.0, 36), func():
+			Vector2(LEFT_X + 18, CAREER_Y + 104.0), Vector2(COL_W - 36.0, 38), func():
 				Session.autosave()
 				Session.create_tab = 2
 				UiKit.go("res://scenes/Create.tscn"), "ladder"))
@@ -258,8 +258,9 @@ func _draw() -> void:
 	## somewhere else still has to be findable from where people look for it** —
 	## an absence with no explanation is indistinguishable from an omission, and
 	## that is exactly what it was mistaken for.
-	UiKit.text(self, font, UiKit.t("Saved as you set them."),
-		Vector2(LEFT_X + 2, TOP + SOUND_H + 12.0), 14, UiKit.EDGE.lightened(0.5))
+	## IN ITS PANEL'S HEADER, not floating between panels (round 4).
+	UiKit.right(self, font, UiKit.t("Saved as you set them."),
+		Vector2(LEFT_X + COL_W - 18.0, TOP + 30), 12, UiKit.EDGE.lightened(0.5), COL_W - 120.0)
 
 	## ITS OWN PANEL, because it is its own kind of thing. The first cut put it
 	## inside the SOUND box's last six pixels and it landed on "Saved as you set
@@ -285,11 +286,8 @@ func _draw() -> void:
 		## the first draw here lost four words off "A properly sanctioned fight.
 		## Their numbers me." Two lines at 12px is the box being honest about how
 		## much room it has.
-		var lines := UiKit.wrap(font, Grade.blurb_of(Session.season.grade),
-			COL_W - 36.0, 12)
-		for li in mini(2, lines.size()):
-			UiKit.text(self, font, lines[li],
-				Vector2(LEFT_X + 18, gy + 66.0 + float(li) * 15.0), 12, UiKit.DIM)
+		UiKit.para(self, font, Grade.blurb_of(Session.season.grade),
+			Vector2(LEFT_X + 18, gy + 70.0), 14, UiKit.DIM, COL_W - 36.0, 18.0)
 	else:
 		UiKit.text(self, font, UiKit.t("Difficulty"), Vector2(LEFT_X + 18, gy + 48.0),
 			17, UiKit.DIM)

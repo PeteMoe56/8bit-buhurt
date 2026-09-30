@@ -484,9 +484,15 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 				int(f.get("rating", 50)), String(f.get("name", "")),
 				int(f.get("number", 0))):
 			face_w = side
-	text(ci, font, String(d.get("tag", "")).to_upper(),
-		head.position + Vector2(8 + face_w, 18), 13 if big else 11, INK)
-	if d.has("number"):
+	## FITTED BESIDE THE SHIRT NUMBER (round 4: "FLANKER 10" ran together).
+	text_fit(ci, font, String(d.get("tag", "")).to_upper(),
+		head.position + Vector2(8 + face_w, 18), 13 if big else 12, INK,
+		r.size.x - 16.0 - face_w - (34.0 if d.has("number") and big else 0.0))
+	## ON A SMALL CARD THE NUMBER GOES ON THE NAME LINE, where there is room.
+	if d.has("number") and not big:
+		right(ci, font, "%d" % int(d["number"]), Vector2(r.end.x - 6, r.position.y + hh + 20.0),
+			14, INK * Color(1, 1, 1, 0.85), 30)
+	elif d.has("number"):
 		right(ci, font, "%d" % int(d["number"]),
 			Vector2(r.end.x - 8, head.position.y + (30.0 if big else 22.0)),
 			22 if big else 15, INK * Color(1, 1, 1, 0.85), 60)
@@ -503,12 +509,17 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 
 	var dim_it: bool = bool(d.get("dim", false))
 	var y := r.position.y + hh
-	text(ci, font, clip(String(d.get("name", "")), 13 if big else 11),
+	text(ci, font, clip(String(d.get("name", "")), 13) if big
+			else clip_px(font, String(d.get("name", "")), 12, r.size.x - 16.0 - (24.0 if d.has("number") else 0.0)),
 		Vector2(r.position.x + 8, y + (26.0 if big else 20.0)),
 		17 if big else 12, DOWN if dim_it else INK)
 	if d.has("rating"):
 		stars(ci, Vector2(r.position.x + 8, y + (36.0 if big else 28.0)),
 			int(d["rating"]), YOU, 11.0 if big else 8.0, 3.0 if big else 2.0)
+		## THE NUMBER ON THE SMALL CARD TOO (round 4: bench cards had only
+		## stars, and a half star cannot be read at this size).
+		if not big:
+			right(ci, font, "%d" % int(d["rating"]), Vector2(r.end.x - 6, y + 34.0), 13, INK, 40)
 
 	if big and d.has("note"):
 		## `note_col` is optional and defaults to the dim it always was. The
@@ -1275,6 +1286,8 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 ##
 ## Anything unmarked is secondary, the slate it always was.
 static func primary(b: Button) -> Button:
+	## Marked, so a test can ask which button on a screen is THE one.
+	b.set_meta("primary", true)
 	var pad := float(b.get_theme_stylebox("normal").content_margin_left)
 	b.add_theme_stylebox_override("normal", _sb(YOU, FRAME, DROP_PX, pad))
 	b.add_theme_stylebox_override("hover", _sb(YOU if touch_ui() else YOU.lightened(0.15), FRAME, DROP_PX, pad))

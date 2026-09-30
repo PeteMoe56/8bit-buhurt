@@ -413,8 +413,15 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## (a green kit percentage, a dimmed reserve name) mean "this is fine" and
 	## "this man is not in the eight", and a key that explains the absence of a
 	## problem is a key nobody finishes reading.
-	UiKit.text(v, v.font, UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow"),
-		Vector2(24, SeasonScene._squad_key_y()), 14, UiKit.DIM)
+	## THE RED PART ONLY WHEN SOMETHING IS RED (round 4: the key promised red
+	## and the sheet had none).
+	var any_red: bool = ClubOffice.wage_bill(v.season.club) > v.season.office.cap()
+	for f in v.season.club.roster:
+		if f.injury > 0 or f.fading() or f.years <= 0 or f.armor < 0.6:
+			any_red = true
+	var key := UiKit.t("NOW is what he is, MAX what he could be  ·  red = deal with it  ·  green = room to grow") if any_red \
+		else UiKit.t("NOW is what he is, MAX what he could be  ·  green = room to grow")
+	UiKit.text_fit(v, v.font, key, Vector2(24, SeasonScene._squad_key_y()), 14, UiKit.DIM, UiKit.span())
 
 
 
@@ -458,7 +465,8 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	if f.years <= 0:
 		deal_col = UiKit.DOWN
 	elif f.years == 1:
-		deal_col = UiKit.UP
+		## GOLD, a warning: green on this sheet means room to grow (round 4).
+		deal_col = UiKit.YOU
 	UiKit.right(v, v.font, ClubOffice.money(ClubOffice.billed(f)),
 		Vector2(x + SeasonScene.COL_WAGE_TO, y), 14, UiKit.DIM, SeasonScene.COL_WAGE_BOX)
 	UiKit.text(v, v.font, (UiKit.t("OUT") if f.years <= 0 else UiKit.t("%dy") % f.years),

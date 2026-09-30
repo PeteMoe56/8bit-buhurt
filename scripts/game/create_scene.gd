@@ -681,12 +681,17 @@ func _draw_bank(kit: Color, mark: Color) -> void:
 		## ITS NAME EITHER WAY, and the price beside it when it is not his
 		## (blind review round 3: locked marks showed a price and no name).
 		var nm := IconBank.icon_name(id)
-		UiKit.text(self, font, nm, at + Vector2(-BANK_R, BANK_R + 16), 12,
-			UiKit.INK if have else UiKit.DIM)
+		UiKit.text_fit(self, font, nm, at + Vector2(-BANK_R, BANK_R + 16), 12,
+			UiKit.INK if have else UiKit.DIM, BANK_R * 2.0 + BANK_GAP - 6.0)
+		## THE PRICE IS A TAG ON THE TILE (round 4: "Chevron 1 CC" ran into the
+		## next name), with a lock, so an unowned mark cannot pass for an owned one.
 		if not have:
-			var w := font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
-			UiKit.text(self, font, "%d CC" % IconBank.cost(id), at + Vector2(-BANK_R + w + 6.0, BANK_R + 16), 12,
-				UiKit.YOU)
+			var tag := "%d CC" % IconBank.cost(id)
+			var tw := font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 26.0
+			var tr := Rect2(at + Vector2(BANK_R - tw, -BANK_R), Vector2(tw, 18))
+			draw_rect(tr, Color(0, 0, 0, 0.78))
+			UiIcons.draw(self, "lock", tr.position + Vector2(4, 5), UiKit.YOU, 1, true)
+			UiKit.text(self, font, tag, tr.position + Vector2(18, 14), 12, UiKit.YOU)
 
 
 func _bank_slot(i: int) -> Vector2:

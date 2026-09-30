@@ -1007,9 +1007,9 @@ func _draw_report_table() -> void:
 			Vector2(REP_LX + float(REP_COL[h[1]]), 130), 9, COL_DIM, 90.0)
 	_rule(REP_LX, 136.0, REP_LW)
 	## THE KEY FOR THE SHORT HEADINGS (blind review rounds 2 and 3: AST/UP/OFF).
-	UiKit.raw(self, font, Vector2(REP_LX, 318.0),
-		UiKit.fit(font, UiKit.t("AST assists  ·  UP rounds on his feet  ·  OFF carried off"), 12, REP_LW),
-		HORIZONTAL_ALIGNMENT_LEFT, int(REP_LW), 12, COL_DIM)
+	UiKit.raw(self, font, Vector2(REP_LX + 110.0, 112.0),
+		UiKit.fit(font, UiKit.t("AST assists  ·  UP rounds on his feet  ·  OFF carried off"), 12, REP_LW - 110.0),
+		HORIZONTAL_ALIGNMENT_RIGHT, int(REP_LW - 110.0), 12, COL_DIM)
 	var i := 0
 	for m in sim.fought():
 		if m.team != 0 or m.card == null:
@@ -1186,6 +1186,9 @@ func _draw_news() -> void:
 ## EVERYTHING ON THE CORNER THAT IS NOT A CONTROL. The five rows, the header,
 ## and the strip that says what is called.
 func _draw_corner() -> void:
+	## THE FIGHT BEHIND IS PUT AWAY, not just dimmed (round 4: "R1 1:46" showed
+	## through above the corner).
+	draw_rect(Rect2(Vector2(-off_x, -off_y), UiKit.screen()), Color(UiKit.BG, 0.94))
 	UiKit.panel(self, C_PANEL)
 	var line := sim.lineup(0)
 	var row_h := _corner_rows()
@@ -1244,17 +1247,28 @@ func _draw_corner() -> void:
 		if not first and m != null:
 			## WORDS, NOT TD/AST (blind review rounds 2 and 3).
 			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 19),
-				UiKit.fit(font, UiKit.tn("%d down", "%d downs", m.downs_caused) % m.downs_caused, 12, 62.0),
-				HORIZONTAL_ALIGNMENT_LEFT, 62, 12, COL_INK)
+				UiKit.fit(font, UiKit.tn("%d down", "%d downs", m.downs_caused) % m.downs_caused, 12, 76.0),
+				HORIZONTAL_ALIGNMENT_LEFT, 76, 12, COL_INK)
 			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 36),
-				UiKit.fit(font, UiKit.tn("%d assist", "%d assists", int(m.assists)) % int(m.assists), 12, 62.0),
-				HORIZONTAL_ALIGNMENT_LEFT, 62, 12, COL_DIM)
+				UiKit.fit(font, UiKit.tn("%d assist", "%d assists", int(m.assists)) % int(m.assists), 12, 76.0),
+				HORIZONTAL_ALIGNMENT_LEFT, 76, 12, COL_DIM)
 
 		## ENERGY NOW AND ENERGY RECOVERED — Pete, 13 Sep 2026. The lighter part
 		## of the bar is what the corner is about to give him back, and it comes
 		## off `sim.corner_preview` rather than being recomputed here, so the
 		## preview cannot promise a number the recovery does not deliver.
 		var now_e: float = sim.condition_of(f)
+		## BEFORE THE CHARGE EVERY BAR READS 100% (round 4: five identical rows).
+		## A fresh man shows what he brings instead: his rating and his weapon.
+		if first and now_e >= 0.999:
+			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 22), UiKit.t("RATING"),
+				HORIZONTAL_ALIGNMENT_LEFT, 80, 12, COL_DIM)
+			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 46), "%d" % f.overall(),
+				HORIZONTAL_ALIGNMENT_LEFT, 60, 20, COL_INK)
+			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + 60.0, ry + 46),
+				UiKit.fit(font, UiKit.t("%s  ·  fresh") % Tuning.weapon_name(f.weapon), 13, C_BAR_W),
+				HORIZONTAL_ALIGNMENT_LEFT, int(C_BAR_W), 13, COL_GOOD)
+			continue
 		## The preview is the OUTGOING man's recovery; a man just swapped in is
 		## shown as he is, not with somebody else's rest added on.
 		var back: float = sim.corner_preview(m) \
@@ -1626,9 +1640,9 @@ func _draw_wheel(m) -> void:
 		var effect_col := COL_DIM
 		match act:
 			Tuning.Act.HIT:
-				effect = UiKit.t("-%d%% balance") % int(round(float(o["dent"]) * 100.0))
+				effect = UiKit.t("his balance -%d%%") % int(round(float(o["dent"]) * 100.0))
 			Tuning.Act.GRAPPLE:
-				effect = UiKit.t("then TD %d%%") % int(round(float(o["p"]) * 100.0))
+				effect = UiKit.t("then takedown %d%%") % int(round(float(o["p"]) * 100.0))
 			Tuning.Act.BREAK:
 				effect = UiKit.t("frees your man")
 			Tuning.Act.BULLRUSH:
@@ -1864,7 +1878,7 @@ func _draw_strip() -> void:
 		elif m.state == MeleeSim.State.RECOVER:
 			s = UiKit.t("breathing")
 		elif live:
-			s = UiKit.t("loose")
+			s = UiKit.t("on his own")
 		UiKit.raw(self, font, r.position + Vector2(10, 60), s, HORIZONTAL_ALIGNMENT_LEFT,
 			int(CARD_W - 16), 13,
 			Tuning.COL_ROUTE if m.under_orders() else COL_DIM)
@@ -1919,11 +1933,11 @@ func _draw_hint() -> void:
 	## done it once (blind review round 3: the key instruction was 10 px grey in
 	## a corner).
 	if sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 and wheel_man == -1 and not held:
-		var band := Rect2(LIST_ORIGIN.x + 90.0, 190.0, Tuning.LIST_H * LIST_SCALE - 180.0, 74.0)
+		var band := Rect2(LIST_ORIGIN.x + 140.0, 190.0, Tuning.LIST_H * LIST_SCALE - 280.0, 74.0)
 		draw_rect(band, Color(0, 0, 0, 0.55))
 		draw_rect(band, Tuning.COL_MARSHAL, false, 2.0)
-		UiKit.raw(self, font, band.position + Vector2(0, 32), UiKit.fit(font, UiKit.t("Drag from one of your fighters"), 20, band.size.x - 20.0),
-			HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 20, Tuning.COL_MARSHAL)
+		UiKit.raw(self, font, band.position + Vector2(0, 32), UiKit.fit(font, UiKit.t("Drag from one of your fighters"), 18, band.size.x - 16.0),
+			HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 18, Tuning.COL_MARSHAL)
 		UiKit.raw(self, font, band.position + Vector2(0, 56), UiKit.fit(font, UiKit.t("End on an enemy to go for him."), 14, band.size.x - 20.0),
 			HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 14, COL_INK)
 
@@ -2853,9 +2867,9 @@ const C_SUB := Vector2(78.0, 34.0)
 const C_RX := 570.0
 const C_RW := 344.0
 const C_FAV_GAP := 8.0
-const C_BAR_X := 196.0
+const C_BAR_X := 206.0
 const C_BAR_W := 148.0
-const C_STAT_X := 132.0
+const C_STAT_X := 126.0
 
 
 func _corner_rows() -> float:

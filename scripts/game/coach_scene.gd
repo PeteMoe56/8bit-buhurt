@@ -147,7 +147,7 @@ func _standing(c: Coach) -> void:
 	UiKit.text(self, font, c.standing(), Vector2(L_X + 16, COL_Y + 62), 22, UiKit.YOU)
 	UiKit.meter(self, Rect2(L_X + 16, COL_Y + 76, COL_W - 32, 16),
 		c.reputation, Coach.REP_MAX, UiKit.YOU)
-	UiKit.right(self, font, UiKit.t("%d of %d") % [c.reputation, Coach.REP_MAX],
+	UiKit.right(self, font, UiKit.t("reputation %d of %d") % [c.reputation, Coach.REP_MAX],
 		Vector2(L_X + COL_W - 16, COL_Y + 112), 12, UiKit.DIM, 160)
 
 	var y := COL_Y + 146.0
@@ -186,7 +186,7 @@ func _the_book(c: Coach) -> void:
 	if c.fought() == 0:
 		UiKit.para(self, font, UiKit.t("It fills in when your first season ends."), Vector2(M_X + 16, y + 8), 14, UiKit.DIM, COL_W - 32.0, 17.0)
 	else:
-		UiKit.text_fit(self, font, UiKit.t("This follows you. The club does not."),
+		UiKit.text_fit(self, font, UiKit.t("It follows you, not the club."),
 			Vector2(M_X + 16, COL_Y + COL_H - 14), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
 
 

@@ -68,8 +68,8 @@ static func _draw_market(v: SeasonScene) -> void:
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
 	if v.qm_pick == null:
-		UiKit.text(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness. The tick is the minimum."),
-			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.DIM)
+		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness. The tick is the minimum."),
+			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
 		var y: float = row["y"]
@@ -101,6 +101,8 @@ static func _draw_market(v: SeasonScene) -> void:
 			else (UiKit.UP if f.inspection_margin() >= Quartermaster.RISK_MARGIN
 				else UiKit.YOU)
 		UiKit.bar(v, r, clampf(f.armor, 0.0, 1.0), col)
+		## AND THE NUMBER (round 4: "the bars have no number").
+		UiKit.text(v, v.font, "%d%%" % int(round(f.armor * 100.0)), Vector2(bx + SeasonScene.QM_BAR_W + 6.0, y), 13, col)
 		v.draw_rect(Rect2(r.position.x + r.size.x * FighterCard.INSPECTION_MIN - 1.0,
 			r.position.y - 3, 2.0, r.size.y + 6), UiKit.DOWN)
 		if Quartermaster.ceiling(f) < 0.999:

@@ -110,12 +110,13 @@ func _federation(o: ClubOffice) -> void:
 		## player has to work out by being refused is a requirement he meets once,
 		## by accident, after it has already cost him a cup.
 		if want > 0:
-			var w := COL_W - 180.0
+			var w := COL_W - 216.0
 			var tick := L_X + 16.0 + w * (float(want) / float(Federation.MAX_LEVEL))
 			draw_rect(Rect2(tick - 1.0, y + 15.0, 2.0, 20.0), UiKit.INK)
-		UiKit.text(self, font, (UiKit.t("%d of %d needed") % [have, want]) if want > 0
-			else (UiKit.t("Level %d · not required in this division") % have), Vector2(L_X + 16, y + 50),
-			11, UiKit.DOWN if short else UiKit.EDGE.lightened(0.5))
+		## BESIDE THE BAR'S END, never under the button (round 4: they overlapped).
+		UiKit.text_fit(self, font, (UiKit.t("%d of %d needed") % [have, want]) if want > 0
+			else (UiKit.t("Level %d · not needed here") % have), Vector2(L_X + 16, y + 50),
+			13, UiKit.DOWN if short else UiKit.EDGE.lightened(0.5), COL_W - 216.0)
 
 	var y2 := COL_Y + COL_H - 46.0
 	var shorts := o.shortfalls()

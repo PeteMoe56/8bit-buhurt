@@ -174,8 +174,11 @@ static func _club_controls(v: SeasonScene) -> void:
 		v.ui.add_child(hit)
 		return
 	if block == "cup":
-		v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight the cup bout"), Vector2(24, SeasonScene.action_y()),
-			Vector2(204, 46), v._fight_cup)))
+		## THE FIGHT IS WHERE EVERY OTHER TAB'S NEXT STEP IS: bottom right,
+		## gold (round 4: the Club tab put its call to action bottom-left).
+		v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight the cup bout"),
+			Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0), SeasonScene.action_y()),
+			Vector2(SeasonScene.NEXT_W, 46), v._fight_cup, "sword")))
 		## THE DRAW, next to the tie. Carried open since section 22: the screen
 		## could say who you were fighting and never who else was left, which is
 		## the one thing a cup has that a league does not.

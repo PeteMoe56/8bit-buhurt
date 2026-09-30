@@ -82,7 +82,7 @@ func _build() -> void:
 	## PUT THE WORD OUT. The pool is fixed for the summer, deliberately, so that
 	## it does not reshuffle under the player while he compares two men — which
 	## also means a summer with nothing in it stays that way unless he pays.
-	ui.add_child(UiKit.button(UiKit.t("New names  ·  %d CC") % ClubOffice.REFRESH_COST,
+	ui.add_child(UiKit.button(UiKit.t("Reroll the list  ·  %d CC") % ClubOffice.REFRESH_COST,
 		Vector2(190, UiKit.screen().y - 56), Vector2(220, 44), func():
 			flash = UiKit.said(season.office.refresh_market())
 			picked = null

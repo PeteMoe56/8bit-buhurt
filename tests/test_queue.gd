@@ -121,7 +121,9 @@ func _expected(s: Season, head: String) -> String:
 	return String(FIRST_BUTTON[head])
 
 
-## The leftmost button on the action row of the club tab, as the player sees it.
+## The button the club tab offers as the way forward: the gold (primary) one on
+## the action row if there is one — since 30 Sep 2026 it sits bottom-right on
+## every tab — else the leftmost, as the player sees it.
 func _first_button(s: Season) -> String:
 	Session.season = s
 	var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
@@ -136,7 +138,10 @@ func _first_button(s: Season) -> String:
 		var btn := b as Button
 		if not btn.is_visible_in_tree() or absf(btn.position.y - row_y) > 1.0:
 			continue
-		if best == null or btn.position.x < best.position.x:
+		if best != null and best.has_meta("primary") and not btn.has_meta("primary"):
+			continue
+		if best == null or (btn.has_meta("primary") and not best.has_meta("primary")) \
+				or btn.position.x < best.position.x:
 			best = btn
 	var got := best.text if best != null else "(none)"
 	n.queue_free()

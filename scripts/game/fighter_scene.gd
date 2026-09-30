@@ -809,8 +809,8 @@ func _attributes() -> void:
 		## spends points wherever they will do the most good. Four identical
 		## ticks claiming four separate limits is a picture of a rule the game
 		## does not have.
-		UiKit.text(self, font, String(row["w"]), Vector2(M_X + 16, y + 36), 11,
-			UiKit.EDGE.lightened(0.5))
+		UiKit.text_fit(self, font, String(row["w"]), Vector2(M_X + 16, y + 37), 13,
+			UiKit.DIM, COL_W - 32.0)
 		y += 66.0
 	## ONE SHORT LINE ON THE SAME BASELINE EITHER WAY.
 	##
