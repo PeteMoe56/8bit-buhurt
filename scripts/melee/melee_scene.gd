@@ -546,7 +546,7 @@ func _on_bout_finished(_w: int) -> void:
 			Session.season.post_bout(sim)
 		Session.clear_bout()
 		Session.autosave()
-		again_button.text = UiKit.t("Back to the clubhouse")
+		again_button.text = UiKit.t("Back to the club")
 		_add_spend_button()
 	_quips_cache = []
 	_news_cache = []
@@ -1299,7 +1299,7 @@ func _draw_corner() -> void:
 		var cw := font.get_string_size(UiKit.t("CONDITION"), HORIZONTAL_ALIGNMENT_LEFT, -1, UiKit.MIN_PX).x
 		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + cw + 8.0, ry + 59), word,
 			HORIZONTAL_ALIGNMENT_LEFT, 90, 9,
-			COL_HOT if word == "Injured" or word == "Beat Up" else COL_INK)
+			COL_HOT if word == "Injured" or word == "Beat Up" else (UiKit.YOU if word == "Tired" else COL_INK))
 
 	## THE RIGHT COLUMN'S HEADING AND THE CHOSEN STRIP. The strip sits between
 	## the book and the fight because that is where the player's eye is going.
@@ -1552,7 +1552,7 @@ static func _dir(deg: float) -> Vector2:
 ## Cancel's chip, in the open bottom quarter.
 func _wheel_cancel_rect(m) -> Rect2:
 	var c := _wheel_center(m)
-	return Rect2(c + Vector2(-WHEEL_CANCEL.x * 0.5, WHEEL_RI + 22.0), WHEEL_CANCEL)
+	return Rect2(c + Vector2(-WHEEL_CANCEL.x * 0.5, WHEEL_RI + 30.0), WHEEL_CANCEL)
 
 
 ## Which option is under a point: an act, -1 for Cancel, -2 for none. A tap
@@ -1963,7 +1963,7 @@ func _draw_calls() -> void:
 	var y := CALL_AT.y + 12.0
 	## NAMED (blind review round 3: two yellow squares with no word).
 	UiKit.raw(self, font, Vector2(CALL_AT.x - 12.0 - float(calls_total) * 20.0 - 90.0, y + 11.0),
-		UiKit.t("HOLDS"), HORIZONTAL_ALIGNMENT_RIGHT, 86, 12, COL_DIM)
+		UiKit.t("%d HOLDS LEFT") % calls_left, HORIZONTAL_ALIGNMENT_RIGHT, 86, 12, COL_DIM)
 	for i in calls_total:
 		var r := Rect2(CALL_AT.x - 8.0 - float(calls_total - i) * 20.0, y - 2.0, 16.0, 16.0)
 		draw_rect(r, Tuning.COL_MARSHAL if i < calls_left else Color("221e1a"))
@@ -2076,7 +2076,7 @@ func _build_ui() -> void:
 
 
 	again_button = _panel_button(
-		UiKit.t("Back to the clubhouse") if Session.season != null else UiKit.t("Next bout"),
+		UiKit.t("Back to the club") if Session.season != null else UiKit.t("Next bout"),
 		Vector2(260, 48), func():
 			if Session.season != null:
 				UiKit.back("res://scenes/Season.tscn")

@@ -433,7 +433,8 @@ func _draw() -> void:
 	_draw_board()
 	## WHAT THIS SHAPE DOES, over the field; a message takes its place.
 	var line := flash if flash != "" else _shape_words()
-	UiKit.text_fit(self, font, line, Vector2(BOARD.position.x, 80.0), 14,
+	## CENTRED OVER THE FIELD it describes (round 6: it floated at the panel's edge).
+	UiKit.mid(self, font, line, Vector2(BOARD.position.x, 80.0), 14,
 		UiKit.YOU if flash != "" else UiKit.INK, BOARD.size.x)
 	## HOW TO USE THE BOARD (blind review, 29 Sep: "nothing tells the player
 	## how to edit").

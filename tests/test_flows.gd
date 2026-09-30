@@ -5,7 +5,7 @@ extends SceneTree
 ##   a new career   Start -> Play -> Start a club -> a town -> the season screen,
 ##                  saved to the slot, in the town picked
 ##   the first bout Fight it -> the save marks the bout live -> the bout finishes
-##                  -> Back to the clubhouse -> posted, saved, mark cleared
+##                  -> Back to the club -> posted, saved, mark cleared
 ##   Create         rename the club -> the save and the league table both carry it
 ##   Settings       a volume changed is the volume after a restart
 ##   a new job      Take it, twice -> the career is at the new club, saved there,
@@ -151,7 +151,7 @@ func _flow_new_career_and_first_bout() -> void:
 	sim.run_to_end()
 	await process_frame
 	await process_frame
-	await _press("Back to the clubhouse")
+	await _press("Back to the club")
 	var back := await _arrive("Season.tscn")
 	on_disk = SaveGame._read(0)
 	var cleared: bool = on_disk is Dictionary and (on_disk.get("bout_live", {}) as Dictionary).is_empty()

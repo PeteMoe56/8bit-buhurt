@@ -54,7 +54,7 @@ func _build() -> void:
 		## there: raising it is getting ahead of the division above.
 		var short: bool = o.rule_level(r) < Federation.required(o.tier, r)
 		var btn := UiKit.button((UiKit.t("Meet it · %d CC") if short else UiKit.t("Get ahead · %d CC")) % cost,
-			Vector2(L_X + COL_W - 184.0, _row_y(i) + 8.0), Vector2(172, 36), func(rule = r):
+			Vector2(L_X + COL_W - 196.0, _row_y(i) + 8.0), Vector2(184, 38), func(rule = r):
 				flash_tone = 0
 				flash = UiKit.said(o.raise_rule(rule))
 				season.sync_power()
@@ -104,19 +104,21 @@ func _federation(o: ClubOffice) -> void:
 		var short: bool = have < want
 		UiKit.text(self, font, UiKit.t(String(Federation.RULE_NAME[r])), Vector2(L_X + 16, y),
 			14, UiKit.DOWN if short else UiKit.INK)
-		UiKit.meter(self, Rect2(L_X + 16, y + 18, COL_W - 216.0, 14),
+		UiKit.meter(self, Rect2(L_X + 16, y + 18, COL_W - 230.0, 14),
 			have, Federation.MAX_LEVEL, UiKit.DOWN if short else UiKit.UP)
 		## THE LINE YOU HAVE TO REACH, drawn ON the meter. A requirement the
 		## player has to work out by being refused is a requirement he meets once,
 		## by accident, after it has already cost him a cup.
 		if want > 0:
-			var w := COL_W - 216.0
+			var w := COL_W - 230.0
 			var tick := L_X + 16.0 + w * (float(want) / float(Federation.MAX_LEVEL))
 			draw_rect(Rect2(tick - 1.0, y + 15.0, 2.0, 20.0), UiKit.INK)
 		## BESIDE THE BAR'S END, never under the button (round 4: they overlapped).
 		UiKit.text_fit(self, font, (UiKit.t("%d of %d needed") % [have, want]) if want > 0
-			else (UiKit.t("Level %d · not needed here") % have), Vector2(L_X + 16, y + 50),
-			13, UiKit.DOWN if short else UiKit.EDGE.lightened(0.5), COL_W - 216.0)
+			else ((UiKit.t("Level %d · needed in %s") % [have, League.tier_name(o.tier + 1)])
+				if o.tier + 1 < League.TIERS.size() and Federation.required(o.tier + 1, r) > have
+				else (UiKit.t("Level %d · not needed here") % have)), Vector2(L_X + 16, y + 58),
+			13, UiKit.DOWN if short else UiKit.DIM, COL_W - 32.0)
 
 	var y2 := COL_Y + COL_H - 46.0
 	var shorts := o.shortfalls()
@@ -178,7 +180,7 @@ func _members(o: ClubOffice) -> void:
 	## mid-season without pretending to, so it is said in the line above and not
 	## dressed up as a live reading here.
 	var bits: Array[String] = []
-	bits.append(UiKit.t("room %s") % o.morale_word().to_lower())
+	bits.append(UiKit.t("squad mood %s") % o.morale_word().to_lower())
 	bits.append(UiKit.t("bus full") if bench_full else UiKit.t("bus short"))
 	UiKit.text_fit(self, font, UiKit.t("Right now: %s") % "  ·  ".join(bits), Vector2(R_X + 16, y + 44.0), 14,
 		UiKit.DOWN if not bench_full or o.morale < 0.38 else UiKit.INK, COL_W - 32.0)

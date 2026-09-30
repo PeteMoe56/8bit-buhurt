@@ -156,6 +156,8 @@ func _draw() -> void:
 		var step := Market.step_word(f.overall(), tier)
 		UiKit.card(self, font, r, {
 			"tag": f.pos_name(), "name": f.display_name, "rating": f.overall(),
+			## A SLIM BAND (round 6: the colored header was 40% of the card).
+			"head_frac": 0.2,
 			"band": UiKit.pos_color(f),
 			"head_right": step,
 			## `DIM` is a color chosen to recede against the PANEL, and the header

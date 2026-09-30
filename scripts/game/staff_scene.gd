@@ -95,9 +95,9 @@ func _build() -> void:
 			## "+1 yr · 3 CC", and Release in the destructive style, two taps
 			## (round 4: "· 3" had no unit and Release looked like its neighbour).
 			ui.add_child(UiKit.button(UiKit.t("+1 yr · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(half + 14.0, 36), _extend.bind(i)))
-			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + half + 26.0, CUR_Y + CARD_H + 50.0),
-				Vector2(half - 20.0, 36), _release.bind(i))))
+				Vector2(x, CUR_Y + CARD_H + 50.0), Vector2(half + 4.0, 36), _extend.bind(i)))
+			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + half + 30.0, CUR_Y + CARD_H + 50.0),
+				Vector2(half - 30.0, 36), _release.bind(i))))
 		else:
 			ui.add_child(UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
 				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 36), _hire.bind(i)))

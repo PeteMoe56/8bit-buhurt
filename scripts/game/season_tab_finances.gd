@@ -88,7 +88,10 @@ static func _draw_finances(v: SeasonScene) -> void:
 
 ## One heading and its figure in both columns.
 static func _fin_row(v: SeasonScene, label: String, now: int, was: int, y: float, col: Color, px: int = 13) -> void:
-	UiKit.text(v, v.font, UiKit.t(label), Vector2(SeasonScene.FIN_LEFT + 14.0, y), px, col)
+	## "The squad" is signings, sessions and captains, all in CC — the wages
+	## are $ and are not on this page (round 6: read as wages in CC).
+	var shown := UiKit.t("Signings & training") if label == ClubOffice.LINE_SQUAD else UiKit.t(label)
+	UiKit.text(v, v.font, shown, Vector2(SeasonScene.FIN_LEFT + 14.0, y), px, col)
 	UiKit.right(v, v.font, "%d" % now, Vector2(SeasonScene.FIN_NOW, y), px, col, 90)
 	## LAST YEAR IS DIMMED, ALWAYS, whatever this year's line is doing. It is
 	## context, not news — coloring it would put two equally loud numbers on one

@@ -452,7 +452,7 @@ static func bar(ci: CanvasItem, r: Rect2, frac: float, col: Color) -> void:
 static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 		big: bool = true) -> void:
 	panel(ci, r)
-	var hh: float = r.size.y * (0.36 if big else 0.30)
+	var hh: float = r.size.y * float(d.get("head_frac", 0.36 if big else 0.30))
 	var head := Rect2(r.position, Vector2(r.size.x, hh))
 	ci.draw_rect(head, tint(Color(d.get("band", SELECT)), 0.85))
 
@@ -519,7 +519,7 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 		## THE NUMBER ON THE SMALL CARD TOO (round 4: bench cards had only
 		## stars, and a half star cannot be read at this size).
 		if not big:
-			right(ci, font, "%d" % int(d["rating"]), Vector2(r.end.x - 6, y + 34.0), 13, INK, 40)
+			right(ci, font, "%d" % int(d["rating"]), Vector2(r.end.x - 6, y + 34.0), 13, YOU, 40)
 
 	if big and d.has("note"):
 		## `note_col` is optional and defaults to the dim it always was. The

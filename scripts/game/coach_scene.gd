@@ -144,7 +144,10 @@ func _draw() -> void:
 func _standing(c: Coach) -> void:
 	UiKit.panel(self, Rect2(L_X, COL_Y, COL_W, COL_H))
 	UiKit.text(self, font, UiKit.t("YOUR STANDING"), Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
-	UiKit.text(self, font, c.standing(), Vector2(L_X + 16, COL_Y + 62), 22, UiKit.YOU)
+	## A RANK, SAID AS ONE (round 6: "Unknown" in big gold read as missing data).
+	var rw := font.get_string_size(UiKit.t("Rank:"), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	UiKit.text(self, font, UiKit.t("Rank:"), Vector2(L_X + 16, COL_Y + 60), 14, UiKit.DIM)
+	UiKit.text(self, font, c.standing(), Vector2(L_X + 24 + rw, COL_Y + 62), 22, UiKit.YOU)
 	UiKit.meter(self, Rect2(L_X + 16, COL_Y + 76, COL_W - 32, 16),
 		c.reputation, Coach.REP_MAX, UiKit.YOU)
 	UiKit.right(self, font, UiKit.t("reputation %d of %d") % [c.reputation, Coach.REP_MAX],
@@ -170,7 +173,7 @@ func _the_book(c: Coach) -> void:
 	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
 	UiKit.text(self, font, UiKit.t("YOUR RECORD"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	var rows := [
-		[UiKit.t("Seasons"), "%d" % c.seasons],
+		[UiKit.t("Seasons finished"), "%d" % c.seasons],
 		[UiKit.t("Record"), c.record_line()],
 		[UiKit.t("Win rate"), "%d%%" % int(round(c.win_rate() * 100.0))],
 		[UiKit.t("Cups"), "%d" % c.cups],
@@ -214,7 +217,8 @@ func _offers(c: Coach) -> void:
 		var tier_word := League.tier_name(int(club["tier"]))
 		UiKit.text(self, font, UiKit.clip_px(font, String(club["name"]), 16, COL_W - 32.0),
 			Vector2(R_X + 16, y), 16, UiKit.UP if dream else UiKit.INK)
-		UiKit.text_fit(self, font, tier_word, Vector2(R_X + 16, y + 17.0), 13, UiKit.DIM, COL_W - 32.0)
+		UiKit.text_fit(self, font, UiKit.t("%s  ·  rated %d") % [tier_word, int(club.get("power", 0))],
+			Vector2(R_X + 16, y + 17.0), 13, UiKit.DIM, COL_W - 32.0)
 	if offers.size() > shown:
 		UiKit.right(self, font, UiKit.t("and %d more want you") % (offers.size() - shown),
 			Vector2(R_X + COL_W - 16, COL_Y + COL_H - 14), 14, UiKit.DIM, 160)

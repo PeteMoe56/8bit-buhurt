@@ -116,11 +116,12 @@ YOUR CAREER,YOUR CAREER,TU CARRERA,TA CARRIÈRE,DEINE KARRIERE,LA TUA CARRIERA,S
 "Your record, your standing and who wants you.","Your record, your standing and who wants you.","Tu historial, tu posición y quién te quiere.","Ton bilan, ta cote et qui te veut.","Deine Bilanz, dein Ruf und wer dich will.","Il tuo record, la tua fama e chi ti vuole.","Seu histórico, sua reputação e quem te quer.","Twój bilans, pozycja i kto cię chce.","Твой счёт, репутация и кто тебя хочет.",戦績、評価、そして誘い。
 Season %d,Season %d,Temporada %d,Saison %d,Saison %d,Stagione %d,Temporada %d,Sezon %d,Сезон %d,シーズン%d
 YOUR STANDING,YOUR STANDING,TU REPUTACIÓN,TA COTE,DEIN ANSEHEN,IL TUO PRESTIGIO,SUA POSIÇÃO,TWOJA POZYCJA,ТВОЙ СТАТУС,あなたの評価
+Rank:,Rank:,Rango:,Rang :,Rang:,Grado:,Posto:,Ranga:,Ранг:,ランク：
 reputation %d of %d,reputation %d of %d,reputación %d de %d,réputation %d sur %d,Ruf %d von %d,reputazione %d su %d,reputação %d de %d,reputacja %d z %d,репутация %d из %d,評判 %d／%d
 Win your division and this climbs.,Win your division and this climbs.,Gana tu división y esto sube.,Gagne ta division et elle monte.,"Gewinn deine Liga, dann steigt es.",Vinci la divisione e sale.,Vença sua divisão e isto sobe.,"Wygraj dywizję, a to wzrośnie.",Выиграй дивизион — и он вырастет.,所属リーグで優勝すれば上がります。
 "Outside the top four, it halves.","Outside the top four, it halves.",Fuera del top 4: a la mitad.,Hors du top 4 : divisée par deux.,Unter Top 4: halbiert.,"Fuori dai primi quattro, si dimezza.","Fora do top 4, cai pela metade.",Poza top 4: połowa.,Вне первой четвёрки — упадёт вдвое.,5位以下なら半減します。
 YOUR RECORD,YOUR RECORD,TU HISTORIAL,TON BILAN,DEINE BILANZ,IL TUO RECORD,SEU HISTÓRICO,TWÓJ BILANS,ТВОЯ ИСТОРИЯ,あなたの戦績
-Seasons,Seasons,Temporadas,Saisons,Saisons,Stagioni,Temporadas,Sezony,Сезоны,シーズン
+Seasons finished,Seasons finished,Temporadas completas,Saisons terminées,Beendete Saisons,Stagioni finite,Temporadas concluídas,Ukończone sezony,Сезонов завершено,終えたシーズン
 Record,Record,Historial,Bilan,Bilanz,Record,Histórico,Bilans,История,戦績
 Win rate,Win rate,Tasa de victoria,Taux de victoire,Siegquote,Tasso vittorie,Aproveitamento,Skuteczność,Процент побед,勝率
 Cups,Cups,Copas,Coupes,Pokale,Coppe,Copas,Puchary,Кубки,カップ
@@ -131,6 +132,7 @@ It fills in when your first season ends.,It fills in when your first season ends
 WHO WANTS YOU,WHO WANTS YOU,QUIÉN TE QUIERE,QUI TE VEUT,WER DICH WILL,CHI TI VUOLE,QUEM QUER VOCÊ,KTO CIĘ CHCE,КТО ТЕБЯ ЗОВЁТ,オファー
 "Nobody, yet.","Nobody, yet.","Nadie, aún.","Personne, encore.",Noch keiner.,"Nessuno, per ora.","Ninguém, ainda.",Nikt. Na razie.,Пока никто.,まだ誰も。
 Clubs come for a coach who out-rates them. Win something.,Clubs come for a coach who out-rates them. Win something.,Los clubes buscan a un entrenador que los supere en media. Gana algo.,Les clubs veulent un coach qui les surclasse. Gagne quelque chose.,"Vereine holen Trainer, die besser sind als sie. Gewinn was.",I club cercano un allenatore che vale più di loro. Vinci qualcosa.,Clubes procuram um técnico que os supere. Ganhe alguma coisa.,"Kluby chcą trenera, który przerasta je oceną. Wygraj coś.","Клубы зовут тренера, который сильнее их. Выиграй что-нибудь.",クラブが欲しがるのは格上のコーチ。何かを勝ち取れ。
+%s  ·  rated %d,%s  ·  rated %d,%s  ·  nivel %d,%s  ·  note %d,%s  ·  Wert %d,%s  ·  valore %d,%s  ·  nota %d,%s  ·  ocena %d,%s  ·  рейтинг %d,%s  ·  評価%d
 and %d more want you,and %d more want you,y %d más te quieren,et %d autres te veulent,und %d weitere wollen dich,e altri %d ti vogliono,e mais %d querem você,i chcą cię jeszcze: %d,и ещё зовут: %d,他%dクラブからも誘い
 At,At,En,Rang,Bei,A,Em,Klub,Где,所属
 Years here,Years here,Años aquí,Années ici,Jahre hier,Anni qui,Anos aqui,Lat tutaj,Лет здесь,在籍年数
@@ -188,6 +190,7 @@ Two masters: the federation's rules and your members.,Two masters: the federatio
 THE FEDERATION,THE FEDERATION,LA FEDERACIÓN,LA FÉDÉRATION,DER VERBAND,LA FEDERAZIONE,A FEDERAÇÃO,FEDERACJA,ФЕДЕРАЦИЯ,連盟
 %s rules,%s rules,%s,%s,%s,%s,%s,Zasady: %s,Правила: %s,%sの規定
 %d of %d needed,%d of %d needed,%d de %d necesarios,%d sur %d requis,%d von %d nötig,%d di %d richiesti,%d de %d exigidos,Potrzeba: %d z %d,%d из %d нужных,%d / %d 必要
+Level %d · needed in %s,Level %d · needed in %s,Nivel %d · exigido en %s,Niveau %d · requis en %s,Stufe %d · Pflicht in %s,Livello %d · richiesto in %s,Nível %d · exigido na %s,Poziom %d · wymagany w %s,Уровень %d · нужен в %s,レベル%d・%sで必要
 Level %d · not needed here,Level %d · not needed here,Nivel %d · no hace falta aquí,Niveau %d · pas requis ici,Stufe %d · hier nicht nötig,Livello %d · qui non serve,Nível %d · não exigido aqui,Poziom %d · tu niewymagany,Уровень %d · здесь не нужен,レベル%d・ここでは不要
 In good standing. You may be entered for the cups.,In good standing. You may be entered for the cups.,En regla. Puedes inscribirte en las copas.,En règle. Tu peux être inscrit aux coupes.,Alles in Ordnung. Du darfst zu den Pokalen.,In regola. Puoi essere iscritto alle coppe.,Em dia. Você pode ser inscrito nas copas.,Wszystko w porządku. Możesz grać w pucharach.,На хорошем счету. Можно заявляться на кубки.,資格あり。カップに出場できます。
 NOT ENTERED FOR THE CUPS,NOT ENTERED FOR THE CUPS,SIN INSCRIPCIÓN EN LAS COPAS,NON INSCRIT AUX COUPES,NICHT FÜR DIE POKALE GEMELDET,NON ISCRITTO ALLE COPPE,NÃO INSCRITO NAS COPAS,BEZ ZGŁOSZENIA DO PUCHARÓW,НЕ ЗАЯВЛЕН НА КУБКИ,カップ出場資格なし
@@ -201,7 +204,7 @@ The federation costs,The federation costs,La federación cuesta,La fédération 
 %s%d CC,%s%d CC,%s%d CC,%s%d CC,%s%d CC,%s%d CC,%s%d CC,%s%d CC,%s%d CC,%s%d CC
 "They stay for a good room, a full bus, a good year.","They stay for a good room, a full bus, a good year.","Se quedan por buen vestuario, bus lleno, buen año.","Ambiance, bus plein, bonne année : ils restent.","Sie bleiben für Stimmung, vollen Bus, gutes Jahr.","Restano per clima, pullman pieno, buon anno.","Ficam por um bom vestiário, ônibus cheio, um bom ano.","Zostają za szatnię, pełny bus, dobry rok.","Их держат дух, полный автобус и удачный год.",良い雰囲気、満員のバス、良い一年があれば残ってくれる。
 They do not care about your paperwork.,They do not care about your paperwork.,Tu papeleo les da igual.,"Ta paperasse, ils s'en fichent.",Dein Papierkram ist ihnen egal.,Delle tue carte non gli importa.,Eles não ligam para sua papelada.,Twoje papiery ich nie obchodzą.,Им плевать на твои бумажки.,書類仕事には興味がない。
-room %s,room %s,vestuario %s,vestiaire %s,Kabine %s,spogliatoio %s,vestiário %s,szatnia: %s,раздевалка: %s,ロッカールーム：%s
+squad mood %s,squad mood %s,ánimo %s,moral %s,Stimmung %s,umore %s,clima %s,nastrój %s,настрой %s,士気 %s
 bus full,bus full,autobús lleno,bus plein,Bus voll,pullman pieno,ônibus cheio,autobus pełny,автобус полон,バス満員
 bus short,bus short,autobús corto,bus incomplet,Bus zu leer,pullman incompleto,ônibus incompleto,autobus niepełny,автобус неполный,バス人数不足
 Right now: %s,Right now: %s,Ahora: %s,En ce moment : %s,Gerade: %s,Adesso: %s,Agora: %s,Teraz: %s,Сейчас: %s,現在：%s
@@ -263,7 +266,7 @@ Known for,Known for,Conocido por,Réputé pour,Bekannt für,Noto per,Conhecido p
 RATING,RATING,MEDIA,NOTE,WERTUNG,VALORE,NOTA,OCENA,РЕЙТИНГ,能力値
 CEILING,CEILING,TECHO,PLAFOND,POTENZIAL,TETTO,TETO,PUŁAP,ПОТОЛОК,潜在能力
 LEVEL,LEVEL,NIVEL,NIVEAU,STUFE,LIVELLO,NÍVEL,POZIOM,УРОВЕНЬ,レベル
-A LEVEL IS WAITING,A LEVEL IS WAITING,HAY UN NIVEL PENDIENTE,UN NIVEAU EN ATTENTE,EINE STUFE WARTET,UN LIVELLO TI ASPETTA,UM NÍVEL ESPERANDO,CZEKA POZIOM,ЖДЁТ УРОВЕНЬ,レベルアップ待ち
+1 POINT TO SPEND BELOW,1 POINT TO SPEND BELOW,1 PUNTO PARA GASTAR,1 POINT À DÉPENSER,1 PUNKT UNTEN ZU VERGEBEN,1 PUNTO DA SPENDERE,1 PONTO PARA GASTAR,1 PUNKT DO WYDANIA NIŻEJ,1 ОЧКО — РАСПРЕДЕЛИ НИЖЕ,下で1ポイント使える
 %d / %d xp,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d XP
 He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-signera pas.,Er unterschreibt nicht nochmal.,Non rinnoverà.,Ele não vai renovar.,Więcej nie podpisze.,Больше не подпишет.,再契約には応じない。
 Asks at renewal,Asks at renewal,Pide al renovar,Demande au renouvellement,Will bei Verlängerung,Chiede al rinnovo,Pede na renovação,Chce przy odnowieniu,Просит при продлении,更新時の要求
@@ -318,7 +321,7 @@ This year,This year,Este año,Cette année,Dieses Jahr,Quest'anno,Este ano,Ten r
 The club,The club,El club,Le club,Der Verein,Il club,O clube,Klub,Клуб,クラブ
 History,History,Historia,Historique,Geschichte,Storia,História,Historia,История,歴史
 The Hall,The Hall,El Salón de la Fama,Le Panthéon,Die Ruhmeshalle,La Hall of Fame,O Hall da Fama,Galeria,Зал славы,殿堂
-Your record,Your record,Tu historial,Ton bilan,Deine Bilanz,Il tuo record,Seu histórico,Twój bilans,Твоя история,あなたの戦績
+By season,By season,Por temporada,Par saison,Nach Saison,Per stagione,Por temporada,Sezonami,По сезонам,シーズン別
 RECORDS,RECORDS,ARCHIVO,ARCHIVES,REKORDE,RECORD,RECORDES,KRONIKA,РЕКОРДЫ,記録
 THE SEASON SO FAR,THE SEASON SO FAR,LA TEMPORADA HASTA AHORA,LA SAISON EN COURS,DIE SAISON BISHER,LA STAGIONE FIN QUI,A TEMPORADA ATÉ AQUI,SEZON DOTĄD,СЕЗОН ПОКА,今シーズンの戦績
 %d of %d,%d of %d,%d de %d,%d sur %d,%d von %d,%d di %d,%d de %d,%d z %d,%d из %d,%d / %d
@@ -516,6 +519,7 @@ last,last,último,dernière,zuletzt,ultimo,último,ostatnio,прошлый,前�
 So far this year. Gates and prize money arrive as the events are fought.,So far this year. Gates and prize money arrive as the events are fought.,En lo que va de año. La taquilla y los premios llegan al disputar los eventos.,Depuis le début de l'année. Recettes et primes arrivent au fil des événements.,Bisher in diesem Jahr. Einnahmen und Preisgeld kommen mit den Events.,Finora quest'anno. Incassi e premi arrivano con gli eventi.,Até agora no ano. Bilheteria e prêmios chegam com os eventos.,Jak dotąd w tym roku. Wpływy i nagrody przychodzą z zawodami.,С начала года. Сборы и призовые приходят по ходу турниров.,今年のここまで。入場料と賞金は大会ごとに入る。
 So far this year.,So far this year.,En lo que va de año.,Depuis le début de l'année.,Bisher in diesem Jahr.,Finora quest'anno.,Até agora no ano.,Jak dotąd w tym roku.,С начала года.,今年のここまで。
 "To close it: win, fill the ground, trim wages.","To close it: win, fill the ground, trim wages.","Para cerrarlo: gana, llena el campo, baja sueldos.","Pour combler : gagne, remplis, baisse les salaires.","Ausgleich: siegen, Halle füllen, Löhne senken.","Per chiuderlo: vinci, riempi, taglia gli stipendi.","Para fechar: vença, lote o local, corte salários.","By to zamknąć: wygrywaj, zapełnij, tnij płace.","Как закрыть: побеждай, заполняй зал, режь зарплаты.",埋めるには：勝つ・満員にする・給料を削る。
+Signings & training,Signings & training,Fichajes y entreno,Recrues et séances,Transfers & Training,Acquisti e allenamento,Contratações e treino,Transfery i trening,Трансферы и тренировки,補強と練習
 Pays a year,Pays a year,Paga al año,Rapporte par an,Bringt im Jahr,Rende all'anno,Paga por ano,Płaci rocznie,В год,年間収入
 The summer bill,The summer bill,La factura de verano,La facture d'été,Die Sommerrechnung,Il conto d'estate,A conta do verão,Rachunek na lato,Летний счёт,夏の請求額
 %d CC  ·  %d short,%d CC  ·  %d short,%d CC  ·  faltan %d,%d CC  ·  il manque %d,%d CC  ·  %d fehlen,%d CC  ·  ne mancano %d,%d CC  ·  faltam %d,%d CC  ·  brakuje: %d,%d CC  ·  не хватает: %d,%d CC  ·  不足 %d
@@ -529,6 +533,7 @@ CC is club money. $ is weekly pay.,CC is club money. $ is weekly pay.,CC: dinero
 Everything in,Everything in,Total ingresos,Total recettes,Alle Einnahmen,Tutte le entrate,Total de entradas,Wszystkie wpływy,Весь приход,収入合計
 Everything out,Everything out,Total gastos,Total dépenses,Alle Ausgaben,Tutte le uscite,Total de saídas,Wszystkie wydatki,Весь расход,支出合計
 age %d-%d  ·  rated %d-%d,age %d-%d  ·  rated %d-%d,edad %d-%d  ·  media %d-%d,âge %d-%d  ·  noté %d-%d,Alter %d-%d  ·  Wertung %d-%d,età %d-%d  ·  valore %d-%d,idade %d-%d  ·  nota %d-%d,wiek %d-%d  ·  ocena %d-%d,возраст %d-%d  ·  рейтинг %d-%d,%d-%d歳  ·  能力値%d-%d
+Card view,Card view,Ver cartas,Vue cartes,Karten,Vista carte,Ver cartas,Widok kart,Карточки,カード表示
 Reserve by %s,Reserve by %s,Reserva por %s,Réserve par %s,Reserve nach %s,Riserve per %s,Reserva por %s,Rezerwa wg: %s,Резерв по: %s,控え（%s順）
 Free agents,Free agents,Agentes libres,Agents libres,Freie Kämpfer,Svincolati,Agentes livres,Wolni zawodnicy,Свободные агенты,フリーエージェント
 Club record,Club record,Récord del club,Record du club,Vereinsbilanz,Record del club,Recorde do clube,Rekord klubu,Рекорд клуба,クラブ記録
@@ -896,7 +901,7 @@ The following,The following,Los seguidores,Les fidèles,Die Anhänger,Il seguito
 Your %s went down %d times. That side of the line is where the round went.,Your %s went down %d times. That side of the line is where the round went.,Tu %s cayó %d veces. El asalto se fue por ese lado de la línea.,Ton %s est tombé %d fois. C'est de ce côté de la ligne que la manche s'est jouée.,Deine %s gingen %d-mal zu Boden. Auf der Seite der Linie wurde die Runde entschieden.,Il tuo %s è andato giù %d volte. Il round si è deciso su quel lato della linea.,Seu %s caiu %d vezes. Foi por esse lado da linha que o round se foi.,Twój %s padał %d razy. Po tej stronie linii przegrała się runda.,Позиция «%s»: падений — %d. Раунд ушёл именно на этом краю линии.,あなたの%sが%d回倒れた。ラウンドの勝敗はそちら側で決まった。
 %s put %d on the ground.,%s put %d on the ground.,%s derribó a %d.,%s en a mis %d au sol.,%s hat %d zu Boden gebracht.,%s ne ha mandati %d a terra.,%s derrubou %d.,%s powalił: %d.,%s уложил: %d.,%sが%d人を倒した。
 You drew %d routes and answered %d of %d prompts. The rest of it was the club.,You drew %d routes and answered %d of %d prompts. The rest of it was the club.,Dibujaste %d rutas y respondiste %d de %d avisos. El resto fue cosa del club.,"Tu as tracé %d parcours et répondu à %d ordres sur %d. Le reste, c'était le club.",Du hast %d Wege gezeichnet und %d von %d Rufen beantwortet. Der Rest war der Verein.,Hai disegnato %d percorsi e risposto a %d di %d richieste. Il resto l'ha fatto il club.,Você desenhou %d rotas e respondeu %d de %d chamados. O resto foi o clube.,Narysowałeś tras: %d i odpowiedziałeś na %d z %d wezwań. Reszta to był klub.,"Маршрутов нарисовано: %d, ответов на подсказки: %d из %d. Остальное сделал клуб.",ルートを%d本描き、%d / %dの指示に答えた。残りはクラブの力だ。
-Back to the clubhouse,Back to the clubhouse,Volver a la sede,Retour au club-house,Zurück ins Vereinsheim,Torna in clubhouse,Voltar à sede,Wróć do klubowni,В клуб,クラブハウスへ
+Back to the club,Back to the club,Volver al club,Retour au club,Zurück zum Verein,Torna al club,Voltar ao clube,Wróć do klubu,Назад в клуб,クラブへ戻る
 PAUSED,PAUSED,PAUSA,PAUSE,PAUSE,IN PAUSA,PAUSADO,PAUZA,ПАУЗА,一時停止
 Tap to carry on,Tap to carry on,Toca para seguir,Touche pour continuer,Tippen: weiter,Tocca per continuare,Toque para continuar,"Stuknij, by grać dalej","Нажми, чтобы продолжить",タップで再開
 "If the game closes, this bout starts again from the walk-out.","If the game closes, this bout starts again from the walk-out.","Si el juego se cierra, este combate empieza de nuevo desde la salida.","Si le jeu se ferme, ce combat reprend depuis l'entrée.","Wird das Spiel beendet, beginnt dieser Kampf neu beim Einlauf.","Se il gioco si chiude, questo scontro riparte dall'ingresso.","Se o jogo fechar, esta luta recomeça da entrada.","Jeśli gra się zamknie, ta walka zacznie się od wyjścia.","Если игра закроется, бой начнётся заново с выхода.",ゲームが終了した場合、この試合は入場からやり直します。
@@ -958,7 +963,7 @@ Drag a fighter to send him.,Drag a fighter to send him.,Arrastra a un luchador p
 Routes %d  ·  choices %d/%d,Routes %d  ·  choices %d/%d,Rutas %d  ·  elecciones %d/%d,Trajets %d  ·  choix %d/%d,Routen %d  ·  Wahlen %d/%d,Percorsi %d  ·  scelte %d/%d,Rotas %d  ·  escolhas %d/%d,Trasy %d  ·  wybory %d/%d,Маршруты %d  ·  выборы %d/%d,ルート%d  ·  選択%d/%d
 Drag from one of your fighters,Drag from one of your fighters,Arrastra desde uno de tus luchadores,Glisse depuis un de tes combattants,Zieh von einem deiner Kämpfer,Trascina da uno dei tuoi lottatori,Arraste a partir de um lutador seu,Przeciągnij od swojego zawodnika,Тяни от своего бойца,自分の選手からドラッグ
 End on an enemy to go for him.,End on an enemy to go for him.,Termina sobre un rival para ir a por él.,Finis sur un adversaire pour l'attaquer.,"Ende auf einem Gegner, um ihn anzugehen.",Finisci su un avversario per attaccarlo.,Termine num rival para ir nele.,"Zakończ na rywalu, by go zaatakować.","Закончи на сопернике, чтобы атаковать.",敵の上で離すと狙う。
-HOLDS,HOLDS,PAUSAS,PAUSES,PAUSEN,PAUSE,PAUSAS,PAUZY,ПАУЗЫ,ホールド
+%d HOLDS LEFT,%d HOLDS LEFT,QUEDAN %d,RESTE %d,NOCH %d,ANCORA %d,RESTAM %d,ZOSTAŁO %d,ОСТАЛОСЬ %d,残り%d
 HOLD,HOLD,AGUANTAR,TENIR,HALTEN,TIENI,SEGURAR,TRZYMAJ,ДЕРЖАТЬ,待機
 give one man an order · %.1fs,give one man an order · %.1fs,da una orden a un hombre · %.1fs,donne un ordre à un homme · %.1fs,gib einem Mann einen Befehl · %.1fs,dai un ordine a un uomo · %.1fs,dê uma ordem a um homem · %.1fs,daj rozkaz jednemu · %.1fs,дай приказ одному · %.1fс,1人に指示を出す · %.1f秒
 The corner,The corner,El rincón,Le coin,Die Ecke,L'angolo,O córner,Narożnik,Угол,コーナー
@@ -1436,7 +1441,7 @@ The federation's new rulebook is 94 pages. Page 3 is about parking.,The federati
 Somebody's mother has written in about the language at the last event. Fair.,Somebody's mother has written in about the language at the last event. Fair.,La madre de alguien se ha quejado del lenguaje en el último evento. Con razón.,La mère de quelqu'un s'est plainte du langage à la dernière rencontre. C'est juste.,Jemandes Mutter hat sich über die Ausdrucksweise beim letzten Event beschwert. Berechtigt.,La madre di qualcuno ha scritto per il linguaggio all'ultimo evento. Giusto.,A mãe de alguém reclamou do linguajar no último evento. Justo.,Czyjaś matka napisała w sprawie słownictwa na ostatnich zawodach. Słusznie.,Чья-то мама написала жалобу на выражения на прошлом турнире. Справедливо.,前回大会の言葉遣いについて誰かの母親から苦情。ごもっとも。
 Facilities,Facilities,Instalaciones,Installations,Anlagen,Strutture,Instalações,Obiekty,Постройки,施設
 Kit and harness,Kit and harness,Equipo y arnés,Armures et équipement,Rüstung und Ausrüstung,Armature e protezioni,Armadura e equipamento,Sprzęt i zbroje,Доспехи и снаряжение,装備と防具
-The squad,The squad,La plantilla,L'effectif,Der Kader,La rosa,O elenco,Skład,Состав,チーム
+The squad,The squad,La plantilla,L'effectif,Der Kader,La rosa,O elenco,Kadra,Состав,スカッド
 Travel,Travel,Viajes,Déplacements,Reisen,Trasferte,Viagens,Podróże,Дорога,遠征
 Prize money,Prize money,Premios,Primes,Preisgeld,Premi in denaro,Premiação,Nagrody,Призовые,賞金
 Tournaments,Tournaments,Torneos,Tournois,Turniere,Tornei,Torneios,Turnieje,Турниры,トーナメント

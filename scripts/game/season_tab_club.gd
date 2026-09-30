@@ -182,7 +182,8 @@ static func _club_controls(v: SeasonScene) -> void:
 		## THE DRAW, next to the tie. Carried open since section 22: the screen
 		## could say who you were fighting and never who else was left, which is
 		## the one thing a cup has that a league does not.
-		v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(244, SeasonScene.action_y()), Vector2(204, 46), func():
+		## SIM IT BESIDE THE FIGHT, the quieter of the two (round 6).
+		v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0) - 150.0, SeasonScene.action_y()), Vector2(140, 46), func():
 			## Two taps, like the league's sim: a cup tie simmed is a cup tie gone.
 			if not UiKit.confirm("sim_cup"):
 				v.flash = UiKit.t("Tap Sim it again to hand the cup bout to the AI.")

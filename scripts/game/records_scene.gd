@@ -81,7 +81,7 @@ func _build() -> void:
 	## THREE TABS NOW, and they have to fit the row rather than the row being
 	## assumed to fit them. The two were placed at a hand-written x of 400 and 610
 	## with a width of 200; a third at 820 would have run 84px off a 960 screen.
-	var labels := [UiKit.t("This year"), UiKit.t("The club"), UiKit.t("History"), UiKit.t("The Hall"), UiKit.t("Your record")]
+	var labels := [UiKit.t("This year"), UiKit.t("The club"), UiKit.t("History"), UiKit.t("The Hall"), UiKit.t("By season")]
 	for i in labels.size():
 		## TABS AT THE TOP, like every other tabbed screen (blind review, 29 Sep:
 		## the page tabs shared the bottom row with Back and looked like buttons).
