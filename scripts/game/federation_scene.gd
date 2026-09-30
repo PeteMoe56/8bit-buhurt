@@ -49,13 +49,18 @@ func _build() -> void:
 		var cost := o.rule_cost(r)
 		if cost <= 0:
 			continue
-		ui.add_child(UiKit.button(UiKit.t("%d CC") % cost,
-			Vector2(L_X + COL_W - 104.0, _row_y(i) + 8.0), Vector2(92, 34), func(rule = r):
+		## A VERB (blind review, 29 Sep: "3 CC" beside "0 of 0 needed"). Short
+		## of the rule: bring it up, and it is the button that matters. Already
+		## there: raising it is getting ahead of the division above.
+		var short: bool = o.rule_level(r) < Federation.required(o.tier, r)
+		var btn := UiKit.button((UiKit.t("Meet it · %d CC") if short else UiKit.t("Get ahead · %d CC")) % cost,
+			Vector2(L_X + COL_W - 144.0, _row_y(i) + 8.0), Vector2(132, 34), func(rule = r):
 				flash_tone = 0
 				flash = UiKit.said(o.raise_rule(rule))
 				season.sync_power()
 				Session.autosave()
-				_build()))
+				_build())
+		ui.add_child(UiKit.primary(btn) if short else btn)
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 
@@ -66,7 +71,10 @@ func _draw() -> void:
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
 	var o := season.office
-	UiKit.text(self, font, UiKit.t("TWO MASTERS"), Vector2(24, 46), 26, UiKit.INK)
+	## LITERAL TITLE, THE VOICE UNDER IT (Pete, 29 Sep 2026).
+	UiKit.text(self, font, UiKit.t("FEDERATION"), Vector2(24, 40), 26, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("Two masters: the federation's rules and your members."),
+		Vector2(24, 62), 12, UiKit.DIM)
 	UiKit.purse(self, font, o.credits, Vector2(UiKit.screen().x - 24, 46),
 		18, UiKit.YOU, 200)
 	_federation(o)
@@ -96,16 +104,17 @@ func _federation(o: ClubOffice) -> void:
 		var short: bool = have < want
 		UiKit.text(self, font, UiKit.t(String(Federation.RULE_NAME[r])), Vector2(L_X + 16, y),
 			14, UiKit.DOWN if short else UiKit.INK)
-		UiKit.meter(self, Rect2(L_X + 16, y + 18, COL_W - 140.0, 14),
+		UiKit.meter(self, Rect2(L_X + 16, y + 18, COL_W - 180.0, 14),
 			have, Federation.MAX_LEVEL, UiKit.DOWN if short else UiKit.UP)
 		## THE LINE YOU HAVE TO REACH, drawn ON the meter. A requirement the
 		## player has to work out by being refused is a requirement he meets once,
 		## by accident, after it has already cost him a cup.
 		if want > 0:
-			var w := COL_W - 140.0
+			var w := COL_W - 180.0
 			var tick := L_X + 16.0 + w * (float(want) / float(Federation.MAX_LEVEL))
 			draw_rect(Rect2(tick - 1.0, y + 15.0, 2.0, 20.0), UiKit.INK)
-		UiKit.text(self, font, UiKit.t("%d of %d needed") % [have, want], Vector2(L_X + 16, y + 50),
+		UiKit.text(self, font, (UiKit.t("%d of %d needed") % [have, want]) if want > 0
+			else (UiKit.t("Level %d · not required in this division") % have), Vector2(L_X + 16, y + 50),
 			11, UiKit.DOWN if short else UiKit.EDGE.lightened(0.5))
 
 	var y2 := COL_Y + COL_H - 46.0

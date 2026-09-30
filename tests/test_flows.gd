@@ -126,14 +126,14 @@ func _flow_new_career_and_first_bout() -> void:
 	## the quick way, the way a player in a hurry would.
 	for i in 4:
 		var names: Array = _buttons().map(func(b): return String(b.text))
-		if names.has("Next event  ▶"):
+		if names.has("Next event"):
 			break
 		for pass_on in ["Pass this year", "Carry on"]:
 			if names.has(pass_on):
 				await _press(pass_on)
 				break
 	var event_was := s.world.event
-	await _press("Next event  ▶")
+	await _press("Next event")
 	var in_melee := await _arrive("Melee.tscn")
 	var on_disk = SaveGame._read(0)
 	var marked: bool = on_disk is Dictionary and not (on_disk.get("bout_live", {}) as Dictionary).is_empty()
@@ -214,7 +214,7 @@ func _flow_a_new_job_is_saved() -> void:
 	SaveGame.save(s, 1)
 	var was := s.world.player_club
 	await _open("res://scenes/Coach.tscn")
-	var first := await _press("Take it")
+	var first := await _press("Consider the job")
 	var second := await _press("Sign and leave it all")
 	var now := Session.season.world.player_club
 	var back := SaveGame.load_slot(1)

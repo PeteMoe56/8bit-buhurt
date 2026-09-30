@@ -244,6 +244,9 @@ func _next_controls() -> void:
 	## A picked man owns the Squad tab's row (Trade, Prospect, Extend).
 	if tab == Tab.SQUAD and picked != null:
 		return
+	## And a picked man owns the Armorer's (Repair, Upgrade).
+	if tab == Tab.MARKET and qm_pick != null:
+		return
 	var label := UiKit.t("Next event")
 	var go := _fight
 	if season.season_complete():
@@ -262,8 +265,9 @@ func _next_controls() -> void:
 				return
 			tab = Tab.CLUB
 			_rebuild()
-	ui.add_child(UiKit.primary(UiKit.button(label + "  ▶", Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
-		Vector2(NEXT_W, 46), go)))
+	## THE MARK IS THE CROSSED SWORDS, not a ▶: the pixel fonts have no arrow.
+	ui.add_child(UiKit.primary(UiKit.button(label, Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
+		Vector2(NEXT_W, 46), go, "crossed")))
 ## -> SeasonClubTab (season_tab_club.gd)
 func _club_controls() -> void:
 	SeasonClubTab._club_controls(self)
@@ -513,7 +517,9 @@ func _header() -> void:
 	## four digits, which is a bank a player reaches in a couple of seasons.
 	UiKit.panel(self, purse_box())
 	UiKit.purse(self, font, season.office.credits, purse_at(), PURSE_SIZE, UiKit.YOU)
-	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0), 38), 16,
+	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.
+	UiKit.text(self, font, UiKit.t("MOOD"), Vector2(UiKit.right_edge(194.0), 20), 11, UiKit.DIM)
+	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0), 40), 16,
 		UiKit.UP if season.office.morale >= 0.6 else
 		(UiKit.DOWN if season.office.morale < 0.35 else UiKit.DIM))
 

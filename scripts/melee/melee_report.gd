@@ -244,7 +244,12 @@ static func _say(out: Array, spoke: Dictionary, who: String, what: String,
 		tone: int) -> void:
 	if spoke.has(who):
 		return
+	## ONE MAN SAYS A LINE (blind review, 29 Sep: two men, the same sentence,
+	## word for word). The second man with the same complaint keeps quiet.
+	if spoke.has("line:" + what):
+		return
 	spoke[who] = true
+	spoke["line:" + what] = true
 	out.append(Quip.new(who, what, tone))
 
 

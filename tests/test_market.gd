@@ -168,7 +168,7 @@ func _test_the_shelf_spans_three_divisions() -> void:
 	var band: Array = League.TIERS[tier]["power"]
 	var lo := int(band[0])
 	var hi := int(band[1])
-	_ok(Market.step_word(lo - 4, tier) == "depth"
+	_ok(Market.step_word(lo - 4, tier) == "backup"
 			and Market.step_word((lo + hi) / 2, tier) == ""
 			and Market.step_word(hi + 4, tier) == "step up",
 		"the card's word for a man matches where he sits",

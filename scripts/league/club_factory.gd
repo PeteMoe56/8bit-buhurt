@@ -87,10 +87,26 @@ static func build(club_id: int, display_name: String, short_name: String, power:
 		cards.append(f)
 		no += 1
 
+	_unique_names(cards, club_id)
 	var club := MeleeClub.build(display_name, short_name,
 		_field(rng), _icon_color(rng), _icon(rng), cards)
 	_tune_to(club, power)
 	return club
+
+
+## NO TWO MEN IN ONE CLUB SHARE A NAME (blind review, 29 Sep 2026: "two
+## fighters are both called Nolan"). Re-drawn from its own stream, seeded from
+## the club, so the main stream — and every stat drawn from it — is untouched.
+static func _unique_names(cards: Array[FighterCard], club_id: int) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash("names:%d" % club_id)
+	var taken := {}
+	for f in cards:
+		var guard := 0
+		while taken.has(f.display_name) and guard < 64:
+			f.display_name = SURNAMES[rng.randi() % SURNAMES.size()]
+			guard += 1
+		taken[f.display_name] = true
 
 
 ## ------------------------------------------------------------- his weapon

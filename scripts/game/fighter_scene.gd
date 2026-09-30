@@ -210,7 +210,7 @@ func _build() -> void:
 	## says so on its face instead, the way the night-out button learned to. A
 	## control that can tell you no before you spend the tap should.
 	var on_eight: bool = man.active
-	var bus_label := UiKit.t("Off the bus") if on_eight else UiKit.t("Onto the bus")
+	var bus_label := UiKit.t("Leave at home") if on_eight else UiKit.t("Take to events")
 	var bus_why := season.club.set_active_would(man, not on_eight) \
 		if season.club.has_method("set_active_would") else ""
 	## THE REASON GOES ON THE LINE ABOVE, NOT ON THE FACE. "Off the bus · need
@@ -227,8 +227,8 @@ func _build() -> void:
 	## Kept for `_draw`, which is a different function and runs on a different
 	## frame — a screen that recomputed the reason to print it would be two
 	## answers to one question.
-	bus_note = ("" if bus_why == "" else (UiKit.t("%s cannot come off the bus: %s.") if on_eight
-		else UiKit.t("%s cannot come onto the bus: %s.")) % [man.display_name, bus_why])
+	bus_note = ("" if bus_why == "" else (UiKit.t("%s cannot be left at home: %s.") if on_eight
+		else UiKit.t("%s cannot travel: %s.")) % [man.display_name, bus_why])
 	ui.add_child(bus_b)
 
 	## THE CONTRACT, as one control with the price on it — the same fork the
@@ -255,7 +255,7 @@ func _build() -> void:
 				flash = UiKit.said(err) if err != "" else UiKit.t("%s tagged for the Hall.") % man.display_name
 			Session.autosave()
 			_build(), "star" if tagged else "hall"))
-	ui.add_child(UiKit.button(UiKit.t("%s · %s/wk") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
+	ui.add_child(UiKit.button(UiKit.t("%s · %s/wk") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend now"),
 		ClubOffice.money(cost)], Vector2(376, y), Vector2(250, 44), func():
 			flash = UiKit.said(season.resign(man) if out_of_deal else season.extend(man))
 			Session.autosave()
@@ -265,7 +265,7 @@ func _build() -> void:
 	ui.add_child(UiKit.button(">", Vector2(764, y), Vector2(56, 44), _page.bind(1)))
 	## HIS WEAPON, and a tap changes it. Sword-and-shield or polearm — a line-up
 	## decision, so it costs nothing and can be changed between any two events.
-	ui.add_child(UiKit.button(String(Tuning.WEAPON_SHORT[man.weapon]),
+	ui.add_child(UiKit.button(UiKit.t("Sword") if man.weapon == Tuning.Weapon.SWORD_SHIELD else UiKit.t("Pole"),
 		Vector2(828, y), Vector2(108, 44), func():
 			man.weapon = Tuning.Weapon.POLEARM if man.weapon == Tuning.Weapon.SWORD_SHIELD \
 				else Tuning.Weapon.SWORD_SHIELD
@@ -647,7 +647,9 @@ func _the_man() -> void:
 		UiKit.text(self, font, UiKit.t("He will not sign again."),
 			Vector2(L_X + 16, y + 56), 12, UiKit.DOWN)
 	else:
-		UiKit.text(self, font, UiKit.t("Asks next"), Vector2(L_X + 16, y + 56), 11, UiKit.DIM)
+		## TWO PRICES, NAMED APART (blind review, 29 Sep: "$23 disagrees with $24").
+		## Extending now and re-signing when the deal runs out are different deals.
+		UiKit.text(self, font, UiKit.t("When his deal ends"), Vector2(L_X + 16, y + 56), 11, UiKit.DIM)
 		## The price the club would actually pay (a Negotiator captain included),
 		## from the same function `Season.resign` charges.
 		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])

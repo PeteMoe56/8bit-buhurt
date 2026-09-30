@@ -276,7 +276,7 @@ static func step_of(rating: int, tier: int) -> int:
 ## signing that changes a season, and he is what you save for.
 static func step_word(rating: int, tier: int) -> String:
 	match step_of(rating, tier):
-		Step.BELOW: return UiKit.t("depth")
+		Step.BELOW: return UiKit.t("backup")
 		## "STEP UP" IS A LIE AT THE TOP OF THE PYRAMID. There is no division above
 		## National, so a man over its ceiling did not come from one — he came from
 		## outside the world, and the card should say so. Derived from where he

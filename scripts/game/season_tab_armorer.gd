@@ -34,7 +34,7 @@ static func _draw_market(v: SeasonScene) -> void:
 	## THE HEADLINE IS THE MARSHALS, not the average. A club whose mean harness
 	## reads 74% is fine; a club with one man under the line cannot field five,
 	## and those two facts do not live in the same number.
-	var head := UiKit.t("Every harness on the bus passes inspection.")
+	var head := UiKit.t("Every traveling harness passes inspection.")
 	var head_col := UiKit.UP
 	if int(led["failing"]) > 0:
 		head = "%d of the eight will not pass inspection." % led["failing"]
@@ -51,11 +51,16 @@ static func _draw_market(v: SeasonScene) -> void:
 		Vector2(24, SeasonScene.CONTENT_Y + 26), UiKit.right_edge(), 14, 13, head_col, UiKit.DIM)
 
 	var cell := v._qm_cell()
-	UiKit.text(v, v.font, UiKit.t("ON THE BUS"), Vector2(24, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22),
+	UiKit.text(v, v.font, UiKit.t("TRAVELING"), Vector2(24, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22),
 		12, UiKit.DIM)
-	UiKit.text(v, v.font, UiKit.t("IN THE CLUBHOUSE"),
+	UiKit.text(v, v.font, UiKit.t("AT HOME"),
 		Vector2(24 + cell + SeasonScene.QM_GAP, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)
 
+	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
+	## rows are the buttons; the line on each bar is the marshals' minimum.
+	if v.qm_pick == null:
+		UiKit.text(v, v.font, UiKit.t("Tap a fighter to repair or upgrade his harness. The line on each bar is the inspection minimum."),
+			Vector2(24, SeasonScene.action_y() - 14.0), 12, UiKit.DIM)
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
 		var y: float = row["y"]
@@ -131,7 +136,7 @@ static func _market_controls(v: SeasonScene) -> void:
 	## I afford the bus this week", and that is one button with the answer on it.
 	var third := (UiKit.span() - 16.0) / 3.0
 	if int(led["bill"]) > 0:
-		v.ui.add_child(UiKit.button(UiKit.t("Fix the bus  ·  %d CC") % led["bill"],
+		v.ui.add_child(UiKit.button(UiKit.t("Repair the traveling kit  ·  %d CC") % led["bill"],
 			Vector2(24, SeasonScene.action_y()), Vector2(third, 46), func():
 				var fixed := 0
 				var spent := 0
@@ -162,7 +167,7 @@ static func _market_controls(v: SeasonScene) -> void:
 					v._rebuild()))
 		var nxt := Quartermaster.next_grade(v.qm_pick)
 		if nxt >= 0:
-			v.ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [
+			v.ui.add_child(UiKit.button(UiKit.t("Upgrade to %s · %d CC") % [
 				UiKit.t(String(Quartermaster.GRADE_NAME[nxt])),
 				Quartermaster.upgrade_cost(v.qm_pick)],
 				Vector2(24 + (third + 8.0) * 2.0, SeasonScene.action_y()), Vector2(third, 46), func():

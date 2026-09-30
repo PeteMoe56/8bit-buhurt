@@ -2544,10 +2544,12 @@ func _show_splash() -> void:
 	_hide_panel()
 	again_button.visible = false
 	var kind := _venue_kind()
-	var b := UiKit.button(_splash_word(kind), SPLASH_GO, SPLASH_GO_SIZE, func():
+	## A LITERAL BUTTON (Pete, 29 Sep 2026): the afternoon's words stay on the
+	## splash itself (`_splash_word`), the button says what it does.
+	var b := UiKit.primary(UiKit.button(UiKit.t("Walk out"), SPLASH_GO, SPLASH_GO_SIZE, func():
 		Audio.play("confirm")
 		_clear_corner()
-		_show_strategy_panel())
+		_show_strategy_panel()))
 	corner_nodes.append(b)
 	ui.add_child(b)
 	queue_redraw()
@@ -2634,7 +2636,7 @@ func _draw_splash() -> void:
 		int(SCREEN.x), 20, COL_DIM)
 	var them: String = sim.clubs[1].display_name if _season() == null \
 		else _season().world.clubs[maxi(0, _season().opponent_id())]["name"]
-	UiKit.raw(self, font, Vector2(0, 374),
+	UiKit.raw(self, font, Vector2(0, 392),
 		Venue.mood_line(kind, String(them).split(" ")[0]),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 13, COL_INK)
 
@@ -2660,6 +2662,9 @@ func _splash_club(club, side: int, cx: float) -> void:
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 9, COL_DIM)
 	UiKit.raw(self, font, Vector2(cx - 220.0, 340.0), _season().world.record_line(id),
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 15, COL_INK)
+	## THE MATCHUP IN ONE NUMBER (blind review, 29 Sep: "no rating comparison").
+	UiKit.raw(self, font, Vector2(cx - 220.0, 362.0), UiKit.t("rating %d") % club.power(),
+		HORIZONTAL_ALIGNMENT_CENTER, 440, 12, COL_DIM)
 
 
 ## ------------------------------------------------------------- the corner

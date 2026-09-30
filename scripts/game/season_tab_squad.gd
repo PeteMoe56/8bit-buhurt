@@ -365,7 +365,8 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## invisible. The heading line has three hundred spare pixels between the end
 	## of the words and the reserve column, and a summary belongs beside the thing
 	## it summarises anyway.
-	UiKit.pair(v, v.font, UiKit.t("THE EIGHT WHO TRAVEL"), v._squad_spread(),
+	## THE COUNT IS THE CLUB'S (blind review, 29 Sep: "eight" over six men).
+	UiKit.pair(v, v.font, UiKit.t("THE %d WHO TRAVEL") % v.season.office.travel_slots, v._squad_spread(),
 		Vector2(24, SeasonScene.CONTENT_Y), SeasonScene.RESERVE_X - 16.0, 13, 12, UiKit.DIM, UiKit.DIM)
 	## THE RESERVE SAYS HOW IT IS ORDERED, because it is the only list on this
 	## screen whose order is a choice rather than a fact.

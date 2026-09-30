@@ -91,11 +91,12 @@ PLAYBOOK,PLAYBOOK,PIZARRA,TACTIQUES,TAKTIKBUCH,PLAYBOOK,CARTILHA,TAKTYKI,ТАК�
 toward them →,toward them →,hacia ellos →,vers eux →,auf sie zu →,verso di loro →,rumo a eles →,w ich stronę →,на них →,相手方向 →
 Unlock a slot to start drawing.,Unlock a slot to start drawing.,Desbloquea un hueco para empezar a dibujar.,Débloque un emplacement pour dessiner.,"Schalte einen Platz frei, um zu zeichnen.",Sblocca uno slot per iniziare a disegnare.,Desbloqueie um espaço para desenhar.,"Odblokuj slot, by rysować.","Открой слот, чтобы рисовать.",スロットを解放して作図開始。
 Sign and leave it all,Sign and leave it all,Firma y déjalo todo,Signer et tout laisser,Unterschreib und lass alles,Firma e lascia tutto,Assinar e largar tudo,Podpisz i zostaw wszystko,Подписать и бросить всё,契約してすべてを去る
-Take it,Take it,Acéptalo,Accepter,Annehmen,Accetta,Aceitar,Biorę,Беру,受ける
+Consider the job,Consider the job,Ver la oferta,Voir l'offre,Angebot ansehen,Valuta l'offerta,Ver a oferta,Rozważ ofertę,Рассмотреть,オファーを検討
 Stay,Stay,Quédate,Rester,Bleiben,Resta,Ficar,Zostaję,Остаться,残る
 Settings,Settings,Ajustes,Réglages,Optionen,Impostazioni,Configurações,Ustawienia,Настройки,設定
 "You leave the squad, %d CC, the buildings, captains and playbook behind%s. Tap again to sign.","You leave the squad, %d CC, the buildings, captains and playbook behind%s. Tap again to sign.","Dejas atrás la plantilla, %d CC, los edificios, capitanes y pizarra%s. Toca de nuevo para firmar.","Tu laisses l'effectif, %d CC, les bâtiments, les capitaines et les tactiques%s. Touche encore pour signer.","Du lässt Kader, %d CC, Gebäude, Ausbilder und Taktikbuch zurück%s. Nochmal tippen zum Unterschreiben.","Ti lasci dietro rosa, %d CC, strutture, capitani e playbook%s. Tocca ancora per firmare.","Você deixa o elenco, %d CC, as instalações, os capitães e a cartilha para trás%s. Toque de novo para assinar.","Zostawiasz skład, %d CC, budynki, kapitanów i taktyki%s. Stuknij znowu, by podpisać.","Ты оставляешь состав, %d CC, постройки, наставников и тактику%s. Нажми ещё раз, чтобы подписать.",チーム、%d CC、施設、コーチ、作戦ノートを残して去ります%s。もう一度タップで契約。
  (your %d bought CC come with you), (your %d bought CC come with you), (tus %d CC comprados se vienen contigo), (tes %d CC achetés te suivent), (deine %d gekauften CC kommen mit), (i tuoi %d CC acquistati vengono con te), (seus %d CC comprados vão com você), (kupione CC: %d — idą z tobą), (купленные %d CC уйдут с тобой), （購入した%d CCは持ち越し）
+"Your career: your record, your standing and who wants you.","Your career: your record, your standing and who wants you.","Tu carrera: tu historial, tu prestigio y quién te quiere.","Ta carrière : ton bilan, ta cote et qui te veut.","Deine Karriere: Bilanz, Ansehen und wer dich will.","La tua carriera: storia, prestigio e chi ti vuole.","Sua carreira: histórico, prestígio e quem te quer.","Twoja kariera: bilans, pozycja i kto cię chce.","Твоя карьера: итоги, репутация и кто тебя хочет.",経歴：成績、評判、そしてオファー。
 Season %d,Season %d,Temporada %d,Saison %d,Saison %d,Stagione %d,Temporada %d,Sezon %d,Сезон %d,シーズン%d
 YOUR STANDING,YOUR STANDING,TU REPUTACIÓN,TA COTE,DEIN ANSEHEN,IL TUO PRESTIGIO,SUA POSIÇÃO,TWOJA POZYCJA,ТВОЙ СТАТУС,あなたの評価
 %d of %d,%d of %d,%d de %d,%d sur %d,%d von %d,%d di %d,%d de %d,%d z %d,%d из %d,%d / %d
@@ -162,11 +163,14 @@ One club per save. The colors are free; the marks are not.,One club per save. Th
 Name,Name,Nombre,Nom,Name,Nome,Nome,Nazwa,Имя,名前
 Short,Short,Abrev.,Abrégé,Kurz,Sigla,Sigla,Skrót,Сокр.,略称
 HOME TOWN,HOME TOWN,CIUDAD,VILLE D'ORIGINE,HEIMATSTADT,CITTÀ,CIDADE NATAL,MIASTO,РОДНОЙ ГОРОД,ホームタウン
-%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC
-TWO MASTERS,TWO MASTERS,DOS AMOS,DEUX MAÎTRES,ZWEI HERREN,DUE PADRONI,DOIS SENHORES,DWÓCH PANÓW,ДВА ХОЗЯИНА,二人の主人
+Meet it · %d CC,Meet it · %d CC,Cumplir · %d CC,Se conformer · %d CC,Erfüllen · %d CC,Mettiti in regola · %d CC,Cumprir · %d CC,Spełnij · %d CC,Выполнить · %d CC,満たす · %d CC
+Get ahead · %d CC,Get ahead · %d CC,Adelantarse · %d CC,Anticiper · %d CC,Vorsorgen · %d CC,Anticipa · %d CC,Adiantar · %d CC,Wyprzedź · %d CC,На вырост · %d CC,先取り · %d CC
+FEDERATION,FEDERATION,FEDERACIÓN,FÉDÉRATION,VERBAND,FEDERAZIONE,FEDERAÇÃO,FEDERACJA,ФЕДЕРАЦИЯ,連盟
+Two masters: the federation's rules and your members.,Two masters: the federation's rules and your members.,Dos amos: las normas de la federación y tus socios.,Deux maîtres : les règles de la fédération et tes adhérents.,Zwei Herren: die Regeln des Verbands und deine Mitglieder.,Due padroni: le regole della federazione e i tuoi soci.,Dois senhores: as regras da federação e seus sócios.,Dwóch panów: przepisy federacji i twoi członkowie.,Два хозяина: правила федерации и твои члены клуба.,二人の主人：連盟の規則と会員たち。
 THE FEDERATION,THE FEDERATION,LA FEDERACIÓN,LA FÉDÉRATION,DER VERBAND,LA FEDERAZIONE,A FEDERAÇÃO,FEDERACJA,ФЕДЕРАЦИЯ,連盟
 %s rules,%s rules,%s,%s,%s,%s,%s,Zasady: %s,Правила: %s,%sの規定
 %d of %d needed,%d of %d needed,%d de %d necesarios,%d sur %d requis,%d von %d nötig,%d di %d richiesti,%d de %d exigidos,Potrzeba: %d z %d,%d из %d нужных,%d / %d 必要
+Level %d · not required in this division,Level %d · not required in this division,Nivel %d · no obligatorio en esta división,Niveau %d · non requis dans cette division,Stufe %d · in dieser Liga nicht nötig,Livello %d · non richiesto in questa divisione,Nível %d · não exigido nesta divisão,Poziom %d · niewymagany w tej lidze,Уровень %d · в этом дивизионе не нужен,レベル%d・この部では不要
 In good standing. You may be entered for the cups.,In good standing. You may be entered for the cups.,En regla. Puedes inscribirte en las copas.,En règle. Tu peux être inscrit aux coupes.,Alles in Ordnung. Du darfst zu den Pokalen.,In regola. Puoi essere iscritto alle coppe.,Em dia. Você pode ser inscrito nas copas.,Wszystko w porządku. Możesz grać w pucharach.,На хорошем счету. Можно заявляться на кубки.,資格あり。カップに出場できます。
 NOT ENTERED FOR THE CUPS,NOT ENTERED FOR THE CUPS,SIN INSCRIPCIÓN EN LAS COPAS,NON INSCRIT AUX COUPES,NICHT FÜR DIE POKALE GEMELDET,NON ISCRITTO ALLE COPPE,NÃO INSCRITO NAS COPAS,BEZ ZGŁOSZENIA DO PUCHARÓW,НЕ ЗАЯВЛЕН НА КУБКИ,カップ出場資格なし
 Short on: ,Short on: ,Falta: ,Il manque : ,Es fehlt: ,Manca: ,Falta: ,Brakuje: ,Не хватает: ,不足: 
@@ -183,17 +187,19 @@ bus full,bus full,autobús lleno,bus plein,Bus voll,pullman pieno,ônibus cheio,
 bus short,bus short,autobús corto,bus incomplet,Bus zu leer,pullman incompleto,ônibus incompleto,autobus niepełny,автобус неполный,バス人数不足
 League dues a year,League dues a year,Cuotas de liga al año,Cotisation de ligue par an,Ligabeiträge im Jahr,Quote di lega annue,Taxa da liga por ano,Składki ligowe rocznie,Взносы лиги в год,年間リーグ会費
 Paperwork upkeep,Paperwork upkeep,Mantenimiento del papeleo,Frais de paperasse,Papierkram-Unterhalt,Costi burocratici,Manutenção da papelada,Utrzymanie papierów,Бумажная работа,書類維持費
-Off the bus,Off the bus,Fuera del bus,Hors du bus,Raus aus dem Bus,Giù dal pullman,Fora do ônibus,Z busa,Снять с автобуса,バスから外す
-Onto the bus,Onto the bus,Al bus,Dans le bus,Rein in den Bus,Sul pullman,No ônibus,Do busa,В автобус,バスに乗せる
-%s cannot come off the bus: %s.,%s cannot come off the bus: %s.,%s no puede bajarse del autobús: %s.,%s ne peut pas descendre du bus : %s.,%s kann nicht aus dem Bus: %s.,%s non può scendere dal pullman: %s.,%s não pode sair do ônibus: %s.,%s nie może zejść z autobusu: %s.,%s не может сойти с автобуса: %s.,%sはバスを降りられない：%s。
-%s cannot come onto the bus: %s.,%s cannot come onto the bus: %s.,%s no puede subir al autobús: %s.,%s ne peut pas monter dans le bus : %s.,%s kann nicht in den Bus: %s.,%s non può salire sul pullman: %s.,%s não pode entrar no ônibus: %s.,%s nie może wsiąść do autobusu: %s.,%s не может сесть в автобус: %s.,%sはバスに乗れない：%s。
+Leave at home,Leave at home,Dejar en casa,Laisser au club,Zu Hause lassen,Lascia a casa,Deixar em casa,Zostaw w domu,Оставить дома,留守番
+Take to events,Take to events,Llevar a los eventos,Emmener aux événements,Mitnehmen,Porta agli eventi,Levar aos eventos,Zabierz na zawody,Брать на турниры,遠征に連れて行く
+%s cannot be left at home: %s.,%s cannot be left at home: %s.,%s no puede quedarse en casa: %s.,%s ne peut pas rester au club : %s.,%s kann nicht zu Hause bleiben: %s.,%s non può restare a casa: %s.,%s não pode ficar em casa: %s.,%s nie może zostać w domu: %s.,%s не может остаться дома: %s.,%sは留守番できない：%s。
+%s cannot travel: %s.,%s cannot travel: %s.,%s no puede viajar: %s.,%s ne peut pas voyager : %s.,%s kann nicht mitreisen: %s.,%s non può viaggiare: %s.,%s não pode viajar: %s.,%s nie może jechać: %s.,%s не может ехать: %s.,%sは遠征できない：%s。
 In the Hall,In the Hall,En el Salón,Au Panthéon,In der Ruhmeshalle,Nella Hall of Fame,No Hall da Fama,W Galerii Sław,В Зале славы,殿堂入り
 Tag for the Hall,Tag for the Hall,Marcar para el Salón,Proposer au Panthéon,Für die Ruhmeshalle vormerken,Segna per la Hall of Fame,Marcar p/ o Hall da Fama,Oznacz do Galerii,В Зал славы?,殿堂候補に指定
 %s taken out of the Hall.,%s taken out of the Hall.,%s sale del Salón.,%s retiré du Panthéon.,%s aus der Ruhmeshalle genommen.,%s tolto dalla Hall of Fame.,%s retirado do Hall da Fama.,%s usunięty z Galerii.,%s убран из Зала славы.,%sを殿堂から外した。
 %s tagged for the Hall.,%s tagged for the Hall.,%s marcado para el Salón.,%s proposé pour le Panthéon.,%s für die Ruhmeshalle vorgemerkt.,%s segnato per la Hall of Fame.,%s marcado para o Hall da Fama.,%s oznaczony do Galerii.,%s отмечен для Зала славы.,%sを殿堂候補に指定。
 %s · %s/wk,%s · %s/wk,%s · %s/sem,%s · %s/sem,%s · %s/Wo.,%s · %s/sett,%s · %s/sem,%s · %s/tydz.,%s · %s/нед,%s · %s/週
 Re-sign,Re-sign,Renovar,Re-signer,Verlängern,Rinnova,Renovar,Nowy kontrakt,Переподписать,再契約
-Extend,Extend,Ampliar,Prolonger,Verlängern,Prolunga,Estender,Przedłuż,Продлить,延長
+Extend now,Extend now,Renovar ya,Prolonger,Jetzt verlängern,Rinnova ora,Renovar já,Przedłuż teraz,Продлить сейчас,今延長
+Sword,Sword,Espada,Épée,Schwert,Spada,Espada,Miecz,Меч,剣
+Pole,Pole,Asta,Hast,Stange,Asta,Haste,Drzewce,Древко,長柄
 %s will carry a %s.,%s will carry a %s.,%s llevará: %s.,%s portera : %s.,%s trägt jetzt ein %s.,%s porterà: %s.,%s vai levar um %s.,%s będzie nosił: %s.,%s получит: %s.,%sは%sを持つ。
 +1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s,+1 %s
 %s put a level into %s.,%s put a level into %s.,%s subió un nivel en %s.,%s a mis un niveau en %s.,%s steckt eine Stufe in %s.,%s ha messo un livello in %s.,%s pôs um nível em %s.,%s wbił poziom w: %s.,%s вложил уровень в %s.,%sが%sにレベルを振った。
@@ -209,6 +215,7 @@ The armorer,The armorer,El armero,L'armurier,Zum Schmied,L'armaiolo,O armeiro,P�
 XP LEVEL,XP LEVEL,NIVEL XP,NIVEAU XP,XP-STUFE,LIVELLO XP,NÍVEL XP,POZIOM XP,УРОВЕНЬ ОПЫТА,XPレベル
 Extra reps,Extra reps,Entreno extra,Séances en plus,Extratraining,Allenamento extra,Treino extra,Dodatkowy trening,Доп. тренировки,追加練習
 CONTRACT,CONTRACT,CONTRATO,CONTRAT,VERTRAG,CONTRATTO,CONTRATO,KONTRAKT,КОНТРАКТ,契約
+Extend,Extend,Ampliar,Prolonger,Verlängern,Prolunga,Estender,Przedłuż,Продлить,延長
 Inspection,Inspection,Inspección,Inspection,Abnahme,Ispezione,Inspeção,Inspekcja,Осмотр,検査
 passes,passes,pasa,conforme,besteht,supera,aprovada,przechodzi,пройден,合格
 FAILS,FAILS,NO PASA,RECALÉ,DURCHGEFALLEN,NON PASSA,REPROVADA,OBLANA,НЕ ПРОЙДЕН,不合格
@@ -239,9 +246,10 @@ LEVEL,LEVEL,NIVEL,NIVEAU,STUFE,LIVELLO,NÍVEL,POZIOM,УРОВЕНЬ,レベル
 A LEVEL IS WAITING,A LEVEL IS WAITING,HAY UN NIVEL PENDIENTE,UN NIVEAU EN ATTENTE,EINE STUFE WARTET,UN LIVELLO TI ASPETTA,UM NÍVEL ESPERANDO,CZEKA POZIOM,ЖДЁТ УРОВЕНЬ,レベルアップ待ち
 %d / %d xp,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d XP
 He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-signera pas.,Er unterschreibt nicht nochmal.,Non rinnoverà.,Ele não vai renovar.,Więcej nie podpisze.,Больше не подпишет.,再契約には応じない。
-Asks next,Asks next,Pedirá,Demande ensuite,Will dann,Prossima richiesta,Pede agora,Następnie chce,Просит далее,次回要求
+When his deal ends,When his deal ends,Al acabar su contrato,À la fin de son contrat,Nach Vertragsende,A fine contratto,No fim do contrato,Po końcu umowy,По окончании контракта,契約満了時
 %s/wk · %dy,%s/wk · %dy,%s/sem · %da,%s/sem · %da,%s/Wo. · %dJ,%s/sett · %da,%s/sem · %da,%s/tydz. · %d l.,%s/нед · %d г.,%s/週 · %d年
 A WORD WITH %s,A WORD WITH %s,UNAS PALABRAS CON %s,UN MOT AVEC %s,EIN WORT MIT %s,DUE PAROLE CON %s,UMA CONVERSA COM %s,ROZMOWA: %s,РАЗГОВОР: %s,%sと話す
+%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC,%d CC
 club rating %d,club rating %d,media del club %d,note du club %d,Vereinswertung %d,valore club %d,nota do clube %d,ocena klubu %d,рейтинг клуба %d,クラブ能力値 %d
 WHAT HE IS MADE OF,WHAT HE IS MADE OF,DE QUÉ ESTÁ HECHO,CE QU'IL A DANS LE VENTRE,WORAUS ER GEMACHT IST,DI CHE PASTA È FATTO,DO QUE ELE É FEITO,Z CZEGO JEST ZROBIONY,ИЗ ЧЕГО ОН СДЕЛАН,資質
 puts men down,puts men down,tumba hombres,met les hommes au sol,bringt Männer zu Boden,manda a terra,derruba homens,powala ludzi,валит с ног,相手を倒す
@@ -341,12 +349,12 @@ ARMORER,ARMORER,ARMERO,ARMURIER,SCHMIED,ARMAIOLO,ARMEIRO,PŁATNERZ,ОРУЖЕЙ�
 CLUBHOUSE,CLUBHOUSE,SEDE,CLUB-HOUSE,VEREINSHEIM,CLUBHOUSE,SEDE,KLUBOWNIA,КЛУБ,クラブハウス
 FINANCES,FINANCES,FINANZAS,FINANCES,FINANZEN,FINANZE,FINANÇAS,FINANSE,ФИНАНСЫ,財務
 Menu,Menu,Menú,Menu,Menü,Menu,Menu,Menu,Меню,メニュー
-Next event,Next event,,,,,,,,
+Next event,Next event,Siguiente evento,Événement suivant,Nächstes Event,Prossimo evento,Próximo evento,Następne zawody,Следующий турнир,次の大会
 End the season,End the season,Cerrar la temporada,Terminer la saison,Saison beenden,Chiudi la stagione,Encerrar a temporada,Zakończ sezon,Завершить сезон,シーズン終了
 Tournament bid,Tournament bid,Candidatura a torneo,Candidature tournoi,Turnierbewerbung,Candidatura torneo,Proposta de torneio,Oferta turnieju,Заявка на турнир,トーナメント招致
-Cup bout,Cup bout,,,,,,,,
-A decision,A decision,,,,,,,,
-Promotion,Promotion,,,,,,,,
+Cup bout,Cup bout,Combate de copa,Combat de coupe,Pokalkampf,Incontro di coppa,Luta da copa,Walka pucharowa,Кубковый бой,カップ戦
+A decision,A decision,Una decisión,Une décision,Eine Entscheidung,Una decisione,Uma decisão,Decyzja,Решение,決断
+Promotion,Promotion,Ascenso,Montée,Aufstieg,Promozione,Acesso,Awans,Повышение,昇格
 Sim it,Sim it,Simular,Simuler,Simulieren,Simula,Simular,Symuluj,Авто,自動試合
 Event simulated.,Event simulated.,Evento simulado.,Rencontre simulée.,Kampftag simuliert.,Evento simulato.,Evento simulado.,Zawody zasymulowane.,Турнир сыгран без тебя.,自動試合で決着。
 Go back,Go back,Volver,Retour,Zurück,Torna indietro,Voltar,Wróć,Назад,戻る
@@ -358,17 +366,21 @@ Against %s.,Against %s.,Contra %s.,Contre %s.,Gegen %s.,Contro %s.,Contra %s.,Ry
 Nothing to fight.,Nothing to fight.,Nada que disputar.,Rien à disputer.,Nichts zu kämpfen.,Niente da combattere.,Nada para lutar.,Nie ma z kim walczyć.,Боёв нет.,試合なし。
 Bye this event.,Bye this event.,Evento libre.,Exempt cette rencontre.,Diesmal spielfrei.,Riposo in questo evento.,Folga neste evento.,Pauza w tych zawodach.,В этот раз — пропуск.,今大会は不戦。
 %s  ·  Season %d  ·  rating %d,%s  ·  Season %d  ·  rating %d,%s  ·  Temporada %d  ·  media %d,%s  ·  Saison %d  ·  note %d,%s  ·  Saison %d  ·  Wertung %d,%s  ·  Stagione %d  ·  valore %d,%s  ·  Temporada %d  ·  nota %d,%s  ·  Sezon %d  ·  ocena %d,%s  ·  Сезон %d  ·  рейтинг %d,%s  ·  シーズン%d  ·  能力値 %d
+MOOD,MOOD,ÁNIMO,MORAL,STIMMUNG,MORALE,MORAL,NASTRÓJ,НАСТРОЙ,士気
 THE ARMORER,THE ARMORER,EL ARMERO,L'ARMURIER,DER SCHMIED,L'ARMAIOLO,O ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
 %d CC in hand,%d CC in hand,%d CC en caja,%d CC en caisse,%d CC in der Hand,%d CC in cassa,%d CC em caixa,%d CC w kasie,На руках %d CC,所持 %d CC
-Every harness on the bus passes inspection.,Every harness on the bus passes inspection.,Todos los arneses del bus pasan la inspección.,Toutes les armures du bus passent l'inspection.,Jede Rüstung im Bus besteht die Abnahme.,Ogni armatura sul pullman supera l'ispezione.,Toda armadura no ônibus passa na inspeção.,Każda zbroja w busie przechodzi inspekcję.,Все доспехи в автобусе проходят осмотр.,バスの装備はすべて検査合格。
+Every traveling harness passes inspection.,Every traveling harness passes inspection.,Todos los arneses del viaje pasan la inspección.,Tous les harnois du voyage passent l'inspection.,Jede Reiserüstung besteht die Prüfung.,Ogni armatura in trasferta passa l'ispezione.,Toda armadura da viagem passa na inspeção.,Każda zbroja w drodze przechodzi kontrolę.,Все доспехи в поездке проходят проверку.,遠征組のアーマーはすべて検査合格。
 nothing owing,nothing owing,nada pendiente,rien à payer,nichts offen,nulla da pagare,nada devido,nic do zapłaty,долгов нет,未払いなし
-ON THE BUS,ON THE BUS,EN EL BUS,DANS LE BUS,IM BUS,SUL PULLMAN,NO ÔNIBUS,W BUSIE,В АВТОБУСЕ,バス
-IN THE CLUBHOUSE,IN THE CLUBHOUSE,EN LA SEDE,AU CLUB-HOUSE,IM VEREINSHEIM,NELLA CLUBHOUSE,NA SEDE,W KLUBOWNI,В КЛУБЕ,クラブハウス
-Fix the bus  ·  %d CC,Fix the bus  ·  %d CC,Arreglar el bus  ·  %d CC,Réparer le bus  ·  %d CC,Bus reparieren  ·  %d CC,Ripara il pullman  ·  %d CC,Consertar o ônibus  ·  %d CC,Napraw busa  ·  %d CC,Починить автобус  ·  %d CC,バス修理  ·  %d CC
+TRAVELING,TRAVELING,DE VIAJE,EN DÉPLACEMENT,REISEKADER,IN TRASFERTA,VIAJANDO,W DRODZE,В ПОЕЗДКЕ,遠征組
+AT HOME,AT HOME,EN CASA,AU CLUB,ZU HAUSE,A CASA,EM CASA,W DOMU,ДОМА,留守組
+Tap a fighter to repair or upgrade his harness. The line on each bar is the inspection minimum.,Tap a fighter to repair or upgrade his harness. The line on each bar is the inspection minimum.,Toca a un luchador para reparar o mejorar su arnés. La línea marca el mínimo de inspección.,Touche un combattant pour réparer ou améliorer son harnois. Le trait marque le minimum requis.,"Tippe einen Kämpfer an, um seine Rüstung zu reparieren oder aufzuwerten. Der Strich ist das Prüfminimum.",Tocca un combattente per riparare o migliorare l'armatura. La linea è il minimo per l'ispezione.,Toque num lutador para reparar ou melhorar a armadura. A linha é o mínimo da inspeção.,"Dotknij zawodnika, by naprawić lub ulepszyć zbroję. Kreska to minimum kontroli.","Нажми на бойца, чтобы починить или улучшить доспех. Черта — минимум проверки.",選手をタップしてアーマーを修理・強化。線は検査の最低ライン。
+Repair the traveling kit  ·  %d CC,Repair the traveling kit  ·  %d CC,Reparar el equipo de viaje  ·  %d CC,Réparer le matériel  ·  %d CC,Reiseausrüstung reparieren  ·  %d CC,Ripara l'attrezzatura  ·  %d CC,Reparar o equipamento  ·  %d CC,Napraw sprzęt  ·  %d CC,Починить снаряжение  ·  %d CC,遠征装備を修理 · %d CC
 Nothing the armorer could do this week.,Nothing the armorer could do this week.,El armero no pudo hacer nada esta semana.,L'armurier n'a rien pu faire cette semaine.,Der Schmied konnte diese Woche nichts tun.,Niente da fare per l'armaiolo questa settimana.,O armeiro não pôde fazer nada esta semana.,Płatnerz nic nie mógł zrobić w tym tygodniu.,На этой неделе оружейнику нечего делать.,今週、武具師にできることはなかった。
 "%d harnesses seen to, %d CC.","%d harnesses seen to, %d CC.","%d arneses revisados, %d CC.","%d armures réparées, %d CC.","%d Rüstungen gerichtet, %d CC.","%d armature sistemate, %d CC.","%d armaduras revisadas, %d CC.","Zbroje naprawione: %d, %d CC.","Доспехов починено: %d, %d CC.",装備%d着を修理、%d CC。
 Repair %s · %d CC,Repair %s · %d CC,Reparar %s · %d CC,Réparer %s · %d CC,%s reparieren · %d CC,Ripara %s · %d CC,Reparar %s · %d CC,Napraw %s · %d CC,Ремонт: %s · %d CC,%sを修理 · %d CC
+Upgrade to %s · %d CC,Upgrade to %s · %d CC,Mejorar a %s · %d CC,Passer à %s · %d CC,Auf %s · %d CC,Passa a %s · %d CC,Melhorar p/ %s · %d CC,Na %s · %d CC,До %s · %d CC,%sへ · %d CC
 The draw,The draw,El sorteo,Le tirage,Die Auslosung,Il sorteggio,O sorteio,Losowanie,Сетка,組み合わせ
+Take it,Take it,Acéptalo,Accepter,Annehmen,Accetta,Aceitar,Biorę,Беру,受ける
 Up to the %s.,Up to the %s.,Ascenso a %s.,Montée en %s.,Rauf in die %s.,Su in %s.,Sobe para: %s.,Awans: %s.,Наверх: %s.,%sへ昇格。
 Stay down  ·  save %d CC,Stay down  ·  save %d CC,Quedarse  ·  ahorra %d CC,Rester en bas  ·  %d CC d'économie,Unten bleiben  ·  %d CC sparen,Resta giù  ·  risparmi %d CC,Ficar  ·  poupar %d CC,Zostań niżej  ·  oszczędź %d CC,Остаться  ·  экономия %d CC,残留  ·  %d CC節約
 Tap again to turn promotion down for this year.,Tap again to turn promotion down for this year.,Toca de nuevo para rechazar el ascenso este año.,Touche encore pour refuser la montée cette année.,Nochmal tippen: Aufstieg dieses Jahr ablehnen.,Tocca ancora per rifiutare la promozione quest'anno.,Toque de novo para recusar o acesso este ano.,"Stuknij znowu, by odrzucić awans na ten rok.","Нажми ещё раз, чтобы отказаться от повышения.",もう一度タップで今年の昇格を辞退。
@@ -408,6 +420,9 @@ Last: lost to %s %d-%d (%+d)%s,Last: lost to %s %d-%d (%+d)%s,Último: perdió c
 Last: drew with %s %d-%d (%+d)%s,Last: drew with %s %d-%d (%+d)%s,Último: empató con %s %d-%d (%+d)%s,Dernier : nul contre %s %d-%d (%+d)%s,Zuletzt: Remis gegen %s %d-%d (%+d)%s,Ultimo: pari con %s %d-%d (%+d)%s,Último: empatou com %s %d-%d (%+d)%s,Ostatnio: remis z %s %d-%d (%+d)%s,Последний: ничья с %s %d-%d (%+d)%s,前回: %sと引き分け %d-%d (%+d)%s
   ·  simmed,  ·  simmed,  ·  simulado,  ·  simulé,  ·  simuliert,  ·  simulato,  ·  simulado,  ·  symulacja,  ·  авто,  ·  自動
 P  W  D  L   RD   MG  PTS,P  W  D  L   RD   MG  PTS,J  G  E  P   DA   MG  PTS,J  V  N  D   DM   ÉC  PTS,SP S  U  N   RD   DF  PKT,G  V  N  P   RD   MG  PTI,J  V  E  D   SR   SG  PTS,M  W  R  P   RR   RP  PKT,И  В  Н  П   РР   РЗ  ОЧК,試  勝  分  敗   R差   得失  点
+RD rounds won minus lost  ·  MG downs for minus against,RD rounds won minus lost  ·  MG downs for minus against,RD rondas a favor menos en contra  ·  MG derribos a favor menos en contra,RD manches gagnées moins perdues  ·  MG mises au sol pour moins contre,RD Runden gewonnen minus verloren  ·  MG Niederwürfe für minus gegen,RD round vinti meno persi  ·  MG atterramenti fatti meno subiti,RD rounds ganhos menos perdidos  ·  MG quedas a favor menos contra,RD rundy wygrane minus przegrane  ·  MG powalenia za minus przeciw,RD раунды выигр. минус проигр.  ·  MG сбития за минус против,RD 取ったラウンド差 · MG ダウン差
+  ·  green goes up,  ·  green goes up,  ·  verde asciende,  ·  vert monte,  ·  grün steigt auf,  ·  verde sale,  ·  verde sobe,  ·  zielony awansuje,  ·  зелёные вверх,  ·  緑は昇格
+  ·  red goes down,  ·  red goes down,  ·  rojo desciende,  ·  rouge descend,  ·  rot steigt ab,  ·  rosso scende,  ·  vermelho cai,  ·  czerwony spada,  ·  красные вниз,  ·  赤は降格
 %2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d,%2d %2d %2d %2d  %+3d  %+3d  %2d
 The staff,The staff,El staff,Le staff,Der Stab,Lo staff,A comissão,Sztab,Штаб,スタッフ
 Records,Records,Archivo,Archives,Rekorde,Record,Recordes,Kronika,Рекорды,記録
@@ -415,6 +430,10 @@ Your career%s,Your career%s,Tu carrera%s,Ta carrière%s,Deine Karriere%s,La tua 
   ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d,  ·  %d
 The federation%s,The federation%s,La federación%s,La fédération%s,Der Verband%s,La federazione%s,A federação%s,Federacja%s,Федерация%s,連盟%s
   ·  BARRED,  ·  BARRED,  ·  VETADO,  ·  EXCLU,  ·  GESPERRT,  ·  ESCLUSO,  ·  SUSPENSO,  ·  ZAWIESZONY,  ·  ОТСТРАНЁН,  ·  資格停止
+Raise,Raise,Subir,Relever,Erhöhen,Alza,Aumentar,Podnieś,Поднять,上げる
+Add a seat,Add a seat,+1 plaza,+1 place,Platz dazu,+1 posto,+1 vaga,Dodaj miejsce,Ещё место,枠を追加
+Build,Build,Construir,Construire,Bauen,Costruisci,Construir,Zbuduj,Построить,建設
+Upgrade,Upgrade,Mejorar,Améliorer,Ausbauen,Migliora,Melhorar,Rozbuduj,Улучшить,強化
 Improved.,Improved.,Mejorado.,Amélioré.,Verbessert.,Migliorato.,Melhorado.,Ulepszono.,Улучшено.,改善した。
 Playbook,Playbook,Pizarra,Tactiques,Taktikbuch,Playbook,Cartilha,Taktyki,Тактика,作戦ノート
 Create,Create,Crear,Créer,Erstellen,Crea,Criar,Stwórz,Создать,作成
@@ -463,7 +482,7 @@ CC is the club's money. $ is what the men are paid each week.,CC is the club's m
 Everything in,Everything in,Total ingresos,Total recettes,Alle Einnahmen,Tutte le entrate,Total de entradas,Wszystkie wpływy,Весь приход,収入合計
 Everything out,Everything out,Total gastos,Total dépenses,Alle Ausgaben,Tutte le uscite,Total de saídas,Wszystkie wydatki,Весь расход,支出合計
 age %d-%d  ·  rated %d-%d,age %d-%d  ·  rated %d-%d,edad %d-%d  ·  media %d-%d,âge %d-%d  ·  noté %d-%d,Alter %d-%d  ·  Wertung %d-%d,età %d-%d  ·  valore %d-%d,idade %d-%d  ·  nota %d-%d,wiek %d-%d  ·  ocena %d-%d,возраст %d-%d  ·  рейтинг %d-%d,%d-%d歳  ·  能力値%d-%d
-Cards,Cards,,,,,,,,
+Cards,Cards,Fichas,Cartes,Karten,Carte,Cartas,Karty,Карточки,カード
 Reserve by %s,Reserve by %s,Reserva por %s,Réserve par %s,Reserve nach %s,Riserve per %s,Reserva por %s,Rezerwa wg: %s,Резерв по: %s,控え（%s順）
 Free agents,Free agents,Agentes libres,Agents libres,Freie Kämpfer,Svincolati,Agentes livres,Wolni zawodnicy,Свободные агенты,フリーエージェント
 Club record,Club record,Récord del club,Record du club,Vereinsbilanz,Record del club,Recorde do clube,Rekord klubu,Рекорд клуба,クラブ記録
@@ -480,7 +499,7 @@ A prospect needs a Training ground at %d. Yours is %d.,A prospect needs a Traini
 Pick who %s trades places with.,Pick who %s trades places with.,Elige con quién se cambia %s.,Choisis avec qui %s échange sa place.,Mit wem soll %s tauschen?,Scegli con chi %s si scambia di posto.,Escolha com quem %s troca de lugar.,"Wybierz, z kim %s zamieni się miejscem.","Выбери, с кем %s поменяется местами.",%sと入れ替える選手を選択。
 %s and %s swapped. The five is unchanged.,%s and %s swapped. The five is unchanged.,%s y %s intercambiados. Los cinco no cambian.,%s et %s échangés. Les cinq ne changent pas.,%s und %s getauscht. Die Fünf bleibt gleich.,%s e %s scambiati. Il cinque non cambia.,%s e %s trocaram. Os cinco não mudam.,%s i %s zamienieni. Piątka bez zmian.,%s и %s поменялись. Пятёрка та же.,%sと%sを入れ替え。先発5人は変わらず。
 On: %s.  Off: %s.,On: %s.  Off: %s.,Entra: %s.  Sale: %s.,Entre : %s.  Sort : %s.,Rein: %s.  Raus: %s.,Dentro: %s.  Fuori: %s.,Entra: %s.  Sai: %s.,Wchodzi: %s.  Schodzi: %s.,Вышел: %s.  Ушёл: %s.,出場: %s。  交代: %s。
-THE EIGHT WHO TRAVEL,THE EIGHT WHO TRAVEL,LOS OCHO QUE VIAJAN,LES HUIT QUI VOYAGENT,DIE ACHT IM BUS,GLI OTTO IN TRASFERTA,OS OITO QUE VIAJAM,ÓSEMKA NA WYJAZD,ВОСЬМЁРКА В ДОРОГУ,遠征メンバー8人
+THE %d WHO TRAVEL,THE %d WHO TRAVEL,LOS %d QUE VIAJAN,LES %d DU DÉPLACEMENT,"DIE %d, DIE REISEN",I %d CHE VIAGGIANO,OS %d QUE VIAJAM,%d W DRODZE,%d В ПОЕЗДКЕ,遠征する%d人
 RESERVE — by %s,RESERVE — by %s,RESERVA — por %s,RÉSERVE — par %s,RESERVE — nach %s,RISERVE — per %s,RESERVA — por %s,REZERWA — wg %s,РЕЗЕРВ — по: %s,控え — %s順
 BENCH — two may come on each corner,BENCH — two may come on each corner,BANQUILLO — pueden entrar dos por esquina,BANC — deux peuvent entrer à chaque coin,BANK — zwei dürfen je Ecke rein,PANCHINA — due possono entrare a ogni angolo,BANCO — dois podem entrar a cada canto,ŁAWKA — dwóch może wejść w każdym narożniku,СКАМЕЙКА — до двух замен в каждом углу,ベンチ — コーナーごとに2人まで交代可
 Nobody.,Nobody.,Nadie.,Personne.,Keiner.,Nessuno.,Ninguém.,Nikt.,Никого.,なし。
@@ -676,7 +695,7 @@ the bottom tier cannot relegate anyone,the bottom tier cannot relegate anyone,la
 %s is already in it.,%s is already in it.,%s ya está dentro.,%s y est déjà.,%s ist schon drin.,%s c'è già.,%s já está nela.,%s już tam jest.,%s уже в списке.,%sはすでに入っています。
 There is no room. Take somebody out first.,There is no room. Take somebody out first.,No hay sitio. Saca a alguien primero.,Plus de place. Retire quelqu'un d'abord.,Kein Platz. Nimm erst jemanden raus.,Non c'è posto. Togli prima qualcuno.,Não há espaço. Tire alguém antes.,Brak miejsca. Najpierw kogoś usuń.,Мест нет. Сначала убери кого-нибудь.,空きがない。先に誰かを外して。
 No such town.,No such town.,No existe esa ciudad.,Ville inconnue.,Diese Stadt gibt es nicht.,Città inesistente.,Cidade inexistente.,Nie ma takiego miasta.,Нет такого города.,その町はありません。
-depth,depth,relevo,profondeur,Tiefe,profondità,reserva,rezerwa,глубина,控え要員
+backup,backup,suplente,remplaçant,Reserve,riserva,reserva,rezerwa,запас,控え
 foreign,foreign,extranjero,étranger,Ausland,straniero,estrangeiro,zagraniczny,иностранец,外国人
 %s is already at the top standard.,%s is already at the top standard.,%s ya está en el máximo nivel.,%s est déjà au plus haut niveau.,%s ist schon auf höchstem Stand.,%s è già al livello massimo.,%s já está no padrão máximo.,%s ma już najwyższy standard.,%s уже на высшем уровне.,%sはすでに最高水準です。
 the paperwork,the paperwork,el papeleo,la paperasse,der Papierkram,le carte,a papelada,papiery,бумаги,書類
@@ -895,11 +914,13 @@ Done picking favorites,Done picking favorites,Favoritos elegidos,Favoris choisis
 Pick favorites for the corner,Pick favorites for the corner,Elige favoritos para la esquina,Choisis les favoris du coin,Favoriten für die Ecke wählen,Scegli i preferiti per l'angolo,Escolha favoritas para o canto,Wybierz ulubione na narożnik,Выбери любимцев для угла,コーナー用のお気に入りを選ぶ
 Back to the corner,Back to the corner,Volver a la esquina,Retour au coin,Zurück in die Ecke,Torna all'angolo,Voltar ao canto,Wróć do narożnika,Назад в угол,コーナーへ戻る
 "IN THE CORNER, IN THIS ORDER — tap to move one left","IN THE CORNER, IN THIS ORDER — tap to move one left","EN LA ESQUINA, EN ESTE ORDEN — toca para mover a la izquierda","AU COIN, DANS CET ORDRE — touche pour décaler à gauche","IN DER ECKE, IN DIESER FOLGE — tippen schiebt nach links","ALL'ANGOLO, IN QUEST'ORDINE — tocca per spostare a sinistra","NO CANTO, NESTA ORDEM — toque para mover à esquerda","W NAROŻNIKU, W TEJ KOLEJNOŚCI — stuknij, by przesunąć w lewo","В УГЛУ, ПО ПОРЯДКУ — нажми, чтобы сдвинуть влево",コーナーでの指示順 — タップで左へ移動
+Walk out,Walk out,Salir,Entrer,Einlaufen,Entra,Entrar,Wychodzimy,Выход,入場
 OUT TO YOUR OWN CROWD,OUT TO YOUR OWN CROWD,SALIDA ANTE TU PÚBLICO,DEVANT TON PUBLIC,RAUS VOR DEIN PUBLIKUM,FUORI DAVANTI AL TUO PUBBLICO,DIANTE DA SUA TORCIDA,DO WŁASNEJ PUBLIKI,К СВОИМ ЗРИТЕЛЯМ,ホームの観客の前へ
 OUT TO THE TOURNAMENT,OUT TO THE TOURNAMENT,SALIDA AL TORNEO,PLACE AU TOURNOI,RAUS ZUM TURNIER,FUORI AL TORNEO,RUMO AO TORNEIO,NA TURNIEJ,НА ТУРНИР,トーナメントへ
 OUT INTO THEIR HOUSE,OUT INTO THEIR HOUSE,SALIDA EN SU CASA,CHEZ EUX,RAUS IN IHR HAUS,FUORI IN CASA LORO,NA CASA DELES,NA ICH TEREN,В ИХ ДОМ,敵地へ
 Home ground,Home ground,Campo propio,Terrain à domicile,Heimspielstätte,Campo di casa,Casa própria,Własny teren,Домашняя арена,ホーム会場
 W - D - L,W - D - L,G - E - P,V - N - D,S - U - N,V - N - P,V - E - D,W - R - P,В - Н - П,勝 - 分 - 敗
+rating %d,rating %d,valoración %d,note %d,Wertung %d,valutazione %d,nota %d,ocena %d,рейтинг %d,評価 %d
 SUB,SUB,CAMBIO,REMP,WECHSEL,CAMBIO,SUB,ZMIANA,ЗАМЕНА,交代
 FULL PLAYBOOK,FULL PLAYBOOK,PIZARRA COMPLETA,TOUTES LES TACTIQUES,GANZES TAKTIKBUCH,PLAYBOOK COMPLETO,CARTILHA COMPLETA,WSZYSTKIE TAKTYKI,ВСЯ ТАКТИКА,作戦ノート全体
 FIGHT,FIGHT,LUCHAR,COMBAT,KAMPF,COMBATTI,LUTAR,WALCZ,В БОЙ,戦う

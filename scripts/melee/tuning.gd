@@ -50,7 +50,7 @@ enum Role { RAIL, FLANK, CENTER }
 ##            a small edge on his own.
 enum Weapon { SWORD_SHIELD, POLEARM }
 const WEAPON_NAME := { Weapon.SWORD_SHIELD: "Sword & shield", Weapon.POLEARM: "Polearm" }
-const WEAPON_SHORT := { Weapon.SWORD_SHIELD: "S&S", Weapon.POLEARM: "Pole" }
+const WEAPON_SHORT := { Weapon.SWORD_SHIELD: "Sword", Weapon.POLEARM: "Pole" }
 const WEAPON_MODS := {
 	Weapon.SWORD_SHIELD: {"br_against": 1.05, "td_for": 0.0},
 	Weapon.POLEARM: {"reach": 1.15, "td_for": 0.04, "br_against": 0.90, "escape": 0.90},

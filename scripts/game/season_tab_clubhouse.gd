@@ -69,8 +69,12 @@ static func _office_controls(v: SeasonScene) -> void:
 		if cost <= 0:
 			continue
 		var kind = row["kind"]
-		v.ui.add_child(UiKit.button(UiKit.t("%d CC") % cost,
-			Vector2(SeasonScene.BAR_X + SeasonScene.BAR_W + 14.0, v._office_row_y(i) + 10.0), Vector2(92, 34), func():
+		## A VERB AND A PRICE (blind review, 29 Sep: "⚙ 4 CC" did not say what
+		## buying does). The bar beside it says what the row is.
+		var verb := UiKit.t("Raise") if is_cap else (UiKit.t("Add a seat") if is_travel else (
+			UiKit.t("Build") if o.level(int(kind)) <= 0 else UiKit.t("Upgrade")))
+		v.ui.add_child(UiKit.button(UiKit.t("%s · %d CC") % [verb, cost],
+			Vector2(SeasonScene.BAR_X + SeasonScene.BAR_W + 14.0, v._office_row_y(i) + 10.0), Vector2(132, 34), func():
 				var err: String = o.raise_cap() if is_cap else (
 					o.buy_travel_slot() if is_travel else o.upgrade(int(kind)))
 				v.flash = UiKit.said(err) if err != "" else UiKit.t("Improved.")

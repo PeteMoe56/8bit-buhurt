@@ -699,6 +699,18 @@ static func _table(v: SeasonScene) -> void:
 	var stat_x := UiKit.right_edge(24.0) - stat_w
 	UiKit.text(v, v.font, UiKit.t("P  W  D  L   RD   MG  PTS"),
 		Vector2(stat_x, SeasonScene.TABLE_Y - 6), 12, UiKit.DIM)
+	## THE KEY, where there is room for it (blind review, 29 Sep: RD / MG and the
+	## colored rows were unexplained). A sixteen-club table has no room and a
+	## player there has read it for years.
+	var key_y := SeasonScene.TABLE_Y + 22.0 + float(rows.size()) * SeasonScene.ROW_H + 4.0
+	if key_y < SeasonScene.action_y() - 16.0:
+		var key := UiKit.t("RD rounds won minus lost  ·  MG downs for minus against")
+		if up > 0 and not top_flight:
+			key += UiKit.t("  ·  green goes up")
+		if down > 0:
+			key += UiKit.t("  ·  red goes down")
+		UiKit.text(v, v.font, UiKit.fit(v.font, key, 11, UiKit.screen().x - SeasonScene.table_x() - 24.0),
+			Vector2(SeasonScene.table_x() + 8.0, key_y), 11, UiKit.DIM)
 	v.draw_rect(Rect2(SeasonScene.table_x(), SeasonScene.TABLE_Y, UiKit.screen().x - SeasonScene.table_x() - 24, 1), UiKit.EDGE)
 	for i in rows.size():
 		var r: Dictionary = rows[i]

@@ -65,9 +65,11 @@ func _build() -> void:
 	var shown: int = mini(offers.size(), OFFERS_SHOWN)
 	for i in shown:
 		var cid: int = offers[i]
-		ui.add_child(UiKit.button(UiKit.t("Sign and leave it all") if confirm_take == cid else UiKit.t("Take it"),
+		## Taking a job leaves this club for good: it is a danger button, and the
+		## second tap says so.
+		ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Sign and leave it all") if confirm_take == cid else UiKit.t("Consider the job"),
 			Vector2(R_X + 16, offer_row_y(i) + OFFER_BUTTON_DY),
-			Vector2(COL_W - 32, OFFER_BUTTON_H), _take.bind(cid)))
+			Vector2(COL_W - 32, OFFER_BUTTON_H), _take.bind(cid))))
 	if confirm_take >= 0:
 		ui.add_child(UiKit.button(UiKit.t("Stay"), Vector2(190, UiKit.screen().y - 56),
 			Vector2(150, 44), func():
@@ -116,7 +118,10 @@ func _draw() -> void:
 	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
 	var c := season.coach
-	UiKit.text(self, font, c.display_name.to_upper(), Vector2(24, 46), 26, UiKit.INK)
+	UiKit.text(self, font, c.display_name.to_upper(), Vector2(24, 40), 26, UiKit.INK)
+	## THE BUTTON THAT OPENS THIS SAYS "Your career"; so does the screen.
+	UiKit.text(self, font, UiKit.t("Your career: your record, your standing and who wants you."),
+		Vector2(24, 62), 12, UiKit.DIM)
 	UiKit.right(self, font, UiKit.t("Season %d") % season.world.season,
 		Vector2(UiKit.screen().x - 24, 46), 16, UiKit.DIM, 220)
 
