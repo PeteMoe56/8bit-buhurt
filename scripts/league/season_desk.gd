@@ -337,6 +337,25 @@ static func market(s: Season) -> Array:
 			s.office.scout_names()):
 		if not s.market_taken.has(Market.taken_key(f)):
 			out.append(f)
+	## NO FREE AGENT SHARES A NAME WITH ONE OF YOUR MEN (blind review round 3:
+	## "Mear" on the roster and in the market read as a bug). Renamed from a
+	## stream seeded by his drawn name only, so the same man gets the same new
+	## name every time the list is rebuilt.
+	var have := {}
+	for c in s.club.roster:
+		have[c.display_name] = true
+	for f in out:
+		if not have.has(f.display_name):
+			have[f.display_name] = true
+			continue
+		f.set_meta("drawn_name", f.display_name)
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash("market-name:" + f.display_name)
+		var guard := 0
+		while have.has(f.display_name) and guard < 64:
+			f.display_name = ClubFactory.SURNAMES[rng.randi() % ClubFactory.SURNAMES.size()]
+			guard += 1
+		have[f.display_name] = true
 	return out
 
 

@@ -99,13 +99,18 @@ func _build() -> void:
 	var langs := Settings.offered()
 	if langs.size() > 1:
 		var li := langs.find(Settings.language)
+		## A PICKER: < the one in use >, both ways (blind review round 3: "Switch
+		## to English" beside "Automatic · English" contradicted itself).
+		var prv: String = langs[(maxi(0, li) - 1 + langs.size()) % langs.size()]
 		var nxt: String = langs[(maxi(0, li) + 1) % langs.size()]
-		## SAYS IT IS A SWITCH (blind review, 29 Sep: "English" beside "English").
-		ui.add_child(UiKit.button(UiKit.t("Switch to %s") % Settings.language_name(nxt),
-			Vector2(RIGHT_X + 18, LANG_Y + 32.0), Vector2(COL_W - 30.0, 36), func():
-				Settings.set_language(nxt)
-				Audio.play("tap")
-				_build()))
+		ui.add_child(UiKit.button("<", Vector2(RIGHT_X + 18, LANG_Y + 32.0), Vector2(52, 38), func():
+			Settings.set_language(prv)
+			Audio.play("tap")
+			_build()))
+		ui.add_child(UiKit.button(">", Vector2(RIGHT_X + COL_W - 46.0, LANG_Y + 32.0), Vector2(52, 38), func():
+			Settings.set_language(nxt)
+			Audio.play("tap")
+			_build()))
 	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(LEFT_X, UiKit.bottom(58.0)),
 		Vector2(160, 46), _back))
 	## THE CREDITS LIVE BEHIND THEIR OWN BUTTON (blind review, 29 Sep: they took
@@ -288,14 +293,15 @@ func _draw() -> void:
 	else:
 		UiKit.text(self, font, UiKit.t("Difficulty"), Vector2(LEFT_X + 18, gy + 48.0),
 			17, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("Open it from Clubhouse, Your career."),
+		UiKit.text(self, font, UiKit.t("Open it from the Club menu."),
 			Vector2(LEFT_X + 18, gy + 68.0), 14, UiKit.DIM)
 
 	# -------------------------------------------------------------- language
 	UiKit.panel(self, Rect2(RIGHT_X, LANG_Y, COL_W + 6, LANG_H))
-	UiKit.pair(self, font, UiKit.t("LANGUAGE"), Settings.language_name(Settings.language)
-		+ ("" if Settings.language != "" else "  ·  " + Settings.language_name(Settings.resolved())),
-		Vector2(RIGHT_X + 18, LANG_Y + 22.0), RIGHT_X + COL_W - 12.0, 15, 13, UiKit.DIM, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("LANGUAGE"), Vector2(RIGHT_X + 18, LANG_Y + 22.0), 15, UiKit.DIM)
+	var shown := Settings.language_name(Settings.language) if Settings.language != "" \
+		else UiKit.t("Automatic (%s)") % Settings.language_name(Settings.resolved())
+	UiKit.mid(self, font, shown, Vector2(RIGHT_X + 76.0, LANG_Y + 57.0), 16, UiKit.INK, COL_W - 116.0)
 
 	# ----------------------------------------------------------------- about
 	UiKit.panel(self, Rect2(RIGHT_X, ABOUT_Y, COL_W + 6, ABOUT_H))

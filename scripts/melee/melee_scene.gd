@@ -1006,6 +1006,10 @@ func _draw_report_table() -> void:
 		UiKit.right(self, font, String(h[0]),
 			Vector2(REP_LX + float(REP_COL[h[1]]), 130), 9, COL_DIM, 90.0)
 	_rule(REP_LX, 136.0, REP_LW)
+	## THE KEY FOR THE SHORT HEADINGS (blind review rounds 2 and 3: AST/UP/OFF).
+	UiKit.raw(self, font, Vector2(REP_LX, 318.0),
+		UiKit.fit(font, UiKit.t("AST assists  ·  UP rounds on his feet  ·  OFF carried off"), 12, REP_LW),
+		HORIZONTAL_ALIGNMENT_LEFT, int(REP_LW), 12, COL_DIM)
 	var i := 0
 	for m in sim.fought():
 		if m.team != 0 or m.card == null:
@@ -1062,7 +1066,9 @@ func _draw_quips() -> void:
 	for q in rows:
 		var lines := UiKit.wrap(font, q.text, REP_RW - 34.0, 13)
 		var h := 26.0 + float(lines.size()) * 17.0 + 8.0
-		if y + h > QUIP_TOP and y < QUIP_TOP + QUIP_H:
+		## WHOLE CARDS ONLY: a card half out of the pane printed over the report
+		## under it (blind review round 3). "more" says there is more below.
+		if y >= QUIP_TOP - 0.5 and y + h <= QUIP_TOP + QUIP_H + 0.5:
 			var box := Rect2(REP_RX, y, REP_RW - 10.0, h)
 			draw_rect(box, COL_PANEL.lightened(0.05))
 			draw_rect(box, COL_EDGE, false, 1.0)
@@ -1236,10 +1242,13 @@ func _draw_corner() -> void:
 		## THE TWO NUMBERS THE ROUND PRODUCED. Blank before the charge, because a
 		## column of noughts on the pre-fight screen is a report on nothing.
 		if not first and m != null:
-			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 19), UiKit.t("TD %d") % m.downs_caused,
-				HORIZONTAL_ALIGNMENT_LEFT, 60, 9, COL_INK)
-			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 34), UiKit.t("AST %d") % m.assists,
-				HORIZONTAL_ALIGNMENT_LEFT, 60, 9, COL_DIM)
+			## WORDS, NOT TD/AST (blind review rounds 2 and 3).
+			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 19),
+				UiKit.fit(font, UiKit.tn("%d down", "%d downs", m.downs_caused) % m.downs_caused, 12, 62.0),
+				HORIZONTAL_ALIGNMENT_LEFT, 62, 12, COL_INK)
+			UiKit.raw(self, font, Vector2(C_LX + C_STAT_X, ry + 36),
+				UiKit.fit(font, UiKit.tn("%d assist", "%d assists", int(m.assists)) % int(m.assists), 12, 62.0),
+				HORIZONTAL_ALIGNMENT_LEFT, 62, 12, COL_DIM)
 
 		## ENERGY NOW AND ENERGY RECOVERED — Pete, 13 Sep 2026. The lighter part
 		## of the bar is what the corner is about to give him back, and it comes
@@ -1264,7 +1273,9 @@ func _draw_corner() -> void:
 		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 58), UiKit.t("CONDITION"),
 			HORIZONTAL_ALIGNMENT_LEFT, 80, 7, COL_DIM)
 		var word := Tuning.condition_word(now_e, f.fit())
-		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + 76, ry + 59), word,
+		## MEASURED, so the label and the word never touch ("CONDITIONHealthy").
+		var cw := font.get_string_size(UiKit.t("CONDITION"), HORIZONTAL_ALIGNMENT_LEFT, -1, UiKit.MIN_PX).x
+		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + cw + 8.0, ry + 59), word,
 			HORIZONTAL_ALIGNMENT_LEFT, 90, 9,
 			COL_HOT if word == "Injured" or word == "Beat Up" else COL_INK)
 
@@ -3049,12 +3060,17 @@ func _build_sub_popup(line: Array) -> void:
 	sub_for = String(line[sub_open].display_name) if sub_open < line.size() else ""
 	for i in bench.size():
 		var f = bench[i]
+		## THE LIKE-FOR-LIKE MAN IS THE OBVIOUS PICK, and says so (blind review
+		## round 3: "a position mismatch is not flagged"). Same role: gold, and
+		## "same role"; otherwise the role he would be playing out of.
+		var out_card = line[sub_open] if sub_open < line.size() else null
+		var same: bool = out_card != null and f.pos_name() == out_card.pos_name()
 		var b := UiKit.button(UiKit.t("%s  ·  %s  ·  %d%%") % [f.display_name, f.pos_name(),
-				int(round(sim.condition_of(f) * 100.0))],
+				int(round(sim.condition_of(f) * 100.0))] + (UiKit.t("  ·  same role") if same else ""),
 			box.position + Vector2(SUB_PAD, _sub_row_y(i)), SUB_ROW,
 			func(m = f): _do_swap(m))
 		corner_nodes.append(b)
-		ui.add_child(b)
+		ui.add_child(UiKit.primary(b) if same else b)
 	## FULL WIDTH, LIKE THE ROWS ABOVE IT. A 160-wide cancel under a column of
 	## 400-wide buttons is a different kind of control by its shape, and it is
 	## not — it is the last item in the same list.

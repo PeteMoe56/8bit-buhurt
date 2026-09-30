@@ -535,7 +535,7 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 			Color(d.get("bar_col", UP)))
 	elif d.has("foot"):
 		right(ci, font, String(d["foot"]), Vector2(r.end.x - 8, r.end.y - 8),
-			13 if big else 11, Color(d.get("foot_col", YOU)), 140)
+			13 if big else 11, Color(d.get("foot_col", YOU)), maxf(140.0, r.size.x * 0.6))
 	## AND THE FOOT'S LEFT, which is the other half of a price.
 	##
 	## `Market.BAND_SHARE` charges by BAND and not by rating — a 61 and a 68 in the

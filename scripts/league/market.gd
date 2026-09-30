@@ -394,4 +394,7 @@ static func _band_step(rng: RandomNumberGenerator) -> int:
 ## and rating rather than on the object, because the pool is REGENERATED and the
 ## card the club is holding is a different object from the one in the new list.
 static func taken_key(f: FighterCard) -> String:
-	return "%s/%d/%d" % [f.display_name, f.overall(), int(f.pos)]
+	## By the name he was DRAWN with: the list renames a man who shares a name
+	## with somebody already at the club (see SeasonDesk.market), and the key
+	## must not move when the roster does.
+	return "%s/%d/%d" % [String(f.get_meta("drawn_name", f.display_name)), f.overall(), int(f.pos)]

@@ -373,13 +373,13 @@ func _draw_diary() -> void:
 		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(),
 			UiKit.t("this event") if away == 0 else UiKit.t("in %d events") % away],
 			Vector2(RIGHT_X, 304), 14, UiKit.YOU)
-		UiKit.text(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
-			Vector2(RIGHT_X, 326), 14, UiKit.DIM)
+		UiKit.para(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
+			Vector2(RIGHT_X, 326), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 	else:
 		UiKit.text(self, font, UiKit.t("No tournament this year."),
 			Vector2(RIGHT_X, 304), 14, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("The federation offers dates between seasons."),
-			Vector2(RIGHT_X, 326), 14, UiKit.DIM)
+		UiKit.para(self, font, UiKit.t("The federation offers dates between seasons."),
+			Vector2(RIGHT_X, 326), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 
 	if not season.last_show.is_empty():
 		var l := season.last_show

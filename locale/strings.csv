@@ -306,6 +306,7 @@ Nobody is looking for a club this season.,Nobody is looking for a club this seas
 step up,step up,da el salto,supérieur,Aufstieg,salto,subir,krok wyżej,шаг вверх,格上
 age %d · %s/wk,age %d · %s/wk,%d a · %s/sem,âge %d · %s/sem,%d J. · %s/Wo.,%d a · %s/sett,%d a · %s/sem,%d l. · %s/tydz.,%d л · %s/нед,%d歳 · %s/週
 age %d · over cap,age %d · over cap,edad %d · sobre el tope,âge %d · hors plafond,Alter %d · über Limit,età %d · oltre il tetto,idade %d · acima do teto,wiek %d · ponad limit,возраст %d · сверх лимита,%d歳 · 上限超過
+%d CC · can't afford,%d CC · can't afford,%d CC · no alcanza,%d CC · trop cher,%d CC · zu teuer,%d CC · non basta,%d CC · sem dinheiro,%d CC · za drogo,%d CC · не хватает,%d CC · 不足
 BILL,BILL,NÓMINA,SALAIRES,KOSTEN,STIPENDI,FOLHA,RACHUNEK,ФОНД,人件費
 over by %s,over by %s,excede en %s,dépassé de %s,%s drüber,sforato di %s,acima em %s,ponad o %s,превышение: %s,%s超過
 This year,This year,Este año,Cette année,Dieses Jahr,Quest'anno,Este ano,Ten rok,Этот год,今年
@@ -552,7 +553,6 @@ MAX,MAX,MÁX,MAX,MAX,MAX,MÁX,MAX,МАКС,最大
 Automatic,Automatic,Automático,Automatique,Automatisch,Automatica,Automático,Automatycznie,Автоматически,自動
   (draft),  (draft),  (borrador),  (brouillon),  (Entwurf),  (bozza),  (rascunho),  (szkic),  (черновик),  （下書き）
 Change difficulty,Change difficulty,Cambiar dificultad,Changer la difficulté,Schwierigkeit ändern,Cambia difficoltà,Mudar dificuldade,Zmień poziom,Сменить сложность,難易度を変更
-Switch to %s,Switch to %s,Cambiar a %s,Passer en %s,Wechseln zu %s,Passa a %s,Mudar para %s,Przełącz na %s,Переключить на %s,%sに切替
 Credits & licenses,Credits & licenses,Créditos y licencias,Crédits et licences,Credits & Lizenzen,Crediti e licenze,Créditos e licenças,Twórcy i licencje,Авторы и лицензии,クレジットとライセンス
 from %s  ·  %s,from %s  ·  %s,de %s  ·  %s,de %s  ·  %s,aus %s  ·  %s,da %s  ·  %s,de %s  ·  %s,z %s  ·  %s,из %s  ·  %s,出典 %s  ·  %s
 Used under the %s,Used under the %s,Usado bajo %s,Utilisé sous %s,Lizenz: %s,Usata con licenza %s,Usado sob a %s,Na licencji %s,По лицензии %s,%sに基づき使用
@@ -567,8 +567,9 @@ SOUND,SOUND,SONIDO,SON,TON,AUDIO,SOM,DŹWIĘK,ЗВУК,サウンド
 Saved as you set them.,Saved as you set them.,Se guardan al cambiarlos.,Enregistré à chaque changement.,Wird sofort gesichert.,Salvate mentre le imposti.,Salvo ao ajustar.,Zapisuje się od razu.,Сохраняются сразу.,変更は即保存。
 THIS CAREER,THIS CAREER,ESTA CARRERA,CETTE CARRIÈRE,DIESE KARRIERE,QUESTA CARRIERA,ESTA CARREIRA,TA KARIERA,ЭТА КАРЬЕРА,このキャリア
 Difficulty,Difficulty,Dificultad,Difficulté,Schwierigkeit,Difficoltà,Dificuldade,Poziom trudności,Сложность,難易度
-"Open it from Clubhouse, Your career.","Open it from Clubhouse, Your career.","Ábrelo desde Sede, Tu carrera.","Accessible depuis Club-house, Ta carrière.",Im Vereinsheim unter Deine Karriere.,"Aprila da Clubhouse, La tua carriera.","Abra em Sede, Sua carreira.","Otwórz z Klubowni, Twoja kariera.",Открывается в Клуб → Твоя карьера.,クラブハウスの「キャリア」から開く。
+Open it from the Club menu.,Open it from the Club menu.,Ábrelo desde el menú Club.,Ouvre-le depuis le menu Club.,Öffne es im Club-Menü.,Aprilo dal menu Club.,Abra pelo menu Clube.,Otwórz z menu Klub.,Открой из меню «Клуб».,クラブメニューから開く。
 LANGUAGE,LANGUAGE,IDIOMA,LANGUE,SPRACHE,LINGUA,IDIOMA,JĘZYK,ЯЗЫК,言語
+Automatic (%s),Automatic (%s),Automático (%s),Automatique (%s),Automatisch (%s),Automatico (%s),Automático (%s),Automatycznie (%s),Авто (%s),自動（%s）
 ABOUT,ABOUT,ACERCA DE,À PROPOS,ÜBER,INFO,SOBRE,O GRZE,ОБ ИГРЕ,情報
 +1yr · %d,+1yr · %d,+1a · %d,+1an · %d,+1J · %d,+1a · %d,+1ano · %d,+1 rok · %d,+1 г. · %d,+1年 · %d
 Release,Release,Despedir,Renvoyer,Entlassen,Licenzia,Dispensar,Zwolnij,Уволить,解雇
@@ -901,6 +902,7 @@ OFF,OFF,CAÍ,SOL,UNT,GIÙ,CAIU,LEŻ,ЛЁГ,倒
 XP,XP,XP,XP,EP,XP,XP,XP,ОП,XP
 LVL,LVL,NIV,NIV,STF,LIV,NÍV,POZ,УР,Lv
 NEXT,NEXT,SIG,SUIV,NÄCHST,PROS,PRÓX,NAST,ДАЛЕЕ,次
+AST assists  ·  UP rounds on his feet  ·  OFF carried off,AST assists  ·  UP rounds on his feet  ·  OFF carried off,AST asistencias  ·  UP rondas en pie  ·  OFF retirado,AST passes  ·  UP manches debout  ·  OFF évacué,AST Vorlagen  ·  UP Runden stehend  ·  OFF rausgetragen,AST assist  ·  UP round in piedi  ·  OFF portato via,AST assistências  ·  UP rounds de pé  ·  OFF retirado,AST asysty  ·  UP rundy na nogach  ·  OFF zniesiony,AST передачи  ·  UP раунды на ногах  ·  OFF унесён,AST アシスト  ·  UP 立っていたラウンド  ·  OFF 退場
 #%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s,#%d %s
 LEVEL UP,LEVEL UP,SUBE DE NIVEL,NIVEAU SUPÉRIEUR,STUFE HOCH,LIVELLO SU,SUBIU DE NÍVEL,NOWY POZIOM,НОВЫЙ УРОВЕНЬ,レベルアップ
 Nobody had anything to say.,Nobody had anything to say.,Nadie tenía nada que decir.,Personne n'avait rien à dire.,Keiner hatte was zu sagen.,Nessuno aveva niente da dire.,Ninguém tinha nada a dizer.,Nikt nie miał nic do powiedzenia.,Никому нечего сказать.,誰も何も言わなかった。
@@ -913,8 +915,6 @@ STANDING,STANDING,EN PIE,DEBOUT,STEHEND,IN PIEDI,DE PÉ,NA NOGACH,НА НОГА�
 BACK IN,BACK IN,VUELVEN EN,RETOUR DANS,ZURÜCK IN,RIENTRO,VOLTAM EM,POWRÓT ZA,ВЫХОД ЧЕРЕЗ,再開まで
 DOWNED,DOWNED,DERRIBADO,AU SOL,AM BODEN,A TERRA,CAIU,POWALONY,СБИТ,ダウン
 WILL NOT COME OFF,WILL NOT COME OFF,NO QUIERE SALIR,NE VEUT PAS SORTIR,GEHT NICHT RAUS,NON ESCE,NÃO SAI,NIE ZEJDZIE,НЕ УЙДЁТ,交代拒否
-TD %d,TD %d,DER %d,MS %d,TD %d,AT %d,QD %d,PW %d,СБ %d,撃倒 %d
-AST %d,AST %d,AST %d,PD %d,AST %d,AST %d,AST %d,AS %d,ПОМ %d,アシスト %d
 ENERGY,ENERGY,ENERGÍA,ÉNERGIE,AUSDAUER,ENERGIA,ENERGIA,ENERGIA,ЭНЕРГИЯ,体力
 CHOSEN,CHOSEN,ELEGIDO,CHOISI,GEWÄHLT,SCELTO,ESCOLHIDO,WYBRANY,ВЫБРАН,選択済み
 WHO COMES ON FOR,WHO COMES ON FOR,QUIÉN ENTRA POR,QUI ENTRE POUR,WER KOMMT FÜR,CHI ENTRA AL POSTO DI,QUEM ENTRA NO LUGAR DE,KTO WCHODZI ZA,КТО ВЫЙДЕТ ВМЕСТО,交代で入るのは
@@ -938,7 +938,7 @@ clinched,clinched,trabado,au corps-à-corps,im Clinch,in presa,agarrado,w klincz
 on a route,on a route,en ruta,sur un parcours,auf einem Weg,su un percorso,numa rota,na trasie,по маршруту,ルート上
 breathing,breathing,recuperando aire,reprend son souffle,holt Luft,riprende fiato,recuperando o fôlego,łapie oddech,переводит дух,息を整え中
 loose,loose,libre,libre,frei,libero,livre,wolny,свободен,フリー
-%d down,%d down,%d al suelo,%d au sol,%d am Boden,%d a terra,%d quedas,powalenia: %d,сбил: %d,ダウン%d
+%d down,%d down,%d derribo,%d mise au sol,%d Niederwurf,%d atterramento,%d queda,%d powalenie,%d сбитие,%dダウン
 Drag a fighter to send him.,Drag a fighter to send him.,Arrastra a un luchador para enviarlo.,Glisse un combattant pour l'envoyer.,"Zieh einen Kämpfer, um ihn zu schicken.",Trascina un combattente per mandarlo.,Arraste um lutador para mandá-lo.,"Przeciągnij zawodnika, by go wysłać.","Перетащи бойца, чтобы отправить.",選手をドラッグして送り出す。
 "Release on ground, or on a man.","Release on ground, or on a man.",Suelta en el suelo o sobre un hombre.,"Lâche sur le sol, ou sur un homme.",Loslassen auf dem Boden oder auf einem Mann.,"Rilascia a terra, o su un uomo.","Solte no chão, ou num homem.",Puść na polu albo na zawodniku.,Отпусти на землю или на бойца.,地面か相手の上で離す。
 "Options are up — pick, or let him.","Options are up — pick, or let him.","Hay opciones — elige, o deja que elija él.","Options ouvertes — choisis, ou laisse-le faire.","Optionen offen — wähl, oder lass ihn.","Ci sono opzioni — scegli, o lascia fare a lui.","Opções na tela — escolha, ou deixe com ele.",Opcje czekają — wybierz albo zdaj się na niego.,Есть варианты — выбери или доверься ему.,選択肢が出た — 選ぶか、任せる。
@@ -975,8 +975,10 @@ SUB,SUB,CAMBIO,REMP,WECHSEL,CAMBIO,SUB,ZMIANA,ЗАМЕНА,交代
 FULL PLAYBOOK,FULL PLAYBOOK,PIZARRA COMPLETA,TOUTES LES TACTIQUES,GANZES TAKTIKBUCH,PLAYBOOK COMPLETO,CARTILHA COMPLETA,WSZYSTKIE TAKTYKI,ВСЯ ТАКТИКА,作戦ノート全体
 FIGHT,FIGHT,LUCHAR,COMBAT,KAMPF,COMBATTI,LUTAR,WALCZ,В БОЙ,戦う
 %s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%,%s  ·  %s  ·  %d%%
+  ·  same role,  ·  same role,  ·  mismo rol,  ·  même poste,  ·  gleiche Rolle,  ·  stesso ruolo,  ·  mesma função,  ·  ta sama rola,  ·  та же роль,  ·  同じ役割
 Never mind,Never mind,Déjalo,Laisse tomber,Doch nicht,Lascia stare,Deixa pra lá,Nieważne,Отмена,やめる
 nothing called,nothing called,sin órdenes,aucun ordre,nichts gerufen,nessuna chiamata,nada chamado,bez komendy,без команд,指示なし
+%d downs,%d downs,%d derribos,%d mises au sol,%d Niederwürfe,%d atterramenti,%d quedas,%d powalenia,%d сбития,%dダウン
 %d assist,%d assist,%d asistencia,%d passe,%d Assist,%d assist,%d assistência,asysty: %d,помощь: %d,アシスト%d
 %d assists,%d assists,%d asistencias,%d passes,%d Assists,%d assist,%d assistências,asysty: %d,помощь: %d,アシスト%d
 Stop fight!,Stop fight!,¡Alto el combate!,Stop combat !,Stop Fight!,Stop!,Parem a luta!,Stop walka!,Стоп бой!,ストップ！

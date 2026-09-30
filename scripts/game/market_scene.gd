@@ -177,7 +177,7 @@ func _draw() -> void:
 			"right_note_up": true,
 			"right_col": UiKit.UP,
 			"foot_left": Market.band_name(f.overall(), tier),
-			"foot": "%d CC" % fee,
+			"foot": ("%d CC" % fee) if afford else (UiKit.t("%d CC · can't afford") % fee),
 			"foot_col": UiKit.YOU if afford else UiKit.DOWN,
 		}, true)
 
