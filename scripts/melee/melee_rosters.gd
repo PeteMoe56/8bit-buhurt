@@ -98,7 +98,7 @@ static func player_club() -> MeleeClub:
 		## picker before he sees it; what matters is that the default is
 		## somewhere.
 		"Detroit Free Company", "DFC",
-		IconBank.KIT_COLORS[0], IconBank.MARK_COLORS[0], 5, cards)
+		IconBank.KIT_COLORS[0], IconBank.MARK_COLORS[0], 7, cards)
 
 
 ## The opposition. Better on paper and built the other way round — a monster

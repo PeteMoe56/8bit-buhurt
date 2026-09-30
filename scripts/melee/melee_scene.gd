@@ -1417,6 +1417,12 @@ func _draw_man(m) -> void:
 	draw_rect(Rect2(p - Vector2(w * 0.5, h * 0.5), Vector2(w, h)), Tuning.COL_STEEL_DARK)
 	draw_rect(Rect2(p - Vector2(w * 0.5 - 3.0, h * 0.5 - 4.0), Vector2(w - 6.0, h - 8.0)), club.kit)
 	_draw_mark(p, club, w - 8.0)
+	## HIS SHIRT NUMBER, beside him (blind review rounds 2 and 3): the cards
+	## along the bottom say "#3 Kerrigan" and the list had no #3 on it.
+	if m.team == 0:
+		var np := p + Vector2(-w * 0.5 - 20.0, 5.0)
+		UiKit.raw(self, font, np + Vector2(1, 1), "%d" % m.card.number, HORIZONTAL_ALIGNMENT_RIGHT, 16, 13, Color(0, 0, 0, 0.8))
+		UiKit.raw(self, font, np, "%d" % m.card.number, HORIZONTAL_ALIGNMENT_RIGHT, 16, 13, COL_INK)
 	draw_rect(Rect2(p - Vector2(7.0, h * 0.5 + 7.0), Vector2(14.0, 9.0)), Tuning.COL_STEEL)
 	draw_rect(Rect2(p - Vector2(6.0, h * 0.5 + 4.0), Vector2(12.0, 3.0)), Tuning.COL_STEEL_DARK)
 	## HIS WEAPON, until the sprites say it: a pole along his side, or a shield
@@ -1892,11 +1898,23 @@ func _draw_hint() -> void:
 		msg = UiKit.t("Options are up — pick, or let him.")
 	## 340, not 260: "Options are up — pick, or let him." lost its last word. The
 	## fixture text in the middle starts at about 390.
-	UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 13, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 13, COL_DIM)
-	UiKit.raw(self, font, Vector2(SCREEN.x - 284, 50), UiKit.t("%d routes · %d of %d calls") % [
+	UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 14, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 14, COL_INK)
+	## SAID IN WORDS (blind review round 3: "0 routes · 0 of 0 calls" unexplained).
+	UiKit.raw(self, font, Vector2(SCREEN.x - 304, 50), UiKit.fit(font, UiKit.t("Routes %d  ·  choices %d/%d") % [
 		sim.orders_issued, sim.prompts_answered,
-		sim.prompts_answered + sim.prompts_timed_out],
-		HORIZONTAL_ALIGNMENT_RIGHT, 260, 13, COL_EDGE.lightened(0.35))
+		sim.prompts_answered + sim.prompts_timed_out], 14, 280.0),
+		HORIZONTAL_ALIGNMENT_RIGHT, 280, 14, COL_DIM)
+	## THE FIRST THING TO DO, big, in the empty middle of the list until he has
+	## done it once (blind review round 3: the key instruction was 10 px grey in
+	## a corner).
+	if sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 and wheel_man == -1 and not held:
+		var band := Rect2(LIST_ORIGIN.x + 90.0, 190.0, Tuning.LIST_H * LIST_SCALE - 180.0, 74.0)
+		draw_rect(band, Color(0, 0, 0, 0.55))
+		draw_rect(band, Tuning.COL_MARSHAL, false, 2.0)
+		UiKit.raw(self, font, band.position + Vector2(0, 32), UiKit.fit(font, UiKit.t("Drag from one of your fighters"), 20, band.size.x - 20.0),
+			HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 20, Tuning.COL_MARSHAL)
+		UiKit.raw(self, font, band.position + Vector2(0, 56), UiKit.fit(font, UiKit.t("End on an enemy to go for him."), 14, band.size.x - 20.0),
+			HORIZONTAL_ALIGNMENT_CENTER, int(band.size.x), 14, COL_INK)
 
 
 ## WHAT YOU HAVE LEFT, drawn as boxes rather than printed as a number, because it
@@ -1910,6 +1928,9 @@ func _draw_calls() -> void:
 		return
 	## Left of HOLD in the top bar, right-aligned against it.
 	var y := CALL_AT.y + 12.0
+	## NAMED (blind review round 3: two yellow squares with no word).
+	UiKit.raw(self, font, Vector2(CALL_AT.x - 12.0 - float(calls_total) * 16.0 - 90.0, y + 11.0),
+		UiKit.t("HOLDS"), HORIZONTAL_ALIGNMENT_RIGHT, 86, 12, COL_DIM)
 	for i in calls_total:
 		var r := Rect2(CALL_AT.x - 8.0 - float(calls_total - i) * 16.0, y, 12.0, 12.0)
 		draw_rect(r, Tuning.COL_MARSHAL if i < calls_left else Color("221e1a"))
@@ -2004,7 +2025,7 @@ func _build_ui() -> void:
 	## round time the skip is spending. `test_icons.gd` scans for a mark a screen
 	## asks for and cannot find, so a made-up name fails the suite rather than
 	## rendering a button with a hole in it.
-	call_button = UiKit.button(UiKit.t("HOLD"), CALL_AT, CALL_SIZE, _hold, "cursor")
+	call_button = UiKit.button(UiKit.t("HOLD"), CALL_AT, CALL_SIZE, _hold, "pause")
 	skip_button = UiKit.button(UiKit.t("SKIP ROUND"), SKIP_AT, CALL_SIZE, _skip_round, "clock")
 	call_button.visible = false
 	skip_button.visible = false
