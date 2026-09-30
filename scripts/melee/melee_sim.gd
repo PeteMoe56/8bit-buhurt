@@ -285,6 +285,7 @@ var _hit_mult: float = 1.0
 var swing_share: float = Tuning.first_swing_share
 var br_fall: float = Tuning.br_fall
 var pass_grab: float = Tuning.pass_grab
+var br_read: float = Tuning.br_read
 var pass_trip: float = Tuning.pass_trip
 
 
@@ -293,6 +294,7 @@ func set_wheel(w: Dictionary) -> void:
 	swing_share = float(w.get("swing", swing_share))
 	br_fall = float(w.get("fall", br_fall))
 	pass_grab = float(w.get("pass", pass_grab))
+	br_read = float(w.get("read", br_read))
 	pass_trip = pass_grab
 var passes_tripped: int = 0
 var flank_blows: int = 0
@@ -1758,9 +1760,9 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 		- float(d.card.weight)) * Tuning.BR_PER_LB
 	c -= d.eff_base() * Tuning.BR_PER_BASE * d.tmod("br_against", 1.0)
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
-	if Tuning.br_read > 0.0 and (a.acting_for_player or Tuning.br_read_ai) \
+	if br_read > 0.0 and (a.acting_for_player or Tuning.br_read_ai) \
 			and d.stability < Tuning.pread_at:
-		c += Tuning.br_read
+		c += br_read
 	if d.exposed_t > 0.0:
 		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)

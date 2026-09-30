@@ -419,10 +419,10 @@ func _grade_controls() -> void:
 ## The rows the read-out prints, in order; the dials follow the same list.
 ## The last three are the contact wheel's (29 Sep 2026), under a rule line.
 const DIAL_ROWS: Array[String] = ["scale", "pauses", "corner", "bills", "ceiling",
-	"swing", "fall", "pass"]
+	"swing", "fall", "pass", "read"]
 const DIAL_FIGHT_FROM := 5
 const DIAL_BTN := Vector2(40.0, 22.0)
-const DIAL_ROW_H := 25.0
+const DIAL_ROW_H := 23.0
 
 
 func _dial_y(k: int) -> float:
@@ -493,6 +493,9 @@ func _draw_grade() -> void:
 		UiKit.DOWN if fa > 0.2 else (UiKit.UP if fa < 0.2 else UiKit.INK)])
 	rows.append([UiKit.t("Grabbed or tripped passing"), "%d%%" % int(round(pa * 100.0)),
 		UiKit.DOWN if pa > 0.12 else (UiKit.UP if pa < 0.12 else UiKit.INK)])
+	var rd := float(w["read"])
+	rows.append([UiKit.t("Bullrush on a wobbling man"), "+%d%%" % int(round(rd * 100.0)),
+		UiKit.UP if rd > 0.3 else (UiKit.DOWN if rd < 0.3 else UiKit.INK)])
 	for k in rows.size():
 		var y := _dial_y(k)
 		UiKit.text(self, font, rows[k][0], Vector2(ix, y), 13, UiKit.DIM)

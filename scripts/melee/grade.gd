@@ -151,6 +151,7 @@ const CORNER_DELTA: float = 4.0
 ## 28 Sep 2026: difficulty reaches the money too). Buildings are not scaled —
 ## what a club chooses to own it pays for at full price on every grade.
 ##
+## "read": your bullrush's bonus on a man under half balance (30 Sep 2026).
 ## "swing" / "fall" / "pass": THE CONTACT WHEEL'S THREE DIALS (Pete, 29 Sep 2026:
 ## "find the difficulty settings ranges for those as well"). The free swing a
 ## man you send lands on arrival (share of a blow), the chance your failed
@@ -159,15 +160,15 @@ const CORNER_DELTA: float = 4.0
 ## swing is what lets a good thumb out-fight a bad plan).
 const TABLE := {
 	G.FRIENDLY: { "scale": EASE, "pauses": 1, "corner": CORNER_DELTA, "ceiling": false, "bills": 0.8,
-		"swing": 0.75, "fall": 0.10, "pass": 0.08 },
+		"swing": 0.75, "fall": 0.10, "pass": 0.08, "read": 0.40 },
 	G.SANCTIONED: { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0,
-		"swing": 0.5, "fall": 0.20, "pass": 0.12 },
+		"swing": 0.5, "fall": 0.20, "pass": 0.12, "read": 0.30 },
 	G.FULL_STEEL: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": false, "bills": 1.2,
-		"swing": 0.25, "fall": 0.30, "pass": 0.16 },
+		"swing": 0.25, "fall": 0.30, "pass": 0.16, "read": 0.20 },
 	## SHARES FULL STEEL'S SCALAR, exactly as Retro Bowl's Extreme shares Hard's
 	## -5. The top grade is not a steeper number, it is a rule: see `ceiling`.
 	G.HARD_LIST: { "scale": STEEL, "pauses": -1, "corner": -CORNER_DELTA, "ceiling": true, "bills": 1.2,
-		"swing": 0.0, "fall": 0.30, "pass": 0.16 },
+		"swing": 0.0, "fall": 0.30, "pass": 0.16, "read": 0.10 },
 }
 
 
@@ -177,7 +178,7 @@ const TABLE := {
 ## own range; the values live on the career (`Season.custom_grade`) and are
 ## handed to every function below, so there is no second copy to drift.
 const CUSTOM_DEFAULT := { "scale": 1.0, "pauses": 0, "corner": 0.0, "ceiling": false, "bills": 1.0,
-	"swing": 0.5, "fall": 0.20, "pass": 0.12 }
+	"swing": 0.5, "fall": 0.20, "pass": 0.12, "read": 0.30 }
 ## [min, max, step] per dial. The strength range is wider than the presets on
 ## purpose: a player who asks for x1.10 is asking for it.
 const DIALS := {
@@ -188,6 +189,9 @@ const DIALS := {
 	"swing": [0.0, 1.0, 0.25],
 	"fall": [0.0, 0.4, 0.1],
 	"pass": [0.0, 0.24, 0.04],
+	## THE BULLRUSH READ (Pete, 30 Sep 2026: "balance that for difficulty
+	## settings"): what your bullrush gains on a man under half balance.
+	"read": [0.0, 0.4, 0.1],
 }
 
 
@@ -354,12 +358,12 @@ static func wheel_for(g: int, step: int, custom: Dictionary = {}) -> Dictionary:
 		var hi: Dictionary = TABLE[G.SANCTIONED] if t < 0.0 else TABLE[G.FULL_STEEL]
 		var u := t + 1.0 if t < 0.0 else t
 		var out := {}
-		for k in ["swing", "fall", "pass"]:
+		for k in ["swing", "fall", "pass", "read"]:
 			out[k] = lerpf(float(lo[k]), float(hi[k]), clampf(u, 0.0, 1.0))
 		return out
 	var row := _row(g, custom)
 	return {"swing": float(row.get("swing", 0.5)), "fall": float(row.get("fall", 0.2)),
-		"pass": float(row.get("pass", 0.12))}
+		"pass": float(row.get("pass", 0.12)), "read": float(row.get("read", 0.30))}
 
 
 static func name_of(g: int) -> String:
