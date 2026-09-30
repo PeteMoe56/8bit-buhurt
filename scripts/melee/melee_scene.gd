@@ -639,6 +639,12 @@ func _unhandled_input(event: InputEvent) -> void:
 				draw_screen.clear()
 				return
 			_release(st.position)
+	elif event is InputEventScreenDrag and wheel_drag and wheel_man != -1:
+		## THE SIDE UNDER THE THUMB lights while the drag is on.
+		var hot := _wheel_option_at(sim.men[wheel_man], event.position, true)
+		if hot != wheel_hot:
+			wheel_hot = hot
+			queue_redraw()
 	elif event is InputEventScreenDrag and drawing != -1 \
 			and (event as InputEventScreenDrag).index == draw_finger:
 		_extend(event.position)
@@ -730,6 +736,7 @@ func _extend(p: Vector2) -> void:
 func _release(p: Vector2) -> void:
 	if wheel_drag:
 		wheel_drag = false
+		wheel_hot = -2
 		if wheel_man != -1:
 			var wm = sim.men[wheel_man]
 			var opt := _wheel_option_at(wm, p, true)
@@ -1471,55 +1478,68 @@ func _wheel_opts(m) -> Array:
 	return out
 
 
-const WHEEL_R := 70.0
-const WHEEL_BOX := Vector2(116, 54)
+## THE GUARD TRIANGLE (Pete, 29 Sep 2026: "Yep, I like yours" — wheel #11).
+## For Honor's three-sided guard hugging the man: one thick arc per act, up,
+## right and left, with the man visible in the hole; Gameface's gold indicator
+## arc rides outside whichever side the thumb is on; Cancel sits in the open
+## bottom quarter. Every side carries its own name, chance and effect, so a
+## tap never needs a hover to be informed.
+const WHEEL_RI := 36.0      ## inner edge of a side — clears the man's own circle
+const WHEEL_RO := 80.0      ## outer edge: 44px of thumb, the touch floor
+const WHEEL_HALF := 43.0    ## each side spans ±43°, a 4° gap between sides
+const WHEEL_LABEL := 96.0   ## where a side's words start, from the centre
+const WHEEL_CANCEL := Vector2(96.0, 36.0)
+## Direction of each option, degrees clockwise from up: acts 0/1/2, then Cancel.
+const WHEEL_DIRS := [0.0, 90.0, 270.0, 180.0]
+var wheel_hot := -2
 
 
-## The ring's centre: the man, kept far enough inside the list that every option
-## is on the field.
 func _wheel_center(m) -> Vector2:
 	var p := _to_screen(m.pos)
-	var reach := Vector2(WHEEL_GAP.x + WHEEL_BOX.x, WHEEL_GAP.y + WHEEL_BOX.y)
-	var lo := LIST_ORIGIN + reach
-	var hi := LIST_ORIGIN + Vector2(Tuning.LIST_H, Tuning.LIST_W) * LIST_SCALE - reach
-	return Vector2(clampf(p.x, lo.x, hi.x), clampf(p.y, lo.y, hi.y))
+	## Room for the ring and its words on every side, so no option leaves the list.
+	## Above: the top side and its three lines. Below: Cancel and the drag hint.
+	var lo := LIST_ORIGIN + Vector2(WHEEL_LABEL + 96.0, WHEEL_RO + 58.0)
+	var hi := LIST_ORIGIN + Vector2(Tuning.LIST_H, Tuning.LIST_W) * LIST_SCALE \
+		- Vector2(WHEEL_LABEL + 96.0, WHEEL_RI + 80.0)
+	return Vector2(clampf(p.x, lo.x, minf(hi.x, maxf(lo.x, hi.x))),
+		clampf(p.y, lo.y, maxf(lo.y, hi.y)))
 
 
-## Up, right, left for the acts; Cancel at the bottom.
-## THE BOXES CLEAR THE MAN (blind review, 29 Sep: the boxes sat on the sprite
-## and on each other). Each is pushed out by its own half-size plus a gap, so
-## the four never touch and the man in the middle stays visible.
-const WHEEL_GAP := Vector2(34.0, 30.0)
-const WHEEL_CANCEL := Vector2(96.0, 36.0)
+static func _dir(deg: float) -> Vector2:
+	var a := deg_to_rad(deg - 90.0)
+	return Vector2(cos(a), sin(a))
 
 
-func _wheel_rect(m, i: int) -> Rect2:
-	var c0 := _wheel_center(m)
-	match i:
-		0: return Rect2(c0 + Vector2(-WHEEL_BOX.x * 0.5, -WHEEL_GAP.y - WHEEL_BOX.y), WHEEL_BOX)
-		1: return Rect2(c0 + Vector2(WHEEL_GAP.x, -WHEEL_BOX.y * 0.5), WHEEL_BOX)
-		2: return Rect2(c0 + Vector2(-WHEEL_GAP.x - WHEEL_BOX.x, -WHEEL_BOX.y * 0.5), WHEEL_BOX)
-	return Rect2(c0 + Vector2(-WHEEL_CANCEL.x * 0.5, WHEEL_GAP.y), WHEEL_CANCEL)
+## Cancel's chip, in the open bottom quarter.
+func _wheel_cancel_rect(m) -> Rect2:
+	var c := _wheel_center(m)
+	return Rect2(c + Vector2(-WHEEL_CANCEL.x * 0.5, WHEEL_RI + 22.0), WHEEL_CANCEL)
 
 
-## Which option is under a point: an act, -1 for Cancel, -2 for none. With
-## `by_direction`, a drag released anywhere past the man's own circle counts as
-## the option it points at — the circle command.
+## Which option is under a point: an act, -1 for Cancel, -2 for none. A tap
+## counts anywhere on a side or on its words; with `by_direction`, a drag
+## released anywhere past the man's own circle counts as the side it points at.
 func _wheel_option_at(m, p: Vector2, by_direction: bool = false) -> int:
 	var opts := _wheel_opts(m)
+	if _wheel_cancel_rect(m).grow(4.0).has_point(p):
+		return -1
+	var v := p - _wheel_center(m)
+	var d := v.length()
+	var reach := WHEEL_LABEL + 60.0
+	if d < 26.0 or (not by_direction and (d < WHEEL_RI - 6.0 or d > reach)):
+		return -2
+	var ang := fposmod(rad_to_deg(atan2(v.y, v.x)) + 90.0, 360.0)
+	var best := -1
+	var best_off := 999.0
 	for i in opts.size():
-		if _wheel_rect(m, i).grow(4.0).has_point(p):
-			return opts[i]
-	if by_direction:
-		var v := p - _wheel_center(m)
-		if v.length() > 26.0:
-			var dirs: Array[Vector2] = [Vector2(0, -1), Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1)]
-			var best := 0
-			for i in dirs.size():
-				if v.normalized().dot(dirs[i]) > v.normalized().dot(dirs[best]):
-					best = i
-			return opts[best]
-	return -2
+		var off := absf(angle_difference(deg_to_rad(ang), deg_to_rad(WHEEL_DIRS[i])))
+		off = rad_to_deg(off)
+		if off < best_off:
+			best_off = off
+			best = i
+	if not by_direction and opts[best] == -1:
+		return -2    ## the bottom quarter only answers through its chip
+	return opts[best]
 
 
 func _wheel_answer(m, opt: int) -> void:
@@ -1551,22 +1571,38 @@ func _draw_wheel(m) -> void:
 	draw_arc(c, 26.0, 0.0, TAU, 32, COL_EDGE, 2.0)
 	var behind: bool = sim.from_behind(m, t)
 	if behind:
-		UiKit.raw(self, font, c + Vector2(-80, -WHEEL_GAP.y - WHEEL_BOX.y - 8.0), UiKit.t("FROM BEHIND"),
-			HORIZONTAL_ALIGNMENT_CENTER, 160, 12, UiKit.UP)
-	## EVERY BOX READS THE SAME WAY (blind review, 29 Sep: "22%" beside "-23%
-	## balance" mixed a chance with an effect): the act, its chance, what it does.
+		UiKit.raw(self, font, c + Vector2(-80, WHEEL_RI + 76.0), UiKit.t("FROM BEHIND"),
+			HORIZONTAL_ALIGNMENT_CENTER, 160, 13, UiKit.UP)
+	## EVERY SIDE READS THE SAME WAY: the act, its chance, what it does.
 	var opts := _wheel_opts(m)
 	for i in opts.size():
-		var r := _wheel_rect(m, i)
 		var act: int = opts[i]
-		draw_rect(r, COL_PANEL)
-		draw_rect(r, COL_EDGE.lightened(0.3) if act == -1 else Tuning.COL_ROUTE, false, 2.0)
+		var hot: bool = act == wheel_hot
 		if act == -1:
-			UiKit.raw(self, font, r.position + Vector2(0, 24), UiKit.t("Cancel"),
-				HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 14, COL_INK)
+			var cr := _wheel_cancel_rect(m)
+			draw_rect(cr, UiKit.YOU if hot else COL_PANEL)
+			draw_rect(cr, COL_EDGE.lightened(0.3), false, 2.0)
+			UiKit.raw(self, font, cr.position + Vector2(0, 24), UiKit.t("Cancel"),
+				HORIZONTAL_ALIGNMENT_CENTER, int(cr.size.x), 14, UiKit.BG if hot else COL_INK)
 			continue
-		UiKit.raw(self, font, r.position + Vector2(0, 16), Tuning.act_name(act),
-			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 14, COL_INK)
+		var deg: float = WHEEL_DIRS[i]
+		## The side: a thick arc as a polygon, ±WHEEL_HALF around its direction.
+		var pts := PackedVector2Array()
+		var steps := 12
+		for k in steps + 1:
+			pts.append(c + _dir(deg - WHEEL_HALF + 2.0 * WHEEL_HALF * float(k) / float(steps)) * WHEEL_RO)
+		for k in steps + 1:
+			pts.append(c + _dir(deg + WHEEL_HALF - 2.0 * WHEEL_HALF * float(k) / float(steps)) * WHEEL_RI)
+		draw_colored_polygon(pts, UiKit.YOU if hot else UiKit.SELECT)
+		var outline := pts.duplicate()
+		outline.append(pts[0])
+		draw_polyline(outline, COL_EDGE.lightened(0.3) if not hot else UiKit.YOU.lightened(0.3), 2.0)
+		if hot:
+			## Gameface's indicator: a gold arc outside the side under the thumb.
+			var a0 := deg_to_rad(deg - 90.0 - WHEEL_HALF - 4.0)
+			draw_arc(c, WHEEL_RO + 9.0, a0, a0 + deg_to_rad(2.0 * WHEEL_HALF + 8.0), 24, UiKit.YOU, 4.0)
+		UiKit.icon(self, _act_mark(act), c + _dir(deg) * ((WHEEL_RI + WHEEL_RO) * 0.5) - Vector2(16, 16),
+			UiKit.BG if hot else COL_INK, 2)
 		var o: Dictionary = sim.contact_odds(m.idx, act, t.idx)
 		var p_land := 1.0
 		var effect := ""
@@ -1589,10 +1625,52 @@ func _draw_wheel(m) -> void:
 			_:
 				p_land = float(o["p"])
 				effect = UiKit.t("puts him down")
-		UiKit.raw(self, font, r.position + Vector2(0, 32), UiKit.t("%d%% chance") % int(round(p_land * 100.0)),
-			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 12, _odds_col(p_land))
-		UiKit.raw(self, font, r.position + Vector2(0, 47), effect,
-			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 11, effect_col)
+		## The words sit outside the side: above the top one, beside the others,
+		## aligned away from the ring so they never cross it.
+		var lw := 150.0
+		var at := c + _dir(deg) * WHEEL_LABEL
+		var align := HORIZONTAL_ALIGNMENT_CENTER
+		var top := at.y - 8.0
+		if deg == 0.0:
+			at = c + Vector2(-lw * 0.5, -WHEEL_RO)
+			top = at.y - 54.0
+		elif deg == 90.0:
+			align = HORIZONTAL_ALIGNMENT_LEFT
+			top = at.y - 22.0
+		else:
+			at.x -= lw
+			align = HORIZONTAL_ALIGNMENT_RIGHT
+			top = at.y - 22.0
+		## A PLATE UNDER THE WORDS, so they read over a sprite or a line.
+		var chance_s := UiKit.t("%d%% chance") % int(round(p_land * 100.0))
+		var tw := maxf(font.get_string_size(Tuning.act_name(act), HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x,
+			maxf(font.get_string_size(chance_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x,
+				font.get_string_size(effect, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x)) + 10.0
+		var px0 := at.x + (lw - tw) * 0.5 if align == HORIZONTAL_ALIGNMENT_CENTER else (
+			at.x - 5.0 if align == HORIZONTAL_ALIGNMENT_LEFT else at.x + lw - tw + 5.0)
+		draw_rect(Rect2(px0, top - 1.0, tw, 52.0), Color(COL_PANEL, 0.82))
+		UiKit.raw(self, font, Vector2(at.x, top + 14.0), Tuning.act_name(act), align, int(lw), 16,
+			UiKit.YOU if hot else COL_INK)
+		UiKit.raw(self, font, Vector2(at.x, top + 31.0), chance_s,
+			align, int(lw), 13, _odds_col(p_land))
+		UiKit.raw(self, font, Vector2(at.x, top + 47.0), effect, align, int(lw), 13, effect_col)
+	if wheel_drag and wheel_hot != -2:
+		UiKit.raw(self, font, c + Vector2(-120, WHEEL_RI + (94.0 if behind else 76.0)),
+			UiKit.t("Lift to commit") if wheel_hot != -1 else UiKit.t("Lift to cancel"),
+			HORIZONTAL_ALIGNMENT_CENTER, 240, 13, COL_DIM)
+
+
+## The mark on each side of the guard triangle.
+static func _act_mark(act: int) -> String:
+	match act:
+		Tuning.Act.BULLRUSH: return "roundshield"
+		Tuning.Act.GRAPPLE: return "lock"
+		Tuning.Act.HIT: return "sword"
+		Tuning.Act.TAKEDOWN: return "down"
+		Tuning.Act.HOLD: return "fist"
+		Tuning.Act.ESCAPE: return "boot"
+		Tuning.Act.BREAK: return "gate"
+	return "cursor"
 
 
 # ------------------------------------------------------------------ prompts

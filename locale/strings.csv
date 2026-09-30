@@ -911,6 +911,8 @@ frees your man,frees your man,libera a tu hombre,libère ton homme,befreit deine
 fall %d%%,fall %d%%,caída %d%%,chute %d%%,Sturz %d%%,caduta %d%%,queda %d%%,upadek %d%%,падение %d%%,転倒 %d%%
 puts him down,puts him down,lo derriba,le met au sol,bringt ihn zu Boden,lo atterra,derruba ele,powala go,валит его,ダウンさせる
 %d%% chance,%d%% chance,%d%% de éxito,%d%% de chance,%d%% Chance,%d%% di riuscita,%d%% de chance,%d%% szans,шанс %d%%,成功%d%%
+Lift to commit,Lift to commit,Suelta para confirmar,Relâche pour valider,Loslassen zum Bestätigen,Rilascia per confermare,Solte para confirmar,"Puść, by zatwierdzić",Отпусти — подтвердить,指を離して決定
+Lift to cancel,Lift to cancel,Suelta para cancelar,Relâche pour annuler,Loslassen zum Abbrechen,Rilascia per annullare,Solte para cancelar,"Puść, by anulować",Отпусти — отмена,指を離して取消
 R%d  %d:%02d,R%d  %d:%02d,A%d  %d:%02d,M%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,R%d  %d:%02d,Р%d  %d:%02d,R%d  %d:%02d
 %s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s,%s   |   %s
 of %d,of %d,de %d,sur %d,von %d,di %d,de %d,z %d,из %d,/ %d

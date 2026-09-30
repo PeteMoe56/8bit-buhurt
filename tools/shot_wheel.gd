@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ##   bash tools/bb.sh shot wheel 960x540 <mode> <out.png>
 ##   mode: approach (a man sent at a free enemy) | behind (from his back)
-##         | third (onto an enemy already in a clinch)
+##         | third (onto an enemy already in a clinch) | hot (approach, thumb on Hit)
 ##
 ## Puts one of our men beside an enemy, gives him a route onto that man, opens
 ## the question the sim would open at contact, and draws the frame.
@@ -57,6 +57,11 @@ func _process(_d: float) -> bool:
 		sim.give_order(us.idx, path, them.idx)
 		var menu: int = Tuning.Menu.THIRD_MAN if them.state == MeleeSim.State.GRAPPLED else Tuning.Menu.APPROACH
 		sim._open_prompt(us, menu, them.idx)
+	## "hot": the approach wheel mid-drag, the thumb on Hit.
+	if n == 10 and mode == "hot":
+		scene.set("wheel_drag", true)
+		scene.set("wheel_hot", Tuning.Act.HIT)
+		scene.queue_redraw()
 	if n == 14:
 		var img := root.get_texture().get_image()
 		img.save_png(out_path)
