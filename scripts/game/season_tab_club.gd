@@ -352,7 +352,7 @@ static func _schedule(v: SeasonScene) -> void:
 		## is a fact that is not on the list.**
 		if opp >= 0:
 			UiKit.text(v, v.font, UiKit.t("H") if home else UiKit.t("A"), Vector2(28, y), 14,
-				UiKit.YOU if home else UiKit.EDGE.lightened(0.4))
+				UiKit.YOU if home else UiKit.DIM)
 		## AND WHAT THE AFTERNOON IS WORTH, which is the new half. The gate is
 		## multiplied by the ground it is fought in, so a trip to somebody's
 		## Sports hall pays better than a home tie in a back field — and a fixture
@@ -587,7 +587,7 @@ static func _fixture(v: SeasonScene) -> void:
 			UiKit.t("%s costs %d a season") % [String(t["to"]), int(t["dues_up"])],
 			UiKit.t("you have %d") % int(t["in_hand"]),
 			Vector2(44, y + 104), 24.0 + SeasonScene.fixture_w() - 20.0, 12, 12,
-			UiKit.EDGE.lightened(0.35),
+			UiKit.DIM,
 			UiKit.UP if int(t["in_hand"]) >= int(t["dues_up"]) else UiKit.DOWN)
 		return
 	if v.season.bid_open():
@@ -668,7 +668,7 @@ static func _fixture(v: SeasonScene) -> void:
 			Arena.worth_word(int(g["level"]), float(g["condition"]))],
 		"%d CC at the gate" % int(g["cc"]),
 		Vector2(44, y + 104), 24.0 + SeasonScene.fixture_w() - 20.0, 12, 12,
-		UiKit.EDGE.lightened(0.35),
+		UiKit.DIM,
 		UiKit.UP if int(g["cc"]) >= v.season.office.crowd_pay() else UiKit.DIM)
 
 

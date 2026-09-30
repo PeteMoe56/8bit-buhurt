@@ -198,7 +198,7 @@ func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
 	var nm := "—"
 	if opp >= 0 and opp < season.world.clubs.size():
 		nm = String((season.world.clubs[opp] as Dictionary).get("name", "?"))
-	UiKit.text(self, font, "%d" % week, Vector2(cx, y), 11, UiKit.EDGE.lightened(0.4))
+	UiKit.text(self, font, "%d" % week, Vector2(cx, y), 11, UiKit.DIM)
 	## HOME OR AWAY IN FRONT OF THE NAME. Retro Bowl puts an "@" on an away side
 	## and nobody has ever needed it explained.
 	var away := not bool(r.get("home", true))
@@ -214,7 +214,7 @@ func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
 	## player actually stood in would make the column a liar.
 	if not bool(r.get("fought", true)):
 		UiKit.right(self, font, UiKit.t("sim"), Vector2(cx + year_col_w(), y), 11,
-			UiKit.EDGE.lightened(0.4), 70)
+			UiKit.DIM, 70)
 		return
 	## MATCHED CARRIES ITS STEP. "Matched" alone is four difficulties wearing one
 	## word, which is why `_log` writes the step down beside it.
@@ -275,7 +275,7 @@ func _club() -> void:
 		var rec: Dictionary = season.world.records.get(String(row["key"]), {})
 		UiKit.text(self, font, UiKit.t(String(row["label"])), Vector2(40, y), 15, UiKit.INK)
 		if rec.is_empty():
-			UiKit.right(self, font, "—", Vector2(UiKit.right_edge(360.0), y), 15, UiKit.EDGE.lightened(0.4), 120)
+			UiKit.right(self, font, "—", Vector2(UiKit.right_edge(360.0), y), 15, UiKit.DIM, 120)
 		else:
 			any = true
 			UiKit.right(self, font, "%d" % int(rec["value"]), Vector2(UiKit.right_edge(360.0), y), 16, UiKit.YOU, 120)

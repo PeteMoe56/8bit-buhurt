@@ -591,7 +591,7 @@ static func _squad_head(v: SeasonScene, x: float, y: float) -> void:
 		## day somebody changed the size.
 		var hr: Rect2 = c["head_rect"]
 		UiKit.text(v, v.font, label, Vector2(x + hr.position.x, y),
-			SeasonScene.SQUAD_HEAD_PX, UiKit.EDGE.lightened(0.35))
+			SeasonScene.SQUAD_HEAD_PX, UiKit.DIM)
 	## AND THE HAIRLINE UNDER IT, which is what turns nine words into a table
 	## header rather than a tenth row of small text.
 	v.draw_line(Vector2(x, y + 6.0), Vector2(x + SeasonScene.SQUAD_W, y + 6.0),

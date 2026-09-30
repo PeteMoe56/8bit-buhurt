@@ -1612,7 +1612,7 @@ func _draw_wheel(m) -> void:
 		if act == -1:
 			var cr := _wheel_cancel_rect(m)
 			draw_rect(cr, UiKit.YOU if hot else COL_PANEL)
-			draw_rect(cr, COL_EDGE.lightened(0.3), false, 2.0)
+			draw_rect(cr, COL_DIM, false, 2.0)
 			UiKit.raw(self, font, cr.position + Vector2(0, 24), UiKit.t("Cancel"),
 				HORIZONTAL_ALIGNMENT_CENTER, int(cr.size.x), 14, UiKit.BG if hot else COL_INK)
 			continue
@@ -1627,7 +1627,7 @@ func _draw_wheel(m) -> void:
 		draw_colored_polygon(pts, UiKit.YOU if hot else UiKit.SELECT)
 		var outline := pts.duplicate()
 		outline.append(pts[0])
-		draw_polyline(outline, COL_EDGE.lightened(0.3) if not hot else UiKit.YOU.lightened(0.3), 2.0)
+		draw_polyline(outline, COL_DIM if not hot else UiKit.YOU.lightened(0.3), 2.0)
 		if hot:
 			## Gameface's indicator: a gold arc outside the side under the thumb.
 			var a0 := deg_to_rad(deg - 90.0 - WHEEL_HALF - 4.0)

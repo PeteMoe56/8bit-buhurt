@@ -142,9 +142,9 @@ func _draw() -> void:
 		UiKit.mid(self, font, UiKit.t("Press back again to quit"),
 			Vector2(0.0, UiKit.screen().y - 60), 14, UiKit.YOU, UiKit.screen().x)
 	UiKit.text(self, font, UiKit.t("BonkWorks"), Vector2(24, UiKit.screen().y - 24), 13,
-		UiKit.EDGE.lightened(0.4))
+		UiKit.DIM)
 	## The credit the licence asks for, on the screen the music is playing on.
 	## The full list is in Settings; this is the one that is a condition.
 	UiKit.right(self, font, UiKit.t("Music: HeatleyBros — heatleybros.com"),
 		Vector2(UiKit.screen().x - 24, UiKit.screen().y - 24), 13,
-		UiKit.EDGE.lightened(0.4), 420)
+		UiKit.DIM, 420)

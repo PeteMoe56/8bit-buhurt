@@ -637,7 +637,7 @@ func _the_man() -> void:
 	UiKit.right(self, font, word, Vector2(L_X + COL_W - 16, y), 14, tint, 210)
 	UiKit.bar(self, Rect2(L_X + 16, y + 12, COL_W - 32, 14),
 		1.0 if waiting else clampf(float(man.xp) / float(maxi(1, bar)), 0.0, 1.0),
-		UiKit.EDGE.lightened(0.4) if capped
+		UiKit.DIM if capped
 			else (UiKit.YOU if waiting else UiKit.SELECT))
 	_pace(y + 38.0)
 	## WHAT HE WILL ASK FOR WHEN THE DEAL ENDS, which is the whole reason a level
@@ -825,7 +825,7 @@ func _attributes() -> void:
 		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
 			else UiKit.t("Ceiling is his overall."),
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 13,
-		man.morale_color() if man.angry() else UiKit.EDGE.lightened(0.4), COL_W - 32.0)
+		man.morale_color() if man.angry() else UiKit.DIM, COL_W - 32.0)
 
 
 # ------------------------------------------------------------------- column 3

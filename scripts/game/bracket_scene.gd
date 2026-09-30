@@ -201,7 +201,7 @@ func _road() -> void:
 			## actually lost says so, with the score; everything after it is
 			## simply not your business any more.
 			UiKit.text(self, font, "—" if done else UiKit.t("not there yet"),
-				Vector2(ROAD_X + 16, y + 24), 14, UiKit.EDGE.lightened(0.4))
+				Vector2(ROAD_X + 16, y + 24), 14, UiKit.DIM)
 			y += 64.0
 			continue
 		var opp: int = int(m["b"]) if int(m["a"]) == me else int(m["a"])

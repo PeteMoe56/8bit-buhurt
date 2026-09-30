@@ -44,9 +44,9 @@ static func _draw_finances(v: SeasonScene) -> void:
 	UiKit.text(v, v.font, UiKit.t("COMING IN"), Vector2(SeasonScene.FIN_LEFT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
 	## LAST YEAR ONLY WHEN THERE WAS ONE (round 4: a column of dashes).
 	_has_last = not last.is_empty() and (ClubOffice.book_total(was_in) != 0 or ClubOffice.book_total(was_out) != 0)
-	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 12, UiKit.EDGE.lightened(0.35), 110)
+	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 12, UiKit.DIM, 110)
 	if _has_last:
-		UiKit.right(v, v.font, UiKit.t("last"), Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 12, UiKit.EDGE.lightened(0.35), 90)
+		UiKit.right(v, v.font, UiKit.t("last"), Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 12, UiKit.DIM, 90)
 	var y := SeasonScene.CONTENT_Y + 26.0
 	y = v._fin_block(o.books_in, was_in, ClubOffice.IN_ORDER, y, UiKit.UP)
 	var in_now := ClubOffice.book_total(o.books_in)
@@ -95,7 +95,7 @@ static func _fin_row(v: SeasonScene, label: String, now: int, was: int, y: float
 	## row and the eye would have to work out which one is the present.
 	if _has_last:
 		UiKit.right(v, v.font, "—" if was == 0 else "%d" % was,
-			Vector2(SeasonScene.FIN_WAS, y), maxi(12, px - 2), UiKit.EDGE.lightened(0.4), 90)
+			Vector2(SeasonScene.FIN_WAS, y), maxi(12, px - 2), UiKit.DIM, 90)
 
 
 
@@ -123,7 +123,7 @@ static func _fin_block(v: SeasonScene, now: Dictionary, was: Dictionary, order: 
 			rows.append({"line": String(r["line"]), "cc": 0})
 	if rows.is_empty():
 		UiKit.text(v, v.font, UiKit.t("Nothing yet."), Vector2(SeasonScene.FIN_LEFT + 14.0, y), 13,
-			UiKit.EDGE.lightened(0.3))
+			UiKit.DIM)
 		return y + SeasonScene.FIN_ROW
 	for r in rows:
 		var line := String(r["line"])
@@ -184,7 +184,7 @@ static func _fin_ground(v: SeasonScene) -> void:
 	else:
 		UiKit.pair(v, v.font, UiKit.t("Putting it right"), UiKit.t("nothing to do"),
 			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM,
-			UiKit.EDGE.lightened(0.35))
+			UiKit.DIM)
 
 	## AND THE CROWD, because it is the other half of what a ground earns and it
 	## is the half the probes found nobody was being told about: at the bottom of
@@ -206,7 +206,7 @@ static func _fin_ground(v: SeasonScene) -> void:
 	UiKit.pair(v, v.font, Arena.sells(a.level),
 		UiKit.t("%d CC") % Arena.counter_take(a.level, o.attendance()),
 		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 13,
-		UiKit.EDGE.lightened(0.35), UiKit.DIM)
+		UiKit.DIM, UiKit.DIM)
 	## TWO CURRENCIES, SAID ONCE (Pete, 29 Sep 2026, #7): CC is the club's money
 	## and $ is the men's pay. Both appear across the game; this is the page
 	## about money, so this is where the difference is written down.

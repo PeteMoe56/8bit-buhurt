@@ -1443,18 +1443,22 @@ static func window(ci: CanvasItem, r: Rect2, title: String, font: Font) -> void:
 	panel(ci, r)
 	if title == "":
 		return
-	var px := GRID
+	## 13 px, NOT THE 8 px GRID (round 5: "KINGS CUP · QUARTER-FINALS" and the
+	## grade panel's title read as 7 px). A tab on the top rule now.
+	var px := 13
 	var t := title.to_upper()
 	var w := font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x
 	## The notch is cut in PANEL, not in BG — the frame sits on the panel's own
 	## ground, so filling with the background color would punch a hole through
 	## to whatever is behind the window.
-	ci.draw_rect(Rect2(r.position.x + 14.0, r.position.y - 1.0,
-		w + 16.0, FRAME_PX + 2.0), PANEL)
+	ci.draw_rect(Rect2(r.position.x + 14.0, r.position.y - 9.0,
+		w + 16.0, 18.0), PANEL)
+	ci.draw_rect(Rect2(r.position.x + 14.0, r.position.y - 9.0,
+		w + 16.0, 18.0), FRAME, false, 1.0)
 	## In the ledger like every other drawn string — the titles were the one
 	## piece of text on a panel that the string and ink sweeps could not see.
-	_note(font, t, r.position + Vector2(22.0, float(px) - 2.0), px, HORIZONTAL_ALIGNMENT_LEFT, -1.0, YOU)
-	ci.draw_string(font, r.position + Vector2(22.0, float(px) - 2.0), t,
+	_note(font, t, r.position + Vector2(22.0, 5.0), px, HORIZONTAL_ALIGNMENT_LEFT, -1.0, YOU)
+	ci.draw_string(font, r.position + Vector2(22.0, 5.0), t,
 		HORIZONTAL_ALIGNMENT_LEFT, -1.0, px, YOU)
 
 
