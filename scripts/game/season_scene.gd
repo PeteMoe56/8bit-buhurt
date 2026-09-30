@@ -973,7 +973,7 @@ const NAV_BTN_H := 36.0
 ## Where the counter sits: under the four nav buttons, above the action row.
 ## The shop is a modal; this is the panel it draws in.
 var SHOP_CARD := Rect2(200.0, 120.0, 560.0, 300.0)
-var CLUB_CARD := Rect2(200.0, 70.0, 560.0, 400.0)
+var CLUB_CARD := Rect2(200.0, 90.0, 560.0, 318.0)
 
 
 func _centre_modals() -> void:
