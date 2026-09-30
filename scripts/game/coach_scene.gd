@@ -168,7 +168,7 @@ func _standing(c: Coach) -> void:
 
 func _the_book(c: Coach) -> void:
 	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, UiKit.t("HIS RECORD"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("YOUR RECORD"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
 	var rows := [
 		[UiKit.t("Seasons"), "%d" % c.seasons],
 		[UiKit.t("Record"), c.record_line()],
@@ -184,7 +184,7 @@ func _the_book(c: Coach) -> void:
 			UiKit.DOWN if String(row[0]) == UiKit.t("Relegations") and c.relegations > 0 else UiKit.INK, 140)
 		y += 30.0
 	if c.fought() == 0:
-		UiKit.text(self, font, UiKit.t("Nothing in it yet."), Vector2(M_X + 16, y + 8), 13, UiKit.DIM)
+		UiKit.para(self, font, UiKit.t("It fills in when your first season ends."), Vector2(M_X + 16, y + 8), 13, UiKit.DIM, COL_W - 32.0, 17.0)
 	else:
 		UiKit.text(self, font, UiKit.t("This follows you. The club does not."),
 			Vector2(M_X + 16, COL_Y + COL_H - 14), 13, UiKit.EDGE.lightened(0.5))
@@ -224,7 +224,7 @@ func _offers(c: Coach) -> void:
 		## TWO LINES. It was clipped at forty characters in English too — "A few
 		## clubs are interested in taki..." — which nobody could see was a cut.
 		UiKit.para(self, font, c.offer_blurb(),
-			Vector2(R_X + 16, COL_Y + COL_H - 28), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 14.0)
+			Vector2(R_X + 16, COL_Y + COL_H - 34), 13, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 17.0)
 
 
 func _line(label: String, value: String, y: float) -> void:

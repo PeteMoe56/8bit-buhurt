@@ -119,10 +119,10 @@ func offer_tone() -> int:
 
 
 const OFFER_BLURB: Array[String] = [
-	"Your raw talent is making waves. A few clubs are interested in taking you on.",
-	"Your reputation is growing. The following clubs would have you as their captain-manager.",
-	"Your reputation is widely acknowledged, and a number of clubs want you.",
-	"Your experience and knowledge of the sport make you the most sought-after name in the country.",
+	"Word of your talent is spreading. A few clubs are asking.",
+	"Your name is growing. These clubs would take you on.",
+	"Your name is known everywhere, and clubs want you.",
+	"The most sought-after coach in the country.",
 ]
 
 
