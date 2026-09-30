@@ -1758,6 +1758,9 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 		- float(d.card.weight)) * Tuning.BR_PER_LB
 	c -= d.eff_base() * Tuning.BR_PER_BASE * d.tmod("br_against", 1.0)
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
+	if Tuning.br_read > 0.0 and (a.acting_for_player or Tuning.br_read_ai) \
+			and d.stability < Tuning.pread_at:
+		c += Tuning.br_read
 	if d.exposed_t > 0.0:
 		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)

@@ -91,6 +91,17 @@ func _checks() -> void:
 	var box := Rect2(c - Vector2(scene.WHEEL_RO, scene.WHEEL_RO), Vector2(scene.WHEEL_RO, scene.WHEEL_RO) * 2.0)
 	_ok(Rect2(lo, hi - lo).encloses(box.merge(cancel_r)), "the wheel stays on the list",
 		"%s inside %s" % [str(box.merge(cancel_r)), str(Rect2(lo, hi - lo))])
+	## THE BULLRUSH READ (Pete, 30 Sep 2026): under half balance, a bullrush
+	## gets +0.30 — the wheel's number shows it, because it is the sim's.
+	var t = scene.sim.men[m.prompt.target]
+	var keep: float = t.stability
+	t.stability = 0.55
+	var p_hi: float = float(scene.sim.contact_odds(m.idx, Tuning.Act.BULLRUSH, t.idx)["p"])
+	t.stability = 0.45
+	var p_lo: float = float(scene.sim.contact_odds(m.idx, Tuning.Act.BULLRUSH, t.idx)["p"])
+	t.stability = keep
+	_ok(p_lo - p_hi >= 0.20, "a bullrush on an unbalanced man jumps",
+		"%d%% at 55%% balance, %d%% at 45%%" % [int(round(p_hi * 100.0)), int(round(p_lo * 100.0))])
 	## A tap answers the prompt and closes the wheel.
 	scene.call("_press", c + scene._dir(scene.WHEEL_DIRS[2]) * mid)
 	var chose: int = m.prompt.choice if m.prompt != null else -9

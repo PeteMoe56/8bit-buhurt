@@ -342,6 +342,16 @@ static var flank_hit: float = _env("RB_FLANK_HIT")
 static var flank_br: float = _env("RB_FLANK_BR")
 static var front_pen: float = _env("RB_FRONT_PEN")
 static var pread_at: float = 0.5 if OS.get_environment("RB_PREAD_AT") == "" else _env("RB_PREAD_AT")
+## THE BULLRUSH READ (Pete, 29 Sep 2026: "below 50% balance would help a
+## bullrush pretty heavily. Knocking someone off their feet is easier when
+## they're unbalanced"). The same threshold as the takedown read; BR_READ_AI
+## says whether the AI's bullrushes get it too.
+## Grid, 30 Sep 2026 (120 bouts per policy): +0.10/+0.20/+0.30 for the player
+## left every measure where it was (think +9.6, spam +0.4, tactics 11.9); the
+## same +0.20 for the AI too cut think to +7.1 and raised spam to +1.3. So
+## +0.30, the player's bullrush only — Pete: "pretty heavily".
+static var br_read: float = 0.30 if OS.get_environment("RB_BR_READ") == "" else _env("RB_BR_READ")
+static var br_read_ai: bool = OS.get_environment("RB_BR_READ_AI") == "1"
 static var session_full_week: bool = true
 ## Pete, 29 Sep evening: FULL price (1.0). At 0.25 everyone trained to his
 ## ceiling and reading the scouted range was worth 0.55 seasons, not 1.8.
