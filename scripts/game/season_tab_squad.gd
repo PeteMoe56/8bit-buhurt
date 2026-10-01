@@ -200,12 +200,12 @@ static func _squad_controls(v: SeasonScene) -> void:
 		var out_of_deal: bool = p.years <= 0
 		var deal_cost: int = v.season.resign_cost(p) if out_of_deal else v.season.extend_cost(p)
 		v.ui.add_child(UiKit.button(
-			"%s  ·  %s/wk" % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
+			"%s  ·  %s/yr" % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
 				ClubOffice.money(deal_cost)],
 			Vector2(478, ay), Vector2(196, 46), func():
 				var err := v.season.resign(p) if out_of_deal else v.season.extend(p)
 				if err == "":
-					v.flash = UiKit.t("%s: %s a week for %d years.") % [p.display_name,
+					v.flash = UiKit.t("%s: %s a year for %d years.") % [p.display_name,
 						ClubOffice.money(ClubOffice.billed(p)), p.years]
 					Session.autosave()
 				else:
@@ -440,7 +440,7 @@ static func _draw_info(v: SeasonScene) -> void:
 	var sub := UiKit.t("%s  ·  age %d  ·  %s kit %d%%") % [Tuning.pos_name(int(f.pos)), f.age,
 		Quartermaster.name_of(f), int(round(f.armor * 100.0))]
 	UiKit.text_fit(v, v.font, sub, Vector2(x, y + 20.0), 13, UiKit.DIM, r.size.x - right_w - 40.0)
-	var deal := UiKit.t("%dy left  ·  %s a week") % [maxi(0, f.years), ClubOffice.money(ClubOffice.billed(f))]
+	var deal := UiKit.t("%dy left  ·  %s a year") % [maxi(0, f.years), ClubOffice.money(ClubOffice.billed(f))]
 	UiKit.text_fit(v, v.font, deal, Vector2(x, y + 38.0), 13,
 		UiKit.DOWN if f.years <= 0 else (UiKit.YOU if f.years == 1 else UiKit.DIM), r.size.x - right_w - 40.0)
 	var stats := [f.strength, f.base, f.skill, f.gas]

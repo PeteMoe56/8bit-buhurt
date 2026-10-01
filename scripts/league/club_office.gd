@@ -1098,8 +1098,22 @@ func charge_session() -> String:
 	return ""
 
 
+## THE INFIRMARY, WIRED AS IT SAYS (Pete, 1 Oct 2026: "Looks like we didn't
+## wire that in"). It was floor(level / 2), so levels 1, 3 and 5 bought nothing
+## while the row promised an event a level. Now every level takes one event off
+## a knock (never below one) AND turns away a tenth of the knocks — the second
+## half is what keeps levels three to five worth buying when most knocks are
+## one event long already.
+const INFIRMARY_GUARD: float = 0.10
+
+
 func injury_relief() -> int:
-	return int(floor(float(level(Facility.INFIRMARY)) / 2.0))
+	return level(Facility.INFIRMARY)
+
+
+## The share of knocks that still land, after the infirmary: 1.0 down to 0.5.
+func knock_guard() -> float:
+	return 1.0 - INFIRMARY_GUARD * float(level(Facility.INFIRMARY))
 
 
 # ------------------------------------------------------------------- captains
@@ -1181,8 +1195,6 @@ const REGIME_XP := { Regime.LIGHT: 0.6, Regime.NORMAL: 1.0, Regime.HARD: 1.5 }
 ## Morale a week, as a fraction of the 0-1 scale this game keeps it on. Theirs
 ## is 1-100 and moves 0..+2 or -1..-3; scaled, that is the same weight.
 const REGIME_MORALE := { Regime.LIGHT: 0.015, Regime.NORMAL: 0.0, Regime.HARD: -0.020 }
-## Armor condition a week. Theirs adds or removes 10 of 100 on a big rest.
-const REGIME_WEAR := { Regime.LIGHT: 0.10, Regime.NORMAL: 0.0, Regime.HARD: -0.10 }
 ## And the multiplier on a knock actually landing.
 const REGIME_INJURY := { Regime.LIGHT: 0.10, Regime.NORMAL: 0.20, Regime.HARD: 1.00 }
 ## -> OfficeStaff (office_staff.gd)
@@ -1204,10 +1216,6 @@ func regime_xp(role: int) -> float:
 func regime_morale(role: int) -> float:
 	return OfficeStaff.regime_morale(self, role)
 
-
-## -> OfficeStaff (office_staff.gd)
-func regime_wear(role: int) -> float:
-	return OfficeStaff.regime_wear(self, role)
 
 
 ## -> OfficeStaff (office_staff.gd)

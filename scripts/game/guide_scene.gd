@@ -73,14 +73,14 @@ static func page(i: int) -> Array:
 			UiKit.t("OVR is how good he is now. POT is as good as he can get."),
 			UiKit.t("Strength puts men down. Base keeps him up. Skill wins the grapple. Gas is his tank."),
 			UiKit.t("Bouts and practice give XP. A full bar is a point to spend on his page."),
-			UiKit.t("His deal is $ a week, counted against your salary cap. Extend early and he costs less."),
+			UiKit.t("His deal is $ a year, counted against your salary cap. Extend early and he costs less."),
 			UiKit.t("Free agents cost CC to sign, and their wage goes on your books."),
 			UiKit.t("Unhappy men turn down new deals and walk. Men start to retire from 33."),
 		]
 		4: return [
 			UiKit.t("Hire up to two captains. Each teaches roles: Rail, Flanker or Center."),
 			UiKit.t("A role nobody teaches gets no training over the winter."),
-			UiKit.t("Light: less XP, happier men, kit mended. Normal: steady. Hard: half again the XP, but more knocks, wear and grumbling."),
+			UiKit.t("Light: less XP, happier men. Normal: steady. Hard: half again the XP, but more knocks and grumbling."),
 			UiKit.t("Session: once in a fight week, pay CC for an extra week of practice."),
 			UiKit.t("Winter camp: your training ground and captains share out points over the winter."),
 			UiKit.t("Prospect: each winter, name one man for +3 POT. Needs training ground 3."),
@@ -89,12 +89,13 @@ static func page(i: int) -> Array:
 			UiKit.t("Every man's harness has a metal and a condition. Below the pass mark he cannot fight."),
 			UiKit.t("Metals: Rust, Mild, Hardened, Stainless, Titanium. Better metal wears slower."),
 			UiKit.t("Your armorer's stars are the best metal he can make and keep up. More stars, more wage."),
+			UiKit.t("Every fight wears the kit of the men who fought it. Training does not."),
 			UiKit.t("Repair each man once a week, in a fight week."),
 			UiKit.t("Worn kit makes a man easier to put down."),
 		]
 		6: return [
 			UiKit.t("CC is club money. Everything you buy costs CC."),
-			UiKit.t("$ is a fighter's weekly wage. It never comes out of CC. It only has to fit under your salary cap."),
+			UiKit.t("$ is a fighter's yearly wage. It never comes out of CC. It only has to fit under your salary cap."),
 			UiKit.t("CC comes in from the gate at every event, the bar at home games, wins, draws and where you finish."),
 			UiKit.t("Each summer you pay upkeep on your ground, buildings, insurance and armorer. Division dues come at the start of a season."),
 			UiKit.t("Cannot pay a bill? That thing drops a level."),
@@ -102,7 +103,7 @@ static func page(i: int) -> Array:
 		7: return [
 			UiKit.t("Ground: more seats, more gate. Fenced ground for State, Arena for Regional, National Arena for National."),
 			UiKit.t("Training ground: more winter camp and practice."),
-			UiKit.t("Infirmary: injured men come back sooner."),
+			UiKit.t("Infirmary: fewer knocks, and injured men come back sooner."),
 			UiKit.t("Salary cap: more room for wages."),
 			UiKit.t("Insurance: State needs 1, Regional 2, National 3. Without it, no cups and no Worlds."),
 			UiKit.t("Everything you build costs upkeep each summer. One job per building per week."),

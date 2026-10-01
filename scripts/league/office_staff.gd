@@ -43,8 +43,6 @@ static func regime_morale(o: ClubOffice, role: int) -> float:
 
 
 
-static func regime_wear(o: ClubOffice, role: int) -> float:
-	return float(ClubOffice.REGIME_WEAR[o.regime_for(role)])
 
 
 

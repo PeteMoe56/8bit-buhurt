@@ -401,7 +401,7 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
 		return UiKit.t("%s costs %d CC and you have %d.") % [f.display_name, fee, s.office.credits]
 	var wage := s.market_wage(f)
 	if ClubOffice.wage_bill(s.club) + wage > s.office.cap():
-		return UiKit.t("%s wants %s a week. That puts you %s over the cap.") % [
+		return UiKit.t("%s wants %s a year. That puts you %s over the cap.") % [
 			f.display_name, ClubOffice.money(wage),
 			ClubOffice.money(ClubOffice.wage_bill(s.club) + wage - s.office.cap())]
 	var card := f.copy()
@@ -483,7 +483,7 @@ static func resign(s: Season, f: FighterCard) -> String:
 	var wage := s.resign_cost(f)
 	var bill := ClubOffice.wage_bill(s.club) - ClubOffice.billed(f) + wage
 	if bill > s.office.cap():
-		return UiKit.t("%s wants %s a week. That puts you %s over the cap.") % [
+		return UiKit.t("%s wants %s a year. That puts you %s over the cap.") % [
 			f.display_name, ClubOffice.money(wage),
 			ClubOffice.money(bill - s.office.cap())]
 	f.wage_agreed = wage

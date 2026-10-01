@@ -117,7 +117,7 @@ const TIERS := [
 		"name": "National Division",
 		"short": "NAT",
 		"clubs": 16,
-		"up": 2,          ## not promoted — these are the Worlds berths
+		"up": 2,          ## not promoted; the playoff champion alone goes to the Worlds
 		"down": 2,
 		"power": [64, 80],
 		## THE TOP OF THE PYRAMID, AND THE TOP OF ITS SHELF IS THE DIVISION'S OWN
@@ -125,7 +125,8 @@ const TIERS := [
 		## shelf is the foreign man — see `Market.FOREIGN_CHANCE`.
 		"shelf": [51, 84],
 		"slack": 89,
-		"blurb": "The top flight. Finish top two and the federation sends you to Worlds.",
+		## ONE BERTH: the National playoff champion (Pete, 1 Oct 2026).
+		"blurb": "The top flight. Win the playoff and the federation sends you to Worlds.",
 	},
 ]
 

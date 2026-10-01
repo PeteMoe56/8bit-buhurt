@@ -263,7 +263,7 @@ func _test_the_regime_actually_trades_something() -> void:
 	for r in [ClubOffice.Regime.LIGHT, ClubOffice.Regime.NORMAL, ClubOffice.Regime.HARD]:
 		o.set_regime(0, r)
 		seen[r] = [o.regime_xp(role), o.regime_morale(role),
-			o.regime_wear(role), o.regime_injury(role)]
+			0.0, o.regime_injury(role)]
 	## Hard develops faster and costs more on every other axis. Light is the
 	## mirror. If any pair ever collapses, the decision has gone.
 	var light: Array = seen[ClubOffice.Regime.LIGHT]
@@ -273,8 +273,7 @@ func _test_the_regime_actually_trades_something() -> void:
 		bad.append("training does not climb Light -> Normal -> Hard")
 	if not (float(light[1]) > float(hard[1])):
 		bad.append("morale does not fall on Hard")
-	if not (float(light[2]) > float(hard[2])):
-		bad.append("armor does not wear on Hard")
+	## (Kit no longer wears in training — Pete, 1 Oct 2026. See `bout_wear`.)
 	if not (float(light[3]) < float(normal[3]) and float(normal[3]) < float(hard[3])):
 		bad.append("knock odds do not climb with the regime")
 	## And the one that makes it bite: Hard is not a little riskier.

@@ -182,6 +182,10 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 	## THE KNOCK LANDS AFTER THE WEEK TICKS, as it does in the league — see
 	## `post_bout`. Before, a cup tie never ticked the week at all.
 	s._apply_injuries(sim)
+	## AND THE KIT TAKES THE TIE, as a league bout does (Pete, 1 Oct 2026:
+	## "fights should wear them").
+	SeasonBouts.bout_wear(s)
+	s.sync_power()
 
 
 

@@ -277,7 +277,7 @@ func _build() -> void:
 				flash = UiKit.said(err) if err != "" else UiKit.t("%s tagged for the Hall.") % man.display_name
 			Session.autosave()
 			_build(), "star" if tagged else "hall"))
-	ui.add_child(UiKit.button(UiKit.t("%s · %s/wk") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend early"),
+	ui.add_child(UiKit.button(UiKit.t("%s · %s/yr") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend early"),
 		ClubOffice.money(cost)], Vector2(376, y), Vector2(250, 44), func():
 			flash = UiKit.said(season.resign(man) if out_of_deal else season.extend(man))
 			Session.autosave()
@@ -381,7 +381,7 @@ func _meeting_controls() -> void:
 	for i in 4:
 		var c: Dictionary = _meeting_row(i)
 		var at := _cell_at(i)
-		var price: String = (UiKit.t("%s/wk") % ClubOffice.money(int(c["wage"]))) if c.has("wage") \
+		var price: String = (UiKit.t("%s/yr") % ClubOffice.money(int(c["wage"]))) if c.has("wage") \
 			else (UiKit.t("%d CC") % int(c["cc"]))
 		var b := UiKit.button("%s · %s" % [String(c["verb"]), price],
 			at + Vector2(READ_W + 12.0, 0.0), Vector2(btn_w(), HEAD_H),
@@ -607,7 +607,7 @@ func _the_man() -> void:
 	_line("Weight", UiKit.t("%d lb in harness") % man.weight, y); y += ROW
 	## THREE WAGES, EACH NAMED (review, 1 Oct 2026): what he is on now, what he
 	## asks at renewal, and what extending early costs.
-	_line("Contract", UiKit.t("%s/wk  ·  %dy left") % [ClubOffice.money(ClubOffice.billed(man)),
+	_line("Contract", UiKit.t("%s/yr  ·  %dy left") % [ClubOffice.money(ClubOffice.billed(man)),
 		man.years] if man.years > 0 else UiKit.t("OUT OF CONTRACT"), y)
 	y += ROW
 	_line("Where", UiKit.t("the line") if season.club.starting_five().has(man)
@@ -725,7 +725,7 @@ func _the_man() -> void:
 		## The price the club would actually pay (a Negotiator captain included),
 		## from the same function `Season.resign` charges.
 		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])
-		UiKit.right(self, font, UiKit.t("%s/wk · %dy") % [
+		UiKit.right(self, font, UiKit.t("%s/yr · %dy") % [
 			ClubOffice.money(wage_asked), int(asks["years"])],
 			Vector2(L_X + COL_W - 16, y + 56), 12,
 			UiKit.DOWN if float(asks["mood"]) > 1.02 else (

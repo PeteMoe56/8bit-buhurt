@@ -172,7 +172,7 @@ func _draw() -> void:
 				else UiKit.INK * Color(1, 1, 1, 0.62),
 			## OVER THE CAP REPLACES THE WAGE rather than trailing it: six cards a
 			## row leave no room for both, and the red says why he cannot come.
-			"note": (UiKit.t("age %d · %s/wk") % [f.age, ClubOffice.money(season.market_wage(f))]) if room
+			"note": (UiKit.t("age %d · %s/yr") % [f.age, ClubOffice.money(season.market_wage(f))]) if room
 				else (UiKit.t("age %d · over cap") % f.age),
 			"note_col": UiKit.DIM if room else UiKit.DOWN,
 			## HIS CEILING, exact (scouting removed, Pete 1 Oct 2026).

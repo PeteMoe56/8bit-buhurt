@@ -382,5 +382,5 @@ static func _fin_ground(v: SeasonScene) -> void:
 	## TWO CURRENCIES, SAID ONCE (Pete, 29 Sep 2026, #7): CC is the club's money
 	## and $ is the men's pay. Both appear across the game; this is the page
 	## about money, so this is where the difference is written down.
-	UiKit.text_fit(v, v.font, UiKit.t("CC is club money. $ is weekly pay."),
+	UiKit.text_fit(v, v.font, UiKit.t("CC is club money. $ is yearly pay."),
 		Vector2(SeasonScene.FIN_RIGHT, y + 26.0), 14, UiKit.DIM, UiKit.right_edge() - SeasonScene.FIN_RIGHT)

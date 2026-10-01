@@ -296,7 +296,7 @@ static func _grade_bout(s: Season, rounds_for: int, rounds_against: int) -> void
 ## asks the world what happened after the world has moved on is a function that
 ## is reliably one week wrong, which is exactly the class of bug `post_cup_bout`
 ## not ticking the week already cost this project a fortnight of.
-static func _apply_regime(s: Season, hosted: bool) -> void:
+static func _apply_regime(s: Season, hosted: bool, fought := true) -> void:
 	## WHO TRAVELLED, for the gate. A DRAW only pulls people in on a day he is
 	## actually there — read off the eight rather than the squad, because a man in
 	## the reserves sells nobody a ticket.
@@ -310,20 +310,13 @@ static func _apply_regime(s: Season, hosted: bool) -> void:
 		f.morale_shift(s.office.regime_morale(role))
 		## A captain who teaches nothing still lifts the room.
 		f.morale_shift(s.office.presence())
-		## Armor takes the wear whether or not he fought — that is what a hard
-		## week means.
-		## KIT MINDER and ROUGH ON KIT. `regime_wear` is negative, so a multiplier
-		## under one is less damage and over one is more — the sign stays with the
-		## regime and the trait only scales it.
-		## AND THE HARNESS DECIDES HOW MUCH OF THAT WEEK THE KIT ABSORBS. The
-		## regime says how hard it was, the trait scales it, and the grade of
-		## harness he is wearing scales it again — tournament plate takes a third
-		## less than club spares. That is the actual economy of armor in the
-		## sport: good kit pays for itself in repairs it does not need.
-		f.armor = clampf(f.armor + s.office.regime_wear(role)
-			* FighterTrait.mod(f.trait_id, "wear", 1.0)
-			* Quartermaster.wear_scale(f), 0.0, Quartermaster.ceiling(f))
 	s.office.sync_morale(s.club)
+	## KIT WEARS IN FIGHTS, NOT IN TRAINING (Pete, 1 Oct 2026: "fights should
+	## wear them, but not training"). The regime used to carry the wear — Hard
+	## took a tenth a week, Light mended a tenth — and a bout took nothing.
+	if fought:
+		bout_wear(s)
+
 	## AND THE GROUND HAS THE SAME WEEK THE MEN DID.
 	##
 	## Here rather than in `_after_event`, because this is the ONE place the fought
@@ -340,7 +333,19 @@ static func _apply_regime(s: Season, hosted: bool) -> void:
 	s.sync_power()
 
 
+## THE BOUT'S WEAR ON THE LINE: every man who stood in it loses BOUT_WEAR of
+## his harness, scaled by his trait (KIT MINDER, ROUGH ON KIT) and by the
+## grade he is wearing — better metal takes less, which is what an armorer and
+## a Titanium harness are for. Fought, simmed or cup: the same five, the same
+## wear. A forfeit fought nobody and wears nothing.
+const BOUT_WEAR: float = 0.06
 
+
+static func bout_wear(s: Season) -> void:
+	for f in s.club.starting_five():
+		f.armor = clampf(f.armor - BOUT_WEAR
+			* FighterTrait.mod(f.trait_id, "wear", 1.0)
+			* Quartermaster.wear_scale(f), 0.0, Quartermaster.ceiling(f))
 
 static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
 	var line := sim.lineup(0)
@@ -365,7 +370,8 @@ static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
 			roll.seed = hash("knock:%d:%d:%d:%s" % [s.world.rng.seed, s.world.season,
 				s.world.event, card.display_name])
 			## AND THE GRADE'S SHARE of it (playtest 30 Sep: too many knocks).
-			if roll.randf() > s.office.regime_injury(Tuning.role_of(int(card.pos))) * s.office.knocks_scale:
+			if roll.randf() > s.office.regime_injury(Tuning.role_of(int(card.pos))) * s.office.knocks_scale \
+					* s.office.knock_guard():
 				continue
 			var was := card.injury
 			card.injury = maxi(card.injury,
@@ -687,7 +693,7 @@ static func forfeit_bout(s: Season) -> void:
 	s.last_result = [0, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE]
 	s.world.play_week(s.last_result)
 	s._after_event(0, Tuning.BOUT_WINS, gate)
-	s._apply_regime(was_home)
+	s._apply_regime(was_home, false)
 	s._log(opp, before, false, was_home)
 	s.event_played.emit(opp, [])
 

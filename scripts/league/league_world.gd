@@ -1251,7 +1251,8 @@ func _build_set_invitational(set_i: int, slot: int) -> Cup:
 	return c
 
 
-## WORLDS. The National Division's top two carry the country; the other fourteen
+## WORLDS. The National playoff champion carries the country (one berth, Pete
+## 1 Oct 2026; this note used to say top two); the other fourteen
 ## are invited from abroad and are rated off the top flight's own band, so a
 ## Worlds berth is not a victory lap.
 func _build_worlds(national_rows: Array) -> Cup:
@@ -1277,8 +1278,8 @@ func _build_worlds(national_rows: Array) -> Cup:
 		field.append(guest_id)
 		guest_id += 1
 	field.sort_custom(func(a, b): return int(clubs[a]["power"]) > int(clubs[b]["power"]))
-	## AND THE SAME VETO ON THE WORLDS. Finishing top four of the National
-	## Division earns the place; the federation is what lets you take it. A club
+	## AND THE SAME VETO ON THE WORLDS. Winning the National playoff earns the
+	## place; the federation is what lets you take it. A club
 	## barred from entry is dropped from the field and a guest takes the spot,
 	## which is what actually happens when a club cannot produce its paperwork.
 	if cup_entry_barred and field.has(player_club):

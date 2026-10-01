@@ -228,9 +228,9 @@ static func _draw_training(v: SeasonScene) -> void:
 static func _regime_line(k: int) -> String:
 	match k:
 		ClubOffice.Regime.LIGHT:
-			return UiKit.t("Light: XP ×0.6, morale and kit kept, knocks rare")
+			return UiKit.t("Light: XP ×0.6, morale up, knocks rare")
 		ClubOffice.Regime.HARD:
-			return UiKit.t("Hard: XP ×1.5, morale and kit wear, knocks ×5")
+			return UiKit.t("Hard: XP ×1.5, morale down, knocks ×5")
 	return UiKit.t("Normal: XP ×1.0")
 
 
@@ -366,8 +366,6 @@ static func _draw_office(v: SeasonScene) -> void:
 					if o.injury_relief() > 0:
 						right = UiKit.tn("-%d event off a knock", "-%d events off a knock",
 							o.injury_relief()) % o.injury_relief()
-					elif o.level(f) > 0:
-						right = UiKit.t("one more level to help")
 			UiKit.meter(v, bar, o.level(f), ClubOffice.FACILITY_MAX, UiKit.UP if o.level(f) > 0 else UiKit.EDGE)
 		UiKit.pair(v, v.font, label, right, Vector2(SeasonScene.BAR_X, y), HELP_X + 34.0, 13, 12, UiKit.DIM, UiKit.INK)
 		var keep := row_upkeep(v, kind)
@@ -418,13 +416,13 @@ static func help_text(key: String) -> Array:
 	if key == "kit":
 		return [UiKit.t("KIT"), UiKit.t("Your armorer's stars are the best metal he can make and keep.")]
 	if key == "cap":
-		return [UiKit.t("SALARY CAP"), UiKit.t("$ is weekly wages. Your whole team's wages may not add up to more than the cap. Raise it to carry better men.")]
+		return [UiKit.t("SALARY CAP"), UiKit.t("$ is yearly wages. Your whole team's wages may not add up to more than the cap. Raise it to carry better men.")]
 	if key == "insurance":
 		return [UiKit.t("INSURANCE"), UiKit.t("Cover for the men, the ground and the people watching. Each league asks for a level. Below it, you are not entered for the cups.")]
 	if key == str(ClubOffice.Facility.TRAINING):
 		return [UiKit.t("TRAINING GROUND"), UiKit.t("More weekly practice, and a bigger winter camp.")]
 	if key == str(ClubOffice.Facility.INFIRMARY):
-		return [UiKit.t("INFIRMARY"), UiKit.t("A knock keeps a man out of fewer events.")]
+		return [UiKit.t("INFIRMARY"), UiKit.t("Each level: a knock keeps a man out one event less, and one knock in ten never lands.")]
 	return ["", ""]
 
 
