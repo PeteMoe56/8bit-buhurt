@@ -607,7 +607,7 @@ func _the_man() -> void:
 	_line("Weight", UiKit.t("%d lb in harness") % man.weight, y); y += ROW
 	## THREE WAGES, EACH NAMED (review, 1 Oct 2026): what he is on now, what he
 	## asks at renewal, and what extending early costs.
-	_line("Contract", UiKit.t("now %s/wk  ·  %dy left") % [ClubOffice.money(ClubOffice.billed(man)),
+	_line("Contract", UiKit.t("%s/wk  ·  %dy left") % [ClubOffice.money(ClubOffice.billed(man)),
 		man.years] if man.years > 0 else UiKit.t("OUT OF CONTRACT"), y)
 	y += ROW
 	_line("Where", UiKit.t("the line") if season.club.starting_five().has(man)
@@ -695,7 +695,8 @@ func _the_man() -> void:
 			else (UiKit.YOU if waiting else UiKit.SELECT))
 	## A FULL BAR SAYS WHY IT IS FULL (item 2): the level is earned and waiting.
 	if waiting and not capped:
-		UiKit.text_fit(self, font, UiKit.t("Earned. Spend it on a +1 below."),
+		UiKit.text_fit(self, font, UiKit.t("Earned. Spend it on a +1 below.") if Career.levels_banked(man) <= 1
+			else UiKit.t("Earned. Spend them on the +1s below."),
 			Vector2(L_X + 16, y + 40.0), 12, UiKit.YOU, COL_W - 32.0)
 	else:
 		_pace(y + 38.0)

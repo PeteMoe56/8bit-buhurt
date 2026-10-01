@@ -72,7 +72,7 @@ static func purse_box() -> Rect2:
 
 
 static func purse_at() -> Vector2:
-	return Vector2(UiKit.right_edge(358.0 + HEADER_SHIFT), 31.0)
+	return Vector2(UiKit.right_edge(358.0 + HEADER_SHIFT), 29.0)
 
 
 const TABLE_Y := 140.0
@@ -657,7 +657,7 @@ func _header() -> void:
 	var bill := ClubOffice.wage_bill(season.club)
 	var cap := season.office.cap()
 	UiKit.text_fit(self, font, UiKit.t("%s/%s wages") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-		Vector2(purse_box().position.x + 18.0, 46.0), 12, UiKit.DOWN if bill > cap else UiKit.DIM,
+		Vector2(purse_box().position.x + 18.0, 44.0), 12, UiKit.DOWN if bill > cap else UiKit.DIM,
 		PURSE_W - 22.0)
 	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.
 	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 20), 12, UiKit.DIM)

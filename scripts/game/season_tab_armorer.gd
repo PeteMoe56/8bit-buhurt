@@ -76,6 +76,8 @@ static func _draw_market(v: SeasonScene) -> void:
 			heads[ci] = word
 		elif heads[ci] != word and not String(heads[ci]).contains(word):
 			heads[ci] = String(heads[ci]) + "  ·  " + word
+	if heads[1] == heads[0]:
+		heads[1] = ""
 	for ci in 2:
 		UiKit.text(v, v.font, String(heads[ci]),
 			Vector2(24 + float(ci) * (cell + SeasonScene.QM_GAP), SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)
@@ -98,7 +100,8 @@ static func _draw_market(v: SeasonScene) -> void:
 		UiKit.text(v, v.font, UiKit.t("pass"), Vector2(tick_x + 4.0, hy), 12, UiKit.DOWN)
 		## NEXT, NOT FIX (round 8: a sound harness showed its upgrade price under
 		## FIX, so 90% "cost" more than 73%). Each row now says which it is.
-		UiKit.right(v, v.font, UiKit.t("NEXT"), Vector2(cx + cell, hy), 12, UiKit.DIM, _cost_w(uniform))
+		if _any_next(v, cap):
+			UiKit.right(v, v.font, UiKit.t("NEXT"), Vector2(cx + cell, hy), 12, UiKit.DIM, _cost_w(uniform))
 
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
@@ -335,3 +338,17 @@ static func better_pool(v: SeasonScene) -> Array:
 		if int(a["stars"]) > mine:
 			out.append(a)
 	return out
+
+
+
+## WHETHER ANY ROW HAS A "NEXT" TO SHOW (review, 1 Oct 2026: a heading over
+## an empty column).
+static func _any_next(v: SeasonScene, cap: int) -> bool:
+	for row in v._qm_rows():
+		var f: FighterCard = row["card"]
+		if not f.passes_inspection() or not Quartermaster.topped_out(f, cap):
+			return true
+		var n := Quartermaster.next_grade(f)
+		if n >= 0 and n <= cap:
+			return true
+	return false

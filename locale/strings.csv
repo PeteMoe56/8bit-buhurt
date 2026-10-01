@@ -306,7 +306,7 @@ The armorer went over %s's harness.,The armorer went over %s's harness.,El armer
 %s  —  %s,%s  —  %s,%s  —  %s,%s  —  %s,%s  —  %s,%s  —  %s,%s  —  %s,%s  —  %s,%s  —  %s,%s  —  %s
 %d of %d,%d of %d,%d de %d,%d sur %d,%d von %d,%d di %d,%d de %d,%d z %d,%d из %d,%d / %d
 %d lb in harness,%d lb in harness,%d lb con arnés,%d lb en armure,%d lb in Rüstung,%d lb in armatura,%d lb de armadura,%d lb w zbroi,%d фнт в доспехе,装備込み %d lb
-now %s/wk  ·  %dy left,now %s/wk  ·  %dy left,ahora %s/sem  ·  %d a.,actuel %s/sem  ·  %d a,jetzt %s/Wo  ·  noch %d J.,ora %s/sett  ·  %d a,agora %s/sem  ·  %da,teraz %s/tydz.  ·  %d l.,сейчас %s/нед  ·  осталось %d г.,現在 週%s  ·  残り%d年
+%s/wk  ·  %dy left,%s/wk  ·  %dy left,%s/sem  ·  %d a.,%s/sem  ·  %d a,%s/Wo  ·  noch %d J.,%s/sett  ·  %d a,%s/sem  ·  %da,%s/tydz.  ·  %d l.,%s/нед  ·  %d г.,週%s  ·  残り%d年
 OUT OF CONTRACT,OUT OF CONTRACT,SIN CONTRATO,EN FIN DE CONTRAT,OHNE VERTRAG,SENZA CONTRATTO,SEM CONTRATO,BEZ KONTRAKTU,КОНТРАКТ ИСТЁК,契約切れ
 the line,the line,la línea,la ligne,die Linie,la linea,a linha,linia,линия,先発
 the bench,the bench,el banquillo,le banc,die Bank,la panchina,o banco,ławka,скамейка,ベンチ
@@ -318,6 +318,7 @@ CEILING,CEILING,TECHO,PLAFOND,POTENZIAL,TETTO,TETO,PUŁAP,ПОТОЛОК,潜在�
 LEVEL,LEVEL,NIVEL,NIVEAU,STUFE,LIVELLO,NÍVEL,POZIOM,УРОВЕНЬ,レベル
 %d / %d xp,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d XP
 Earned. Spend it on a +1 below.,Earned. Spend it on a +1 below.,Ganado: úsalo en un +1.,Acquis : un +1 à placer dessous.,Verdient. Setz ihn unten auf +1.,Guadagnato: usalo con un +1.,Conquistado: use num +1.,Zdobyty. Wydaj na +1 poniżej.,Заработано. Потратьте на +1 ниже.,獲得。下の+1で使おう。
+Earned. Spend them on the +1s below.,Earned. Spend them on the +1s below.,Ganados. Gástalos en los +1 de abajo.,Gagnés. Dépense-les sur les +1 ci-dessous.,Verdient. Verteile sie unten auf die +1.,Guadagnati. Spendili sui +1 qui sotto.,Ganhos. Gaste-os nos +1 abaixo.,Zdobyte. Wydaj je na +1 poniżej.,Заработано. Потратьте на +1 ниже.,獲得済み。下の+1に使おう。
 He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-signera pas.,Er unterschreibt nicht nochmal.,Non rinnoverà.,Ele não vai renovar.,Więcej nie podpisze.,Больше не подпишет.,再契約には応じない。
 Asks at renewal,Asks at renewal,Pide al renovar,Demande au renouvellement,Will bei Verlängerung,Chiede al rinnovo,Pede na renovação,Chce przy odnowieniu,Просит при продлении,更新時の要求
 %s/wk · %dy,%s/wk · %dy,%s/sem · %da,%s/sem · %da,%s/Wo. · %dJ,%s/sett · %da,%s/sem · %da,%s/tydz. · %d l.,%s/нед · %d г.,%s/週 · %d年
@@ -1084,7 +1085,7 @@ more v,more v,más v,suite v,mehr v,altro v,mais v,więcej v,ещё v,続き v
 BEFORE THE CHARGE,BEFORE THE CHARGE,ANTES DE LA CARGA,AVANT LA CHARGE,VOR DEM ANSTURM,PRIMA DELLA CARICA,ANTES DA CARGA,PRZED SZARŻĄ,ПЕРЕД АТАКОЙ,突撃前
 your line %d  ·  v %s  ·  their line %d,your line %d  ·  v %s  ·  their line %d,tu línea %d  ·  v %s  ·  su línea %d,votre ligne %d  ·  c. %s  ·  leur ligne %d,deine Linie %d  ·  gg. %s  ·  ihre Linie %d,la tua linea %d  ·  v %s  ·  la loro %d,sua linha %d  ·  x %s  ·  linha deles %d,twoja linia %d  ·  v %s  ·  ich linia %d,ваша линия %d  ·  против %s  ·  их линия %d,自軍%d  ·  対 %s  ·  相手%d
 END OF ROUND %d,END OF ROUND %d,FIN DEL ASALTO %d,FIN DE LA MANCHE %d,ENDE RUNDE %d,FINE ROUND %d,FIM DO ROUND %d,KONIEC RUNDY %d,КОНЕЦ РАУНДА %d,第%dラウンド終了
-YOURS STANDING,YOURS STANDING,TUYOS EN PIE,LES TIENS DEBOUT,DEINE STEHEN,I TUOI IN PIEDI,SEUS DE PÉ,TWOI NA NOGACH,ВАШИ НА НОГАХ,立っている味方
+STILL STANDING,STILL STANDING,AÚN EN PIE,ENCORE DEBOUT,NOCH STEHEND,ANCORA IN PIEDI,AINDA DE PÉ,WCIĄŻ NA NOGACH,ЕЩЁ НА НОГАХ,立っている
 BACK IN,BACK IN,VUELVEN EN,RETOUR DANS,ZURÜCK IN,RIENTRO,VOLTAM EM,POWRÓT ZA,ВЫХОД ЧЕРЕЗ,再開まで
 DOWNED,DOWNED,DERRIBADO,AU SOL,AM BODEN,A TERRA,CAIU,POWALONY,СБИТ,ダウン
 WILL NOT COME OFF,WILL NOT COME OFF,NO QUIERE SALIR,NE VEUT PAS SORTIR,GEHT NICHT RAUS,NON ESCE,NÃO SAI,NIE ZEJDZIE,НЕ УЙДЁТ,交代拒否

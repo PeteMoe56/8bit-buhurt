@@ -146,7 +146,8 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 				if path != "res://scenes/Settings.tscn":
 					UiKit.trail_reset()
 				UiKit.go(path), String(it[2]))
-		v.ui.add_child(UiKit.primary(b) if i == 0 else (UiKit.danger(b) if i == 3 else b))
+		## SAVE & QUIT IS NOT RED: nothing is lost by it.
+		v.ui.add_child(UiKit.primary(b) if i == 0 else b)
 
 
 static func _draw_club_menu(v: SeasonScene) -> void:

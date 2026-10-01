@@ -51,11 +51,12 @@ static func _finances_controls(v: SeasonScene) -> void:
 		for r in o.untaught():
 			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
 		var yy := panel_top() + 74.0 + float(o.captains.size()) * 42.0 + (22.0 if o.captains.is_empty() else 0.0)
-		v.ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Hire for %s") % names, Vector2(panel_x(1) + 14.0, yy - 4.0),
+		## NOT RED: red is for what cannot be undone (review, 1 Oct 2026).
+		v.ui.add_child(UiKit.button(UiKit.t("Hire for %s") % names, Vector2(panel_x(1) + 14.0, yy - 4.0),
 			Vector2(pw - 28.0, 32), func():
 				Session.staff_browse = true
 				Session.autosave()
-				UiKit.go("res://scenes/Staff.tscn"), "helm")))
+				UiKit.go("res://scenes/Staff.tscn"), "helm"))
 	## A POINT TO SPEND opens the coach's page, where the + buttons are.
 	var c := v.season.coach
 	if c.points > 0:
@@ -108,7 +109,7 @@ static func _draw_management(v: SeasonScene) -> void:
 	y += 28.0
 	var net := i_n - o_n
 	UiKit.pair(v, v.font, UiKit.t("Total"), UiKit.t("%+d CC") % net, Vector2(x, y), x + w, 22, 22, UiKit.INK,
-		UiKit.UP if net >= 0 else UiKit.DOWN)
+		UiKit.UP if net > 0 else (UiKit.DOWN if net < 0 else UiKit.INK))
 	y += 34.0
 	UiKit.para(v, v.font, UiKit.t("%d CC in hand. Gates and prizes land as events are fought.") % o.credits,
 		Vector2(x, y), 13, UiKit.DIM, w, 17.0, 3)

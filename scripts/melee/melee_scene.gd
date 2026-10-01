@@ -1240,7 +1240,7 @@ func _draw_corner() -> void:
 				standing += 1
 		var head := [
 			## "5 OF 5", NOT "5 - 0" (review, 1 Oct 2026: it read as a score).
-			[UiKit.t("YOURS STANDING"), UiKit.t("%d of %d") % [standing, _line_size(0)],
+			[UiKit.t("STILL STANDING"), UiKit.t("%d of %d") % [standing, _line_size(0)],
 				COL_GOOD if standing >= 3 else COL_HOT],
 			## THE CORNER'S OWN CLOCK (blind review, 29 Sep: "the countdown is not
 			## visible"). How long the round took mattered less than how long is left.
