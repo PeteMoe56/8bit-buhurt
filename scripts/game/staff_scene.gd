@@ -8,6 +8,8 @@ extends Node2D
 ## shipped build rather than invented.
 
 const CARD_W := 218.0
+## THE ARMORER'S ROW, between the captains and the coverage line.
+const ARM_Y := 284.0
 const CARD_H := 124.0
 const CUR_Y := 96.0
 const OFFER_X := 496.0
@@ -35,6 +37,9 @@ func _ready() -> void:
 	season = Session.season
 	ui = CanvasLayer.new()
 	add_child(ui)
+	if Session.staff_browse:
+		Session.staff_browse = false
+		browsing = true
 	_build()
 
 
@@ -72,7 +77,7 @@ func _build() -> void:
 			## A VERB ON EACH (round 9: "+1 yr" needed one), Release narrower and
 			## apart so both read at the same size.
 			var ext := UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W - 102.0, 38), _extend.bind(i))
+				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W - 124.0, 38), _extend.bind(i))
 			ext.disabled = ClubOffice.extend_cost(season.office.captains[i]) > season.office.credits
 			ui.add_child(ext)
 			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 8.0),
@@ -84,6 +89,13 @@ func _build() -> void:
 					browsing = true
 					flash = ""
 					_build(), "helm")))
+	## THE ARMORER IS STAFF TOO: his card, and the door to the list.
+	ui.add_child(UiKit.button(UiKit.t("Armorers"), Vector2(24.0 + CARD_W + 16.0, ARM_Y + 14.0), Vector2(CARD_W, 40),
+		func():
+			Session.open_armorers = true
+			SeasonScene.last_tab = SeasonScene.Tab.MARKET
+			Session.autosave()
+			UiKit.go("res://scenes/Season.tscn"), "anvil"))
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 
@@ -214,6 +226,7 @@ func _draw() -> void:
 
 	_coverage()
 	_trait_word()
+	_armorer_card()
 	if flash != "":
 		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13,
 			[UiKit.DOWN, UiKit.UP, UiKit.YOU][flash_tone])
@@ -311,3 +324,15 @@ func _coverage() -> void:
 				line += "  ·  specialty"
 		UiKit.text(self, font, line, Vector2(x, y + 20), 12,
 			(UiKit.UP if is_spec else _regime_color(o.regime_for(role))) if taught else UiKit.DOWN)
+
+
+
+func _armorer_card() -> void:
+	var a: Dictionary = season.office.armorer
+	var r := Rect2(24, ARM_Y, CARD_W, 68)
+	UiKit.panel(self, r)
+	UiKit.text(self, font, UiKit.t("ARMORER"), r.position + Vector2(12, 18), 11, UiKit.DIM)
+	UiKit.text_fit(self, font, String(a.get("name", "")), r.position + Vector2(12, 42), 16, UiKit.INK, 130.0)
+	UiKit.stars(self, r.position + Vector2(150, 30), int(a.get("stars", 1)) * 20, UiKit.YOU, 10.0, 2.0)
+	UiKit.text_fit(self, font, UiKit.t("Makes up to %s") % Armorer.metal_name(Armorer.cap_of(a)),
+		r.position + Vector2(12, 60), 12, UiKit.DIM, CARD_W - 24.0)

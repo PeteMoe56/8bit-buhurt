@@ -277,7 +277,7 @@ func _build() -> void:
 				flash = UiKit.said(err) if err != "" else UiKit.t("%s tagged for the Hall.") % man.display_name
 			Session.autosave()
 			_build(), "star" if tagged else "hall"))
-	ui.add_child(UiKit.button(UiKit.t("%s · %s/wk") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend now"),
+	ui.add_child(UiKit.button(UiKit.t("%s · %s/wk") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend early"),
 		ClubOffice.money(cost)], Vector2(376, y), Vector2(250, 44), func():
 			flash = UiKit.said(season.resign(man) if out_of_deal else season.extend(man))
 			Session.autosave()
@@ -605,7 +605,9 @@ func _the_man() -> void:
 	var y := COL_Y + 54.0
 	_line("Age", "%d" % man.age, y); y += ROW
 	_line("Weight", UiKit.t("%d lb in harness") % man.weight, y); y += ROW
-	_line("Contract", UiKit.t("%s/wk  ·  %dy") % [ClubOffice.money(ClubOffice.billed(man)),
+	## THREE WAGES, EACH NAMED (review, 1 Oct 2026): what he is on now, what he
+	## asks at renewal, and what extending early costs.
+	_line("Contract", UiKit.t("now %s/wk  ·  %dy left") % [ClubOffice.money(ClubOffice.billed(man)),
 		man.years] if man.years > 0 else UiKit.t("OUT OF CONTRACT"), y)
 	y += ROW
 	_line("Where", UiKit.t("the line") if season.club.starting_five().has(man)

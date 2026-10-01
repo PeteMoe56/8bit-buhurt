@@ -175,6 +175,19 @@ func _draw() -> void:
 		UiKit.text(self, font, UiKit.t("XP %d of %d to level %d") % [c.xp, Coach.need(c.level), c.level + 1],
 			Vector2(24, 206), 14, UiKit.DIM)
 		UiKit.bar(self, Rect2(24, 214, 300, 10), float(c.xp) / float(Coach.need(c.level)), UiKit.YOU)
+		## WHAT THE STARS ARE DOING RIGHT NOW (review, 1 Oct 2026: the left half
+		## was empty).
+		UiKit.text(self, font, UiKit.t("WHAT YOUR SKILLS DO NOW"), Vector2(24, 262), 12, UiKit.DIM)
+		var now := [
+			UiKit.t("Practice and bouts: +%d%% XP") % (c.skill(Coach.Skill.TRAINING) * 5),
+			UiKit.t("A loss costs the room %d%% less") % (c.skill(Coach.Skill.MOTIVATION) * 10),
+			UiKit.t("Extra corner calls: %d") % c.extra_calls(),
+			UiKit.t("Gate, bar and prizes: +%d%%") % (c.skill(Coach.Skill.BUSINESS) * 5),
+			UiKit.t("Free agents: %d%% cheaper") % (c.skill(Coach.Skill.RECRUITING) * 5),
+		]
+		for i in now.size():
+			UiKit.text_fit(self, font, String(now[i]), Vector2(24, 290 + i * 26), 15,
+				UiKit.INK if c.skill(i) > 0 else UiKit.DIM, 440.0)
 	else:
 		UiKit.text(self, font, UiKit.t("FIRST NAME"), Vector2(24, 152), 12, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("LAST NAME"), Vector2(240, 152), 12, UiKit.DIM)

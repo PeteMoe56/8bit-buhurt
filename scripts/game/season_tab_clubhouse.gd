@@ -132,7 +132,7 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 		[UiKit.t("Resume"), "", "sword"],
 		[UiKit.t("Settings"), "res://scenes/Settings.tscn", "cog"],
 		[UiKit.t("Save / Load"), "res://scenes/Title.tscn", "book"],
-		[UiKit.t("Quit"), "res://scenes/Start.tscn", "close"],
+		[UiKit.t("Save & quit"), "res://scenes/Start.tscn", "close"],
 	]
 	for i in items.size():
 		var it: Array = items[i]
@@ -358,7 +358,7 @@ static func _draw_office(v: SeasonScene) -> void:
 			match f:
 				ClubOffice.Facility.TRAINING:
 					## THE GROUND'S OWN SHARE, the number its button moves (review, 1 Oct).
-					right = UiKit.t("camp +%d") % (o.level(f) * 3)
+					right = UiKit.t("+%d winter camp") % (o.level(f) * 3)
 				ClubOffice.Facility.INFIRMARY:
 					if o.injury_relief() > 0:
 						right = UiKit.tn("-%d event off a knock", "-%d events off a knock",

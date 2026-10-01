@@ -81,6 +81,13 @@ func _back() -> void:
 	UiKit.back("res://scenes/Season.tscn")
 
 
+func _fit(id: int, px: int, width: float) -> String:
+	var short := ""
+	if Session.season != null and id >= 0:
+		short = String(Session.season.world.club(id).get("short", ""))
+	return UiKit.fit_name(font, _name(id), short, px, width)
+
+
 func _name(id: int) -> String:
 	if Session.season == null or id < 0:
 		return "—"
@@ -158,6 +165,17 @@ func _tree() -> void:
 	for i in n_cols:
 		var x := TREE_X + float(i) * (COL_W + COL_GAP)
 		var day: Array = cup.rounds[i] if i < cup.rounds.size() else []
+		## THE NEXT ROUND FILLS AS ITS FEEDERS FINISH (review, 1 Oct 2026: three
+		## quarter-finals decided and the semis still read "—"). Not drawn yet, so
+		## each slot is the winner of the tie feeding it, or "—" until it is.
+		if day.is_empty() and i > 0 and i == cup.rounds.size():
+			var prev: Array = cup.rounds[i - 1]
+			for j in int(pow(2.0, float(n_cols - 1 - i))):
+				var fa: Dictionary = prev[j * 2] if j * 2 < prev.size() else {}
+				var fb: Dictionary = prev[j * 2 + 1] if j * 2 + 1 < prev.size() else {}
+				day.append({"a": int(fa.get("winner", -1)) if bool(fa.get("played", false)) else -1,
+					"b": int(fb.get("winner", -1)) if bool(fb.get("played", false)) else -1,
+					"played": false})
 		var ties: int = int(pow(2.0, float(n_cols - 1 - i)))
 		var label: String = String(Cup.ROUND_NAMES.get(ties * 2, "Round of %d" % (ties * 2)))
 		UiKit.text(self, font, label.to_upper(), Vector2(x, 106), 12, UiKit.DIM)
@@ -201,8 +219,8 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 		UiKit.text(self, font, "%d" % (cup.entrants.find(id) + 1),
 			Vector2(at.x + 8, at.y + 19), 12, UiKit.DIM)
 		## FITTED, NOT CUT AT 16 CHARACTERS (round 5: "New Orleans Gua.").
-		UiKit.text_fit(self, font, _name(id),
-			Vector2(at.x + 24, at.y + 19), 14, col, w - 24.0 - (34.0 if played else 8.0))
+		UiKit.text(self, font, _fit(id, 14, w - 24.0 - (34.0 if played else 8.0)),
+			Vector2(at.x + 24, at.y + 19), 14, col)
 	else:
 		UiKit.text(self, font, "—", Vector2(at.x + 24, at.y + 19), 14, UiKit.DIM)
 	if played:
@@ -245,8 +263,8 @@ func _road() -> void:
 			y += 58.0
 			continue
 		var opp: int = int(m["b"]) if int(m["a"]) == me else int(m["a"])
-		UiKit.text_fit(self, font, _name(opp),
-			Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK, ROAD_W - 32.0)
+		UiKit.text(self, font, _fit(opp, 14, ROAD_W - 32.0),
+			Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK)
 		if bool(m.get("played", false)):
 			var mine: int = int(m["ra"]) if int(m["a"]) == me else int(m["rb"])
 			var his: int = int(m["rb"]) if int(m["a"]) == me else int(m["ra"])

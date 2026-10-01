@@ -56,7 +56,7 @@ static func table_x() -> float:
 ## than sitting at a fixed 604 with a growing hole between them and the corner.
 ## Kept as functions with the same 960-wide answers the constants had, so the
 ## `test_ink.gd` purse check and this screen still read one source.
-const PURSE_W := 150.0
+const PURSE_W := 170.0
 ## The Club button's width, and how far the purse and mood moved left for it.
 const CLUB_BTN_W := 104.0
 const HEADER_SHIFT := CLUB_BTN_W + 8.0
@@ -64,15 +64,15 @@ const HEADER_SHIFT := CLUB_BTN_W + 8.0
 const MENU_BTN_W := 98.0 + HEADER_SHIFT
 const MENU_W := 140.0
 const PURSE_H := 38.0
-const PURSE_SIZE: int = 20
+const PURSE_SIZE: int = 18
 
 
 static func purse_box() -> Rect2:
-	return Rect2(UiKit.right_edge(356.0 + HEADER_SHIFT), 12.0, PURSE_W, PURSE_H)
+	return Rect2(UiKit.right_edge(376.0 + HEADER_SHIFT), 12.0, PURSE_W, PURSE_H)
 
 
 static func purse_at() -> Vector2:
-	return Vector2(UiKit.right_edge(338.0 + HEADER_SHIFT), 38.0)
+	return Vector2(UiKit.right_edge(358.0 + HEADER_SHIFT), 31.0)
 
 
 const TABLE_Y := 140.0
@@ -139,6 +139,9 @@ func _ready() -> void:
 	## A SAVE FROM BEFORE THE COACH asks for him once (Pete, 1 Oct 2026).
 	if not season.coach.created:
 		UiKit.go.call_deferred("res://scenes/Coach.tscn")
+	if Session.open_armorers:
+		Session.open_armorers = false
+		armorer_open = true
 	## Something to answer first (a card, a tie, promotion) opens on the Club tab.
 	tab = last_tab if season.blocked_by() == "" else Tab.CLUB
 	## A bout walked out of on the last run — said once.
@@ -649,6 +652,13 @@ func _header() -> void:
 	## four digits, which is a bank a player reaches in a couple of seasons.
 	UiKit.panel(self, purse_box())
 	UiKit.purse(self, font, season.office.credits, purse_at(), PURSE_SIZE, UiKit.YOU)
+	## AND THE WAGES UNDER IT, the other currency, always in sight (review, 1 Oct
+	## 2026: "$174 of $250" beside "37 CC" with nothing to say which is which).
+	var bill := ClubOffice.wage_bill(season.club)
+	var cap := season.office.cap()
+	UiKit.text_fit(self, font, UiKit.t("%s/%s wages") % [ClubOffice.money(bill), ClubOffice.money(cap)],
+		Vector2(purse_box().position.x + 18.0, 46.0), 12, UiKit.DOWN if bill > cap else UiKit.DIM,
+		PURSE_W - 22.0)
 	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.
 	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 20), 12, UiKit.DIM)
 	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 40), 16,

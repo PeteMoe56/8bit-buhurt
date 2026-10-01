@@ -44,6 +44,18 @@ static func _finances_controls(v: SeasonScene) -> void:
 			Session.autosave()
 			Session.create_tab = 1
 			UiKit.go("res://scenes/Create.tscn"), "anvil"))
+	## A RED WARNING CARRIES ITS FIX (review, 1 Oct 2026).
+	var o := v.season.office
+	if not o.untaught().is_empty():
+		var names := ""
+		for r in o.untaught():
+			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
+		var yy := panel_top() + 74.0 + float(o.captains.size()) * 42.0 + (22.0 if o.captains.is_empty() else 0.0)
+		v.ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Hire for %s") % names, Vector2(panel_x(1) + 14.0, yy - 4.0),
+			Vector2(pw - 28.0, 32), func():
+				Session.staff_browse = true
+				Session.autosave()
+				UiKit.go("res://scenes/Staff.tscn"), "helm")))
 	## A POINT TO SPEND opens the coach's page, where the + buttons are.
 	var c := v.season.coach
 	if c.points > 0:
@@ -118,13 +130,9 @@ static func _draw_management(v: SeasonScene) -> void:
 			line = UiKit.t("%s  ·  %s") % [UiKit.t(String(ClubOffice.TRAIT_NAME[t])), line]
 		UiKit.text_fit(v, v.font, line, Vector2(x, y), 12, UiKit.DIM, w)
 		y += 24.0
-	var bare := o.untaught()
-	if not bare.is_empty():
-		var names := ""
-		for r in bare:
-			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
-		UiKit.text_fit(v, v.font, UiKit.t("%s: nobody teaches it") % names, Vector2(x, y), 13, UiKit.DOWN, w)
-		y += 24.0
+	if not o.untaught().is_empty():
+		## THE WARNING IS A BUTTON (built in the controls): it opens the captain list.
+		y += 34.0
 	SeasonFinancesTab._draw_armorer_line(v, x, y + 6.0, w)
 	# ---- you
 	x = panel_x(2) + 14.0

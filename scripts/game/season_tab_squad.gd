@@ -183,7 +183,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 		## THE PROSPECT, SAID AS WHAT IT DOES (playtest 30 Sep #6).
 		var ground := v.season.office.level(ClubOffice.Facility.TRAINING)
 		v.ui.add_child(UiKit.button(
-			UiKit.t("Not prospect") if v.season.prospect == p else UiKit.t("Prospect: +%d max") % Career.PROSPECT_GAIN,
+			UiKit.t("Not prospect") if v.season.prospect == p else UiKit.t("Prospect: +%d POT") % Career.PROSPECT_GAIN,
 			Vector2(300, ay), Vector2(170, 46), func():
 				if v.season.prospect == p:
 					v.season.prospect = null
@@ -202,7 +202,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 		v.ui.add_child(UiKit.button(
 			"%s  ·  %s/wk" % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
 				ClubOffice.money(deal_cost)],
-			Vector2(478, ay), Vector2(220, 46), func():
+			Vector2(478, ay), Vector2(196, 46), func():
 				var err := v.season.resign(p) if out_of_deal else v.season.extend(p)
 				if err == "":
 					v.flash = UiKit.t("%s: %s a week for %d years.") % [p.display_name,
@@ -422,8 +422,18 @@ static func _draw_info(v: SeasonScene) -> void:
 	var x := r.position.x + 14.0
 	var y := r.position.y + 26.0
 	if f == null:
-		UiKit.mid(v, v.font, UiKit.t("Tap a fighter to see him here."), Vector2(r.position.x, r.get_center().y + 5.0),
-			14, UiKit.DIM, r.size.x)
+		## NOBODY PICKED: THE TEAM ITSELF (review, 1 Oct 2026: an empty box was a
+		## third of the screen). The five's four ratings, the line's average, and
+		## what tapping does.
+		UiKit.text(v, v.font, UiKit.t("YOUR FIVE"), Vector2(x, y), 13, UiKit.DIM)
+		var five: Array = v.season.club.starting_five()
+		var sum := 0
+		for m in five:
+			sum += m.overall()
+		UiKit.right(v, v.font, UiKit.t("OVR %d") % int(round(float(sum) / float(maxi(1, five.size())))),
+			Vector2(r.end.x - 14.0, y), 16, UiKit.INK, 120)
+		TeamCard.draw_stars(v, v.font, Vector2(x, y + 28.0), v.season.club, 2, (r.size.x - 28.0) * 0.5, 13)
+		UiKit.text(v, v.font, UiKit.t("Tap a fighter to see him here."), Vector2(x, r.end.y - 12.0), 13, UiKit.DIM)
 		return
 	var right_w := 150.0
 	UiKit.text_fit(v, v.font, f.display_name, Vector2(x, y), 18, UiKit.INK, r.size.x - right_w - 40.0)
@@ -641,15 +651,18 @@ static func _qm_cell(v: SeasonScene) -> float:
 ## travel are the men the marshals will actually look at, and the reserve is a
 ## different question the player asks less often. The layout should say so.
 static func _qm_rows(v: SeasonScene) -> Array:
+	## EVERYBODY, ACROSS BOTH COLUMNS (review, 1 Oct 2026: a club with nobody at
+	## home left the right half reading "Nobody at home."). The eight first, the
+	## men at home after them, drawn quieter.
 	var out: Array = []
-	var y := SeasonScene.CONTENT_Y + SeasonScene.QM_TOP
-	for f in v.season.club.active_eight():
-		out.append({"card": f, "y": y, "x": 24.0, "bus": true})
-		y += SeasonScene.QM_ROW
-	y = SeasonScene.CONTENT_Y + SeasonScene.QM_TOP
-	for f in v.season.club.reserves():
-		out.append({"card": f, "y": y, "x": 24.0 + v._qm_cell() + SeasonScene.QM_GAP, "bus": false})
-		y += SeasonScene.QM_ROW
+	var men: Array = v.season.club.active_eight().duplicate()
+	var home: Array = v.season.club.reserves()
+	men.append_array(home)
+	var per := maxi(6, int(ceil(float(men.size()) / 2.0)))
+	for i in men.size():
+		var col := i / per
+		out.append({"card": men[i], "y": SeasonScene.CONTENT_Y + SeasonScene.QM_TOP + float(i % per) * SeasonScene.QM_ROW,
+			"x": 24.0 + float(col) * (v._qm_cell() + SeasonScene.QM_GAP), "bus": not home.has(men[i])})
 	return out
 
 

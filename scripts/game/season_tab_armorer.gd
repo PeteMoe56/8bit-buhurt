@@ -63,14 +63,22 @@ static func _draw_market(v: SeasonScene) -> void:
 		card.size.x - 330.0 - 210.0)
 	UiKit.text_fit(v, v.font, (("%d CC to put the eight right" % led["bill"]) if int(led["bill"]) > 0
 			else UiKit.t("nothing owing"))
-			+ ((UiKit.t("  ·  every harness %s") % String(grades.keys()[0])) if uniform else ""),
+			+ ((UiKit.t("  ·  all kit %s") % String(grades.keys()[0])) if uniform else ""),
 		Vector2(card.position.x + 330.0, card.position.y + 44.0), 13, UiKit.DIM, card.size.x - 330.0 - 210.0)
 
 	var cell := v._qm_cell()
-	UiKit.text(v, v.font, UiKit.t("TRAVELING"), Vector2(24, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22),
-		12, UiKit.DIM)
-	UiKit.text(v, v.font, UiKit.t("AT HOME"),
-		Vector2(24 + cell + SeasonScene.QM_GAP, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)
+	## WHO IS IN EACH COLUMN, said by what is in it.
+	var heads := ["", ""]
+	for row in v._qm_rows():
+		var ci := 0 if float(row["x"]) < 24.0 + cell else 1
+		var word: String = UiKit.t("TRAVELING") if bool(row["bus"]) else UiKit.t("AT HOME")
+		if heads[ci] == "":
+			heads[ci] = word
+		elif heads[ci] != word and not String(heads[ci]).contains(word):
+			heads[ci] = String(heads[ci]) + "  ·  " + word
+	for ci in 2:
+		UiKit.text(v, v.font, String(heads[ci]),
+			Vector2(24 + float(ci) * (cell + SeasonScene.QM_GAP), SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)
 	## COLUMN HEADINGS (blind review round 3: "Borrowed" x13 and an unlabelled
 	## "3 CC" told the player nothing). Over both halves.
 	for cx in [24.0, 24.0 + cell + SeasonScene.QM_GAP]:
@@ -86,14 +94,12 @@ static func _draw_market(v: SeasonScene) -> void:
 		UiKit.text_fit(v, v.font, UiKit.t("KIT"), Vector2(bx0 + SeasonScene.QM_BAR_W + 6.0, hy), 12,
 			UiKit.DIM, 48.0)
 		v.draw_rect(Rect2(tick_x - 1.0, hy - 10.0, 2.0, 12.0), UiKit.DOWN)
-		UiKit.text(v, v.font, UiKit.t("min"), Vector2(tick_x + 4.0, hy), 12, UiKit.DOWN)
+		## "PASS", NOT "min" (review, 1 Oct 2026: it read as "Imin").
+		UiKit.text(v, v.font, UiKit.t("pass"), Vector2(tick_x + 4.0, hy), 12, UiKit.DOWN)
 		## NEXT, NOT FIX (round 8: a sound harness showed its upgrade price under
 		## FIX, so 90% "cost" more than 73%). Each row now says which it is.
 		UiKit.right(v, v.font, UiKit.t("NEXT"), Vector2(cx + cell, hy), 12, UiKit.DIM, _cost_w(uniform))
 
-	if v.season.club.reserves().is_empty():
-		UiKit.text(v, v.font, UiKit.t("Nobody at home."),
-			Vector2(24 + cell + SeasonScene.QM_GAP, SeasonScene.CONTENT_Y + SeasonScene.QM_TOP), 14, UiKit.DIM)
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
 	if v.qm_pick == null:
@@ -256,7 +262,7 @@ static func _market_controls(v: SeasonScene) -> void:
 static func _armorers_controls(v: SeasonScene) -> void:
 	var o := v.season.office
 	var r := armorers_rect()
-	var pool := Armorer.pool(v.season.seed_value, v.season.world.season, String(v.season.office.armorer.get("name", "")))
+	var pool := better_pool(v)
 	for i in pool.size():
 		var a: Dictionary = pool[i]
 		var y := r.position.y + 70.0 + float(i + 1) * ROW
@@ -295,7 +301,7 @@ static func _draw_armorers(v: SeasonScene) -> void:
 	UiKit.panel(v, r)
 	UiKit.text(v, v.font, UiKit.t("ARMORERS"), r.position + Vector2(24, 40), 19, UiKit.INK)
 	UiKit.right(v, v.font, UiKit.t("%d CC") % o.credits, Vector2(r.end.x - 70.0, r.position.y + 40.0), 16, UiKit.YOU, 120)
-	var pool := Armorer.pool(v.season.seed_value, v.season.world.season, String(v.season.office.armorer.get("name", "")))
+	var pool := better_pool(v)
 	## YOURS FIRST, then who is looking for work.
 	var rows: Array = [o.armorer]
 	rows.append_array(pool)
@@ -317,3 +323,15 @@ static func _draw_armorers(v: SeasonScene) -> void:
 		elif not Armorer.will_come(st, o.tier):
 			UiKit.right_fit(v, v.font, UiKit.t("%s and up") % League.tier_name(int(Armorer.MIN_TIER[st])),
 				Vector2(r.end.x - 30.0, y + 22.0), 13, UiKit.DIM, 300.0)
+
+
+
+## ONLY MEN WHO WOULD BE AN IMPROVEMENT (review, 1 Oct 2026: a one-star hand
+## offered beside your own one-star hand).
+static func better_pool(v: SeasonScene) -> Array:
+	var mine := int(v.season.office.armorer.get("stars", 1))
+	var out: Array = []
+	for a in Armorer.pool(v.season.seed_value, v.season.world.season, String(v.season.office.armorer.get("name", ""))):
+		if int(a["stars"]) > mine:
+			out.append(a)
+	return out

@@ -806,7 +806,8 @@ static func _table(v: SeasonScene) -> void:
 		## City Gunslingers" lost its last word with a hundred pixels to spare
 		## before the numbers (29 Sep 2026).
 		## CLIPPED AT THE SIZE IT IS DRAWN (review, 1 Oct: "Company2" ran into P).
-		UiKit.text(v, v.font, UiKit.clip_px(v.font, String(v.season.world.clubs[cid]["name"]), 14,
+		UiKit.text(v, v.font, UiKit.fit_name(v.font, String(v.season.world.clubs[cid]["name"]),
+			String(v.season.world.clubs[cid].get("short", "")), 14,
 			stat_x - (SeasonScene.table_x() + 38) - 12), Vector2(SeasonScene.table_x() + 38, y), 14, col)
 		UiKit.text(v, v.font, UiKit.t("%2d %2d %2d %2d  %+3d  %+3d  %2d") % [
 			int(r["played"]), int(r["won"]), int(r["drawn"]), int(r["lost"]),

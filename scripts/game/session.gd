@@ -65,6 +65,10 @@ static var records_page: int = -1
 ## Which tab Create opens on, set by a button that sends the player there (the
 ## Settings "Change difficulty" opens it on GRADE). Cleared on read.
 static var create_tab: int = -1
+## OPEN THE STAFF ROOM ON THE CAPTAIN LIST (a red "nobody teaches it" is a link).
+static var staff_browse: bool = false
+## OPEN THE HUB ON MAINTENANCE WITH THE ARMORERS UP (from the staff room).
+static var open_armorers: bool = false
 ## A NEW CAREER'S FIRST STOP (playtest 30 Sep #2: "New game has no Create a
 ## Team"). While set, the Create screen is the club's founding: its Save takes
 ## the player into the season, and its Back does too, keeping what it shows.

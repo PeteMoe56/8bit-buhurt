@@ -597,10 +597,12 @@ static func stars(ci: CanvasItem, at: Vector2, rating: int, col: Color,
 			## drew a dark brown rectangle through the middle of the star. It
 			## was invisible because a half star is rare and every screenshot
 			## that had one happened to have it on a panel.
-			UiIcons.draw(ci, "star", p, EMPTY, 1, small)
+			UiIcons.draw(ci, "star", p, FRAME, 1, small)
 			UiIcons.draw(ci, "star_half", p, col, 1, small)
 		else:
-			UiIcons.draw(ci, "star", p, EMPTY, 1, small)
+			## THE FRAME, NOT THE EMPTY-WELL COLOR (review, 1 Oct 2026: an unlit
+			## star on a panel vanished, so "1 of 5" read as "1").
+			UiIcons.draw(ci, "star", p, FRAME, 1, small)
 
 
 # ------------------------------------------------------------- the ledger
@@ -1869,6 +1871,22 @@ static func clip(s: String, n: int) -> String:
 ## save-slot card on the title screen: twenty characters, clipped at twenty
 ## characters, into a three-hundred-pixel box. The exact mistake this missing
 ## function was written to prevent, described in its own absent docstring.
+## A CLUB'S NAME IN THE ROOM THERE IS, never cut mid-word (review, 1 Oct 2026:
+## "Oklahoma City Free Compa."). Whole words come off the end; if one word still
+## does not fit, the short name.
+static func fit_name(font: Font, full: String, short: String, px: int, width: float) -> String:
+	var w := func(s: String) -> float: return font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x
+	if float(w.call(full)) <= width:
+		return full
+	var words := full.split(" ")
+	while words.size() > 1:
+		words.remove_at(words.size() - 1)
+		var cut := " ".join(words)
+		if float(w.call(cut)) <= width:
+			return cut
+	return short if short != "" and float(w.call(short)) <= width else clip_px(font, full, px, width)
+
+
 static func clip_px(font: Font, s: String, px: int, width: float) -> String:
 	if width <= 0.0:
 		return ""

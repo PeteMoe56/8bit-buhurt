@@ -444,9 +444,11 @@ func _draw() -> void:
 		## CLIPPED BY PIXELS, into a box that is measured in pixels. It was
 		## twenty characters, and "Detroit Free Company" is exactly twenty — 291
 		## of them at this size, into a card that has 280.
-		UiKit.text(self, font,
-			UiKit.clip_px(font, String(info["club"]), 21, SLOT_W - 40.0),
-			Vector2(x + 20, SLOT_Y + 72), 21, UiKit.INK)
+		## SMALLER BEFORE SHORTER (review, 1 Oct 2026: "Detroit Free Comp." twice).
+		var cn := String(info["club"])
+		var cpx := 21 if font.get_string_size(cn, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 21).x <= SLOT_W - 40.0 else 17
+		UiKit.text(self, font, UiKit.fit_name(font, cn, "", cpx, SLOT_W - 40.0),
+			Vector2(x + 20, SLOT_Y + 72), cpx, UiKit.INK)
 		UiKit.text(self, font, UiKit.t(String(info["tier"])), Vector2(x + 20, SLOT_Y + 102), 15, UiKit.YOU)
 		UiKit.text(self, font, UiKit.t("Season %d") % int(info["season"]),
 			Vector2(x + 20, SLOT_Y + 130), 15, UiKit.DIM)
