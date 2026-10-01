@@ -81,8 +81,10 @@ class Mock extends Node2D:
 		UiKit.ground(self)
 		if variant == 0:
 			_strip()
-		else:
+		elif variant == 1:
 			_list()
+		else:
+			_month()
 
 	## ------------------------------------------------------------ variant 0
 	func _strip() -> void:
@@ -209,3 +211,86 @@ class Mock extends Node2D:
 			UiKit.text_fit(self, font, "%d  %s" % [i + 1, String(s.world.clubs[cid]["name"])],
 				Vector2(690, 148 + i * 24), 13, UiKit.YOU if cid == s.world.player_club else UiKit.INK, 200.0)
 		UiKit.para(self, font, "Cup ties never move these rows.", Vector2(690, 310), 12, UiKit.DIM, 232.0, 16.0, 2)
+
+
+	## ------------------------------------------------------------ variant 2
+	## THE PROPOSED RULE (Pete, 30 Sep: "pretty fucked up if there's 3
+	## different events during one week"): ONE FIXTURE A WEEK, on the Saturday.
+	## A week is a league event, a cup round, your tournament, or a week off —
+	## never two. Training runs every weekday regardless. Shown as a 30-day month.
+	func _month() -> void:
+		UiKit.text(self, font, "MONTH 2 OF 3", Vector2(24, 40), 22, UiKit.YOU)
+		UiKit.text(self, font, "Backyard Circuit · Season 1 · one fixture a week, on Saturday",
+			Vector2(24, 64), 14, UiKit.DIM)
+		var days := ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+		var gx := 24.0
+		var gy := 88.0
+		var cw := 96.0
+		var ch := 66.0
+		for i in 7:
+			UiKit.mid(self, font, days[i], Vector2(gx + float(i) * (cw + 4.0), gy + 12.0), 12,
+				UiKit.YOU if i == 5 else UiKit.DIM, cw)
+		## What lands on each Saturday of this month (weeks 5-9 of the season).
+		var w := s.world
+		var names: Array = []
+		for c in w.clubs:
+			if int(c["tier"]) == w.player_tier() and int(c["id"]) != w.player_club:
+				names.append(String(c["name"]))
+		var sats := {
+			3: {"kind": "league", "a": "LEAGUE 3/5", "b": "v " + names[0].get_slice(" ", 0), "state": -1, "res": "W 2-1"},
+			10: {"kind": "cup", "a": "KINGS QF", "b": "v " + names[1].get_slice(" ", 0), "state": 0},
+			17: {"kind": "league", "a": "LEAGUE 4/5", "b": "at " + names[2].get_slice(" ", 0), "state": 1},
+			24: {"kind": "own", "a": "YOUR CUP", "b": "Hosting", "state": 1},
+		}
+		## The month starts on a Wednesday, like a real one does.
+		var offset := 2
+		for d in 30:
+			var cell := d + offset
+			var col := cell % 7
+			var row := cell / 7
+			var r := Rect2(gx + float(col) * (cw + 4.0), gy + 22.0 + float(row) * (ch + 4.0), cw, ch)
+			draw_rect(r, UiKit.PANEL)
+			UiKit.text(self, font, "%d" % (d + 1), r.position + Vector2(6, 16), 12, UiKit.DIM)
+			if col < 5:
+				## A weekday: training. Small, because it is the background hum.
+				draw_rect(Rect2(r.position + Vector2(6, ch - 12), Vector2(cw - 12, 4)), UiKit.UP.darkened(0.4))
+			if sats.has(d):
+				var e: Dictionary = sats[d]
+				var c := Color("2a5caa")
+				match String(e["kind"]):
+					"cup": c = Color("c08a1e")
+					"own": c = Color("2f7d3b")
+				draw_rect(Rect2(r.position + Vector2(2, 22), Vector2(cw - 4, ch - 26)), c.darkened(0.35))
+				UiKit.text_fit(self, font, String(e["a"]), r.position + Vector2(6, 38), 11, c.lightened(0.5), cw - 10)
+				UiKit.text_fit(self, font, String(e["b"]), r.position + Vector2(6, 54), 11, UiKit.INK, cw - 8)
+				if int(e["state"]) < 0:
+					UiKit.right(self, font, String(e.get("res", "")), r.position + Vector2(cw - 6, 16), 12, UiKit.UP, 60)
+				if int(e["state"]) == 0:
+					draw_rect(r, UiKit.YOU, false, 3.0)
+			elif col == 5:
+				UiKit.text_fit(self, font, "Week off", r.position + Vector2(6, 40), 12, UiKit.DIM, cw - 10)
+			elif col == 6:
+				UiKit.text_fit(self, font, "Rest", r.position + Vector2(6, 40), 12, UiKit.EDGE.lightened(0.3), cw - 10)
+		## The season beside the month: every week, one dot, one colour.
+		var sx := 24.0 + 7.0 * (cw + 4.0) + 12.0
+		UiKit.panel(self, Rect2(sx, 88, UiKit.right_edge() - sx, 360))
+		UiKit.text(self, font, "THE SEASON", Vector2(sx + 12, 112), 12, UiKit.DIM)
+		var season_weeks := [
+			["league", "1"], ["league", "2"], ["cup", "KC R1"], ["off", ""],
+			["league", "3"], ["cup", "KC QF"], ["league", "4"], ["own", ""],
+			["league", "5"], ["cup", "PoH R1"], ["off", ""], ["end", "Season end"],
+		]
+		for i in season_weeks.size():
+			var y := 134.0 + float(i) * 25.0
+			var k := String(season_weeks[i][0])
+			var c: Color = {"league": Color("2a5caa"), "cup": Color("c08a1e"), "own": Color("2f7d3b"),
+				"off": UiKit.EDGE, "end": Color("7b3fa0")}[k]
+			draw_rect(Rect2(sx + 12, y - 11, 12, 12), c)
+			var label: String = {"league": "League %s", "cup": "%s", "own": "Your tournament",
+				"off": "Week off", "end": "%s"}[k]
+			if label.contains("%s") and String(season_weeks[i][1]) != "":
+				label = label % String(season_weeks[i][1])
+			UiKit.text(self, font, "W%d  %s" % [i + 1, label], Vector2(sx + 30, y), 12,
+				UiKit.YOU if i == 5 else UiKit.INK)
+		UiKit.para(self, font, "Never two fixtures in one week. Cups take their own Saturdays; a team knocked out gets the week off.",
+			Vector2(24, 486), 13, UiKit.DIM, UiKit.span(), 17.0, 2)
