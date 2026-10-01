@@ -524,27 +524,12 @@ var bout_live: Dictionary = {}
 var last_interrupted: String = ""
 
 
-## WHAT THE CLUB CAN SEE OF A MAN'S CEILING, as [low, high]. Exact for your own
-## men; a range `office.scout_width()` wide for anybody else, placed so the true
-## value sits somewhere inside it — deterministically, per man and per season,
-## so reopening the list does not re-roll it. See ClubOffice.scout_width.
+## A MAN'S CEILING, as [low, high] — always exact now (Pete, 1 Oct 2026: "Remove
+## scouting"). Kept as a pair so the screens that drew a range draw one number.
 func potential_range(f: FighterCard) -> Vector2i:
 	if f == null:
 		return Vector2i.ZERO
-	if club.roster.has(f):
-		return Vector2i(f.potential, f.potential)
-	return ceiling_range(f, office.scout_width())
-
-
-## The same read at any width. `width` 0 is the truth.
-func ceiling_range(f: FighterCard, w: int) -> Vector2i:
-	if w <= 0:
-		return Vector2i(f.potential, f.potential)
-	var off: int = absi(hash("scout:%s:%d:%d:%d" % [f.display_name, f.age, f.potential,
-		world.season])) % (w + 1)
-	var lo: int = maxi(f.overall(), f.potential - off)
-	var hi: int = mini(Career.POTENTIAL_CEILING, lo + w)
-	return Vector2i(lo, hi)
+	return Vector2i(f.potential, f.potential)
 
 
 
@@ -599,10 +584,9 @@ func hoard_note() -> String:
 		who.display_name, office.credits, hint]
 
 
-## The range in words, for a card: "to 64" when it is known, "to 58-66" when not.
+## The ceiling in words, for a card: "to 64".
 func potential_word(f: FighterCard) -> String:
-	var r := potential_range(f)
-	return (UiKit.t("to %d") % r.x) if r.x == r.y else (UiKit.t("to %d-%d") % [r.x, r.y])
+	return UiKit.t("to %d") % f.potential
 
 
 func mark_bout_live(is_cup: bool) -> void:

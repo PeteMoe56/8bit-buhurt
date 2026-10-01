@@ -93,7 +93,15 @@ var tab: int = Tab.CLUB
 ## THE TAB YOU LEFT FROM IS THE TAB YOU COME BACK TO. Open Free agents or the
 ## cards from Squad, press Back, and you are on Squad again — not the Club tab.
 static var last_tab: int = Tab.CLUB
-var flash := ""
+## THE MESSAGE GOES AWAY ON ITS OWN (Pete, 1 Oct: it sat over the Finances
+## headings until the next tap). Shown for FLASH_MS, then cleared — a tap on the
+## same screen still replaces it at once.
+var flash := "":
+	set(v):
+		flash = v
+		_flash_at = Time.get_ticks_msec()
+var _flash_at: int = 0
+const FLASH_MS: int = 4500
 ## The counter, open or shut. A modal on this screen for the same reason the
 ## fighter's meeting card is one: real money deserves a deliberate stop.
 var shop_open := false
@@ -298,7 +306,7 @@ const NEXT_W := 220.0
 
 func _next_controls() -> void:
 	var block := season.blocked_by()
-	if tab == Tab.CLUB and (block != "" or season.season_complete()):
+	if tab == Tab.CLUB and (block != "" or season.season_complete() or team_card >= 0):
 		return
 	## A picked man owns the Squad tab's row (Trade, Prospect, Extend).
 	if tab == Tab.SQUAD and picked != null:
@@ -356,6 +364,8 @@ func _sim_controls() -> void:
 			var warn := season.summer_warning()
 			if warn != "":
 				flash = warn
+			elif _levels_note() != "":
+				flash = _levels_note()
 			_rebuild(), "clock"))
 	ui.add_child(UiKit.button(UiKit.t("Go back"), Vector2(SIM_CARD.position.x
 		+ SIM_CARD.size.x - 248.0, SIM_CARD.position.y + SIM_CARD.size.y - 62.0),
@@ -376,6 +386,18 @@ func _draw_sim_ask() -> void:
 		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 98.0), 14, UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("Against %s.") % o,
 		Vector2(SIM_CARD.position.x + 28.0, SIM_CARD.position.y + 124.0), 14, UiKit.DIM)
+
+
+## WHO HAS A LEVEL TO SPEND, for the message after a simmed week. "" if nobody.
+func _levels_note() -> String:
+	var who: Array[String] = []
+	for f in season.club.roster:
+		var n := Career.levels_banked(f)
+		if n > 0:
+			who.append(UiKit.t("%s +%d") % [f.display_name, n])
+	if who.is_empty():
+		return ""
+	return UiKit.t("Levels to spend: %s. Tap a man, then His page.") % UiKit.t(", ").join(who.slice(0, 4))
 
 
 func _fight_cup() -> void:
@@ -402,6 +424,8 @@ func _fight() -> void:
 		Session.autosave()
 		flash = UiKit.t("Bye this event.") if league_week \
 			else UiKit.t("A week of training. The squad is a little better for it.")
+		if _levels_note() != "":
+			flash = _levels_note()
 		_rebuild()
 		return
 	## Save BEFORE handing over. The bout is a scene change and a few minutes of
@@ -757,6 +781,9 @@ var _typing_key: String = ""
 ## Gated on the typer rather than on the screen, so a card that has finished
 ## printing goes still again and the rest of the game keeps costing nothing.
 func _process(_delta: float) -> void:
+	if flash != "" and Time.get_ticks_msec() - _flash_at > FLASH_MS:
+		flash = ""
+		queue_redraw()
 	if season == null or tab != Tab.CLUB:
 		return
 	## THE TAPE ASKS FOR ITS OWN FRAMES, which is the lesson of the note above:
@@ -901,6 +928,8 @@ func _squad_head(x: float, y: float) -> void:
 ## that the 65 and the 61 cost the same six credits.
 ## IS THE SIM CONFIRM UP. See `_sim_controls()`.
 var sim_asking: bool = false
+## THE CLUB WHOSE CARD IS OPEN on the Club tab (tap a row of the table), or -1.
+var team_card: int = -1
 ## The confirm's own box. Same width as the shop's, because they are the same
 ## kind of thing and two modals at two sizes reads as two programs.
 ## Centred on the live canvas by `_centre_modals()` — fixed at x=200 they sat

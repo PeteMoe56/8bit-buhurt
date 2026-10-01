@@ -2830,7 +2830,7 @@ func _draw_splash() -> void:
 		draw_rect(box, UiKit.tint(Tuning.COL_GROUND, 1.0).darkened(0.35))
 	## A floor under the middle band, because the names and the records sit
 	## across it and there is no panel behind this one.
-	draw_rect(Rect2(0.0, 150.0, SCREEN.x, 250.0), Color(0, 0, 0, 0.62))
+	draw_rect(Rect2(0.0, 150.0, SCREEN.x, 296.0), Color(0, 0, 0, 0.62))
 
 	var home_id := _splash_host()
 	var city := _season().world.city_of(home_id) if (_season() != null and home_id >= 0) else ""
@@ -2850,8 +2850,9 @@ func _draw_splash() -> void:
 	## it is the number a Homesick man is feeling; at home the heading already
 	## says HOME (round 9: "HOME" and "at home" said it twice). The crowd's line
 	## rides with it, under the venue, instead of floating under the band.
-	var them: String = sim.clubs[1].display_name if _season() == null \
-		else _season().world.clubs[maxi(0, _season().opponent_id())]["name"]
+	## THE MEN WALKING OUT, not the league's fixture: on a cup weekend the league
+	## has nobody for you, and this read club 0.
+	var them: String = sim.clubs[1].display_name
 	var under := Venue.mood_line(kind, String(them).split(" ")[0])
 	if _season() != null and kind != Venue.Kind.HOME:
 		under = Venue.trip_word(_splash_miles()) + "  ·  " + under
@@ -2878,9 +2879,16 @@ func _splash_club(club, side: int, cx: float) -> void:
 	## THE RECORD, which only the season knows. Blank in a standalone bout rather
 	## than a made-up nought — a scoreboard with invented numbers on it is worse
 	## than a scoreboard with none.
+	## THE FOUR, OUT OF FIVE STARS (Pete, 1 Oct 2026: "prior to fights, fight
+	## cards, you'll see info like the star ratings, overalls and W/L"). Read off
+	## the men actually walking out, so it needs no season.
+	TeamCard.draw_stars(self, font, Vector2(cx - 196.0, 398.0), club, 2, 200.0, 12)
 	if _season() == null:
 		return
-	var id: int = _season().world.player_club if side == 0 else _season().opponent_id()
+	## A CUP TIE'S OPPONENT IS THE CUP'S, not the league's — the league has
+	## nobody for you on a cup weekend, and the record went blank.
+	var them_id: int = _season().cup_opponent() if Session.bout_is_cup else _season().opponent_id()
+	var id: int = _season().world.player_club if side == 0 else them_id
 	if id < 0:
 		return
 	UiKit.raw(self, font, Vector2(cx - 220.0, 316.0), UiKit.t("W - D - L"),

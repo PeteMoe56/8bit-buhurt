@@ -139,6 +139,26 @@ const EU := [
 ]
 
 
+## ABROAD: the cities a North American invitational is held in or sends clubs
+## from when they are not on the US map (Pete, 1 Oct: "something in
+## Canada/Mexico/US"). Not a region anybody plays in; `find` knows them so the
+## distances to them are real.
+const ABROAD := [
+	{"name": "Toronto", "area": "ON", "lat": 43.65, "lon": -79.38},
+	{"name": "Montreal", "area": "QC", "lat": 45.50, "lon": -73.57},
+	{"name": "Vancouver", "area": "BC", "lat": 49.28, "lon": -123.12},
+	{"name": "Calgary", "area": "AB", "lat": 51.05, "lon": -114.07},
+	{"name": "Ottawa", "area": "ON", "lat": 45.42, "lon": -75.70},
+	{"name": "Edmonton", "area": "AB", "lat": 53.55, "lon": -113.49},
+	{"name": "Winnipeg", "area": "MB", "lat": 49.90, "lon": -97.14},
+	{"name": "Mexico City", "area": "CDMX", "lat": 19.43, "lon": -99.13},
+	{"name": "Guadalajara", "area": "JAL", "lat": 20.66, "lon": -103.35},
+	{"name": "Monterrey", "area": "NL", "lat": 25.69, "lon": -100.32},
+	{"name": "Puebla", "area": "PUE", "lat": 19.04, "lon": -98.21},
+	{"name": "Tijuana", "area": "BC", "lat": 32.51, "lon": -117.04},
+]
+
+
 static func table(region: int) -> Array:
 	return EU if region == Region.EU else US
 
@@ -158,6 +178,9 @@ static func find(city: String) -> Dictionary:
 		for c in table(r):
 			if String(c["name"]) == city:
 				return c
+	for c in ABROAD:
+		if String(c["name"]) == city:
+			return c
 	return {}
 
 

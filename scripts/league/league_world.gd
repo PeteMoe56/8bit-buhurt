@@ -34,6 +34,29 @@ const INVITATIONALS := [
 	{ "id": "kings_cup", "name": "Kings Cup", "at": 2 },
 	{ "id": "path_of_honor", "name": "Path of Honor", "at": -2 },
 ]
+
+## THREE SETS OF INVITATIONALS, BY LEVEL (Pete, 1 Oct 2026): *"Bottom 2 leagues
+## fight at the least competitive invitationals, something in-region. Mid tier
+## leagues fighting Mid-Tier invitationals, something in Canada/Mexico/US, and
+## Top Tier fighting these current invitationals, and in High profile cities in
+## Europe."* It had been one pair for the whole pyramid, filled by rating, so a
+## Backyard club good enough to be invited drew the National Division's best
+## (register 09.10, a recommendation of mine that was never put to him).
+##
+## `tiers` are the divisions a set invites from. `where` picks the host city:
+## near the player for the local set, North America abroad (or continental
+## Europe in a European world) for the middle, Europe's big cities for the top.
+## The middle and top fill their field with clubs from abroad, as the Worlds
+## does. Two a season each, one early and one late — `slot` 0 and 1.
+const INVITATIONAL_SETS := [
+	{ "id": "local", "tiers": [0, 1], "where": "local" },
+	{ "id": "continental", "tiers": [2], "where": "continental" },
+	{ "id": "elite", "tiers": [3], "where": "elite" },
+]
+## The top set's host cities. Real buhurt country, and somewhere worth the trip.
+const ELITE_CITIES := ["Paris", "London", "Rome", "Barcelona", "Prague", "Krakow", "Budapest", "Vienna"]
+const CONTINENTAL_US := ["Toronto", "Montreal", "Vancouver", "Mexico City", "Monterrey", "Chicago", "Denver"]
+const CONTINENTAL_EU := ["Berlin", "Madrid", "Warsaw", "Milan", "Stockholm", "Brussels", "Lisbon"]
 const INVITATIONAL_FIELD: int = 8
 const INVITE_RANK: int = 3              ## top three of your own division
 
@@ -392,6 +415,8 @@ func take_city_for_player(city: String) -> String:
 		_move_club(int(c["id"]), mine)
 		break
 	_move_club(player_club, city)
+	## The local invitationals are held near you, so a move renames them.
+	name_cup_weeks()
 	return ""
 
 
@@ -481,7 +506,18 @@ func _new_season() -> void:
 		days_played[t] = 0
 	calendar = Calendar.build(League.events_in_season(player_tier()),
 		player_tier() == League.Tier.NATIONAL)
+	name_cup_weeks()
 	_enter_week()
+
+
+## THE PLAYER'S INVITATIONALS BY NAME AND TOWN on his calendar's cup weeks, so a
+## screen can say where the weekend is before the field is drawn.
+func name_cup_weeks() -> void:
+	var si := set_of_tier(player_tier())
+	for w in calendar:
+		if int(w["kind"]) == Calendar.Kind.CUP:
+			w["name"] = invitational_name(si, Calendar.slot_of(w))
+			w["city"] = invitational_city(si, Calendar.slot_of(w))
 
 
 # ------------------------------------------------------------------- weeks
@@ -508,7 +544,7 @@ func league_complete() -> bool:
 func cup_of_week(w: Dictionary, t: int = -1) -> Cup:
 	match int(w.get("kind", -1)):
 		Calendar.Kind.CUP:
-			return _live_cup(String(w["cup"]))
+			return _live_cup(invitational_id(set_of_tier(player_tier() if t < 0 else t), Calendar.slot_of(w)))
 		Calendar.Kind.PLAYOFF:
 			return _live_cup("playoff:%d" % (player_tier() if t < 0 else t))
 		Calendar.Kind.WORLDS:
@@ -532,9 +568,11 @@ func _enter_week() -> void:
 		return
 	match int(w["kind"]):
 		Calendar.Kind.CUP:
-			for spec in INVITATIONALS:
-				if String(spec["id"]) == String(w["cup"]) and not _cup_run(String(spec["id"])):
-					cups.append(_build_invitational(spec))
+			## EVERY SET'S INVITATIONAL, the same weekend.
+			var slot := Calendar.slot_of(w)
+			for si in INVITATIONAL_SETS.size():
+				if not _cup_run(invitational_id(si, slot)):
+					cups.append(_build_set_invitational(si, slot))
 		Calendar.Kind.PLAYOFF:
 			for t in League.TIERS.size():
 				if _cup_run("playoff:%d" % t):
@@ -567,7 +605,16 @@ func play_week(player_rounds = null) -> void:
 	match int(w["kind"]):
 		Calendar.Kind.LEAGUE:
 			_play_league_day(player_rounds)
-		Calendar.Kind.CUP, Calendar.Kind.WORLDS:
+		Calendar.Kind.CUP:
+			## EVERY SET'S INVITATIONAL, fought out; then the clubs from abroad
+			## go home.
+			for si in INVITATIONAL_SETS.size():
+				var c := _live_cup(invitational_id(si, Calendar.slot_of(w)))
+				if c != null:
+					c.run_all(cup_resolver())
+					retire_cup(c)
+			_clear_guests()
+		Calendar.Kind.WORLDS:
 			## A TOURNAMENT WEEK: whatever is left of it is fought out now. The
 			## player's own ties are already in the book when the season holds
 			## them; on the auto path they are decided with everybody else's.
@@ -1093,32 +1140,114 @@ func _cup_run(id: String) -> bool:
 	return false
 
 
-## The field: you if you have earned it, then the strongest clubs in the country
-## that are also in the top three of their own division. A cup that just invited
-## the eight biggest ratings would be the National Division again with a trophy.
-func _build_invitational(spec: Dictionary) -> Cup:
-	var pool: Array = []
-	for t in League.TIERS.size():
-		var rows := table(t)
-		for i in mini(INVITE_RANK, rows.size()):
-			pool.append(int(rows[i]["club"]))
-	pool.sort_custom(func(a, b): return int(clubs[a]["power"]) > int(clubs[b]["power"]))
+## The set a division's clubs are invited to: 0 local, 1 continental, 2 elite.
+static func set_of_tier(t: int) -> int:
+	for i in INVITATIONAL_SETS.size():
+		if (INVITATIONAL_SETS[i]["tiers"] as Array).has(t):
+			return i
+	return 0
 
+
+func invitational_id(set_i: int, slot: int) -> String:
+	return "inv:%s:%d" % [String(INVITATIONAL_SETS[set_i]["id"]), slot]
+
+
+## A stable draw for this season's set and slot — not the world's stream, so a
+## screen can ask where a cup will be before it is drawn and get the answer the
+## draw will give.
+func _inv_hash(set_i: int, slot: int, salt: int = 0) -> int:
+	return absi(hash("inv:%d:%d:%d:%d:%d" % [rng.seed, season, set_i, slot, salt]))
+
+
+## WHERE IT IS HELD. Local: one of the three cities nearest the player among
+## the clubs of the bottom two divisions. Continental and elite: from their lists.
+func invitational_city(set_i: int, slot: int) -> String:
+	var h := _inv_hash(set_i, slot)
+	match String(INVITATIONAL_SETS[set_i]["where"]):
+		"elite":
+			return String(ELITE_CITIES[h % ELITE_CITIES.size()])
+		"continental":
+			var l: Array = CONTINENTAL_EU if region == Cities.Region.EU else CONTINENTAL_US
+			return String(l[h % l.size()])
+	var mine := city_of(player_club)
+	var near: Array = []
+	for c in clubs:
+		var t := int(c.get("tier", -1))
+		if t < 0 or not (INVITATIONAL_SETS[set_i]["tiers"] as Array).has(t):
+			continue
+		var ct := city_of(int(c["id"]))
+		if ct != "" and not near.has(ct):
+			near.append(ct)
+	near.sort_custom(func(a, b): return Cities.distance(mine, a) < Cities.distance(mine, b))
+	if near.is_empty():
+		return mine
+	return String(near[h % mini(3, near.size())])
+
+
+## ITS NAME. The top pair are Pete's (10 Sep); the others are plain, and the
+## local ones carry the town.
+func invitational_name(set_i: int, slot: int) -> String:
+	match String(INVITATIONAL_SETS[set_i]["id"]):
+		"elite":
+			return "Kings Cup" if slot == 0 else "Path of Honor"
+		"continental":
+			if region == Cities.Region.EU:
+				return "European Open" if slot == 0 else "Continental Cup"
+			return "North American Open" if slot == 0 else "Continental Cup"
+	var city := invitational_city(set_i, slot)
+	return ("%s Open" if slot == 0 else "%s Classic") % city
+
+
+## THE FIELD: the top three of each division the set invites from — you among
+## them if you have earned it — then the next best of those divisions, and for
+## the two upper sets, clubs from abroad, rated off the set's own division.
+func _build_set_invitational(set_i: int, slot: int) -> Cup:
+	var spec: Dictionary = INVITATIONAL_SETS[set_i]
+	var tiers: Array = spec["tiers"]
+	var me := invited() and tiers.has(player_tier())
 	var field: Array = []
-	var me := invited()
 	if me:
 		field.append(player_club)
-	for cid in pool:
-		if field.size() >= INVITATIONAL_FIELD:
+	var depth := INVITE_RANK
+	var abroad := String(spec["where"]) != "local"
+	while field.size() < INVITATIONAL_FIELD:
+		var added := false
+		for t in tiers:
+			var rows := table(int(t))
+			for i in mini(depth, rows.size()):
+				var cid := int(rows[i]["club"])
+				if cid != player_club and not field.has(cid) and field.size() < INVITATIONAL_FIELD:
+					field.append(cid)
+					added = true
+		## The local set reaches further down its own divisions; the others
+		## stop at the top three and send for clubs from abroad.
+		if abroad or depth >= 16:
 			break
-		if cid != player_club:
-			field.append(cid)
+		depth += 1
+	var g := 0
+	var band: Array = League.TIERS[int(tiers[tiers.size() - 1])]["power"]
+	var pool: Array = (Cities.EU.map(func(c): return String(c["name"])) if String(spec["where"]) == "elite" \
+		and region != Cities.Region.EU else (Cities.ABROAD.map(func(c): return String(c["name"])) \
+		if region != Cities.Region.EU else Cities.US.map(func(c): return String(c["name"]))))
+	while field.size() < INVITATIONAL_FIELD:
+		var h := _inv_hash(set_i, slot, 100 + g)
+		var city := String(pool[h % pool.size()])
+		var lo := int(band[0]) + (4 if String(spec["where"]) == "elite" else 0)
+		var hi := int(band[1]) + (8 if String(spec["where"]) == "elite" else 2)
+		clubs.append({
+			"id": clubs.size(),
+			"name": "%s %s" % [city, SECOND[(h / 7) % SECOND.size()]],
+			"short": "GST", "tier": -1, "titles": 0, "guest": true, "city": city,
+			"power": lo + (h / 13) % maxi(1, hi - lo + 1),
+		})
+		field.append(clubs.size() - 1)
+		g += 1
 	## Seed by power, so the bracket's 1-v-8 means something.
 	field.sort_custom(func(a, b): return int(clubs[a]["power"]) > int(clubs[b]["power"]))
-
-	var c := Cup.new(String(spec["name"]), field,
+	var c := Cup.new(invitational_name(set_i, slot), field,
 		int(rng.randi()), player_club if me else -1, false)
-	c.set_meta("id", String(spec["id"]))
+	c.set_meta("id", invitational_id(set_i, slot))
+	c.set_meta("city", invitational_city(set_i, slot))
 	return c
 
 
@@ -1242,6 +1371,9 @@ func _record_honors(c: Cup) -> void:
 		"name": c.cup_name,
 		"season": int(c.get_meta("season", season)),
 		"champion": c.champion,
+		## THE NAME TOO: a champion from abroad is a guest whose id is reused
+		## once he goes home.
+		"champion_name": String(clubs[c.champion]["name"]) if c.champion >= 0 and c.champion < clubs.size() else "",
 		"runner_up": c.runner_up,
 		"player": c.finish_label(),
 		## The same run as a number, so the coach's reputation and the label on

@@ -78,6 +78,32 @@ static func _upkeep_word(v: SeasonScene) -> String:
 
 
 static func _club_controls(v: SeasonScene) -> void:
+	## A CLUB'S CARD, OPEN: it owns the tab until it is closed — unless a card
+	## that has to be answered has come up, which outranks it.
+	if ["dilemma", "sendoff"].has(v.season.blocked_by()):
+		v.team_card = -1
+	if v.team_card >= 0:
+		var cr := _card_rect()
+		v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Close"),
+			Vector2(cr.end.x - 174.0, cr.end.y - 60.0), Vector2(150, 44), func():
+				v.team_card = -1
+				v._rebuild(), "close")))
+		return
+	## EVERY ROW OF THE TABLE OPENS THAT CLUB'S CARD (Pete, 1 Oct 2026).
+	## ONE PRESS AREA OVER THE WHOLE TABLE, and the row is read from where the
+	## finger landed: sixteen rows at 22 cannot each be a 56-pixel button.
+	if not ["dilemma", "sendoff"].has(v.season.blocked_by()):
+		var rows := v.season.table()
+		var top := SeasonScene.TABLE_Y + 7.0
+		var hit := UiKit.button("", Vector2(SeasonScene.table_x(), top),
+			Vector2(UiKit.screen().x - SeasonScene.table_x() - 24.0, float(rows.size()) * SeasonScene.ROW_H), func():
+				var i := int(floor((v.get_local_mouse_position().y - top) / SeasonScene.ROW_H))
+				if i >= 0 and i < rows.size():
+					v.team_card = int(rows[i]["club"])
+					v._rebuild())
+		hit.flat = true
+		hit.focus_mode = Control.FOCUS_NONE
+		v.ui.add_child(hit)
 	## THE DRAW, WHENEVER THERE IS ONE TO SEE — not only while a tie of yours is
 	## unplayed. It used to be built inside the cup-tie branch, so being knocked
 	## out took the bracket away at exactly the moment it got interesting, and
@@ -328,6 +354,14 @@ static func _draw_club(v: SeasonScene) -> void:
 	v._schedule()
 	v._table()
 	v._tape_draw_ground()
+	if v.team_card >= 0:
+		v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.55))
+		TeamCard.draw(v, v.font, _card_rect(), v.season, v.team_card)
+
+
+static func _card_rect() -> Rect2:
+	var sz := Vector2(minf(560.0, UiKit.screen().x - 48.0), 236.0)
+	return Rect2(Vector2((UiKit.screen().x - sz.x) * 0.5, 120.0), sz)
 
 
 

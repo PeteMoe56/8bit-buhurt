@@ -177,8 +177,6 @@ func value(f: FighterCard) -> int:
 	if reading == Read.ORACLE or _s == null:
 		return Career.projected(f) if youth else Career.worth(f)
 	var r := _s.potential_range(f)
-	if reading == Read.BLIND and not _s.club.roster.has(f):
-		r = _s.ceiling_range(f, ClubOffice.SCOUT_BLIND)
 	## IGNORE reads no range at all: a stranger is what he is today.
 	if reading == Read.IGNORE and not _s.club.roster.has(f):
 		r = Vector2i(f.overall(), f.overall())

@@ -218,16 +218,37 @@ static func gate(heads: int, take: float = 1.0) -> int:
 	return int(floor(GATE_K * pow(maxf(0.0, float(heads)), GATE_POW) * take))
 
 
+## YOUR SHOW IS A WEEKEND NOW (30 Sep 2026), so the house comes in three days
+## running, and the seven clubs you invite each pay to enter. Pete, 1 Oct, on a
+## bid that showed -13 CC expected and -7 if you won it: *"Why even hold an event
+## if you're going to lose 7CC?"* It was priced as one afternoon's gate against a
+## date and a budget; three days and the entries bring a club with a decent
+## following out ahead, while one nobody turns up for still loses — the entries
+## are always less than the date costs.
+const SHOW_DAYS: int = 3
+const ENTRY_BY_TIER := [1, 1, 2, 4]
+
+
+static func show_gate(heads: int, take: float = 1.0) -> int:
+	return int(floor(GATE_K * pow(maxf(0.0, float(heads)), GATE_POW) * take * float(SHOW_DAYS)))
+
+
+## What the seven visiting clubs pay to enter, by your division.
+static func entry_fees(tier: int) -> int:
+	return (FIELD - 1) * int(ENTRY_BY_TIER[clampi(tier, 0, ENTRY_BY_TIER.size() - 1)])
+
+
 ## An honest preview for the bid screen, so the player is choosing between
 ## numbers rather than between adjectives.
 static func preview(capacity: int, fans: float, budget_i: int,
-		bid_cost_: int = 0) -> Dictionary:
+		bid_cost_: int = 0, tier: int = 0) -> Dictionary:
 	var b: Dictionary = BUDGETS[clampi(budget_i, 0, BUDGETS.size() - 1)]
 	var heads := attendance(capacity, fans, float(b["draw"]))
-	var g := gate(heads, float(b["take"]))
+	var g := show_gate(heads, float(b["take"]))
+	var fees := entry_fees(tier)
 	var spend := int(b["cost"]) + bid_cost_
 	return {
-		"heads": heads, "gate": g, "cost": spend,
-		"net": g - spend,
-		"best": g - spend + PODIUM[0],
+		"heads": heads, "gate": g, "entries": fees, "cost": spend,
+		"net": g + fees - spend,
+		"best": g + fees - spend + PODIUM[0],
 	}

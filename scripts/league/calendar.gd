@@ -30,11 +30,9 @@ enum Kind { LEAGUE, CUP, OWN, PLAYOFF, WORLDS, BYE }
 ## WHERE EACH CUP WEEKEND FALLS, as a fraction of the league: it goes in after
 ## league day `round(at * days)`. The Kings Cup is the early one and the Path of
 ## Honor the late one, as they always were (`INVITATIONALS[].at`).
-const CUP_AT := {
-	"kings_cup": 0.4,
-	"path_of_honor": 0.8,
-}
-const CUP_ORDER := ["kings_cup", "path_of_honor"]
+## Slot 0 is the early weekend, slot 1 the late one. Every set's invitational
+## for a slot is fought the same weekend (`LeagueWorld.INVITATIONAL_SETS`).
+const CUP_AT := [0.4, 0.8]
 
 const PLAYOFF_FIELD: int = 4
 ## The Worlds' pool days (four clubs a pool, everybody meets everybody), before
@@ -58,14 +56,14 @@ static func week(kind: int, extra: Dictionary = {}) -> Dictionary:
 ## days; `national` adds the Worlds at the end.
 static func build(days: int, national: bool) -> Array:
 	var out: Array = []
-	var slots: Array = []          ## [after_day, cup_id], in CUP_ORDER
-	for id in CUP_ORDER:
-		slots.append([clampi(int(round(float(CUP_AT[id]) * float(days))), 1, days), id])
+	var slots: Array = []          ## [after_day, slot]
+	for i in CUP_AT.size():
+		slots.append([clampi(int(round(float(CUP_AT[i]) * float(days))), 1, days), i])
 	var si := 0
 	for d in days:
 		out.append(week(Kind.LEAGUE, {"day": d}))
 		while si < slots.size() and int(slots[si][0]) == d + 1:
-			out.append(week(Kind.CUP, {"cup": String(slots[si][1])}))
+			out.append(week(Kind.CUP, {"slot": int(slots[si][1])}))
 			si += 1
 	out.append(week(Kind.BYE, {"before": "playoff"}))
 	out.append(week(Kind.PLAYOFF))
@@ -131,6 +129,14 @@ static func date_of(season: int, i: int, shift: int = 0) -> Dictionary:
 	return Time.get_datetime_dict_from_unix_time(opening_unix(season) + i * 7 * 86400 + shift * 86400)
 
 
+## Which weekend a cup week is: 0 early, 1 late. A calendar saved before the
+## sets named its cup instead.
+static func slot_of(w: Dictionary) -> int:
+	if w.has("slot"):
+		return int(w["slot"])
+	return 1 if String(w.get("cup", "")) == "path_of_honor" else 0
+
+
 ## A weekend tournament: a cup or your own show, Friday to Sunday.
 static func is_weekend(kind: int) -> bool:
 	return kind == Kind.CUP or kind == Kind.OWN or kind == Kind.PLAYOFF
@@ -143,11 +149,17 @@ static func is_tournament(kind: int) -> bool:
 	return kind == Kind.CUP or kind == Kind.OWN or kind == Kind.WORLDS or kind == Kind.PLAYOFF
 
 
-## The weekday the 1st of a month falls on, Monday = 0.
+## The weekday the 1st of a month falls on, SUNDAY = 0 — an American calendar
+## (Pete, 1 Oct: "Sunday is on the left most day, not Monday").
 static func first_weekday(year: int, month: int) -> int:
 	var t := Time.get_unix_time_from_datetime_dict({"year": year, "month": month, "day": 1,
 		"hour": 12, "minute": 0, "second": 0})
-	return (int(Time.get_datetime_dict_from_unix_time(t)["weekday"]) + 6) % 7
+	return int(Time.get_datetime_dict_from_unix_time(t)["weekday"])
+
+
+## The columns, left to right.
+const SUNDAY_COL: int = 0
+const SATURDAY_COL: int = 6
 
 
 static func days_in(year: int, month: int) -> int:
@@ -175,13 +187,13 @@ static func month_name(m: int) -> String:
 
 static func weekday_name(i: int) -> String:
 	match i:
-		0: return UiKit.t("MON")
-		1: return UiKit.t("TUE")
-		2: return UiKit.t("WED")
-		3: return UiKit.t("THU")
-		4: return UiKit.t("FRI")
-		5: return UiKit.t("SAT")
-	return UiKit.t("SUN")
+		0: return UiKit.t("SUN")
+		1: return UiKit.t("MON")
+		2: return UiKit.t("TUE")
+		3: return UiKit.t("WED")
+		4: return UiKit.t("THU")
+		5: return UiKit.t("FRI")
+	return UiKit.t("SAT")
 
 
 # ------------------------------------------------------------------ words
@@ -192,7 +204,7 @@ static func label(w: Dictionary, league_days: int, own: String = "") -> String:
 		Kind.LEAGUE:
 			return UiKit.t("League %d of %d") % [int(w["day"]) + 1, league_days]
 		Kind.CUP:
-			return UiKit.t("Kings Cup") if String(w["cup"]) == "kings_cup" else UiKit.t("Path of Honor")
+			return String(w.get("name", "Kings Cup" if slot_of(w) == 0 else "Path of Honor"))
 		Kind.PLAYOFF:
 			return UiKit.t("Playoff")
 		Kind.BYE:
@@ -210,7 +222,7 @@ static func short_label(w: Dictionary, league_days: int) -> String:
 		Kind.LEAGUE:
 			return UiKit.t("League %d/%d") % [int(w["day"]) + 1, league_days]
 		Kind.CUP:
-			return UiKit.t("Kings Cup") if String(w["cup"]) == "kings_cup" else UiKit.t("Path of Honor")
+			return String(w.get("name", "Kings Cup" if slot_of(w) == 0 else "Path of Honor"))
 		Kind.PLAYOFF:
 			return UiKit.t("Playoff")
 		Kind.BYE:

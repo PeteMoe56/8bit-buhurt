@@ -49,6 +49,13 @@ func _build() -> void:
 		c.queue_free()
 	if season == null:
 		return
+	## THE LIST OWNS THE SCREEN while it is open (Pete, 1 Oct: the gold "Find a
+	## captain" buttons sat on top of it). A scrim cannot cover a Button, so the
+	## room's buttons are simply not built.
+	if browsing:
+		_market_controls()
+		queue_redraw()
+		return
 	var o := season.office
 	for i in ClubOffice.MAX_CAPTAINS:
 		var x := 24.0 + float(i) * (CARD_W + 16.0)
@@ -134,7 +141,7 @@ func _build() -> void:
 	## AND WHAT IT BUYS, per man in the five (decision #11).
 	var session_b := UiKit.button(UiKit.t("Session  ·  +%d XP each  ·  %d CC") % [
 			SeasonBouts.session_xp(season), cost],
-		Vector2(UiKit.right_edge(300.0), UiKit.screen().y - 56), Vector2(300, 46),
+		Vector2(UiKit.right_edge(380.0 + 24.0), UiKit.screen().y - 56), Vector2(380, 46),
 		func():
 			flash_tone = 0
 			flash = UiKit.said(season.run_session()) if not idle \
@@ -148,8 +155,6 @@ func _build() -> void:
 	session_b.disabled = cost > season.office.credits
 	ui.add_child(session_b if idle or session_b.disabled else UiKit.primary(session_b))
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
-	if browsing:
-		_market_controls()
 	queue_redraw()
 
 

@@ -440,8 +440,14 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## in dim after it.
 	## SAYS WHAT A TAP DOES NOW: it picks him; his buttons do the rest.
 	var tap := UiKit.t("Tap a man to pick him")
+	var any_level := false
+	for f in v.season.club.roster:
+		if Career.levels_banked(f) > 0:
+			any_level = true
 	var key := (UiKit.t("green = good  ·  gold = final year  ·  Hurt · 2 = out 2 events") if any_red
 		else UiKit.t("green = good  ·  gold = final year"))
+	if any_level:
+		key = UiKit.t("+2 = levels to spend on his page") + UiKit.t("  ·  ") + key
 	var ky: float = SeasonScene._squad_key_y()
 	UiKit.text(v, v.font, tap, Vector2(24, ky), 14, UiKit.INK)
 	var tw: float = v.font.get_string_size(tap, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 18.0
@@ -459,8 +465,18 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	var col := UiKit.INK if role != "reserve" else UiKit.DIM
 	## FITTED, NOT CLIPPED. The column is a pixel budget and the name is cut to
 	## it — a thirteen-character count let a wide name run into the position.
-	UiKit.text(v, v.font, UiKit.fit(v.font, f.display_name, 16, SeasonScene.COL_NAME_W),
-		Vector2(x + SeasonScene.COL_NAME, y), 16, col)
+	## LEVELS WAITING, IN GOLD BESIDE HIS NAME (Pete, 1 Oct: "Simmed multiple
+	## weeks, no one leveled up, should show on squad page"). They had levelled —
+	## a level is the player's to place, on the man's page — and nothing on this
+	## sheet said a single one was waiting.
+	var banked := Career.levels_banked(f)
+	var badge := UiKit.t("+%d") % banked if banked > 0 else ""
+	var bw := v.font.get_string_size(badge, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x + 6.0 if badge != "" else 0.0
+	var nm := UiKit.fit(v.font, f.display_name, 16, SeasonScene.COL_NAME_W - bw)
+	UiKit.text(v, v.font, nm, Vector2(x + SeasonScene.COL_NAME, y), 16, col)
+	if badge != "":
+		var nw := v.font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16).x
+		UiKit.text(v, v.font, badge, Vector2(x + SeasonScene.COL_NAME + nw + 6.0, y), 13, UiKit.YOU)
 	## An injury is the most important thing on a team sheet, so it goes where a
 	## position would and takes the color that means "deal with this".
 	## "HURT · 1", NOT "OUT 1" (playtest 30 Sep #9: "No idea why Norrey is
@@ -492,7 +508,8 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	elif f.years == 1:
 		## GOLD, a warning: green on this sheet means room to grow (round 4).
 		deal_col = UiKit.YOU
-	UiKit.text(v, v.font, (UiKit.t("OUT") if f.years <= 0 else UiKit.t("%dy") % f.years),
+	## "0y", NOT "OUT": the third thing on this sheet that said "out" (#9, 30 Sep).
+	UiKit.text(v, v.font, UiKit.t("%dy") % maxi(0, f.years),
 		Vector2(x + SeasonScene.COL_YEARS, y), 14, deal_col)
 	## THE TWO NUMBERS, together. Retro Bowl's roster screen is read almost
 	## entirely off rating-and-potential, and the pairing is why: neither one

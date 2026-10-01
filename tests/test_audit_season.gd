@@ -256,19 +256,15 @@ func _test_rulings() -> void:
 	p.post_bout(sim)
 	_ok(p.bout_live.is_empty(), "a bout that finishes clears the mark", "posted, mark empty")
 
-	## Potential as a range the staff narrow.
+	## EVERY CEILING IS SHOWN, a stranger's as exactly as your own man's (scouting
+	## removed, Pete 1 Oct 2026).
 	var m := Season.new(MeleeRosters.starting_club(), 777)
 	var f: FighterCard = m.market()[0]
-	var blind: Vector2i = m.potential_range(f)
-	m.office.credits = 200
-	m.hire_captain(ClubOffice.captain("Scout", Tuning.Role.RAIL, Tuning.Role.CENTER, 5))
-	var sharp: Vector2i = m.potential_range(f)
+	var r: Vector2i = m.potential_range(f)
 	var own: Vector2i = m.potential_range(m.club.roster[0])
-	_ok(blind.x <= f.potential and f.potential <= blind.y and blind.y - blind.x >= 6
-		and sharp.x == sharp.y and sharp.x == f.potential
-		and own.x == own.y and own.x == m.club.roster[0].potential,
-		"a stranger's ceiling is a range; a five-star captain reads it exactly; your own men are exact",
-		"no staff %d-%d (true %d); five-star %d-%d" % [blind.x, blind.y, f.potential, sharp.x, sharp.y])
+	_ok(r.x == r.y and r.x == f.potential and own.x == own.y and own.x == m.club.roster[0].potential,
+		"a stranger's ceiling and your own man's are both shown exactly",
+		"stranger %d-%d (true %d)" % [r.x, r.y, f.potential])
 
 
 ## THE SUMMER BILL SHOWN IS THE SUMMER CHARGED (28 Sep 2026). A club holding

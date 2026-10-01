@@ -954,6 +954,25 @@ static func can_place(f: FighterCard) -> bool:
 	return can_level(f) and not raisable(f).is_empty()
 
 
+## HOW MANY LEVELS HE HAS BANKED: the bar walked forward on what he has, as far
+## as the XP and his ceiling go. For the squad sheet's gold "+2" (1 Oct 2026).
+static func levels_banked(f: FighterCard) -> int:
+	if not can_place(f):
+		return 0
+	var xp := f.xp
+	var lvl := f.level
+	var room := maxi(1, (f.potential - f.overall()) * 4)
+	var n := 0
+	while n < 9 and n < room:
+		var bar := maxi(1, int(round(float(mini(maxi(1, lvl), LEVEL_BAR_CAP) * LEVEL_XP) * learn_rate(f))))
+		if xp < bar:
+			break
+		xp -= bar
+		lvl += 1
+		n += 1
+	return n
+
+
 static func levels_waiting(f: FighterCard) -> int:
 	return 1 if can_place(f) else 0
 

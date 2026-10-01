@@ -135,6 +135,16 @@ func _world() -> void:
 	for reg in Cities.Region.values():
 		for c in Cities.names(reg):
 			names[Cities.full_name(c)] = true
+	## The invitationals' names and towns are proper nouns too (1 Oct 2026).
+	for si in LeagueWorld.INVITATIONAL_SETS.size():
+		for slot in 2:
+			names[world.world.invitational_name(si, slot)] = true
+			names[world.world.invitational_name(si, slot).to_upper()] = true
+			names[Cities.full_name(world.world.invitational_city(si, slot))] = true
+	for w in world.world.calendar:
+		if w.has("name"):
+			names[String(w["name"])] = true
+			names[String(w["name"]).to_upper()] = true
 	for a in ALLOWED:
 		names[a] = true
 

@@ -16,14 +16,14 @@ static func _finances_controls(v: SeasonScene) -> void:
 	## the arena to live here and it half does: the numbers are on this screen and
 	## the building is one tap away, which is better than a sixth copy of the
 	## build button.
-	v.ui.add_child(UiKit.button(UiKit.t("The ground"), Vector2(SeasonScene.FIN_RIGHT, SeasonScene.FIN_BUTTONS_Y),
+	v.ui.add_child(UiKit.button(UiKit.t("The ground"), Vector2(24, SeasonScene.action_y()),
 		Vector2(200, 44), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Arena.tscn"), "gate"))
 	## AND THE COUNTER. It was on the Clubhouse, which is Pete's *"Clubhouse is
 	## too crowded"* — and it belongs on the page about money rather than the page
 	## about buildings.
-	v.ui.add_child(UiKit.button(UiKit.t("Buy credits"), Vector2(SeasonScene.FIN_RIGHT + 216.0, SeasonScene.FIN_BUTTONS_Y),
+	v.ui.add_child(UiKit.button(UiKit.t("Buy credits"), Vector2(240, SeasonScene.action_y()),
 		Vector2(200, 44), func():
 			v.shop_open = true
 			v._rebuild(), "coin"))
@@ -47,6 +47,12 @@ static func _draw_finances(v: SeasonScene) -> void:
 	UiKit.right(v, v.font, UiKit.t("this year"), Vector2(SeasonScene.FIN_NOW, SeasonScene.CONTENT_Y), 12, UiKit.DIM, 110)
 	if _has_last:
 		UiKit.right(v, v.font, UiKit.t("last"), Vector2(SeasonScene.FIN_WAS, SeasonScene.CONTENT_Y), 12, UiKit.DIM, 90)
+	## THE ROWS SHARE THE ROOM THERE IS (Pete, 1 Oct: the foot of the page ran off
+	## the bottom). Ten headings in a season with everything going on would push
+	## the one line that matters off the screen at 22 a row.
+	var n_rows := _rows_of(o.books_in, was_in, ClubOffice.IN_ORDER) + _rows_of(o.books_out, was_out, ClubOffice.OUT_ORDER)
+	_row_h = clampf((SeasonScene.action_y() - 12.0 - SeasonScene.CONTENT_Y - 166.0) / float(maxi(1, n_rows)),
+		15.0, SeasonScene.FIN_ROW)
 	var y := SeasonScene.CONTENT_Y + 26.0
 	y = v._fin_block(o.books_in, was_in, ClubOffice.IN_ORDER, y, UiKit.UP)
 	var in_now := ClubOffice.book_total(o.books_in)
@@ -54,9 +60,9 @@ static func _draw_finances(v: SeasonScene) -> void:
 	y = v._fin_rule(y)
 	v._fin_row("Everything in", in_now, in_was, y, UiKit.INK, 15)
 
-	y += 38.0
+	y += 32.0
 	UiKit.text(v, v.font, UiKit.t("GOING OUT, CC"), Vector2(SeasonScene.FIN_LEFT, y), 14, UiKit.DIM)
-	y += 26.0
+	y += 24.0
 	y = v._fin_block(o.books_out, was_out, ClubOffice.OUT_ORDER, y, UiKit.DOWN)
 	var out_now := ClubOffice.book_total(o.books_out)
 	var out_was := ClubOffice.book_total(was_out)
@@ -73,15 +79,17 @@ static func _draw_finances(v: SeasonScene) -> void:
 	## -31" alarmed with no guidance). It is this year so far, not a forecast.
 	## AND WHAT IS IN HAND, beside it (round 9: "SHORT -23" next to a 37 CC
 	## purse read as a contradiction).
+	## IN THE RIGHT COLUMN, under the ground, where there is room for it.
 	var words := UiKit.t("This year so far. %d CC in hand now; gates and prizes arrive as events are fought.") % v.season.office.credits \
 		if net < 0 else UiKit.t("This year so far. %d CC in hand now.") % v.season.office.credits
-	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_LEFT + 14.0, y + 22.0), 14, UiKit.DIM,
-		SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0, 18.0, 2)
+	var wy := SeasonScene.FIN_BUTTONS_Y + 6.0
+	UiKit.para(v, v.font, words, Vector2(SeasonScene.FIN_RIGHT, wy), 14, UiKit.DIM,
+		UiKit.right_edge() - SeasonScene.FIN_RIGHT, 18.0, 2)
 	## AND THE LEVERS, by name (blind review round 3: "no path to fix it").
 	if net < 0:
 		UiKit.text_fit(v, v.font, UiKit.t("To close it: win, fill the ground, trim wages."),
-			Vector2(SeasonScene.FIN_LEFT + 14.0, y + 62.0), 14, UiKit.YOU,
-			SeasonScene.FIN_WAS - SeasonScene.FIN_LEFT - 14.0)
+			Vector2(SeasonScene.FIN_RIGHT, wy + 42.0), 14, UiKit.YOU,
+			UiKit.right_edge() - SeasonScene.FIN_RIGHT)
 
 	v._fin_ground()
 
@@ -129,13 +137,26 @@ static func _fin_block(v: SeasonScene, now: Dictionary, was: Dictionary, order: 
 	if rows.is_empty():
 		UiKit.text(v, v.font, UiKit.t("Nothing yet."), Vector2(SeasonScene.FIN_LEFT + 14.0, y), 13,
 			UiKit.DIM)
-		return y + SeasonScene.FIN_ROW
+		return y + _row_h
 	for r in rows:
 		var line := String(r["line"])
 		v._fin_row(line, int(r["cc"]), int(was.get(line, 0)), y,
 			col if int(r["cc"]) > 0 else UiKit.DIM)
-		y += SeasonScene.FIN_ROW
+		y += _row_h
 	return y
+
+
+static var _row_h := 22.0
+
+
+## How many rows a block will draw, before it draws them.
+static func _rows_of(now: Dictionary, was: Dictionary, order: Array[String]) -> int:
+	var seen := {}
+	for r in ClubOffice.book_rows(now, order):
+		seen[String(r["line"])] = true
+	for r in ClubOffice.book_rows(was, order):
+		seen[String(r["line"])] = true
+	return maxi(1, seen.size())
 
 
 

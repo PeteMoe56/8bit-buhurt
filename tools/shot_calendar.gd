@@ -7,6 +7,7 @@ extends SceneTree
 var out := "/tmp"
 var n := 0
 var which := "cal"
+var scene: Node
 
 
 func _initialize() -> void:
@@ -49,14 +50,20 @@ func _initialize() -> void:
 		s.sync_week()
 	Session.season = s
 	var path := "res://scenes/Calendar.tscn" if which == "cal" else "res://scenes/Season.tscn"
-	root.add_child(load(path).instantiate())
+	scene = load(path).instantiate()
+	root.add_child(scene)
 
 
 func _process(_d: float) -> bool:
 	n += 1
+	if n == 3 and OS.get_environment("PICK") != "" and which == "cal":
+		## A tapped day: PICK=<week index>, or PICK=now for this week.
+		var pk := OS.get_environment("PICK")
+		scene.set("pick", Session.season.world.week if pk == "now" else int(pk))
+		scene.call("_build")
 	if n < 8:
 		return false
-	var p := "%s/%s%s.png" % [out, which, ("_so" if OS.get_environment("SENDOFF") != "" else "") + ("_nat" if OS.get_environment("NAT") != "" else "")]
+	var p := "%s/%s%s.png" % [out, which, ("_pick" if OS.get_environment("PICK") != "" else "") + ("_so" if OS.get_environment("SENDOFF") != "" else "") + ("_nat" if OS.get_environment("NAT") != "" else "")]
 	root.get_texture().get_image().save_png(p)
 	print("wrote ", p)
 	quit(0)

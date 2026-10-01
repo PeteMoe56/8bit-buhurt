@@ -65,7 +65,7 @@ static func bid_preview(s: Season, offer_i: int, budget_i: int) -> Dictionary:
 		return {}
 	var offer: Dictionary = s.bid_offers[offer_i]
 	return ClubEvent.preview(s.office.arena.capacity(), s.office.fans,
-		budget_i, int(offer["bid"]))
+		budget_i, int(offer["bid"]), s.world.player_tier())
 
 
 
@@ -384,7 +384,8 @@ static func _settle_event(s: Season) -> void:
 static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 	var heads := ClubEvent.attendance(s.office.arena.capacity(), s.office.fans,
 		float(ClubEvent.BUDGETS[e.budget]["draw"]))
-	var g := ClubEvent.gate(heads, float(ClubEvent.BUDGETS[e.budget]["take"]))
+	var g := ClubEvent.show_gate(heads, float(ClubEvent.BUDGETS[e.budget]["take"])) \
+		+ ClubEvent.entry_fees(s.world.player_tier())
 	var podium := 0
 	if c.champion == s.world.player_club:
 		podium = ClubEvent.PODIUM[0]

@@ -175,8 +175,7 @@ func _draw() -> void:
 			"note": (UiKit.t("age %d · %s/wk") % [f.age, ClubOffice.money(season.market_wage(f))]) if room
 				else (UiKit.t("age %d · over cap") % f.age),
 			"note_col": UiKit.DIM if room else UiKit.DOWN,
-			## A RANGE, NOT HIS NUMBER: the club reads a stranger's ceiling only as
-			## well as its best captain can (ClubOffice.scout_width).
+			## HIS CEILING, exact (scouting removed, Pete 1 Oct 2026).
 			"right_note": season.potential_word(f),
 			"right_note_up": true,
 			"right_col": UiKit.UP,

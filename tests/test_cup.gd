@@ -317,7 +317,8 @@ func _test_worlds_and_invitationals_run() -> void:
 			playoffs_run += 1
 		else:
 			invitationals_run += 1
-	_ok(worlds_run == 12 and invitationals_run == 24 and playoffs_run == 48 and bad == 0,
+	## THREE SETS OF TWO (1 Oct 2026): local, continental, elite.
+	_ok(worlds_run == 12 and invitationals_run == 72 and playoffs_run == 48 and bad == 0,
 		"the cups run every season",
 		"12 seasons produced %d Worlds and %d Invitationals, all with a champion"
 			% [worlds_run, invitationals_run])
