@@ -65,6 +65,7 @@ func _test_cup_nights_are_big() -> void:
 				match s.blocked_by():
 					"bid": s.decline_bid(); continue
 					"dilemma": s.answer_dilemma(0); continue
+					"sendoff": s.answer_send_off(); continue
 					"promotion": s.answer_promotion(true); continue
 					"cup":
 						if cup_ok == -1:
@@ -249,6 +250,7 @@ func _test_save_keeps_everything() -> void:
 		match s.blocked_by():
 			"bid": s.decline_bid(); continue
 			"dilemma": s.answer_dilemma(0); continue
+			"sendoff": s.answer_send_off(); continue
 			"cup": s.sim_cup_tie(); continue
 			"promotion": s.answer_promotion(false); continue
 		if s.season_complete():
@@ -408,6 +410,7 @@ func _test_broken_cup_is_refused() -> void:
 		match s.blocked_by():
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
+			"sendoff": s.answer_send_off()
 			"cup": s.sim_cup_tie()
 			"promotion": s.answer_promotion(false)
 			_: s.skip_event()

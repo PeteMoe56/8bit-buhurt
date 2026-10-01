@@ -130,9 +130,18 @@ func _grid() -> void:
 	## THE DAYS A TOURNAMENT TAKES: a cup or your show Friday to Sunday, the
 	## Worlds Monday to Sunday. Keyed by date, so a weekend that crosses into the
 	## next month is drawn on both pages.
-	var span := {}
+	var span := {}             ## date -> [week, label, color]
 	for i in s.world.weeks_this_season():
-		var k := int(s.world.calendar[i]["kind"])
+		var wk: Dictionary = s.world.calendar[i]
+		var k := int(wk["kind"])
+		if _send_off_week(wk):
+			## THE SEND-OFF'S OWN DAYS: Monday and Wednesday here, the tabard on
+			## the Saturday cell itself.
+			var labels := [UiKit.t("CELEBRATION"), UiKit.t("NATIONAL CAMP")]
+			for j in 2:
+				var dt := Calendar.date_of(s.world.season, i, int(SendOff.DAY_SHIFT[j]))
+				span["%d-%d-%d" % [int(dt["year"]), int(dt["month"]), int(dt["day"])]] = [i, labels[j], SEND_OFF_COLOR]
+			continue
 		if not Calendar.is_tournament(k):
 			continue
 		var from := -5 if k == Calendar.Kind.WORLDS else -1
@@ -140,7 +149,8 @@ func _grid() -> void:
 			if sh == 0:
 				continue
 			var dt := Calendar.date_of(s.world.season, i, sh)
-			span["%d-%d-%d" % [int(dt["year"]), int(dt["month"]), int(dt["day"])]] = i
+			span["%d-%d-%d" % [int(dt["year"]), int(dt["month"]), int(dt["day"])]] = [i, _short(wk, days),
+				Calendar.color(k)]
 	for d in n:
 		var cell := d + lead
 		var col := cell % 7
@@ -154,12 +164,12 @@ func _grid() -> void:
 			draw_rect(Rect2(r.position + Vector2(5, ch - 9), Vector2(cw - 10, 3)), UiKit.UP.darkened(0.4))
 		var key := "%d-%d-%d" % [year, month, d + 1]
 		if span.has(key):
-			var ti := int(span[key])
-			var tk := int(s.world.calendar[ti]["kind"])
+			var ti := int(span[key][0])
+			var tc: Color = span[key][2]
 			draw_rect(Rect2(r.position + Vector2(2, 20), Vector2(cw - 4, ch - 23)),
-				Calendar.color(tk).darkened(0.65 if ti < s.world.week else 0.45))
-			UiKit.text(self, font, UiKit.clip_px(font, _short(s.world.calendar[ti], days), 11, cw - 10.0),
-				r.position + Vector2(6, 33), 11, Calendar.color(tk).lightened(0.35))
+				tc.darkened(0.65 if ti < s.world.week else 0.45))
+			UiKit.text(self, font, UiKit.clip_px(font, String(span[key][1]), 11, cw - 10.0),
+				r.position + Vector2(6, 33), 11, tc.lightened(0.35))
 			if ti == s.world.week:
 				draw_rect(r, UiKit.YOU, false, 2.0)
 			continue
@@ -168,7 +178,7 @@ func _grid() -> void:
 			continue
 		var wk: Dictionary = s.world.calendar[wi]
 		var kind := int(wk["kind"])
-		var c := Calendar.color(kind)
+		var c := SEND_OFF_COLOR if _send_off_week(wk) else Calendar.color(kind)
 		var past: bool = wi < s.world.week
 		var block := Rect2(r.position + Vector2(2, 20), Vector2(cw - 4, ch - 23))
 		draw_rect(block, c.darkened(0.55 if past else 0.3))
@@ -184,7 +194,19 @@ func _grid() -> void:
 
 ## THE CELL'S FIRST LINE: what the Saturday is, short enough for a cell.
 func _short(wk: Dictionary, days: int) -> String:
+	if _send_off_week(wk):
+		return UiKit.t("THE TABARD")
 	return Calendar.short_label(wk, days).to_upper()
+
+
+const SEND_OFF_COLOR := Color("c9a227")
+
+
+## The bye before the Worlds, for a club that won the National playoff.
+func _send_off_week(wk: Dictionary) -> bool:
+	return int(wk["kind"]) == Calendar.Kind.BYE and String(wk.get("before", "")) == "worlds" \
+		and s.world.player_tier() == League.Tier.NATIONAL and s.world.player_champion() \
+		and not s.world.finalists.is_empty()
 
 
 ## THE CELL'S SECOND LINE and its color: the opponent, or the result once it is
@@ -215,6 +237,9 @@ func _detail(wi: int, wk: Dictionary) -> Array:
 			UiKit.INK]
 	if kind == Calendar.Kind.OWN:
 		return [UiKit.t("you host"), UiKit.INK]
+	if kind == Calendar.Kind.BYE:
+		return [s.world.team_title if _send_off_week(wk) and s.world.team_title != "" else UiKit.t("rest"),
+			UiKit.YOU if _send_off_week(wk) else UiKit.DIM]
 	var c: Cup = s.world.cup_of_week(wk)
 	if c == null and wi < s.world.week:
 		## OVER: how far you got, from the cabinet.

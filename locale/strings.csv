@@ -59,6 +59,9 @@ P   W   D   L   MARGIN,P   W   D   L   MARGIN,J   G   E   P   MARGEN,J   V   N  
 Top %d of each pool make the knockout.,Top %d of each pool make the knockout.,Los %d primeros de cada grupo pasan a eliminatorias.,Les %d premiers de chaque poule vont en phase finale.,Die Top %d jeder Gruppe kommen weiter.,I primi %d per girone passano al tabellone.,Os %d melhores de cada grupo vão ao mata-mata.,Do fazy pucharowej wchodzi top %d z grupy.,Лучшие %d из каждой группы — в плей-офф.,各プール上位%dが決勝トーナメントへ。
 %s  ·  Season %d,%s  ·  Season %d,%s  ·  Temporada %d,%s  ·  Saison %d,%s  ·  Saison %d,%s  ·  Stagione %d,%s  ·  Temporada %d,%s  ·  Sezon %d,%s  ·  Сезон %d,%s  ·  シーズン%d
 "League on Saturdays. Cups Friday to Sunday, the Worlds all week.","League on Saturdays. Cups Friday to Sunday, the Worlds all week.","Liga los sábados. Copas de viernes a domingo; el Mundial, toda la semana.","Ligue le samedi. Coupes du vendredi au dimanche, Mondiaux toute la semaine.","Liga samstags. Pokale Freitag bis Sonntag, die WM die ganze Woche.","Lega il sabato. Coppe dal venerdì alla domenica, Mondiali tutta la settimana.","Liga aos sábados. Copas de sexta a domingo, o Mundial a semana toda.","Liga w soboty. Puchary od piątku do niedzieli, MŚ przez cały tydzień.","Лига по субботам. Кубки с пятницы по воскресенье, ЧМ всю неделю.",リーグは土曜。カップは金〜日、世界大会は1週間。
+CELEBRATION,CELEBRATION,CELEBRACIÓN,FÊTE,FEIER,FESTA,CELEBRAÇÃO,ŚWIĘTO,ПРАЗДНИК,祝賀会
+NATIONAL CAMP,NATIONAL CAMP,CONCENTRACIÓN,STAGE NATIONAL,NATIONALCAMP,RITIRO,CAMP NACIONAL,OBÓZ KADRY,СБОРЫ,代表合宿
+THE TABARD,THE TABARD,EL TABARDO,LE TABARD,DER WAPPENROCK,IL TABARRO,O TABARDO,TABARD,ТАБАРД,タバード
 bye,bye,descanso,exempt,spielfrei,riposo,folga,pauza,пропуск,休み
 W,W,V,V,S,V,V,W,П,勝
 D,D,E,N,U,P,E,R,Н,分
@@ -67,6 +70,7 @@ L,L,D,D,N,S,D,P,П,敗
 v %s,v %s,v %s,c. %s,v %s,v %s,x %s,v %s,с %s,対%s
 at %s,at %s,en %s,à %s,in %s,a %s,em %s,w %s,у %s,@%s
 you host,you host,anfitrión,vous recevez,ihr richtet aus,ospitate,você sedia,gospodarz,вы хозяева,主催
+rest,rest,descanso,repos,Ruhe,riposo,descanso,odpoczynek,отдых,休養
 not in it,not in it,fuera,pas inscrit,nicht dabei,non ci siete,fora,bez was,без вас,不参加
 done,done,hecho,fini,vorbei,finito,feito,koniec,прошло,終了
 in it,in it,dentro,inscrit,dabei,dentro,dentro,w grze,в деле,出場
@@ -422,6 +426,7 @@ End the season,End the season,Cerrar la temporada,Terminer la saison,Saison been
 Tournament bid,Tournament bid,Candidatura a torneo,Candidature tournoi,Turnierbewerbung,Candidatura torneo,Proposta de torneio,Oferta turnieju,Заявка на турнир,トーナメント招致
 Fight the cup bout,Fight the cup bout,Jugar el cruce,Disputer le match,Kampf bestreiten,Combatti la sfida,Lutar o confronto,Stocz mecz,Биться,試合に出る
 A decision,A decision,Una decisión,Une décision,Eine Entscheidung,Una decisione,Uma decisão,Decyzja,Решение,決断
+The send-off,The send-off,La despedida,Le départ,Die Verabschiedung,Il commiato,A despedida,Pożegnanie,Проводы,壮行
 Promotion,Promotion,Ascenso,Montée,Aufstieg,Promozione,Acesso,Awans,Повышение,昇格
 Sim it,Sim it,Simular,Simuler,Simulieren,Simula,Simular,Symuluj,Авто,自動試合
 Event simulated.,Event simulated.,Evento simulado.,Rencontre simulée.,Kampftag simuliert.,Evento simulato.,Evento simulado.,Zawody zasymulowane.,Турнир сыгран без тебя.,自動試合で決着。
@@ -470,10 +475,12 @@ you are in it,you are in it,estás dentro,vous y êtes,ihr seid dabei,ci siete,v
 a bye,a bye,descanso,exempt,spielfrei,riposo,folga,pauza,пропуск,休み
 H,H,L,D,H,C,C,D,Д,H
 A,A,V,E,A,T,F,W,Г,A
+THE SEND-OFF  ·  %s  ·  %d OF %d,THE SEND-OFF  ·  %s  ·  %d OF %d,LA DESPEDIDA  ·  %s  ·  %d DE %d,LE DÉPART  ·  %s  ·  %d SUR %d,DIE VERABSCHIEDUNG  ·  %s  ·  %d VON %d,IL COMMIATO  ·  %s  ·  %d DI %d,A DESPEDIDA  ·  %s  ·  %d DE %d,POŻEGNANIE  ·  %s  ·  %d Z %d,ПРОВОДЫ  ·  %s  ·  %d ИЗ %d,壮行  ·  %s  ·  %d/%d
 costs nothing,costs nothing,no cuesta nada,gratuit,kostet nichts,non costa nulla,não custa nada,nic nie kosztuje,бесплатно,無料
 PROMOTION,PROMOTION,ASCENSO,PROMOTION,AUFSTIEG,PROMOZIONE,ACESSO,AWANS,ПОВЫШЕНИЕ,昇格
 TOURNAMENT BID,TOURNAMENT BID,CANDIDATURA A TORNEO,CANDIDATURE TOURNOI,TURNIERBEWERBUNG,CANDIDATURA TORNEO,PROPOSTA DE TORNEIO,OFERTA TURNIEJU,ЗАЯВКА НА ТУРНИР,大会開催の入札
 A DECISION,A DECISION,UNA DECISIÓN,UNE DÉCISION,EINE ENTSCHEIDUNG,UNA DECISIONE,UMA DECISÃO,DECYZJA,РЕШЕНИЕ,決断
+THE SEND-OFF,THE SEND-OFF,LA DESPEDIDA,LE DÉPART,DIE VERABSCHIEDUNG,IL COMMIATO,A DESPEDIDA,POŻEGNANIE,ПРОВОДЫ,壮行
 SEASON COMPLETE,SEASON COMPLETE,TEMPORADA TERMINADA,SAISON TERMINÉE,SAISON BEENDET,STAGIONE CONCLUSA,TEMPORADA ENCERRADA,SEZON ZAKOŃCZONY,СЕЗОН ЗАВЕРШЁН,シーズン終了
 WEEK %d  ·  %s,WEEK %d  ·  %s,SEMANA %d  ·  %s,SEMAINE %d  ·  %s,WOCHE %d  ·  %s,SETTIMANA %d  ·  %s,SEMANA %d  ·  %s,TYDZIEŃ %d  ·  %s,НЕДЕЛЯ %d  ·  %s,第%d週  ·  %s
 Up to the %s,Up to the %s,Ascenso a %s,Montée en %s,Rauf in die %s,Su in %s,Sobe para: %s,Awans: %s,Наверх: %s,%sへ昇格
@@ -774,10 +781,10 @@ League %d of %d,League %d of %d,Liga %d de %d,Ligue %d sur %d,Liga %d von %d,Leg
 Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup
 Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor
 Playoff,Playoff,Playoff,Playoffs,Playoff,Playoff,Playoff,Play-off,Плей-офф,プレーオフ
+Bye week,Bye week,Semana libre,Semaine libre,Spielfreie Woche,Settimana libera,Semana de folga,Wolny tydzień,Свободная неделя,休みの週
 Worlds,Worlds,Mundial,Mondiaux,WM,Mondiali,Mundial,MŚ,ЧМ,世界大会
 Your show,Your show,Tu torneo,Votre tournoi,Euer Turnier,Il vostro torneo,Seu torneio,Wasz turniej,Ваш турнир,主催大会
 League %d/%d,League %d/%d,Liga %d/%d,Ligue %d/%d,Liga %d/%d,Lega %d/%d,Liga %d/%d,Liga %d/%d,Лига %d/%d,リーグ %d/%d
-%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s
 F,F,F,F,F,F,F,F,Ф,決
 SF,SF,SF,DF,HF,SF,SF,PF,ПФ,準決
 QF,QF,CF,QF,VF,QF,QF,ĆF,ЧФ,8強
@@ -929,6 +936,22 @@ A season of gates,A season of gates,Una temporada de taquillas,Une saison d'affl
 %s travels in place of the injured,%s travels in place of the injured,%s viaja en lugar del lesionado,%s voyage à la place du blessé,%s fährt für den Verletzten mit,%s parte al posto dell'infortunato,%s viaja no lugar do lesionado,%s jedzie w miejsce kontuzjowanego,%s едет вместо травмированного,%sが負傷者の代わりに遠征
 %s let go to make room,%s let go to make room,%s despedido para hacer sitio,%s libéré pour faire de la place,"%s entlassen, um Platz zu schaffen",%s svincolato per fare spazio,%s dispensado para abrir vaga,"%s zwolniony, by zrobić miejsce","%s отпущен, чтобы освободить место",%sを放出して枠を空けた
 %s signed as an emergency walk-on,%s signed as an emergency walk-on,%s fichado como suplente de urgencia,%s signé en renfort d'urgence,%s als Notnagel verpflichtet,%s ingaggiato d'emergenza,%s contratado às pressas,"%s podpisany awaryjnie, z ulicy",%s подписан в последний момент,%sを緊急契約
+Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe
+Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA
+MONDAY,MONDAY,LUNES,LUNDI,MONTAG,LUNEDÌ,SEGUNDA,PONIEDZIAŁEK,ПОНЕДЕЛЬНИК,月曜日
+NATIONAL CHAMPIONS,NATIONAL CHAMPIONS,CAMPEONES NACIONALES,CHAMPIONS NATIONAUX,LANDESMEISTER,CAMPIONI NAZIONALI,CAMPEÕES NACIONAIS,MISTRZOWIE KRAJU,ЧЕМПИОНЫ СТРАНЫ,全国王者
+"The hall is full by noon and the phone does not stop. Every man in the eight is a name in town tonight, and the whole room knows what comes next.","The hall is full by noon and the phone does not stop. Every man in the eight is a name in town tonight, and the whole room knows what comes next.","El local está lleno a mediodía y el teléfono no para. Cada hombre de los ocho es un nombre en la ciudad esta noche, y todos saben lo que viene.","La salle est pleine à midi et le téléphone ne s'arrête pas. Chacun des huit est un nom en ville ce soir, et tout le monde sait ce qui vient.","Mittags ist die Halle voll, das Telefon steht nicht still. Jeder der acht ist heute Abend ein Name in der Stadt, und alle wissen, was jetzt kommt.","A mezzogiorno la sala è piena e il telefono non smette. Ognuno degli otto stasera è un nome in città, e tutti sanno cosa viene dopo.","O salão lota ao meio-dia e o telefone não para. Cada um dos oito é um nome na cidade hoje, e todos sabem o que vem a seguir.","Sala pełna już w południe, telefon nie milknie. Każdy z ósemki jest dziś w mieście kimś, a wszyscy wiedzą, co dalej.","К полудню зал полон, телефон не умолкает. Каждый из восьми сегодня — имя в городе, и все знают, что впереди.",昼には会場が満員、電話は鳴りやまない。今夜は8人全員が町の有名人で、次に何が来るか誰もが知っている。
+Raise a glass,Raise a glass,Brindar,Lever un verre,Anstoßen,Brindare,Brindar,Wznieść toast,Поднять бокал,乾杯
+WEDNESDAY,WEDNESDAY,MIÉRCOLES,MERCREDI,MITTWOCH,MERCOLEDÌ,QUARTA,ŚRODA,СРЕДА,水曜日
+THE NATIONAL CAMP,THE NATIONAL CAMP,LA CONCENTRACIÓN,LE STAGE NATIONAL,DAS NATIONALCAMP,IL RITIRO NAZIONALE,O CAMP NACIONAL,OBÓZ KADRY,НАЦИОНАЛЬНЫЕ СБОРЫ,代表合宿
+"The federation opens its training center to you for three days: its coaches, its mats, its film of every club you will meet at the Worlds.","The federation opens its training center to you for three days: its coaches, its mats, its film of every club you will meet at the Worlds.","La federación te abre su centro de entrenamiento tres días: sus técnicos, sus tatamis, sus vídeos de cada club del Mundial.","La fédération vous ouvre son centre d'entraînement trois jours : ses coachs, ses tapis, ses vidéos de chaque club des Mondiaux.","Der Verband öffnet euch drei Tage sein Leistungszentrum: Trainer, Matten, Videos von jedem Klub der WM.","La federazione vi apre il suo centro per tre giorni: allenatori, tatami, video di ogni club dei Mondiali.","A federação abre seu centro de treino por três dias: técnicos, tatames, vídeos de cada clube do Mundial.","Federacja otwiera wam ośrodek na trzy dni: trenerzy, maty, nagrania każdego klubu z MŚ.","Федерация открывает вам свой центр на три дня: тренеры, маты, видео каждого клуба ЧМ.",連盟が3日間、施設を開放する。コーチ、マット、世界大会の全クラブの映像。
+Train with the federation,Train with the federation,Entrenar con la federación,S'entraîner avec la fédé,Mit dem Verband trainieren,Allenarsi con la federazione,Treinar com a federação,Trening z federacją,Тренироваться с федерацией,連盟と練習
+SATURDAY,SATURDAY,SÁBADO,SAMEDI,SAMSTAG,SABATO,SÁBADO,SOBOTA,СУББОТА,土曜日
+In front of the federation your captain is handed the tabard. At the Worlds you are not a club any more. You are %s.,In front of the federation your captain is handed the tabard. At the Worlds you are not a club any more. You are %s.,"Ante la federación, tu capitán recibe el tabardo. En el Mundial ya no sois un club. Sois %s.","Devant la fédération, votre capitaine reçoit le tabard. Aux Mondiaux, vous n'êtes plus un club. Vous êtes %s.",Vor dem Verband erhält euer Kapitän den Wappenrock. Bei der WM seid ihr kein Klub mehr. Ihr seid %s.,Davanti alla federazione il vostro capitano riceve il tabarro. Ai Mondiali non siete più un club. Siete %s.,"Diante da federação, seu capitão recebe o tabardo. No Mundial vocês não são mais um clube. São %s.",Przed federacją wasz kapitan dostaje tabard. Na MŚ nie jesteście już klubem. Jesteście %s.,Перед федерацией вашему капитану вручают табард. На ЧМ вы больше не клуб. Вы — %s.,連盟の前で主将にタバードが手渡される。世界大会ではもうクラブではない。%sだ。
+Take the tabard,Take the tabard,Recibir el tabardo,Prendre le tabard,Den Wappenrock nehmen,Prendere il tabarro,Receber o tabardo,Przyjąć tabard,Принять табард,タバードを受け取る
+The town knows your name. Renown and team morale up.,The town knows your name. Renown and team morale up.,La ciudad conoce tu nombre. Suben la fama y la moral.,La ville connaît votre nom. Renommée et moral en hausse.,Die Stadt kennt euren Namen. Ruf und Teamgeist steigen.,La città conosce il vostro nome. Fama e morale su.,A cidade sabe seu nome. Fama e moral sobem.,Miasto zna wasze imię. Sława i morale w górę.,Город знает ваше имя. Слава и дух команды растут.,町中があなたの名を知る。名声と士気が上昇。
+Three days with the federation: %d XP across the squad.,Three days with the federation: %d XP across the squad.,Tres días con la federación: %d XP para la plantilla.,Trois jours avec la fédé : %d XP pour l'équipe.,Drei Tage beim Verband: %d XP für den Kader.,Tre giorni con la federazione: %d XP per la squadra.,Três dias com a federação: %d XP para o elenco.,Trzy dni z federacją: %d XP dla drużyny.,Три дня с федерацией: %d XP команде.,連盟での3日間：チーム全体で%d XP。
+You go to the Worlds as %s.,You go to the Worlds as %s.,Vas al Mundial como %s.,Vous allez aux Mondiaux en tant que %s.,Ihr fahrt als %s zur WM.,Andate ai Mondiali come %s.,Você vai ao Mundial como %s.,Jedziecie na MŚ jako %s.,Вы едете на ЧМ как %s.,%sとして世界大会へ。
 Tournament ground,Tournament ground,Estadio del torneo,Stade du tournoi,Turnierplatz,Sede del torneo,Estádio do torneio,Obiekt turniejowy,Турнирная арена,トーナメント会場
 Their ground,Their ground,Su estadio,Leur stade,Ihre Arena,Casa loro,O estádio deles,Ich obiekt,Их арена,相手の本拠地
 Your crowd.,Your crowd.,Tu público.,Ton public.,Dein Publikum.,Il tuo pubblico.,Sua torcida.,Twoja publika.,Твои зрители.,あなたの観客。

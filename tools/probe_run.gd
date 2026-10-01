@@ -312,6 +312,7 @@ func _season(s: Season) -> void:
 								break
 					if not took:
 						s.decline_bid()
+				"sendoff": s.answer_send_off()
 				"dilemma":
 					s.answer_dilemma(0)
 				"promotion":

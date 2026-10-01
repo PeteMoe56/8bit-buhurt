@@ -450,6 +450,8 @@ static func to_dict(season: Season) -> Dictionary:
 		"week": w.week,
 		"days_played": w.days_played.duplicate(),
 		"finalists": w.finalists.duplicate(true),
+		"team_title": w.team_title,
+		"send_off": season.send_off,
 		"tables": w.tables.duplicate(true),
 		"history": w.history.duplicate(true),
 		"honors": w.honors.duplicate(true),
@@ -627,6 +629,7 @@ static func from_dict(d: Dictionary) -> Season:
 	## handed back six. The save round-trip caught it as a roster that came back
 	## different; without that check it would have surfaced as a club that quietly
 	## got two men better every time the player reloaded.
+	s.send_off = int(d.get("send_off", 0))
 	s.sync_power()
 	s.sync_week()
 	return s
@@ -642,6 +645,7 @@ static func _load_weeks(w: LeagueWorld, d: Dictionary) -> void:
 		w.week = int(d.get("week", 0))
 		w.days_played = (d.get("days_played", {}) as Dictionary).duplicate()
 		w.finalists = (d.get("finalists", {}) as Dictionary).duplicate(true)
+		w.team_title = String(d.get("team_title", ""))
 		return
 	w.calendar = Calendar.build(League.events_in_season(w.player_tier()),
 		w.player_tier() == League.Tier.NATIONAL)
@@ -649,7 +653,7 @@ static func _load_weeks(w: LeagueWorld, d: Dictionary) -> void:
 	for i in w.calendar.size():
 		var k := int(w.calendar[i]["kind"])
 		if (k == Calendar.Kind.LEAGUE and int(w.calendar[i]["day"]) == w.event) \
-				or k == Calendar.Kind.PLAYOFF:
+				or k == Calendar.Kind.BYE:
 			w.week = i
 			break
 	w.days_played.clear()

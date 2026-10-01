@@ -976,6 +976,10 @@ func blocked_by() -> String:
 		return "bid"
 	if cup_pending():
 		return "cup"
+	## THE NATIONAL CHAMPION'S SEND-OFF, a card a day in the bye before the
+	## Worlds (`SendOff`).
+	if SendOff.due(self):
+		return "sendoff"
 	## THE CARD BLOCKS THE NEXT MATCHDAY, deliberately. A dilemma the player can
 	## walk past is a dilemma he walks past, and then the feature is a notification
 	## rather than a decision. It joins the bid and the cup in the same queue the
@@ -1142,7 +1146,20 @@ static func purse(place: int, field: int, tier: int) -> int:
 ## -> SeasonWinter (season_winter.gd)
 func roll_over() -> void:
 	SeasonWinter.roll_over(self)
+	send_off = 0
 	sync_week()
+
+
+## How many of the send-off's three days have been done this year.
+var send_off: int = 0
+
+
+func send_off_card() -> Dictionary:
+	return SendOff.card(self)
+
+
+func answer_send_off() -> String:
+	return SendOff.answer(self)
 
 
 

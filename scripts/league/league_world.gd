@@ -41,7 +41,9 @@ const INVITE_RANK: int = 3              ## top three of your own division
 ## sixteen-club bracket. Sixteen clubs and four pools here — a quarter of the
 ## size, the same shape, and it fits a season you can finish on a phone.
 const WORLDS_FIELD: int = 16
-const WORLDS_HOME: int = 2              ## berths from the National Division
+## ONE BERTH: the National champion goes as the country's team (Pete, 1 Oct:
+## "a 'bestowing' of the Team USA title and Tabard for Worlds"). It was two.
+const WORLDS_HOME: int = 1
 
 const DRAW_ROUND_CHANCE: float = 0.06
 const RATING_SCALE: float = 22.0        ## a 22-point gap is about 90/10 on a round
@@ -61,6 +63,9 @@ var week: int = 0
 var days_played: Dictionary = {}
 ## Each division's playoff final, once it is fought: tier -> [champion, runner-up].
 var finalists: Dictionary = {}
+## THE COUNTRY'S NAME ON THE PLAYER'S CLUB at this year's Worlds, once the
+## tabard is handed over ("" otherwise). See `SendOff`.
+var team_title: String = ""
 var tables: Dictionary = {}             ## tier -> { club_id: row }
 var history: Array[Dictionary] = []
 
@@ -452,6 +457,7 @@ func player_tier() -> int:
 func _new_season() -> void:
 	event = 0
 	week = 0
+	team_title = ""
 	days_played.clear()
 	finalists.clear()
 	schedule.clear()
@@ -570,31 +576,14 @@ func play_week(player_rounds = null) -> void:
 				c.run_all(cup_resolver())
 				retire_cup(c)
 		Calendar.Kind.PLAYOFF:
+			## EVERY DIVISION'S PLAYOFF, the same weekend.
 			for t in League.TIERS.size():
 				var c := cup_of_week(w, t)
 				if c != null:
-					_cup_round(c)
+					c.run_all(cup_resolver())
+					retire_cup(c)
 	week += 1
 	_enter_week()
-
-
-## One round of a cup, everybody's. The player's tie is whatever the season left
-## of it: fought and recorded (the usual case), or still open, which only the
-## auto-play path leaves and which is then settled on rating.
-func _cup_round(c: Cup) -> void:
-	var r := cup_resolver()
-	c.sim_others(r)
-	for m in c.current_round():
-		if not bool(m["played"]):
-			var res: Array = r.call(int(m["a"]), int(m["b"]))
-			c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
-	## THE BRONZE IS FOUGHT ON FINAL DAY, beside the final.
-	if c.current_round().size() == 1 and c.stage == Cup.Stage.KNOCKOUT:
-		c.settle_third(r)
-	if c.round_complete():
-		c.advance()
-	if c.is_over():
-		retire_cup(c)
 
 
 ## THE OLD STEP, for the code that drives a world with nobody holding a cup —

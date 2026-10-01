@@ -71,6 +71,7 @@ func _play(s: Season, fight: bool) -> void:
 			q += 1
 			match s.blocked_by():
 				"bid": s.decline_bid()
+				"sendoff": s.answer_send_off()
 				"dilemma": s.answer_dilemma(s.dilemma_card()["options"].size() - 1)
 				"cup": s.sim_cup_tie()
 		if fight:

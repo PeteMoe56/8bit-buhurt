@@ -122,6 +122,7 @@ func _drain(s: Season) -> void:
 		q += 1
 		match s.blocked_by():
 			"bid": s.decline_bid()
+			"sendoff": s.answer_send_off()
 			"dilemma": s.answer_dilemma(rng.randi_range(0, 1))
 			"cup": s.sim_cup_tie()
 			## No ground, no promotion (#13, 29 Sep): a "yes" can be refused, and

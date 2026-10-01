@@ -101,12 +101,15 @@ static func _club_controls(v: SeasonScene) -> void:
 	## **A comment that describes a region as empty is a comment, not a check.**
 	## The genuinely free band is under the schedule and above the action row:
 	## five rows of fixtures end at 418 and the action row starts at 476.
-	## THE CALENDAR, always (30 Sep 2026): the whole year as Saturdays.
-	v.ui.add_child(UiKit.button(UiKit.t("Calendar"), Vector2(24, SeasonScene.action_y() - 52.0),
-		Vector2(200, 44), func():
-			Session.autosave()
-			UiKit.go("res://scenes/Calendar.tscn"), "clock"))
-	if v.season.viewable_cup() != null:
+	## THE CALENDAR (30 Sep 2026): the whole year as weeks. Not over a full-panel
+	## card (a dilemma, the send-off), whose words run down to this band.
+	var card_up: bool = ["dilemma", "sendoff"].has(v.season.blocked_by())
+	if not card_up:
+		v.ui.add_child(UiKit.button(UiKit.t("Calendar"), Vector2(24, SeasonScene.action_y() - 52.0),
+			Vector2(200, 44), func():
+				Session.autosave()
+				UiKit.go("res://scenes/Calendar.tscn"), "clock"))
+	if v.season.viewable_cup() != null and not card_up:
 		v.ui.add_child(UiKit.button(UiKit.t("Cup bracket"), Vector2(236, SeasonScene.action_y() - 52.0),
 			Vector2(200, 44), func():
 				Session.viewing_cup = v.season.viewable_cup()
@@ -213,6 +216,14 @@ static func _club_controls(v: SeasonScene) -> void:
 	## player is most likely to want to read rather than clear, so it does not go
 	## first — but it does go before the fight, because a dilemma you can walk
 	## past is a notification.
+	if block == "sendoff":
+		var so: Dictionary = v.season.send_off_card()
+		v.ui.add_child(UiKit.primary(UiKit.button(String(so["button"]),
+			Vector2(UiKit.right_edge(300.0 + 24.0), SeasonScene.action_y()), Vector2(300, 46), func():
+				v.flash = v.season.answer_send_off()
+				Session.autosave()
+				v._rebuild(), "trophy")))
+		return
 	if block == "dilemma":
 		var card := v.season.dilemma_card()
 		var opts: Array = card.get("options", [])
@@ -309,6 +320,9 @@ static func _draw_club(v: SeasonScene) -> void:
 	if v.season.blocked_by() == "dilemma":
 		v._draw_dilemma()
 		return
+	if v.season.blocked_by() == "sendoff":
+		_draw_send_off(v)
+		return
 	v._fixture()
 	v._last_event()
 	v._schedule()
@@ -384,6 +398,21 @@ static func _schedule(v: SeasonScene) -> void:
 		y += 20.0
 
 
+
+
+## THE SEND-OFF CARD, the whole panel like a dilemma's: the day, the title, the
+## words. One answer, on the button. Art follows (Pete, 1 Oct).
+static func _draw_send_off(v: SeasonScene) -> void:
+	var card: Dictionary = v.season.send_off_card()
+	var y := SeasonScene.CONTENT_Y + 10.0
+	UiKit.panel(v, Rect2(24, y, UiKit.span(), 300))
+	UiKit.text(v, v.font, UiKit.t("THE SEND-OFF  ·  %s  ·  %d OF %d") % [String(card["day"]),
+		v.season.send_off + 1, SendOff.STEPS], Vector2(48, y + 30), 13, UiKit.DIM)
+	UiKit.text(v, v.font, String(card["title"]), Vector2(48, y + 62), 22, UiKit.YOU)
+	var line_y := y + 104.0
+	for line in UiKit.wrap(v.font, String(card["body"]), UiKit.span(48.0), 16):
+		UiKit.text(v, v.font, line, Vector2(48, line_y), 16, UiKit.INK)
+		line_y += 26.0
 
 
 static func _draw_dilemma(v: SeasonScene) -> void:
@@ -533,6 +562,8 @@ static func _fixture_title(v: SeasonScene) -> String:
 			return "%s  ·  %s" % [cup.cup_name.to_upper(), cup.round_label().to_upper()]
 		"dilemma":
 			return UiKit.t("A DECISION")
+		"sendoff":
+			return UiKit.t("THE SEND-OFF")
 	if v.season.season_complete():
 		return UiKit.t("SEASON COMPLETE")
 	## THE WEEK, AND WHAT IT IS (30 Sep 2026). One fixture a Saturday, so the

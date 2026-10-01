@@ -84,6 +84,10 @@ func _back() -> void:
 func _name(id: int) -> String:
 	if Session.season == null or id < 0:
 		return "—"
+	## THE TABARD: at the Worlds the champion fights under the country's name.
+	if cup != null and cup == Session.season.world.worlds and id == Session.season.world.player_club \
+			and Session.season.world.team_title != "":
+		return Session.season.world.team_title
 	var c: Dictionary = Session.season.world.club(id)
 	return String(c.get("name", "—"))
 

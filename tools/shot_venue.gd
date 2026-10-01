@@ -42,6 +42,9 @@ func _seek(home: bool) -> void:
 		if s.blocked_by() == "dilemma":
 			s.answer_dilemma(0)
 			continue
+		if s.blocked_by() == "sendoff":
+			s.answer_send_off()
+			continue
 		if s.cup_pending():
 			s.sim_cup_tie()
 			continue

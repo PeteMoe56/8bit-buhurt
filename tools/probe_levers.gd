@@ -59,6 +59,7 @@ func _season(m: ProbeManager, s: Season, v: String) -> void:
 			q += 1
 			match s.blocked_by():
 				"bid": s.decline_bid()
+				"sendoff": s.answer_send_off()
 				"dilemma": s.answer_dilemma(1 if v == "dilemma1" else 0)
 				"cup": s.sim_cup_tie()
 				"promotion":

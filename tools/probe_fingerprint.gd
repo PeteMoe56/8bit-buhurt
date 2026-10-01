@@ -27,6 +27,7 @@ func _initialize() -> void:
 				match season.blocked_by():
 					"bid": season.decline_bid()
 					"dilemma": season.answer_dilemma(0)
+					"sendoff": season.answer_send_off()
 					"cup": season.sim_cup_tie()
 					"promotion": season.answer_promotion(true)
 			if season.season_complete():

@@ -247,6 +247,7 @@ func _season(s: Season, policy: String) -> int:
 			match s.blocked_by():
 				"bid": s.decline_bid()
 				"dilemma": s.answer_dilemma(0)
+				"sendoff": s.answer_send_off()
 				"cup": s.sim_cup_tie()
 				"promotion":
 					var t: Dictionary = s.promotion_terms()

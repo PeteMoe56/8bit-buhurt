@@ -137,6 +137,7 @@ func _run(seed_v: int = 31337) -> Array:
 									break
 							if not took:
 								s.decline_bid()
+						"sendoff": s.answer_send_off()
 						"dilemma":
 							var card := s.dilemma_card()
 							var opts: Array = card.get("options", [])

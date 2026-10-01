@@ -25,6 +25,7 @@ func _initialize() -> void:
 						s.decline_bid()
 					continue
 				"dilemma": s.answer_dilemma(0); continue
+				"sendoff": s.answer_send_off(); continue
 				"promotion":
 					if s.answer_promotion(true) != "":
 						s.answer_promotion(false)

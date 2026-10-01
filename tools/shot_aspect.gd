@@ -27,6 +27,7 @@ func _initialize() -> void:
 			match s.blocked_by():
 				"bid": s.decline_bid()
 				"dilemma": s.answer_dilemma(0)
+				"sendoff": s.answer_send_off()
 				"cup": s.sim_cup_tie()
 		s.skip_event()
 	var q2 := 0
@@ -35,6 +36,7 @@ func _initialize() -> void:
 		match s.blocked_by():
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
+			"sendoff": s.answer_send_off()
 			"cup": s.sim_cup_tie()
 	root.add_child(load("res://scenes/Season.tscn").instantiate())
 

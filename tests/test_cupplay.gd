@@ -36,6 +36,8 @@ func _initialize() -> void:
 	_test_the_auto_path_is_untouched()
 	_test_your_own_show_waits_for_you_too()
 	_test_both_doors_dress_the_same_sim()
+	_test_the_weeks_of_a_year()
+	_test_the_send_off()
 
 	print("")
 	for n in notes:
@@ -336,3 +338,78 @@ func _test_both_doors_dress_the_same_sim() -> void:
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "both doors dress the same sim",
 		"a cup tie knows who it is against, that it is on neutral ground, and how far the men travelled")
+
+
+
+## THE SHAPE OF A YEAR (Pete, 30 Sep and 1 Oct): a league fixture a Saturday,
+## each cup one weekend, a bye, the playoff one weekend; at National a second
+## bye and the Worlds week. Never two things in one week.
+func _test_the_weeks_of_a_year() -> void:
+	var by := Calendar.build(5, false)
+	var nat := Calendar.build(15, true)
+	var kinds := func(cal: Array) -> Array:
+		var out: Array = []
+		for w in cal:
+			out.append(int(w["kind"]))
+		return out
+	var b: Array = kinds.call(by)
+	var n: Array = kinds.call(nat)
+	var K := Calendar.Kind
+	_ok(b.count(K.LEAGUE) == 5 and b.count(K.CUP) == 2 and b.count(K.PLAYOFF) == 1
+			and b[b.size() - 2] == K.BYE and b[b.size() - 1] == K.PLAYOFF and not b.has(K.WORLDS),
+		"a Backyard year is five league weeks, two cup weekends, a bye and the playoff",
+		"%d weeks: %s" % [b.size(), str(b)])
+	_ok(n.count(K.LEAGUE) == 15 and n.count(K.BYE) == 2 and n[n.size() - 1] == K.WORLDS
+			and n[n.size() - 2] == K.BYE and n[n.size() - 3] == K.PLAYOFF,
+		"a National year ends playoff, bye, Worlds",
+		"%d weeks, last four %s" % [n.size(), str(n.slice(n.size() - 4))])
+
+
+## THE SEND-OFF: the National champion's bye before the Worlds is three cards —
+## the celebration, the national camp, the tabard — and the club goes to the
+## Worlds under the country's name, as its only berth.
+func _test_the_send_off() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	var w := s.world
+	for c in w.clubs:
+		if int(c["tier"]) == League.Tier.NATIONAL:
+			c["tier"] = 0
+			break
+	w.clubs[w.player_club]["tier"] = League.Tier.NATIONAL
+	w._new_season()
+	## Straight to the week before the Worlds, as champions.
+	var other := -1
+	for c in w.clubs:
+		if int(c["tier"]) == League.Tier.NATIONAL and int(c["id"]) != w.player_club:
+			other = int(c["id"])
+			break
+	w.finalists[League.Tier.NATIONAL] = [w.player_club, other]
+	w.week = w.calendar.size() - 2
+	var fans := s.office.fans
+	var xp := 0
+	for f in s.club.roster:
+		xp += f.xp
+	var asked: Array[String] = []
+	var guard := 0
+	while s.blocked_by() == "sendoff" and guard < 6:
+		guard += 1
+		asked.append(String(s.send_off_card()["title"]))
+		s.answer_send_off()
+	var xp2 := 0
+	for f in s.club.roster:
+		xp2 += f.xp
+	_ok(asked.size() == SendOff.STEPS and s.office.fans > fans and xp2 > xp
+			and w.team_title == SendOff.team_name(s),
+		"the champion is sent off: celebrated, trained, given the tabard",
+		"%s; fans %.0f -> %.0f, squad XP +%d, going as '%s'" % [", ".join(asked), fans, s.office.fans,
+			xp2 - xp, w.team_title])
+	## And the Worlds takes the champion as the country's one club.
+	s.skip_event()
+	var home := 0
+	if w.worlds != null:
+		for id in w.worlds.entrants:
+			if not bool(w.clubs[int(id)].get("guest", false)):
+				home += 1
+	_ok(w.worlds != null and w.worlds.entrants.has(w.player_club) and home == LeagueWorld.WORLDS_HOME,
+		"and goes to the Worlds as the country's only club",
+		"%d home club(s) in a field of %d" % [home, w.worlds.entrants.size() if w.worlds != null else 0])

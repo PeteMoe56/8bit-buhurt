@@ -127,6 +127,7 @@ func _season(s: Season) -> int:
 			match s.blocked_by():
 				"bid": s.decline_bid()
 				"dilemma": s.answer_dilemma(0)
+				"sendoff": s.answer_send_off()
 				"cup": s.sim_cup_tie()
 		if s.season_complete():
 			break

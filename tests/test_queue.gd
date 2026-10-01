@@ -64,6 +64,7 @@ func _initialize() -> void:
 					## own order moves (a mutation swapping two survived).
 					var want_head := ""
 					for pair in [["bid", s.bid_open()], ["cup", s.cup_pending()],
+							["sendoff", SendOff.due(s)],
 							["dilemma", not s.dilemma.is_empty()], ["promotion", s.promotion_offered()]]:
 						if bool(pair[1]):
 							want_head = String(pair[0])
@@ -84,6 +85,7 @@ func _initialize() -> void:
 					match head:
 						"bid": s.decline_bid()
 						"dilemma": s.answer_dilemma(0)
+						"sendoff": s.answer_send_off()
 						"cup": s.sim_cup_tie()
 						"promotion": s.answer_promotion(true)
 				if s.season_complete() and s.blocked_by() == "":
@@ -94,7 +96,30 @@ func _initialize() -> void:
 		"the club tab offers what the season says comes next",
 		"%d states checked across %d careers x %d seasons, %d with two or more pending%s"
 			% [shown, BASES.size(), SEASONS, both, "" if bad.is_empty() else ": " + "; ".join(bad)])
-	_ok(order_bad.is_empty(), "and the season's own order is bid, cup, dilemma, promotion",
+	## A CARD AND PROMOTION AT ONCE. Since the calendar (30 Sep) a card is only
+	## dealt on a league Saturday and the season ends weeks later, so play never
+	## reaches this pair on its own any more — it is built: a finished season in
+	## a promotion place with a card put on the table.
+	var built := Season.new(MeleeRosters.starting_club(), 4242)
+	var g := 0
+	while not built.season_complete() and g < 60:
+		g += 1
+		match built.blocked_by():
+			"bid": built.decline_bid()
+			"dilemma": built.answer_dilemma(0)
+			"cup": built.sim_cup_tie()
+			_: built.skip_event()
+	if built.bid_open():
+		built.decline_bid()
+	var bw := built.world
+	bw.finalists[bw.player_tier()] = [bw.player_club, -1]
+	built.dilemma = {"id": "van", "man": 0}
+	var pair_head := built.blocked_by()
+	if not built.promotion_offered():
+		order_bad.append("the built season is not offered promotion")
+	elif pair_head != "dilemma":
+		order_bad.append("card and promotion pending: season says '%s', the order says 'dilemma'" % pair_head)
+	_ok(order_bad.is_empty(), "and the season's own order is bid, cup, send-off, dilemma, promotion",
 		"every blocked state checked" if order_bad.is_empty() else "; ".join(order_bad.slice(0, 4)))
 	print("")
 	if failures.is_empty():

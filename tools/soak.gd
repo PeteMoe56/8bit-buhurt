@@ -571,6 +571,8 @@ func _drain_the_queue(s: Season) -> void:
 						break
 				s.answer_dilemma(pick)
 				_spent("dilemma answered")
+			"sendoff":
+				s.answer_send_off()
 			"cup":
 				return          ## the bout loop plays these itself
 			_:
