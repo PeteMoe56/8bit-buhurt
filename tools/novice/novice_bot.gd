@@ -111,6 +111,10 @@ func _process(_delta: float) -> bool:
 		wait -= 1
 		return false
 	step += 1
+	## ENGLISH THROUGHOUT: the wanderer found the language arrows in Settings and
+	## the run went on in Japanese, where it no longer knew "Quit" when it saw it.
+	if Settings.language != "en":
+		Settings.set_language("en")
 	_milestones(scene)
 	if step >= steps_wanted:
 		_finish("steps")
