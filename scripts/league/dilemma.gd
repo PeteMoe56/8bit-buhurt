@@ -346,13 +346,15 @@ const CARDS: Array[Dictionary] = [
 	"id": "charity",
 	"who": Who.A_RESERVE,
 	"title": "A show for the hospice",
-	"text": "A charity in town wants a demonstration on a Saturday between events. It is free to put on and it is a long day in harness.",
+	## REWRITTEN (playtest 30 Sep #8: "makes zero sense for the choices"). Each
+	## answer now says what it is and why it costs what it costs.
+	"text": "A charity in town wants a fight demonstration on a free Saturday. Full harness draws a crowd. It is also a long day of hitting each other.",
 	"options": [
-		{"label": "Put a show on", "blurb": "Hard week, full hall.",
+		{"label": "Full demonstration", "blurb": "The town will talk about it. A man may get hurt.",
 			"fx": {"fans": 0.10, "note": 2.0, "injury": 1, "xp": 8}},
-		{"label": "Send two guys to talk", "blurb": "No harness, no risk, and everyone knows it.",
+		{"label": "Send two to talk", "blurb": "No armor, no risk. Two men lose their day off.",
 			"fx": {"fans": 0.03, "note": 0.5, "morale": -0.04}},
-		{"label": "Not this month", "blurb": "The schedule is the schedule.",
+		{"label": "Turn it down", "blurb": "The town notices, and the men wanted to do it.",
 			"fx": {"note": -1.5, "morale": -0.04}},
 	],
 },
@@ -392,7 +394,9 @@ const CARDS: Array[Dictionary] = [
 ## man's contract or his ceiling stays in the prose where it belongs.
 const FX_SHOWN: Array[String] = ["cc", "morale", "kit", "note", "fans"]
 const FX_WORD := {
-	"cc": "CC", "morale": "room", "kit": "kit", "note": "name", "fans": "crowd",
+	## PLAIN WORDS (playtest 30 Sep #7: "Why not just have Team Morale? Why
+	## name and not renown?"). They needed a legend; now they do not.
+	"cc": "CC", "morale": "team morale", "kit": "kit", "note": "renown", "fans": "crowd",
 }
 
 

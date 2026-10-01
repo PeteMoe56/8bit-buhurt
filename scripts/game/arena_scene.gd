@@ -332,7 +332,7 @@ func _art_for(level: int) -> Texture2D:
 
 
 func _draw_diary() -> void:
-	UiKit.text(self, font, UiKit.t("THE GROUND"), Vector2(RIGHT_X, 118), 15, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("VENUE"), Vector2(RIGHT_X, 118), 15, UiKit.INK)
 	if arena.at_top():
 		UiKit.text(self, font, UiKit.t("Built as far as a club can build."),
 			Vector2(RIGHT_X, 146), 14, UiKit.DIM)
@@ -367,7 +367,7 @@ func _draw_diary() -> void:
 
 	## TWO FRAMED GROUPS (round 9: the right column "floated"): the ground,
 	## and the diary.
-	UiKit.text(self, font, UiKit.t("THE DIARY"), Vector2(RIGHT_X, 282), 15, UiKit.INK)
+	UiKit.text(self, font, UiKit.t("EVENTS"), Vector2(RIGHT_X, 282), 15, UiKit.INK)
 	if season.bid_open():
 		## The preview is honest and it is the reason the screen exists: the
 		## player is choosing between numbers, not adjectives, and the number

@@ -130,6 +130,8 @@ func _world() -> void:
 	names[MeleeRosters.rival_club().display_name] = true
 	for slot in 4:
 		names[String(world.staff_offer(slot).get("name", ""))] = true
+	for c in world.staff_pool():
+		names[String(c.get("name", ""))] = true
 	for reg in Cities.Region.values():
 		for c in Cities.names(reg):
 			names[Cities.full_name(c)] = true

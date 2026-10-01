@@ -12,28 +12,32 @@ extends RefCounted
 ## header and three on the bench; on a taller canvas the action row moves and a
 ## key at a fixed 452 would have been left stranded in the middle of the screen.
 static func _squad_key_y() -> float:
-	var last := SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP + SeasonScene.SQUAD_ROW * 8.0 + 28.0
-	return minf(last + 16.0, SeasonScene.action_y() - 22.0)
+	## Just over the action row: under the tallest the three boxes can be (eight
+	## travelling, five on the line and three on the bench).
+	return SeasonScene.action_y() - 8.0
 
 
 
 static func _squad_rows(v: SeasonScene) -> Array:
 	var out: Array = []
+	## THE FIVE FIRST, IN SLOT ORDER, THEN THE BENCH (playtest 30 Sep #17).
+	## The eight used to be drawn in depth-chart order, so the BENCH heading
+	## landed after whichever man came first in the chart and four men on the
+	## line read as benched — which Pete took for a line with one man on it and
+	## no way to fill it. The model was never short; the sheet was lying.
 	var five := v.season.club.starting_five()
-	## CONTENT_Y + 40 AND NOT + 26, because the column heading now sits between
-	## the section title and the first man. Both columns move together and both
-	## read the same constant, so the reserve cannot end up fourteen pixels out
-	## of step with the eight.
 	var y := SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP
+	for i in five.size():
+		out.append({ "card": five[i], "y": y, "kind": "on the line", "x": 24.0, "slot": i })
+		y += SeasonScene.SQUAD_ROW
 	var bench_started := false
 	for f in v.season.club.active_eight():
-		var kind := "on the line" if five.has(f) else "bench"
-		## Every group needs the gap its own header is written into. The bench had
-		## none, so its label was drawn 26 pixels up into the last man on the line.
-		if kind == "bench" and not bench_started:
+		if five.has(f):
+			continue
+		if not bench_started:
 			bench_started = true
-			y += 28.0
-		out.append({ "card": f, "y": y, "kind": kind, "x": 24.0 })
+			y += BENCH_GAP
+		out.append({ "card": f, "y": y, "kind": "bench", "x": 24.0 })
 		y += SeasonScene.SQUAD_ROW
 	## The reserve stands in its own column rather than below, which is the
 	## whole reason a landscape screen is worth having: the eight and the five
@@ -44,6 +48,15 @@ static func _squad_rows(v: SeasonScene) -> Array:
 		out.append({ "card": f, "y": ry, "kind": "reserve", "x": SeasonScene.RESERVE_X })
 		ry += SeasonScene.SQUAD_ROW
 	return out
+
+
+## The gap the BENCH box's title is written into.
+const BENCH_GAP := 30.0
+## Where on the line each of the five stands, said the way the sport says it.
+const SLOT_WORD := ["L rail", "L flank", "Center", "R flank", "R rail"]
+## For the string table, which reads literals inside t().
+static func _slot_keys() -> Array:
+	return [UiKit.t("L rail"), UiKit.t("L flank"), UiKit.t("R flank"), UiKit.t("R rail")]
 
 
 
@@ -183,59 +196,63 @@ static func _squad_controls(v: SeasonScene) -> void:
 	for row in v._squad_rows():
 		v.ui.add_child(v._man_button(row["card"], float(row["y"]), float(row["x"])))
 	if v.picked != null:
-		## THE FORK, AS ONE BUTTON. Extend while the deal runs, re-sign once it has
-		## not — and it is deliberately one control rather than two, because two
-		## buttons with two prices means the player picks the cheaper one and
-		## there is no decision left in it. The button shows the price it is
-		## actually charging, and which of the two it is.
-		var out_of_deal: bool = v.picked.years <= 0
-		var deal_cost: int = v.season.resign_cost(v.picked) if out_of_deal \
-			else v.season.extend_cost(v.picked)
+		## THE PICKED MAN'S ROW: Swap, his page, Prospect, the deal, Trade.
+		## Five buttons across the 912 the row has (playtest 30 Sep #5 #6 #16).
+		var p := v.picked
+		var ay := SeasonScene.action_y()
+		var swap_b := UiKit.button(UiKit.t("Cancel swap") if v.swapping else UiKit.t("Swap"),
+			Vector2(24, ay), Vector2(130, 46), func():
+				v.swapping = not v.swapping
+				v.flash = (UiKit.t("Tap the man %s trades places with.") % p.display_name) if v.swapping else ""
+				v._rebuild(), "roster")
+		v.ui.add_child(UiKit.primary(swap_b) if v.swapping else swap_b)
+		v.ui.add_child(UiKit.button(UiKit.t("His page"), Vector2(162, ay), Vector2(130, 46), func():
+			Session.viewing_fighter = p
+			Session.autosave()
+			UiKit.go("res://scenes/Fighter.tscn"), "helm"))
+		## THE PROSPECT, SAID AS WHAT IT DOES (playtest 30 Sep #6).
+		var ground := v.season.office.level(ClubOffice.Facility.TRAINING)
 		v.ui.add_child(UiKit.button(
-			"%s  ·  %s/wk" % ["Re-sign" if out_of_deal else "Extend",
+			UiKit.t("Not prospect") if v.season.prospect == p else UiKit.t("Prospect: +%d max") % Career.PROSPECT_GAIN,
+			Vector2(300, ay), Vector2(170, 46), func():
+				if v.season.prospect == p:
+					v.season.prospect = null
+					v.flash = UiKit.t("%s is no longer your prospect.") % p.display_name
+				elif ground < Career.PROSPECT_GROUND:
+					v.flash = UiKit.t("One man a year can be your prospect: +%d to his max at the winter. Needs a Training ground at %d.") % [
+						Career.PROSPECT_GAIN, Career.PROSPECT_GROUND]
+				else:
+					v.season.prospect = p
+					v.flash = UiKit.t("%s is your prospect — +%d to his max at the winter.") % [
+						p.display_name, Career.PROSPECT_GAIN]
+					Session.autosave()
+				v._rebuild()))
+		var out_of_deal: bool = p.years <= 0
+		var deal_cost: int = v.season.resign_cost(p) if out_of_deal else v.season.extend_cost(p)
+		v.ui.add_child(UiKit.button(
+			"%s  ·  %s/wk" % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
 				ClubOffice.money(deal_cost)],
-			Vector2(468, SeasonScene.action_y()), Vector2(256, 46), func():
-				var err := v.season.resign(v.picked) if out_of_deal else v.season.extend(v.picked)
+			Vector2(478, ay), Vector2(220, 46), func():
+				var err := v.season.resign(p) if out_of_deal else v.season.extend(p)
 				if err == "":
-					v.flash = UiKit.t("%s: %s a week for %d years.") % [v.picked.display_name,
-						ClubOffice.money(ClubOffice.billed(v.picked)), v.picked.years]
+					v.flash = UiKit.t("%s: %s a week for %d years.") % [p.display_name,
+						ClubOffice.money(ClubOffice.billed(p)), p.years]
 					Session.autosave()
 				else:
 					v.flash = err
 				v._rebuild()))
-		## AND THE BUTTON SAYS WHAT HE FETCHES, because letting a man go is a
-		## PRICE now and not just a decision — see `Market.trade_value`. The three
-		## buckets are coarse on purpose and a player can only read the edges if
-		## the number is in front of him at the moment he is deciding; a sale
-		## whose value he discovers in the ledger afterwards is a mechanic he
-		## never games.
-		##
-		## Nothing for a man out of contract, and the label says "Cut" then rather
-		## than naming a price of zero — the distinction is real (his deal has run
-		## out and nobody is paying you for a man who can walk in the summer) and
-		## "Trade · 0 CC" reads as a bug.
-		var worth := v.season.trade_value(v.picked)
-		## WIDER THAN THE ROW'S OTHER BUTTONS, and deliberately.
-		##
-		## "Trade Calder · 3 CC" is about 195 pixels of text and the row's standard
-		## button is 204, so it filled its own edges — and a National Marquee man
-		## with a long name and a 33-credit price would have run straight past
-		## them. `Prospect` and `Extend` do not name the man and do not need to;
-		## this one does, because it is the only control on the screen that both
-		## costs a fighter and pays money, and "which man" is the thing a player
-		## checks before pressing it. The 56 pixels of dead space between Extend
-		## and Roster paid for it.
-		var who := UiKit.clip(v.picked.display_name, 10 if worth > 0 else 14)
-		v.ui.add_child(UiKit.button((UiKit.t("Trade %s  ·  %d CC") % [who, worth])
+		var worth := v.season.trade_value(p)
+		var who := UiKit.clip(p.display_name, 8)
+		v.ui.add_child(UiKit.danger(UiKit.button((UiKit.t("Trade %s  ·  %d CC") % [who, worth])
 				if worth > 0 else (UiKit.t("Cut %s") % who),
-			Vector2(24, SeasonScene.action_y()), Vector2(232, 46), func():
-				if not UiKit.confirm("release:" + v.picked.display_name):
+			Vector2(706, ay), Vector2(UiKit.right_edge() - 706.0, 46), func():
+				if not UiKit.confirm("release:" + p.display_name):
 					v.flash = (UiKit.t("Tap again to trade %s. He does not come back.") if worth > 0
-						else UiKit.t("Tap again to cut %s. He does not come back.")) % v.picked.display_name
+						else UiKit.t("Tap again to cut %s. He does not come back.")) % p.display_name
 					v._rebuild()
 					return
-				var gone := v.picked.display_name
-				var err := v.season.release(v.picked)
+				var gone := p.display_name
+				var err := v.season.release(p)
 				v.flash = UiKit.said(err) if err != "" else (
 					UiKit.t("%s traded for %d CC.") % [gone, worth] if worth > 0
 					else UiKit.t("%s released.") % gone)
@@ -243,27 +260,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 					v.picked = null
 					v.season.sync_power()
 					Session.autosave()
-				v._rebuild()))
-		## THE PROSPECT. One man a year, cashed at the winter, and the button
-		## refuses rather than going quiet when the ground is not built for it —
-		## a control that does nothing and says nothing is how a player concludes
-		## the feature is broken.
-		var ground := v.season.office.level(ClubOffice.Facility.TRAINING)
-		v.ui.add_child(UiKit.button(
-			"Clear" if v.season.prospect == v.picked else "Prospect",
-			Vector2(272, SeasonScene.action_y()), Vector2(180, 46), func():
-				if v.season.prospect == v.picked:
-					v.season.prospect = null
-					v.flash = UiKit.t("%s is no longer your prospect.") % v.picked.display_name
-				elif ground < Career.PROSPECT_GROUND:
-					v.flash = UiKit.t("A prospect needs a Training ground at %d. Yours is %d.") % [
-						Career.PROSPECT_GROUND, ground]
-				else:
-					v.season.prospect = v.picked
-					v.flash = UiKit.t("%s is your prospect — +%d ceiling at the winter.") % [
-						v.picked.display_name, Career.PROSPECT_GAIN]
-					Session.autosave()
-				v._rebuild()))
+				v._rebuild())))
 
 
 
@@ -282,16 +279,21 @@ static func _man_button(v: SeasonScene, f: FighterCard, y: float, x: float) -> B
 
 
 static func _tap(v: SeasonScene, f: FighterCard) -> void:
-	if v.picked == null:
+	## A TAP PICKS; SWAP IS A BUTTON (playtest 30 Sep #16). The second tap used
+	## to swap whoever it landed on, which is how a mis-tap moved a man.
+	if v.picked == null or (not v.swapping and v.picked != f):
 		v.picked = f
-		v.flash = UiKit.t("Pick who %s trades places with.") % f.display_name
+		v.swapping = false
+		v.flash = ""
 		v._rebuild()
 		return
 	if v.picked == f:
 		v.picked = null
+		v.swapping = false
 		v.flash = ""
 		v._rebuild()
 		return
+	v.swapping = false
 	## TWO KINDS OF SWAP, AND THE SCREEN NO LONGER REFUSES THE SECOND ONE.
 	##
 	## One on the bus and one in the clubhouse is a squad change: `swap_squad`.
@@ -385,19 +387,34 @@ static func _draw_squad(v: SeasonScene) -> void:
 		v._squad_head(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_HEAD_Y)
 
 	var rows := v._squad_rows()
-	var last_kind := "on the line"
+	## THREE BOXES, ONE PER GROUP (playtest 30 Sep #4: "maybe some box
+	## separations"). The line, the bench and the reserve each sit in a framed
+	## panel, so which group a man is in is a shape, not a shade.
+	var groups := {}
+	for row in rows:
+		var k := String(row["kind"])
+		var y := float(row["y"])
+		if not groups.has(k):
+			groups[k] = Vector2(y, y)
+		groups[k] = Vector2(minf(groups[k].x, y), maxf(groups[k].y, y))
+	for k in groups:
+		var span: Vector2 = groups[k]
+		var gx: float = SeasonScene.RESERVE_X if k == "reserve" else 24.0
+		v.draw_rect(Rect2(gx - 6.0, span.x - 24.0, SeasonScene.SQUAD_W + 12.0,
+			span.y - span.x + SeasonScene.SQUAD_ROW + 8.0), UiKit.FRAME, false, 1.0)
 	for row in rows:
 		var kind := String(row["kind"])
 		var y := float(row["y"])
 		var x := float(row["x"])
-		## The line/bench split is otherwise carried only by a background shade,
-		## which is not a label. Five men fight and three wait, and the screen
-		## should say which is which.
-		if kind == "bench" and last_kind == "on the line":
+		if kind == "bench" and y == float(groups["bench"].x):
 			UiKit.text(v, v.font, UiKit.t("BENCH — two may come on each corner"),
-				Vector2(24, y - 24), 14, UiKit.DIM)
+				Vector2(24, y - 28), 13, UiKit.DIM)
 		v._man_row(row["card"], y, kind, x)
-		last_kind = kind
+		## WHERE HE STANDS ON THE LINE, in place of his listed role.
+		if row.has("slot"):
+			UiKit.text(v, v.font, UiKit.t(String(SLOT_WORD[int(row["slot"])])),
+				Vector2(x + SeasonScene.COL_POS, y), 14,
+				UiKit.YOU if Tuning.covers(int(row["card"].pos), int(row["slot"])) == false else UiKit.DIM)
 	if v.season.club.reserves().is_empty():
 		UiKit.text(v, v.font, UiKit.t("Nobody."),
 			Vector2(SeasonScene.RESERVE_X + 16, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP), 15, UiKit.DIM)
@@ -421,9 +438,10 @@ static func _draw_squad(v: SeasonScene) -> void:
 			any_red = true
 	## ONE LINE (round 8: "cut the two-line legend"). The verb in ink, the key
 	## in dim after it.
-	var tap := UiKit.t("Tap a man for his page")
-	var key := (UiKit.t("green = good  ·  gold years = final year  ·  red = deal with it") if any_red
-		else UiKit.t("green = good  ·  gold years = final year"))
+	## SAYS WHAT A TAP DOES NOW: it picks him; his buttons do the rest.
+	var tap := UiKit.t("Tap a man to pick him")
+	var key := (UiKit.t("green = good  ·  gold = final year  ·  Hurt · 2 = out 2 events") if any_red
+		else UiKit.t("green = good  ·  gold = final year"))
 	var ky: float = SeasonScene._squad_key_y()
 	UiKit.text(v, v.font, tap, Vector2(24, ky), 14, UiKit.INK)
 	var tw: float = v.font.get_string_size(tap, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 18.0
@@ -445,9 +463,11 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 		Vector2(x + SeasonScene.COL_NAME, y), 16, col)
 	## An injury is the most important thing on a team sheet, so it goes where a
 	## position would and takes the color that means "deal with this".
+	## "HURT · 1", NOT "OUT 1" (playtest 30 Sep #9: "No idea why Norrey is
+	## out"): the word says why, the number is the events he will miss.
 	if f.injury > 0:
-		UiKit.text(v, v.font, UiKit.t("OUT %d") % f.injury, Vector2(x + SeasonScene.COL_POS, y), 14, UiKit.DOWN)
-	else:
+		UiKit.text(v, v.font, UiKit.t("Hurt · %d") % f.injury, Vector2(x + SeasonScene.COL_POS, y), 14, UiKit.DOWN)
+	elif role != "on the line":
 		UiKit.text(v, v.font, Tuning.pos_name(int(f.pos)), Vector2(x + SeasonScene.COL_POS, y), 14, UiKit.DIM)
 	## Kit is this game's salary cap and already costs him base, so it belongs on
 	## the team sheet next to the rating it is quietly subtracting from.

@@ -322,6 +322,31 @@ func staff_offer(slot: int) -> Dictionary:
 	return ClubOffice.offer(seed_value, world.season, slot, office.staff_refreshes)
 
 
+## THE CAPTAINS ON THE MARKET THIS SEASON (Pete, playtest 30 Sep #13: "New
+## Names were a waste of a push, there should be a free agents type of page for
+## Staff"). Eight men, fixed for the season, minus anybody already on the staff
+## and any name drawn twice. Best first.
+const STAFF_POOL := 8
+
+
+func staff_pool() -> Array:
+	var out: Array = []
+	var seen := {}
+	for c in office.captains:
+		seen[String(c.get("name", ""))] = true
+	var k := 0
+	while out.size() < STAFF_POOL and k < STAFF_POOL * 4:
+		var c: Dictionary = ClubOffice.offer(seed_value, world.season, 100 + k, 0)
+		k += 1
+		var nm := String(c.get("name", ""))
+		if seen.has(nm):
+			continue
+		seen[nm] = true
+		out.append(c)
+	out.sort_custom(func(a, b): return int(a.get("grade", 1)) > int(b.get("grade", 1)))
+	return out
+
+
 func hire_captain(c: Dictionary) -> String:
 	var err := office.hire(c)
 	if err != "":

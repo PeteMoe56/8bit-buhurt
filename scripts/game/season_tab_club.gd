@@ -102,7 +102,7 @@ static func _club_controls(v: SeasonScene) -> void:
 	## The genuinely free band is under the schedule and above the action row:
 	## five rows of fixtures end at 418 and the action row starts at 476.
 	if v.season.viewable_cup() != null:
-		v.ui.add_child(UiKit.button(UiKit.t("The draw"), Vector2(24, SeasonScene.action_y() - 52.0),
+		v.ui.add_child(UiKit.button(UiKit.t("Cup bracket"), Vector2(24, SeasonScene.action_y() - 52.0),
 			Vector2(200, 44), func():
 				Session.viewing_cup = v.season.viewable_cup()
 				Session.autosave()
@@ -472,13 +472,14 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	## SHORT ENOUGH FOR THE RULE IT SITS ON. The first wording ran to 440 pixels
 	## in the 420 it was given and printed "how well you are kn" — a legend that
 	## needs its own legend.
-	UiKit.right(v, v.font, UiKit.t("%s = the squad's mood   ·   %s = your renown")
-		% [UiKit.t(Dilemma.FX_WORD["morale"]), UiKit.t(Dilemma.FX_WORD["note"])],
-		Vector2(UiKit.right_edge(48.0), SeasonScene.action_y() - 110.0), 14, UiKit.DIM, 400.0)
+	## (The "room = … · name = …" legend is gone: the figures say "team morale"
+	## and "renown" in full now — playtest 30 Sep #7.)
 	for i in opts.size():
 		var o: Dictionary = opts[i]
 		var x := 24.0 + float(i) * (w + 12.0)
-		var by := SeasonScene.action_y() - 66.0
+		## TWENTY HIGHER, so a two-line answer keeps its figures inside the panel
+		## (playtest 30 Sep: "room -4 · name +1" printed on the panel's edge).
+		var by := SeasonScene.action_y() - 86.0
 		## Inset to the same ten pixels a button pads its own label by, so a
 		## column of prose sits over its button rather than over the gap, and the
 		## leftmost one stops touching the edge of the panel.
@@ -501,10 +502,15 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 		var fx := x + 10.0
 		for j in bill.size():
 			var e: Dictionary = bill[j]
-			if j > 0:
+			var t := String(e["text"])
+			## A FIGURE THAT WOULD CROSS INTO THE NEXT ANSWER starts a new line.
+			var tw := v.font.get_string_size(" · " + t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+			if j > 0 and fx + tw > x + w - 4.0:
+				fx = x + 10.0
+				by += 17.0
+			elif j > 0:
 				UiKit.text(v, v.font, " · ", Vector2(fx, by + 2.0), 14, UiKit.DIM)
 				fx += v.font.get_string_size(" · ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
-			var t := String(e["text"])
 			UiKit.text(v, v.font, t, Vector2(fx, by + 2.0), 13,
 				UiKit.UP if int(e["dir"]) > 0 else UiKit.DOWN)
 			fx += v.font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x

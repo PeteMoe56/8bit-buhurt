@@ -75,13 +75,21 @@ const PACK_NAME := {
 ## started at b8541f and failed that check against the gold by three
 ## thousandths, which is exactly the pairing a player would have picked and then
 ## squinted at. Darkened rather than the rule being loosened: the rule was right.
+## FOURTEEN, not seven (playtest 30 Sep #3). New ones on the END, so an index
+## a save or a fixture already holds still means the colour it meant.
 const KIT_COLORS: Array[Color] = [
 	Color("c0392b"), Color("2a5caa"), Color("2f7d3b"), Color("23232b"),
 	Color("7b3fa0"), Color("9c4416"), Color("1f6f78"),
+	Color("7a1f3d"), Color("15305e"), Color("4b5a1f"), Color("5b3a29"),
+	Color("3b3f8f"), Color("5e6470"), Color("a8341c"),
 ]
 ## The mark. Light, because the point of the mark is that you can see it.
+## NINE, not three (playtest 30 Sep #3). All light: the contrast rule against
+## the kit still decides which pairs are legal.
 const MARK_COLORS: Array[Color] = [
 	Color("f4f4e8"), Color("f2c14e"), Color("d8dde3"),
+	Color("f4a6a0"), Color("9fd8f0"), Color("a8e0a0"), Color("f8b878"),
+	Color("c8b0f0"), Color("ffe08a"),
 ]
 
 

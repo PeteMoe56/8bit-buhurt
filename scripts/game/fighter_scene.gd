@@ -415,12 +415,12 @@ func _cell_at(i: int) -> Vector2:
 func _meeting_row(i: int) -> Dictionary:
 	match i:
 		0:
-			return {"key": "morale", "label": UiKit.t("MORALE"), "verb": UiKit.t("Sit him down"),
+			return {"key": "morale", "label": UiKit.t("MORALE"), "verb": UiKit.t("Talk to him"),
 				"cc": ClubOffice.negotiate_cost(man), "off": false,
 				"value": man.morale_word(), "col": man.morale_color(),
 				"bar": _roll("morale", man.morale), "bar_col": man.morale_color()}
 		1:
-			return {"key": "kit", "label": UiKit.t("CONDITION"), "verb": UiKit.t("The armorer"),
+			return {"key": "kit", "label": UiKit.t("CONDITION"), "verb": UiKit.t("Fix kit"),
 				"cc": ClubOffice.kit_cost(man), "off": man.armor >= 1.0,
 				"value": "%d%%" % int(round(_roll("kit", man.armor) * 100.0)),
 				"col": UiKit.INK,
@@ -430,7 +430,7 @@ func _meeting_row(i: int) -> Dictionary:
 			if not Career.at_ceiling(man):
 				bar = clampf(_roll("xp", float(man.xp))
 					/ maxf(1.0, float(Career.next_level_at(man))), 0.0, 1.0)
-			return {"key": "level", "label": UiKit.t("XP LEVEL"), "verb": UiKit.t("Extra reps"),
+			return {"key": "level", "label": UiKit.t("XP LEVEL"), "verb": UiKit.t("Extra training"),
 				"cc": Career.level_cost(man), "off": Career.at_ceiling(man),
 				"value": str(int(round(_roll("level", float(man.level))))),
 				"col": UiKit.INK, "bar": bar,
@@ -593,7 +593,8 @@ func _draw() -> void:
 # ------------------------------------------------------------------- column 1
 func _the_man() -> void:
 	UiKit.panel(self, Rect2(L_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, UiKit.t("THE MAN"), Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	## HIS NAME, NOT "THE MAN" (playtest 30 Sep #12).
+	UiKit.text_fit(self, font, man.display_name, Vector2(L_X + 16, COL_Y + 26), 14, UiKit.INK, COL_W - 32.0)
 	## THE LIST PAYS FOR THE TRAIT OUT OF ITS OWN RHYTHM, 22 instead of 24.
 	##
 	## The first cut grew `COL_H` by 14 instead, and the panel's new bottom ran
@@ -704,6 +705,10 @@ func _the_man() -> void:
 		and season.resign_cost(man) == season.extend_cost(man)
 	if same:
 		return
+	## ONLY WHERE THERE IS ROOM IN THE PANEL (playtest 30 Sep #10: a two-line
+	## trait pushed this line through the panel's bottom edge).
+	if y + 56.0 > COL_Y + COL_H - 8.0:
+		return
 	if bool(asks["refuses"]):
 		UiKit.text(self, font, UiKit.t("He will not sign again."),
 			Vector2(L_X + 16, y + 56), 14, UiKit.DOWN)
@@ -760,7 +765,7 @@ func _pace(y: float) -> void:
 func _draw_meeting() -> void:
 	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
 	UiKit.panel(self, card())
-	UiKit.mid(self, font, UiKit.t("A WORD WITH %s") % man.display_name.to_upper(),
+	UiKit.mid(self, font, UiKit.t("MEETING: %s") % man.display_name.to_upper(),
 		Vector2(card().position.x, card().position.y + 22.0), 19, UiKit.INK,
 		card().size.x)
 	## THE PURSE, ROLLING TOO. Spending is the other half of every row on this
@@ -833,7 +838,11 @@ func _line(label: String, value: String, y: float) -> void:
 ## which is the number the decision actually turns on.
 func _attributes() -> void:
 	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, UiKit.t("WHAT HE IS MADE OF"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	## STATISTICS, OUT OF 100, WITH WHERE HE CAN GROW (Pete, playtest 30 Sep
+	## #11: "make the yellow bar go to their current stats, but an outlined red
+	## box up to their potential and mark it").
+	UiKit.text(self, font, UiKit.t("STATISTICS"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
+	UiKit.right(self, font, UiKit.t("out of 100"), Vector2(M_X + COL_W - 16, COL_Y + 26), 12, UiKit.DIM, 120)
 	## THE VALUE AND WHAT HE ACTUALLY FIGHTS AT. An angry man hits harder and a
 	## toxic one lasts longer — the melee reads `fighting_strength()` and
 	## `fighting_gas()`, so this panel reads them too rather than drawing the
@@ -850,16 +859,26 @@ func _attributes() -> void:
 		var fights_at: int = int(row["f"])
 		var chipped: bool = fights_at != base
 		UiKit.text(self, font, String(row["n"]), Vector2(M_X + 16, y), 14, UiKit.INK)
+		## WHERE THIS STAT CAN GO: his headroom spread evenly over the four, the
+		## way the winter and the levels spend it. A man at his ceiling has no
+		## box at all.
+		var grow: int = mini(100, base + int(ceil(float(man.headroom()) / 0.92)))
 		UiKit.right(self, font,
 			("%d → %d" % [base, fights_at]) if chipped else ("%d" % base),
-			Vector2(M_X + COL_W - 16, y), 14,
+			Vector2(M_X + COL_W - 16 - (66.0 if grow > base else 0.0), y), 14,
 			man.morale_color() if chipped else UiKit.INK, 110)
+		if grow > base:
+			UiKit.right(self, font, UiKit.t("max %d") % grow, Vector2(M_X + COL_W - 16, y), 12, UiKit.DOWN, 62)
 		var track := Rect2(M_X + 16, y + 8, COL_W - 32, 13)
-		UiKit.bar(self, track, float(base) / 99.0, UiKit.YOU)
+		UiKit.bar(self, track, float(base) / 100.0, UiKit.YOU)
+		if grow > base:
+			var gx0 := track.position.x + track.size.x * (float(base) / 100.0)
+			var gx1 := track.position.x + track.size.x * (float(grow) / 100.0)
+			draw_rect(Rect2(gx0, track.position.y - 1.0, gx1 - gx0, track.size.y + 2.0), UiKit.DOWN, false, 2.0)
 		## The chip drawn past the fill, so you can see what the mood is buying.
 		if chipped:
-			var x0 := track.position.x + track.size.x * (float(base) / 99.0)
-			var x1 := track.position.x + track.size.x * (float(fights_at) / 99.0)
+			var x0 := track.position.x + track.size.x * (float(base) / 100.0)
+			var x1 := track.position.x + track.size.x * (float(fights_at) / 100.0)
 			draw_rect(Rect2(x0, track.position.y, maxf(2.0, x1 - x0), track.size.y),
 				man.morale_color())
 		## NO CEILING TICK ON THESE BARS. The first version drew one at
@@ -882,7 +901,7 @@ func _attributes() -> void:
 	## version already proved clear.
 	UiKit.text_fit(self, font,
 		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
-			else UiKit.t("Ceiling: the most he can reach."),
+			else UiKit.t("Red box: how far he can grow."),
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 13,
 		man.morale_color() if man.angry() else UiKit.DIM, COL_W - 32.0)
 

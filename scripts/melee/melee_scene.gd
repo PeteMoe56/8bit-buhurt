@@ -993,7 +993,7 @@ func _draw_report() -> void:
 
 	UiKit.raw(self, font, Vector2(REP_LX, 112), UiKit.t("THE EVENT"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 10, COL_DIM)
-	UiKit.raw(self, font, Vector2(REP_RX, 112), UiKit.t("THE CHANGING ROOM"),
+	UiKit.raw(self, font, Vector2(REP_RX, 112), UiKit.t("WHAT THEY SAID"),
 		HORIZONTAL_ALIGNMENT_LEFT, 300, 10, COL_DIM)
 	_draw_report_table()
 	_draw_quips()

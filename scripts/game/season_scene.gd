@@ -105,6 +105,9 @@ var club_menu_open := false
 ## places with. Two taps, no modal, and the second tap is on a list you are
 ## already looking at.
 var picked: FighterCard = null
+## SWAP MODE (playtest 30 Sep #16): the picked man's Swap button arms it, and
+## the next man tapped trades places with him. Off, a tap only picks.
+var swapping: bool = false
 
 
 func _ready() -> void:

@@ -22,6 +22,10 @@ var flash: String = ""
 ## "A week's work in one afternoon." read as an error. 0 a refusal, 1 good news,
 ## 2 a question (a two-tap confirm).
 var flash_tone: int = 0
+## THE CAPTAIN MARKET is open (playtest 30 Sep #13).
+var browsing := false
+const LIST := Rect2(40.0, 60.0, 880.0, 420.0)
+const LIST_ROW := 44.0
 
 
 func _ready() -> void:
@@ -105,17 +109,12 @@ func _build() -> void:
 			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 58.0),
 				Vector2(92, 38), _release.bind(i))))
 		else:
-			var hire := UiKit.button(UiKit.t("Hire  ·  %d CC") % ClubOffice.cost_of(_offer(i)),
-				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 42), _hire.bind(i))
-			hire.disabled = ClubOffice.cost_of(_offer(i)) > season.office.credits
-			ui.add_child(hire)
-			## PUT THE WORD OUT AGAIN. The list is deterministic from the season so
-			## it does not reshuffle while you read it — which also means a bad crop
-			## is a bad crop for a year unless you pay to turn it over.
-			var fresh := UiKit.button(UiKit.t("New names  ·  %d CC") % ClubOffice.REFRESH_COST,
-				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W, 38), _refresh)
-			fresh.disabled = ClubOffice.REFRESH_COST > season.office.credits
-			ui.add_child(fresh)
+			## THE MARKET, NOT ONE MAN AND A REROLL.
+			ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Find a captain"),
+				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 42), func():
+					browsing = true
+					flash = ""
+					_build(), "helm")))
 	## AN EXTRA SESSION, AND IT BELONGS ON THIS SCREEN AND NOT THE CLUBHOUSE.
 	##
 	## Pete, 15 Sep 2026: *"we can go with a 'team training' CC sink that may
@@ -149,7 +148,63 @@ func _build() -> void:
 	session_b.disabled = cost > season.office.credits
 	ui.add_child(session_b if idle or session_b.disabled else UiKit.primary(session_b))
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
+	if browsing:
+		_market_controls()
 	queue_redraw()
+
+
+## THE CAPTAIN MARKET: a modal list over the staff room, one Hire per man.
+func _market_controls() -> void:
+	## A full-screen catch so the room under the list cannot be tapped.
+	var catch_ := Button.new()
+	catch_.flat = true
+	catch_.position = Vector2.ZERO
+	catch_.size = UiKit.screen()
+	catch_.focus_mode = Control.FOCUS_NONE
+	ui.add_child(catch_)
+	var pool := season.staff_pool()
+	for i in pool.size():
+		var c: Dictionary = pool[i]
+		var price := ClubOffice.cost_of(c)
+		var b := UiKit.button(UiKit.t("Hire · %d CC") % price,
+			Vector2(LIST.end.x - 150.0, LIST.position.y + 56.0 + float(i) * LIST_ROW - 4.0),
+			Vector2(136, 38), func(cap = c):
+				flash_tone = 0
+				flash = UiKit.said(season.hire_captain(cap))
+				if flash == "":
+					flash = UiKit.t("%s joins the staff.") % String(cap.get("name", ""))
+					flash_tone = 1
+					browsing = false
+				Session.autosave()
+				_build())
+		b.disabled = price > season.office.credits or season.office.captains.size() >= ClubOffice.MAX_CAPTAINS
+		ui.add_child(b)
+	var close_b := UiKit.button("", Vector2(LIST.end.x - 52.0, LIST.position.y + 8.0), Vector2(44, 40), func():
+		browsing = false
+		_build(), "close")
+	close_b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ui.add_child(close_b)
+
+
+func _draw_market() -> void:
+	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.ledger_cover()
+	UiKit.panel(self, LIST)
+	UiKit.text(self, font, UiKit.t("CAPTAINS FOR HIRE"), LIST.position + Vector2(20, 32), 18, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("This season's list. More stars teach more roles, better."),
+		LIST.position + Vector2(260, 32), 13, UiKit.DIM)
+	var pool := season.staff_pool()
+	for i in pool.size():
+		var c: Dictionary = pool[i]
+		var y := LIST.position.y + 80.0 + float(i) * LIST_ROW
+		if i % 2 == 0:
+			draw_rect(Rect2(LIST.position.x + 8.0, y - 26.0, LIST.size.x - 16.0, LIST_ROW - 2.0), UiKit.BG)
+		UiKit.text_fit(self, font, String(c.get("name", "?")), Vector2(LIST.position.x + 20, y), 15, UiKit.INK, 130.0)
+		UiKit.stars(self, Vector2(LIST.position.x + 160, y - 12.0), int(c.get("grade", 1)) * 20, UiKit.YOU, 11.0, 3.0)
+		UiKit.text_fit(self, font, _roles_of(c), Vector2(LIST.position.x + 240, y), 14, UiKit.DIM, 200.0)
+		var t := ClubOffice.trait_of(c)
+		UiKit.text_fit(self, font, UiKit.t(String(ClubOffice.TRAIT_NAME[t])) if t != ClubOffice.Trait.NONE else "—",
+			Vector2(LIST.position.x + 460, y), 14, UiKit.UP if t != ClubOffice.Trait.NONE else UiKit.DIM, 240.0)
 
 
 func _set_regime(i: int, r: int) -> void:
@@ -231,12 +286,8 @@ func _draw() -> void:
 			## is a role nobody on your line is being shown how to fight.
 			UiKit.panel(self, r)
 			UiKit.text(self, font, UiKit.t("NO CAPTAIN"), r.position + Vector2(14, 34), 14, UiKit.DOWN)
-			var off := _offer(i)
-			UiKit.text(self, font, String(off["name"]), r.position + Vector2(14, 66), 17, UiKit.INK)
-			UiKit.text_fit(self, font, _roles_of(off), r.position + Vector2(14, 88), 12, UiKit.DIM,
-				r.size.x - 28.0)
-			UiKit.stars(self, r.position + Vector2(14, 98), int(off["grade"]) * 20,
-				UiKit.YOU, 11.0, 3.0)
+			UiKit.para(self, font, UiKit.t("An empty chair. Nobody teaches the roles he would cover."),
+				r.position + Vector2(14, 62), 13, UiKit.DIM, r.size.x - 28.0, 17.0, 3)
 
 	_what_it_costs()
 	_coverage()
@@ -244,6 +295,8 @@ func _draw() -> void:
 	if flash != "":
 		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13,
 			[UiKit.DOWN, UiKit.UP, UiKit.YOU][flash_tone])
+	if browsing:
+		_draw_market()
 
 
 func _roles_of(c: Dictionary) -> String:
@@ -271,7 +324,9 @@ func _trait_word() -> void:
 	y += 24.0
 	var said := 0
 	for i in ClubOffice.MAX_CAPTAINS:
-		var c: Dictionary = o.captains[i] if i < o.captains.size() else _offer(i)
+		if i >= o.captains.size():
+			continue
+		var c: Dictionary = o.captains[i]
 		var t := ClubOffice.trait_of(c)
 		if t == ClubOffice.Trait.NONE:
 			continue

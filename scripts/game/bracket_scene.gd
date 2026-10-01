@@ -217,7 +217,7 @@ func _road() -> void:
 		UiKit.text(self, font, UiKit.t("You were not"), Vector2(ROAD_X + 16, 160), 14, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("invited this year."), Vector2(ROAD_X + 16, 180), 14, UiKit.DIM)
 		return
-	UiKit.text(self, font, UiKit.t("YOUR ROAD"), Vector2(ROAD_X + 16, 126), 12, UiKit.YOU)
+	UiKit.text(self, font, UiKit.t("YOUR PATH"), Vector2(ROAD_X + 16, 126), 12, UiKit.YOU)
 	var y := 152.0
 	var done := false   ## set the moment a tie of yours is lost
 	var total := _bracket_rounds()

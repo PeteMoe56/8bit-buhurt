@@ -150,7 +150,7 @@ static func _fin_block(v: SeasonScene, now: Dictionary, was: Dictionary, order: 
 static func _fin_ground(v: SeasonScene) -> void:
 	var o := v.season.office
 	var a := o.arena
-	UiKit.text(v, v.font, UiKit.t("THE GROUND"), Vector2(SeasonScene.FIN_RIGHT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("VENUE"), Vector2(SeasonScene.FIN_RIGHT, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
 	var y := SeasonScene.CONTENT_Y + 28.0
 	UiKit.pair(v, v.font, a.arena_name(), a.condition_word(),
 		Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 16, 13, UiKit.INK,

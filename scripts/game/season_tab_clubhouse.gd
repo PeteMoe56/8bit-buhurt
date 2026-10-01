@@ -100,13 +100,13 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 	## TWO COLUMNS WITH A MEANING (round 5: "a mixed bag"): the club's rooms on
 	## the left, the plans and the game on the right, Close filling the grid.
 	var rooms := [
-		[UiKit.t("The staff"), "res://scenes/Staff.tscn", "helm"],
+		[UiKit.t("Staff"), "res://scenes/Staff.tscn", "helm"],
 		[UiKit.t("Playbook"), "res://scenes/Chalkboard.tscn", "board"],
 		[UiKit.t("Records"), "res://scenes/Records.tscn", "book"],
 		[UiKit.t("Create & difficulty"), "res://scenes/Create.tscn", "anvil"],
 		[UiKit.t("Your career") + ((UiKit.t("  ·  %d offer") if wanted == 1 else UiKit.t("  ·  %d offers")) % wanted if wanted > 0 else ""), "res://scenes/Coach.tscn", "ladder"],
 		[UiKit.t("Settings"), "res://scenes/Settings.tscn", "cog"],
-		[UiKit.t("The federation") + (UiKit.t("  ·  BARRED") if barred else ""), "res://scenes/Federation.tscn", "banner"],
+		[UiKit.t("Federation") + (UiKit.t("  ·  BARRED") if barred else ""), "res://scenes/Federation.tscn", "banner"],
 	]
 	var pad := 24.0
 	var bw := (card.size.x - pad * 2.0 - 16.0) * 0.5

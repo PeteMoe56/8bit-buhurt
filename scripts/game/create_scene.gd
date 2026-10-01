@@ -269,7 +269,9 @@ var town_offers: Array[String] = []
 ## it. A relocation is one decision; one town and a "somewhere else" is the
 ## honest control for it and fits in the band above the Save button.
 const TOWN_Y := 440.0
-const TOWN_CARD := Vector2(240.0, 34.0)
+## 220 + 8 + 170 ends at 422, clear of the mark grid at BANK_X 470 (playtest
+## 30 Sep #1: "Another town" ran into the Star tile).
+const TOWN_CARD := Vector2(220.0, 34.0)
 
 
 func _offer_towns() -> void:
@@ -338,7 +340,7 @@ func _club_controls() -> void:
 				_rebuild()))
 		ui.add_child(UiKit.button(UiKit.t("Another town  >"),
 			Vector2(STAT_X + TOWN_CARD.x + 8.0, TOWN_Y),
-			Vector2(200, TOWN_CARD.y), func():
+			Vector2(170, TOWN_CARD.y), func():
 				_offer_towns()
 				_rebuild()))
 
@@ -384,6 +386,12 @@ func _club_controls() -> void:
 					icon_i = id
 					flash = ""
 				else:
+					## TWO TAPS FOR A PURCHASE (playtest 30 Sep #2): the first says
+					## the price, the second spends it.
+					if not UiKit.confirm("mark:%d" % id):
+						flash = UiKit.t("Tap %s again to buy it for %d CC.") % [IconBank.icon_name(id), IconBank.cost(id)]
+						_rebuild()
+						return
 					var err := shop.buy_icon(season.office, id)
 					if err == "":
 						icon_i = id
