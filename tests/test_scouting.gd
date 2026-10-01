@@ -162,7 +162,7 @@ func _careers(mode: int) -> Dictionary:
 				m.winter(s)
 				m.season(s)
 				if s.world.player_tier() >= League.TIERS.size() - 1 \
-						and s.world.player_position() == 1 and won > 20:
+						and s.world.player_champion() and won > 20:
 					won = y + 1
 				s.roll_over()
 			title += float(won)

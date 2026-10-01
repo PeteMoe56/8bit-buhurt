@@ -25,7 +25,7 @@ Needs the %s,Needs the %s,Requiere %s,Requiert : %s,Braucht: %s,Richiede %s,Exig
 EVENTS,EVENTS,EVENTOS,ÉVÉNEMENTS,EVENTS,EVENTI,EVENTOS,WYDARZENIA,СОБЫТИЯ,イベント
 When,When,Cuándo,Quand,Wann,Quando,Quando,Kiedy,Когда,時期
 Budget,Budget,Presupuesto,Budget,Budget,Budget,Orçamento,Budżet,Бюджет,予算
-Event %d  ·  about %d through the gate,Event %d  ·  about %d through the gate,Jornada %d  ·  unos %d por taquilla,Journée %d  ·  environ %d entrées,Spieltag %d  ·  etwa %d am Tor,Giornata %d  ·  circa %d ai cancelli,Rodada %d  ·  cerca de %d de público,Kolejka %d  ·  wejść: ok. %d,Тур %d  ·  зрителей около %d,第%d節  ·  入場 約%d人
+Week %d  ·  about %d through the gate,Week %d  ·  about %d through the gate,Semana %d  ·  unos %d por taquilla,Semaine %d  ·  environ %d entrées,Woche %d  ·  etwa %d am Tor,Settimana %d  ·  circa %d ai cancelli,Semana %d  ·  cerca de %d de público,Tydzień %d  ·  wejść: ok. %d,Неделя %d  ·  зрителей около %d,第%d週  ·  入場 約%d人
 Expected: %+d CC  ·  %+d CC if you win it,Expected: %+d CC  ·  %+d CC if you win it,Previsto: %+d CC  ·  %+d CC si lo ganas,Prévu : %+d CC  ·  %+d CC si tu le gagnes,Erwartet: %+d CC  ·  %+d CC mit Sieg,Previsto: %+d CC  ·  %+d CC se lo vinci,Previsto: %+d CC  ·  %+d CC se vencer,Przewidywane: %+d CC  ·  %+d CC po wygranej,Ожидается: %+d CC  ·  %+d CC при победе,見込み：%+d CC  ·  優勝なら%+d CC
 "A small home show, once a week. It cannot lose money.","A small home show, once a week. It cannot lose money.","Una pequeña exhibición en casa, una vez por semana. No pierde dinero.","Un petit spectacle à domicile, une fois par semaine. Il ne perd jamais d'argent.","Eine kleine Heimschau, einmal pro Woche. Sie kann kein Geld kosten.","Un piccolo spettacolo in casa, una volta a settimana. Non può perdere soldi.","Uma pequena exibição em casa, uma vez por semana. Não dá prejuízo.","Mały pokaz u siebie, raz w tygodniu. Nie da się na nim stracić.",Небольшой домашний показ раз в неделю. В убыток не бывает.,週に一度の小さなホーム興行。赤字にはならない。
 "%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s","%s, %s",%s、%s
@@ -57,6 +57,26 @@ POOL %s,POOL %s,GRUPO %s,POULE %s,GRUPPE %s,GIRONE %s,GRUPO %s,GRUPA %s,ГРУП
 P   W   D   L   MARGIN,P   W   D   L   MARGIN,J   G   E   P   MARGEN,J   V   N   D   ÉCART,SP  S   U   N   DIFF,G   V   N   P   SCARTO,J   V   E   D   SALDO,M   W   R   P   BILANS,И   В   Н   П   РАЗН.,試   勝   分   敗   差
 %d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d,%d   %d   %d   %d   %+d
 Top %d of each pool make the knockout.,Top %d of each pool make the knockout.,Los %d primeros de cada grupo pasan a eliminatorias.,Les %d premiers de chaque poule vont en phase finale.,Die Top %d jeder Gruppe kommen weiter.,I primi %d per girone passano al tabellone.,Os %d melhores de cada grupo vão ao mata-mata.,Do fazy pucharowej wchodzi top %d z grupy.,Лучшие %d из каждой группы — в плей-офф.,各プール上位%dが決勝トーナメントへ。
+%s  ·  Season %d,%s  ·  Season %d,%s  ·  Temporada %d,%s  ·  Saison %d,%s  ·  Saison %d,%s  ·  Stagione %d,%s  ·  Temporada %d,%s  ·  Sezon %d,%s  ·  Сезон %d,%s  ·  シーズン%d
+"League on Saturdays. Cups Friday to Sunday, the Worlds all week.","League on Saturdays. Cups Friday to Sunday, the Worlds all week.","Liga los sábados. Copas de viernes a domingo; el Mundial, toda la semana.","Ligue le samedi. Coupes du vendredi au dimanche, Mondiaux toute la semaine.","Liga samstags. Pokale Freitag bis Sonntag, die WM die ganze Woche.","Lega il sabato. Coppe dal venerdì alla domenica, Mondiali tutta la settimana.","Liga aos sábados. Copas de sexta a domingo, o Mundial a semana toda.","Liga w soboty. Puchary od piątku do niedzieli, MŚ przez cały tydzień.","Лига по субботам. Кубки с пятницы по воскресенье, ЧМ всю неделю.",リーグは土曜。カップは金〜日、世界大会は1週間。
+bye,bye,descanso,exempt,spielfrei,riposo,folga,pauza,пропуск,休み
+W,W,V,V,S,V,V,W,П,勝
+D,D,E,N,U,P,E,R,Н,分
+L,L,D,D,N,S,D,P,П,敗
+%s %d-%d,%s %d-%d,%s %d-%d,%s %d-%d,%s %d-%d,%s %d-%d,%s %d-%d,%s %d-%d,%s %d-%d,%s %d-%d
+v %s,v %s,v %s,c. %s,v %s,v %s,x %s,v %s,с %s,対%s
+at %s,at %s,en %s,à %s,in %s,a %s,em %s,w %s,у %s,@%s
+you host,you host,anfitrión,vous recevez,ihr richtet aus,ospitate,você sedia,gospodarz,вы хозяева,主催
+not in it,not in it,fuera,pas inscrit,nicht dabei,non ci siete,fora,bez was,без вас,不参加
+done,done,hecho,fini,vorbei,finito,feito,koniec,прошло,終了
+in it,in it,dentro,inscrit,dabei,dentro,dentro,w grze,в деле,出場
+Won it,Won it,Ganada,Gagnée,Gewonnen,Vinta,Vencida,Wygrany,Победа,優勝
+Lost final,Lost final,Final perdida,Finale perdue,Finale verloren,Finale persa,Final perdida,Przegrany finał,Финал проигран,決勝敗退
+Out: %s,Out: %s,Fuera: %s,Éliminé : %s,Raus: %s,Fuori: %s,Fora: %s,Odpadli: %s,Вылет: %s,敗退：%s
+Out: pools,Out: pools,Fuera: grupos,Éliminé : poules,Raus: Gruppen,Fuori: gironi,Fora: grupos,Odpadli: grupy,Вылет: группы,予選敗退
+Out early,Out early,Fuera pronto,Éliminé tôt,Früh raus,Fuori presto,Fora cedo,Odpadli wcześnie,Ранний вылет,早期敗退
+THE SEASON,THE SEASON,LA TEMPORADA,LA SAISON,DIE SAISON,LA STAGIONE,A TEMPORADA,SEZON,СЕЗОН,シーズン
+%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s
 Strength,Strength,Fuerza,Force,Kraft,Forza,Força,Siła,Сила,筋力
 Base,Base,Base,Base,Stand,Base,Base,Stabilność,База,土台
 Skill,Skill,Técnica,Technique,Technik,Tecnica,Técnica,Technika,Техника,技術
@@ -397,6 +417,7 @@ Exit,Exit,Salir,Quitter,Beenden,Esci,Sair,Wyjdź,Выход,終了
 Club,Club,Club,Club,Verein,Club,Clube,Klub,Клуб,クラブ
 Fight: vs %s,Fight: vs %s,Pelea: vs %s,Combat : vs %s,Kampf: vs %s,Scontro: vs %s,Luta: vs %s,Walka: vs %s,Бой: против %s,試合: vs %s
 Next event,Next event,Siguiente evento,Événement suivant,Nächstes Event,Prossimo evento,Próximo evento,Następne zawody,Следующий турнир,次の大会
+Train this week,Train this week,Entrenar la semana,S'entraîner,Woche trainieren,Allenarsi,Treinar a semana,Tydzień treningu,Тренироваться,今週は練習
 End the season,End the season,Cerrar la temporada,Terminer la saison,Saison beenden,Chiudi la stagione,Encerrar a temporada,Zakończ sezon,Завершить сезон,シーズン終了
 Tournament bid,Tournament bid,Candidatura a torneo,Candidature tournoi,Turnierbewerbung,Candidatura torneo,Proposta de torneio,Oferta turnieju,Заявка на турнир,トーナメント招致
 Fight the cup bout,Fight the cup bout,Jugar el cruce,Disputer le match,Kampf bestreiten,Combatti la sfida,Lutar o confronto,Stocz mecz,Биться,試合に出る
@@ -412,6 +433,7 @@ The marshals run it without you. The result stands.,The marshals run it without 
 Against %s.,Against %s.,Contra %s.,Contre %s.,Gegen %s.,Contro %s.,Contra %s.,Rywal: %s.,Против: %s.,対%s。
 Nothing to fight.,Nothing to fight.,Nada que disputar.,Rien à disputer.,Nichts zu kämpfen.,Niente da combattere.,Nada para lutar.,Nie ma z kim walczyć.,Боёв нет.,試合なし。
 Bye this event.,Bye this event.,Evento libre.,Exempt cette rencontre.,Diesmal spielfrei.,Riposo in questo evento.,Folga neste evento.,Pauza w tych zawodach.,В этот раз — пропуск.,今大会は不戦。
+A week of training. The squad is a little better for it.,A week of training. The squad is a little better for it.,Una semana de entrenamiento. La plantilla mejora un poco.,Une semaine d'entraînement. L'équipe progresse un peu.,Eine Trainingswoche. Der Kader ist etwas besser.,Una settimana di allenamento. La squadra migliora un po'.,Uma semana de treino. O elenco melhora um pouco.,Tydzień treningu. Drużyna jest trochę lepsza.,Неделя тренировок. Команда чуть сильнее.,練習の1週間。チームが少し強くなった。
 %s  ·  Season %d  ·  rating %d,%s  ·  Season %d  ·  rating %d,%s  ·  Temporada %d  ·  media %d,%s  ·  Saison %d  ·  note %d,%s  ·  Saison %d  ·  Wertung %d,%s  ·  Stagione %d  ·  valore %d,%s  ·  Temporada %d  ·  nota %d,%s  ·  Sezon %d  ·  ocena %d,%s  ·  Сезон %d  ·  рейтинг %d,%s  ·  シーズン%d  ·  能力値 %d
 THE ARMORER,THE ARMORER,EL ARMERO,L'ARMURIER,DER SCHMIED,L'ARMAIOLO,O ARMEIRO,PŁATNERZ,ОРУЖЕЙНИК,武具師
 %d CC in hand,%d CC in hand,%d CC en caja,%d CC en caisse,%d CC in der Hand,%d CC in cassa,%d CC em caixa,%d CC w kasie,На руках %d CC,所持 %d CC
@@ -432,6 +454,7 @@ Nothing the armorer could do this week.,Nothing the armorer could do this week.,
 "%d harnesses seen to, %d CC.","%d harnesses seen to, %d CC.","%d arneses revisados, %d CC.","%d armures réparées, %d CC.","%d Rüstungen gerichtet, %d CC.","%d armature sistemate, %d CC.","%d armaduras revisadas, %d CC.","Zbroje naprawione: %d, %d CC.","Доспехов починено: %d, %d CC.",装備%d着を修理、%d CC。
 Fix %s's kit · %d CC,Fix %s's kit · %d CC,Arreglar equipo de %s · %d CC,Réparer %s · %d CC,%s flicken · %d CC,Sistema kit di %s · %d CC,Consertar kit de %s · %d CC,Napraw: %s · %d CC,Починить: %s · %d CC,%sの装備を修理 · %d CC
 New harness: %s · %d CC,New harness: %s · %d CC,Armadura nueva: %s · %d CC,Nouveau harnois : %s · %d CC,Neue Rüstung: %s · %d CC,Armatura nuova: %s · %d CC,Armadura nova: %s · %d CC,Nowa zbroja: %s · %d CC,Новый доспех: %s · %d CC,新しい鎧: %s · %d CC
+Calendar,Calendar,Calendario,Calendrier,Kalender,Calendario,Calendário,Kalendarz,Календарь,カレンダー
 Cup bracket,Cup bracket,Cuadro de copa,Tableau de coupe,Pokalbaum,Tabellone coppa,Chave da copa,Drabinka pucharu,Сетка кубка,カップ表
 Take it,Take it,Acéptalo,Accepter,Annehmen,Accetta,Aceitar,Biorę,Беру,受ける
 Up to the %s.,Up to the %s.,Ascenso a %s.,Montée en %s.,Rauf in die %s.,Su in %s.,Sobe para: %s.,Awans: %s.,Наверх: %s.,%sへ昇格。
@@ -441,17 +464,18 @@ Staying in the %s another year.,Staying in the %s another year.,Otro año en %s.
 Tap Sim it again to hand the cup bout to the AI.,Tap Sim it again to hand the cup bout to the AI.,Toca Simular otra vez para dejar el cruce a la IA.,Touche encore Simuler pour confier le match à l'IA.,"Nochmal auf Simulieren tippen, die KI übernimmt.",Tocca ancora Simula per affidare la sfida all'IA.,Toque em Simular de novo para entregar o confronto à IA.,"Stuknij znowu Symuluj, by oddać mecz AI.",Нажми «Авто» ещё раз — бой проведёт ИИ.,もう一度「自動試合」をタップでAIに任せる。
 %s %s simulated.,%s %s simulated.,%s %s simulado.,%s %s simulé.,%s %s simuliert.,%s %s simulato.,%s %s simulado.,Zasymulowano: %s %s.,%s %s: сыграно без тебя.,%s %s を自動処理。
 "%s, finished %s. Now in the %s.%s%s","%s, finished %s. Now in the %s.%s%s","%s, acabó %s. Ahora en %s.%s%s","%s, terminé %s. Désormais en %s.%s%s","%s, Platz %s. Jetzt in der %s.%s%s","%s, chiuso %s. Ora in %s.%s%s","%s, terminou em %s. Agora em: %s.%s%s","%s, miejsce: %s. Teraz: %s.%s%s",%s: место %s. Теперь: %s.%s%s,%s、%sで終了。現在%s所属。%s%s
-LEAGUE STILL TO COME,LEAGUE STILL TO COME,LIGA POR DISPUTAR,LIGUE À VENIR,LIGA NOCH OFFEN,CAMPIONATO DA GIOCARE,LIGA A DISPUTAR,LIGA DO ROZEGRANIA,ВПЕРЕДИ В ЛИГЕ,リーグ残り
+COMING UP,COMING UP,PRÓXIMAMENTE,À VENIR,DEMNÄCHST,IN ARRIVO,A SEGUIR,WKRÓTCE,ВПЕРЕДИ,今後の予定
 H home  ·  A away,H home  ·  A away,H casa  ·  A fuera,H dom.  ·  A ext.,H heim  ·  A ausw.,H casa  ·  A trasferta,H casa  ·  A fora,H dom  ·  A wyjazd,H дома  ·  A в гостях,H ホーム  ·  A アウェイ
+you are in it,you are in it,estás dentro,vous y êtes,ihr seid dabei,ci siete,você está,jesteście,вы участвуете,出場中
+a bye,a bye,descanso,exempt,spielfrei,riposo,folga,pauza,пропуск,休み
 H,H,L,D,H,C,C,D,Д,H
 A,A,V,E,A,T,F,W,Г,A
-%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s
 costs nothing,costs nothing,no cuesta nada,gratuit,kostet nichts,non costa nulla,não custa nada,nic nie kosztuje,бесплатно,無料
 PROMOTION,PROMOTION,ASCENSO,PROMOTION,AUFSTIEG,PROMOZIONE,ACESSO,AWANS,ПОВЫШЕНИЕ,昇格
 TOURNAMENT BID,TOURNAMENT BID,CANDIDATURA A TORNEO,CANDIDATURE TOURNOI,TURNIERBEWERBUNG,CANDIDATURA TORNEO,PROPOSTA DE TORNEIO,OFERTA TURNIEJU,ЗАЯВКА НА ТУРНИР,大会開催の入札
 A DECISION,A DECISION,UNA DECISIÓN,UNE DÉCISION,EINE ENTSCHEIDUNG,UNA DECISIONE,UMA DECISÃO,DECYZJA,РЕШЕНИЕ,決断
 SEASON COMPLETE,SEASON COMPLETE,TEMPORADA TERMINADA,SAISON TERMINÉE,SAISON BEENDET,STAGIONE CONCLUSA,TEMPORADA ENCERRADA,SEZON ZAKOŃCZONY,СЕЗОН ЗАВЕРШЁН,シーズン終了
-EVENT %d OF %d,EVENT %d OF %d,EVENTO %d DE %d,RENCONTRE %d SUR %d,EVENT %d VON %d,EVENTO %d DI %d,EVENTO %d DE %d,ZAWODY %d Z %d,ТУРНИР %d ИЗ %d,第%d大会 / 全%d
+WEEK %d  ·  %s,WEEK %d  ·  %s,SEMANA %d  ·  %s,SEMAINE %d  ·  %s,WOCHE %d  ·  %s,SETTIMANA %d  ·  %s,SEMANA %d  ·  %s,TYDZIEŃ %d  ·  %s,НЕДЕЛЯ %d  ·  %s,第%d週  ·  %s
 Up to the %s,Up to the %s,Ascenso a %s,Montée en %s,Rauf in die %s,Su in %s,Sobe para: %s,Awans: %s,Наверх: %s,%sへ昇格
 Finished %s. The place is yours if you want it.,Finished %s. The place is yours if you want it.,Acabaste %s. La plaza es tuya si la quieres.,Terminé %s. La place est à toi si tu la veux.,"Platz %s. Der Aufstieg gehört dir, wenn du willst.","Chiuso %s. Il posto è tuo, se lo vuoi.","Terminou em %s. A vaga é sua, se quiser.","Miejsce: %s. Awans jest twój, jeśli chcesz.","Место: %s. Путёвка твоя, если хочешь.",%sで終了。望めば昇格枠はあなたのもの。
 Needs a %s. You have a %s.,Needs a %s. You have a %s.,Necesita: %s. Tienes: %s.,Il faut : %s. Tu as : %s.,Braucht: %s. Du hast: %s.,Serve: %s. Hai: %s.,Precisa de: %s. Você tem: %s.,Wymaga: %s. Masz: %s.,Нужно: %s. У тебя: %s.,必要：%s。現在：%s。
@@ -462,8 +486,10 @@ Three dates on offer,Three dates on offer,Tres fechas disponibles,Trois dates pr
 Choose at the Arena  >,Choose at the Arena  >,Elige en la arena  >,Choisis à l'arène  >,In der Arena wählen  >,Scegli all'arena  >,Escolha na arena  >,Wybierz na arenie  >,Выбор на арене  >,アリーナで選ぶ  >
 rating %d  ·  win or you are out,rating %d  ·  win or you are out,media %d  ·  gana o estás fuera,note %d  ·  gagne ou tu es éliminé,Wertung %d  ·  gewinn oder du bist raus,valore %d  ·  vinci o sei fuori,nota %d  ·  vença ou está fora,ocena %d  ·  wygraj albo odpadasz,рейтинг %d  ·  победа или вылет,能力値 %d  ·  負ければ敗退
 Finished %s of %d in the %s.,Finished %s of %d in the %s.,Acabaste %s de %d en %s.,Terminé %s sur %d en %s.,Platz %s von %d in der %s.,Chiuso %s su %d in %s.,Terminou em %s de %d em: %s.,Miejsce %s z %d w: %s.,Место %s из %d: %s.,%s / %d（%s）で終了。
-The cups and the summer are next.,The cups and the summer are next.,"Luego, las copas y el verano.",Les coupes et l'été arrivent.,Als Nächstes die Pokale und der Sommer.,Ora le coppe e l'estate.,As copas e o verão vêm a seguir.,Dalej puchary i lato.,Дальше — кубки и лето.,次はカップ戦と夏。
+The summer is next.,The summer is next.,"Ahora, el verano.",Place à l'été.,Jetzt kommt der Sommer.,Ora l'estate.,"Agora, o verão.",Teraz lato.,Дальше лето.,次は夏。
 Bye,Bye,Libre,Exempt,Spielfrei,Riposo,Folga,Pauza,Пропуск,不戦
+No fixture for you,No fixture for you,Sin combate para ti,Pas de combat pour vous,Kein Kampf für euch,Nessun incontro per voi,Sem luta para você,Brak walki dla was,Боя для вас нет,今週は試合なし
+The squad trains through it. Knocks get a week to heal.,The squad trains through it. Knocks get a week to heal.,La plantilla entrena. Los golpes tienen una semana para curar.,L'équipe s'entraîne. Les blessures ont une semaine pour guérir.,Der Kader trainiert. Blessuren heilen eine Woche.,La squadra si allena. I colpi hanno una settimana per guarire.,O elenco treina. As pancadas têm uma semana para sarar.,Drużyna trenuje. Urazy mają tydzień na wygojenie.,Команда тренируется. Ушибы заживают неделю.,練習の週。ケガは1週間ぶん回復する。
 rating %d  ·  an even fight,rating %d  ·  an even fight,media %d  ·  combate parejo,note %d  ·  combat équilibré,Wert %d  ·  offener Kampf,valore %d  ·  scontro alla pari,nota %d  ·  combate equilibrado,ocena %d  ·  wyrównana walka,рейтинг %d  ·  равный бой,能力値 %d  ·  互角
 rating %d  ·  you are favorites by %d,rating %d  ·  you are favorites by %d,media %d  ·  eres favorito por %d,note %d  ·  favori de %d,Wert %d  ·  du bist Favorit um %d,valore %d  ·  favorito di %d,nota %d  ·  favorito por %d,ocena %d  ·  faworyt o %d,рейтинг %d  ·  ты фаворит на %d,能力値 %d  ·  優勢 +%d
 rating %d  ·  you are underdogs by %d,rating %d  ·  you are underdogs by %d,media %d  ·  eres el débil por %d,note %d  ·  outsider de %d,Wert %d  ·  du bist Außenseiter um %d,valore %d  ·  sfavorito di %d,nota %d  ·  azarão por %d,ocena %d  ·  słabszy o %d,рейтинг %d  ·  ты слабее на %d,能力値 %d  ·  劣勢 -%d
@@ -473,7 +499,8 @@ Last: lost to %s %d-%d (%+d)%s,Last: lost to %s %d-%d (%+d)%s,Último: perdió c
 Last: drew with %s %d-%d (%+d)%s,Last: drew with %s %d-%d (%+d)%s,Último: empató con %s %d-%d (%+d)%s,Dernier : nul contre %s %d-%d (%+d)%s,Zuletzt: Remis gegen %s %d-%d (%+d)%s,Ultimo: pari con %s %d-%d (%+d)%s,Último: empatou com %s %d-%d (%+d)%s,Ostatnio: remis z %s %d-%d (%+d)%s,Последний: ничья с %s %d-%d (%+d)%s,前回: %sと引き分け %d-%d (%+d)%s
   ·  simmed,  ·  simmed,  ·  simulado,  ·  simulé,  ·  simuliert,  ·  simulato,  ·  simulado,  ·  symulacja,  ·  авто,  ·  自動
 P  W  D  L   RD   MG  PTS,P  W  D  L   RD   MG  PTS,J  G  E  P   DA   MG  PTS,J  V  N  D   DM   ÉC  PTS,SP S  U  N   RD   DF  PKT,G  V  N  P   RD   MG  PTI,J  V  E  D   SR   SG  PTS,M  W  R  P   RR   RP  PKT,И  В  Н  П   РР   РЗ  ОЧК,試  勝  分  敗   R差   得失  点
-green goes up,green goes up,verde asciende,vert monte,grün steigt auf,verde sale,verde sobe,zielony awansuje,зелёные вверх,緑は昇格
+"green: playoff, final two go to Worlds","green: playoff, final two go to Worlds","verde: playoff, los dos finalistas al Mundial","vert : playoffs, les deux finalistes aux Mondiaux","grün: Playoff, beide Finalisten zur WM","verde: playoff, le due finaliste ai Mondiali","verde: playoff, os dois finalistas ao Mundial","zielony: play-off, dwaj finaliści na MŚ","зелёный: плей-офф, два финалиста на ЧМ",緑：プレーオフ、決勝の2チームが世界大会へ
+"green: playoff, final two go up","green: playoff, final two go up","verde: playoff, los dos finalistas suben","vert : playoffs, les deux finalistes montent","grün: Playoff, beide Finalisten steigen auf","verde: playoff, le due finaliste salgono","verde: playoff, os dois finalistas sobem","zielony: play-off, dwaj finaliści awansują","зелёный: плей-офф, два финалиста выше",緑：プレーオフ、決勝の2チームが昇格
   ·  ,  ·  ,  ·  ,  ·  ,  ·  ,  ·  ,  ·  ,  ·  ,  ·  ,  ·  
 red goes down,red goes down,rojo desciende,rouge descend,rot steigt ab,rosso scende,vermelho cai,czerwony spada,красные вниз,赤は降格
 RD rounds won minus lost,RD rounds won minus lost,RD rondas a favor menos en contra,RD manches gagnées moins perdues,RD Runden gewonnen minus verloren,RD round vinti meno persi,RD rounds ganhos menos perdidos,RD rundy wygrane minus przegrane,RD раунды выигр. минус проигр.,RD 取ったラウンド差
@@ -724,6 +751,40 @@ Shabby,Shabby,Destartalado,Miteux,Schäbig,Malandato,Surrado,Obskurny,Обшар
 Falling apart,Falling apart,Cayéndose a pedazos,En ruine,Verfällt,A pezzi,Caindo aos pedaços,Rozpada się,Разваливается,崩れかけ
 %s is as far as a club can build.,%s is as far as a club can build.,%s es lo máximo que puede construir un club.,%s : un club ne peut pas construire plus loin.,"%s ist so weit, wie ein Verein bauen kann.",%s è il massimo che un club possa costruire.,%s é o máximo que um clube pode construir.,%s — dalej klub już nie rozbuduje.,"%s — предел того, что клуб может построить.",%sがクラブで建てられる最大です。
 The %s is for clubs about to reach the %s. Climb a division first.,The %s is for clubs about to reach the %s. Climb a division first.,%s es para clubes a punto de llegar a la %s. Sube una división primero.,%s est pour les clubs sur le point d'atteindre la %s. Montez d'abord d'une division.,%s ist für Vereine kurz vor der %s. Steig erst eine Liga auf.,%s è per i club vicini alla %s. Sali prima di una divisione.,%s é para clubes prestes a chegar à %s. Suba uma divisão primeiro.,%s jest dla klubów tuż przed %s. Najpierw awansuj o ligę.,%s — для клубов на пороге: %s. Сначала поднимись на лигу.,%sは%s目前のクラブ向け。まず一つ昇格を。
+January,January,Enero,Janvier,Januar,Gennaio,Janeiro,Styczeń,Январь,1月
+February,February,Febrero,Février,Februar,Febbraio,Fevereiro,Luty,Февраль,2月
+March,March,Marzo,Mars,März,Marzo,Março,Marzec,Март,3月
+April,April,Abril,Avril,April,Aprile,Abril,Kwiecień,Апрель,4月
+May,May,Mayo,Mai,Mai,Maggio,Maio,Maj,Май,5月
+June,June,Junio,Juin,Juni,Giugno,Junho,Czerwiec,Июнь,6月
+July,July,Julio,Juillet,Juli,Luglio,Julho,Lipiec,Июль,7月
+August,August,Agosto,Août,August,Agosto,Agosto,Sierpień,Август,8月
+September,September,Septiembre,Septembre,September,Settembre,Setembro,Wrzesień,Сентябрь,9月
+October,October,Octubre,Octobre,Oktober,Ottobre,Outubro,Październik,Октябрь,10月
+November,November,Noviembre,Novembre,November,Novembre,Novembro,Listopad,Ноябрь,11月
+December,December,Diciembre,Décembre,Dezember,Dicembre,Dezembro,Grudzień,Декабрь,12月
+MON,MON,LUN,LUN,MO,LUN,SEG,PON,ПН,月
+TUE,TUE,MAR,MAR,DI,MAR,TER,WT,ВТ,火
+WED,WED,MIÉ,MER,MI,MER,QUA,ŚR,СР,水
+THU,THU,JUE,JEU,DO,GIO,QUI,CZW,ЧТ,木
+FRI,FRI,VIE,VEN,FR,VEN,SEX,PT,ПТ,金
+SAT,SAT,SÁB,SAM,SA,SAB,SÁB,SOB,СБ,土
+SUN,SUN,DOM,DIM,SO,DOM,DOM,ND,ВС,日
+League %d of %d,League %d of %d,Liga %d de %d,Ligue %d sur %d,Liga %d von %d,Lega %d di %d,Liga %d de %d,Liga %d z %d,Лига %d из %d,リーグ %d/%d
+Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup,Kings Cup
+Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor,Path of Honor
+Playoff,Playoff,Playoff,Playoffs,Playoff,Playoff,Playoff,Play-off,Плей-офф,プレーオフ
+Worlds,Worlds,Mundial,Mondiaux,WM,Mondiali,Mundial,MŚ,ЧМ,世界大会
+Your show,Your show,Tu torneo,Votre tournoi,Euer Turnier,Il vostro torneo,Seu torneio,Wasz turniej,Ваш турнир,主催大会
+League %d/%d,League %d/%d,Liga %d/%d,Ligue %d/%d,Liga %d/%d,Lega %d/%d,Liga %d/%d,Liga %d/%d,Лига %d/%d,リーグ %d/%d
+%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s,%s %s
+F,F,F,F,F,F,F,F,Ф,決
+SF,SF,SF,DF,HF,SF,SF,PF,ПФ,準決
+QF,QF,CF,QF,VF,QF,QF,ĆF,ЧФ,8強
+Final,Final,Final,Finale,Finale,Finale,Final,Finał,Финал,決勝
+Semi-finals,Semi-finals,Semifinales,Demi-finales,Halbfinale,Semifinali,Semifinais,Półfinały,Полуфиналы,準決勝
+Quarter-finals,Quarter-finals,Cuartos de final,Quarts de finale,Viertelfinale,Quarti di finale,Quartas de final,Ćwierćfinały,Четвертьфиналы,ベスト8
+Round of %d,Round of %d,Ronda de %d,Tour de %d,Runde der %d,Turno a %d,Rodada de %d,Runda %d,Раунд %d,ベスト%d
 at home,at home,en casa,à domicile,daheim,in casa,em casa,u siebie,дома,ホーム
 %d miles,%d miles,%d millas,%d miles,%d Meilen,%d miglia,%d milhas,%d mil,%d миль,%dマイル
 "%d,%03d miles","%d,%03d miles","%d,%03d millas",%d %03d miles,%d.%03d Meilen,%d.%03d miglia,%d.%03d milhas,%d %03d mil,%d %03d миль,"%d,%03dマイル"
@@ -737,6 +798,7 @@ decimal mark: .,decimal mark: .,"decimal mark: ,","decimal mark: ,","decimal mar
 %s cannot be improved further.,%s cannot be improved further.,%s no se puede mejorar más.,%s ne peut plus être amélioré.,%s lässt sich nicht weiter verbessern.,%s non può migliorare oltre.,%s não pode melhorar mais.,%s nie da się już ulepszyć.,%s больше не улучшить.,%sはこれ以上改善できません。
 You have already sat down with %s this week.,You have already sat down with %s this week.,Ya te has sentado con %s esta semana.,Tu as déjà vu %s cette semaine.,Du hast diese Woche schon mit %s gesprochen.,Hai già parlato con %s questa settimana.,Você já conversou com %s esta semana.,W tym tygodniu już rozmawiałeś: %s.,Ты уже говорил с ним на этой неделе: %s.,今週はすでに%sと面談済み。
 %s is already in tournament plate.,%s is already in tournament plate.,%s ya lleva placas de torneo.,%s est déjà en armure de tournoi.,%s hat schon Turnierrüstung.,%s ha già un'armatura da torneo.,%s já está com armadura de torneio.,%s ma już zbroję turniejową.,%s уже в турнирном доспехе.,%sはすでにトーナメント用装甲です。
+Between fixtures only. This week is training.,Between fixtures only. This week is training.,Solo entre jornadas. Esta semana es de entrenamiento.,"Seulement entre deux matchs. Cette semaine, entraînement.",Nur zwischen Spieltagen. Diese Woche ist Training.,Solo tra una giornata e l'altra. Questa settimana è allenamento.,Só entre rodadas. Esta semana é de treino.,Tylko między kolejkami. W tym tygodniu trening.,Только между турами. Эта неделя — тренировки.,試合の間の週だけ。今週は練習。
 %s's kit is fine. Come back when there is something to do.,%s's kit is fine. Come back when there is something to do.,El arnés de %s está bien. Vuelve cuando haya algo que hacer.,L'armure de %s va bien. Reviens quand il y aura du travail.,"%ss Rüstung ist in Ordnung. Komm wieder, wenn was zu tun ist.",L'armatura di %s va bene. Torna quando c'è da fare.,A armadura de %s está boa. Volte quando houver o que fazer.,"%s: sprzęt w porządku. Wróć, gdy będzie co robić.","%s: с доспехом всё в порядке. Приходи, когда будет работа.",%sの装備は問題なし。やることができたらまた来て。
 %s's harness is as good as it gets.,%s's harness is as good as it gets.,El arnés de %s no puede estar mejor.,L'armure de %s est au maximum.,"%ss Rüstung ist so gut, wie es geht.",L'armatura di %s è al meglio.,A armadura de %s está no melhor possível.,%s: zbroja lepsza już nie będzie.,%s: доспех лучше уже не станет.,%sの装備はこれ以上良くならない。
 %s's %s harness is as good as %s gets. He needs better kit.,%s's %s harness is as good as %s gets. He needs better kit.,"%s: arnés %s, lo máximo que da %s. Necesita mejor equipo.","%s : armure %s, au maximum pour %s. Il lui faut mieux.","%ss Rüstung (%s) ist so gut, wie %s eben geht. Er braucht besseres Zeug.",L'armatura %s di %s è al meglio per %s. Serve di meglio.,%s: armadura %s no melhor que %s permite. Ele precisa de equipamento melhor.,%s: zbroja %s — lepiej niż %s się nie da. Potrzebuje lepszego sprzętu.,%s: доспех (%s) лучше уже не станет — %s упёрся в предел. Нужен доспех получше.,%sの%s装備は%sの限界。より良い装備が必要。
@@ -770,10 +832,6 @@ out in the quarter-finals,out in the quarter-finals,fuera en cuartos de final,é
 out in the round of %d,out in the round of %d,fuera en la ronda de %d,éliminés au tour de %d,in der Runde der %d raus,fuori al turno a %d,eliminados na rodada de %d,odpadli w rundzie %d,вылетели в раунде %d,ベスト%dで敗退
 Pools,Pools,Grupos,Poules,Gruppen,Gironi,Grupos,Grupy,Группы,予選リーグ
 Complete,Complete,Terminado,Terminé,Beendet,Concluso,Encerrado,Zakończony,Завершён,終了
-Final,Final,Final,Finale,Finale,Finale,Final,Finał,Финал,決勝
-Semi-finals,Semi-finals,Semifinales,Demi-finales,Halbfinale,Semifinali,Semifinais,Półfinały,Полуфиналы,準決勝
-Quarter-finals,Quarter-finals,Cuartos de final,Quarts de finale,Viertelfinale,Quarti di finale,Quartas de final,Ćwierćfinały,Четвертьфиналы,ベスト8
-Round of %d,Round of %d,Ronda de %d,Tour de %d,Runde der %d,Turno a %d,Rodada de %d,Runda %d,Раунд %d,ベスト%d
 A proper club,A proper club,Un club de verdad,Un vrai club,Ein echter Verein,Un vero club,Um clube de verdade,Porządny klub,Настоящий клуб,立派なクラブ
 Healthy,Healthy,Sano,En bonne santé,Gesund,In salute,Saudável,Zdrowo,Крепко,健全
 Ticking over,Ticking over,Tirando,Ça tourne,Läuft so,Tira avanti,Levando,Jakoś idzie,Держимся,なんとか回っている
@@ -912,9 +970,9 @@ I held two of them all afternoon. Somebody else got the credit.,I held two of th
 First time on the eight. I would like it not to be the last.,First time on the eight. I would like it not to be the last.,Primera vez entre los ocho. Me gustaría que no fuera la última.,Première fois dans les huit. J'aimerais que ce ne soit pas la dernière.,"Das erste Mal in der Acht. Ich hätte gern, dass es nicht das letzte ist.",Prima volta tra gli otto. Vorrei non fosse l'ultima.,Primeira vez entre os oito. Queria que não fosse a última.,"Pierwszy raz w ósemce. Wolałbym, żeby nie ostatni.","Первый раз в восьмёрке. Хотелось бы, чтобы не последний.",初めての遠征メンバー。これで最後にはしたくない。
 Nice of you to remember me. Another one watched from a bucket.,Nice of you to remember me. Another one watched from a bucket.,Qué detalle acordarte de mí. Otro más mirando desde un cubo.,Sympa de penser à moi. Encore une passée assis sur un seau.,"Nett, dass du an mich denkst. Wieder einer vom Eimer aus zugeschaut.",Grazie di esserti ricordato di me. Un altro visto da un secchio.,Gentil você lembrar de mim. Mais uma assistida de cima de um balde.,"Miło, że o mnie pamiętasz. Kolejne zawody oglądane z wiadra.","Мило, что вспомнил обо мне. Ещё один бой я смотрел с ведра.",覚えていてくれてどうも。今回もバケツに座って見ていたよ。
 %s of %d in the %s.,%s of %d in the %s.,%s de %d en %s.,%s sur %d en %s.,Platz %s von %d in der %s.,%s su %d in %s.,%s de %d em: %s.,%s z %d w: %s.,Место %s из %d: %s.,%s / %d（%s）。
- Promotion places., Promotion places., Puestos de ascenso., Places de montée., Aufstiegsplätze., Zona promozione., Zona de acesso., Miejsca awansowe., Зона повышения., 昇格圏。
+ Playoff places., Playoff places., Puestos de playoff., Places de playoffs., Playoff-Plätze., Zona playoff., Zona de playoff., Miejsca play-off., Зона плей-офф., プレーオフ圏。
  Relegation places., Relegation places., Puestos de descenso., Places de relégation., Abstiegsplätze., Zona retrocessione., Zona de rebaixamento., Miejsca spadkowe., Зона вылета., 降格圏。
- %d off the promotion places., %d off the promotion places., A %d de los puestos de ascenso., À %d des places de montée., %d hinter den Aufstiegsplätzen., A %d dalla zona promozione., A %d da zona de acesso., %d do miejsc awansowych., До зоны повышения: %d., 昇格圏まであと%d。
+ %d off the playoff places., %d off the playoff places., A %d de los puestos de playoff., À %d des places de playoffs., %d hinter den Playoff-Plätzen., A %d dalla zona playoff., A %d da zona de playoff., %d do miejsc play-off., До зоны плей-офф: %d., プレーオフ圏まであと%d。
 The table,The table,La tabla,Le classement,Die Tabelle,La classifica,A tabela,Tabela,Таблица,順位表
 The gate,The gate,La taquilla,Le guichet,Die Kasse,Gli ingressi,O público,Bramka,Сборы,入場
 "%d CC, %s at %s.","%d CC, %s at %s.","%d CC, %s en %s.","%d CC, %s à %s.","%d CC, %s in %s.","%d CC, %s a %s.","%d CC, %s em %s.","%d CC, %s: %s.","%d CC, %s: %s.",%d CC、%s（%s）。

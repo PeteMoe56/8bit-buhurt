@@ -134,25 +134,29 @@ func _test_cap_binds_a_good_squad() -> void:
 ## Money piling up with nothing spent is said once a season, by one of the men.
 func _test_hoarding_is_said() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 4242)
-	s.skip_event()
-	s.skip_event()
-	while s.blocked_by() != "":
+	## TWO LEAGUE DAYS IN, not two Saturdays: a cup round is a week too now.
+	var gs := 0
+	while (s.world.event < 2 or s.blocked_by() != "") and gs < 20:
+		gs += 1
 		match s.blocked_by():
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
 			"cup": s.sim_cup_tie()
+			_: s.skip_event()
 	s.office.credits = s.office.summer_bill() * Season.HOARD_SUMMERS + 50
 	s.office.books_out = {}
 	var first := s.hoard_note()
 	var again := s.hoard_note()
 	var spender := Season.new(MeleeRosters.starting_club(), 4243)
-	spender.skip_event()
-	spender.skip_event()
-	while spender.blocked_by() != "":
+	## TWO LEAGUE DAYS IN, not two Saturdays: a cup round is a week too now.
+	var gspender := 0
+	while (spender.world.event < 2 or spender.blocked_by() != "") and gspender < 20:
+		gspender += 1
 		match spender.blocked_by():
 			"bid": spender.decline_bid()
 			"dilemma": spender.answer_dilemma(0)
 			"cup": spender.sim_cup_tie()
+			_: spender.skip_event()
 	spender.office.credits = spender.office.summer_bill() * Season.HOARD_SUMMERS + 50
 	spender.office.books_out = {ClubOffice.LINE_SQUAD: 14}
 	var quiet := spender.hoard_note()

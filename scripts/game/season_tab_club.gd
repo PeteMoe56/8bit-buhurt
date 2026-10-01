@@ -101,8 +101,13 @@ static func _club_controls(v: SeasonScene) -> void:
 	## **A comment that describes a region as empty is a comment, not a check.**
 	## The genuinely free band is under the schedule and above the action row:
 	## five rows of fixtures end at 418 and the action row starts at 476.
+	## THE CALENDAR, always (30 Sep 2026): the whole year as Saturdays.
+	v.ui.add_child(UiKit.button(UiKit.t("Calendar"), Vector2(24, SeasonScene.action_y() - 52.0),
+		Vector2(200, 44), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Calendar.tscn"), "clock"))
 	if v.season.viewable_cup() != null:
-		v.ui.add_child(UiKit.button(UiKit.t("Cup bracket"), Vector2(24, SeasonScene.action_y() - 52.0),
+		v.ui.add_child(UiKit.button(UiKit.t("Cup bracket"), Vector2(236, SeasonScene.action_y() - 52.0),
 			Vector2(200, 44), func():
 				Session.viewing_cup = v.season.viewable_cup()
 				Session.autosave()
@@ -273,6 +278,9 @@ static func _club_controls(v: SeasonScene) -> void:
 	## AND SIM ASKS FIRST. It is the one button on this screen that spends a
 	## fixture and cannot be undone — the result is written, the week ticks, kit
 	## wears — and it sat one accidental thumb away from the button beside it.
+	## NOTHING TO SIM ON A SATURDAY WITH NO FIXTURE.
+	if v.season.opponent_id() < 0:
+		return
 	v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0 + 204.0 + 12.0),
 		SeasonScene.action_y()), Vector2(204, 46),
 		func():
@@ -318,74 +326,61 @@ static func _draw_club(v: SeasonScene) -> void:
 ## stands, and nothing anywhere said what is COMING — which is the one thing a
 ## manager plans against. Five rows, home and away marked, the current one lit.
 static func _schedule(v: SeasonScene) -> void:
-	var rest: Array = v.season.world.remaining_fixtures(5)
+	## FOUR, NOT FIVE: the fifth row sat under the Calendar button.
+	var rest: Array = v.season.world.remaining_fixtures(4)
 	if rest.is_empty():
 		return
-	## UNDER THE LAST RESULT, which sits at `CONTENT_Y + 152`. The first cut put
-	## this at 150 and the heading printed straight through *"Last: beat Oklahoma
-	## City Guard 2-0"* — two blocks in one column, written in two functions,
-	## neither of which knew the other's height. Same shape as the clubhouse,
-	## twice, today.
+	## UNDER THE LAST RESULT, which sits at `CONTENT_Y + 152`.
 	var y := SeasonScene.CONTENT_Y + 186.0
-	## SAYS WHICH COMPETITION (round 8: league fixtures under a cup tie read as
-	## the cup's).
-	UiKit.text(v, v.font, UiKit.t("LEAGUE STILL TO COME"), Vector2(24, y), 14, UiKit.DIM)
-	## THE KEY FOR THE TWO COLUMNS NOBODY EXPLAINED (blind review round 3:
-	## "A/H prefixes never explained").
+	## EVERY SATURDAY, NOT ONLY THE LEAGUE'S (30 Sep 2026, playtest 2 #14: "the
+	## standings are confusing when you're fighting cups"). A cup round is on the
+	## list as a cup round, in the cup's color, so the table never moves — or
+	## fails to — without the list saying why.
+	UiKit.text(v, v.font, UiKit.t("COMING UP"), Vector2(24, y), 14, UiKit.DIM)
 	UiKit.right(v, v.font, UiKit.t("H home  ·  A away"),
 		Vector2(SeasonScene.fixture_w() + 8.0, y), 12, UiKit.DIM, SeasonScene.fixture_w() - 140.0)
 	y += 24.0
+	var days := v.season.world.events_this_season()
 	for i in rest.size():
 		var r: Dictionary = rest[i]
+		var kind := int(r["kind"])
+		var col := UiKit.INK if i == 0 else UiKit.DIM
+		## THE WEEK'S COLOR, as a block in the margin: blue league, gold cup,
+		## green your show, purple playoff and Worlds — the calendar's key.
+		v.draw_rect(Rect2(24, y - 11, 8, 12), Calendar.color(kind))
+		var num := "%d." % int(r["week"])
+		var num_w := v.font.get_string_size(num + "  ", HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		if kind != Calendar.Kind.LEAGUE:
+			var w: Dictionary = v.season.world.calendar[int(r["week"]) - 1]
+			var tail := ""
+			var c: Cup = v.season.world.cup_of_week(w)
+			if kind == Calendar.Kind.OWN:
+				tail = UiKit.t("you host")
+			elif c != null:
+				tail = UiKit.t("you are in it") if c.player_alive() else UiKit.t("not in it")
+			UiKit.pair(v, v.font, UiKit.t("%d.  %s") % [int(r["week"]), Calendar.label(w, days, _own_name(v))], tail,
+				Vector2(52, y), SeasonScene.fixture_w() - 22.0, 13, 12, col,
+				UiKit.UP if tail == UiKit.t("you are in it") else UiKit.DIM)
+			y += 20.0
+			continue
 		var opp := int(r["opponent"])
 		var home: bool = bool(r["home"])
-		var nm := "a bye" if opp < 0 \
-			else String(v.season.world.clubs[opp]["name"])
-		## THE CURRENT MATCHDAY IS LIT and the rest are quiet, so the eye finds
-		## "now" without reading the numbers.
-		var col := UiKit.INK if i == 0 else UiKit.DIM
-		## H AND A AS A MARK IN THE MARGIN, not "home" and "away" as words at the
-		## end of the row.
-		##
-		## Pete, 15 Sep 2026: *"Let's have the Home and Away games notated."* They
-		## were notated — in twelve-pixel EDGE grey, right-aligned past the club's
-		## name, which is where the eye goes last. A one-letter mark in its own
-		## column at the left is read at a glance down the list, which is what a
-		## fixture list is for: **a fact you have to hunt for on a five-row list
-		## is a fact that is not on the list.**
-		if opp >= 0:
-			UiKit.text(v, v.font, UiKit.t("H") if home else UiKit.t("A"), Vector2(28, y), 14,
-				UiKit.YOU if home else UiKit.DIM)
-		## AND WHAT THE AFTERNOON IS WORTH, which is the new half. The gate is
-		## multiplied by the ground it is fought in, so a trip to somebody's
-		## Sports hall pays better than a home tie in a back field — and a fixture
-		## list that does not say so is hiding the one thing that now makes an
-		## away day interesting.
-		##
-		## THE GROUND'S NAME AND THE FIGURE, not the figure and an adjective. The
-		## first cut printed "1 CC · a thin gate" on all five rows, because in the
-		## Backyard Circuit every club really is on a back field and the words
-		## were all the same word — **a column that says the same thing on every
-		## row is a column carrying no information.** The NAME differs from the
-		## first season (a back field, a club gym, somebody's fenced ground) and
-		## it teaches the player the map, which is what makes a fixture list worth
-		## reading ahead. The adjective lives on the fixture panel, once, where
-		## there is room for it to mean something.
+		var nm := UiKit.t("a bye") if opp < 0 else String(v.season.world.clubs[opp]["name"])
 		var tail := ""
 		if opp >= 0:
 			var gr: Dictionary = v.season.ground_of(
 				v.season.world.player_club if home else opp)
 			tail = "%s  ·  %d CC" % [Arena.arena_name_of(int(gr["level"])),
 				v.season.gate_for_fixture(opp, home)]
-		## THE NAME TAKES WHAT THE GROUND AND THE GATE LEAVE — measured, so a long
-		## club name and a long translated ground never cut each other's tail.
 		var tail_w := v.font.get_string_size(tail, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
-		var num := UiKit.t("%d.  %s") % [int(r["event"]), ""]
-		var num_w := v.font.get_string_size(num, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		var room := SeasonScene.fixture_w() - 16.0 - 46.0 - tail_w - 16.0 - num_w
-		UiKit.pair(v, v.font, UiKit.t("%d.  %s") % [int(r["event"]),
+		var room := SeasonScene.fixture_w() - 16.0 - 46.0 - tail_w - 16.0 - num_w - 18.0
+		## H AND A IN THEIR OWN COLUMN, beside the week's color.
+		if opp >= 0:
+			UiKit.text(v, v.font, UiKit.t("H") if home else UiKit.t("A"), Vector2(36, y), 13,
+				UiKit.YOU if home else UiKit.DIM)
+		UiKit.pair(v, v.font, UiKit.t("%d.  %s") % [int(r["week"]),
 			UiKit.clip_px(v.font, nm, 13, clampf(room, 60.0, 240.0))], tail,
-			Vector2(46, y), SeasonScene.fixture_w() - 16.0, 13, 12, col, UiKit.DIM)
+			Vector2(52, y), SeasonScene.fixture_w() - 22.0, 13, 12, col, UiKit.DIM)
 		y += 20.0
 
 
@@ -540,8 +535,15 @@ static func _fixture_title(v: SeasonScene) -> String:
 			return UiKit.t("A DECISION")
 	if v.season.season_complete():
 		return UiKit.t("SEASON COMPLETE")
-	return UiKit.t("EVENT %d OF %d") % [v.season.world.event + 1,
-		v.season.world.events_this_season()]
+	## THE WEEK, AND WHAT IT IS (30 Sep 2026). One fixture a Saturday, so the
+	## panel names the Saturday: league day, cup round, or nothing for you.
+	var w: Dictionary = v.season.world.this_week()
+	return UiKit.t("WEEK %d  ·  %s") % [v.season.world.week + 1,
+		Calendar.label(w, v.season.world.events_this_season(), _own_name(v)).to_upper()]
+
+
+static func _own_name(_v: SeasonScene) -> String:
+	return ""
 
 
 
@@ -626,12 +628,18 @@ static func _fixture(v: SeasonScene) -> void:
 		UiKit.text(v, v.font, UiKit.t("Finished %s of %d in the %s.") % [
 			UiKit.ordinal(v.season.position()), v.season.table().size(), v.season.tier_name()],
 			Vector2(44, y + 52), 15, UiKit.DIM)
-		UiKit.text(v, v.font, UiKit.t("The cups and the summer are next."),
+		UiKit.text(v, v.font, UiKit.t("The summer is next."),
 			Vector2(44, y + 80), 14, UiKit.DIM)
 		return
 	var opp := v.season.opponent_id()
 	if opp == -1:
-		UiKit.text(v, v.font, UiKit.t("Bye"), Vector2(44, y + 52), 22, UiKit.INK)
+		## A SATURDAY WITH NOTHING ON FOR YOU: a cup you are not in, a playoff
+		## you missed. It says so, and says what the week is for instead.
+		var league_week: bool = v.season.world.week_kind() == Calendar.Kind.LEAGUE
+		UiKit.text(v, v.font, UiKit.t("Bye") if league_week else UiKit.t("No fixture for you"),
+			Vector2(44, y + 52), 22, UiKit.INK)
+		UiKit.text_fit(v, v.font, UiKit.t("The squad trains through it. Knocks get a week to heal."),
+			Vector2(44, y + 80), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
 		return
 	var o: Dictionary = v.season.world.clubs[opp]
 	UiKit.text(v, v.font, UiKit.clip(UiKit.t(String(o["name"])), 26), Vector2(44, y + 52), 22, UiKit.INK)
@@ -712,7 +720,10 @@ static func _last_event(v: SeasonScene) -> void:
 static func _table(v: SeasonScene) -> void:
 	var rows := v.season.table()
 	var t := v.season.world.player_tier()
-	var up := int(League.TIERS[t]["up"])
+	## THE TOP FOUR GO TO THE PLAYOFF (30 Sep 2026), and the two finalists go
+	## up — so the band that matters in the table is the playoff, not the old
+	## promotion places.
+	var up := Calendar.PLAYOFF_FIELD
 	var down := int(League.TIERS[t]["down"])
 	var top_flight: bool = t == League.TIERS.size() - 1
 	## THE STAT BLOCK HANGS OFF THE RIGHT EDGE, not off a fixed offset from the
@@ -733,8 +744,9 @@ static func _table(v: SeasonScene) -> void:
 		## TWO LINES AT 13 (the sentence floor, 29 Sep 2026) where one at 11 was.
 		var room := UiKit.screen().x - SeasonScene.table_x() - 32.0
 		var colors := ""
-		if up > 0 and not top_flight:
-			colors = UiKit.t("green goes up")
+		if up > 0:
+			colors = UiKit.t("green: playoff, final two go to Worlds") if top_flight \
+				else UiKit.t("green: playoff, final two go up")
 		if down > 0:
 			colors += ("" if colors == "" else UiKit.t("  ·  ")) + UiKit.t("red goes down")
 		var lines := [UiKit.t("RD rounds won minus lost"), UiKit.t("MG downs for minus against")]
@@ -758,7 +770,7 @@ static func _table(v: SeasonScene) -> void:
 			## The top flight promotes nobody — those two places are Worlds
 			## berths, and coloring them green would promise a division above
 			## the National that does not exist.
-			edge = UiKit.YOU if top_flight else UiKit.UP
+			edge = UiKit.UP
 		elif down > 0 and i >= rows.size() - down:
 			edge = UiKit.DOWN
 		if edge != Color.TRANSPARENT:

@@ -37,6 +37,7 @@ const SCREENS := [
 	["res://scenes/Arena.tscn", -1],
 	["res://scenes/Chalkboard.tscn", -1],
 	["res://scenes/Bracket.tscn", -1],
+	["res://scenes/Calendar.tscn", -1],
 ]
 
 var failures: Array[String] = []

@@ -47,6 +47,7 @@ const SCREENS := [
 	["res://scenes/Create.tscn", 1],
 	["res://scenes/Create.tscn", 2],
 	["res://scenes/Bracket.tscn", -1],
+	["res://scenes/Calendar.tscn", -1],
 ]
 
 const MIN_PX := 12

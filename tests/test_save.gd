@@ -353,10 +353,12 @@ func _test_a_broken_save_is_refused() -> void:
 	h.store_buffer(newest.slice(0, newest.size() - 100))
 	h.close()
 	var back := SaveGame.load_slot(SLOT)
-	_ok(back != null and back.world.event == a.world.event - 1,
+	## ONE SATURDAY BEHIND — a week, which may be a cup round rather than a
+	## league day (30 Sep 2026).
+	_ok(back != null and back.world.week == a.world.week - 1,
 		"a torn save opens from its backup",
-		"newest torn; came back at event %d (the save before it)"
-			% (back.world.event if back != null else -1))
+		"newest torn; came back at week %d (the save before it)"
+			% (back.world.week if back != null else -1))
 
 	## SET ASIDE, NOT DELETED. Quarantine frees the slot and keeps the bytes.
 	var moved := SaveGame.quarantine(SLOT)

@@ -444,6 +444,12 @@ static func to_dict(season: Season) -> Dictionary:
 		"clubs": w.clubs.duplicate(true),
 		"player_club": w.player_club,
 		"schedule": w.schedule.duplicate(true),
+		## THE WEEKS (30 Sep 2026). Saved rather than rebuilt, because your own
+		## show's Saturday is in it and that is a choice, not a formula.
+		"calendar": w.calendar.duplicate(true),
+		"week": w.week,
+		"days_played": w.days_played.duplicate(),
+		"finalists": w.finalists.duplicate(true),
 		"tables": w.tables.duplicate(true),
 		"history": w.history.duplicate(true),
 		"honors": w.honors.duplicate(true),
@@ -540,6 +546,7 @@ static func from_dict(d: Dictionary) -> Season:
 		w.cups.append(Cup.from_dict(c as Dictionary))
 	var worlds: Dictionary = d.get("worlds", {})
 	w.worlds = Cup.from_dict(worlds) if not worlds.is_empty() else null
+	_load_weeks(w, d)
 	s.results = _dicts(d.get("results", []))
 	s.office = ClubOffice.from_dict(d.get("office", {}))
 	## YOU. Refused rather than defaulted, like the career layer and morale before
@@ -587,6 +594,13 @@ static func from_dict(d: Dictionary) -> Season:
 	s.workshop.keep_worn(s.club)
 	s.booked = _event_from_dict(d.get("booked", {}))
 	_relink_event(s)
+	## A SHOW BOOKED BEFORE THE CALENDAR: give it its Saturday — this one, if
+	## its bracket is already running.
+	if s.booked != null and not s.booked.settled and not d.has("calendar"):
+		if s.booked.cup != null:
+			s.world.calendar.insert(s.world.week, Calendar.week(Calendar.Kind.OWN))
+		else:
+			Calendar.insert_own(s.world.calendar, s.booked.due, s.world.week - 1)
 	s.last_show = (d.get("last_show", {}) as Dictionary).duplicate()
 	s.dilemma = (d.get("dilemma", {}) as Dictionary).duplicate()
 	s.dilemma_recent.clear()
@@ -614,7 +628,40 @@ static func from_dict(d: Dictionary) -> Season:
 	## different; without that check it would have surfaced as a club that quietly
 	## got two men better every time the player reloaded.
 	s.sync_power()
+	s.sync_week()
 	return s
+
+
+## THE WEEKS, or a calendar rebuilt for a save from before there were any: the
+## player's division's year, with the week set to the league day he is on (or the
+## playoffs, if the league is done). A Worlds held over from last summer — the old
+## rule — is decided on paper now, since this year's calendar has no room for it.
+static func _load_weeks(w: LeagueWorld, d: Dictionary) -> void:
+	if d.has("calendar"):
+		w.calendar = (d["calendar"] as Array).duplicate(true)
+		w.week = int(d.get("week", 0))
+		w.days_played = (d.get("days_played", {}) as Dictionary).duplicate()
+		w.finalists = (d.get("finalists", {}) as Dictionary).duplicate(true)
+		return
+	w.calendar = Calendar.build(League.events_in_season(w.player_tier()),
+		w.player_tier() == League.Tier.NATIONAL)
+	w.week = w.calendar.size()
+	for i in w.calendar.size():
+		var k := int(w.calendar[i]["kind"])
+		if (k == Calendar.Kind.LEAGUE and int(w.calendar[i]["day"]) == w.event) \
+				or k == Calendar.Kind.PLAYOFF:
+			w.week = i
+			break
+	w.days_played.clear()
+	for t in League.TIERS.size():
+		w.days_played[t] = mini(w.event, (w.schedule[t] as Array).size())
+	w.finalists.clear()
+	if w.worlds != null:
+		w.worlds.run_all(w.cup_resolver())
+		w.retire_cup(w.worlds)
+		if w.worlds != null:
+			w.worlds = null
+			w._clear_guests()
 
 
 ## A booked event is a handful of numbers and a DRAW.

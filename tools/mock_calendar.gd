@@ -65,7 +65,7 @@ class Mock extends Node2D:
 			else:
 				wk["state"] = 1
 			weeks.append(wk)
-		## The invitationals, where `LeagueWorld._invitational_event` puts them.
+		## The invitationals, where the old one-matchday rule put them.
 		for spec in LeagueWorld.INVITATIONALS:
 			var at := int(spec["at"])
 			var e := at if at >= 0 else maxi(1, n + at)

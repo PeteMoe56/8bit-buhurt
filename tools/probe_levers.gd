@@ -25,7 +25,7 @@ func _initialize() -> void:
 				_season(m, s, v)
 				var t := s.world.player_tier()
 				if t >= 3 and r3 > years: r3 = y + 1
-				if t >= 3 and s.world.player_position() == 1:
+				if t >= 3 and s.world.player_champion():
 					lt += 1
 					if title > years: title = y + 1
 				s.roll_over()

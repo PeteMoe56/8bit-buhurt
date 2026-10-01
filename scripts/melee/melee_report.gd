@@ -221,7 +221,7 @@ static func news(season) -> Array:
 	var pos: int = season.world.player_position()
 	var rows: Array = season.table()
 	if pos > 0:
-		var up: int = int(League.TIERS[season.world.player_tier()]["up"])
+		var up: int = Calendar.PLAYOFF_FIELD
 		var down: int = int(League.TIERS[season.world.player_tier()]["down"])
 		var line := UiKit.t("%s of %d in the %s.") % [UiKit.ordinal(pos), rows.size(),
 			String(League.TIERS[season.world.player_tier()]["name"])]
@@ -229,14 +229,14 @@ static func news(season) -> Array:
 		## THE PLAYOFF PICTURE, in the one sentence that matters: are you going
 		## up, are you going down, or is neither of those your problem today.
 		if pos <= up:
-			line += UiKit.t(" Promotion places.")
+			line += UiKit.t(" Playoff places.")
 			tone = 1
 		elif pos > rows.size() - down:
 			line += UiKit.t(" Relegation places.")
 			tone = -1
 		else:
 			var gap := pos - up
-			line += UiKit.t(" %d off the promotion places.") % gap
+			line += UiKit.t(" %d off the playoff places.") % gap
 		out.append(News.new(UiKit.t("The table"), line, tone))
 	## THE GATE, AND ONLY WHEN IT WAS YOURS — an away day has none to report.
 	##

@@ -73,10 +73,15 @@ func _test_the_gate_is_paid_on_the_fixture_fought() -> void:
 	var s := _season(4242)
 	var wrong: Array[String] = []
 	var n := 0
-	while not s.season_complete() and n < 30:
+	while not s.season_complete() and n < 40:
 		n += 1
 		if s.cup_pending():
 			s.sim_cup_tie()
+			continue
+		## A SATURDAY WITH NO LEAGUE FIXTURE pays no gate (30 Sep 2026: a week
+		## is one thing), so there is nothing to check on it.
+		if s.world.week_kind() != Calendar.Kind.LEAGUE:
+			s.skip_event()
 			continue
 		var where := String(Venue.NAME[s.venue_kind()])
 		s.skip_event()

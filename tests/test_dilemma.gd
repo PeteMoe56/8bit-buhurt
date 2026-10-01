@@ -181,12 +181,15 @@ func _test_the_card_survives_a_save() -> void:
 		else: s.skip_event()
 	var id := String(s.dilemma.get("id", ""))
 	var man := s.dilemma_man()
+	## WHATEVER WAS AT THE HEAD OF THE QUEUE: a cup Saturday can come straight
+	## after the card is dealt (30 Sep 2026), and the cup is asked first.
+	var block := s.blocked_by()
 	SaveGame.save(s, SLOT)
 	var back := SaveGame.load_slot(SLOT)
 	SaveGame.delete(SLOT)
 
 	var same: bool = back != null and String(back.dilemma.get("id", "")) == id \
-		and back.blocked_by() == "dilemma"
+		and back.blocked_by() == block
 	var identity: bool = back != null and back.dilemma_man() != null \
 		and back.club.roster.has(back.dilemma_man()) \
 		and back.dilemma_man().display_name == man.display_name

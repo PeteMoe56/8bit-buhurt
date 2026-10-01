@@ -44,6 +44,8 @@ static func take_bid(s: Season, offer_i: int, budget_i: int) -> String:
 			total, s.office.credits]
 	s.office.spend(total, ClubOffice.LINE_CUP)
 	s.booked = ClubEvent.tournament(offer, s.office.arena, budget_i)
+	## ITS OWN SATURDAY, straight after the league day it was bid for.
+	Calendar.insert_own(s.world.calendar, int(offer["event"]), s.world.week)
 	s.bid_offers.clear()
 	return ""
 
@@ -72,10 +74,19 @@ static func bid_preview(s: Season, offer_i: int, budget_i: int) -> Dictionary:
 ## THE TIE IN FRONT OF YOU, or null. One at a time and in a fixed order — the
 ## domestic cups before the Worlds — so a player never has two brackets asking
 ## him for a result and no way to say which is which.
+##
+## AND ONLY ON ITS OWN SATURDAY (30 Sep 2026). A bracket you are alive in waits
+## for its week; until then the week in front of you is whatever the calendar
+## says it is.
 static func pending_cup(s: Season) -> Cup:
-	for c in s.world.open_cups():
-		if not c.player_match().is_empty():
-			return c
+	var w := s.world.this_week()
+	var c: Cup = null
+	if int(w.get("kind", -1)) == Calendar.Kind.OWN:
+		c = s.booked.cup if s.booked != null else null
+	else:
+		c = s.world.cup_of_week(w)
+	if c != null and not c.player_match().is_empty():
+		return c
 	return null
 
 
@@ -162,13 +173,15 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 	## the grade describes how hard the country is fighting you, and the country
 	## does not stop on a Tuesday night.
 	s._grade_bout(int(s.last_result[0]), int(s.last_result[1]))
-	s._apply_injuries(sim)
 	s._award_xp(sim)
 	if mine:
 		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
 	else:
 		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
 	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club)
+	## THE KNOCK LANDS AFTER THE WEEK TICKS, as it does in the league — see
+	## `post_bout`. Before, a cup tie never ticked the week at all.
+	s._apply_injuries(sim)
 
 
 
@@ -206,37 +219,83 @@ static func sim_cup_tie(s: Season) -> void:
 ## round is played around him, the bracket moves on, and a finished cup is
 ## retired — with the gate settled if it was his own show.
 static func _finish_cup_round(s: Season, c: Cup, won: bool) -> void:
-	c.sim_others(s.world.cup_resolver())
-	## NOT PAST THE PLAYER'S BRONZE. If he lost a semi he is owed the third-place
-	## match, and finishing the cup around him would auto-sim it.
-	while c.round_complete() and not c.is_over() and not c.player_in_third():
-		if not c.advance():
-			break
-		c.sim_others(s.world.cup_resolver())
 	s.office.morale_after(won, false)
 	s.office.after_event(won, false)
-	## The bronze match, on the path the player actually walks. `run_all` played
-	## it; this route never did, so third place did not exist in a cup anybody
-	## fought through.
-	c.settle_third(s.world.cup_resolver(), true)
-	if c.is_over():
-		## YOU WON SOMETHING. The fanfare is played here rather than left to the
-		## mood system, because a mood is a state you are in and this is a moment
-		## that has just passed — by the time the screen redraws, the tie is
-		## resolved and `mood()` has already gone back to normal.
-		if c.champion == s.world.player_club:
-			Audio.champion()
-			## Everybody who travelled gets the honor, not only the five who
-			## were on the line for the final — a cup is won by an eight.
-			for f in s.club.active_eight():
-				f.honors += 1
+	if Calendar.is_tournament(s.world.week_kind()):
+		## A TOURNAMENT IS ONE WEEK — a cup or your show a weekend, the Worlds a
+		## whole week (Pete, 30 Sep). Every round is fought inside it, several
+		## bouts a day, so the bracket plays on around you until you are out or
+		## it is won.
+		var r := s.world.cup_resolver()
+		c.sim_others(r)
+		## NOT PAST THE PLAYER'S BRONZE. If he lost a semi he is owed the
+		## third-place match, and finishing the cup around him would sim it.
+		while c.round_complete() and not c.is_over() and not c.player_in_third():
+			if not c.advance():
+				break
+			c.sim_others(r)
+		c.settle_third(r, true)
+		if not c.player_match().is_empty():
+			s.sync_power()
+			return
+		## Out, or champion: the rest of the day on paper, then the money.
+		c.run_all(r)
+		_crown(s, c)
 		if s.booked != null and s.booked.cup == c:
 			s._settle_gate(s.booked, c)
 		else:
 			s.world.retire_cup(c)
+		end_week(s)
+		return
+	## A PLAYOFF ROUND IS A WEEK. The rest of the round is played around you, the
+	## bracket moves on a round, and the week is over.
+	end_week(s)
+	_crown(s, c)
 	s.sync_power()
 
 
+## YOU WON SOMETHING. The fanfare is played here rather than left to the mood
+## system, because a mood is a state you are in and this is a moment that has
+## just passed. Everybody who travelled gets the honor, not only the five on the
+## line for the final — a cup is won by an eight.
+static func _crown(s: Season, c: Cup) -> void:
+	if c.is_over() and c.champion == s.world.player_club and not c.has_meta("crowned"):
+		c.set_meta("crowned", true)
+		Audio.champion()
+		for f in s.club.active_eight():
+			f.honors += 1
+
+
+## THE WEEK ENDS. The world plays its Saturday (everyone else's fixtures, the
+## rest of a cup round), then the club's week happens whether or not it fought:
+## the squad trains, knocks heal a week, the one-job-a-week throttles reset.
+## Called by every week that is not a league matchday — the league's own path
+## does the same in `_after_event`.
+static func end_week(s: Season) -> void:
+	if s.practiced_week != s.world.week:
+		s._practice()
+	s.world.play_week()
+	quiet_week(s)
+	enter_week(s)
+	s.sync_week()
+
+
+static func quiet_week(s: Season) -> void:
+	for f in s.club.roster:
+		if f.injury > 0:
+			f.injury -= 1
+	s.office.new_week()
+	s._roll_availability()
+	s.sync_power()
+
+
+## A SATURDAY OF YOUR OWN. The show's bracket is drawn the morning it starts, so
+## it is drawn against the club you are on the day rather than on the day you
+## bid.
+static func enter_week(s: Season) -> void:
+	if s.world.week_kind() == Calendar.Kind.OWN and s.booked != null \
+			and not s.booked.settled and s.booked.cup == null:
+		s._settle_event()
 
 
 ## The cup path uses the same rule as the league path, because it was two copies
@@ -286,7 +345,8 @@ static func run_demo(s: Season) -> String:
 
 ## Does the booked event land on this matchday? Called as the event advances.
 static func _event_due(s: Season) -> bool:
-	return s.booked != null and not s.booked.settled and s.world.event >= s.booked.due
+	return s.world.week_kind() == Calendar.Kind.OWN and s.booked != null \
+		and not s.booked.settled and s.booked.cup == null
 
 
 
@@ -313,8 +373,6 @@ static func _settle_event(s: Season) -> void:
 	## Everything that is not yours in the opening round, so the bracket is
 	## ready to ask you for a result the moment the screen opens.
 	e.cup.sim_others(s.world.cup_resolver())
-	if not e.cup.player_alive():
-		s._settle_gate(e, e.cup)
 
 
 

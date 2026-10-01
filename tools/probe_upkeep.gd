@@ -50,7 +50,7 @@ func _one(seed_v: int, years: int, grade: int) -> Dictionary:
 	for y in years:
 		m.winter(s)
 		m.season(s)
-		if s.world.player_tier() >= League.TIERS.size() - 1 and s.world.player_position() == 1 \
+		if s.world.player_tier() >= League.TIERS.size() - 1 and s.world.player_champion() \
 				and out["title"] > years:
 			out["title"] = float(y + 1)
 		var was := s.world.player_tier()

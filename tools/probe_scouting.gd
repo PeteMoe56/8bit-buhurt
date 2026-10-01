@@ -68,7 +68,7 @@ func _one(seed_v: int, years: int, youth: bool, mode: int) -> Dictionary:
 		var t := s.world.player_tier()
 		if t >= 3 and t3 > years:
 			t3 = y + 1
-		if t >= League.TIERS.size() - 1 and s.world.player_position() == 1 and title > years:
+		if t >= League.TIERS.size() - 1 and s.world.player_champion() and title > years:
 			title = y + 1
 		s.roll_over()
 	return {"title": float(title), "t3": float(t3), "power": float(s.club.power()), "signed": float(signed)}

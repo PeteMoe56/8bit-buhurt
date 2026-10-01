@@ -24,9 +24,9 @@ signal club_relegated(club_id: int, to_tier: int)
 ## the top three of YOUR OWN division — so a cup run is something a small club
 ## in a small league can still have, which is the entire appeal of a cup.
 ##
-## `at` is a matchday: a positive number counts from the start of the season,
-## a negative one from the end, so both land sensibly in a 5-event Backyard
-## season and a 15-event National one.
+## WHEN THEY ARE FOUGHT is `Calendar.CUP_ROUNDS` since 30 Sep 2026 — a round a
+## week, on Saturdays of their own. `at` is the old single matchday, kept only as
+## a note of where each one used to sit (2 = early, -2 = late).
 ##
 ## Named by Pete, 10 Sep 2026. ACRTW's own ("Apex, Not Apex", "Path of Acclaim")
 ## are its property and were not taken.
@@ -52,6 +52,15 @@ var player_club: int = 0
 var season: int = 1
 var event: int = 0                      ## which matchday of the season
 var schedule: Dictionary = {}           ## tier -> Array[matchday] of [a, b] pairs
+## THE WEEKS (30 Sep 2026) — see `Calendar`. `event` still counts the player's
+## league days; `week` counts Saturdays, and a cup round is a Saturday too.
+var calendar: Array = []
+var week: int = 0
+## How many league days each division has played. The player's is `event`; the
+## others are paced to it so every table finishes on the same Saturday.
+var days_played: Dictionary = {}
+## Each division's playoff final, once it is fought: tier -> [champion, runner-up].
+var finalists: Dictionary = {}
 var tables: Dictionary = {}             ## tier -> { club_id: row }
 var history: Array[Dictionary] = []
 
@@ -442,6 +451,9 @@ func player_tier() -> int:
 # ------------------------------------------------------------------ season
 func _new_season() -> void:
 	event = 0
+	week = 0
+	days_played.clear()
+	finalists.clear()
 	schedule.clear()
 	tables.clear()
 	for t in League.TIERS.size():
@@ -460,6 +472,142 @@ func _new_season() -> void:
 			## in May is not doomed to lose it again next year.
 			tbl[cid] = League.new_row(cid, rng.randi_range(0, 1_000_000))
 		tables[t] = tbl
+		days_played[t] = 0
+	calendar = Calendar.build(League.events_in_season(player_tier()),
+		player_tier() == League.Tier.NATIONAL)
+	_enter_week()
+
+
+# ------------------------------------------------------------------- weeks
+func this_week() -> Dictionary:
+	return calendar[week] if week < calendar.size() else {}
+
+
+func week_kind() -> int:
+	return int(this_week().get("kind", -1))
+
+
+func weeks_this_season() -> int:
+	return calendar.size()
+
+
+## The league is done (the player's division has played every day of it). The
+## SEASON is not done until the playoffs — and at National, the Worlds — are.
+func league_complete() -> bool:
+	return event >= (schedule[player_tier()] as Array).size()
+
+
+## The cup a week is for, or null — a live Invitational, a division's playoff
+## (the player's own when `t` is -1), or the Worlds.
+func cup_of_week(w: Dictionary, t: int = -1) -> Cup:
+	match int(w.get("kind", -1)):
+		Calendar.Kind.CUP:
+			return _live_cup(String(w["cup"]))
+		Calendar.Kind.PLAYOFF:
+			return _live_cup("playoff:%d" % (player_tier() if t < 0 else t))
+		Calendar.Kind.WORLDS:
+			return worlds
+	return null
+
+
+func _live_cup(id: String) -> Cup:
+	for c in cups:
+		if String(c.get_meta("id", "")) == id:
+			return c
+	return null
+
+
+## A NEW SATURDAY. Opens whatever starts on it — an Invitational's first round,
+## the playoffs, the Worlds — so the bracket exists before anybody is asked to
+## fight in it.
+func _enter_week() -> void:
+	var w := this_week()
+	if w.is_empty() or int(w.get("round", 0)) != 0:
+		return
+	match int(w["kind"]):
+		Calendar.Kind.CUP:
+			for spec in INVITATIONALS:
+				if String(spec["id"]) == String(w["cup"]) and not _cup_run(String(spec["id"])):
+					cups.append(_build_invitational(spec))
+		Calendar.Kind.PLAYOFF:
+			for t in League.TIERS.size():
+				if _cup_run("playoff:%d" % t):
+					continue
+				var field: Array = []
+				var rows := table(t)
+				for i in mini(Calendar.PLAYOFF_FIELD, rows.size()):
+					field.append(int(rows[i]["club"]))
+				if field.size() < 2:
+					continue
+				var c := Cup.new("%s Playoff" % String(League.TIERS[t]["name"]), field,
+					int(rng.randi()), player_club if field.has(player_club) else -1, false)
+				c.no_third = true
+				c.set_meta("id", "playoff:%d" % t)
+				cups.append(c)
+		Calendar.Kind.WORLDS:
+			if worlds == null:
+				worlds = _build_worlds(playoff_order(League.Tier.NATIONAL))
+				if worlds != null:
+					worlds.set_meta("season", season)
+
+
+## PLAY THE WEEK, for everybody. A league week plays the matchday (the player's
+## own result passed in when he fought it); a playoff week plays the round; a
+## cup or Worlds week plays the whole tournament out. Then the week moves on.
+func play_week(player_rounds = null) -> void:
+	var w := this_week()
+	if w.is_empty():
+		return
+	match int(w["kind"]):
+		Calendar.Kind.LEAGUE:
+			_play_league_day(player_rounds)
+		Calendar.Kind.CUP, Calendar.Kind.WORLDS:
+			## A TOURNAMENT WEEK: whatever is left of it is fought out now. The
+			## player's own ties are already in the book when the season holds
+			## them; on the auto path they are decided with everybody else's.
+			var c := cup_of_week(w)
+			if c != null:
+				c.run_all(cup_resolver())
+				retire_cup(c)
+		Calendar.Kind.PLAYOFF:
+			for t in League.TIERS.size():
+				var c := cup_of_week(w, t)
+				if c != null:
+					_cup_round(c)
+	week += 1
+	_enter_week()
+
+
+## One round of a cup, everybody's. The player's tie is whatever the season left
+## of it: fought and recorded (the usual case), or still open, which only the
+## auto-play path leaves and which is then settled on rating.
+func _cup_round(c: Cup) -> void:
+	var r := cup_resolver()
+	c.sim_others(r)
+	for m in c.current_round():
+		if not bool(m["played"]):
+			var res: Array = r.call(int(m["a"]), int(m["b"]))
+			c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
+	## THE BRONZE IS FOUGHT ON FINAL DAY, beside the final.
+	if c.current_round().size() == 1 and c.stage == Cup.Stage.KNOCKOUT:
+		c.settle_third(r)
+	if c.round_complete():
+		c.advance()
+	if c.is_over():
+		retire_cup(c)
+
+
+## THE OLD STEP, for the code that drives a world with nobody holding a cup —
+## the soak tests and the auto-play probes: play through to the next league day
+## and play it, and once the league is done, play out the rest of the year.
+func play_event(player_rounds = null) -> void:
+	while week < calendar.size() and week_kind() != Calendar.Kind.LEAGUE:
+		play_week()
+	if week < calendar.size():
+		play_week(player_rounds)
+	if Calendar.league_weeks_left(calendar, week) == 0:
+		while week < calendar.size():
+			play_week()
 
 
 ## THE REST OF THE SEASON, as [{event, opponent, home}] from the current matchday
@@ -472,20 +620,29 @@ func _new_season() -> void:
 ## It reads the same `schedule` the matchday reads, so the card and the fixture
 ## it is about cannot disagree — the alternative is a second walk of the same
 ## array, which in this project has a track record.
+## NOW EVERY WEEK, not only the league's (30 Sep 2026): a cup round is on the
+## list as what it is, so the table never moves without the list saying why.
+## Each row: {week, kind, event (league day, 1-based, or 0), opponent, home,
+## cup (id, or "")}.
 func remaining_fixtures(limit: int = 6) -> Array:
 	var out: Array = []
 	var days: Array = schedule[player_tier()]
-	for d in range(event, days.size()):
+	for wi in range(week, calendar.size()):
 		if out.size() >= limit:
 			break
-		var opp := -1
-		var home := false
-		for pair in days[d]:
-			if int(pair[0]) == player_club or int(pair[1]) == player_club:
-				opp = int(pair[1]) if int(pair[0]) == player_club else int(pair[0])
-				home = League.host_of(pair) == player_club
-				break
-		out.append({"event": d + 1, "opponent": opp, "home": home})
+		var w: Dictionary = calendar[wi]
+		var row := {"week": wi + 1, "kind": int(w["kind"]), "event": 0, "opponent": -1,
+			"home": false, "cup": String(w.get("cup", "")), "round": int(w.get("round", 0))}
+		if int(w["kind"]) == Calendar.Kind.LEAGUE:
+			var d := int(w["day"])
+			row["event"] = d + 1
+			if d < days.size():
+				for pair in days[d]:
+					if int(pair[0]) == player_club or int(pair[1]) == player_club:
+						row["opponent"] = int(pair[1]) if int(pair[0]) == player_club else int(pair[0])
+						row["home"] = League.host_of(pair) == player_club
+						break
+		out.append(row)
 	return out
 
 
@@ -493,9 +650,10 @@ func events_this_season() -> int:
 	return League.events_in_season(player_tier())
 
 
+## THE YEAR IS OVER when the last Saturday has been played — the playoffs and
+## the Worlds included, not only the league.
 func season_complete() -> bool:
-	var days: Array = schedule[player_tier()]
-	return event >= days.size()
+	return week >= calendar.size()
 
 
 ## Who you are drawn against on the current matchday, or -1 for a bye.
@@ -503,7 +661,7 @@ func season_complete() -> bool:
 ## A club with no fixture this matchday is not at home; it is nowhere.
 func player_hosts() -> bool:
 	var days: Array = schedule[player_tier()]
-	if event >= days.size():
+	if event >= days.size() or week_kind() != Calendar.Kind.LEAGUE:
 		return false
 	for pair in days[event]:
 		if int(pair[0]) == player_club or int(pair[1]) == player_club:
@@ -513,7 +671,7 @@ func player_hosts() -> bool:
 
 func player_opponent() -> int:
 	var days: Array = schedule[player_tier()]
-	if event >= days.size():
+	if event >= days.size() or week_kind() != Calendar.Kind.LEAGUE:
 		return -1
 	for pair in days[event]:
 		if int(pair[0]) == player_club:
@@ -571,50 +729,63 @@ func _without_player(rows: Array) -> Array:
 	return out
 
 
-func play_event(player_rounds = null) -> void:
+func _play_league_day(player_rounds = null) -> void:
+	var mine := player_tier()
+	var n_mine := maxi(1, (schedule[mine] as Array).size())
 	for t in League.TIERS.size():
 		var days: Array = schedule[t]
-		if event >= days.size():
-			continue
-		for pair in days[event]:
-			var a := int(pair[0])
-			var b := int(pair[1])
-			var res: Array
-			if player_rounds != null and (a == player_club or b == player_club):
-				## [rounds_a, rounds_b, margin_a, margin_b] — the same four numbers
-				## MeleeSim carries out of a real bout, so a fought fixture and a
-				## simulated one enter the table through exactly one shape.
-				var pr: Array = _four(player_rounds)
-				res = pr if a == player_club else [pr[1], pr[0], pr[3], pr[2]]
-			elif a == player_club or b == player_club:
-				## A SIMMED FIXTURE OF THE PLAYER'S STILL HAPPENS AT HIS GRADE.
-				##
-				## It did not, and that is the third time this project has found
-				## the same shape: simmed events cost no kit wear until 15 Sep,
-				## they cost no arena wear until 16 Sep, and they were fought at
-				## no difficulty at all until now. `opposition_scale()` — the
-				## whole of `Grade` — was read in exactly two places, both of them
-				## `MeleeSim.new`, so **the difficulty setting applied only to
-				## fights you chose to play**, and the SIM IT button on every
-				## fixture was a button that turned it off.
-				##
-				## `tools/probe_run.gd` found it by accident and could not have
-				## missed it: twenty-season careers at all five grades came back
-				## byte for byte identical. **A column that matches another column
-				## exactly is not a result, it is a bug report** — this suite has
-				## said so since `probe_spend.gd` and it was right again.
-				var scaled := int(round(float(clubs[b if a == player_club else a]
-					["power"]) * player_scale))
-				res = quick_bout(int(clubs[a]["power"]), scaled) if a == player_club \
-					else quick_bout(scaled, int(clubs[b]["power"]))
-			else:
-				res = quick_bout(int(clubs[a]["power"]), int(clubs[b]["power"]))
-			var ma: int = int(res[2]) if res.size() > 2 else 0
-			var mb: int = int(res[3]) if res.size() > 3 else 0
-			League.apply_result(tables[t][a], res[0], res[1], ma, mb)
-			League.apply_result(tables[t][b], res[1], res[0], mb, ma)
+		## THE OTHER DIVISIONS KEEP PACE: by the player's last league day every
+		## table has played all of its own. (They used to stop when his did, so a
+		## Backyard career saw a National table five days into fifteen.)
+		var want: int = event + 1 if t == mine \
+			else mini(days.size(), int(ceil(float((event + 1) * days.size()) / float(n_mine))))
+		while int(days_played.get(t, 0)) < want:
+			_play_day(t, int(days_played.get(t, 0)), player_rounds)
+			days_played[t] = int(days_played.get(t, 0)) + 1
 	event += 1
-	_open_due_invitationals()
+
+
+func _play_day(t: int, d: int, player_rounds) -> void:
+	var days: Array = schedule[t]
+	if d >= days.size():
+		return
+	for pair in days[d]:
+		var a := int(pair[0])
+		var b := int(pair[1])
+		var res: Array
+		if player_rounds != null and (a == player_club or b == player_club):
+			## [rounds_a, rounds_b, margin_a, margin_b] — the same four numbers
+			## MeleeSim carries out of a real bout, so a fought fixture and a
+			## simulated one enter the table through exactly one shape.
+			var pr: Array = _four(player_rounds)
+			res = pr if a == player_club else [pr[1], pr[0], pr[3], pr[2]]
+		elif a == player_club or b == player_club:
+			## A SIMMED FIXTURE OF THE PLAYER'S STILL HAPPENS AT HIS GRADE.
+			##
+			## It did not, and that is the third time this project has found
+			## the same shape: simmed events cost no kit wear until 15 Sep,
+			## they cost no arena wear until 16 Sep, and they were fought at
+			## no difficulty at all until now. `opposition_scale()` — the
+			## whole of `Grade` — was read in exactly two places, both of them
+			## `MeleeSim.new`, so **the difficulty setting applied only to
+			## fights you chose to play**, and the SIM IT button on every
+			## fixture was a button that turned it off.
+			##
+			## `tools/probe_run.gd` found it by accident and could not have
+			## missed it: twenty-season careers at all five grades came back
+			## byte for byte identical. **A column that matches another column
+			## exactly is not a result, it is a bug report** — this suite has
+			## said so since `probe_spend.gd` and it was right again.
+			var scaled := int(round(float(clubs[b if a == player_club else a]
+				["power"]) * player_scale))
+			res = quick_bout(int(clubs[a]["power"]), scaled) if a == player_club \
+				else quick_bout(scaled, int(clubs[b]["power"]))
+		else:
+			res = quick_bout(int(clubs[a]["power"]), int(clubs[b]["power"]))
+		var ma: int = int(res[2]) if res.size() > 2 else 0
+		var mb: int = int(res[3]) if res.size() > 3 else 0
+		League.apply_result(tables[t][a], res[0], res[1], ma, mb)
+		League.apply_result(tables[t][b], res[1], res[0], mb, ma)
 
 
 ## A bout resolved on rating alone: best of three rounds, and a round can be
@@ -712,6 +883,9 @@ func _close_the_season_cups() -> void:
 	for c in cups:
 		c.run_all(resolver)
 		_record_honors(c)
+		var cid := String(c.get_meta("id", ""))
+		if cid.begins_with("playoff:"):
+			finalists[int(cid.substr(8))] = [c.champion, c.runner_up]
 	cups.clear()
 	if worlds != null:
 		worlds.run_all(resolver)
@@ -750,19 +924,24 @@ func roll_over() -> void:
 	## the year is over; that is what a forfeit is.
 	_close_the_season_cups()
 
-	## Worlds is fought on the season that has just finished, so it is built
-	## from the National table BEFORE anybody is promoted out of it. The line
-	## above has already retired last year's.
-	worlds = _build_worlds(table(League.Tier.NATIONAL))
-	## THE SEASON IT BELONGS TO. It is fought over the summer and into next year,
-	## so recording it under `season` at the time it ends labelled it a year late.
-	if worlds != null:
-		worlds.set_meta("season", season)
+	## THE WORLDS, when nobody fought it. A National club plays it on its own
+	## calendar, the last six Saturdays of the year; for everybody else it is
+	## decided here, on paper, from the National playoff BEFORE anybody is
+	## promoted out of the division.
+	if not _ran_this_season("worlds"):
+		var wc := _build_worlds(playoff_order(League.Tier.NATIONAL))
+		if wc != null:
+			wc.set_meta("season", season)
+			wc.run_all(cup_resolver())
+			_record_honors(wc)
+		worlds = null
+		_clear_guests()
 
 	var moves_up: Dictionary = {}
 	var moves_down: Dictionary = {}
 	for t in League.TIERS.size():
-		var rows := table(t)
+		## THE PLAYOFF FINALISTS GO UP (Pete, 30 Sep 2026), then the table.
+		var rows := playoff_order(t)
 		## THE PLAYER MAY TURN PROMOTION DOWN, and if he does the club under him
 		## goes instead. See `stay_down`.
 		if stay_down and t == player_tier():
@@ -770,7 +949,7 @@ func roll_over() -> void:
 		for cid in League.promoted(t, rows):
 			if t < League.TIERS.size() - 1:
 				moves_up[cid] = t + 1
-		for cid in League.relegated(t, rows):
+		for cid in League.relegated(t, table(t)):
 			if t > 0:
 				moves_down[cid] = t - 1
 
@@ -781,8 +960,9 @@ func roll_over() -> void:
 		clubs[cid]["tier"] = int(moves_down[cid])
 		club_relegated.emit(int(cid), int(moves_down[cid]))
 
-	## The champion of the top flight gets the title on the board.
-	var top := table(League.TIERS.size() - 1)
+	## The champion of the top flight gets the title on the board — the playoff
+	## winner, now there is a playoff.
+	var top := playoff_order(League.TIERS.size() - 1)
 	if not top.is_empty():
 		clubs[int(top[0]["club"])]["titles"] = int(clubs[int(top[0]["club"])]["titles"]) + 1
 
@@ -855,14 +1035,6 @@ static func _four(r) -> Array:
 
 
 # ------------------------------------------------------------------ the cups
-## The matchday an Invitational falls on, resolved against the player's own
-## division — a negative `at` counts back from the last event of the season.
-func _invitational_event(spec: Dictionary) -> int:
-	var n := League.events_in_season(player_tier())
-	var at := int(spec["at"])
-	return at if at >= 0 else maxi(1, n + at)
-
-
 ## Are you inside the top three of your own division right now?
 ## THE FEDERATION'S VETO, injected rather than read.
 ##
@@ -888,14 +1060,38 @@ func invited() -> bool:
 	return pos != -1 and pos <= INVITE_RANK
 
 
-func _open_due_invitationals() -> void:
-	for spec in INVITATIONALS:
-		if event != _invitational_event(spec):
-			continue
-		if _cup_run(String(spec["id"])):
-			continue
-		var c := _build_invitational(spec)
-		cups.append(c)
+## THE DIVISION IN THE ORDER IT GOES UP: the playoff champion, the runner-up,
+## then the table. Before the playoff has been fought it is just the table.
+func playoff_order(t: int) -> Array:
+	var rows := table(t)
+	var f: Array = finalists.get(t, [])
+	if f.is_empty():
+		return rows
+	var out: Array = []
+	for cid in f:
+		for r in rows:
+			if int(r["club"]) == int(cid):
+				out.append(r)
+	for r in rows:
+		if not f.has(int(r["club"])):
+			out.append(r)
+	return out
+
+
+## DID THE PLAYER WIN HIS DIVISION THIS YEAR? The playoff champion since
+## 30 Sep 2026; the top of the table before the playoff has been fought.
+func player_champion() -> bool:
+	var f: Array = finalists.get(player_tier(), [])
+	if not f.is_empty():
+		return int(f[0]) == player_club
+	return player_position() == 1
+
+
+## Was a cup of this id fought (or is one running) this season?
+func _ran_this_season(id: String) -> bool:
+	if worlds != null and id == "worlds":
+		return true
+	return _cup_run(id)
 
 
 func _cup_run(id: String) -> bool:
@@ -1035,6 +1231,9 @@ func retire_cup(c: Cup) -> void:
 	if not c.is_over():
 		return
 	_record_honors(c)
+	var cid := String(c.get_meta("id", ""))
+	if cid.begins_with("playoff:"):
+		finalists[int(cid.substr(8))] = [c.champion, c.runner_up]
 	var i := cups.find(c)
 	if i != -1:
 		cups.remove_at(i)

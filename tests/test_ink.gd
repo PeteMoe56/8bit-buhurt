@@ -67,6 +67,7 @@ const SCREENS := [
 	["res://scenes/Create.tscn", 0],
 	["res://scenes/Create.tscn", 1],
 	["res://scenes/Bracket.tscn", -1],
+	["res://scenes/Calendar.tscn", -1],
 ]
 
 ## The frame, and the gutter the whole game is laid out against — the LIVE one.

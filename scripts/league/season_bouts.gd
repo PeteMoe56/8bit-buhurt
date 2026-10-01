@@ -222,7 +222,7 @@ static func post_bout(s: Season, sim: MeleeSim) -> void:
 	var gate := s.gate_now()
 	var before := s._my_row()
 	s._award_xp(sim)
-	s.world.play_event(s.last_result)
+	s.world.play_week(s.last_result)
 	s._after_event(int(s.last_result[0]), int(s.last_result[1]), gate)
 	## INJURIES LAND AFTER THE WEEK TICKS, and the order is the whole fix.
 	##
@@ -555,12 +555,33 @@ static func _practice(s: Season, paid: bool = false) -> void:
 	var five := s.club.starting_five()
 	## Morning decision #11's option, off unless a probe sets it.
 	var full := paid and Tuning.session_full_week
+	## A SEASON'S PRACTICE IS THE SAME SIZE IT WAS (30 Sep 2026). The year grew
+	## from league days to Saturdays — cup rounds and the playoff are weeks now,
+	## and the squad trains through every one — so a week's practice is the
+	## league's share of it. Without this the calendar alone would have been a
+	## 2.5x training buff that nobody chose. A paid session is not scaled: it is
+	## one bought week, priced as one.
+	var share := 1.0 if paid else s.practice_share()
+	if not paid:
+		s.practiced_week = s.world.week
 	for f in s.club.roster:
 		var role := Tuning.role_of(int(f.pos))
 		var got := Career.practice_xp(s.office.coaching(role), five.has(f) and not full) \
 			* s.office.practice_ground() * s.office.regime_xp(role) \
 			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
-		f.xp += maxi(1, int(round(got)))
+		var week_xp := maxi(1, int(round(got)))
+		if share >= 1.0:
+			f.xp += week_xp
+			continue
+		## THE SHARE, ROUNDED BY A DIE THAT IS THE SAME EVERY TIME: a whole
+		## number of points a week with the right average, so a bench man on
+		## 0.8 of a point a week still gets his season's worth. Seeded on the
+		## week and the man, not drawn from a stream, so a reload rolls the same.
+		var want := float(week_xp) * share
+		var whole := int(floor(want))
+		var h := absi(hash("practice:%d:%d:%d:%s" % [s.seed_value, s.world.season,
+			s.world.week, f.display_name]))
+		f.xp += whole + (1 if float(h % 10000) / 10000.0 < want - float(whole) else 0)
 
 
 
@@ -610,6 +631,19 @@ static func _award_sim_xp(s: Season) -> void:
 
 ## Play the matchday without fighting it — a bye, or the player choosing to sim.
 static func skip_event(s: Season) -> void:
+	## NOT A LEAGUE SATURDAY: a cup round of yours is handed to the AI, and a week
+	## with nothing on is a week of training.
+	## A tournament week is skipped whole: every tie of yours handed over until
+	## you are out or it is won and the week ends.
+	if s.world.week_kind() != Calendar.Kind.LEAGUE:
+		var wk := s.world.week
+		var guard := 0
+		while s.cup_pending() and s.world.week == wk and guard < 16:
+			guard += 1
+			s.sim_cup_tie()
+		if s.world.week == wk and not s.world.season_complete():
+			SeasonCups.end_week(s)
+		return
 	s.ensure_a_line()
 	s._award_sim_xp()
 	var opp := s.opponent_id()
@@ -623,7 +657,7 @@ static func skip_event(s: Season) -> void:
 	## difficulty at all and five twenty-season careers at five different grades
 	## came back identical.
 	s.world.player_scale = s.opposition_scale(opp)
-	s.world.play_event()
+	s.world.play_week()
 	s.world.player_scale = 1.0
 	var now := s._my_row()
 	s._after_event(int(now["rf"]) - int(was["rf"]), int(now["ra"]) - int(was["ra"]), gate)
@@ -650,7 +684,7 @@ static func forfeit_bout(s: Season) -> void:
 	var gate := s.gate_now()
 	var before := s._my_row()
 	s.last_result = [0, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE]
-	s.world.play_event(s.last_result)
+	s.world.play_week(s.last_result)
 	s._after_event(0, Tuning.BOUT_WINS, gate)
 	s._apply_regime(was_home)
 	s._log(opp, before, false, was_home)
@@ -774,6 +808,7 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> 
 	s.office.new_week()
 	s._roll_availability()
 	s.sync_power()
+	s.sync_week()
 
 
 
@@ -793,7 +828,7 @@ static func _roll_availability(s: Season) -> void:
 	## Seeding on (season, event) removes the state instead of saving it. Same
 	## answer every time, no position to keep.
 	var rng := RandomNumberGenerator.new()
-	rng.seed = hash("avail:%d:%d:%d" % [s.world.rng.seed, s.world.season, s.world.event])
+	rng.seed = hash("avail:%d:%d:%d" % [s.world.rng.seed, s.world.season, s.world.week])
 	var gone := 0
 	for f in s.club.roster:
 		## LAST WEEK'S EXCUSE IS OVER. Cleared for everybody first, including the

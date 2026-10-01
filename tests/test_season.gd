@@ -255,10 +255,12 @@ func _test_a_whole_season_adds_up() -> void:
 		var expect := int(r["won"]) * League.WIN_POINTS + int(r["drawn"]) * League.DRAW_POINTS
 		if int(r["points"]) != expect:
 			pts_ok = false
-	_ok(events == League.events_in_season(s.world.player_tier())
+	## A SKIP IS A SATURDAY (30 Sep 2026): the league's days and the cup rounds
+	## and the playoff, one each.
+	_ok(events == s.world.weeks_this_season()
 			and played.size() == 1 and rf == ra and mf == ma and pts_ok,
 		"a whole season adds up",
-		"%d events, every club played %d, rounds %d=%d and margin %d=%d across the division"
+		"%d weeks, every club played %d, rounds %d=%d and margin %d=%d across the division"
 			% [events, int(rows[0]["played"]), rf, ra, mf, ma])
 
 

@@ -310,7 +310,8 @@ func _next_controls() -> void:
 	## read as close). "vs ATL" for a fight, "Bye" when there is nobody.
 	var opp := season.opponent_id()
 	var label := (UiKit.t("Fight: vs %s") % String(season.world.clubs[opp].get("short", "?"))) if opp >= 0 \
-		else UiKit.t("Next event")
+		else (UiKit.t("Next event") if season.world.week_kind() == Calendar.Kind.LEAGUE
+			else UiKit.t("Train this week"))
 	var go := _fight
 	if season.season_complete():
 		label = UiKit.t("End the season")
@@ -395,9 +396,11 @@ func _fight_cup() -> void:
 func _fight() -> void:
 	var sim := season.begin_bout()
 	if sim == null:
+		var league_week: bool = season.world.week_kind() == Calendar.Kind.LEAGUE
 		season.skip_event()
 		Session.autosave()
-		flash = UiKit.t("Bye this event.")
+		flash = UiKit.t("Bye this event.") if league_week \
+			else UiKit.t("A week of training. The squad is a little better for it.")
 		_rebuild()
 		return
 	## Save BEFORE handing over. The bout is a scene change and a few minutes of

@@ -105,7 +105,7 @@ static func one(seed_v: int, years: int, youth: bool) -> Dictionary:
 		## THE TABLE IS READ BEFORE THE ROLL OVER, because `roll_over` promotes
 		## everybody out of the division the player just finished in and the row
 		## he is being judged on goes with it.
-		if t >= League.TIERS.size() - 1 and s.world.player_position() == 1 \
+		if t >= League.TIERS.size() - 1 and s.world.player_champion() \
 				and title == MISSED:
 			title = y + 1
 		bank += float(s.office.credits)

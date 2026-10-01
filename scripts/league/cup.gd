@@ -60,6 +60,13 @@ var third: int = -1
 ## `player_match()` sitting with no caller: a field nobody could see was wrong
 ## because nobody could see it.
 var player_finish: String = ""
+## THE POOLS ARE PLAYED A DAY AT A TIME (30 Sep 2026): the Worlds week runs its
+## pool days in order, so the bracket asks for one pool bout at a time.
+var pool_day: int = 0
+var pool_days: int = 1
+## A PLAYOFF HAS NO BRONZE. Two up, one champion; fourth and third are the same
+## result to a league.
+var no_third: bool = false
 
 var rng := RandomNumberGenerator.new()
 
@@ -108,10 +115,16 @@ func _draw_pools() -> void:
 				forward = true
 
 	pool_matches.clear()
+	pool_day = 0
+	pool_days = 1
 	for pi in pools.size():
-		for day in League.fixtures(pools[pi]):
-			for pair in day:
-				pool_matches.append(_match(int(pair[0]), int(pair[1]), "Pool %s" % char(65 + pi), pi))
+		var days: Array = League.fixtures(pools[pi])
+		pool_days = maxi(pool_days, days.size())
+		for di in days.size():
+			for pair in days[di]:
+				var m := _match(int(pair[0]), int(pair[1]), "Pool %s" % char(65 + pi), pi)
+				m["day"] = di
+				pool_matches.append(m)
 	round_opened.emit("Pools")
 
 
@@ -148,7 +161,11 @@ func _open_round(club_ids: Array) -> void:
 
 func current_round() -> Array:
 	if stage == Stage.POOLS:
-		return pool_matches
+		var today: Array = []
+		for m in pool_matches:
+			if int(m.get("day", 0)) == pool_day:
+				today.append(m)
+		return today
 	if rounds.is_empty():
 		return []
 	return rounds[rounds.size() - 1]
@@ -345,6 +362,9 @@ func advance() -> bool:
 	if stage == Stage.DONE or not round_complete():
 		return false
 	if stage == Stage.POOLS:
+		if pool_day < pool_days - 1:
+			pool_day += 1
+			return true
 		stage = Stage.KNOCKOUT
 		_open_round(_pool_qualifiers())
 		return true
@@ -372,7 +392,7 @@ func advance() -> bool:
 
 	## Semi-final losers fight for third, which ACRTW does and which matters here
 	## because a Worlds bronze is a real result to bring home.
-	if day.size() == 2 and third_place.is_empty():
+	if day.size() == 2 and third_place.is_empty() and not no_third:
 		third_place = _match(int(losers[0]), int(losers[1]), "Third-place match")
 	_open_round(winners)
 	return true
@@ -506,6 +526,7 @@ func to_dict() -> Dictionary:
 		## resolve its remaining rounds differently from the run that saved it,
 		## which is the same class of bug as a table that re-sorts on reload.
 		"rng_seed": rng.seed, "rng_state": rng.state,
+		"pool_day": pool_day, "pool_days": pool_days, "no_third": no_third,
 	}
 
 
@@ -530,6 +551,14 @@ static func from_dict(d: Dictionary) -> Cup:
 	c.champion = int(d["champion"])
 	c.runner_up = int(d["runner_up"])
 	c.third = int(d.get("third", -1))
+	c.no_third = bool(d.get("no_third", false))
+	c.pool_day = int(d.get("pool_day", 0))
+	## A cup saved before the pools were split into days has no "day" on its
+	## matches: every one of them reads as day 0, and one day is all it has.
+	var most := 0
+	for m in c.pool_matches:
+		most = maxi(most, int((m as Dictionary).get("day", 0)))
+	c.pool_days = int(d.get("pool_days", most + 1))
 	c.set_meta("id", String(d.get("id", "")))
 	if int(d.get("season", -1)) >= 0:
 		c.set_meta("season", int(d["season"]))

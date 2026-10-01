@@ -50,8 +50,13 @@ static func promotion_place(s: Season) -> bool:
 	var t := s.world.player_tier()
 	if t >= League.TIERS.size() - 1:
 		return false                      ## nothing above the National Division
-	var p := s.position()
-	return p >= 1 and p <= int(League.TIERS[t]["up"])
+	## THE PLAYOFF DECIDES IT (30 Sep 2026): the two finalists go up, then the
+	## table if a division somehow has no playoff.
+	var order := s.world.playoff_order(t)
+	for i in mini(int(League.TIERS[t]["up"]), order.size()):
+		if int(order[i]["club"]) == s.world.player_club:
+			return true
+	return false
 
 
 

@@ -39,7 +39,7 @@ func _initialize() -> void:
 						if s.world.player_tier() >= 3 and up > years:
 							up = y + 1
 						if s.world.player_tier() >= League.TIERS.size() - 1 \
-								and s.world.player_position() == 1 and won > years:
+								and s.world.player_champion() and won > years:
 							won = y + 1
 						s.roll_over()
 					t += won

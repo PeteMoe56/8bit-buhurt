@@ -305,15 +305,19 @@ func _test_worlds_and_invitationals_run() -> void:
 		world.roll_over()
 	var worlds_run := 0
 	var invitationals_run := 0
+	var playoffs_run := 0
 	var bad := 0
 	for h in world.honors:
 		if int(h["champion"]) < 0:
 			bad += 1
 		if String(h["id"]) == "worlds":
 			worlds_run += 1
+		elif String(h["id"]).begins_with("playoff:"):
+			## A PLAYOFF A DIVISION A SEASON (30 Sep 2026), four divisions.
+			playoffs_run += 1
 		else:
 			invitationals_run += 1
-	_ok(worlds_run == 12 and invitationals_run == 24 and bad == 0,
+	_ok(worlds_run == 12 and invitationals_run == 24 and playoffs_run == 48 and bad == 0,
 		"the cups run every season",
 		"12 seasons produced %d Worlds and %d Invitationals, all with a champion"
 			% [worlds_run, invitationals_run])

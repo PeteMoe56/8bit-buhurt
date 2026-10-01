@@ -124,11 +124,21 @@ func _test_the_tie_you_fight_is_the_tie_recorded() -> void:
 			mine, theirs, "the home name" if player_is_a else "the away name",
 			stored_mine, stored_theirs])
 	## And the rest of the round went on around him rather than sitting unplayed.
+	## THE ROUND HE FOUGHT, not the cup's current one: the week is over once his
+	## tie is in, so the bracket has already moved on to next Saturday's round.
 	var unplayed := 0
-	for x in c.current_round():
+	var his: Array = []
+	for day in c.rounds:
+		if (day as Array).has(m):
+			his = day
+	if his.is_empty() and c.pool_matches.has(m):
+		for x in c.pool_matches:
+			if int(x.get("day", 0)) == int(m.get("day", 0)):
+				his.append(x)
+	for x in his:
 		if not bool(x["played"]):
 			unplayed += 1
-	_ok(unplayed == 0 or c.is_over() or not c.player_match().is_empty(),
+	_ok(not his.is_empty() and unplayed == 0,
 		"the round plays out around you",
 		"%d ties left unplayed in the round you just fought" % unplayed)
 
@@ -185,15 +195,15 @@ func _test_you_cannot_walk_away_from_a_cup() -> void:
 	if not _to_a_cup(s):
 		_ok(false, "you cannot walk away from a cup", "no cup came up")
 		return
-	## Wind the league out so the season itself is finished, with the tie still
-	## outstanding.
-	var guard := 0
-	while not s.season_complete() and guard < 30:
-		guard += 1
-		s.skip_event()
-	_ok(s.cup_pending() and not s.ready_to_roll(),
+	## ONE THING A SATURDAY (30 Sep 2026): on a cup Saturday there is no league
+	## fixture to fight instead, and the week does not move until the tie is in.
+	var wk := s.world.week
+	var nm := s.pending_cup().cup_name
+	var league := s.begin_bout()
+	_ok(s.cup_pending() and not s.ready_to_roll() and league == null and s.world.week == wk,
 		"you cannot walk away from a cup",
-		"the season is complete but a %s tie is still open" % s.pending_cup().cup_name)
+		"a %s tie is open; league fixture offered: %s; week %d -> %d" % [
+			nm, "yes" if league != null else "no", wk, s.world.week])
 
 
 func _test_the_auto_path_is_untouched() -> void:

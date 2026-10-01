@@ -46,6 +46,7 @@ const SCREENS := [
 	"res://scenes/Chalkboard.tscn",
 	"res://scenes/Create.tscn",
 	"res://scenes/Bracket.tscn",
+	"res://scenes/Calendar.tscn",
 	## THE FIGHT ITSELF, which was missing from this list until Pete asked
 	## *"I'm not seeing the arena/fighting UI in this"* — and he was right twice
 	## over: it was not in the contact sheets and it was not in the audit. It

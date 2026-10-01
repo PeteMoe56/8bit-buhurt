@@ -452,7 +452,22 @@ func buy_harness(card: FighterCard) -> String:
 ## ONE VISIT A WEEK, PER MAN, on the same throttle every other per-man purchase
 ## uses — without it a club with credits walks a wrecked squad back to new in an
 ## afternoon, which is the armorer as a vending machine rather than a decision.
+## BETWEEN FIXTURES ONLY (Pete, 30 Sep 2026). The paid session, the armorer and
+## the extra reps are work done in the week before a league fixture. A cup
+## weekend, a playoff week or a week with nothing on is training only: the money
+## was tuned on five shopping weeks a Backyard season, and letting all nine
+## calendar weeks shop took five points of club power off a twenty-season career
+## (`test_scouting`, 12 bases). Set by the season as each week begins.
+var fixture_week: bool = true
+
+
+static func between_fixtures_word() -> String:
+	return UiKit.t("Between fixtures only. This week is training.")
+
+
 func repair_kit(card: FighterCard) -> String:
+	if not fixture_week:
+		return between_fixtures_word()
 	## AND THE REFUSAL SAYS WHICH KIND IT IS. "As good as it gets" on a borrowed
 	## harness sitting at 0.82 reads as a bug; the player can see it is not full
 	## and the armorer is telling him it is. Naming the grade turns a refusal
@@ -525,6 +540,8 @@ func buy_level(card: FighterCard) -> String:
 ## week's attention from one coaching staff on one fighter, and letting a club
 ## buy both every week would make the throttle a formality.
 func raise_ceiling(card: FighterCard) -> String:
+	if not fixture_week:
+		return between_fixtures_word()
 	if not Career.can_raise_ceiling(card):
 		return UiKit.t("%s is as far along as a fighter his age gets.") % card.display_name
 	var slot := "reps:%s#%d" % [card.display_name, card.number]
@@ -1017,6 +1034,8 @@ func session_cost() -> int:
 ## player who paid on Tuesday and closed the game would have bought nothing.
 ## Paying for a thing and having it happen is one step or it is a bug.
 func charge_session() -> String:
+	if not fixture_week:
+		return between_fixtures_word()
 	if _throttled(SLOT_SESSION):
 		return UiKit.t("The squad has already had its extra session this week.")
 	var cost := session_cost()

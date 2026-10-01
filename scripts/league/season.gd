@@ -707,6 +707,24 @@ func _practice() -> void:
 	SeasonBouts._practice(self)
 
 
+## The week practice last ran on, so a cup Saturday that was fought (which
+## practises with the bout) does not practise again when the week ends.
+var practiced_week: int = -1
+
+
+## THE WEEK TELLS THE OFFICE WHAT IT IS, so the between-fixtures work is only
+## sold in a league week. Derived, not saved: called as each week begins and
+## after a load.
+func sync_week() -> void:
+	office.fixture_week = world.week_kind() == Calendar.Kind.LEAGUE or world.season_complete()
+
+
+## What one week's practice is worth against the old league-day practice: the
+## league's days over the year's Saturdays.
+func practice_share() -> float:
+	return float(world.events_this_season()) / float(maxi(1, world.weeks_this_season()))
+
+
 ## -> SeasonBouts (season_bouts.gd)
 func run_session() -> String:
 	return SeasonBouts.run_session(self)
@@ -1124,6 +1142,7 @@ static func purse(place: int, field: int, tier: int) -> int:
 ## -> SeasonWinter (season_winter.gd)
 func roll_over() -> void:
 	SeasonWinter.roll_over(self)
+	sync_week()
 
 
 

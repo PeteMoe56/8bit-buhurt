@@ -385,8 +385,11 @@ func _draw_diary() -> void:
 		## to make a decision on.
 		## THE SUM, ABOVE THE BUTTON IT DECIDES (blind review round 3: the
 		## "Expected" line sat under the button it was about).
-		UiKit.text_fit(self, font, UiKit.t("Event %d  ·  about %d through the gate") % [
-			int(o["event"]) + 1, int(p["heads"])],
+		## THE SATURDAY IT WOULD BE, on the calendar (30 Sep 2026): the week after
+		## the league day it is bid for.
+		var wk := Calendar.own_week_number(season.world.calendar, int(o["event"]))
+		UiKit.text_fit(self, font, UiKit.t("Week %d  ·  about %d through the gate") % [
+			wk, int(p["heads"])],
 			Vector2(RIGHT_X, 412), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X)
 		var net := int(p["net"])
 		UiKit.text_fit(self, font, UiKit.t("Expected: %+d CC  ·  %+d CC if you win it") % [net, int(p["best"])],

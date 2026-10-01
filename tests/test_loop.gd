@@ -144,7 +144,8 @@ func _test_practice_builds() -> void:
 		before[f] = (f as FighterCard).xp
 		if not five.has(f):
 			rest.append(f)
-	SeasonBouts._practice(s)
+	## A WHOLE WEEK'S PRACTICE (the paid one, which is not shared out).
+	SeasonBouts._practice(s, true)
 	var total := 0
 	for f in rest:
 		total += (f as FighterCard).xp - int(before[f])
@@ -152,6 +153,23 @@ func _test_practice_builds() -> void:
 	_ok(not rest.is_empty() and mean >= Career.PRACTICE_BASE - 0.01,
 		"practice builds the men outside the five by at least its base",
 		"mean gain %.1f XP across %d men outside the five (base %.1f)" % [mean, rest.size(), Career.PRACTICE_BASE])
+	## AND THE SATURDAYS SHARE IT OUT (30 Sep 2026): a season of weekly practice
+	## is worth what a season of league-day practice was. Forty weeks, on average.
+	var before2 := {}
+	for f in rest:
+		before2[f] = (f as FighterCard).xp
+	for wk in 40:
+		s.world.week = wk % maxi(1, s.world.weeks_this_season())
+		s.world.season = 1 + wk / maxi(1, s.world.weeks_this_season())
+		SeasonBouts._practice(s)
+	var total2 := 0
+	for f in rest:
+		total2 += (f as FighterCard).xp - int(before2[f])
+	var per := float(total2) / float(maxi(1, rest.size())) / 40.0
+	var want := Career.PRACTICE_BASE * s.practice_share()
+	_ok(absf(per - want) <= want * 0.2,
+		"and a week's practice is the league's share of it",
+		"%.2f XP a week against %.2f (base %.1f x share %.2f)" % [per, want, Career.PRACTICE_BASE, s.practice_share()])
 
 
 ## A man missing the weekend is the exception: about one week in three at most.
