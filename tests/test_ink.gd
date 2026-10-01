@@ -61,6 +61,7 @@ const SCREENS := [
 	["res://scenes/Staff.tscn", -1],
 	["res://scenes/Coach.tscn", -1],
 	["res://scenes/Records.tscn", -1],
+	["res://scenes/Guide.tscn", 0], ["res://scenes/Guide.tscn", 1], ["res://scenes/Guide.tscn", 2], ["res://scenes/Guide.tscn", 3], ["res://scenes/Guide.tscn", 4], ["res://scenes/Guide.tscn", 5], ["res://scenes/Guide.tscn", 6], ["res://scenes/Guide.tscn", 7], ["res://scenes/Guide.tscn", 8],
 	["res://scenes/Arena.tscn", -1],
 	["res://scenes/Chalkboard.tscn", -1],
 	["res://scenes/Create.tscn", 0],
@@ -176,7 +177,9 @@ func _world() -> void:
 	s.office.credits = 60
 	s.board.unlock_formation(s.office)
 	s.board.save_formation(0, "Strong Right",
-		s.board.spots_for(Tuning.Formation.TWO_ONE_TWO))
+		## DRAWN STRONG ON THE RIGHT (review round 3: the fixture saved a 2-1-2
+		## under that name, and the reviewers read a symmetric "Strong Right").
+		[Vector2(0.11, 0.04), Vector2(0.26, 0.04), Vector2(0.50, 0.09), Vector2(0.75, 0.15), Vector2(0.89, 0.15)])
 	s.board.unlock_play(s.office)
 	s.board.save_play(0, "Full Right", s.board.routes_of(0), Chalkboard.UNIVERSAL)
 
@@ -401,7 +404,7 @@ func _name_of(c) -> String:
 ## the face the screen really uses, against the gap to the stop before it.
 const REPORT_TOKENS := {
 	"dn": ["9", 11], "as": ["9", 11], "up": ["9", 11], "off": ["9", 11],
-	"xp": ["+99", 10], "lv": ["99", 11], "next": ["+1 ready", 12],
+	"xp": ["+99", 10], "lv": ["99", 11], "next": ["+9 ready", 12],
 }
 const REPORT_ORDER := ["dn", "as", "up", "off", "xp", "lv", "next"]
 ## Where the names and positions end — the first column has to clear them too.

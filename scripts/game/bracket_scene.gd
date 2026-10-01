@@ -25,6 +25,10 @@ const COL_W := 226.0
 const COL_GAP := 12.0
 const ROAD_X := 748.0
 const ROAD_W := 188.0
+## ONE NAME PER CLUB ON THIS PAGE (review round 3: "Houston" in the quarter-
+## finals, "Houston Fellowship" in the semis). Every slot and the path panel fit
+## to the same width, the narrowest of them, so a club reads the same everywhere.
+const NAME_W := ROAD_W - 32.0
 ## The tree's band: under the round headings, clear of Back (round 8: Back
 ## crowded the last tie).
 const TREE_TOP := 120.0
@@ -219,7 +223,7 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 		UiKit.text(self, font, "%d" % (cup.entrants.find(id) + 1),
 			Vector2(at.x + 8, at.y + 19), 12, UiKit.DIM)
 		## FITTED, NOT CUT AT 16 CHARACTERS (round 5: "New Orleans Gua.").
-		UiKit.text(self, font, _fit(id, 14, w - 24.0 - (34.0 if played else 8.0)),
+		UiKit.text(self, font, _fit(id, 14, NAME_W),
 			Vector2(at.x + 24, at.y + 19), 14, col)
 	else:
 		UiKit.text(self, font, "—", Vector2(at.x + 24, at.y + 19), 14, UiKit.DIM)
@@ -263,7 +267,7 @@ func _road() -> void:
 			y += 58.0
 			continue
 		var opp: int = int(m["b"]) if int(m["a"]) == me else int(m["a"])
-		UiKit.text(self, font, _fit(opp, 14, ROAD_W - 32.0),
+		UiKit.text(self, font, _fit(opp, 14, NAME_W),
 			Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK)
 		if bool(m.get("played", false)):
 			var mine: int = int(m["ra"]) if int(m["a"]) == me else int(m["rb"])

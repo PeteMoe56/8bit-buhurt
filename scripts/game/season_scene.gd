@@ -1080,7 +1080,7 @@ const NAV_BTN_H := 36.0
 ## Where the counter sits: under the four nav buttons, above the action row.
 ## The shop is a modal; this is the panel it draws in.
 var SHOP_CARD := Rect2(200.0, 120.0, 560.0, 300.0)
-var CLUB_CARD := Rect2(200.0, 90.0, 560.0, 318.0)
+var CLUB_CARD := Rect2(200.0, 80.0, 560.0, 374.0)
 var TRAIN_CARD := Rect2(150.0, 76.0, 660.0, 380.0)
 
 

@@ -23,6 +23,7 @@ const SCREENS := [
 	["12_staff", "res://scenes/Staff.tscn", -1],
 	["13_coach", "res://scenes/Coach.tscn", -1],
 	["14_records", "res://scenes/Records.tscn", -1],
+	["15_guide", "res://scenes/Guide.tscn", 1],
 	["16_arena", "res://scenes/Arena.tscn", -1],
 	["17_chalkboard", "res://scenes/Chalkboard.tscn", -1],
 	["18_create_fighter", "res://scenes/Create.tscn", 0],
@@ -56,7 +57,9 @@ func _initialize() -> void:
 		3, ClubOffice.Trait.MOTIVATOR))
 	world.board.unlock_formation(world.office)
 	world.board.save_formation(0, "Strong Right",
-		world.board.spots_for(Tuning.Formation.TWO_ONE_TWO))
+		## DRAWN STRONG ON THE RIGHT (review round 3: the fixture saved a 2-1-2
+		## under that name, and the reviewers read a symmetric "Strong Right").
+		[Vector2(0.11, 0.04), Vector2(0.26, 0.04), Vector2(0.50, 0.09), Vector2(0.75, 0.15), Vector2(0.89, 0.15)])
 	## A few results on the table, so the club tab is mid-season, not day one.
 	## The start-of-year bid would block every event, so it is passed first.
 	if world.bid_open():

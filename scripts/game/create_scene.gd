@@ -380,11 +380,13 @@ func _club_controls() -> void:
 	var packs := IconBank.packs()
 	for i in packs.size():
 		var take := i
-		ui.add_child(UiKit.button(UiKit.t(String(IconBank.PACK_NAME[packs[i]])),
-			Vector2(BANK_X + float(i) * 116.0, 150), Vector2(110, 30), func():
+		## THE OPEN PACK IS MARKED (review round 3: Core, Steel and Beasts looked
+		## the same whichever one was showing).
+		ui.add_child(UiKit.selected(UiKit.button(UiKit.t(String(IconBank.PACK_NAME[packs[i]])),
+			Vector2(BANK_X + float(i) * 116.0, 146), Vector2(110, 38), func():
 				pack_i = take
 				flash = ""
-				_rebuild()))
+				_rebuild()), i == pack_i % packs.size()))
 	var shelf := IconBank.in_pack(packs[pack_i % packs.size()])
 	for i in shelf.size():
 		var id: int = shelf[i]

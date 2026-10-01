@@ -28,13 +28,17 @@ const SOUND_H := 218.0
 ## IN THE RIGHT COLUMN, under About (round 8: the right column was empty and
 ## the left one pressed Back against the career box).
 const CAREER_X := RIGHT_X
-const CAREER_Y := TOP + 250.0
+const CAREER_Y := TOP + 244.0
 const CAREER_H := 150.0
 ## LANGUAGE, under the credits: one cycling button, like the grade's.
 const LANG_Y := TOP
 const LANG_H := 80.0
-const ABOUT_Y := TOP + 100.0
-const ABOUT_H := 132.0
+const ABOUT_Y := TOP + 98.0
+const ABOUT_H := 128.0
+## THE GUIDE, under SOUND, its top in line with THIS CAREER (Pete, 1 Oct 2026:
+## "Make a Guide in the Settings/Menu area").
+const GUIDE_Y := CAREER_Y
+const GUIDE_H := 130.0
 
 var font: Font
 var ui: CanvasLayer
@@ -118,7 +122,7 @@ func _build() -> void:
 			Settings.set_language(prv)
 			Audio.play("tap")
 			_build()))
-		ui.add_child(UiKit.arrow(true, Vector2(RIGHT_X + COL_W - 46.0, LANG_Y + 32.0), Vector2(52, 38), func():
+		ui.add_child(UiKit.arrow(true, Vector2(RIGHT_X + COL_W - 70.0, LANG_Y + 32.0), Vector2(52, 38), func():
 			Settings.set_language(nxt)
 			Audio.play("tap")
 			_build()))
@@ -127,8 +131,10 @@ func _build() -> void:
 	## THE CREDITS LIVE BEHIND THEIR OWN BUTTON (blind review, 29 Sep: they took
 	## half the screen and outranked the settings). Every line is still there, in
 	## full, above the licence texts.
-	ui.add_child(UiKit.button(UiKit.t("Credits & licenses"), Vector2(RIGHT_X + 18, ABOUT_Y + 76.0),
-		Vector2(COL_W - 30.0, 40), _show_licences, "scroll"))
+	ui.add_child(UiKit.button(UiKit.t("Credits & licenses"), Vector2(RIGHT_X + 18, ABOUT_Y + 80.0),
+		Vector2(COL_W - 36.0, 40), _show_licences, "scroll"))
+	ui.add_child(UiKit.button(UiKit.t("Open the Guide"), Vector2(LEFT_X + 18, GUIDE_Y + 80.0),
+		Vector2(COL_W - 36.0, 40), func(): UiKit.go("res://scenes/Guide.tscn"), "book"))
 	queue_redraw()
 
 
@@ -306,15 +312,21 @@ func _draw() -> void:
 			Vector2(CAREER_X + 18, gy + 68.0), 14, UiKit.DIM)
 
 	# -------------------------------------------------------------- language
-	UiKit.panel(self, Rect2(RIGHT_X, LANG_Y, COL_W + 6, LANG_H))
+	UiKit.panel(self, Rect2(RIGHT_X, LANG_Y, COL_W, LANG_H))
 	UiKit.text(self, font, UiKit.t("LANGUAGE"), Vector2(RIGHT_X + 18, LANG_Y + 22.0), 15, UiKit.DIM)
 	var shown := Settings.language_name(Settings.language) if Settings.language != "" \
 		else UiKit.t("Automatic (%s)") % Settings.language_name(Settings.resolved())
-	UiKit.mid(self, font, shown, Vector2(RIGHT_X + 76.0, LANG_Y + 57.0), 16, UiKit.INK, COL_W - 116.0)
+	UiKit.mid(self, font, shown, Vector2(RIGHT_X + 76.0, LANG_Y + 57.0), 16, UiKit.INK, COL_W - 152.0)
 
 	# ----------------------------------------------------------------- about
-	UiKit.panel(self, Rect2(RIGHT_X, ABOUT_Y, COL_W + 6, ABOUT_H))
+	UiKit.panel(self, Rect2(RIGHT_X, ABOUT_Y, COL_W, ABOUT_H))
 	UiKit.text(self, font, UiKit.t("ABOUT"), Vector2(RIGHT_X + 18, ABOUT_Y + 26), 15, UiKit.DIM)
 	UiKit.text(self, font, Brand.short_name(), Vector2(RIGHT_X + 18, ABOUT_Y + 50), 16, UiKit.INK)
 	UiKit.text_fit(self, font, UiKit.t("Built by BonkWorks."),
-		Vector2(RIGHT_X + 18, ABOUT_Y + 68), 14, UiKit.DIM, COL_W - 30.0)
+		Vector2(RIGHT_X + 18, ABOUT_Y + 70), 14, UiKit.DIM, COL_W - 36.0)
+
+	# ----------------------------------------------------------------- guide
+	UiKit.panel(self, Rect2(LEFT_X, GUIDE_Y, COL_W, GUIDE_H))
+	UiKit.text(self, font, UiKit.t("GUIDE"), Vector2(LEFT_X + 18, GUIDE_Y + 24), 15, UiKit.DIM)
+	UiKit.para(self, font, UiKit.t("What every number and word means."),
+		Vector2(LEFT_X + 18, GUIDE_Y + 50), 14, UiKit.INK, COL_W - 36.0, 18.0)

@@ -1057,7 +1057,9 @@ func _draw_report_table() -> void:
 		elif Career.can_place(m.card):
 			## QUIETER THAN A SHOUT PER ROW (item 2): the Spend button carries the
 			## count; each row only says his is ready.
-			_cell(UiKit.t("+1 ready"), "next", y, 12, UiKit.UP)
+			## HOW MANY, not just "ready" (review round 3: "+17 XP" beside "+1
+			## ready" read as seventeen points buying one level).
+			_cell(UiKit.t("+%d ready") % Career.levels_banked(m.card), "next", y, 12, UiKit.UP)
 		else:
 			_cell(UiKit.t("%d/%d xp") % [m.card.xp, Career.next_level_at(m.card)],
 				"next", y, 10, COL_INK)
@@ -1297,8 +1299,13 @@ func _draw_corner() -> void:
 				HORIZONTAL_ALIGNMENT_LEFT, 80, 12, COL_DIM)
 			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 46), "%d" % f.overall(),
 				HORIZONTAL_ALIGNMENT_LEFT, 60, 20, COL_INK)
+			## HIS KIT, AND HIS WEAPON ONLY WHEN IT IS NOT THE USUAL ONE (review
+			## round 3: "Sword & shield" five times down the page said nothing).
+			var gear := UiKit.t("kit %d%%") % int(round(f.armor * 100.0))
+			if f.weapon != Tuning.Weapon.SWORD_SHIELD:
+				gear = "%s · %s" % [UiKit.t(Tuning.weapon_name(f.weapon)), gear]
 			UiKit.raw(self, font, Vector2(C_LX + C_BAR_X + 60.0, ry + 46),
-				UiKit.fit(font, Tuning.weapon_name(f.weapon), 13, C_BAR_W),
+				UiKit.fit(font, gear, 13, C_BAR_W),
 				HORIZONTAL_ALIGNMENT_LEFT, int(C_BAR_W), 13, COL_INK)
 			continue
 		## The preview is the OUTGOING man's recovery; a man just swapped in is
@@ -1633,9 +1640,25 @@ func _draw_wheel(m) -> void:
 	draw_rect(Rect2(Vector2(-off_x, -off_y), UiKit.screen()), Color(0, 0, 0, 0.45))
 	var t = sim.men[m.prompt.target]
 	var c := _wheel_center(m)
-	draw_line(_to_screen(m.pos), _to_screen(t.pos), COL_HOT, 2.0)
-	draw_arc(_to_screen(t.pos), 22.0, 0.0, TAU, 24, COL_HOT, 2.0)
-	draw_arc(c, 26.0, 0.0, TAU, 32, COL_EDGE, 2.0)
+	## WHO IS IN IT, IN THE HUB (review round 3: "the wheel covers the target" —
+	## the two men stood in the hole, one sprite over the other). The hub is a
+	## plate now, with your man and his target side by side on it; a target far
+	## enough out to be seen past the ring keeps the line and circle to him.
+	var tp := _to_screen(t.pos)
+	if tp.distance_to(c) > WHEEL_RO + 12.0:
+		draw_line(c, tp, COL_HOT, 2.0)
+		draw_arc(tp, 22.0, 0.0, TAU, 24, COL_HOT, 2.0)
+	## RI + 6 under the sides, so the open bottom quarter is covered too.
+	draw_circle(c, WHEEL_RI + 6.0, COL_PANEL)
+	draw_arc(c, WHEEL_RI + 6.0, 0.0, TAU, 32, COL_EDGE, 2.0)
+	var mine := c + Vector2(-14.0, 0.0)
+	var his := c + Vector2(14.0, 0.0)
+	draw_line(mine, his, COL_HOT, 2.0)
+	draw_circle(mine, 11.0, UiKit.YOU)
+	UiKit.raw(self, font, mine + Vector2(-11.0, 5.0), "%d" % (m.card.number if m.card != null else m.idx + 1),
+		HORIZONTAL_ALIGNMENT_CENTER, 22, 13, UiKit.BG)
+	draw_circle(his, 11.0, COL_PANEL)
+	draw_arc(his, 11.0, 0.0, TAU, 20, COL_HOT, 3.0)
 	var behind: bool = sim.from_behind(m, t)
 	if behind:
 		UiKit.raw(self, font, c + Vector2(-80, WHEEL_RI + 76.0), UiKit.t("FROM BEHIND"),
@@ -1731,11 +1754,13 @@ func _draw_wheel(m) -> void:
 ## The mark on each side of the guard triangle.
 static func _act_mark(act: int) -> String:
 	match act:
-		Tuning.Act.BULLRUSH: return "roundshield"
-		Tuning.Act.GRAPPLE: return "lock"
+		## EACH MARK READS AS ITS WORD (review round 3: the round shield read as
+		## a target, and a padlock as anything but a clinch).
+		Tuning.Act.BULLRUSH: return "shield"
+		Tuning.Act.GRAPPLE: return "fist"
 		Tuning.Act.HIT: return "sword"
 		Tuning.Act.TAKEDOWN: return "down"
-		Tuning.Act.HOLD: return "fist"
+		Tuning.Act.HOLD: return "lock"
 		Tuning.Act.ESCAPE: return "boot"
 		Tuning.Act.BREAK: return "gate"
 	return "cursor"
@@ -2155,7 +2180,11 @@ func _add_spend_button() -> void:
 	if waiting.is_empty():
 		UiKit.primary(again_button)
 		return
-	spend_button = UiKit.primary(UiKit.button(UiKit.t("Spend levels (%d)") % waiting.size(),
+	## THE POINTS, NOT THE MEN: the same count the rows add up to.
+	var pts := 0
+	for f in waiting:
+		pts += Career.levels_banked(f)
+	spend_button = UiKit.primary(UiKit.button(UiKit.t("Spend points (%d)") % pts,
 		Vector2(REP_PANEL.position.x + 24.0, again_button.position.y), Vector2(260, 48), func():
 			Session.viewing_fighter = waiting[0]
 			Session.level_run = true
@@ -3010,6 +3039,14 @@ func _seed_chosen() -> void:
 		chosen_call = all[0]
 
 
+func _leave_before_charge() -> void:
+	if Session.season != null:
+		Session.season.bout_live = {}
+	Session.bout = null
+	Session.autosave()
+	UiKit.back("res://scenes/Season.tscn")
+
+
 func _build_corner() -> void:
 	_clear_corner()
 	_seed_chosen()
@@ -3088,6 +3125,14 @@ func _build_corner() -> void:
 		UiKit.primary(fight)
 	corner_nodes.append(fight)
 	ui.add_child(fight)
+
+	## A WAY OUT BEFORE THE FIRST CHARGE (review round 3: "no Back"). Nothing has
+	## been fought, so leaving is what Pete ruled for a lost app (29 Sep): the
+	## fixture stays, on the same seed, from the walk-out.
+	if sim.round_no <= 1 and sim.phase != MeleeSim.Phase.CORNER:
+		var out := UiKit.button(UiKit.t("Back"), Vector2(C_LX, lbot + 8.0), Vector2(150, 44), _leave_before_charge)
+		corner_nodes.append(out)
+		ui.add_child(out)
 
 	queue_redraw()
 

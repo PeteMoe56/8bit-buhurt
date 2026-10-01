@@ -130,6 +130,8 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 	var y := card.position.y + 70.0
 	var items := [
 		[UiKit.t("Resume"), "", "sword"],
+		## THE GUIDE (Pete, 1 Oct 2026): what everything means, in one place.
+		[UiKit.t("Guide"), "res://scenes/Guide.tscn", "book"],
 		[UiKit.t("Settings"), "res://scenes/Settings.tscn", "cog"],
 		[UiKit.t("Save / Load"), "res://scenes/Title.tscn", "book"],
 		[UiKit.t("Save & quit"), "res://scenes/Start.tscn", "close"],
@@ -143,7 +145,7 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 					v._rebuild()
 					return
 				Session.autosave()
-				if path != "res://scenes/Settings.tscn":
+				if path != "res://scenes/Settings.tscn" and path != "res://scenes/Guide.tscn":
 					UiKit.trail_reset()
 				UiKit.go(path), String(it[2]))
 		## SAVE & QUIT IS NOT RED: nothing is lost by it.

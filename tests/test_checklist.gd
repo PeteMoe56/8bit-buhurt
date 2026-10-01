@@ -40,6 +40,7 @@ const SCREENS := [
 	["res://scenes/Staff.tscn", -1],
 	["res://scenes/Coach.tscn", -1],
 	["res://scenes/Records.tscn", -1],
+	["res://scenes/Guide.tscn", 0], ["res://scenes/Guide.tscn", 1], ["res://scenes/Guide.tscn", 2], ["res://scenes/Guide.tscn", 3], ["res://scenes/Guide.tscn", 4], ["res://scenes/Guide.tscn", 5], ["res://scenes/Guide.tscn", 6], ["res://scenes/Guide.tscn", 7], ["res://scenes/Guide.tscn", 8],
 	["res://scenes/Arena.tscn", -1],
 	["res://scenes/Chalkboard.tscn", -1],
 	["res://scenes/Create.tscn", 0],
@@ -100,7 +101,10 @@ func _world(credits: int) -> void:
 	var man: FighterCard = s.club.starting_five()[0]
 	man.xp = Career.next_level_at(man) + 1
 	s.board.unlock_formation(s.office)
-	s.board.save_formation(0, "Strong Right", s.board.spots_for(Tuning.Formation.TWO_ONE_TWO))
+	s.board.save_formation(0, "Strong Right",
+		## DRAWN STRONG ON THE RIGHT (review round 3: the fixture saved a 2-1-2
+		## under that name, and the reviewers read a symmetric "Strong Right").
+		[Vector2(0.11, 0.04), Vector2(0.26, 0.04), Vector2(0.50, 0.09), Vector2(0.75, 0.15), Vector2(0.89, 0.15)])
 	## A CUP ON THE CALENDAR, so the Bracket is swept as cup night shows it and
 	## not as its never-reached empty state.
 	var me := int(s.world.player_club)

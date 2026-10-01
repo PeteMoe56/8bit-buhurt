@@ -24,6 +24,7 @@ const SCREENS := [
 	["res://scenes/Fighter.tscn", -1], ["res://scenes/Market.tscn", -1],
 	["res://scenes/Staff.tscn", -1], ["res://scenes/Coach.tscn", -1],
 	["res://scenes/Records.tscn", -1],
+	["res://scenes/Guide.tscn", 0], ["res://scenes/Guide.tscn", 1], ["res://scenes/Guide.tscn", 2], ["res://scenes/Guide.tscn", 3], ["res://scenes/Guide.tscn", 4], ["res://scenes/Guide.tscn", 5], ["res://scenes/Guide.tscn", 6], ["res://scenes/Guide.tscn", 7], ["res://scenes/Guide.tscn", 8],
 	["res://scenes/Arena.tscn", -1], ["res://scenes/Chalkboard.tscn", -1],
 	["res://scenes/Create.tscn", 0], ["res://scenes/Create.tscn", 1],
 	["res://scenes/Create.tscn", 2], ["res://scenes/Bracket.tscn", -1], ["res://scenes/Calendar.tscn", -1],
