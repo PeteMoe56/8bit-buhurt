@@ -19,7 +19,6 @@ func _initialize() -> void:
 	SaveGame.set_namespace("edges_test")
 	_test_cup_nights_are_big()
 	_test_full_book_still_fields_five()
-	_test_left_club_keeps_its_men()
 	_test_undecodable_save_is_broken()
 	_test_required_fields_match_the_decoder()
 	_test_wallet_survives_the_rename_window()
@@ -116,35 +115,6 @@ func _test_full_book_still_fields_five() -> void:
 		"a full book with nobody fit still puts five out, and says who was let go",
 		"%d on the books, all hurt → %d fit in the line, %d on the books after; notes: %s"
 			% [full, five, s.club.roster.size(), str(notes)])
-
-
-func _test_left_club_keeps_its_men() -> void:
-	var s := Season.new(MeleeRosters.starting_club(), 777)
-	s.world.season = 8
-	s.coach.reputation = Coach.REP_MAX
-	var old_id := s.world.player_club
-	## Make the men recognisably ours: every one of them a point better.
-	for f in s.club.roster:
-		f.strength = mini(99, f.strength + 7)
-	var before: Array[String] = []
-	for f in s.club.roster:
-		before.append("%s:%d" % [f.display_name, f.overall()])
-	var targets := Jobs.offers(s.coach, s.world)
-	if targets.is_empty():
-		_ok(false, "the club you leave keeps the men you built, across a reload", "no offers to take")
-		return
-	var err := s.take_job(int(targets[0]))
-	SaveGame.save(s, 1)
-	var back := SaveGame.load_slot(1)
-	var after: Array[String] = []
-	if back != null:
-		for f in back.club_for(old_id).roster:
-			after.append("%s:%d" % [f.display_name, f.overall()])
-	_ok(err == "" and back != null and after == before,
-		"the club you leave keeps the men you built, across a reload",
-		"left club's roster after save and load %s the one you built (%d men)"
-			% ["matches" if after == before else "DIFFERS from", before.size()])
-
 
 ## A file with a good hash and a missing field: the old loader built a world
 ## with a null in the roster and the title screen called the slot healthy.

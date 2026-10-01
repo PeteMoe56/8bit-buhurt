@@ -82,6 +82,9 @@ const KIT_COLORS: Array[Color] = [
 	Color("7b3fa0"), Color("9c4416"), Color("1f6f78"),
 	Color("7a1f3d"), Color("15305e"), Color("4b5a1f"), Color("5b3a29"),
 	Color("3b3f8f"), Color("5e6470"), Color("a8341c"),
+	## TWENTY-FOUR (Pete, 1 Oct 2026: "More colors"). On the end, as always.
+	Color("d4a017"), Color("e67e22"), Color("16a085"), Color("8e44ad"), Color("2c3e50"),
+	Color("b03a2e"), Color("6d4c41"), Color("1b4f72"), Color("566573"), Color("0e6655"),
 ]
 ## The mark. Light, because the point of the mark is that you can see it.
 ## NINE, not three (playtest 30 Sep #3). All light: the contrast rule against
@@ -90,6 +93,9 @@ const MARK_COLORS: Array[Color] = [
 	Color("f4f4e8"), Color("f2c14e"), Color("d8dde3"),
 	Color("f4a6a0"), Color("9fd8f0"), Color("a8e0a0"), Color("f8b878"),
 	Color("c8b0f0"), Color("ffe08a"),
+	## SIXTEEN (1 Oct 2026), two of them dark for the bright kits.
+	Color("ffffff"), Color("d4af37"), Color("c0c0c0"), Color("f5deb3"), Color("b0e0e6"),
+	Color("1c1c1c"), Color("3b2416"),
 ]
 
 

@@ -23,7 +23,6 @@ const SCREENS := [
 	["12_staff", "res://scenes/Staff.tscn", -1],
 	["13_coach", "res://scenes/Coach.tscn", -1],
 	["14_records", "res://scenes/Records.tscn", -1],
-	["15_federation", "res://scenes/Federation.tscn", -1],
 	["16_arena", "res://scenes/Arena.tscn", -1],
 	["17_chalkboard", "res://scenes/Chalkboard.tscn", -1],
 	["18_create_fighter", "res://scenes/Create.tscn", 0],

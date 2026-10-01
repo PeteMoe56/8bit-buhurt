@@ -25,6 +25,12 @@ extends RefCounted
 ## reason about than a bank balance, and it keeps the club's books out of the
 ## way of the fight.
 var credits: int = 8
+## THE COACH, for his Tactics and Business. Not saved here: the season hands it
+## over when it is made and when it is loaded.
+var coach_ref: Coach = null
+## THE ARMORER (Pete, 1 Oct 2026): {name, stars}. A new club's is a one-star hand.
+var armorer: Dictionary = {"name": "Hal Brenner", "stars": 1}
+var armorer_refreshes: int = 0
 ## CREDITS BOUGHT WITH REAL MONEY, lifetime, for this office. Spending does not
 ## lower it — money is money once it is in the bank — but a coach who changes jobs
 ## takes `min(credits, bought)` with him, because a job change must never be the
@@ -424,9 +430,34 @@ const KIT_COST_FULL: int = 5
 ## AGAINST HIS OWN CEILING, not against a perfect harness. A man in borrowed kit
 ## cannot be polished past 0.82, so charging him for the gap to 1.00 would be the
 ## armorer billing for work he is about to refuse to do.
-static func kit_cost(card: FighterCard) -> int:
-	var top := Quartermaster.ceiling(card)
-	return clampi(int(ceil((top - card.armor) * float(KIT_COST_FULL))), 1, KIT_COST_FULL)
+static func kit_cost(card: FighterCard, cap: int = Quartermaster.Grade.TITANIUM) -> int:
+	var top := Quartermaster.repair_top(card, cap)
+	## A CREDIT CHEAPER THAN IT WAS: the armorer is on a wage now (1 Oct 2026).
+	return clampi(int(ceil((top - card.armor) * float(KIT_COST_FULL))) - 1, 0, KIT_COST_FULL - 1)
+
+
+func armorer_cap() -> int:
+	return Armorer.cap_of(armorer)
+
+
+func armorer_wage() -> int:
+	return Armorer.wage_of(armorer)
+
+
+## HIRE HIM. The first season's wage up front; he replaces whoever was there.
+func hire_armorer(a: Dictionary) -> String:
+	var st := int(a.get("stars", 1))
+	if not Armorer.will_come(st, tier):
+		return UiKit.t("%s will not work below the %s.") % [String(a["name"]),
+			League.tier_name(int(Armorer.MIN_TIER[st]))]
+	if String(a.get("name", "")) == String(armorer.get("name", "")) and st == int(armorer.get("stars", 1)):
+		return UiKit.t("%s already works for you.") % String(a["name"])
+	var fee := Armorer.wage_of(a)
+	if credits < fee:
+		return UiKit.t("%s wants %d CC and you have %d.") % [String(a["name"]), fee, credits]
+	spend(fee, LINE_KIT)
+	armorer = a.duplicate()
+	return ""
 
 
 ## BUY A MAN A BETTER HARNESS. One rung at a time, and no throttle — unlike a
@@ -439,7 +470,11 @@ static func kit_cost(card: FighterCard) -> int:
 func buy_harness(card: FighterCard) -> String:
 	var next := Quartermaster.next_grade(card)
 	if next < 0:
-		return UiKit.t("%s is already in tournament plate.") % card.display_name
+		return UiKit.t("%s is already in titanium.") % card.display_name
+	## THE ARMORER MAKES WHAT HE CAN MAKE.
+	if next > armorer_cap():
+		return UiKit.t("%s works up to %s. A better armorer makes better metal.") % [
+			String(armorer.get("name", "")), Armorer.metal_name(armorer_cap())]
 	var cost := Quartermaster.upgrade_cost(card)
 	if credits < cost:
 		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
@@ -472,7 +507,13 @@ func repair_kit(card: FighterCard) -> String:
 	## harness sitting at 0.82 reads as a bug; the player can see it is not full
 	## and the armorer is telling him it is. Naming the grade turns a refusal
 	## into the sales pitch for the next one.
-	if Quartermaster.topped_out(card):
+	var top := Quartermaster.repair_top(card, armorer_cap())
+	if card.armor >= top - Quartermaster.WORTH_DOING:
+		if top < Quartermaster.ceiling(card) - 0.001 and card.armor >= top - 0.001:
+			return UiKit.t("%s can only keep %s to %s. A better armorer could do more.") % [
+				String(armorer.get("name", "")), Quartermaster.name_of(card).to_lower(),
+				Armorer.metal_name(armorer_cap()).to_lower()]
+	if card.armor >= top - Quartermaster.WORTH_DOING:
 		## AND THE REFUSAL HAS TO BE TRUE. `topped_out` used to mean "within a
 		## thousandth of his ceiling" and now means "within a hard week of it",
 		## so a man at 0.85 of a 0.90 ceiling gets turned away — and telling him
@@ -493,11 +534,12 @@ func repair_kit(card: FighterCard) -> String:
 	var slot := "kit:%s#%d" % [card.display_name, card.number]
 	if _throttled(slot):
 		return UiKit.t("The armorer has already had %s's kit this week.") % card.display_name
-	var cost := kit_cost(card)
+	var cost := kit_cost(card, armorer_cap())
 	if credits < cost:
 		return UiKit.t("That costs %d CC and you have %d.") % [cost, credits]
-	spend(cost, LINE_KIT)
-	card.armor = clampf(card.armor + KIT_STEP, 0.0, Quartermaster.ceiling(card))
+	if cost > 0:
+		spend(cost, LINE_KIT)
+	card.armor = clampf(card.armor + KIT_STEP, 0.0, top)
 	_mark(slot)
 	return ""
 
@@ -655,7 +697,7 @@ func upkeep_bill() -> int:
 ## and find out in June what it had cost. `probe_upkeep`: a club that keeps this
 ## in hand loses nothing, at any grade.
 func summer_bill() -> int:
-	return dues() + upkeep_bill() + federation_upkeep()
+	return dues() + upkeep_bill() + federation_upkeep() + armorer_wage()
 
 
 ## WHAT THE GRADE DOES TO THE DUES AND RENEWALS, pushed down by
@@ -721,6 +763,16 @@ func pay_upkeep() -> Dictionary:
 		else:
 			compliance[r] = 0
 			lapsed.append(UiKit.t(String(Federation.RULE_NAME[r])))
+
+	## AND THE ARMORER'S WAGE. Unpaid, he goes, and the one-star hand is back.
+	var aw := armorer_wage()
+	if aw > 0:
+		if credits >= aw:
+			spend(aw, LINE_KIT)
+			billed += aw
+		else:
+			lost.append(String(armorer.get("name", "")))
+			armorer = {"name": "Hal Brenner", "stars": 1}
 
 	_clamp_fans()
 	return {"billed": billed, "lost": lost, "lapsed": lapsed}
@@ -1688,7 +1740,11 @@ const TRAVEL_MAX: int = MeleeClub.ACTIVE_SIZE
 ## Six is the smallest number that leaves the corner working. The seventh and
 ## eighth places are the purchase, and they are what turn one swap into the two
 ## the corner was designed around.
-const TRAVEL_START: int = MeleeClub.LINE_SIZE + 1
+## EIGHT, ALWAYS (Pete, 1 Oct 2026: "It should always be up to 8 fighters
+## anyway"). The bus is no longer a thing a club buys.
+const TRAVEL_START: int = MeleeClub.ACTIVE_SIZE
+## Where the bus used to start, for refunding the places an old save bought.
+const TRAVEL_START_OLD: int = MeleeClub.LINE_SIZE + 1
 ## Rising, like every other ladder in this office.
 const TRAVEL_COST := [6, 10]
 
@@ -1882,7 +1938,7 @@ func morale_word() -> String:
 func to_dict() -> Dictionary:
 	return {
 		"credits": credits, "cap_level": cap_level, "morale": morale, "tier": tier,
-		"travel": travel_slots,
+		"travel": travel_slots, "armorer": armorer.duplicate(),
 		"compliance": compliance.duplicate(),
 		"staff_refreshes": staff_refreshes, "market_refreshes": market_refreshes,
 		"facilities": facilities.duplicate(),
@@ -1909,13 +1965,27 @@ static func from_dict(d: Dictionary) -> ClubOffice:
 	o.cap_level = int(d.get("cap_level", 0))
 	o.tier = int(d.get("tier", 0))
 	o.morale = float(d.get("morale", 0.7))
-	o.travel_slots = clampi(int(d["travel"]), TRAVEL_MIN, TRAVEL_MAX)
+	## THE BUS IS EIGHT NOW, and what an old save paid for places comes back.
+	var old_travel := clampi(int(d["travel"]), TRAVEL_MIN, TRAVEL_MAX)
+	if not d.has("armorer"):
+		for step in range(0, old_travel - TRAVEL_START_OLD):
+			if step < TRAVEL_COST.size():
+				o.credits += int(TRAVEL_COST[step])
+	o.travel_slots = TRAVEL_START
+	if d.has("armorer"):
+		o.armorer = (d["armorer"] as Dictionary).duplicate()
 	## HARD KEYS, not defaults. These decode into something FALSE rather than into
 	## a gap — see the VERSION note in save_game.gd — and the version gate above is
 	## what stops an old file ever reaching here.
 	for k in d.get("compliance", {}):
 		if o.compliance.has(int(k)):
 			o.compliance[int(k)] = clampi(int(d["compliance"][k]), 0, Federation.MAX_LEVEL)
+	## INSURANCE IS THE FEDERATION NOW (1 Oct 2026): kit and marshal
+	## certificates an old save held come back as the credits they cost.
+	for r in [Federation.Rule.KIT, Federation.Rule.MARSHALS]:
+		for l in int(o.compliance.get(r, 0)):
+			o.credits += Federation.raise_cost(l)
+		o.compliance[r] = 0
 	o.staff_refreshes = int(d.get("staff_refreshes", 0))
 	o.market_refreshes = int(d.get("market_refreshes", 0))
 	o.arena.level = clampi(int(d.get("arena", 0)), 0, Arena.MAX_LEVEL)

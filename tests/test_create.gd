@@ -278,17 +278,21 @@ func _test_every_mark_reads() -> void:
 		seen[int(e["id"])] = true
 		if String(e["name"]).strip_edges() == "":
 			unnamed += 1
-	## And every kit/mark pairing the create screen can produce must pass the
-	## contrast rule — otherwise the screen offers a combination it then refuses.
+	## EVERY KIT HAS MARKS THAT READ ON IT. The mark popup greys the pairs the
+	## contrast rule refuses (1 Oct 2026: more colors, some of them bright), so
+	## what it must never do is leave a kit with nothing to wear on it.
 	var bad := 0
 	for kit in IconBank.KIT_COLORS:
+		var legal := 0
 		for mark in IconBank.MARK_COLORS:
-			if not IconBank.contrast_ok(kit, mark):
-				bad += 1
+			if IconBank.contrast_ok(kit, mark):
+				legal += 1
+		if legal < 3:
+			bad += 1
 	_ok(dupes == 0 and unnamed == 0 and bad == 0 and IconBank.count() >= 20,
 		"every mark reads",
-		"%d marks, ids unique, and all %d kit/mark pairings clear the contrast rule" % [
-			IconBank.count(), IconBank.KIT_COLORS.size() * IconBank.MARK_COLORS.size()])
+		"%d marks, ids unique, and every one of %d kits has at least three marks that read on it (%d short)" % [
+			IconBank.count(), IconBank.KIT_COLORS.size(), bad])
 
 
 func _test_the_contrast_rule_holds() -> void:
@@ -342,8 +346,10 @@ func _worst(club: MeleeClub) -> FighterCard:
 	return worst
 
 
+## A CLUB WITH ITS FOUR RESERVES: the starting club is eight men now (1 Oct
+## 2026), and these tests are about a made man taking a reserve's place.
 func _season(credits: int) -> Season:
-	var s := Season.new(MeleeRosters.starting_club(), 91)
+	var s := Season.new(MeleeRosters.starting_club_with_reserve(), 91)
 	s.office.credits = credits
 	s.office.tier = 0
 	return s

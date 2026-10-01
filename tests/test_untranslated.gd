@@ -23,7 +23,7 @@ const SCREENS := [
 	["res://scenes/Season.tscn", 4], ["res://scenes/Roster.tscn", -1],
 	["res://scenes/Fighter.tscn", -1], ["res://scenes/Market.tscn", -1],
 	["res://scenes/Staff.tscn", -1], ["res://scenes/Coach.tscn", -1],
-	["res://scenes/Records.tscn", -1], ["res://scenes/Federation.tscn", -1],
+	["res://scenes/Records.tscn", -1],
 	["res://scenes/Arena.tscn", -1], ["res://scenes/Chalkboard.tscn", -1],
 	["res://scenes/Create.tscn", 0], ["res://scenes/Create.tscn", 1],
 	["res://scenes/Create.tscn", 2], ["res://scenes/Bracket.tscn", -1], ["res://scenes/Calendar.tscn", -1],
@@ -132,6 +132,11 @@ func _world() -> void:
 		names[String(world.staff_offer(slot).get("name", ""))] = true
 	for c in world.staff_pool():
 		names[String(c.get("name", ""))] = true
+	## The armorers too (1 Oct 2026): yours and this season's five.
+	names[String(world.office.armorer.get("name", ""))] = true
+	for a in Armorer.pool(world.seed_value, world.world.season):
+		names[String(a["name"])] = true
+	names[world.coach.display_name] = true
 	for reg in Cities.Region.values():
 		for c in Cities.names(reg):
 			names[Cities.full_name(c)] = true

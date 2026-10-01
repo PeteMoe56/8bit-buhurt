@@ -121,7 +121,6 @@ static func rival_club() -> MeleeClub:
 		_c("Serre", 10, P.RAIL_R, 70, 66, 55, 61, 46, 223, 0.90, false),
 		_c("Maury", 11, P.CENTER, 67, 72, 54, 60, 43, 247, 0.78, false),
 		_c("Vasseur", 12, P.FLANK_L, 59, 52, 69, 76, 60, 190, 0.71, false),
-		_c("Thibault", 13, P.RAIL_L, 62, 60, 48, 58, 50, 214, 0.65, false),
 	]
 	return MeleeClub.build(
 		"Iron Crown Companions", "ICC",
@@ -162,6 +161,16 @@ static func validate() -> String:
 const START_POWER: int = 50
 
 
+## THE STARTING CLUB WITH ITS FOUR AT HOME, for a check or a probe that needs a
+## reserve to exist (a career begins with eight, 1 Oct 2026).
+static func starting_club_with_reserve() -> MeleeClub:
+	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", START_POWER, true)
+	c.kit = IconBank.KIT_COLORS[0]
+	c.icon_color = IconBank.MARK_COLORS[0]
+	c.icon = 7
+	return c
+
+
 static func starting_club() -> MeleeClub:
 	var c := ClubFactory.build(0, "Detroit Free Company", "DFC", START_POWER, true)
 	c.kit = IconBank.KIT_COLORS[0]
@@ -169,4 +178,11 @@ static func starting_club() -> MeleeClub:
 	## Diamond, not the Saltire: a red X on the badge read as a close button
 	## on four screens (blind review round 3, 30 Sep 2026).
 	c.icon = 7
+	## EIGHT MEN AND NOBODY BEHIND THEM (Pete, 1 Oct 2026: "Start with 8 fighters
+	## only"). The four reserve places are filled from the free agents.
+	var eight: Array[FighterCard] = []
+	for f in c.roster:
+		if f.active:
+			eight.append(f)
+	c.roster = eight
 	return c

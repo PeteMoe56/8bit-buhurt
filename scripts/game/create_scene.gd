@@ -69,6 +69,10 @@ var pack_i := 0
 ## an edge case the screen handles — it is the normal path, and it is a real
 ## decision the player makes with the rest of them.
 var replace_i := 0
+## THE POPUP OVER THE CLUB TAB (Pete, 1 Oct 2026: kit color, mark color and the
+## home town are popups): "kit", "mark", "town" or "".
+var popup := ""
+var town_area := ""
 
 ## One row per grade down the left, the chosen one's sentence on the right.
 const GRADE_Y := 132.0
@@ -120,6 +124,28 @@ func _rebuild() -> void:
 	club_name_edit = null
 	club_short_edit = null
 
+	if popup != "":
+		_popup_controls()
+		queue_redraw()
+		return
+	## FOUNDING IS STEPS 2 AND 3 OF A NEW CAREER, not a tab row.
+	if Session.founding:
+		tab = Tab.GRADE if tab == Tab.GRADE else Tab.CLUB
+		if tab == Tab.CLUB:
+			_club_controls()
+		else:
+			_grade_controls()
+			ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Start the season  >"),
+				Vector2(UiKit.right_edge(284.0), 486), Vector2(260, 42), func():
+					Session.founding = false
+					Session.autosave()
+					UiKit.go("res://scenes/Season.tscn"))))
+			ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 486), Vector2(150, 42), func():
+				tab = Tab.CLUB
+				flash = ""
+				_rebuild()))
+		queue_redraw()
+		return
 	## THE SAME SELECTED STYLE AS EVERY OTHER TAB ROW (round 7: an underline
 	## here, a gold frame elsewhere).
 	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("FIGHTER"), Vector2(24, 72), Vector2(150, 34), func():
@@ -319,39 +345,20 @@ func _club_controls() -> void:
 	## THE SWAP IS THE SAME SWAP. `Season.set_city` trades with whoever holds the
 	## town, so the map stays full here exactly as it does at setup — there is one
 	## relocation in this game and both screens call it.
-	if town_offers.is_empty():
-		_offer_towns()
-	if not town_offers.is_empty():
-		var town: String = town_offers[0]
-		ui.add_child(UiKit.button(UiKit.t("Move to %s") % Cities.full_name(town),
-			Vector2(STAT_X, TOWN_Y), TOWN_CARD, func(t = town):
-				if not UiKit.confirm("move:" + t):
-					flash = UiKit.t("Tap again to move the club to %s.") % Cities.full_name(t)
-					_rebuild()
-					return
-				var was := season.city()
-				var err := season.set_city(t)
-				flash = UiKit.said(err) if err != "" \
-					else "The club moves from %s to %s." % [was,
-						Cities.full_name(t)]
-				if err == "":
-					Session.autosave()
-				_offer_towns()
-				_rebuild()))
-		ui.add_child(UiKit.button(UiKit.t("Another town  >"),
-			Vector2(STAT_X + TOWN_CARD.x + 8.0, TOWN_Y),
-			Vector2(170, TOWN_CARD.y), func():
-				_offer_towns()
-				_rebuild()))
+	ui.add_child(UiKit.button(Cities.full_name(season.city()) + "  >", Vector2(STAT_X + 96.0, TOWN_Y - 6.0),
+		Vector2(230, 34), func():
+			popup = "town"
+			town_area = Cities.area_of(season.city())
+			_rebuild()))
 
 	## EACH CARRIES ITS COLOUR (blind review round 3: "Kit color and Mark
 	## color don't show the current colour"): a swatch inside the button.
 	var kit_b := UiKit.button(UiKit.t("Kit color") + "  >", Vector2(STAT_X, 258), Vector2(150, 34), func():
-		kit_i = (kit_i + 1) % IconBank.KIT_COLORS.size()
+		popup = "kit"
 		_rebuild())
 	ui.add_child(_swatched(kit_b, IconBank.KIT_COLORS[kit_i]))
 	var mark_b := UiKit.button(UiKit.t("Mark color") + "  >", Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
-		mark_col_i = (mark_col_i + 1) % IconBank.MARK_COLORS.size()
+		popup = "mark"
 		_rebuild())
 	ui.add_child(_swatched(mark_b, IconBank.MARK_COLORS[mark_col_i]))
 
@@ -404,9 +411,13 @@ func _club_controls() -> void:
 		bank_b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(bank_b)
 
-	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Found the club  >") if Session.founding
+	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Next: difficulty  >") if Session.founding
 		else UiKit.t("Save the club"), Vector2(BOTTOM_X, 486), Vector2(260, 42),
 		_save_club)))
+	if Session.founding:
+		ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 486), Vector2(150, 42), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Coach.tscn")))
 
 
 ## ------------------------------------------------------------------ the grade
@@ -551,10 +562,11 @@ func _save_club() -> void:
 	season.world.clubs[season.world.player_club]["name"] = season.club.display_name
 	season.world.clubs[season.world.player_club]["short"] = season.club.short_name
 	Session.autosave()
-	## FOUNDED: into the season.
+	## FOUNDED: on to the difficulty, step 3.
 	if Session.founding:
-		Session.founding = false
-		UiKit.go("res://scenes/Season.tscn")
+		tab = Tab.GRADE
+		flash = ""
+		_rebuild()
 		return
 	flash = UiKit.t("Saved.")
 	_rebuild()
@@ -565,14 +577,14 @@ func _draw() -> void:
 	UiKit.ground(self)
 	## FOUNDING SAYS WHAT IT IS (playtest 30 Sep #2).
 	if Session.founding:
-		UiKit.text(self, font, UiKit.t("FOUND YOUR CLUB"), Vector2(24, 40), 22, UiKit.YOU)
-		UiKit.text_fit(self, font, UiKit.t("Name it, color it, pick its mark. Change any of it later from Settings."),
-			Vector2(24, 62), 13, UiKit.DIM, UiKit.right_edge(130.0) - 24.0)
+		UiKit.text(self, font, UiKit.t("NEW CAREER"), Vector2(24, 40), 22, UiKit.YOU)
+		UiKit.text(self, font, UiKit.t("Step %d of 3") % (3 if tab == Tab.GRADE else 2), Vector2(24, 64), 14, UiKit.DIM)
 	else:
 		UiKit.text(self, font, UiKit.t("CREATE"), Vector2(24, 40), 22, UiKit.YOU)
 	## THE CURRENT TAB, marked the way the season hub marks its own (29 Sep 2026):
 	## the three tabs were identical buttons and nothing said which one you were on.
-	draw_rect(Rect2(24.0 + float(tab) * 156.0, 72.0 + 34.0, 150.0, 3.0), UiKit.YOU)
+	if not Session.founding:
+		draw_rect(Rect2(24.0 + float(tab) * 156.0, 72.0 + 34.0, 150.0, 3.0), UiKit.YOU)
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.right_edge(120.0), 40), 16, UiKit.DIM, 200.0)
 	if flash != "":
@@ -583,6 +595,8 @@ func _draw() -> void:
 		_draw_club()
 	else:
 		_draw_grade()
+	if popup != "":
+		_draw_popup()
 
 
 func _draw_fighter() -> void:
@@ -649,15 +663,11 @@ func _draw_club() -> void:
 	var mark: Color = IconBank.MARK_COLORS[mark_col_i]
 	var short: String = club_short_edit.text if club_short_edit != null else season.club.short_name
 
-	UiKit.text(self, font, UiKit.t("One club per save. The colors are free; the marks are not."),
-		Vector2(STAT_X, 126), 14, UiKit.DIM)
 	## Beside the name field and short of the mark shelf's first button.
 	## LABELS ABOVE THEIR FIELDS (blind review round 3: they sat to the right).
 	UiKit.text(self, font, UiKit.t("CLUB NAME"), Vector2(STAT_X, 148), 12, UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("SHORT NAME"), Vector2(STAT_X, 204), 12, UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("HOME TOWN"), Vector2(STAT_X, TOWN_Y - 12.0), 11, UiKit.DIM)
-	UiKit.text(self, font, Cities.full_name(season.city()),
-		Vector2(STAT_X + 96.0, TOWN_Y - 11.0), 14, UiKit.YOU)
 
 	## The badge, at the size a badge is looked at, with the club's letters under
 	## it — which is the pair that has to work, not either one alone.
@@ -737,3 +747,97 @@ func _bank_slot(i: int) -> Vector2:
 	var row := int(i / BANK_COLS)
 	return Vector2(BANK_X + BANK_R + float(col) * (BANK_R * 2.0 + BANK_GAP),
 		198.0 + BANK_R + float(row) * (BANK_R * 2.0 + 34.0))
+
+
+
+## ---------------------------------------------------------------- the popups
+const POP := Rect2(160.0, 60.0, 640.0, 420.0)
+
+
+func _pop_rect() -> Rect2:
+	return Rect2(Vector2(floorf((UiKit.screen().x - POP.size.x) * 0.5), POP.position.y), POP.size)
+
+
+func _popup_controls() -> void:
+	var r := _pop_rect()
+	var done := UiKit.primary(UiKit.button(UiKit.t("Done"), Vector2(r.end.x - 184.0, r.end.y - 60.0),
+		Vector2(160, 44), func():
+			popup = ""
+			_rebuild()))
+	ui.add_child(done)
+	if popup == "kit" or popup == "mark":
+		var cols: Array = IconBank.KIT_COLORS if popup == "kit" else IconBank.MARK_COLORS
+		var sel := kit_i if popup == "kit" else mark_col_i
+		var size := 52.0
+		for i in cols.size():
+			var at := r.position + Vector2(24.0 + float(i % 8) * (size + 22.0), 66.0 + float(i / 8) * (size + 14.0))
+			var b := UiKit.button("", at, Vector2(size, size), func(k = i):
+				if popup == "kit":
+					kit_i = k
+					## A MARK THAT NO LONGER READS on the new kit moves to one that does.
+					if not IconBank.contrast_ok(IconBank.KIT_COLORS[kit_i], IconBank.MARK_COLORS[mark_col_i]):
+						for m in IconBank.MARK_COLORS.size():
+							if IconBank.contrast_ok(IconBank.KIT_COLORS[kit_i], IconBank.MARK_COLORS[m]):
+								mark_col_i = m
+								break
+				else:
+					mark_col_i = k
+				_rebuild())
+			var sw := ColorRect.new()
+			sw.color = cols[i]
+			sw.position = Vector2(6, 6)
+			sw.size = Vector2(size - 16.0, size - 16.0)
+			sw.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			b.add_child(sw)
+			b.tooltip_text = "#" + Color(cols[i]).to_html(false)
+			if popup == "mark" and not IconBank.contrast_ok(IconBank.KIT_COLORS[kit_i], cols[i]):
+				b.disabled = true
+				sw.color = Color(cols[i], 0.25)
+			ui.add_child(UiKit.selected(b, i == sel))
+		return
+	## THE HOME TOWN: a state (or country), then its towns.
+	var areas: Array[String] = []
+	for c in Cities.table(season.world.region):
+		var a := String(c["area"])
+		if not areas.has(a):
+			areas.append(a)
+	areas.sort()
+	if town_area == "" or not areas.has(town_area):
+		town_area = areas[0] if not areas.is_empty() else ""
+	for i in areas.size():
+		var a: String = areas[i]
+		var at := r.position + Vector2(24.0 + float(i % 4) * 78.0, 60.0 + float(i / 4) * 34.0)
+		ui.add_child(UiKit.selected(UiKit.button(a, at, Vector2(72, 30), func(k = a):
+			town_area = k
+			_rebuild()), a == town_area))
+	var y := 0
+	for c in Cities.table(season.world.region):
+		if String(c["area"]) != town_area:
+			continue
+		var city := String(c["name"])
+		ui.add_child(UiKit.selected(UiKit.button(city, r.position + Vector2(352.0, 60.0 + float(y) * 38.0),
+			Vector2(264, 32), func(t = city):
+				if t != season.city():
+					var was := season.city()
+					var err := season.set_city(t)
+					flash = UiKit.said(err) if err != "" else (UiKit.t("The club moves from %s to %s.") % [was,
+						Cities.full_name(t)] if not Session.founding else "")
+					if err == "":
+						Session.autosave()
+				_rebuild()), city == season.city()))
+		y += 1
+
+
+func _draw_popup() -> void:
+	var r := _pop_rect()
+	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(self, r)
+	var title := UiKit.t("KIT COLOR") if popup == "kit" else (UiKit.t("MARK COLOR") if popup == "mark" else UiKit.t("HOME TOWN"))
+	UiKit.text(self, font, title, r.position + Vector2(24, 38), 19, UiKit.INK)
+	if popup == "town":
+		return
+	UiKit.badge(self, Vector2(r.position.x + 70.0, r.end.y - 50.0), 34,
+		IconBank.KIT_COLORS[kit_i], IconBank.MARK_COLORS[mark_col_i], icon_i)
+	if popup == "mark":
+		UiKit.para(self, font, UiKit.t("Greyed colors are too close to your kit to read."),
+			Vector2(r.position.x + 120.0, r.end.y - 50.0), 13, UiKit.DIM, 300.0, 16.0, 2)

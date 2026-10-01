@@ -104,7 +104,7 @@ func _test_morale_has_somewhere_to_spend() -> void:
 	## nothing he could do about any of it on purpose. A system you can only watch
 	## is a read-out.
 	var bad: Array[String] = []
-	var s := Season.new(MeleeRosters.starting_club(), 99)
+	var s := Season.new(MeleeRosters.starting_club_with_reserve(), 99)
 	s.office.credits = 50
 	for f in s.club.roster:
 		f.morale = 0.40
@@ -149,7 +149,7 @@ func _test_morale_has_somewhere_to_spend() -> void:
 		bad.append("the men who did not travel were lifted anyway")
 
 	## A broke club cannot buy its way out of a mutiny.
-	var broke := Season.new(MeleeRosters.starting_club(), 5)
+	var broke := Season.new(MeleeRosters.starting_club_with_reserve(), 5)
 	broke.office.credits = 0
 	broke.office.new_week()
 	if broke.boost_morale() == "":

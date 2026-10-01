@@ -185,10 +185,15 @@ func _test_two_weapons() -> void:
 	_ok(back.weapon == Tuning.Weapon.POLEARM and back.grudge_club == 7 and f.copy().weapon == f.weapon,
 		"the weapon (and his grudge) survive a save and a copy",
 		"weapon %d, grudge %d" % [back.weapon, back.grudge_club])
-	var club := MeleeRosters.starting_club()
+	## ACROSS A LEAGUE'S CLUBS: the starting club is only eight men now
+	## (1 Oct 2026), too few to promise both on its own.
 	var poles := 0
-	for c in club.roster:
-		if c.weapon == Tuning.Weapon.POLEARM:
-			poles += 1
-	_ok(poles > 0 and poles < club.roster.size(), "a generated club carries both",
-		"%d of %d carry a pole" % [poles, club.roster.size()])
+	var men := 0
+	for id in range(1, 9):
+		var club := ClubFactory.build(id, "Club %d" % id, "C%d" % id, 50)
+		for c in club.roster:
+			men += 1
+			if c.weapon == Tuning.Weapon.POLEARM:
+				poles += 1
+	_ok(poles > 0 and poles < men, "generated clubs carry both",
+		"%d of %d carry a pole" % [poles, men])

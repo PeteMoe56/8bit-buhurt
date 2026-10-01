@@ -195,102 +195,13 @@ func _init(player_club: MeleeClub, seed_v: int = 0,
 	## why `Cup.player_match()` sat with no caller from the day it was written.
 	world.hold_player_cups = true
 
-	## YOUR FIRST POST, and the club you grew up on.
-	##
-	## The boyhood club is drawn from the top of the pyramid, not at random. A
-	## dream job in the division you are already standing in is not a dream — the
-	## point of the thing is that it is out of reach for years, so it is drawn
-	## from the National Division and held back until your third season besides
-	## (see `Jobs.DREAM_HELD_UNTIL_SEASON`). It must also not be the club you are
-	## already at, or the dream is the desk you are sitting at.
-	coach.take_post(world.player_club, world.season)
-	var top: Array = world.clubs_in(League.TIERS.size() - 1)
-	if not top.is_empty():
-		var fav_rng := RandomNumberGenerator.new()
-		fav_rng.seed = hash("fav:%d" % seed_v)
-		coach.favorite_club_id = int(top[fav_rng.randi() % top.size()])
-		if coach.favorite_club_id == world.player_club:
-			coach.favorite_club_id = -1
+	coach.start_fresh()
+	coach.created = true
+	office.coach_ref = coach
 
 	## The first year's dates are on the table before the first matchday, the
 	## same as every year after it.
 	open_bids()
-
-
-## TAKE THE JOB. The one move in this game that changes who you are rather than
-## what you own.
-##
-## Everything the club held stays with the club: the roster, the credits, the
-## arena, the captains, the trophy cabinet. You arrive at the new place with a
-## reputation and a book and nothing else, which is exactly what a coach takes
-## through a door in real life and is the reason the move has weight. A version
-## of this that let you bring your best Center is a trade screen, not a career.
-##
-## Only offered between seasons. Walking out mid-year would leave a half-played
-## fixture list owned by nobody, and every table in the world reads
-## `world.player_club`.
-func take_job(club_id: int) -> String:
-	if club_id == world.player_club:
-		return UiKit.t("You are already there.")
-	if not Jobs.interested(coach, world, club_id):
-		return UiKit.t("They have not offered.")
-	if world.event > 0:
-		return UiKit.t("See the season out first.")
-
-	## The club you are leaving goes back to being an ordinary club in the
-	## league — it keeps the roster you built, which is what makes meeting them
-	## again interesting — and the new one becomes yours, built from its power the
-	## same way every CPU club is.
-	var old_id := world.player_club
-	_clubs.erase(club_id)
-	var taken := club_for(club_id)
-	_clubs[old_id] = { "club": club, "power": int(world.clubs[old_id]["power"]) }
-	## AND IT KEEPS IT ACROSS A RELOAD (29 Sep 2026). `_clubs` is a cache and is
-	## not saved, so the roster "you built" lived only until the next load — or
-	## the first time its power drifted — and was then rebuilt from the factory:
-	## different men, different results in a reloaded game than a straight one.
-	## A stored roster is what `splinter_rosters` is for: saved, wintered like
-	## any club (aged, coached, retirements, walk-ons) and its power read off
-	## the men. The club you walk INTO stops being one.
-	var kept: Array[FighterCard] = []
-	for f in club.roster:
-		kept.append(f)
-	splinter_rosters[old_id] = kept
-	splinter_rosters.erase(club_id)
-
-	world.player_club = club_id
-	club = taken
-	coach.take_post(club_id, world.season)
-
-	## A NEW DESK, AND IT IS EMPTY. The office is the CLUB's, so the new one has
-	## its own: no credits banked, no facilities, no captains, no following. This
-	## is the cost of the move and it is deliberately not softened — a coach who
-	## carries his arena across town is not changing jobs.
-	##
-	## EXCEPT MONEY THE PLAYER PAID FOR. Credits bought in the store follow the
-	## coach — `min(credits, bought)`, so what he takes is never more than he
-	## bought or more than he has. Leaving it behind turned a job offer into a
-	## way to lose a purchase.
-	var carried: int = mini(office.credits, office.bought) if office.bought > 0 else 0
-	office = ClubOffice.new()
-	office.tier = int(world.clubs[club_id]["tier"])
-	if carried > 0:
-		office.take(carried, UiKit.t("Bought credits, brought with you"), "move", ClubOffice.LINE_STORE)
-		office.bought = carried
-	office.sync_morale(club)
-	board = Chalkboard.new()
-	workshop = Workshop.new()
-	workshop.keep_worn(club)
-	booked = null
-	bid_offers.clear()
-	dilemma.clear()
-	dilemma_recent.clear()
-	market_taken.clear()
-	prospect = null
-	results.clear()
-	sync_power()
-	open_bids()
-	return ""
 
 
 ## A NIGHT OUT. The only thing in the game that lifts morale on purpose.

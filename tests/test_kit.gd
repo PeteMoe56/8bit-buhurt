@@ -89,59 +89,26 @@ func _test_a_failed_harness_keeps_a_man_off() -> void:
 
 
 func _test_the_bus_has_a_size() -> void:
-	## HOW MANY BODIES YOU CAN PUT ON A PLANE. A club starts with a line and one
-	## man, and buys the rest.
+	## EIGHT, ALWAYS (Pete, 1 Oct 2026: "It should always be up to 8 fighters
+	## anyway"). A new club takes all eight, and there is nothing to buy.
 	var bad: Array[String] = []
 	var s := Season.new(MeleeRosters.starting_club(), 4242)
 	s.sync_power()
-	if s.club.active_eight().size() != ClubOffice.TRAVEL_START:
-		bad.append("a new club travels %d, not %d"
-			% [s.club.active_eight().size(), ClubOffice.TRAVEL_START])
-	## IT MUST LEAVE THE CORNER WORKING. A club that can make no swaps at all has
-	## a whole layer of the game locked behind a purchase, which is the reason
-	## the starting party is not the bare five.
-	if ClubOffice.TRAVEL_START - MeleeClub.LINE_SIZE < 1:
-		bad.append("a new club cannot make a single swap in the corner")
-
-	## Buying a place adds a man, costs money, and is throttled like every other
-	## job in the clubhouse — one a week.
+	if s.club.active_eight().size() != MeleeClub.ACTIVE_SIZE or s.office.travel_slots != ClubOffice.TRAVEL_MAX:
+		bad.append("a new club travels %d of %d places" % [s.club.active_eight().size(), s.office.travel_slots])
 	s.office.credits = 100
-	var prices: Array[int] = []
-	var bought := 0
-	for _week in 12:
-		s.office.new_week()
-		var price := s.office.travel_cost()
-		var err := s.office.buy_travel_slot()
-		if err == "":
-			prices.append(price)
-			bought += 1
-	s.sync_power()
-	if s.office.travel_slots != ClubOffice.TRAVEL_MAX:
-		bad.append("twelve weeks and unlimited money did not fill the bus")
-	if s.club.active_eight().size() != MeleeClub.ACTIVE_SIZE:
-		bad.append("a full bus does not travel the full eight")
-	for i in range(1, prices.size()):
-		if prices[i] <= prices[i - 1]:
-			bad.append("place %d costs no more than the one before it" % (i + 1))
-	if s.office.buy_travel_slot() == "":
-		bad.append("a ninth place was sold")
-	## And two in one week is refused, which is the throttle every other purchase
-	## in this office goes through.
-	var t := Season.new(MeleeRosters.starting_club(), 1)
-	t.office.credits = 100
-	t.office.new_week()
-	var first := t.office.buy_travel_slot()
-	var second := t.office.buy_travel_slot()
-	if first != "" or second == "":
-		bad.append("two places were bought in one week")
-
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	notes.append("a new club takes %d; the last %d places cost %s CC and are one a week"
-		% [ClubOffice.TRAVEL_START, bought, str(prices)])
-	_ok(bad.is_empty(), "the bus has a size",
-		"a club starts on %d places, buys up to %d at a rising price, and cannot buy two in a week"
-			% [ClubOffice.TRAVEL_START, ClubOffice.TRAVEL_MAX])
+	if s.office.buy_travel_slot() == "" or s.office.credits != 100:
+		bad.append("a place on the bus was sold")
+	## AND AN OLD SAVE'S BOUGHT PLACES COME BACK AS CREDITS.
+	var d := s.office.to_dict()
+	d.erase("armorer")
+	d["travel"] = 8
+	d["credits"] = 0
+	var back := ClubOffice.from_dict(d)
+	if back.travel_slots != 8 or back.credits != 16:
+		bad.append("an old save on 8 places came back on %d with %d CC (16 expected)" % [back.travel_slots, back.credits])
+	_ok(bad.is_empty(), "the bus is eight", "; ".join(bad) if not bad.is_empty()
+		else "a new club takes eight, nothing is sold, an old save's 16 CC of places come back")
 
 
 func _test_the_bench_is_the_traveling_party() -> void:

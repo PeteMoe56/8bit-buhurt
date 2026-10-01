@@ -556,6 +556,14 @@ static func from_dict(d: Dictionary) -> Season:
 	## record, no posts — which reads as a career that never happened rather than
 	## as a field that has not been written yet.
 	s.coach = Coach.from_dict(d["coach"])
+	s.office.coach_ref = s.coach
+	## AN OLD SAVE'S ARMORER (1 Oct 2026): good enough to keep the best kit the
+	## club already owns, one star above it, never more than four.
+	if not (d.get("office", {}) as Dictionary).has("armorer"):
+		var best := 0
+		for f in s.club.roster:
+			best = maxi(best, Quartermaster.grade_of(f))
+		s.office.armorer = Armorer.make(clampi(best + 1, 1, 4), hash("armorer:old:%s" % s.club.display_name))
 	s.splinter_rosters.clear()
 	for key in d.get("splinters", {}):
 		var men: Array[FighterCard] = []

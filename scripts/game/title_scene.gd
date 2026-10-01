@@ -147,6 +147,8 @@ func _take_city(city: String) -> void:
 	s.club.short_name = s.world._short_of(nm)
 	s.world.clubs[s.world.player_club]["name"] = nm
 	s.world.clubs[s.world.player_club]["short"] = s.club.short_name
+	## STEP 1 IS THE COACH: he is made on the next screen.
+	s.coach.created = false
 	SaveGame.save(s, slot)
 	_enter(s, slot, true)
 
@@ -263,10 +265,12 @@ func _settings() -> void:
 	UiKit.go("res://scenes/Settings.tscn")
 
 
+## A NEW CAREER STARTS WITH YOU, not a town (Pete, 1 Oct 2026). The club gets a
+## town to begin with and the home town popup on step 2 changes it.
 func _new_club(slot: int) -> void:
 	picking = slot
 	_offer_cities()
-	_build()
+	_take_city(offered[0] if not offered.is_empty() else "")
 
 
 func _continue(slot: int) -> void:
@@ -322,7 +326,7 @@ func _enter(s: Season, slot: int, founding := false) -> void:
 	if founding:
 		Session.founding = true
 		Session.create_tab = 1
-		UiKit.go("res://scenes/Create.tscn")
+		UiKit.go("res://scenes/Coach.tscn")
 		return
 	UiKit.go("res://scenes/Season.tscn")
 

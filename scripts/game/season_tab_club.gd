@@ -385,8 +385,6 @@ static func _schedule(v: SeasonScene) -> void:
 	## list as a cup round, in the cup's color, so the table never moves — or
 	## fails to — without the list saying why.
 	UiKit.text(v, v.font, UiKit.t("COMING UP"), Vector2(24, y), 14, UiKit.DIM)
-	UiKit.right(v, v.font, UiKit.t("H home  ·  A away"),
-		Vector2(SeasonScene.fixture_w() + 8.0, y), 12, UiKit.DIM, SeasonScene.fixture_w() - 140.0)
 	y += 24.0
 	var days := v.season.world.events_this_season()
 	for i in rest.size():
@@ -396,39 +394,22 @@ static func _schedule(v: SeasonScene) -> void:
 		## THE WEEK'S COLOR, as a block in the margin: blue league, gold cup,
 		## green your show, purple playoff and Worlds — the calendar's key.
 		v.draw_rect(Rect2(24, y - 11, 8, 12), Calendar.color(kind))
-		var num := "%d." % int(r["week"])
-		var num_w := v.font.get_string_size(num + "  ", HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+		## THE WEEK AND WHO, NOTHING ELSE (Pete, 1 Oct: "Just Home/Away, no need
+		## for naming their arena or prize for the Coming up").
 		if kind != Calendar.Kind.LEAGUE:
 			var w: Dictionary = v.season.world.calendar[int(r["week"]) - 1]
-			var tail := ""
-			var c: Cup = v.season.world.cup_of_week(w)
-			if kind == Calendar.Kind.OWN:
-				tail = UiKit.t("you host")
-			elif c != null:
-				tail = UiKit.t("you are in it") if c.player_alive() else UiKit.t("not in it")
-			UiKit.pair(v, v.font, UiKit.t("%d.  %s") % [int(r["week"]), Calendar.label(w, days, _own_name(v))], tail,
-				Vector2(52, y), SeasonScene.fixture_w() - 22.0, 13, 12, col,
-				UiKit.UP if tail == UiKit.t("you are in it") else UiKit.DIM)
+			UiKit.text_fit(v, v.font, Calendar.label(w, days, _own_name(v)), Vector2(40, y), 13,
+				UiKit.YOU if i == 0 else Calendar.color(kind).lightened(0.35), SeasonScene.fixture_w() - 20.0)
 			y += 20.0
 			continue
 		var opp := int(r["opponent"])
 		var home: bool = bool(r["home"])
-		var nm := UiKit.t("a bye") if opp < 0 else String(v.season.world.clubs[opp]["name"])
-		var tail := ""
-		if opp >= 0:
-			var gr: Dictionary = v.season.ground_of(
-				v.season.world.player_club if home else opp)
-			tail = "%s  ·  %d CC" % [Arena.arena_name_of(int(gr["level"])),
-				v.season.gate_for_fixture(opp, home)]
-		var tail_w := v.font.get_string_size(tail, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
-		var room := SeasonScene.fixture_w() - 16.0 - 46.0 - tail_w - 16.0 - num_w - 18.0
-		## H AND A IN THEIR OWN COLUMN, beside the week's color.
-		if opp >= 0:
-			UiKit.text(v, v.font, UiKit.t("H") if home else UiKit.t("A"), Vector2(36, y), 13,
-				UiKit.YOU if home else UiKit.DIM)
-		UiKit.pair(v, v.font, UiKit.t("%d.  %s") % [int(r["week"]),
-			UiKit.clip_px(v.font, nm, 13, clampf(room, 60.0, 240.0))], tail,
-			Vector2(52, y), SeasonScene.fixture_w() - 22.0, 13, 12, col, UiKit.DIM)
+		if opp < 0:
+			UiKit.text(v, v.font, UiKit.t("Bye"), Vector2(40, y), 13, col)
+		else:
+			UiKit.text_fit(v, v.font, (UiKit.t("Home  ·  %s") if home else UiKit.t("Away  ·  %s"))
+				% String(v.season.world.clubs[opp]["name"]), Vector2(40, y), 13, col,
+				SeasonScene.fixture_w() - 20.0)
 		y += 20.0
 
 
@@ -714,9 +695,14 @@ static func _fixture(v: SeasonScene) -> void:
 	var line: String = (UiKit.t("rating %d  ·  an even fight") % int(o["power"])) if absi(gap) <= 2 \
 		else ((UiKit.t("rating %d  ·  you are favorites by %d") if gap > 0
 			else UiKit.t("rating %d  ·  you are underdogs by %d")) % [int(o["power"]), absi(gap)])
-	UiKit.text(v, v.font, line,
-		Vector2(44, y + 80), 14,
-		UiKit.DIM if absi(gap) <= 2 else (UiKit.UP if gap > 0 else UiKit.DOWN))
+	var g: Dictionary = v.season.gate_now()
+	## RATING, THE ODDS AND THE GATE — and nothing else (Pete, 1 Oct: "Just have
+	## Rating, 'even fight', and 5CC on there"). The ground's name and its state
+	## are on the Arena screen.
+	UiKit.pair(v, v.font, line, UiKit.t("%d CC") % int(g["cc"]),
+		Vector2(44, y + 80), 24.0 + SeasonScene.fixture_w() - 20.0, 15, 15,
+		UiKit.DIM if absi(gap) <= 2 else (UiKit.UP if gap > 0 else UiKit.DOWN),
+		UiKit.UP if int(g["cc"]) >= v.season.office.crowd_pay() else UiKit.DIM)
 	## HOW WELL THEY THINK, which the rating does not tell you.
 	##
 	## A division's AI tier decides whether the other corner improvises once its
@@ -728,32 +714,9 @@ static func _fixture(v: SeasonScene) -> void:
 	UiKit.right(v, v.font, UiKit.t(String(Tuning.AI_SKILL[v.season.ai_tier()]["name"])).to_upper(),
 		Vector2(432, y + 28), 12, UiKit.YOU, 200)
 
-	## ------------------------------------------------- where, and what it pays
-	## Pete, 15 Sep 2026: *"Let's have the Home and Away games notated."*
-	##
-	## THE PANEL THAT SAYS WHO YOU ARE FIGHTING DID NOT SAY WHERE. The schedule
-	## underneath it carried a grey "home"/"away" and this — the card the player
-	## actually looks at, the one with the rating and the odds on it — said
-	## nothing at all about the venue. The one screen where the question is live
-	## was the one screen with no answer on it.
-	##
-	## AND THE GROUND IS ON IT, because the gate now reads the room: a trip to a
-	## club with a Sports hall pays better than a home tie in a back field, and
-	## *"you may actually look forward to an opponent with a great stadium or roll
-	## your eyes from an opponent with a shitty arena"* only works if the screen
-	## tells you which one this is before you tap FIGHT.
-	var g: Dictionary = v.season.gate_now()
 	var kind := int(g["kind"])
-	var where := UiKit.t(String(Venue.NAME[kind])).to_upper()
-	UiKit.text(v, v.font, where, Vector2(44, y + 28), 12,
+	UiKit.text(v, v.font, UiKit.t(String(Venue.NAME[kind])).to_upper(), Vector2(44, y + 28), 12,
 		UiKit.YOU if kind == Venue.Kind.HOME else UiKit.DIM)
-	UiKit.pair(v, v.font,
-		"%s  ·  %s" % [Arena.arena_name_of(int(g["level"])),
-			Arena.worth_word(int(g["level"]), float(g["condition"]))],
-		"%d CC at the gate" % int(g["cc"]),
-		Vector2(44, y + 104), 24.0 + SeasonScene.fixture_w() - 20.0, 12, 12,
-		UiKit.DIM,
-		UiKit.UP if int(g["cc"]) >= v.season.office.crowd_pay() else UiKit.DIM)
 
 
 
@@ -790,7 +753,6 @@ static func _table(v: SeasonScene) -> void:
 	## promotion places.
 	var up := Calendar.PLAYOFF_FIELD
 	var down := int(League.TIERS[t]["down"])
-	var top_flight: bool = t == League.TIERS.size() - 1
 	## THE STAT BLOCK HANGS OFF THE RIGHT EDGE, not off a fixed offset from the
 	## table's left. It is one fixed-width string, so its width is the same every
 	## row and on every screen — but where it BELONGS moves with the canvas, and
@@ -801,27 +763,6 @@ static func _table(v: SeasonScene) -> void:
 	var stat_x := UiKit.right_edge(24.0) - stat_w
 	UiKit.text(v, v.font, UiKit.t("P  W  D  L   RD   MG  PTS"),
 		Vector2(stat_x, SeasonScene.TABLE_Y - 6), 12, UiKit.DIM)
-	## THE KEY, where there is room for it (blind review, 29 Sep: RD / MG and the
-	## colored rows were unexplained). A sixteen-club table has no room and a
-	## player there has read it for years.
-	var key_y := SeasonScene.TABLE_Y + 22.0 + float(rows.size()) * SeasonScene.ROW_H + 4.0
-	if key_y < SeasonScene.action_y() - 16.0:
-		## TWO LINES AT 13 (the sentence floor, 29 Sep 2026) where one at 11 was.
-		var room := UiKit.screen().x - SeasonScene.table_x() - 32.0
-		var colors := ""
-		if up > 0:
-			colors = UiKit.t("green: playoff, final two go to Worlds") if top_flight \
-				else UiKit.t("green: playoff, final two go up")
-		if down > 0:
-			colors += ("" if colors == "" else UiKit.t("  ·  ")) + UiKit.t("red goes down")
-		var lines := [UiKit.t("RD rounds won minus lost"), UiKit.t("MG downs for minus against")]
-		if colors != "":
-			lines.append(colors)
-		for li in lines.size():
-			var ly := key_y + float(li) * 17.0
-			if ly > SeasonScene.action_y() - 16.0:
-				break
-			UiKit.text_fit(v, v.font, String(lines[li]), Vector2(SeasonScene.table_x() + 8.0, ly), 14, UiKit.DIM, room)
 	v.draw_rect(Rect2(SeasonScene.table_x(), SeasonScene.TABLE_Y, UiKit.screen().x - SeasonScene.table_x() - 24, 1), UiKit.EDGE)
 	for i in rows.size():
 		var r: Dictionary = rows[i]

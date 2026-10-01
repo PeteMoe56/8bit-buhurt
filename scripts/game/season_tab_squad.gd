@@ -43,11 +43,27 @@ static func _squad_rows(v: SeasonScene) -> Array:
 	## whole reason a landscape screen is worth having: the eight and the five
 	## you might promote are visible at the same time, so the swap is a
 	## comparison instead of a memory test.
-	var ry := SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP
+	var ri := 0
 	for f in v._reserve_sorted():
-		out.append({ "card": f, "y": ry, "kind": "reserve", "x": SeasonScene.RESERVE_X })
-		ry += SeasonScene.SQUAD_ROW
+		out.append({ "card": f, "y": _reserve_y(ri), "kind": "reserve", "x": SeasonScene.RESERVE_X })
+		ri += 1
 	return out
+
+
+## Where reserve place `i` sits, filled or not.
+static func _reserve_y(i: int) -> float:
+	return SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP + float(i) * SeasonScene.SQUAD_ROW
+
+
+## THE MAN YOU TAPPED, bottom right (Pete, 1 Oct 2026: "Use the bottom right for
+## info panel on whomever you click on"). Under the four reserve places, above
+## the key line.
+static func info_rect() -> Rect2:
+	var top := _reserve_y(MeleeClub.RESERVE_SIZE) - 4.0
+	if Session.season != null:
+		top = _reserve_y(maxi(MeleeClub.RESERVE_SIZE, Session.season.club.reserves().size())) - 4.0
+	return Rect2(SeasonScene.RESERVE_X - 6.0, top, SeasonScene.SQUAD_W + 12.0,
+		SeasonScene._squad_key_y() - 22.0 - top)
 
 
 ## The gap the BENCH box's title is written into.
@@ -124,75 +140,29 @@ static func _squad_controls(v: SeasonScene) -> void:
 	## only the default one.
 	## THE SAME MEN AS CARDS (Pete, 29 Sep 2026: Squad and Roster are one screen
 	## with a Table | Cards switch). The row makes room for the hub's Next event.
+	## TEAM'S ROW (Pete, 1 Oct 2026): Club record, Free agents, Training. Card
+	## view and the reserve sort went; the man you tap shows bottom right.
 	if v.picked == null:
-		## TABLE | CARDS: this is Table; Cards opens the card view of the same men.
-		v.ui.add_child(UiKit.button(UiKit.t("Card view"), Vector2(588, SeasonScene.action_y()),
-		Vector2(116, 46), func():
+		var ay0 := SeasonScene.action_y()
+		v.ui.add_child(UiKit.button(UiKit.t("Club record"), Vector2(24, ay0), Vector2(180, 46), func():
 			Session.autosave()
-			UiKit.go("res://scenes/Roster.tscn"), "roster"))
-	## ONE BUTTON THAT CYCLES, not four that are three-quarters wrong at any
-	## moment. The action row has three places on it and the sort is the least of
-	## them; a segmented control would cost the width of the roster button to say
-	## something the heading already says.
-	## THE ROW BELONGS TO THE PICKED MAN WHEN THERE IS ONE.
-	##
-	## `Reserve by` sits at x=24 and `Free agents` at x=544, and both were added
-	## UNCONDITIONALLY — while picking a fighter adds Trade at x=24 and the
-	## contract fork at x=464. Two overlaps, and both were invisible for the life
-	## of the screen: Trade is added later so it wins the tap and draws on top, and
-	## the only symptom was that **the reserve could not be re-sorted while a man
-	## was selected** and the right-hand button showed a bare "s" sticking out
-	## from under Extend.
-	##
-	## `shots/trade.png` is the first thing that ever rendered this tab with a
-	## fighter picked. `test_layout.gd` measures controls against controls and
-	## would have caught it on sight — it drives every tab and never drove this
-	## STATE, which is the gap it has now closed.
-	##
-	## Both come back the instant he is deselected. Sorting the reserve and going
-	## to the shelf are things you do when you are not in the middle of a decision
-	## about one man, which is why hiding them costs nothing.
-	var sw := UiKit.t(String(SeasonScene.RESERVE_SORTS[(v.reserve_sort + 1) % SeasonScene.RESERVE_SORTS.size()]["word"]))
-	if v.picked == null:
-		v.ui.add_child(UiKit.button(UiKit.t("Reserve by %s") % sw,
-			Vector2(24, SeasonScene.action_y()), Vector2(180, 46), func():
-				v.reserve_sort = (v.reserve_sort + 1) % SeasonScene.RESERVE_SORTS.size()
-				v._rebuild(), "roster"))
-
-	## THE FREE AGENTS LIVE HERE NOW.
-	##
-	## They used to be the MARKET tab, which also carried a button labelled "Free
-	## agents" that opened a second and better screen of the same men — Pete's
-	## *"there's a tab within a tab"*, item 5 of the 15 Sep playtest. Two views of
-	## one thing, one of them a worse version of the other, reached by a control
-	## named after the tab you were already standing on.
-	##
-	## Signing a man is a SQUAD decision, so it is reached from the squad, and the
-	## tab it vacated became the armorer's — the one mechanic in this game that
-	## Direction calls the cap and that had no screen at all.
-	if v.picked == null:
-		v.ui.add_child(UiKit.button(UiKit.t("Free agents"),
-			Vector2(400, SeasonScene.action_y()), Vector2(180, 46), func():
+			Session.records_page = Records.Page.HISTORY
+			UiKit.go("res://scenes/Records.tscn"), "trophy"))
+		v.ui.add_child(UiKit.button(UiKit.t("Free agents"), Vector2(212, ay0), Vector2(180, 46), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Market.tscn"), "coin"))
+		v.ui.add_child(UiKit.button(UiKit.t("Training"), Vector2(400, ay0), Vector2(180, 46), func():
+			v.training_open = true
+			v._rebuild(), "helm"))
+	## AN EMPTY RESERVE PLACE IS A DOOR TO THE FREE AGENTS (Pete, 1 Oct 2026).
+	var n_res: int = v.season.club.reserves().size()
+	for i in range(n_res, MeleeClub.RESERVE_SIZE):
+		var hb := UiKit.button(UiKit.t("+  Hire free agent"),
+			Vector2(SeasonScene.RESERVE_X, _reserve_y(i) - 20.0), Vector2(SeasonScene.SQUAD_W, SeasonScene.SQUAD_ROW - 4.0),
+			func():
 				Session.autosave()
-				UiKit.go("res://scenes/Market.tscn"), "coin"))
-
-	## THE CLUB'S RECORD, which is where the HONORS tab went.
-	##
-	## Pete, 15 Sep 2026: *"Throw Honors into Squad and a team history page."*
-	## The trophies and the season-by-season are now a page on the Records screen
-	## — the club's other records already live there — and this is the door to it
-	## from the squad, which is the screen a player is on when he wonders what
-	## this lot have actually done.
-	##
-	## ONLY WHEN NOBODY IS PICKED. The action row has three places and the picked
-	## state already wants all three for Cut, Prospect and Extend; a fourth button
-	## underneath one of those is a button that works until it does not.
-	if v.picked == null:
-		v.ui.add_child(UiKit.button(UiKit.t("Club record"), Vector2(212, SeasonScene.action_y()),
-			Vector2(180, 46), func():
-				Session.autosave()
-				Session.records_page = Records.Page.HISTORY
-				UiKit.go("res://scenes/Records.tscn"), "trophy"))
+				UiKit.go("res://scenes/Market.tscn"))
+		v.ui.add_child(hb)
 	for row in v._squad_rows():
 		v.ui.add_child(v._man_button(row["card"], float(row["y"]), float(row["x"])))
 	if v.picked != null:
@@ -369,13 +339,8 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## of the words and the reserve column, and a summary belongs beside the thing
 	## it summarises anyway.
 	## THE COUNT IS THE CLUB'S (blind review, 29 Sep: "eight" over six men).
-	UiKit.pair(v, v.font, UiKit.t("THE %d WHO TRAVEL") % v.season.office.travel_slots, v._squad_spread(),
-		Vector2(24, SeasonScene.CONTENT_Y), SeasonScene.RESERVE_X - 16.0, 13, 12, UiKit.DIM, UiKit.DIM)
-	## THE RESERVE SAYS HOW IT IS ORDERED, because it is the only list on this
-	## screen whose order is a choice rather than a fact.
-	UiKit.text(v, v.font, UiKit.t("RESERVE — by %s") % UiKit.t(String(
-		SeasonScene.RESERVE_SORTS[v.reserve_sort % SeasonScene.RESERVE_SORTS.size()]["word"])),
-		Vector2(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("STARTERS"), Vector2(24, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("RESERVE"), Vector2(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
 	## The cap, where the decision is: every man on this screen costs against it.
 	var bill := ClubOffice.wage_bill(v.season.club)
 	var cap := v.season.office.cap()
@@ -383,8 +348,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 		Vector2(UiKit.right_edge(), SeasonScene.CONTENT_Y), 14, UiKit.DOWN if bill > cap else UiKit.DIM, 300)
 	## THE HEADINGS, over both columns, before any man is drawn.
 	v._squad_head(24.0, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_HEAD_Y)
-	if not v.season.club.reserves().is_empty():
-		v._squad_head(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_HEAD_Y)
+	v._squad_head(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_HEAD_Y)
 
 	var rows := v._squad_rows()
 	## THREE BOXES, ONE PER GROUP (playtest 30 Sep #4: "maybe some box
@@ -397,6 +361,9 @@ static func _draw_squad(v: SeasonScene) -> void:
 		if not groups.has(k):
 			groups[k] = Vector2(y, y)
 		groups[k] = Vector2(minf(groups[k].x, y), maxf(groups[k].y, y))
+	## THE RESERVE'S BOX HOLDS ALL FOUR PLACES, filled or not.
+	groups["reserve"] = Vector2(_reserve_y(0), _reserve_y(maxi(MeleeClub.RESERVE_SIZE,
+		v.season.club.reserves().size()) - 1))
 	for k in groups:
 		var span: Vector2 = groups[k]
 		var gx: float = SeasonScene.RESERVE_X if k == "reserve" else 24.0
@@ -407,17 +374,14 @@ static func _draw_squad(v: SeasonScene) -> void:
 		var y := float(row["y"])
 		var x := float(row["x"])
 		if kind == "bench" and y == float(groups["bench"].x):
-			UiKit.text(v, v.font, UiKit.t("BENCH — two may come on each corner"),
-				Vector2(24, y - 28), 13, UiKit.DIM)
+			UiKit.text(v, v.font, UiKit.t("BENCH"), Vector2(24, y - 28), 14, UiKit.DIM)
 		v._man_row(row["card"], y, kind, x)
 		## WHERE HE STANDS ON THE LINE, in place of his listed role.
 		if row.has("slot"):
 			UiKit.text(v, v.font, UiKit.t(String(SLOT_WORD[int(row["slot"])])),
 				Vector2(x + SeasonScene.COL_POS, y), 14,
 				UiKit.YOU if Tuning.covers(int(row["card"].pos), int(row["slot"])) == false else UiKit.DIM)
-	if v.season.club.reserves().is_empty():
-		UiKit.text(v, v.font, UiKit.t("Nobody."),
-			Vector2(SeasonScene.RESERVE_X + 16, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP), 15, UiKit.DIM)
+	_draw_info(v)
 
 	## AND THE KEY, for the three things a column heading cannot say.
 	##
@@ -439,19 +403,52 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## ONE LINE (round 8: "cut the two-line legend"). The verb in ink, the key
 	## in dim after it.
 	## SAYS WHAT A TAP DOES NOW: it picks him; his buttons do the rest.
-	var tap := UiKit.t("Tap a man to pick him")
+	var key := (UiKit.t("green = good  ·  gold = final year  ·  Hurt · 2 = out 2 events") if any_red
+		else UiKit.t("green = good  ·  gold = final year"))
 	var any_level := false
 	for f in v.season.club.roster:
 		if Career.levels_banked(f) > 0:
 			any_level = true
-	var key := (UiKit.t("green = good  ·  gold = final year  ·  Hurt · 2 = out 2 events") if any_red
-		else UiKit.t("green = good  ·  gold = final year"))
 	if any_level:
 		key = UiKit.t("+2 = levels to spend on his page") + UiKit.t("  ·  ") + key
-	var ky: float = SeasonScene._squad_key_y()
-	UiKit.text(v, v.font, tap, Vector2(24, ky), 14, UiKit.INK)
-	var tw: float = v.font.get_string_size(tap, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 18.0
-	UiKit.text_fit(v, v.font, key, Vector2(24 + tw, ky), 14, UiKit.DIM, UiKit.span() - tw)
+	UiKit.text_fit(v, v.font, key, Vector2(24, SeasonScene._squad_key_y()), 14, UiKit.DIM, UiKit.span())
+
+
+## THE INFO PANEL: who he is, what he is wearing, his deal, his four and the pair.
+static func _draw_info(v: SeasonScene) -> void:
+	var r := info_rect()
+	UiKit.panel(v, r)
+	var f: FighterCard = v.picked
+	var x := r.position.x + 14.0
+	var y := r.position.y + 26.0
+	if f == null:
+		UiKit.mid(v, v.font, UiKit.t("Tap a fighter to see him here."), Vector2(r.position.x, r.get_center().y + 5.0),
+			14, UiKit.DIM, r.size.x)
+		return
+	var right_w := 150.0
+	UiKit.text_fit(v, v.font, f.display_name, Vector2(x, y), 18, UiKit.INK, r.size.x - right_w - 40.0)
+	var sub := UiKit.t("%s  ·  age %d  ·  %s kit %d%%") % [Tuning.pos_name(int(f.pos)), f.age,
+		Quartermaster.name_of(f), int(round(f.armor * 100.0))]
+	UiKit.text_fit(v, v.font, sub, Vector2(x, y + 20.0), 13, UiKit.DIM, r.size.x - right_w - 40.0)
+	var deal := UiKit.t("%dy left  ·  %s a week") % [maxi(0, f.years), ClubOffice.money(ClubOffice.billed(f))]
+	UiKit.text_fit(v, v.font, deal, Vector2(x, y + 38.0), 13,
+		UiKit.DOWN if f.years <= 0 else (UiKit.YOU if f.years == 1 else UiKit.DIM), r.size.x - right_w - 40.0)
+	var stats := [f.strength, f.base, f.skill, f.gas]
+	var sw := (r.size.x - right_w - 40.0) * 0.5
+	for i in 4:
+		var sx := x + float(i % 2) * (sw + 12.0)
+		var sy := y + 60.0 + float(i / 2) * 20.0
+		UiKit.text(v, v.font, TeamCard.cat_name(i), Vector2(sx, sy), 12, UiKit.DIM)
+		UiKit.right(v, v.font, "%d" % int(stats[i]), Vector2(sx + sw, sy), 13, UiKit.INK, 30)
+	var px := r.end.x - right_w
+	UiKit.mid(v, v.font, UiKit.t("OVR"), Vector2(px, y + 4.0), 12, UiKit.DIM, 70)
+	UiKit.mid(v, v.font, "%d" % f.overall(), Vector2(px, y + 40.0), 30, UiKit.DOWN if f.fading() else UiKit.INK, 70)
+	UiKit.mid(v, v.font, UiKit.t("POT"), Vector2(px + 72.0, y + 4.0), 12, UiKit.DIM, 70)
+	UiKit.mid(v, v.font, "%d" % f.potential, Vector2(px + 72.0, y + 40.0), 30,
+		UiKit.UP if f.headroom() >= 6 else UiKit.DIM, 70)
+	var banked := Career.levels_banked(f)
+	if banked > 0:
+		UiKit.mid(v, v.font, UiKit.t("+%d to spend") % banked, Vector2(px, y + 66.0), 13, UiKit.YOU, 142)
 
 
 
@@ -573,9 +570,9 @@ static func squad_columns(v: SeasonScene, f: Font, size_hint: int = 0) -> Array:
 	out.append({"name": "name", "head": UiKit.t("FIGHTER"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_NAME, 0.0, SeasonScene.COL_NAME_W, 18.0),
 		"head_rect": lhead.call(UiKit.t("FIGHTER"), SeasonScene.COL_NAME)})
-	out.append({"name": "position", "head": UiKit.t("ROLE"), "align": "left",
+	out.append({"name": "position", "head": "", "align": "left",
 		"rect": Rect2(SeasonScene.COL_POS, 0.0, float(w.call("FLANKER", 13)), 18.0),
-		"head_rect": lhead.call(UiKit.t("ROLE"), SeasonScene.COL_POS)})
+		"head_rect": Rect2(SeasonScene.COL_POS, 0.0, 0.0, 14.0)})
 	out.append({"name": "armor", "head": UiKit.t("KIT"), "align": "left",
 		"rect": Rect2(SeasonScene.COL_ARMOR, 0.0, float(w.call("100%", 13)), 18.0),
 		"head_rect": lhead.call(UiKit.t("KIT"), SeasonScene.COL_ARMOR)})
@@ -586,16 +583,16 @@ static func squad_columns(v: SeasonScene, f: Font, size_hint: int = 0) -> Array:
 		"rect": Rect2(SeasonScene.COL_YEARS, 0.0, float(w.call("OUT", 14)), 18.0),
 		"head_rect": lhead.call(UiKit.t("DEAL"), SeasonScene.COL_YEARS)})
 	var rating: float = w.call("99", 16)
-	out.append({"name": "rating", "head": UiKit.t("NOW"), "align": "right",
+	out.append({"name": "rating", "head": UiKit.t("OVR"), "align": "right",
 		"rect": Rect2(SeasonScene.COL_RATING_TO - rating, 0.0, rating, 18.0),
-		"head_rect": rhead.call(UiKit.t("NOW"), SeasonScene.COL_RATING_TO)})
+		"head_rect": rhead.call(UiKit.t("OVR"), SeasonScene.COL_RATING_TO)})
 	var pot: float = w.call("99", 14)
 	## MAX RIDES THE END OF THE ROW rather than the ceiling's own stop. There are
 	## eight spare pixels at 446 and this label needs six of them to clear `NOW`;
 	## the alternative was a third abbreviation nobody would read.
-	out.append({"name": "ceiling", "head": UiKit.t("MAX"), "align": "right",
+	out.append({"name": "ceiling", "head": UiKit.t("POT"), "align": "right",
 		"rect": Rect2(SeasonScene.COL_POT_TO - pot, 0.0, pot, 18.0),
-		"head_rect": rhead.call(UiKit.t("MAX"), SeasonScene.SQUAD_W)})
+		"head_rect": rhead.call(UiKit.t("POT"), SeasonScene.SQUAD_W)})
 	return out
 
 

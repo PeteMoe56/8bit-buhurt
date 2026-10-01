@@ -532,8 +532,8 @@ func _test_a_deep_career_survives_a_reload() -> void:
 	## mistake as photographing the empty case.
 	## EVERY CONDITION, NOT ANY OF THEM. An `or` here is a guard that passes on
 	## two thirds of an empty career, which is exactly what it did.
-	if s.office.travel_slots <= ClubOffice.TRAVEL_START:
-		bad.append("five seasons and the club never bought a travel slot")
+	## (The bus is eight from the start now — 1 Oct 2026 — so there are no
+	## places to have bought.)
 	if s.office.level(ClubOffice.Facility.TRAINING) <= 0:
 		bad.append("five seasons and the club never built a training ground")
 	if s.market_taken.is_empty():

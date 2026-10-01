@@ -29,7 +29,6 @@ func _initialize() -> void:
 	await _flow_new_career_and_first_bout()
 	await _flow_create_renames_everywhere()
 	_flow_settings_survive_a_restart()
-	await _flow_a_new_job_is_saved()
 
 	for i in SaveGame.SLOTS:
 		SaveGame.delete(i)
@@ -109,21 +108,27 @@ func _flow_new_career_and_first_bout() -> void:
 	await _press("Play")
 	var at_title := await _arrive("Title.tscn")
 	await _press("Start a club")
-	var offered: Array = current_scene.get("offered") if current_scene != null else []
-	var town := String(offered[0]) if not offered.is_empty() else ""
-	if town != "":
-		await _press(town)
-	## A NEW CLUB IS FOUNDED FIRST (playtest 30 Sep #2): the Create screen's
-	## club page, and its gold button takes the career into the season.
+	## STEP 1 IS YOU (Pete, 1 Oct 2026), then the club, then the difficulty.
+	var at_coach := await _arrive("Coach.tscn")
+	if at_coach:
+		var fe: LineEdit = current_scene.get("first_edit")
+		var le: LineEdit = current_scene.get("last_edit")
+		if fe != null and le != null:
+			fe.text = "Boris"
+			fe.text_changed.emit("Boris")
+			le.text = "Kane"
+			le.text_changed.emit("Kane")
+	await _press("Next: your team  >")
 	var founding := await _arrive("Create.tscn")
-	await _press("Found the club  >")
+	await _press("Next: difficulty  >")
+	await _press("Start the season  >")
 	var in_season := founding and await _arrive("Season.tscn")
 	var s: Season = Session.season
-	_ok(at_title and in_season and s != null and SaveGame.has_save(0)
-		and s.world.city_of(s.world.player_club) == town,
-		"Play, Start a club and a town open a saved career in that town",
-		"title %s, season %s, slot 0 saved %s, town '%s' -> '%s'" % [at_title, in_season,
-			SaveGame.has_save(0), town, s.world.city_of(s.world.player_club) if s else "-"])
+	_ok(at_title and at_coach and in_season and s != null and SaveGame.has_save(0)
+		and s.coach.display_name == "Boris Kane" and s.coach.created,
+		"Play and Start a club go You, then the club, then the difficulty, into a saved career",
+		"title %s, coach %s, season %s, slot 0 saved %s, coach '%s'" % [at_title, at_coach, in_season,
+			SaveGame.has_save(0), s.coach.display_name if s else "-"])
 	if s == null:
 		return
 	## Whatever the first night asks first (a tournament bid, a card) is answered
@@ -212,25 +217,3 @@ func _flow_settings_survive_a_restart() -> void:
 		"a volume changed is the volume after a restart",
 		"music %.3f -> %.3f, ui %.3f -> %.3f" % [music, Settings.music, ui, Settings.interface])
 
-
-func _flow_a_new_job_is_saved() -> void:
-	var s := Season.new(MeleeRosters.starting_club(), 5150)
-	s.coach.reputation = Coach.REP_MAX
-	s.office.bought = 5
-	s.office.credits = 40
-	Session.season = s
-	Session.slot = 1
-	SaveGame.save(s, 1)
-	var was := s.world.player_club
-	await _open("res://scenes/Coach.tscn")
-	var first := await _press("Consider the job")
-	var second := await _press("Sign and leave it all")
-	var now := Session.season.world.player_club
-	var back := SaveGame.load_slot(1)
-	_ok(first and second and now != was and back != null and back.world.player_club == now
-		and back.office.bought == 5 and back.office.credits >= 5
-		and back.club.display_name == String(back.world.clubs[now]["name"]),
-		"Take it twice moves the career, and the save has it at the new club with its bought credits",
-		"club %d -> %d, saved at %d, bought %d, %d CC, '%s'" % [was, now,
-			back.world.player_club if back else -1, back.office.bought if back else -1,
-			back.office.credits if back else -1, back.club.display_name if back else "-"])

@@ -139,7 +139,7 @@ func _test_the_federation_gates_the_cups() -> void:
 
 	## And the wiring: `sync_power` is what carries the office's answer to the
 	## world, and it is the only thing that does.
-	s.office.compliance[Federation.Rule.KIT] = 0
+	s.office.compliance[Federation.Rule.INSURANCE] = 0
 	s.office.tier = League.Tier.NATIONAL
 	s.world.cup_entry_barred = false
 	## Read the office's own answer rather than re-deriving it here, then check
@@ -149,7 +149,7 @@ func _test_the_federation_gates_the_cups() -> void:
 	if s.world.cup_entry_barred != (not s.office.compliant()):
 		bad.append("the world and the office disagree about the bar")
 	if not should_bar:
-		bad.append("a National club with no kit certificate is in good standing")
+		bad.append("a National club with no insurance is in good standing")
 
 	## AND IT LAPSES RATHER THAN DECAYS. A ground you cannot afford falls a level
 	## because it is a building; a certificate you do not renew is simply gone.
@@ -172,8 +172,12 @@ func _test_the_federation_gates_the_cups() -> void:
 	var o := ClubOffice.new()
 	o.credits = 100
 	o.new_week()
-	if o.raise_rule(Federation.Rule.KIT) != "" or o.raise_rule(Federation.Rule.MARSHALS) == "":
-		bad.append("two certificates were bought in one week")
+	if o.raise_rule(Federation.Rule.INSURANCE) != "" or o.raise_rule(Federation.Rule.INSURANCE) == "":
+		bad.append("two levels of insurance were bought in one week")
+	## INSURANCE IS ALL OF IT NOW (Pete, 1 Oct 2026), and the Regional asks for two.
+	if Federation.rules() != [Federation.Rule.INSURANCE] \
+			or Federation.required(League.Tier.REGIONAL, Federation.Rule.INSURANCE) != 2:
+		bad.append("the federation asks for more than insurance, or the Regional for other than 2")
 
 	if not bad.is_empty():
 		notes.append("  " + ", ".join(bad))

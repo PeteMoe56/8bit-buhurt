@@ -8,57 +8,94 @@ extends RefCounted
 
 
 static func _office_row_y(v: SeasonScene, i: int) -> float:
-	return SeasonScene.CONTENT_Y + 24.0 + float(i) * 86.0
+	return SeasonScene.CONTENT_Y + 34.0 + float(i) * ROW_STEP
 
 
+const ROW_STEP := 64.0
+## The bar leaves room for its "?" (Pete, 1 Oct 2026: a "?" on each, the
+## descriptions off the page).
+const BAR_W := SeasonScene.BAR_W - 42.0
+const HELP_X := SeasonScene.BAR_X + BAR_W + 8.0
+
+
+## WHAT ROW `i` COSTS TO KEEP, a year.
+static func row_upkeep(v: SeasonScene, kind) -> int:
+	var o := v.season.office
+	if kind is String:
+		if kind == "insurance":
+			return o.federation_upkeep()
+		return 0
+	return o.facility_upkeep(int(kind))
+
+
+static func row_cost(v: SeasonScene, kind) -> int:
+	var o := v.season.office
+	if kind is String:
+		if kind == "cap":
+			return o.cap_cost()
+		if kind == "insurance":
+			return o.rule_cost(Federation.Rule.INSURANCE) \
+				if o.rule_level(Federation.Rule.INSURANCE) < Federation.MAX_LEVEL else 0
+		return 0
+	return o.facility_cost(int(kind))
+
+
+## The whole year's keep: every row, and the arena.
+static func upkeep_total(v: SeasonScene) -> int:
+	var t := v.season.office.arena_upkeep()
+	for row in SeasonScene.OFFICE_ROWS:
+		t += row_upkeep(v, row["kind"])
+	return t
 
 
 static func _office_controls(v: SeasonScene) -> void:
-	## UPGRADES ONLY (Pete, 29 Sep 2026, round 2). The rooms moved to the Club
-	## menu in the header; what is left on this tab is everything the club buys,
-	## and every button says what it buys: the number now, an arrow, the number
-	## after, and the price.
 	var o := v.season.office
 	for i in SeasonScene.OFFICE_ROWS.size():
 		var row: Dictionary = SeasonScene.OFFICE_ROWS[i]
-		var key: String = String(row["kind"]) if row["kind"] is String else ""
-		var is_cap: bool = key == "cap"
-		var is_travel: bool = key == "travel"
-		var cost: int = o.cap_cost() if is_cap else (
-			o.travel_cost() if is_travel else o.facility_cost(int(row["kind"])))
+		var kind = row["kind"]
+		var y := v._office_row_y(i)
+		var hb := UiKit.button("?", Vector2(HELP_X, y + 4.0), Vector2(34, 34), func(k = str(kind)):
+			v.help_key = k
+			v._rebuild())
+		hb.tooltip_text = UiKit.t(String(row["label"]))
+		v.ui.add_child(hb)
+		var cost := row_cost(v, kind)
 		if cost <= 0:
 			continue
-		var kind = row["kind"]
 		var b := UiKit.button(upgrade_word(v, kind) + UiKit.t(" · %d CC") % cost,
-			Vector2(UPGRADE_X, v._office_row_y(i) + 6.0), Vector2(UPGRADE_W, 34), func():
-				var err: String = o.raise_cap() if is_cap else (
-					o.buy_travel_slot() if is_travel else o.upgrade(int(kind)))
+			Vector2(UPGRADE_X, y + 4.0), Vector2(UPGRADE_W, 34), func():
+				var err: String
+				if kind is String and kind == "cap":
+					err = o.raise_cap()
+				elif kind is String and kind == "insurance":
+					err = o.raise_rule(Federation.Rule.INSURANCE)
+				else:
+					err = o.upgrade(int(kind))
 				v.flash = UiKit.said(err) if err != "" else UiKit.t("Improved.")
 				Session.autosave()
 				v._rebuild(), "coin")
-		## GREY WHEN THE PURSE CANNOT COVER IT (round 8: "a grey state when you
-		## can't afford it").
 		b.disabled = cost > o.credits
 		v.ui.add_child(b)
-	## THE ALERT IS A LINK (round 1 #9): a role going out untaught opens the
-	## staff room, where the fix is.
-	if not o.untaught().is_empty():
-		v.ui.add_child(UiKit.button(UiKit.t("Open the staff room"),
-			Vector2(SIDE_X + 16.0, SIDE_Y + 104.0), Vector2(side_w() - 32.0, 44), func():
-				Session.autosave()
-				UiKit.go("res://scenes/Staff.tscn"), "helm"))
+	## THE ARENA, on the right: the old "The ground" screen behind one button.
+	v.ui.add_child(UiKit.button(UiKit.t("Arena"), Vector2(SIDE_X + 16.0, SIDE_Y + side_h() - 56.0),
+		Vector2(side_w() - 32.0, 40), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Arena.tscn"), "gate"))
 
 
-## Where the upgrade buttons sit and how wide: wide enough for "Cap $1,250 →
-## $1,438 · 10 CC", and the column beside them keeps the coaching summary.
+## Where the upgrade buttons sit and how wide.
 const UPGRADE_X := SeasonScene.BAR_X + SeasonScene.BAR_W + 14.0
-const UPGRADE_W := 262.0
+const UPGRADE_W := 250.0
 const SIDE_X := UPGRADE_X + UPGRADE_W + 18.0
-const SIDE_Y := SeasonScene.CONTENT_Y + 24.0
+const SIDE_Y := SeasonScene.CONTENT_Y + 4.0
 
 
 static func side_w() -> float:
 	return UiKit.right_edge() - SIDE_X
+
+
+static func side_h() -> float:
+	return SeasonScene.action_y() - 16.0 - SIDE_Y
 
 
 ## BEFORE → AFTER, for the button. What one more step of this buys, measured by
@@ -71,8 +108,9 @@ static func upgrade_word(v: SeasonScene, kind) -> String:
 		var then := o.cap()
 		o.cap_level -= 1
 		return UiKit.t("Cap %s → %s") % [ClubOffice.money(now), ClubOffice.money(then)]
-	if kind is String and kind == "travel":
-		return UiKit.t("Places %d → %d") % [o.travel_slots, o.travel_slots + 1]
+	if kind is String and kind == "insurance":
+		var il := o.rule_level(Federation.Rule.INSURANCE)
+		return UiKit.t("Level %d → %d") % [il, il + 1]
 	var f := int(kind)
 	var l := o.level(f)
 	if f == ClubOffice.Facility.TRAINING:
@@ -82,61 +120,115 @@ static func upgrade_word(v: SeasonScene, kind) -> String:
 	return UiKit.t("Level %d → %d") % [l, l + 1]
 
 
-## ---------------------------------------------------------------- the Club menu
-## How many of the rooms are asking for you: job offers, and a federation bar.
-static func club_calls(v: SeasonScene) -> int:
-	var n := 0
-	if Jobs.offers(v.season.coach, v.season.world).size() > 0:
-		n += 1
-	if not v.season.office.shortfalls().is_empty():
-		n += 1
-	return n
-
-
+## ---------------------------------------------------------------- the menu
+## RESUME, SETTINGS, SAVE / LOAD, QUIT (Pete, 1 Oct 2026). Four buttons down the
+## middle of the card; Resume is the gold one because it is the one you came for.
 static func _club_menu_controls(v: SeasonScene) -> void:
 	var card := v.CLUB_CARD
-	var wanted: int = Jobs.offers(v.season.coach, v.season.world).size()
-	var barred := not v.season.office.shortfalls().is_empty()
-	## TWO COLUMNS WITH A MEANING (round 5: "a mixed bag"): the club's rooms on
-	## the left, the plans and the game on the right, Close filling the grid.
-	var rooms := [
-		[UiKit.t("Staff"), "res://scenes/Staff.tscn", "helm"],
-		[UiKit.t("Playbook"), "res://scenes/Chalkboard.tscn", "board"],
-		[UiKit.t("Records"), "res://scenes/Records.tscn", "book"],
-		[UiKit.t("Create & difficulty"), "res://scenes/Create.tscn", "anvil"],
-		[UiKit.t("Your career") + ((UiKit.t("  ·  %d offer") if wanted == 1 else UiKit.t("  ·  %d offers")) % wanted if wanted > 0 else ""), "res://scenes/Coach.tscn", "ladder"],
+	var bw := card.size.x - 96.0
+	var x := card.position.x + 48.0
+	var y := card.position.y + 70.0
+	var items := [
+		[UiKit.t("Resume"), "", "sword"],
 		[UiKit.t("Settings"), "res://scenes/Settings.tscn", "cog"],
-		[UiKit.t("Federation") + (UiKit.t("  ·  BARRED") if barred else ""), "res://scenes/Federation.tscn", "banner"],
+		[UiKit.t("Save / Load"), "res://scenes/Title.tscn", "book"],
+		[UiKit.t("Quit"), "res://scenes/Start.tscn", "close"],
 	]
-	var pad := 24.0
-	var bw := (card.size.x - pad * 2.0 - 16.0) * 0.5
-	for i in rooms.size():
-		var r: Array = rooms[i]
-		var at := Vector2(card.position.x + pad + float(i % 2) * (bw + 16.0),
-			card.position.y + 72.0 + float(i / 2) * 58.0)
-		## THE ODD ONE OUT SITS IN THE MIDDLE, not under a hole.
-		if i == rooms.size() - 1 and rooms.size() % 2 == 1:
-			at.x = card.get_center().x - bw * 0.5
-		v.ui.add_child(UiKit.button(String(r[0]), at, Vector2(bw, 48), func(path = String(r[1])):
-			v.club_menu_open = false
-			Session.autosave()
-			UiKit.go(path), String(r[2])))
-	## QUIETER THAN THE ROOMS (round 6: Close looked like a seventh room).
-	## AN X IN THE CORNER (round 9: a Close tile in the grid read as a room).
-	var close_b := UiKit.button("", Vector2(card.end.x - 56.0, card.position.y + 12.0), Vector2(44, 44), func():
-			v.club_menu_open = false
-			v._rebuild(), "close")
-	close_b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	close_b.tooltip_text = UiKit.t("Close")
-	v.ui.add_child(close_b)
+	for i in items.size():
+		var it: Array = items[i]
+		var b := UiKit.button(String(it[0]), Vector2(x, y + float(i) * 56.0), Vector2(bw, 46),
+			func(path = String(it[1])):
+				v.club_menu_open = false
+				if path == "":
+					v._rebuild()
+					return
+				Session.autosave()
+				if path != "res://scenes/Settings.tscn":
+					UiKit.trail_reset()
+				UiKit.go(path), String(it[2]))
+		v.ui.add_child(UiKit.primary(b) if i == 0 else (UiKit.danger(b) if i == 3 else b))
 
 
 static func _draw_club_menu(v: SeasonScene) -> void:
 	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, v.CLUB_CARD)
-	UiKit.mid(v, v.font, UiKit.t("THE CLUB"),
-		Vector2(v.CLUB_CARD.position.x, v.CLUB_CARD.position.y + 38.0), 19, UiKit.INK,
+	UiKit.mid(v, v.font, UiKit.t("MENU"),
+		Vector2(v.CLUB_CARD.position.x, v.CLUB_CARD.position.y + 42.0), 19, UiKit.INK,
 		v.CLUB_CARD.size.x)
+
+
+
+
+## ---------------------------------------------------------------- training
+## TRAINING (Pete, 1 Oct 2026: "Make it a pop up with Light/Normal/Hard
+## options"). One row per captain — the regime belongs to the man who runs it —
+## and the paid session under them. Hiring and releasing stay in the staff room.
+const TRAIN_ROW := 64.0
+
+
+static func _training_controls(v: SeasonScene) -> void:
+	var card := v.TRAIN_CARD
+	var o := v.season.office
+	var bx0 := card.position.x + 300.0
+	for i in o.captains.size():
+		var y := card.position.y + 70.0 + float(i) * TRAIN_ROW
+		var bw := (card.end.x - 24.0 - bx0 - 8.0) / 3.0
+		for k in 3:
+			v.ui.add_child(UiKit.selected(UiKit.button(UiKit.t(String(ClubOffice.REGIME_NAME[k])),
+				Vector2(bx0 + float(k) * (bw + 4.0), y), Vector2(bw, 42),
+				func(ci = i, rk = k):
+					v.flash = UiKit.said(o.set_regime(ci, rk))
+					Session.autosave()
+					v._rebuild()),
+				k == int(o.captains[i].get("regime", ClubOffice.Regime.NORMAL))))
+	var cost := o.session_cost()
+	var idle: bool = o.captains.is_empty()
+	var sb := UiKit.button(UiKit.t("Session  ·  +%d XP each  ·  %d CC") % [SeasonBouts.session_xp(v.season), cost],
+		Vector2(card.position.x + 24.0, card.end.y - 66.0), Vector2(card.size.x - 48.0, 46), func():
+			var err := v.season.run_session() if not idle else \
+				UiKit.t("Nobody is teaching. A session with no captain is a warm-up.")
+			v.flash = UiKit.said(err) if err != "" else UiKit.t("A week's work in one afternoon.")
+			Session.autosave()
+			v._rebuild())
+	sb.disabled = cost > o.credits
+	v.ui.add_child(sb if idle or sb.disabled else UiKit.primary(sb))
+	var close_b := UiKit.button("", Vector2(card.end.x - 56.0, card.position.y + 12.0), Vector2(44, 44), func():
+		v.training_open = false
+		v._rebuild(), "close")
+	close_b.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.ui.add_child(close_b)
+
+
+static func _draw_training(v: SeasonScene) -> void:
+	var card := v.TRAIN_CARD
+	var o := v.season.office
+	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(v, card)
+	UiKit.text(v, v.font, UiKit.t("TRAINING"), card.position + Vector2(24, 40), 19, UiKit.INK)
+	if o.captains.is_empty():
+		UiKit.para(v, v.font, UiKit.t("Nobody is teaching. Hire a captain from Management, Staff."),
+			card.position + Vector2(24, 96), 15, UiKit.DIM, card.size.x - 48.0, 20.0, 2)
+	for i in o.captains.size():
+		var c: Dictionary = o.captains[i]
+		var y := card.position.y + 70.0 + float(i) * TRAIN_ROW
+		UiKit.text_fit(v, v.font, String(c.get("name", "?")), Vector2(card.position.x + 24.0, y + 18.0), 17,
+			UiKit.INK, 260.0)
+		UiKit.text_fit(v, v.font, ClubOffice.teaches_line(c), Vector2(card.position.x + 24.0, y + 38.0), 13,
+			UiKit.DIM, 260.0)
+	## WHAT THE THREE TRADE, in one line each.
+	var ly := card.position.y + 70.0 + float(maxi(1, o.captains.size())) * TRAIN_ROW + 18.0
+	for k in 3:
+		UiKit.text_fit(v, v.font, _regime_line(k), Vector2(card.position.x + 24.0, ly + float(k) * 20.0), 14,
+			[UiKit.UP, UiKit.YOU, UiKit.DOWN][k], card.size.x - 48.0)
+
+
+static func _regime_line(k: int) -> String:
+	match k:
+		ClubOffice.Regime.LIGHT:
+			return UiKit.t("Light: XP ×0.6, morale and kit kept, knocks rare")
+		ClubOffice.Regime.HARD:
+			return UiKit.t("Hard: XP ×1.5, morale and kit wear, knocks ×5")
+	return UiKit.t("Normal: XP ×1.0")
 
 
 
@@ -235,185 +327,131 @@ static func _draw_shop(v: SeasonScene) -> void:
 
 static func _draw_office(v: SeasonScene) -> void:
 	var o := v.season.office
-	## THE CREST GOES HERE AND ON THREE OTHER SCREENS. The clubhouse is the room
-	## the player comes back to, the trophy cabinet, the bracket and the title —
-	## four places, out of sixteen. Everywhere would be wallpaper.
-	UiKit.ornament(v, UiKit.ORN_CREST, Rect2(SIDE_X, SIDE_Y, side_w(), 164.0), UiKit.FRAME, 24.0)
-	## THE TWO CURRENCIES, ON THE PAGE THAT SPENDS BOTH (round 4: the cap is in
-	## $ and its price in CC, and the key lived on another tab).
-	UiKit.text_fit(v, v.font, UiKit.t("$ = weekly wages"), Vector2(SIDE_X + 4.0, SIDE_Y + 196.0), 14, UiKit.DIM, side_w())
-	UiKit.text_fit(v, v.font, UiKit.t("CC = club money, spent here"), Vector2(SIDE_X + 4.0, SIDE_Y + 216.0), 14, UiKit.DIM, side_w())
-
-	## NO HINT BAR, AND THAT IS SETTLED. `UiKit.hints()` was deleted on
-	## 15 Sep 2026 — see the note where it used to live in `ui.gd`. It had never
-	## been drawn on any screen, and the reason was structural rather than
-	## forgetful: this tab's action row already runs to the bottom, so a footer
-	## needs 26 pixels RESERVED across every screen that wants one. That is a
-	## layout pass, not a call, and the screens have just been re-anchored to a
-	## canvas that changes shape.
+	UiKit.text(v, v.font, UiKit.t("UPGRADES"), Vector2(SeasonScene.BAR_X, SeasonScene.CONTENT_Y + 6.0), 20, UiKit.INK)
 	for i in SeasonScene.OFFICE_ROWS.size():
 		var row: Dictionary = SeasonScene.OFFICE_ROWS[i]
+		var kind = row["kind"]
 		var y := v._office_row_y(i)
-		var key: String = String(row["kind"]) if row["kind"] is String else ""
-		var is_cap: bool = key == "cap"
 		var label := UiKit.t(String(row["label"]))
-		if key == "travel":
-			## HOW MANY YOU CAN TAKE, and how many you actually have — two numbers
-			## on one row, because a club with six places and five fit men has a
-			## different problem from one with five places and nine fit men.
-			var fit_men := 0
-			for f2 in v.season.club.roster:
-				if f2.fit():
-					fit_men += 1
-			UiKit.pair(v, v.font, label, UiKit.t("%d fit to fight") % fit_men,
-				Vector2(SeasonScene.BAR_X, y), SeasonScene.BAR_X + SeasonScene.BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
-			## ONE SEGMENT A SEAT, filled to the seats he has (round 5: "6 of 8"
-			## beside a bar a third full read as a contradiction).
-			UiKit.meter(v, Rect2(SeasonScene.BAR_X, y + 8, SeasonScene.BAR_W, SeasonScene.BAR_H),
-				o.travel_slots, ClubOffice.TRAVEL_MAX, UiKit.YOU)
-			UiKit.pair(v, v.font,
-				## SAID AS SEATS AND A LIMIT (round 9: "6 of 8" beside "6 → 7" read as
-				## two different counts).
-				UiKit.t("%d seats") % o.travel_slots,
-				"a line and no more" if o.travel_slots <= ClubOffice.TRAVEL_MIN
-					## SHORT ENOUGH FOR THE 220px IT IS GIVEN. The first version said
-					## "2 swaps in the corner" and the screenshot printed "2 swaps
-					## in the corn" — a right-aligned field clips from the right,
-					## so the half that gets cut is the half carrying the meaning.
-					else ((UiKit.t("%d on the bench · %d swap")
-						if mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER) == 1
-						else UiKit.t("%d on the bench · %d swaps")) % [
-						o.travel_slots - ClubOffice.TRAVEL_MIN,
-						mini(o.travel_slots - ClubOffice.TRAVEL_MIN, Tuning.SWAPS_PER_CORNER)]),
-				Vector2(SeasonScene.BAR_X, y + 54), SeasonScene.BAR_X + SeasonScene.BAR_W, 14, 12, UiKit.INK,
-				UiKit.DOWN if o.travel_slots <= ClubOffice.TRAVEL_MIN else UiKit.DIM)
-			continue
-		if is_cap:
-			UiKit.pair(v, v.font, label, UiKit.t("%s rules") % v.season.tier_name(),
-				Vector2(SeasonScene.BAR_X, y), SeasonScene.BAR_X + SeasonScene.BAR_W, 13, 12, UiKit.DIM, UiKit.DIM)
+		var bar := Rect2(SeasonScene.BAR_X, y + 8.0, BAR_W, SeasonScene.BAR_H)
+		var right := ""
+		if kind is String and kind == "cap":
+			## A GAUGE, THE BILL WRITTEN IN THE FILL (Pete, 1 Oct 2026).
 			var bill := ClubOffice.wage_bill(v.season.club)
 			var cap := o.cap()
-			UiKit.bar(v, Rect2(SeasonScene.BAR_X, y + 8, SeasonScene.BAR_W, SeasonScene.BAR_H),
-				float(bill) / float(maxi(1, cap)),
+			var frac := clampf(float(bill) / float(maxi(1, cap)), 0.0, 1.0)
+			v.draw_rect(bar, UiKit.TRACK)
+			v.draw_rect(Rect2(bar.position, Vector2(bar.size.x * frac, bar.size.y)),
 				UiKit.DOWN if bill > cap else UiKit.YOU)
-			UiKit.pair(v, v.font,
-				UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-				(UiKit.t("never raised") if o.cap_level <= 0 else UiKit.t("raised %d×") % o.cap_level),
-				Vector2(SeasonScene.BAR_X, y + 54), SeasonScene.BAR_X + SeasonScene.BAR_W, 14, 12,
-				UiKit.DOWN if bill > cap else UiKit.INK, UiKit.DIM)
-			continue
-		var f := int(row["kind"])
-		## A facility at level nought has no effect, and saying "-0 events off a
-		## knock" is worse than saying nothing: it reads like a broken number
-		## rather than like a thing you have not built.
-		var effect := UiKit.t("not built")
-		match f:
-			ClubOffice.Facility.TRAINING:
-				## THE WINTER CAMP IS THE CAPTAINS' PLUS THE GROUND'S, shown whole.
-				var camp: int = o.camp_points(v.season.club.active_eight()) + o.training_points()
-				effect = UiKit.t("winter camp +%d") % camp
-			ClubOffice.Facility.INFIRMARY:
-				if o.injury_relief() > 0:
-					effect = UiKit.tn("-%d event off a knock", "-%d events off a knock",
-						o.injury_relief()) % o.injury_relief()
-				elif o.level(f) > 0:
-					effect = UiKit.t("one more level to help")
-		## On the LABEL line, not under the bar. Under the bar it landed in the
-		## same place as the blurb and the two strings printed through each other
-		## — which a screenshot shows instantly and nothing else would.
-		UiKit.pair(v, v.font, label, effect, Vector2(SeasonScene.BAR_X, y),
-			SeasonScene.BAR_X + SeasonScene.BAR_W, 13, 13, UiKit.DIM, UiKit.INK)
-		UiKit.meter(v, Rect2(SeasonScene.BAR_X, y + 8, SeasonScene.BAR_W, SeasonScene.BAR_H), o.level(f), ClubOffice.FACILITY_MAX,
-			UiKit.UP if o.level(f) > 0 else UiKit.EDGE)
-		## CLIPPED TO THE LEFT COLUMN. "Fighters improve over the winter. Your
-		## captains decide who." is 462 pixels at this size and the column ends
-		## at NAV_X — so it printed through "ON THE LIST" in the right column,
-		## which is text over text and therefore invisible to every check in the
-		## suite. A screenshot saw it.
-		UiKit.text_fit(v, v.font, UiKit.t(String(ClubOffice.FACILITIES[f]["blurb"])),
-			Vector2(SeasonScene.BAR_X, y + 54), 14, UiKit.DIM,
-			SIDE_X - SeasonScene.BAR_X - 16.0)
+			v.draw_rect(bar, UiKit.FRAME, false, 1.0)
+			UiKit.text(v, v.font, ClubOffice.money(bill), bar.position + Vector2(6, 19), 14, UiKit.BG)
+			UiKit.right(v, v.font, ClubOffice.money(cap), Vector2(bar.end.x - 6.0, bar.position.y + 19.0), 14,
+				UiKit.DIM, 80)
+		elif kind is String and kind == "insurance":
+			var il := o.rule_level(Federation.Rule.INSURANCE)
+			var need := Federation.required(o.tier, Federation.Rule.INSURANCE)
+			right = UiKit.t("league needs %d") % need
+			UiKit.meter(v, bar, il, Federation.MAX_LEVEL, UiKit.UP if il >= need else UiKit.DOWN)
+		else:
+			var f := int(kind)
+			right = UiKit.t("not built")
+			match f:
+				ClubOffice.Facility.TRAINING:
+					var camp: int = o.camp_points(v.season.club.active_eight()) + o.training_points()
+					right = UiKit.t("winter camp +%d") % camp
+				ClubOffice.Facility.INFIRMARY:
+					if o.injury_relief() > 0:
+						right = UiKit.tn("-%d event off a knock", "-%d events off a knock",
+							o.injury_relief()) % o.injury_relief()
+					elif o.level(f) > 0:
+						right = UiKit.t("one more level to help")
+			UiKit.meter(v, bar, o.level(f), ClubOffice.FACILITY_MAX, UiKit.UP if o.level(f) > 0 else UiKit.EDGE)
+		UiKit.pair(v, v.font, label, right, Vector2(SeasonScene.BAR_X, y), HELP_X + 34.0, 13, 12, UiKit.DIM, UiKit.INK)
+		var keep := row_upkeep(v, kind)
+		UiKit.right(v, v.font, UiKit.t("%d CC/Year") % keep, Vector2(UPGRADE_X + UPGRADE_W, y + 52.0), 13,
+			UiKit.DOWN if keep > 0 else UiKit.DIM, UPGRADE_W - 60.0)
+	var ty := v._office_row_y(SeasonScene.OFFICE_ROWS.size()) + 16.0
+	v.draw_line(Vector2(SeasonScene.BAR_X, ty - 18.0), Vector2(UPGRADE_X + UPGRADE_W, ty - 18.0), UiKit.FRAME, 1.0)
+	UiKit.pair(v, v.font, UiKit.t("Maintenance total"), UiKit.t("%d CC/Year") % upkeep_total(v),
+		Vector2(SeasonScene.BAR_X, ty), UPGRADE_X + UPGRADE_W, 15, 15, UiKit.INK, UiKit.DOWN)
+	_draw_arena_panel(v)
 
-	# ------------------------------------------------------------ the captains
-	## THE CAPTAIN CARDS USED TO BE DRAWN HERE TOO, in full, with their own hire
-	## and release buttons — a second copy of the Staff room on the tab next to
-	## the link to it. Two screens showing the same two men, and two hire paths
-	## that had to be kept in step by hand (they were not: only one of them fired
-	## a new captain's arrival trait until this session).
-	##
-	## What belongs on this tab is the SUMMARY — which roles are going out
-	## untaught — because that is the thing that sends you to the staff room. The
-	## detail belongs where you act on it. Removing the duplicate is also what
-	## made room for the three navigation buttons, which had been sitting on top
-	## of the tab row and the captain panels.
 
-	# --------------------------------------------------- what it means on the list
-	## The whole justification for the staff screen, spelled out. A role nobody
-	## covers goes out Green, which is a measured 63% loss rate — the player
-	## should read that here, not work it out from a losing streak.
-	## BELOW THE CREST, not through it. The ornament's bottom bracket reaches
-	## `CONTENT_Y + 242` and this label sat at 250 — eight pixels of clearance
-	## for a 24-pixel corner piece, so the bracket printed through "ON".
-	## MEASURED OFF THE NAV LIST rather than written down, so a fifth button moves
-	## this with it instead of printing through it.
-	##
-	## The gap is back to 26 now that the purse ledger has gone to FINANCES: it
-	## was cut to 12 because two blocks were fighting for 112 pixels, and with one
-	## block left there is room to breathe — which is the whole of Pete's
-	## *"Clubhouse is too crowded"* in one number.
-	var y := SIDE_Y + 40.0
-	var x := SIDE_X + 16.0
-	var w := side_w() - 32.0
-	## THE PURSE LEDGER WENT TO THE FINANCES PAGE, and it was already broken here.
-	##
-	## It was three lines of "what came in" under the nav list — Pete's item 25 of
-	## the 15 Sep playtest, *"No income weekly ever"* — and it was, in its own
-	## comment, *"the cheapest possible answer"*. Two things have changed since.
-	##
-	## First, there is a real one now. FINANCES shows every heading of income and
-	## every heading of spending, this year against last, which is what item 25
-	## actually wanted; and **a summary that repeats the screen it points at is two
-	## screens disagreeing about which is the authority.**
-	##
-	## Second, and worse: the screenshot from 16 Sep shows "WHAT CAME IN / Nothing
-	## yet. The gate pays after your first event." drawn UNDERNEATH the five nav
-	## buttons, in grey, invisible. The nav list is Controls on the UI layer and
-	## this block is `_draw()`; the layer always wins. **A scrim cannot cover a
-	## Button — and it goes the other way too, and the other way is worse**,
-	## because nothing errors and nobody can see what is missing.
-	##
-	## So the block is gone rather than moved down, and the space it used to take
-	## is the answer to *"Clubhouse is too crowded."*
+## THE ARENA, IN BRIEF (Pete, 1 Oct 2026: "Put the Arena in there on the right,
+## brief info and Arena button").
+static func _draw_arena_panel(v: SeasonScene) -> void:
+	var o := v.season.office
+	var a := o.arena
+	var r := Rect2(SIDE_X, SIDE_Y, side_w(), side_h())
+	UiKit.panel(v, r)
+	var x := r.position.x + 16.0
+	var w := r.size.x - 32.0
+	var y := r.position.y + 26.0
+	UiKit.text(v, v.font, UiKit.t("ARENA"), Vector2(x, y), 13, UiKit.DIM)
+	y += 26.0
+	UiKit.text_fit(v, v.font, a.arena_name(), Vector2(x, y), 19, UiKit.INK, w)
+	y += 22.0
+	UiKit.text_fit(v, v.font, UiKit.t("Level %d of %d  ·  holds %d") % [a.level, Arena.LEVELS.size() - 1, a.capacity()],
+		Vector2(x, y), 13, UiKit.DIM, w)
+	y += 30.0
+	UiKit.pair(v, v.font, UiKit.t("Crowd"), UiKit.t("%d%% full") % int(round(o.fill() * 100.0)),
+		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.INK)
+	y += 8.0
+	UiKit.bar(v, Rect2(x, y, w, 8), o.fill(), UiKit.YOU)
+	y += 30.0
+	UiKit.pair(v, v.font, UiKit.t("A home fight pays"), UiKit.t("%d CC") % o.crowd_pay(),
+		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.UP)
+	y += 24.0
+	UiKit.pair(v, v.font, UiKit.t("Maintenance"), UiKit.t("%d CC/Year") % o.arena_upkeep(),
+		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.DOWN)
+	y += 24.0
+	if not a.at_top():
+		UiKit.pair(v, v.font, UiKit.t("Next"), String(UiKit.t(String(a.next()["name"]))),
+			Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.INK)
 
-	## ---------------------------------------------------- ON THE LIST
-	## ONE LINE, NOT A TABLE OF THREE.
-	##
-	## This drew Rail / Flanker / Center each with its coaching tier stacked
-	## under it, plus two lines of warning — ninety pixels of a column that had a
-	## hundred and thirty for two blocks. Adding the purse ledger above it pushed
-	## the tiers straight through the action row.
-	##
-	## The table was never the point. Everything it said ended in *"go to the
-	## staff room"*, and the staff room shows the same three roles in more detail
-	## on a screen that is one tap away and is not full. **A summary that repeats
-	## the screen it points at is two screens disagreeing about which of them is
-	## the authority.** So: the headline, and the sentence that says what to do.
-	UiKit.text(v, v.font, UiKit.t("COACHING"), Vector2(x, y), 14, UiKit.DIM)
-	var bare := o.untaught()
-	if bare.is_empty():
-		var best := ""
-		for role in [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]:
-			best = UiKit.t(String(Tuning.AI_SKILL[o.tier_for(role)]["name"]))
-			break
-		UiKit.text_fit(v, v.font, UiKit.t("Every role taught."), Vector2(x, y + 24), 14, UiKit.UP, w)
-		UiKit.text_fit(v, v.font, UiKit.t("fights at %s level") % best.to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)
-	else:
-		## ONE LINE, and the column is the reason. There are 132 pixels between
-		## the foot of the nav list and the action row for two blocks, and a
-		## second line of warning put its descenders through the Chalkboard
-		## button. The staff room says all of this at length and is one tap away.
-		var names := ""
-		for r in bare:
-			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
-		UiKit.text_fit(v, v.font, UiKit.t("%s untaught") % names, Vector2(x, y + 24), 14, UiKit.DOWN, w)
-		UiKit.text_fit(v, v.font, UiKit.t("fights at %s level") % UiKit.t(String(Tuning.AI_SKILL[o.tier_for(bare[0])]["name"])).to_lower(), Vector2(x, y + 46), 14, UiKit.DIM, w)
+
+## ------------------------------------------------------------------ the "?"
+static func help_text(key: String) -> Array:
+	if key == "kit":
+		return [UiKit.t("KIT"), UiKit.t("Your armorer's stars are the best metal he can make and keep.")]
+	if key == "cap":
+		return [UiKit.t("SALARY CAP"), UiKit.t("$ is weekly wages. Your whole team's wages may not add up to more than the cap. Raise it to carry better men.")]
+	if key == "insurance":
+		return [UiKit.t("INSURANCE"), UiKit.t("Cover for the men, the ground and the people watching. Each league asks for a level. Below it, you are not entered for the cups.")]
+	if key == str(ClubOffice.Facility.TRAINING):
+		return [UiKit.t("TRAINING GROUND"), UiKit.t("More weekly practice, and a bigger winter camp.")]
+	if key == str(ClubOffice.Facility.INFIRMARY):
+		return [UiKit.t("INFIRMARY"), UiKit.t("A knock keeps a man out of fewer events.")]
+	return ["", ""]
+
+
+static func _help_card() -> Rect2:
+	var sz := Vector2(520.0, 290.0)
+	return Rect2(Vector2(floorf((UiKit.screen().x - sz.x) * 0.5), 130.0), sz)
+
+
+static func _help_controls(v: SeasonScene) -> void:
+	var card := _help_card()
+	v.ui.add_child(UiKit.button(UiKit.t("Got it"), Vector2(card.end.x - 184.0, card.end.y - 62.0), Vector2(160, 44),
+		func():
+			v.help_key = ""
+			v._rebuild()))
+
+
+static func _draw_help(v: SeasonScene) -> void:
+	var card := _help_card()
+	var h := help_text(v.help_key)
+	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(v, card)
+	UiKit.text(v, v.font, String(h[0]), card.position + Vector2(24, 40), 19, UiKit.INK)
+	if v.help_key == "kit":
+		## THE FIVE METALS, BY STAR, and nothing else (Pete, 1 Oct 2026).
+		for i in Armorer.MAX_STARS:
+			var y := card.position.y + 76.0 + float(i) * 24.0
+			UiKit.stars(v, Vector2(card.position.x + 24.0, y - 12.0), (i + 1) * 20, UiKit.YOU, 12.0, 2.0)
+			UiKit.text(v, v.font, Armorer.metal_name(i), Vector2(card.position.x + 120.0, y), 16, UiKit.INK)
+		UiKit.para(v, v.font, String(h[1]), Vector2(card.position.x + 24.0, card.position.y + 200.0), 13,
+			UiKit.DIM, card.size.x - 48.0, 17.0, 2)
+		return
+	UiKit.para(v, v.font, String(h[1]), card.position + Vector2(24, 78), 15, UiKit.DIM,
+		card.size.x - 48.0, 21.0, 4)

@@ -116,7 +116,8 @@ static func build(
 const LINE_SIZE: int = 5
 const ACTIVE_SIZE: int = 8
 const BENCH_SIZE: int = ACTIVE_SIZE - 5
-const RESERVE_SIZE: int = 5
+## FOUR (Pete, 1 Oct 2026: "4 is a good limit on reserves").
+const RESERVE_SIZE: int = 4
 const SQUAD_MAX: int = ACTIVE_SIZE + RESERVE_SIZE
 
 ## Kept under the old name because the fixtures and the tests read it: the

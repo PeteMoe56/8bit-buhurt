@@ -12,21 +12,154 @@ const NET_WORD := ["AHEAD SO FAR", "SHORT SO FAR"]
 
 
 static func _finances_controls(v: SeasonScene) -> void:
-	## THE GROUND, from the page that talks about what it earns. Pete asked for
-	## the arena to live here and it half does: the numbers are on this screen and
-	## the building is one tap away, which is better than a sixth copy of the
-	## build button.
-	v.ui.add_child(UiKit.button(UiKit.t("The ground"), Vector2(24, SeasonScene.action_y()),
-		Vector2(200, 44), func():
+	if v.fin_full:
+		v.ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, SeasonScene.action_y()),
+			Vector2(200, 44), func():
+				v.fin_full = false
+				v._rebuild()))
+		v.ui.add_child(UiKit.button(UiKit.t("Buy credits"), Vector2(240, SeasonScene.action_y()),
+			Vector2(200, 44), func():
+				v.shop_open = true
+				v._rebuild(), "coin"))
+		return
+	## MANAGEMENT (Pete, 1 Oct 2026): Finances, Staff, You — each a summary and
+	## the button that opens all of it.
+	var pw := panel_w()
+	var by := panel_bottom() - 54.0
+	v.ui.add_child(UiKit.button(UiKit.t("Finances"), Vector2(panel_x(0) + 14.0, by), Vector2(pw - 28.0, 40),
+		func():
+			v.fin_full = true
+			v._rebuild(), "purse"))
+	v.ui.add_child(UiKit.button(UiKit.t("Staff"), Vector2(panel_x(1) + 14.0, by), Vector2(pw - 28.0, 40),
+		func():
 			Session.autosave()
-			UiKit.go("res://scenes/Arena.tscn"), "gate"))
-	## AND THE COUNTER. It was on the Clubhouse, which is Pete's *"Clubhouse is
-	## too crowded"* — and it belongs on the page about money rather than the page
-	## about buildings.
-	v.ui.add_child(UiKit.button(UiKit.t("Buy credits"), Vector2(240, SeasonScene.action_y()),
-		Vector2(200, 44), func():
-			v.shop_open = true
-			v._rebuild(), "coin"))
+			UiKit.go("res://scenes/Staff.tscn"), "helm"))
+	var half := (pw - 36.0) * 0.5
+	v.ui.add_child(UiKit.button(UiKit.t("Playbook"), Vector2(panel_x(2) + 14.0, by), Vector2(half, 40),
+		func():
+			Session.autosave()
+			UiKit.go("res://scenes/Chalkboard.tscn"), "board"))
+	v.ui.add_child(UiKit.button(UiKit.t("Team edit"), Vector2(panel_x(2) + 22.0 + half, by), Vector2(half, 40),
+		func():
+			Session.autosave()
+			Session.create_tab = 1
+			UiKit.go("res://scenes/Create.tscn"), "anvil"))
+	## A POINT TO SPEND opens the coach's page, where the + buttons are.
+	var c := v.season.coach
+	if c.points > 0:
+		var ry := panel_top() + 56.0 + YOU_SKILL_Y + 5.0 * YOU_ROW - 14.0
+		## NOT GOLD: the hub has one gold button and it is the way forward (C3).
+		v.ui.add_child(UiKit.button(UiKit.tn("Spend %d point", "Spend %d points", c.points) % c.points,
+			Vector2(panel_x(2) + 14.0, ry), Vector2(pw - 28.0, 34), func():
+				Session.autosave()
+				UiKit.go("res://scenes/Coach.tscn"), "ladder"))
+
+
+const PANEL_GAP := 12.0
+
+
+static func panel_w() -> float:
+	return (UiKit.span() - PANEL_GAP * 2.0) / 3.0
+
+
+static func panel_x(i: int) -> float:
+	return 24.0 + float(i) * (panel_w() + PANEL_GAP)
+
+
+static func panel_top() -> float:
+	return SeasonScene.CONTENT_Y - 6.0
+
+
+static func panel_bottom() -> float:
+	return SeasonScene.action_y() - 12.0
+
+
+static func _draw_management(v: SeasonScene) -> void:
+	var o := v.season.office
+	var pw := panel_w()
+	for i in 3:
+		UiKit.panel(v, Rect2(panel_x(i), panel_top(), pw, panel_bottom() - panel_top()))
+	var heads := [UiKit.t("FINANCES  ·  THIS YEAR"), UiKit.t("STAFF"), UiKit.t("YOU")]
+	for i in 3:
+		UiKit.text_fit(v, v.font, heads[i], Vector2(panel_x(i) + 14.0, panel_top() + 24.0), 13, UiKit.DIM, pw - 28.0)
+	# ---- finances
+	var x := panel_x(0) + 14.0
+	var w := pw - 28.0
+	var y := panel_top() + 60.0
+	var i_n := ClubOffice.book_total(o.books_in)
+	var o_n := ClubOffice.book_total(o.books_out)
+	UiKit.pair(v, v.font, UiKit.t("In"), UiKit.t("%d CC") % i_n, Vector2(x, y), x + w, 20, 20, UiKit.INK, UiKit.UP)
+	y += 32.0
+	UiKit.pair(v, v.font, UiKit.t("Out"), UiKit.t("%d CC") % o_n, Vector2(x, y), x + w, 20, 20, UiKit.INK, UiKit.DOWN)
+	y += 14.0
+	v.draw_line(Vector2(x, y), Vector2(x + w, y), UiKit.FRAME, 1.0)
+	y += 28.0
+	var net := i_n - o_n
+	UiKit.pair(v, v.font, UiKit.t("Total"), UiKit.t("%+d CC") % net, Vector2(x, y), x + w, 22, 22, UiKit.INK,
+		UiKit.UP if net >= 0 else UiKit.DOWN)
+	y += 34.0
+	UiKit.para(v, v.font, UiKit.t("%d CC in hand. Gates and prizes land as events are fought.") % o.credits,
+		Vector2(x, y), 13, UiKit.DIM, w, 17.0, 3)
+	# ---- staff
+	x = panel_x(1) + 14.0
+	y = panel_top() + 52.0
+	UiKit.text(v, v.font, UiKit.t("CAPTAINS"), Vector2(x, y), 12, UiKit.DIM)
+	y += 22.0
+	if o.captains.is_empty():
+		UiKit.text_fit(v, v.font, UiKit.t("Nobody teaching."), Vector2(x, y), 14, UiKit.DOWN, w)
+		y += 22.0
+	for c in o.captains:
+		UiKit.text_fit(v, v.font, String(c.get("name", "?")), Vector2(x, y), 15, UiKit.INK, w - 70.0)
+		UiKit.stars(v, Vector2(x + w - 64.0, y - 11.0), int(c.get("grade", 1)) * 20, UiKit.YOU, 11.0, 2.0)
+		y += 18.0
+		var t := ClubOffice.trait_of(c)
+		var line := ClubOffice.teaches_line(c)
+		if t != ClubOffice.Trait.NONE:
+			line = UiKit.t("%s  ·  %s") % [UiKit.t(String(ClubOffice.TRAIT_NAME[t])), line]
+		UiKit.text_fit(v, v.font, line, Vector2(x, y), 12, UiKit.DIM, w)
+		y += 24.0
+	var bare := o.untaught()
+	if not bare.is_empty():
+		var names := ""
+		for r in bare:
+			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
+		UiKit.text_fit(v, v.font, UiKit.t("%s: nobody teaches it") % names, Vector2(x, y), 13, UiKit.DOWN, w)
+		y += 24.0
+	SeasonFinancesTab._draw_armorer_line(v, x, y + 6.0, w)
+	# ---- you
+	x = panel_x(2) + 14.0
+	y = panel_top() + 56.0
+	SeasonFinancesTab._draw_you(v, x, y, w)
+
+
+## THE ARMORER, under the captains. Filled in by the armorer's own patch.
+static func _draw_armorer_line(v: SeasonScene, x: float, y: float, w: float) -> void:
+	var a: Dictionary = v.season.office.armorer
+	UiKit.text(v, v.font, UiKit.t("ARMORER"), Vector2(x, y), 12, UiKit.DIM)
+	y += 22.0
+	UiKit.text_fit(v, v.font, String(a.get("name", "")), Vector2(x, y), 15, UiKit.INK, w - 70.0)
+	UiKit.stars(v, Vector2(x + w - 64.0, y - 11.0), int(a.get("stars", 1)) * 20, UiKit.YOU, 11.0, 2.0)
+	UiKit.text_fit(v, v.font, UiKit.t("Makes up to %s") % Armorer.metal_name(Armorer.cap_of(a)),
+		Vector2(x, y + 18.0), 12, UiKit.DIM, w)
+
+
+const YOU_SKILL_Y := 64.0
+const YOU_ROW := 24.0
+
+
+static func _draw_you(v: SeasonScene, x: float, y: float, w: float) -> void:
+	var c := v.season.coach
+	UiKit.text_fit(v, v.font, c.display_name, Vector2(x, y), 19, UiKit.YOU, w)
+	UiKit.text_fit(v, v.font, UiKit.t("%s  ·  level %d") % [Coach.background_name(c.background), c.level],
+		Vector2(x, y + 20.0), 13, UiKit.DIM, w)
+	UiKit.bar(v, Rect2(x, y + 30.0, w, 9), float(c.xp) / float(Coach.need(c.level)), UiKit.YOU)
+	for i in 5:
+		var sy := y + YOU_SKILL_Y + float(i) * YOU_ROW
+		UiKit.text_fit(v, v.font, Coach.skill_name(i), Vector2(x, sy), 14, UiKit.INK, w - 110.0)
+		UiKit.stars(v, Vector2(x + w - 104.0, sy - 11.0), c.skill(i) * 20, UiKit.YOU, 11.0, 2.0)
+	var ry := y + YOU_SKILL_Y + 5.0 * YOU_ROW + 4.0
+	if c.points <= 0:
+		UiKit.text_fit(v, v.font, UiKit.t("Record %s") % c.record_line(), Vector2(x, ry), 13, UiKit.DIM, w)
 
 
 
@@ -34,8 +167,12 @@ static func _finances_controls(v: SeasonScene) -> void:
 static var _has_last := true
 
 
-## THE YEAR IN HAND AND THE YEAR BEFORE IT, in two columns.
+## THE YEAR IN HAND AND THE YEAR BEFORE IT, in two columns — behind the
+## Management tab's Finances button.
 static func _draw_finances(v: SeasonScene) -> void:
+	if not v.fin_full:
+		_draw_management(v)
+		return
 	var o := v.season.office
 	var last: Dictionary = o.books_last
 	var was_in: Dictionary = last.get("in", {})

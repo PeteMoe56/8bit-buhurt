@@ -410,7 +410,7 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 		## man who learns faster is the same shape as a hard winter, at the man.
 		var earned := int(round(float(Career.xp_for(m.downs_caused, m.rounds_standing, m.card.overall()))
 			* s.office.regime_xp(role) * s.office.specialty_xp(role)
-			* FighterTrait.mod(m.card.trait_id, "xp", 1.0)))
+			* FighterTrait.mod(m.card.trait_id, "xp", 1.0) * s.coach.training_mult()))
 		m.card.xp += earned
 		s.last_xp[m.card] = earned
 		## CEILING RAISER. A three-down afternoon is the best thing a man does all
@@ -568,7 +568,8 @@ static func _practice(s: Season, paid: bool = false) -> void:
 		var role := Tuning.role_of(int(f.pos))
 		var got := Career.practice_xp(s.office.coaching(role), five.has(f) and not full) \
 			* s.office.practice_ground() * s.office.regime_xp(role) \
-			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
+			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0) \
+			* s.coach.training_mult()
 		var week_xp := maxi(1, int(round(got)))
 		if share >= 1.0:
 			f.xp += week_xp
@@ -752,6 +753,9 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> 
 	var drew: bool = rf == ra
 	var swing := ClubOffice.MORALE_WIN if won else (0.0 if drew else ClubOffice.MORALE_LOSS)
 	swing += s.office.ground_morale()
+	## THE COACH'S MOTIVATION takes the edge off a loss, 10% a star.
+	if swing < 0.0:
+		swing *= s.coach.morale_loss_mult()
 	## THE MOOD, BEFORE AND AFTER, PER MAN. The swing is the same for everybody
 	## and the WORD is not — `morale_shift` is a logistic, so the same nudge moves
 	## a contented man a little and a struggling one a lot, and the report is

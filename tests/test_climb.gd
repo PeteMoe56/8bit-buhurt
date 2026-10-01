@@ -13,7 +13,6 @@ var checks: int = 0
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the climb ===\n")
-	_test_jobs_one_league_up()
 	_test_ground_before_division()
 	_test_build_one_ahead()
 	_test_cap_binds_a_good_squad()
@@ -34,26 +33,6 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 	print("  %s  %s — %s" % ["pass" if cond else "FAIL", label, detail])
 	if not cond:
 		failures.append("%s: %s" % [label, detail])
-
-
-## A coach at the very top of the reputation scale, running a bottom-division
-## club, is offered nothing above the division next door.
-func _test_jobs_one_league_up() -> void:
-	var s := Season.new(MeleeRosters.starting_club(), 4242)
-	s.coach.reputation = Coach.REP_MAX
-	var here := s.world.player_tier()
-	var too_high := 0
-	var any := 0
-	for season_no in range(3, 9):
-		s.world.season = season_no
-		for id in Jobs.offers(s.coach, s.world):
-			any += 1
-			if int(s.world.clubs[id]["tier"]) > here + 1:
-				too_high += 1
-	_ok(any > 0 and too_high == 0, "a job offer comes from one division up at most",
-		"%d offers over six seasons to a top-reputation coach in tier %d; %d from further up"
-			% [any, here, too_high])
-
 
 func _promotable() -> Season:
 	var s := Season.new(MeleeRosters.starting_club(), 4242)

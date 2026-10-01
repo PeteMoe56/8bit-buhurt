@@ -33,7 +33,6 @@ const SCREENS := [
 	["res://scenes/Staff.tscn", -1],
 	["res://scenes/Coach.tscn", -1],
 	["res://scenes/Records.tscn", -1],
-	["res://scenes/Federation.tscn", -1],
 	["res://scenes/Arena.tscn", -1],
 	["res://scenes/Chalkboard.tscn", -1],
 	["res://scenes/Bracket.tscn", -1],

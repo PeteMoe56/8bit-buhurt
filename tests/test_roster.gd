@@ -398,7 +398,7 @@ func _test_the_room_is_the_men_in_it() -> void:
 	## And it is the average of the EIGHT WHO TRAVEL: a reserve who never leaves
 	## the club does not set the tone in the changing room.
 	var bad: Array[String] = []
-	var season := Season.new(MeleeRosters.starting_club(), 4242)
+	var season := Season.new(MeleeRosters.starting_club_with_reserve(), 4242)
 	var o := season.office
 	o.sync_morale(season.club)
 	var eight := season.club.active_eight()
@@ -511,7 +511,7 @@ func _test_cutting_a_man_is_read_by_the_room() -> void:
 	## directions, because a cut that only ever lifts morale is a free action.
 	var bad: Array[String] = []
 
-	var a := Season.new(MeleeRosters.starting_club(), 31337)
+	var a := Season.new(MeleeRosters.starting_club_with_reserve(), 31337)
 	## A RESERVE, not a benched man. `MeleeClub.cut` refuses anybody on the eight
 	## — you swap him out first — and the first draft of this check picked a
 	## backup, got the refusal, threw it away and then measured a room nobody had
@@ -553,7 +553,7 @@ func _test_cutting_a_man_is_read_by_the_room() -> void:
 		if after <= before - 0.0001:
 			bad.append("cutting a toxic man does not clear the air")
 
-	var b := Season.new(MeleeRosters.starting_club(), 31337)
+	var b := Season.new(MeleeRosters.starting_club_with_reserve(), 31337)
 	var liked: FighterCard = null
 	for f in b.club.roster:
 		if not b.club.active_eight().has(f):

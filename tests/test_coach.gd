@@ -1,5 +1,7 @@
 extends SceneTree
-## You: the reputation, the book that follows you, and the job offers.
+## You: the coach — his levels, his five skills and what each one does, his
+## record, and the captains' traits (which belong to the men you hire, not to
+## you). Pete, 1 Oct 2026: the reputation and the job offers are gone.
 ##
 ##   godot --headless --path . --script res://tests/test_coach.gd
 
@@ -10,14 +12,11 @@ var notes: Array[String] = []
 
 func _initialize() -> void:
 	print("\n=== 8-Bit Buhurt — the coach ===\n")
-	_test_reputation_climbs_and_halves()
-	_test_a_cup_run_is_worth_what_it_was()
-	_test_only_clubs_you_outrate_come_for_you()
-	_test_the_dream_job_is_held_back()
-	_test_the_list_does_not_reshuffle()
-	_test_taking_a_job_leaves_everything_behind()
-	_test_bought_credits_follow_the_coach()
-	_test_the_book_outlives_the_club()
+	_test_levels_come_from_the_work()
+	_test_points_and_the_background()
+	_test_each_skill_does_its_thing()
+	_test_the_coach_survives_a_save()
+	_test_an_old_save_asks_for_him()
 	_test_traits_reach_only_the_roles_their_man_covers()
 
 	print("")
@@ -43,347 +42,121 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 		failures.append("%s: %s" % [label, detail])
 
 
-func _test_reputation_climbs_and_halves() -> void:
-	## THE SHAPE IS THE POINT: additive on success, MULTIPLICATIVE on failure.
-	## Retro Bowl's own `coach_rating` does this and it is the thing that makes
-	## the number mean something — a coach at 18 has sustained it, because one
-	## mid-table season takes half of whatever he built.
-	##
-	## A version that subtracted a fixed amount would be a slider with a label,
-	## which is the same complaint this project has made of three other systems.
-	var bad: Array[String] = []
-	var climbed: Array[int] = []
+func _test_levels_come_from_the_work() -> void:
 	var c := Coach.new()
-	for place in [1, 1, 1, 1, 1, 1]:
-		c.after_division(place)
-		climbed.append(c.reputation)
-	if c.reputation != Coach.REP_MAX:
-		bad.append("six division titles do not reach the ceiling (%d)" % c.reputation)
-
-	## And now one bad year.
-	var before := c.reputation
-	c.after_division(9)
-	if c.reputation >= before:
-		bad.append("finishing ninth did not cost anything")
-	if c.reputation > int(round(float(before) * 0.6)):
-		bad.append("finishing ninth cost less than a halving")
-
-	## Every place on the ladder has to differ from its neighbors, or the table
-	## is decoration.
-	var by_place: Array[int] = []
-	for place in range(1, 6):
-		var p := Coach.new()
-		p.reputation = 10
-		p.after_division(place)
-		by_place.append(p.reputation)
-	for i in range(1, by_place.size()):
-		if by_place[i] > by_place[i - 1]:
-			bad.append("finishing %d is worth more than finishing %d" % [i + 1, i])
-
-	## The floor and the ceiling both hold — a coach cannot halve his way to zero
-	## and cannot win his way past the scale the clubs are compared on.
-	var floored := Coach.new()
-	for _i in 30:
-		floored.after_division(12)
-	if floored.reputation != Coach.REP_MIN:
-		bad.append("thirty bad seasons do not settle at the floor (%d)" % floored.reputation)
-
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	notes.append("six titles from nothing: %s, then one ninth place: %d"
-		% [str(climbed), c.reputation])
-	notes.append("from 10, finishing 1st-5th leaves you at %s" % str(by_place))
-	_ok(bad.is_empty(), "reputation climbs and halves",
-		"winning adds and missing out multiplies, so a high reputation is evidence of sustained work rather than of one good year")
+	c.start_fresh()
+	var p0 := c.points
+	for _i in 5:
+		c.note_result(true, false)
+	var after_wins := c.level
+	c.after_division(1)
+	c.after_cup(1)
+	_ok(after_wins == 2 and c.level >= 3 and c.points == p0 + c.level - 1 and c.record_line() == "5-0-0",
+		"wins, a title and a cup are levels, and a level is a point",
+		"5 wins: level %d; + 1st and a cup: level %d, %d points (started %d)" % [after_wins, c.level, c.points, p0])
+	var l := Coach.new()
+	l.note_result(false, false)
+	_ok(l.xp == 0 and l.losses == 1, "a loss pays nothing", "xp %d" % l.xp)
 
 
-func _test_a_cup_run_is_worth_what_it_was() -> void:
-	## Paid by the size of the round you went out in, which is the key
-	## `Cup.ROUND_NAMES` is written on — so the label on the cabinet and the
-	## reputation the run earned are two readings of one number.
-	var bad: Array[String] = []
-	var paid: Array[int] = []
-	var sizes := [16, 8, 4, 2, 1]
-	for sz in sizes:
-		var c := Coach.new()
-		c.reputation = 5
-		c.after_cup(sz)
-		paid.append(c.reputation - 5)
-	for i in range(1, paid.size()):
-		if paid[i] <= paid[i - 1]:
-			bad.append("going out at %d is worth no more than at %d" % [sizes[i], sizes[i - 1]])
-	## Not entering pays nothing, and must not crash.
-	var out := Coach.new()
-	out.reputation = 5
-	out.after_cup(-1)
-	if out.reputation != 5:
-		bad.append("a cup you were not in moved your reputation")
-
-	## EVERY ROUND NAME THE CUP CAN PRINT HAS A PRICE. A round in ROUND_NAMES with
-	## no entry here is a run that silently pays nothing.
-	for key in Cup.ROUND_NAMES:
-		if not Coach.REP_BY_CUP_EXIT.has(int(key)):
-			bad.append("the %s pays nothing" % String(Cup.ROUND_NAMES[key]))
-
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	notes.append("a cup run pays %s for going out at %s" % [str(paid), str(sizes)])
-	_ok(bad.is_empty(), "a cup run is worth what it was",
-		"every round is worth more than the one before it and winning the thing is worth most")
-
-
-func _test_only_clubs_you_outrate_come_for_you() -> void:
-	## THE RULE THAT MAKES THE OFFER LIST A LADDER. You are offered clubs you
-	## out-rate, so the list grows as you do and visibly shortens after a bad
-	## season — punishment with no code about punishment in it.
-	var bad: Array[String] = []
-	var s := Season.new(MeleeRosters.starting_club(), 9001)
-	s.world.season = 5              ## past the boyhood-club gate, so it is not in play
-
-	var low := Coach.new()
-	low.reputation = Coach.REP_MIN
-	low.club_id = s.world.player_club
-	var high := Coach.new()
-	high.reputation = Coach.REP_MAX
-	high.club_id = s.world.player_club
-
-	var few := Jobs.offers(low, s.world)
-	var many := Jobs.offers(high, s.world)
-	if few.size() >= many.size():
-		bad.append("a reputation of %d is offered as much as one of %d"
-			% [Coach.REP_MIN, Coach.REP_MAX])
-	## Nobody is ever offered their own desk.
-	for cid in many:
-		if cid == high.club_id:
-			bad.append("your own club is on the list")
-	## And every club on the list must actually be out-rated — read through the
-	## same standing function the rule uses, not re-derived here.
-	for cid in many:
-		if high.reputation < Jobs.standing_of(int(s.world.clubs[cid]["power"])):
-			bad.append("club %d is on the list and out-rates the coach" % cid)
-
-	## THE HALVING HAS TO REACH THE LIST, which is the whole point of the rule
-	## and cannot be seen from either half on its own.
-	var slipping := Coach.new()
-	slipping.reputation = 16
-	slipping.club_id = s.world.player_club
-	var before := Jobs.offers(slipping, s.world).size()
-	slipping.after_division(9)
-	var after := Jobs.offers(slipping, s.world).size()
-	if after >= before:
-		bad.append("one bad season did not shorten the list (%d -> %d)" % [before, after])
-
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	notes.append("offers at reputation %d: %d clubs · at %d: %d clubs"
-		% [Coach.REP_MIN, few.size(), Coach.REP_MAX, many.size()])
-	notes.append("a 16 who finishes ninth: %d offers become %d" % [before, after])
-	_ok(bad.is_empty(), "only clubs you outrate come for you",
-		"the offer list is a ladder that grows with the reputation and shortens the season after a bad one")
-
-
-func _test_the_dream_job_is_held_back() -> void:
-	## Retro Bowl bars your boyhood club until year 3 however good you are, and it
-	## is the one line in `s_team_interested` I would not have written. Offered in
-	## season one the dream job is a menu item; held back it is the thing you are
-	## playing toward.
-	var bad: Array[String] = []
-	var s := Season.new(MeleeRosters.starting_club(), 4242)
+func _test_points_and_the_background() -> void:
 	var c := Coach.new()
-	c.reputation = Coach.REP_MAX
-	c.club_id = s.world.player_club
-	c.favorite_club_id = s.coach.favorite_club_id
-	if c.favorite_club_id < 0:
-		bad.append("no boyhood club was drawn")
-	else:
-		s.world.season = 1
-		var early: bool = Jobs.interested(c, s.world, c.favorite_club_id)
-		s.world.season = Jobs.DREAM_HELD_UNTIL_SEASON
-		## The 1-in-4 also applies to the dream, so "not barred" is the question
-		## rather than "offered" — and it must be answerable, which it is because
-		## the seed depends on the season and this is a different season.
-		s.world.season = 99
-		var late_barred: bool = c.favorite_club_id == c.club_id
-		if early:
-			bad.append("the boyhood club came for you in season 1")
-		if late_barred:
-			bad.append("the boyhood club is the club you already have")
-		## And it must be a club at the top of the pyramid, not one down the road.
-		var tier := int(s.world.clubs[c.favorite_club_id]["tier"])
-		if tier != League.TIERS.size() - 1:
-			bad.append("the boyhood club is in tier %d, not the top one" % tier)
-		notes.append("the boyhood club is %s (%s), barred until season %d"
-			% [String(s.world.clubs[c.favorite_club_id]["name"]),
-				League.tier_name(tier), Jobs.DREAM_HELD_UNTIL_SEASON])
-
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	_ok(bad.is_empty(), "the dream job is held back",
-		"your boyhood club is drawn from the top of the pyramid, is never the club you have, and will not come for you before season %d"
-			% Jobs.DREAM_HELD_UNTIL_SEASON)
+	c.created = false
+	c.start_fresh(Coach.Background.PROMOTER)
+	var ok1 := c.skill(Coach.Skill.BUSINESS) == 1 and c.points == Coach.START_POINTS
+	c.set_background(Coach.Background.MARSHAL)
+	var ok2 := c.skill(Coach.Skill.BUSINESS) == 0 and c.skill(Coach.Skill.TACTICS) == 1
+	c.spend(Coach.Skill.TRAINING)
+	c.unspend(Coach.Skill.TRAINING)
+	c.unspend(Coach.Skill.TACTICS)
+	var ok3 := c.points == Coach.START_POINTS and c.skill(Coach.Skill.TACTICS) == 1
+	c.points = 9
+	for _i in 7:
+		c.spend(Coach.Skill.RECRUITING)
+	var ok4 := c.skill(Coach.Skill.RECRUITING) == Coach.SKILL_MAX and c.spend(Coach.Skill.RECRUITING) != ""
+	c.created = true
+	c.unspend(Coach.Skill.RECRUITING)
+	var ok5 := c.skill(Coach.Skill.RECRUITING) == Coach.SKILL_MAX
+	_ok(ok1 and ok2 and ok3 and ok4 and ok5,
+		"a background is a free point, a skill tops out at five, and a spent point stays spent",
+		"%s %s %s %s %s" % [ok1, ok2, ok3, ok4, ok5])
 
 
-func _test_the_list_does_not_reshuffle() -> void:
-	## A hire screen whose candidates change while you read them is unusable, and
-	## this list is drawn every time the screen rebuilds — which is on every tap.
-	## The 1-in-4 is seeded on the three things that make this offer this offer.
+func _test_each_skill_does_its_thing() -> void:
 	var bad: Array[String] = []
-	var s := Season.new(MeleeRosters.starting_club(), 1234)
-	s.world.season = 6
+	## TRAINING: the same practice week, with and without five stars.
+	var a := Season.new(MeleeRosters.starting_club(), 4040)
+	var b := Season.new(MeleeRosters.starting_club(), 4040)
+	b.coach.skills[Coach.Skill.TRAINING] = 5
+	var xa := 0
+	var xb := 0
+	SeasonBouts._practice(a, true)
+	SeasonBouts._practice(b, true)
+	for f in a.club.roster:
+		xa += f.xp
+	for f in b.club.roster:
+		xb += f.xp
+	if xb <= xa:
+		bad.append("Training: %d XP at 5 stars vs %d at none" % [xb, xa])
+	## BUSINESS: a gate of 10 at four stars pays 12.
+	var o := ClubOffice.new()
 	var c := Coach.new()
-	c.reputation = 14
-	c.club_id = s.world.player_club
-	var first := Jobs.offers(c, s.world)
-	for _i in 20:
-		if Jobs.offers(c, s.world) != first:
-			bad.append("the list changed between reads")
-			break
-	## And it MUST change when the year does, or it is not an offer, it is a fact.
-	s.world.season = 7
-	var next_year := Jobs.offers(c, s.world)
-	if next_year == first and not first.is_empty():
-		bad.append("the same clubs come for you every season forever")
-	## Best club first, because the list is a ladder and the top of it is why you
-	## read it.
-	for i in range(1, first.size()):
-		if int(s.world.clubs[first[i]]["power"]) > int(s.world.clubs[first[i - 1]]["power"]):
-			bad.append("the list is not sorted best-first")
-			break
-
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	notes.append("season 6 offers %d clubs, twenty reads apart; season 7 offers %d"
-		% [first.size(), next_year.size()])
-	_ok(bad.is_empty(), "the list does not reshuffle",
-		"the same clubs are interested however many times the screen is drawn, and a different set next year")
-
-
-func _test_taking_a_job_leaves_everything_behind() -> void:
-	## THE MOVE HAS TO COST. You arrive with a reputation and a book and nothing
-	## else — no credits, no arena, no captains, no roster. A version that let you
-	## bring your best Center is a trade screen, not a career.
-	var bad: Array[String] = []
-	var s := Season.new(MeleeRosters.starting_club(), 777)
-	s.world.season = 8
-	s.coach.reputation = Coach.REP_MAX
-	s.office.credits = 90
-	s.office.upgrade(ClubOffice.Facility.TRAINING)
-	s.hire_captain(ClubOffice.captain("Vaughn", Tuning.Role.RAIL, Tuning.Role.CENTER, 5))
-	var old_club := s.club
-	var old_id := s.world.player_club
-	var old_names: Array[String] = []
-	for f in old_club.roster:
-		old_names.append(f.display_name)
-
-	var targets := Jobs.offers(s.coach, s.world)
-	if targets.is_empty():
-		bad.append("a maximum-reputation coach was offered nothing")
-	else:
-		var to_id: int = targets[0]
-		var err := s.take_job(to_id)
-		if err != "":
-			bad.append("the move was refused: %s" % err)
-		if s.world.player_club != to_id:
-			bad.append("the world still thinks you are at the old club")
-		## A NEW DESK, not an empty one. A new club opens with the same stake any
-		## new club opens with — asserted against a fresh office rather than
-		## against 0, because 0 would be asserting the stake is zero, which is a
-		## different claim and one the game does not make.
-		var fresh := ClubOffice.new()
-		if s.office.credits != fresh.credits:
-			bad.append("you arrived with %d CC and a new club starts on %d"
-				% [s.office.credits, fresh.credits])
-		if s.office.credits >= 90:
-			bad.append("you took the old club's money with you")
-		if s.office.captains.size() != 0:
-			bad.append("your captain came too")
-		if s.office.level(ClubOffice.Facility.TRAINING) != 0:
-			bad.append("the training ground came too")
-		if s.club == old_club:
-			bad.append("you took the roster with you")
-		## And the club you left keeps the squad you built, which is what makes
-		## meeting them again mean something.
-		var left := s.club_for(old_id)
-		var kept := 0
-		for f in left.roster:
-			if old_names.has(f.display_name):
-				kept += 1
-		if kept < old_names.size():
-			bad.append("the club you left lost %d of its men" % (old_names.size() - kept))
-		## The book comes with you, which is the one thing that does.
-		if s.coach.posts.size() != 2:
-			bad.append("the move is not in your record")
-		if s.coach.years_here != 0:
-			bad.append("you arrived with years already served")
-		notes.append("left %s for %s: %d CC, %d captains, %d roster kept by the old club"
-			% [String(s.world.clubs[old_id]["name"]), String(s.world.clubs[to_id]["name"]),
-				s.office.credits, s.office.captains.size(), kept])
-		notes.append("(the 90 CC and the training ground stayed behind; a new club opens on %d CC)"
-			% ClubOffice.new().credits)
-
-	## AND IT IS A CLOSED SEASON MOVE. Walking out mid-year leaves a half-played
-	## fixture list owned by nobody.
-	var mid := Season.new(MeleeRosters.starting_club(), 777)
-	mid.world.season = 8
-	mid.coach.reputation = Coach.REP_MAX
-	mid.skip_event()
-	var mid_targets := Jobs.offers(mid.coach, mid.world)
-	if not mid_targets.is_empty() and mid.take_job(int(mid_targets[0])) == "":
-		bad.append("you can walk out in the middle of a season")
-
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	_ok(bad.is_empty(), "taking a job leaves everything behind",
-		"the new desk is empty, the old club keeps the squad you built, and only the reputation and the book travel")
+	c.skills[Coach.Skill.BUSINESS] = 4
+	o.coach_ref = c
+	var before := o.credits
+	o.take(10, "gate", "", ClubOffice.LINE_GATE)
+	if o.credits - before != 12:
+		bad.append("Business: a 10 CC gate paid %d" % (o.credits - before))
+	## TACTICS: one call at three, two at five.
+	c.skills[Coach.Skill.TACTICS] = 3
+	var three := o.extra_calls()
+	c.skills[Coach.Skill.TACTICS] = 5
+	var five := o.extra_calls()
+	if five - three != 1 or three < 1:
+		bad.append("Tactics: %d calls at 3 stars, %d at 5" % [three, five])
+	## RECRUITING: five stars knock a quarter off a fee.
+	var r := Season.new(MeleeRosters.starting_club(), 4040)
+	var pool := r.market()
+	if not pool.is_empty():
+		var full := r.market_fee(pool[0])
+		r.coach.skills[Coach.Skill.RECRUITING] = 5
+		var cut := r.market_fee(pool[0])
+		if full > 1 and cut >= full:
+			bad.append("Recruiting: fee %d, then %d" % [full, cut])
+	## MOTIVATION: the multiplier on a loss.
+	var m := Coach.new()
+	m.skills[Coach.Skill.MOTIVATION] = 5
+	if not is_equal_approx(m.morale_loss_mult(), 0.5):
+		bad.append("Motivation: %.2f at 5 stars" % m.morale_loss_mult())
+	_ok(bad.is_empty(), "each of the five skills does what its line says", "; ".join(bad) if not bad.is_empty()
+		else "training, business, tactics, recruiting, motivation")
 
 
-func _test_the_book_outlives_the_club() -> void:
-	## The only object in the game that survives a post. If it did not, twenty
-	## seasons across three clubs would read as three short careers.
-	var bad: Array[String] = []
+func _test_the_coach_survives_a_save() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 31337)
+	s.coach.set_name("Boris", "Kane")
+	s.coach.background = Coach.Background.MARSHAL
 	for _i in 7:
 		s.coach.note_result(true, false)
-	for _i in 3:
-		s.coach.note_result(false, false)
-	s.coach.note_result(false, true)
-	var before := s.coach.record_line()
-	if before != "7-1-3":
-		bad.append("the record reads %s and should read 7-1-3" % before)
-	if not is_equal_approx(s.coach.win_rate(), 7.0 / 11.0):
-		bad.append("the win rate does not match the record")
-
-	s.world.season = 9
-	s.coach.reputation = Coach.REP_MAX
-	var targets := Jobs.offers(s.coach, s.world)
-	if not targets.is_empty():
-		s.take_job(int(targets[0]))
-	if s.coach.record_line() != before:
-		bad.append("the record was reset by the move")
-
-	## And it round-trips, because a career you cannot save is not a career.
+	s.coach.spend(Coach.Skill.MOTIVATION)
 	SaveGame.set_namespace("coach")
 	SaveGame.save(s, 0)
 	var back := SaveGame.load_slot(0)
 	SaveGame.delete(0)
-	if back == null:
-		bad.append("the save did not come back")
-	else:
-		if back.coach.record_line() != before:
-			bad.append("the record did not survive a save")
-		if back.coach.reputation != s.coach.reputation:
-			bad.append("the reputation did not survive a save")
-		if back.coach.posts.size() != s.coach.posts.size():
-			bad.append("the posts did not survive a save")
-		if back.coach.favorite_club_id != s.coach.favorite_club_id:
-			bad.append("the boyhood club did not survive a save")
+	var ok := back != null and back.coach.display_name == "Boris Kane" and back.coach.level == s.coach.level \
+		and back.coach.xp == s.coach.xp and back.coach.skills == s.coach.skills \
+		and back.coach.points == s.coach.points and back.coach.record_line() == "7-0-0" \
+		and back.coach.created and back.office.coach_ref == back.coach
+	_ok(ok, "the coach survives a save", "%s, level %d, %s" % [s.coach.display_name, s.coach.level,
+		str(s.coach.skills)])
 
-	if not bad.is_empty():
-		notes.append("  " + ", ".join(bad))
-	notes.append("a record of %s across %d posts, through a move and a save"
-		% [s.coach.record_line(), s.coach.posts.size()])
-	_ok(bad.is_empty(), "the book outlives the club",
-		"the lifetime record and the reputation survive both taking another job and a save")
+
+func _test_an_old_save_asks_for_him() -> void:
+	var old := {"name": "Coach", "rep": 9, "w": 12, "d": 2, "l": 5}
+	var c := Coach.from_dict(old)
+	_ok(not c.created and c.wins == 12 and c.level > 1 and c.skill(int(Coach.BACKGROUND_SKILL[0])) == 1,
+		"a coach from before the coach is asked for once, and his wins count",
+		"created %s, level %d, record %s" % [str(c.created), c.level, c.record_line()])
 
 
 func _test_traits_reach_only_the_roles_their_man_covers() -> void:
@@ -511,19 +284,3 @@ func _test_traits_reach_only_the_roles_their_man_covers() -> void:
 ## MONEY THE PLAYER PAID FOR IS NOT PART OF THE CLUB. Everything else stays
 ## behind; `min(credits, bought)` comes with the coach, so a job change can never
 ## be the thing that makes a purchase vanish.
-func _test_bought_credits_follow_the_coach() -> void:
-	var s := Season.new(MeleeRosters.starting_club(), 777)
-	s.world.season = 8
-	s.coach.reputation = Coach.REP_MAX
-	s.office.credits = 90
-	s.office.bought = 25
-	var targets := Jobs.offers(s.coach, s.world)
-	if targets.is_empty():
-		_ok(false, "bought credits follow the coach", "no offers to test with")
-		return
-	var fresh := ClubOffice.new()
-	s.take_job(int(targets[0]))
-	_ok(s.office.credits == fresh.credits + 25 and s.office.bought == 25,
-		"bought credits follow the coach",
-		"90 CC at the old club, 25 of them bought: arrived with %d (a new club starts on %d)"
-			% [s.office.credits, fresh.credits])

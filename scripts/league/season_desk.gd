@@ -135,7 +135,7 @@ static func _draw_dilemma(s: Season) -> void:
 	## for cheating or subversion."* `Dilemma.deck_for` does the filtering; the
 	## weighted draw below is what makes the armorer's van rare without a second
 	## deck to keep in step.
-	var deck: Array = Dilemma.deck_for(s.coach.reputation)
+	var deck: Array = Dilemma.deck_for(s.coach.standing_scale())
 	var options: Array = []
 	for c in deck:
 		if not s.dilemma_recent.has(String(c["id"])):
@@ -372,7 +372,9 @@ static func market(s: Season) -> Array:
 
 
 static func market_fee(s: Season, f: FighterCard) -> int:
-	return Market.fee(f.overall(), s.world.player_tier())
+	## THE COACH'S RECRUITING: 5% off a star, never below a credit.
+	var fee := Market.fee(f.overall(), s.world.player_tier())
+	return maxi(1, int(round(float(fee) * s.coach.recruit_mult()))) if fee > 0 else fee
 
 
 

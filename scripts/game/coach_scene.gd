@@ -1,234 +1,209 @@
 extends Node2D
-## YOUR OWN PAGE. Reputation, the book that follows you, and who wants you.
+## YOU — step 1 of a new career, and the page a coach comes back to.
 ##
-## Every other screen in this game is about the club. This is the only one that
-## is about the person playing, and it is the only one whose contents survive
-## taking another job — which is the entire reason it exists.
+## Pete, 1 Oct 2026: *"You're not named. Your career is hidden behind club. You
+## don't have any skills. Creating your coach and team should be first when
+## starting a new career."* A name, a face (art follows), a background and five
+## skills. The old "Your career" page — standing, record, who wants you — is gone.
 
-const COL_Y := 92.0
-const COL_H := 300.0
-const COL_W := 292.0
-const L_X := 24.0
-const M_X := 334.0
-const R_X := 644.0
-
-## THE OFFER ROW'S PITCH, and the two offsets inside it, as constants because the
-## SCREEN and the BUTTONS are built by two different functions — `_build` places
-## the controls and `_draw` paints the names — and the first version had them
-## agreeing only by both containing the number 72.
-##
-## They did not agree for long. At that pitch each "Take it" sat 22px under its
-## own club and 14px above the NEXT one, so every button read as belonging to the
-## club below it: three offers, and the one you tapped was not the one you meant.
-## The fix is the spacing, but the reason it stays fixed is that there is now one
-## place to change it.
-## Name, then its division, then the button: two offers a column, each with
-## room to say where it is (round 3: the name and division cut each other).
-const OFFER_PITCH := 104.0
-const OFFER_NAME_DY := 50.0
-const OFFER_BUTTON_DY := 74.0
-const OFFER_BUTTON_H := 36.0
-const OFFERS_SHOWN := 2
-
-
-static func offer_row_y(i: int) -> float:
-	return COL_Y + float(i) * OFFER_PITCH
+const SKILL_X := 492.0
+const SKILL_Y := 120.0
+const SKILL_ROW := 50.0
 
 var font: Font
 var ui: CanvasLayer
 var season: Season
-var flash: String = ""
-## WHAT KIND OF LINE IT IS. Everything here was drawn in the refusal color, so
-## "A week's work in one afternoon." read as an error. 0 a refusal, 1 good news,
-## 2 a question (a two-tap confirm).
-var flash_tone: int = 0
+var first_edit: LineEdit
+var last_edit: LineEdit
+var draft_first = null
+var draft_last = null
+var flash := ""
+var help_open := false
 
 
 func _ready() -> void:
 	Juice.arm()
 	font = UiKit.body()
-	Settings.load_once()
+	if Session.season == null:
+		Session.season = Season.new(MeleeRosters.starting_club(), randi())
 	season = Session.season
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_build()
 
 
+func _coach() -> Coach:
+	return season.coach
+
+
+func go_back() -> bool:
+	if help_open:
+		help_open = false
+		_build()
+		return true
+	_leave_back()
+	return true
+
+
+func _leave_back() -> void:
+	if Session.founding:
+		Session.founding = false
+		UiKit.trail_reset()
+		UiKit.go("res://scenes/Title.tscn")
+	else:
+		UiKit.go("res://scenes/Season.tscn")
+
+
 func _build() -> void:
 	for c in ui.get_children():
 		c.queue_free()
-	if season == null:
+	first_edit = null
+	last_edit = null
+	var c := _coach()
+	if help_open:
+		var r := _help_rect()
+		ui.add_child(UiKit.button(UiKit.t("Got it"), Vector2(r.end.x - 184.0, r.end.y - 60.0), Vector2(160, 44), func():
+			help_open = false
+			_build()))
+		queue_redraw()
 		return
-	var offers := Jobs.offers(season.coach, season.world)
-	## AT MOST THREE ON SCREEN. The list is sorted best-first and a coach at the
-	## top of the country out-rates most of the pyramid, so the raw list can be
-	## thirty clubs long — which is a scrollbar, and a scrollbar here would turn
-	## the best moment in the career into an inventory screen.
-	var shown: int = mini(offers.size(), OFFERS_SHOWN)
-	for i in shown:
-		var cid: int = offers[i]
-		## Taking a job leaves this club for good: it is a danger button, and the
-		## second tap says so.
-		## NEUTRAL UNTIL IT BITES (round 2: a job offer in the Delete style read as
-		## destructive). Considering is harmless; the second tap, "Sign and leave
-		## it all", is the one that gives something up, and it is red.
-		var job := UiKit.button(UiKit.t("Sign and leave it all") if confirm_take == cid else UiKit.t("Consider the job"),
-			Vector2(R_X + 16, offer_row_y(i) + OFFER_BUTTON_DY),
-			Vector2(COL_W - 32, OFFER_BUTTON_H), _take.bind(cid))
-		ui.add_child(UiKit.danger(job) if confirm_take == cid else job)
-	if confirm_take >= 0:
-		ui.add_child(UiKit.button(UiKit.t("Stay"), Vector2(190, UiKit.screen().y - 56),
-			Vector2(150, 44), func():
-				confirm_take = -1
-				flash = ""
-				_build()))
-	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
-	## THE DIFFICULTY LIVES WITH THE CAREER, and Settings can only change it while
-	## a career is open — which it never was, because Settings was reachable only
-	## from the title screen, where no career is. This is the door from inside.
-	## SETTINGS MOVED TO THE CLUB MENU (30 Sep 2026), the door from inside a career.
+	var creating := not c.created
+	if creating:
+		first_edit = _edit(Vector2(24, 160), 200.0, draft_first if draft_first != null else c.first_name,
+			UiKit.t("First name"), func(t: String): draft_first = t)
+		last_edit = _edit(Vector2(240, 160), 220.0, draft_last if draft_last != null else c.last_name,
+			UiKit.t("Last name"), func(t: String): draft_last = t)
+		## THE FACE, KIT AND BEARD (art to follow): three cycling parts.
+		var parts := [[UiKit.t("Face"), "face"], [UiKit.t("Kit"), "kit"], [UiKit.t("Beard"), "beard"]]
+		for i in parts.size():
+			var p: Array = parts[i]
+			ui.add_child(UiKit.button("<  %s %d  >" % [String(p[0]), int(c.get(String(p[1]))) + 1],
+				Vector2(146, 222 + float(i) * 42.0), Vector2(170, 34), func(key = String(p[1])):
+					c.set(key, (int(c.get(key)) + 1) % 6)
+					_build()))
+		for b in 3:
+			ui.add_child(UiKit.selected(UiKit.button(Coach.background_name(b),
+				Vector2(24 + float(b) * 148.0, 382), Vector2(140, 36), func(k = b):
+					c.set_background(k)
+					_build()), c.background == b))
+	## THE SKILLS: + to spend, − to take back while still creating.
+	## THE "?" SITS AFTER THE HEADING, measured: "DEINE FÄHIGKEITEN" is twice "YOUR SKILLS".
+	var hw := font.get_string_size(UiKit.t("YOUR SKILLS"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+	ui.add_child(UiKit.button("?", Vector2(SKILL_X + 20.0 + hw, SKILL_Y + 4.0), Vector2(32, 30), func():
+		help_open = true
+		_build()))
+	for i in 5:
+		var y := SKILL_Y + 66.0 + float(i) * SKILL_ROW
+		var plus := UiKit.button("+", Vector2(UiKit.right_edge(56.0), y - 22.0), Vector2(40, 34), func(k = i):
+			var err := c.spend(k)
+			flash = err
+			if err == "" and not creating:
+				Session.autosave()
+			_build())
+		plus.disabled = c.points <= 0 or c.skill(i) >= Coach.SKILL_MAX
+		ui.add_child(plus)
+		if creating:
+			var minus := UiKit.button("-", Vector2(UiKit.right_edge(104.0), y - 22.0), Vector2(40, 34), func(k = i):
+				c.unspend(k)
+				_build())
+			minus.disabled = c.skill(i) <= (1 if i == int(Coach.BACKGROUND_SKILL[c.background]) else 0)
+			ui.add_child(minus)
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 486), Vector2(150, 42), _leave_back))
+	var next := UiKit.t("Next: your team  >") if Session.founding else UiKit.t("Done")
+	ui.add_child(UiKit.primary(UiKit.button(next, Vector2(UiKit.right_edge(284.0), 486), Vector2(260, 42), _next)))
 	queue_redraw()
 
 
-## TWO TAPS, AND THE SECOND ONE SAYS WHAT IT COSTS. Taking a job hands back the
-## whole club — credits, buildings, captains, playbook — and it was one tap with
-## no warning, autosaved on the spot.
-var confirm_take: int = -1
+func _edit(at: Vector2, w: float, text: String, hint: String, on_change: Callable) -> LineEdit:
+	var e := LineEdit.new()
+	UiKit.skin_edit(e)
+	e.position = at
+	e.size = Vector2(w, 36)
+	e.max_length = 16
+	e.placeholder_text = hint
+	e.text = text
+	e.text_changed.connect(on_change)
+	ui.add_child(e)
+	return e
 
 
-func _take(club_id: int) -> void:
-	if confirm_take != club_id:
-		confirm_take = club_id
-		var carry: int = mini(season.office.credits, season.office.bought) if season.office.bought > 0 else 0
-		flash_tone = 2
-		flash = UiKit.t("You leave the squad, %d CC, the buildings, captains and playbook behind%s. Tap again to sign.") % [
-			maxi(0, season.office.credits - carry),
-			(UiKit.t(" (your %d bought CC come with you)") % carry) if carry > 0 else ""]
-		_build()
-		return
-	confirm_take = -1
-	var err := season.take_job(club_id)
-	flash_tone = 0
-	flash = UiKit.said(err)
-	if err == "":
-		Session.autosave()
-	_build()
+func _next() -> void:
+	var c := _coach()
+	if not c.created:
+		var f := String(draft_first if draft_first != null else c.first_name)
+		var l := String(draft_last if draft_last != null else c.last_name)
+		if (f + l).strip_edges() == "":
+			flash = UiKit.t("Give your coach a name.")
+			_build()
+			return
+		c.set_name(f, l)
+		c.created = true
+	Session.autosave()
+	if Session.founding:
+		Session.create_tab = 1
+		UiKit.go("res://scenes/Create.tscn")
+	else:
+		UiKit.go("res://scenes/Season.tscn")
+
+
+func _help_rect() -> Rect2:
+	var sz := Vector2(600.0, 330.0)
+	return Rect2(Vector2(floorf((UiKit.screen().x - sz.x) * 0.5), 100.0), sz)
+
+
+static func skill_help(i: int) -> String:
+	match i:
+		Coach.Skill.TRAINING: return UiKit.t("Training: +5%% XP a star, in practice and in bouts.") % []
+		Coach.Skill.MOTIVATION: return UiKit.t("Motivation: a loss hurts the room 10%% less a star.") % []
+		Coach.Skill.TACTICS: return UiKit.t("Tactics: one more corner call at three stars, another at five.")
+		Coach.Skill.BUSINESS: return UiKit.t("Business: +5%% gate, bar and prize money a star.") % []
+	return UiKit.t("Recruiting: free agents cost 5%% less a star.") % []
 
 
 func _draw() -> void:
-	if season == null:
-		return
-	UiKit.set_mood(season.mood())
 	UiKit.ground(self)
-	var c := season.coach
-	## THE BUTTON THAT OPENS THIS SAYS "Your career"; so does the title now
-	## (blind review round 3: the menu said one thing and the screen "COACH").
-	UiKit.text(self, font, UiKit.t("YOUR CAREER"), Vector2(24, 40), 26, UiKit.INK)
-	UiKit.text(self, font, UiKit.t("Your record, your standing and who wants you."),
-		Vector2(24, 62), 14, UiKit.DIM)
-	UiKit.right(self, font, UiKit.t("Season %d") % season.world.season,
-		Vector2(UiKit.screen().x - 24, 46), 16, UiKit.DIM, 220)
-
-	_standing(c)
-	_the_book(c)
-	_offers(c)
-
+	var c := _coach()
+	if Session.founding:
+		UiKit.text(self, font, UiKit.t("NEW CAREER"), Vector2(24, 40), 22, UiKit.YOU)
+		UiKit.text(self, font, UiKit.t("Step 1 of 3"), Vector2(24, 64), 14, UiKit.DIM)
+	else:
+		UiKit.text(self, font, UiKit.t("YOUR COACH"), Vector2(24, 40), 22, UiKit.YOU)
+	if c.created:
+		UiKit.text_fit(self, font, c.display_name, Vector2(24, 140), 24, UiKit.INK, 440.0)
+		UiKit.text_fit(self, font, UiKit.t("%s  ·  level %d  ·  record %s") % [Coach.background_name(c.background),
+			c.level, c.record_line()], Vector2(24, 168), 15, UiKit.DIM, 440.0)
+		UiKit.text(self, font, UiKit.t("XP %d of %d to level %d") % [c.xp, Coach.need(c.level), c.level + 1],
+			Vector2(24, 206), 14, UiKit.DIM)
+		UiKit.bar(self, Rect2(24, 214, 300, 10), float(c.xp) / float(Coach.need(c.level)), UiKit.YOU)
+	else:
+		UiKit.text(self, font, UiKit.t("FIRST NAME"), Vector2(24, 152), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("LAST NAME"), Vector2(240, 152), 12, UiKit.DIM)
+		UiKit.panel(self, Rect2(24, 222, 110, 118))
+		UiKit.mid(self, font, UiKit.t("art to follow"), Vector2(24, 286), 12, UiKit.DIM, 110)
+		UiKit.text(self, font, UiKit.t("BACKGROUND"), Vector2(24, 374), 12, UiKit.DIM)
+		UiKit.para(self, font, UiKit.t("Each background starts with a point: Training, Business or Tactics."),
+			Vector2(24, 440), 13, UiKit.DIM, 440.0, 16.0, 2)
+	# ---- the skills
+	var r := Rect2(SKILL_X - 8.0, SKILL_Y - 8.0, UiKit.right_edge() - SKILL_X + 16.0, 352.0)
+	UiKit.panel(self, r)
+	UiKit.text(self, font, UiKit.t("YOUR SKILLS"), Vector2(SKILL_X + 8.0, SKILL_Y + 26.0), 14, UiKit.DIM)
+	for i in 5:
+		var y := SKILL_Y + 66.0 + float(i) * SKILL_ROW
+		UiKit.text_fit(self, font, Coach.skill_name(i), Vector2(SKILL_X + 8.0, y), 17, UiKit.INK, 140.0)
+		UiKit.stars(self, Vector2(SKILL_X + 160.0, y - 14.0), c.skill(i) * 20, UiKit.YOU, 14.0, 3.0)
+	var pts := UiKit.tn("%d point to spend", "%d points to spend", c.points) % c.points
+	draw_line(Vector2(r.position.x + 12.0, r.end.y - 44.0), Vector2(r.end.x - 12.0, r.end.y - 44.0), UiKit.FRAME, 1.0)
+	UiKit.mid(self, font, pts, Vector2(r.position.x, r.end.y - 16.0), 16,
+		UiKit.YOU if c.points > 0 else UiKit.DIM, r.size.x)
 	if flash != "":
-		UiKit.text(self, font, flash, Vector2(24, UiKit.screen().y - 70), 13,
-			[UiKit.DOWN, UiKit.UP, UiKit.YOU][flash_tone])
-
-
-## REPUTATION, drawn as a meter out of twenty rather than as a number, because
-## the number only means something against the ceiling and against the clubs it
-## is about to be compared with.
-func _standing(c: Coach) -> void:
-	UiKit.panel(self, Rect2(L_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, UiKit.t("YOUR STANDING"), Vector2(L_X + 16, COL_Y + 26), 12, UiKit.DIM)
-	## A RANK, SAID AS ONE (round 6: "Unknown" in big gold read as missing data).
-	var rw := font.get_string_size(UiKit.t("Rank:"), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
-	UiKit.text(self, font, UiKit.t("Rank:"), Vector2(L_X + 16, COL_Y + 60), 14, UiKit.DIM)
-	UiKit.text(self, font, c.standing(), Vector2(L_X + 24 + rw, COL_Y + 62), 22, UiKit.YOU)
-	UiKit.meter(self, Rect2(L_X + 16, COL_Y + 76, COL_W - 32, 16),
-		c.reputation, Coach.REP_MAX, UiKit.YOU)
-	UiKit.right(self, font, UiKit.t("reputation %d of %d") % [c.reputation, Coach.REP_MAX],
-		Vector2(L_X + COL_W - 16, COL_Y + 112), 12, UiKit.DIM, 160)
-
-	var y := COL_Y + 146.0
-	_line("At", season.world.clubs[c.club_id]["name"] if c.club_id >= 0 else "—", y)
-	y += 24.0
-	_line("Years here", "%d" % c.years_here, y)
-	y += 24.0
-	_line("Posts", "%d" % c.posts.size(), y)
-	y += 34.0
-	## WHAT IT COSTS TO HAVE A BAD YEAR, said out loud on the screen that owns the
-	## number. Reputation is additive up and multiplicative down, and a player who
-	## does not know that reads a halving as a bug.
-	UiKit.text_fit(self, font, UiKit.t("Win your division and this climbs."),
-		Vector2(L_X + 16, y), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
-	UiKit.text_fit(self, font, UiKit.t("Outside the top four, it halves."),
-		Vector2(L_X + 16, y + 16), 14, UiKit.DOWN, COL_W - 32.0)
-
-
-func _the_book(c: Coach) -> void:
-	UiKit.panel(self, Rect2(M_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, UiKit.t("YOUR RECORD"), Vector2(M_X + 16, COL_Y + 26), 12, UiKit.DIM)
-	var rows := [
-		[UiKit.t("Seasons finished"), "%d" % c.seasons],
-		[UiKit.t("Record"), c.record_line()],
-		[UiKit.t("Win rate"), "%d%%" % int(round(c.win_rate() * 100.0))],
-		[UiKit.t("Cups"), "%d" % c.cups],
-		[UiKit.t("Promotions"), "%d" % c.promotions],
-		[UiKit.t("Relegations"), "%d" % c.relegations],
-	]
-	var y := COL_Y + 62.0
-	for row in rows:
-		UiKit.text(self, font, String(row[0]), Vector2(M_X + 16, y), 14, UiKit.DIM)
-		UiKit.right(self, font, String(row[1]), Vector2(M_X + COL_W - 16, y), 14,
-			UiKit.DOWN if String(row[0]) == UiKit.t("Relegations") and c.relegations > 0 else UiKit.INK, 140)
-		y += 30.0
-	if c.fought() == 0:
-		UiKit.para(self, font, UiKit.t("It fills in when your first season ends."), Vector2(M_X + 16, y + 8), 14, UiKit.DIM, COL_W - 32.0, 17.0)
-	else:
-		UiKit.text_fit(self, font, UiKit.t("It follows you, not the club."),
-			Vector2(M_X + 16, COL_Y + COL_H - 14), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0)
-
-
-func _offers(c: Coach) -> void:
-	UiKit.panel(self, Rect2(R_X, COL_Y, COL_W, COL_H))
-	UiKit.text(self, font, UiKit.t("WHO WANTS YOU"), Vector2(R_X + 16, COL_Y + 26), 12, UiKit.DIM)
-	var offers := Jobs.offers(c, season.world)
-	if offers.is_empty():
-		UiKit.text(self, font, UiKit.t("Nobody, yet."), Vector2(R_X + 16, COL_Y + 62), 15, UiKit.DIM)
-		UiKit.para(self, font, UiKit.t("Clubs come for a coach who out-rates them. Win something."),
-			Vector2(R_X + 16, COL_Y + 92), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 16.0)
-		return
-	var shown: int = mini(offers.size(), OFFERS_SHOWN)
-	for i in shown:
-		var cid: int = offers[i]
-		var club: Dictionary = season.world.clubs[cid]
-		var y := offer_row_y(i) + OFFER_NAME_DY
-		var dream: bool = cid == c.favorite_club_id
-		## A hairline above every row but the first, so three offers read as three
-		## rows rather than as a column of names and a column of buttons.
-		if i > 0:
-			draw_rect(Rect2(R_X + 16, y - 22.0, COL_W - 32, 1.0), UiKit.EDGE)
-		## THE NAME GETS THE ROOM THE DIVISION DOES NOT USE (blind review, 29 Sep:
-		## "Milwaukee Free Co." ran into "Backyard Circuit"). Measured, not counted.
-		var tier_word := League.tier_name(int(club["tier"]))
-		UiKit.text(self, font, UiKit.clip_px(font, String(club["name"]), 16, COL_W - 32.0),
-			Vector2(R_X + 16, y), 16, UiKit.UP if dream else UiKit.INK)
-		UiKit.text_fit(self, font, UiKit.t("%s  ·  rated %d") % [tier_word, int(club.get("power", 0))],
-			Vector2(R_X + 16, y + 17.0), 13, UiKit.DIM, COL_W - 32.0)
-	if offers.size() > shown:
-		UiKit.right(self, font, UiKit.t("and %d more want you") % (offers.size() - shown),
-			Vector2(R_X + COL_W - 16, COL_Y + COL_H - 14), 14, UiKit.DIM, 160)
-	else:
-		## TWO LINES. It was clipped at forty characters in English too — "A few
-		## clubs are interested in taki..." — which nobody could see was a cut.
-		UiKit.para(self, font, c.offer_blurb(),
-			Vector2(R_X + 16, COL_Y + COL_H - 34), 14, UiKit.EDGE.lightened(0.5), COL_W - 32.0, 17.0)
-
-
-func _line(label: String, value: String, y: float) -> void:
-	UiKit.text(self, font, UiKit.t(label), Vector2(L_X + 16, y), 14, UiKit.DIM)
-	UiKit.right(self, font, UiKit.clip(value, 18), Vector2(L_X + COL_W - 16, y), 14, UiKit.INK, 190)
+		UiKit.text_fit(self, font, flash, Vector2(196, 512), 14, UiKit.DOWN, 500.0)
+	if help_open:
+		var hr := _help_rect()
+		draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+		UiKit.panel(self, hr)
+		UiKit.text(self, font, UiKit.t("YOUR SKILLS"), hr.position + Vector2(24, 40), 19, UiKit.INK)
+		for i in 5:
+			UiKit.text_fit(self, font, skill_help(i), hr.position + Vector2(24, 86 + i * 30), 15, UiKit.DIM,
+				hr.size.x - 48.0)
+		UiKit.text_fit(self, font, UiKit.t("A level is one point. Levels come from wins, finishes and cup runs."),
+			hr.position + Vector2(24, 248), 14, UiKit.INK, hr.size.x - 48.0)

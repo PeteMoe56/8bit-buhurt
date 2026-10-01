@@ -60,46 +60,8 @@ func _build() -> void:
 	for i in ClubOffice.MAX_CAPTAINS:
 		var x := 24.0 + float(i) * (CARD_W + 16.0)
 		if i < o.captains.size():
-			## THE REGIME, AS THREE BUTTONS UNDER THE MAN IT APPLIES TO.
-			## Retro Bowl puts them under the coordinator for the same reason:
-			## the choice belongs to a person, not to the club.
-			## LAID OUT BY WHAT IS IN THEM, not in equal thirds.
-			##
-			## Three equal thirds of a card is 68 pixels and "Normal" needs 72,
-			## and a Button's `size` is a FLOOR — Godot raises it to whatever the
-			## contents need rather than clipping — so the middle one grew, ate
-			## its own gap and had its last letter drawn over by "Hard". It read
-			## as "Norma" and looked like text clipping, which is the one thing
-			## it was not.
-			##
-			## So each takes its natural width and they are packed left to right.
-			## The three of them come to 192 in a 204-pixel row, which is why
-			## this fits at all — and `test_layout.gd` is what will say so when a
-			## fourth regime or a longer word makes it stop fitting.
-			##
-			## AND WHEN THE WORDS DO NOT FIT (29 Sep 2026) — Russian Тяжёлый /
-			## Обычный / Лёгкий come to 250 in the same 204 — the row is shared in
-			## proportion to them and each button steps its type down to fit
-			## (`UiKit.button`), instead of the row running off its card.
-			var words: Array[String] = []
-			var want: Array[float] = []
-			var total := 0.0
-			for k in 3:
-				words.append(UiKit.t(String(ClubOffice.REGIME_NAME[k])))
-				var w := UiKit.body().get_string_size(words[k], HORIZONTAL_ALIGNMENT_LEFT,
-					-1.0, UiKit.GRID * 2).x + UiKit.FRAME_PX * 2.0 + 4.0 + UiKit.DROP_PX
-				want.append(w)
-				total += w
-			var gaps := 8.0
-			var scale := minf(1.0, (CARD_W - gaps) / total)
-			var bx := x
-			for k in 3:
-				var bw := floorf(want[k] * scale)
-				## 42 TALL (round 8: "about 24px, too small to tap well").
-				ui.add_child(UiKit.selected(UiKit.button(words[k], Vector2(bx, CUR_Y + CARD_H + 8.0),
-					Vector2(bw, 42), _set_regime.bind(i, k)),
-					k == int(season.office.captains[i].get("regime", ClubOffice.Regime.NORMAL))))
-				bx += bw + 4.0
+			## THE REGIME MOVED TO THE TRAINING POPUP (Pete, 1 Oct 2026); the
+			## room keeps hiring, keeping and letting go.
 			## KEEP HIM, or let the deal run out. Two controls where there was one,
 			## because a captain you cannot re-sign is a captain you are only ever
 			## losing.
@@ -110,10 +72,10 @@ func _build() -> void:
 			## A VERB ON EACH (round 9: "+1 yr" needed one), Release narrower and
 			## apart so both read at the same size.
 			var ext := UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 58.0), Vector2(CARD_W - 102.0, 38), _extend.bind(i))
+				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W - 102.0, 38), _extend.bind(i))
 			ext.disabled = ClubOffice.extend_cost(season.office.captains[i]) > season.office.credits
 			ui.add_child(ext)
-			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 58.0),
+			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 8.0),
 				Vector2(92, 38), _release.bind(i))))
 		else:
 			## THE MARKET, NOT ONE MAN AND A REROLL.
@@ -122,38 +84,6 @@ func _build() -> void:
 					browsing = true
 					flash = ""
 					_build(), "helm")))
-	## AN EXTRA SESSION, AND IT BELONGS ON THIS SCREEN AND NOT THE CLUBHOUSE.
-	##
-	## Pete, 15 Sep 2026: *"we can go with a 'team training' CC sink that may
-	## work."* It is a thing the CAPTAINS do — what it buys is a week's work at
-	## the grade of whoever teaches each role, so its value is decided entirely by
-	## the two cards above it. Put on the Clubhouse action row it would have been
-	## a number with no explanation next to it, on the row Pete had already called
-	## too crowded; here the price and the men who set its worth are on one
-	## screen.
-	##
-	## It says why it cannot be pressed rather than spending a tap to refuse: a
-	## club with no captains buys almost nothing, which is the rule the practice
-	## is built on and the one thing this screen should never let a player
-	## discover by accident.
-	var cost := season.office.session_cost()
-	var idle: bool = season.office.captains.is_empty()
-	## AND WHAT IT BUYS, per man in the five (decision #11).
-	var session_b := UiKit.button(UiKit.t("Session  ·  +%d XP each  ·  %d CC") % [
-			SeasonBouts.session_xp(season), cost],
-		Vector2(UiKit.right_edge(380.0 + 24.0), UiKit.screen().y - 56), Vector2(380, 46),
-		func():
-			flash_tone = 0
-			flash = UiKit.said(season.run_session()) if not idle \
-				else UiKit.t("Nobody is teaching. A session with no captain is a warm-up.")
-			if flash == "":
-				flash = UiKit.t("A week's work in one afternoon.")
-				flash_tone = 1
-			Session.autosave()
-			_build())
-	## THE SCREEN'S ONE ACTION IS GOLD (round 4).
-	session_b.disabled = cost > season.office.credits
-	ui.add_child(session_b if idle or session_b.disabled else UiKit.primary(session_b))
 	ui.add_child(UiKit.back_button("res://scenes/Season.tscn"))
 	queue_redraw()
 
@@ -210,13 +140,6 @@ func _draw_market() -> void:
 		var t := ClubOffice.trait_of(c)
 		UiKit.text_fit(self, font, UiKit.t(String(ClubOffice.TRAIT_NAME[t])) if t != ClubOffice.Trait.NONE else "—",
 			Vector2(LIST.position.x + 460, y), 14, UiKit.UP if t != ClubOffice.Trait.NONE else UiKit.DIM, 240.0)
-
-
-func _set_regime(i: int, r: int) -> void:
-	flash_tone = 0
-	flash = UiKit.said(season.office.set_regime(i, r))
-	Session.autosave()
-	_build()
 
 
 func _hire(slot: int) -> void:
@@ -280,11 +203,6 @@ func _draw() -> void:
 				"foot_col": UiKit.DOWN if int(c.get("years", 9)) <= 1 else _regime_color(reg),
 				"head_frac": 0.2,
 			}, true)
-			## The mark on the selected regime button, which a Button cannot
-			## carry itself without a theme.
-			var w := (CARD_W - 8.0) / 3.0
-			draw_rect(Rect2(x + float(reg) * (w + 4.0), CUR_Y + CARD_H + 4.0, w, 3.0),
-				_regime_color(reg))
 		else:
 			## AN EMPTY SLOT IS THE STRONGEST THING ON THIS SCREEN. A club with
 			## one captain teaches at most two of the three jobs, and the third
@@ -294,7 +212,6 @@ func _draw() -> void:
 			UiKit.para(self, font, UiKit.t("An empty chair. Nobody teaches the roles he would cover."),
 				r.position + Vector2(14, 62), 13, UiKit.DIM, r.size.x - 28.0, 17.0, 3)
 
-	_what_it_costs()
 	_coverage()
 	_trait_word()
 	if flash != "":
@@ -324,7 +241,7 @@ func _roles_of(c: Dictionary) -> String:
 ## room for the whole sentence rather than thirty characters of it.
 func _trait_word() -> void:
 	var o := season.office
-	var y := CUR_Y + CARD_H + 124.0
+	var y := CUR_Y + 20.0
 	UiKit.text(self, font, UiKit.t("WHAT ELSE THEY BRING"), Vector2(OFFER_X, y), 12, UiKit.DIM)
 	y += 24.0
 	var said := 0
@@ -351,47 +268,6 @@ func _regime_color(r: int) -> Color:
 		ClubOffice.Regime.LIGHT: return UiKit.UP
 		ClubOffice.Regime.HARD: return UiKit.DOWN
 		_: return UiKit.YOU
-
-
-## WHAT THE THREE REGIMES ACTUALLY TRADE, on the screen where you pick one.
-## A decision whose consequences are in a wiki is not a decision.
-func _what_it_costs() -> void:
-	UiKit.panel(self, Rect2(OFFER_X, CUR_Y, 440, 206.0))
-	UiKit.text(self, font, UiKit.t("WHAT A REGIME COSTS"), Vector2(OFFER_X + 16, CUR_Y + 26),
-		12, UiKit.DIM)
-	var cols := ["", UiKit.t("TRAINING"), UiKit.t("MORALE"), UiKit.t("ARMOR"), UiKit.t("KNOCKS")]
-	## The last column is the only one holding a WORD ("rare", "some"), and its
-	## heading is the longest in most languages (LESIONES, BLESSURES), so it gets
-	## the room: the three before it hold ×0.6, + and — (29 Sep 2026).
-	var xs := [16.0, 110.0, 190.0, 262.0, 336.0]  ## measured, 30 Sep: Normalny 84, ТРЕНИРОВКИ 62, BLESSURES 81
-	for i in cols.size():
-		## Each heading has its column's room; the last runs to the panel's edge.
-		var room: float = (xs[i + 1] - 6.0 if i + 1 < xs.size() else 440.0 - 8.0) - xs[i]
-		UiKit.text_fit(self, font, cols[i], Vector2(OFFER_X + xs[i], CUR_Y + 54), 12,
-			UiKit.EDGE.lightened(0.5), room)
-	var rows := [
-		{"r": ClubOffice.Regime.LIGHT, "t": "×0.6", "m": "+", "a": "+", "k": UiKit.t("rare")},
-		{"r": ClubOffice.Regime.NORMAL, "t": "×1.0", "m": "=", "a": "=", "k": UiKit.t("some")},
-		{"r": ClubOffice.Regime.HARD, "t": "×1.5", "m": "−", "a": "−", "k": "\u00d75"},
-	]
-	var y := CUR_Y + 84.0
-	for row in rows:
-		var col := _regime_color(int(row["r"]))
-		UiKit.text_fit(self, font, UiKit.t(String(ClubOffice.REGIME_NAME[int(row["r"])])),
-			Vector2(OFFER_X + xs[0], y), 14, col, xs[1] - xs[0] - 6.0)
-		UiKit.text(self, font, String(row["t"]), Vector2(OFFER_X + xs[1], y), 14, UiKit.INK)
-		UiKit.text(self, font, String(row["m"]), Vector2(OFFER_X + xs[2], y), 14, UiKit.INK)
-		UiKit.text(self, font, String(row["a"]), Vector2(OFFER_X + xs[3], y), 14, UiKit.INK)
-		UiKit.text_fit(self, font, String(row["k"]), Vector2(OFFER_X + xs[4], y), 13,
-			UiKit.DOWN if int(row["r"]) == ClubOffice.Regime.HARD else UiKit.DIM,
-			440.0 - 8.0 - xs[4])
-		y += 30.0
-	## THE SHOUT MOVED INTO THE SENTENCE. The cell said "FIVE TIMES" and in the
-	## real face that column ran to x 971 of a 960 frame — and it was the only
-	## cell in the table not written as a multiplier anyway. The row reads ×5 like
-	## every other figure on it; the line under it is where the shouting belongs.
-	UiKit.text_fit(self, font, UiKit.t("Hard is not a bit riskier than Normal. It is FIVE TIMES."),
-		Vector2(OFFER_X + 16, y + 8), 14, UiKit.EDGE.lightened(0.5), 440.0 - 24.0)
 
 
 ## WHICH OF THE THREE JOBS NOBODY IS TEACHING, and which one the club is known

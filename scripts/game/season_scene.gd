@@ -60,6 +60,9 @@ const PURSE_W := 150.0
 ## The Club button's width, and how far the purse and mood moved left for it.
 const CLUB_BTN_W := 104.0
 const HEADER_SHIFT := CLUB_BTN_W + 8.0
+## The Menu button spans what Exit and Club used to: the purse keeps its place.
+const MENU_BTN_W := 98.0 + HEADER_SHIFT
+const MENU_W := 140.0
 const PURSE_H := 38.0
 const PURSE_SIZE: int = 20
 
@@ -109,6 +112,15 @@ var shop_open := false
 ## career, federation, playbook, create — left the Clubhouse tab for a list
 ## behind one header button, so the tab holds only the things you buy.
 var club_menu_open := false
+## THE TRAINING POPUP (Pete, 1 Oct 2026): each captain's Light / Normal / Hard
+## and the paid session, off the Team tab's Training button.
+var training_open := false
+## WHICH "?" IS OPEN on the Upgrades tab, or "".
+var help_key := ""
+## THE FULL BOOKS are open on the Management tab (its Finances button).
+var fin_full := false
+## THE ARMORERS FOR HIRE are open on the Maintenance tab.
+var armorer_open := false
 ## The squad screen's whole interaction: pick a man, then pick who he trades
 ## places with. Two taps, no modal, and the second tap is on a list you are
 ## already looking at.
@@ -124,6 +136,9 @@ func _ready() -> void:
 	if Session.season == null:
 		Session.season = Season.new(MeleeRosters.starting_club(), randi())
 	season = Session.season
+	## A SAVE FROM BEFORE THE COACH asks for him once (Pete, 1 Oct 2026).
+	if not season.coach.created:
+		UiKit.go.call_deferred("res://scenes/Coach.tscn")
 	## Something to answer first (a card, a tie, promotion) opens on the Club tab.
 	tab = last_tab if season.blocked_by() == "" else Tab.CLUB
 	## A bout walked out of on the last run — said once.
@@ -140,6 +155,9 @@ func _ready() -> void:
 		flash = season.summer_warning()
 	if flash == "":
 		flash = season.hoard_note()
+	## BELOW THE LEAGUE'S INSURANCE, the cups are shut — said where it can be fixed.
+	if flash == "" and not season.office.compliant():
+		flash = UiKit.t("Insurance is below what your league asks: no cups until it is raised in Upgrades.")
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_rebuild()
@@ -148,8 +166,11 @@ func _ready() -> void:
 ## BACK (Android back / Esc), via AppLife. A modal closes first; then back to
 ## the Club tab; then out to the title, the same as Menu.
 func go_back() -> bool:
-	if club_menu_open:
+	if club_menu_open or training_open or help_key != "" or armorer_open:
 		club_menu_open = false
+		training_open = false
+		help_key = ""
+		armorer_open = false
 		_rebuild()
 		return true
 	if shop_open:
@@ -158,6 +179,10 @@ func go_back() -> bool:
 		return true
 	if sim_asking:
 		sim_asking = false
+		_rebuild()
+		return true
+	if fin_full:
+		fin_full = false
 		_rebuild()
 		return true
 	if tab != Tab.CLUB:
@@ -215,6 +240,18 @@ func _rebuild() -> void:
 		SeasonClubhouseTab._club_menu_controls(self)
 		queue_redraw()
 		return
+	if training_open:
+		SeasonClubhouseTab._training_controls(self)
+		queue_redraw()
+		return
+	if help_key != "":
+		SeasonClubhouseTab._help_controls(self)
+		queue_redraw()
+		return
+	if armorer_open:
+		SeasonArmorerTab._armorers_controls(self)
+		queue_redraw()
+		return
 	## Five tabs across 960 with the Menu button on the right, so they narrow
 	## rather than the row wrapping — a wrapped tab row on a landscape phone
 	## screen eats the first line of every page behind it.
@@ -224,8 +261,9 @@ func _rebuild() -> void:
 	## "UPGRADES", NOT "CLUBHOUSE" (playtest 30 Sep #17: "No real obvious way to
 	## upgrade facilities"). The tab is the club's shop of improvements; its
 	## name says so, and it carries the coin.
-	var names := [UiKit.t("CLUB"), UiKit.t("SQUAD"), UiKit.t("ARMORER"), UiKit.t("UPGRADES"), UiKit.t("FINANCES")]
-	var marks := ["shield", "roster", "armor", "coin", "purse"]
+	## FIGHT, TEAM, MAINTENANCE, UPGRADES, MANAGEMENT (Pete, 1 Oct 2026).
+	var names := [UiKit.t("FIGHT"), UiKit.t("TEAM"), UiKit.t("MAINTENANCE"), UiKit.t("UPGRADES"), UiKit.t("MANAGEMENT")]
+	var marks := ["sword", "roster", "armor", "coin", "purse"]
 	## THE ARMORER OPENS AFTER BOUT ONE (Pete, 29 Sep 2026, #5). The tabs close up
 	## rather than leave a hole.
 	var shown: Array[int] = []
@@ -241,42 +279,15 @@ func _rebuild() -> void:
 			Vector2(TAB_W, TAB_H), func():
 				tab = i
 				picked = null
+				fin_full = false
 				_rebuild(), marks[i]), i == tab))
-	## MENU IS NOT BACK. It leaves the career, which is the end of a path rather
-	## than a step back along one — a trail that survived it would send Back from
-	## the front door into somebody's half-finished season.
-	## "EXIT", NOT "MENU" (round 5: "Club" and "Menu" side by side, which is
-	## which?). It saves and leaves the career for the title screen.
-	ui.add_child(UiKit.button(UiKit.t("Exit"), Vector2(UiKit.right_edge(98.0), 14), Vector2(78, 36), func():
-		Session.autosave()
-		UiKit.trail_reset()
-		UiKit.go("res://scenes/Title.tscn"), "cog"))
-	## THE ROOMS, beside Menu. It carries a count when one of them wants you (a
-	## job offer, a federation bar) — an alert behind a menu has to show on it.
-	var calls := SeasonClubhouseTab.club_calls(self)
-	var club_b := UiKit.button(UiKit.t("Club"),
-		Vector2(UiKit.right_edge(98.0 + 8.0 + CLUB_BTN_W), 14), Vector2(CLUB_BTN_W, 36), func():
+	## ONE MENU BUTTON (Pete, 1 Oct 2026: "Menu - Resume, Settings, Save/Load,
+	## Quit"). The rooms that used to hang off the header — staff, playbook,
+	## records, create — live on the Management tab now.
+	ui.add_child(UiKit.button(UiKit.t("Menu"), Vector2(UiKit.right_edge(MENU_W + 20.0), 14),
+		Vector2(MENU_W, 36), func():
 			club_menu_open = true
-			_rebuild(), "hall")
-	## THE COUNT AS A BADGE ON THE CORNER (round 8: "Club · 1" read as a label).
-	if calls > 0:
-		var pip := ColorRect.new()
-		pip.color = UiKit.YOU
-		pip.position = Vector2(CLUB_BTN_W - 14.0, -4.0)
-		pip.size = Vector2(20, 20)
-		pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var n := Label.new()
-		n.text = str(calls)
-		n.add_theme_font_override("font", font)
-		n.add_theme_font_size_override("font_size", 14)
-		n.add_theme_color_override("font_color", UiKit.BG)
-		n.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		n.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		n.size = Vector2(20, 20)
-		n.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		pip.add_child(n)
-		club_b.add_child(pip)
-	ui.add_child(club_b)
+			_rebuild(), "cog"))
 	## The tape's own control goes with the tab's, so leaving the club tab takes
 	## it down and nothing has to remember to.
 	_tape_label = null
@@ -563,6 +574,15 @@ func _draw() -> void:
 	if club_menu_open:
 		SeasonClubhouseTab._draw_club_menu(self)
 		return
+	if training_open:
+		SeasonClubhouseTab._draw_training(self)
+		return
+	if help_key != "":
+		SeasonClubhouseTab._draw_help(self)
+		return
+	if armorer_open:
+		SeasonArmorerTab._draw_armorers(self)
+		return
 	if shop_open:
 		## AND NOT THE TAB'S UNDERLINE EITHER. `_rebuild` stopped building the tab
 		## buttons under the modal; this used to draw the gold bar that marks
@@ -610,9 +630,15 @@ func _header() -> void:
 	## MEASURED AGAINST THE PURSE, which moved left for the Club button.
 	var room := purse_box().position.x - 68.0 - 12.0
 	UiKit.text(self, font, UiKit.clip_px(font, String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
-	UiKit.text(self, font, UiKit.clip_px(font, UiKit.t("%s  ·  Season %d  ·  rating %d") % [
-		season.tier_name(), season.world.season, int(w["power"])], 14, room),
-		Vector2(68, 50), 14, UiKit.DIM)
+	var sub := UiKit.t("%s  ·  Season %d  ·  rating %d") % [
+		season.tier_name(), season.world.season, int(w["power"])]
+	UiKit.text(self, font, UiKit.clip_px(font, sub, 14, room), Vector2(68, 50), 14, UiKit.DIM)
+	## WHO RUNS IT (Pete, 1 Oct 2026: "You're not named").
+	var sw := font.get_string_size(sub + "  ·  ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+	var who := UiKit.t("%s, level %d") % [season.coach.display_name, season.coach.level]
+	if sw + 60.0 < room:
+		UiKit.text(self, font, "  ·  ", Vector2(68 + font.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x, 50), 14, UiKit.DIM)
+		UiKit.text(self, font, UiKit.clip_px(font, who, 14, room - sw), Vector2(68 + sw, 50), 14, UiKit.YOU)
 	## The credit balance rides in the header on every tab, the way Retro Bowl
 	## keeps it in the corner. A currency you have to go and look up is one you
 	## forget you have.
@@ -963,8 +989,8 @@ var qm_pick: FighterCard = null
 ## How many earnings the clubhouse shows. See the note where they are drawn.
 const QM_PURSE_LINES: int = 3
 
-const QM_ROW := 34.0
-const QM_TOP := 66.0
+const QM_ROW := 29.0
+const QM_TOP := 92.0
 ## EVERY X ON THIS SCREEN IS DERIVED FROM THE CELL, not typed. The first cut had
 ## four hand-placed columns and a bar width, and on the reserve side they added
 ## up to more than the half-screen they had — which is the same arithmetic
@@ -1005,12 +1031,11 @@ const BAR_W := 300.0
 const BAR_H := 26.0
 const OFFICE_ROWS := [
 	{ "label": "SALARY CAP", "kind": "cap" },
-	## THE OTHER CAP, and the one this game was designed around — see
-	## `ClubOffice.travel_slots`. It sits directly under the money one on purpose:
-	## the two are the same kind of ceiling and a player should read them together.
-	{ "label": "PLACES ON THE BUS", "kind": "travel" },
+	## PLACES ON THE BUS ARE GONE (Pete, 1 Oct 2026: "It should always be up to 8
+	## fighters anyway"). INSURANCE is the federation now, all of it.
 	{ "label": "TRAINING GROUND", "kind": ClubOffice.Facility.TRAINING },
 	{ "label": "INFIRMARY", "kind": ClubOffice.Facility.INFIRMARY },
+	{ "label": "INSURANCE", "kind": "insurance" },
 ]
 
 
@@ -1046,6 +1071,7 @@ const NAV_BTN_H := 36.0
 ## The shop is a modal; this is the panel it draws in.
 var SHOP_CARD := Rect2(200.0, 120.0, 560.0, 300.0)
 var CLUB_CARD := Rect2(200.0, 90.0, 560.0, 318.0)
+var TRAIN_CARD := Rect2(150.0, 76.0, 660.0, 380.0)
 
 
 func _centre_modals() -> void:
@@ -1053,6 +1079,7 @@ func _centre_modals() -> void:
 	SIM_CARD.position.x = floorf((w - SIM_CARD.size.x) * 0.5)
 	SHOP_CARD.position.x = floorf((w - SHOP_CARD.size.x) * 0.5)
 	CLUB_CARD.position.x = floorf((w - CLUB_CARD.size.x) * 0.5)
+	TRAIN_CARD.position.x = floorf((w - TRAIN_CARD.size.x) * 0.5)
 ## -> SeasonClubhouseTab (season_tab_clubhouse.gd)
 func _office_row_y(i: int) -> float:
 	return SeasonClubhouseTab._office_row_y(self, i)

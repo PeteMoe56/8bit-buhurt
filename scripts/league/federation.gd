@@ -63,7 +63,7 @@ const RULE_BLURB := {
 const DEMANDED := {
 	League.Tier.BACKYARD: { Rule.KIT: 0, Rule.MARSHALS: 0, Rule.INSURANCE: 0 },
 	League.Tier.STATE:    { Rule.KIT: 1, Rule.MARSHALS: 1, Rule.INSURANCE: 1 },
-	League.Tier.REGIONAL: { Rule.KIT: 2, Rule.MARSHALS: 2, Rule.INSURANCE: 1 },
+	League.Tier.REGIONAL: { Rule.KIT: 2, Rule.MARSHALS: 2, Rule.INSURANCE: 2 },
 	League.Tier.NATIONAL: { Rule.KIT: 3, Rule.MARSHALS: 2, Rule.INSURANCE: 3 },
 }
 
@@ -80,8 +80,10 @@ static func required(tier: int, rule: int) -> int:
 	return int(d.get(rule, 0))
 
 
+## INSURANCE ONLY (Pete, 1 Oct 2026: "Replace the entire 'Federation' with just
+## keep up a level of insurance"). Kit and marshal certificates are gone.
 static func rules() -> Array[int]:
-	return [Rule.KIT, Rule.MARSHALS, Rule.INSURANCE]
+	return [Rule.INSURANCE]
 
 
 static func raise_cost(level: int) -> int:

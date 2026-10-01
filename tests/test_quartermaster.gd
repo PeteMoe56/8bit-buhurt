@@ -23,6 +23,7 @@ func _initialize() -> void:
 	_test_a_grade_caps_what_a_repair_can_reach()
 	_test_better_kit_wears_slower()
 	_test_buying_a_harness_hands_over_a_fresh_one()
+	_test_the_armorer_makes_what_he_can()
 	_test_the_ledger_is_the_squad()
 	_test_what_armor_is_actually_worth()
 	_test_a_simmed_event_costs_a_week()
@@ -131,7 +132,7 @@ func _test_a_grade_caps_what_a_repair_can_reach() -> void:
 	## "as good as borrowed gets" on a harness the screen beside it reads at 85%
 	## is a small lie, and a player who catches one stops trusting the rest.
 	var err := o.repair_kit(f)
-	_ok(err.contains("fine") or err.contains("borrowed"),
+	_ok(err.contains("fine") or err.contains(Quartermaster.name_of(f).to_lower()),
 		"and the refusal says which kind of refusal it is",
 		"'%s'" % err)
 
@@ -140,7 +141,7 @@ func _test_a_grade_caps_what_a_repair_can_reach() -> void:
 	## easy to lose while widening the band above.
 	f.armor = top
 	var at_top := o.repair_kit(f)
-	_ok(at_top.contains("borrowed"),
+	_ok(at_top.contains(Quartermaster.name_of(f).to_lower()),
 		"and a harness actually at its ceiling is still sold the next one",
 		"'%s'" % at_top)
 
@@ -176,6 +177,8 @@ func _test_better_kit_wears_slower() -> void:
 func _test_buying_a_harness_hands_over_a_fresh_one() -> void:
 	var o := ClubOffice.new()
 	o.credits = 100
+	## A FIVE-STAR ARMORER, so the metal is not what refuses (see below).
+	o.armorer = Armorer.make(5, 1)
 	var f := _man()
 	f.harness = Quartermaster.Grade.BORROWED
 	f.armor = 0.50
@@ -194,9 +197,9 @@ func _test_buying_a_harness_hands_over_a_fresh_one() -> void:
 
 	## AND THERE IS A TOP. A shop that keeps taking money for the same thing is
 	## the worst failure a shop can have.
-	f.harness = Quartermaster.Grade.TOURNAMENT
+	f.harness = Quartermaster.Grade.TITANIUM
 	_ok(o.buy_harness(f) != "" and Quartermaster.next_grade(f) < 0,
-		"and tournament plate is the end of the ladder",
+		"and titanium is the end of the ladder",
 		"refused with a sentence rather than charging again")
 
 	## A CLUB THAT CANNOT AFFORD IT IS REFUSED, not overdrawn.
@@ -280,3 +283,36 @@ func _test_a_simmed_event_costs_a_week() -> void:
 		after += f.armor
 	_ok(after < before, "six simmed events wear the harnesses of the men who travelled",
 		"%.2f -> %.2f across the eight" % [before, after])
+
+
+## THE ARMORER'S STARS ARE THE METAL (Pete, 1 Oct 2026): one star makes Rust and
+## nothing better, and keeps a better harness only up to what Rust can be.
+func _test_the_armorer_makes_what_he_can() -> void:
+	var bad: Array[String] = []
+	var o := ClubOffice.new()
+	o.credits = 200
+	var f := _man()
+	f.harness = Quartermaster.Grade.BORROWED
+	if o.buy_harness(f) == "" or f.harness != Quartermaster.Grade.BORROWED:
+		bad.append("a one-star armorer made Mild")
+	var g := _man()
+	g.harness = Quartermaster.Grade.TOURNAMENT
+	g.armor = 0.50
+	for _i in 12:
+		o.repair_kit(g)
+		o.new_week()
+	if g.armor > float(Quartermaster.TOP[Quartermaster.Grade.BORROWED]) + 0.001:
+		bad.append("a one-star kept Stainless to %.2f, past what Rust can be" % g.armor)
+	## Hiring: the division gate and the wage.
+	o.tier = 0
+	if o.hire_armorer(Armorer.make(4, 9)) == "":
+		bad.append("a four-star came to the Backyard")
+	var three := Armorer.make(3, 9)
+	var before := o.credits
+	if o.hire_armorer(three) != "" or o.armorer_cap() != Quartermaster.Grade.FITTED \
+			or before - o.credits != Armorer.wage_of(three):
+		bad.append("a three-star did not come, or did not charge his wage")
+	if o.buy_harness(f) != "" or f.harness != Quartermaster.Grade.SERVICEABLE:
+		bad.append("the three-star did not make Mild")
+	_ok(bad.is_empty(), "the armorer makes and keeps what his stars say",
+		"; ".join(bad) if not bad.is_empty() else "1 star: Rust only; 3 stars hired for %d CC and up to Hardened" % Armorer.wage_of(three))

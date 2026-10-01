@@ -99,6 +99,10 @@ static func federation_upkeep(o: ClubOffice) -> int:
 static func take(o: ClubOffice, cc: int, what: String, when_: String = "", line: String = "") -> int:
 	if cc == 0:
 		return 0
+	## THE COACH'S BUSINESS: gate, bar and prize money, +5% a star.
+	if cc > 0 and o.coach_ref != null and (line == ClubOffice.LINE_GATE or line == ClubOffice.LINE_COUNTER
+			or line == ClubOffice.LINE_PRIZE):
+		cc = int(round(float(cc) * o.coach_ref.business_mult()))
 	o.credits += cc
 	o.purse_log.push_front({"what": what, "cc": cc, "when": when_})
 	while o.purse_log.size() > ClubOffice.PURSE_KEEP:
@@ -252,7 +256,7 @@ static func refresh_market(o: ClubOffice) -> String:
 
 static func travel_cost(o: ClubOffice) -> int:
 	var step := o.travel_slots - ClubOffice.TRAVEL_START
-	if step < 0 or step >= ClubOffice.TRAVEL_COST.size():
+	if o.travel_slots >= ClubOffice.TRAVEL_MAX or step < 0 or step >= ClubOffice.TRAVEL_COST.size():
 		return 0
 	return int(ClubOffice.TRAVEL_COST[step])
 

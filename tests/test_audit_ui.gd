@@ -17,7 +17,6 @@ func _initialize() -> void:
 	await _test_stacked_buttons_share_the_gap()
 	await _test_a_coach_mark_shows_once_and_holds_the_fight()
 	await _test_back_closes_the_modal_first()
-	await _test_back_on_the_title_backs_out_of_the_picker()
 	await _test_a_typed_club_name_survives_a_rebuild()
 	await _test_every_root_screen_answers_back()
 	_test_the_string_table_is_whole()
@@ -178,17 +177,6 @@ func _test_back_closes_the_modal_first() -> void:
 		"back closes the shop, then returns to the Club tab",
 		"shop %s -> tab %d -> tab %d" % [str(shop_after), tab_after, int(s.get("tab"))])
 	s.queue_free()
-	await process_frame
-
-
-func _test_back_on_the_title_backs_out_of_the_picker() -> void:
-	var t: Node = await _open("res://scenes/Title.tscn")
-	t.call("_new_club", 1)
-	var picking: int = t.get("picking")
-	t.call("go_back")
-	_ok(picking == 1 and int(t.get("picking")) == -1, "back leaves the town picker, not the screen",
-		"picking %d -> %d" % [picking, int(t.get("picking"))])
-	t.queue_free()
 	await process_frame
 
 

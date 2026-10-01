@@ -14,7 +14,6 @@ func _initialize() -> void:
 	_test_a_card_does_not_pay_a_club_in_debt()
 	_test_the_gate_is_paid_on_the_fixture_fought()
 	_test_every_cup_is_counted_once()
-	_test_a_guest_is_not_a_job()
 	_test_the_contract_card_is_the_contract()
 	_test_cashing_in_is_capped()
 	_test_a_short_line_is_made_whole()
@@ -120,17 +119,6 @@ func _test_every_cup_is_counted_once() -> void:
 	_ok(uncounted <= 1, "every cup is counted by the summer after it",
 		"%d honours over 3 seasons, %d with you in them, %d not yet counted (a Worlds still being fought may be)"
 			% [s.honors().size(), mine, uncounted])
-
-
-func _test_a_guest_is_not_a_job() -> void:
-	var s := _season(99)
-	s.coach.reputation = Coach.REP_MAX
-	s.world.clubs.append({"id": s.world.clubs.size(), "name": "Guest XI", "short": "GST",
-		"tier": -1, "power": 20, "titles": 0, "guest": true})
-	var gid: int = s.world.clubs.size() - 1
-	_ok(not Jobs.interested(s.coach, s.world, gid), "a Worlds guest never offers a job",
-		"guest id %d, coach at max reputation" % gid)
-
 
 func _test_the_contract_card_is_the_contract() -> void:
 	var s := _season(31)

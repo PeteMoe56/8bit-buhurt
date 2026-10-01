@@ -45,10 +45,9 @@ const LINE_SLOTS := [
 	Tuning.Pos.FLANK_R, Tuning.Pos.RAIL_R,
 ]
 const BACKUP_SLOTS := [Tuning.Pos.RAIL_L, Tuning.Pos.FLANK_L, Tuning.Pos.CENTER]
-## And five more who never see an event.
+## And four more who never see an event (four is the reserve, 1 Oct 2026).
 const RESERVE_SLOTS := [
-	Tuning.Pos.RAIL_R, Tuning.Pos.FLANK_R, Tuning.Pos.CENTER,
-	Tuning.Pos.RAIL_L, Tuning.Pos.FLANK_L,
+	Tuning.Pos.RAIL_R, Tuning.Pos.FLANK_R, Tuning.Pos.CENTER, Tuning.Pos.FLANK_L,
 ]
 
 ## How far below the line a club's own bench and reserve sit. A club whose
@@ -305,15 +304,22 @@ static func _tune_to(club: MeleeClub, target: int) -> void:
 
 
 # ------------------------------------------------------------------ heraldry
+## THE ORIGINAL FOURTEEN AND NINE, not the whole bank (1 Oct 2026): the colors
+## added for the player include bright kits the old marks do not read on, and a
+## CPU club built from its id must come back in the colors it always had.
+const CPU_KITS: int = 14
+const CPU_MARKS: int = 9
+
+
 static func _field(rng: RandomNumberGenerator) -> Color:
-	return IconBank.KIT_COLORS[rng.randi() % IconBank.KIT_COLORS.size()]
+	return IconBank.KIT_COLORS[rng.randi() % CPU_KITS]
 
 
 ## The contrast rule, enforced rather than hoped for. A mark that does not read
 ## at a glance is a mark that does not do its job, and the whole art direction
 ## rests on it.
 static func _icon_color(rng: RandomNumberGenerator) -> Color:
-	return IconBank.MARK_COLORS[rng.randi() % IconBank.MARK_COLORS.size()]
+	return IconBank.MARK_COLORS[rng.randi() % CPU_MARKS]
 
 
 ## CPU clubs wear anything in the bank. The bank is a shop for the PLAYER; the

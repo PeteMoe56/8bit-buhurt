@@ -101,7 +101,11 @@ static func trait_covers(o: ClubOffice, t: int, role: int) -> bool:
 ## a bool so a second source of calls — if one is ever added — does not have to
 ## re-decide what "has a Tactician" means.
 static func extra_calls(o: ClubOffice) -> int:
-	return ClubOffice.TRAIT_TACTICIAN_CALLS if o.has_trait(ClubOffice.Trait.TACTICIAN) else 0
+	var n := ClubOffice.TRAIT_TACTICIAN_CALLS if o.has_trait(ClubOffice.Trait.TACTICIAN) else 0
+	## AND THE COACH'S TACTICS (Pete, 1 Oct 2026): one at three stars, two at five.
+	if o.coach_ref != null:
+		n += o.coach_ref.extra_calls()
+	return n
 
 
 

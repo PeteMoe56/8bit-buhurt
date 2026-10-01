@@ -71,13 +71,17 @@ class_name Quartermaster
 
 ## FOUR RUNGS, named for what they are rather than Poor/Fair/Good/Best. A player
 ## reads "Borrowed" and knows the story of it.
-enum Grade { BORROWED, SERVICEABLE, FITTED, TOURNAMENT }
+## FIVE METALS (Pete, 1 Oct 2026): Rust, Mild, Hardened, Stainless, Titanium.
+## The first four are the old four renamed — a save's numbers keep meaning the
+## same kit — and Titanium is new on the end.
+enum Grade { BORROWED, SERVICEABLE, FITTED, TOURNAMENT, TITANIUM }
 
 const GRADE_NAME := {
-	Grade.BORROWED: "Borrowed",
-	Grade.SERVICEABLE: "Serviceable",
-	Grade.FITTED: "Fitted",
-	Grade.TOURNAMENT: "Tournament",
+	Grade.BORROWED: "Rust",
+	Grade.SERVICEABLE: "Mild",
+	Grade.FITTED: "Hardened",
+	Grade.TOURNAMENT: "Stainless",
+	Grade.TITANIUM: "Titanium",
 }
 
 ## WHAT EACH RUNG SAYS, in one line, on the screen.
@@ -85,7 +89,8 @@ const GRADE_BLURB := {
 	Grade.BORROWED: "Club spares. Never quite fits, never quite clean.",
 	Grade.SERVICEABLE: "His own harness. Honest kit that takes a season.",
 	Grade.FITTED: "Made to him. Sits right, moves right, lasts.",
-	Grade.TOURNAMENT: "Tournament plate. Nothing on the list is better.",
+	Grade.TOURNAMENT: "Stainless. Hard to beat.",
+	Grade.TITANIUM: "Titanium. Nothing on the list is better.",
 }
 
 ## HOW GOOD A HARNESS AT THIS GRADE CAN EVER BE, and the armorer will not go
@@ -109,6 +114,7 @@ const TOP := {
 	Grade.SERVICEABLE: 0.96,
 	Grade.FITTED: 1.00,
 	Grade.TOURNAMENT: 1.00,
+	Grade.TITANIUM: 1.00,
 }
 
 ## AND HOW FAST IT GOES. A multiplier on the wear the regime already applies, so
@@ -119,6 +125,7 @@ const WEAR := {
 	Grade.SERVICEABLE: 0.86,
 	Grade.FITTED: 0.72,
 	Grade.TOURNAMENT: 0.58,
+	Grade.TITANIUM: 0.50,
 }
 
 ## WHAT THE NEXT RUNG COSTS, indexed by the grade you are BUYING. Priced against
@@ -130,11 +137,12 @@ const COST := {
 	Grade.SERVICEABLE: 3,
 	Grade.FITTED: 7,
 	Grade.TOURNAMENT: 14,
+	Grade.TITANIUM: 24,
 }
 
 
 static func grade_of(card: FighterCard) -> int:
-	return clampi(card.harness, Grade.BORROWED, Grade.TOURNAMENT)
+	return clampi(card.harness, Grade.BORROWED, Grade.TITANIUM)
 
 
 static func name_of(card: FighterCard) -> String:
@@ -145,6 +153,12 @@ static func ceiling(card: FighterCard) -> float:
 	return float(TOP[grade_of(card)])
 
 
+## WHAT THE CLUB'S ARMORER CAN PUT HIM BACK TO: his own metal's top, or the top
+## of the best metal the armorer works in, whichever is lower.
+static func repair_top(card: FighterCard, armorer_cap: int) -> float:
+	return float(TOP[mini(grade_of(card), armorer_cap)])
+
+
 static func wear_scale(card: FighterCard) -> float:
 	return float(WEAR[grade_of(card)])
 
@@ -152,7 +166,7 @@ static func wear_scale(card: FighterCard) -> float:
 ## The grade above this man's, or -1 when there is nothing better to buy.
 static func next_grade(card: FighterCard) -> int:
 	var g := grade_of(card)
-	return -1 if g >= Grade.TOURNAMENT else g + 1
+	return -1 if g >= Grade.TITANIUM else g + 1
 
 
 static func upgrade_cost(card: FighterCard) -> int:
@@ -188,8 +202,8 @@ const WORTH_DOING: float = 0.08
 ## IS HIS HARNESS AS GOOD AS IT CAN BE — at his grade, which is not the same
 ## question as "is it at 1.00". The armorer's refusal has to say which of the
 ## two it means or a player reads "as good as it gets" as a bug.
-static func topped_out(card: FighterCard) -> bool:
-	return card.armor >= ceiling(card) - WORTH_DOING
+static func topped_out(card: FighterCard, cap: int = Grade.TITANIUM) -> bool:
+	return card.armor >= repair_top(card, cap) - WORTH_DOING
 
 
 ## ---------------------------------------------------------------- the ledger
@@ -199,7 +213,7 @@ static func topped_out(card: FighterCard) -> bool:
 ##
 ## `who` is the list to read — the traveling eight for the bill that matters,
 ## the whole book for the table.
-static func ledger(who: Array) -> Dictionary:
+static func ledger(who: Array, cap: int = Grade.TITANIUM) -> Dictionary:
 	var out := {
 		"men": who.size(),
 		"failing": 0,      ## cannot go out at all
@@ -217,9 +231,9 @@ static func ledger(who: Array) -> Dictionary:
 			out["failing"] = int(out["failing"]) + 1
 		elif f.inspection_margin() < RISK_MARGIN:
 			out["at_risk"] = int(out["at_risk"]) + 1
-		if not topped_out(f):
+		if not topped_out(f, cap):
 			out["worn"] = int(out["worn"]) + 1
-			out["bill"] = int(out["bill"]) + ClubOffice.kit_cost(f)
+			out["bill"] = int(out["bill"]) + ClubOffice.kit_cost(f, cap)
 	out["mean"] = total / float(who.size())
 	return out
 

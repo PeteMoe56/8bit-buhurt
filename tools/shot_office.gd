@@ -7,7 +7,6 @@ func _initialize() -> void:
 	s.office.new_week(); s.office.buy_travel_slot()
 	s.office.new_week(); s.office.upgrade(ClubOffice.Facility.TRAINING)
 	s.office.new_week(); s.office.upgrade(ClubOffice.Facility.INFIRMARY)
-	s.coach.reputation = 12
 	s.world.season = 4
 	s.sync_power()
 	Session.season = s
