@@ -183,7 +183,7 @@ static func _training_controls(v: SeasonScene) -> void:
 				k == int(o.captains[i].get("regime", ClubOffice.Regime.NORMAL))))
 	var cost := o.session_cost()
 	var idle: bool = o.captains.is_empty()
-	var sb := UiKit.button(UiKit.t("Session  ·  +%d XP each  ·  %d CC") % [SeasonBouts.session_xp(v.season), cost],
+	var sb := UiKit.button(UiKit.t("Session  ·  +%d XP each fighter  ·  %d CC") % [SeasonBouts.session_xp(v.season), cost],
 		Vector2(card.position.x + 24.0, card.end.y - 66.0), Vector2(card.size.x - 48.0, 46), func():
 			var err := v.season.run_session() if not idle else \
 				UiKit.t("Nobody is teaching. A session with no captain is a warm-up.")
@@ -213,8 +213,8 @@ static func _draw_training(v: SeasonScene) -> void:
 		var y := card.position.y + 70.0 + float(i) * TRAIN_ROW
 		UiKit.text_fit(v, v.font, String(c.get("name", "?")), Vector2(card.position.x + 24.0, y + 18.0), 17,
 			UiKit.INK, 260.0)
-		UiKit.text_fit(v, v.font, ClubOffice.teaches_line(c), Vector2(card.position.x + 24.0, y + 38.0), 13,
-			UiKit.DIM, 260.0)
+		UiKit.text_fit(v, v.font, UiKit.t("CAPTAIN  ·  %s") % ClubOffice.teaches_line(c),
+			Vector2(card.position.x + 24.0, y + 38.0), 13, UiKit.DIM, 260.0)
 	## WHAT THE THREE TRADE, in one line each.
 	var ly := card.position.y + 70.0 + float(maxi(1, o.captains.size())) * TRAIN_ROW + 18.0
 	for k in 3:
@@ -357,8 +357,8 @@ static func _draw_office(v: SeasonScene) -> void:
 			right = UiKit.t("not built")
 			match f:
 				ClubOffice.Facility.TRAINING:
-					var camp: int = o.camp_points(v.season.club.active_eight()) + o.training_points()
-					right = UiKit.t("winter camp +%d") % camp
+					## THE GROUND'S OWN SHARE, the number its button moves (review, 1 Oct).
+					right = UiKit.t("camp +%d") % (o.level(f) * 3)
 				ClubOffice.Facility.INFIRMARY:
 					if o.injury_relief() > 0:
 						right = UiKit.tn("-%d event off a knock", "-%d events off a knock",
@@ -372,7 +372,7 @@ static func _draw_office(v: SeasonScene) -> void:
 			UiKit.DOWN if keep > 0 else UiKit.DIM, UPGRADE_W - 60.0)
 	var ty := v._office_row_y(SeasonScene.OFFICE_ROWS.size()) + 16.0
 	v.draw_line(Vector2(SeasonScene.BAR_X, ty - 18.0), Vector2(UPGRADE_X + UPGRADE_W, ty - 18.0), UiKit.FRAME, 1.0)
-	UiKit.pair(v, v.font, UiKit.t("Maintenance total"), UiKit.t("%d CC/Year") % upkeep_total(v),
+	UiKit.pair(v, v.font, UiKit.t("Maintenance total, arena included"), UiKit.t("%d CC/Year") % upkeep_total(v),
 		Vector2(SeasonScene.BAR_X, ty), UPGRADE_X + UPGRADE_W, 15, 15, UiKit.INK, UiKit.DOWN)
 	_draw_arena_panel(v)
 

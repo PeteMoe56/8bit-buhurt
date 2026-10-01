@@ -83,8 +83,8 @@ const KIT_COLORS: Array[Color] = [
 	Color("7a1f3d"), Color("15305e"), Color("4b5a1f"), Color("5b3a29"),
 	Color("3b3f8f"), Color("5e6470"), Color("a8341c"),
 	## TWENTY-FOUR (Pete, 1 Oct 2026: "More colors"). On the end, as always.
-	Color("d4a017"), Color("e67e22"), Color("16a085"), Color("8e44ad"), Color("2c3e50"),
-	Color("b03a2e"), Color("6d4c41"), Color("1b4f72"), Color("566573"), Color("0e6655"),
+	Color("d4a017"), Color("e67e22"), Color("16a085"), Color("c2185b"), Color("2c3e50"),
+	Color("2e86c1"), Color("6d4c41"), Color("1b4f72"), Color("7d6608"), Color("0e6655"),
 ]
 ## The mark. Light, because the point of the mark is that you can see it.
 ## NINE, not three (playtest 30 Sep #3). All light: the contrast rule against

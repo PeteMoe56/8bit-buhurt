@@ -72,6 +72,7 @@ var replace_i := 0
 ## THE POPUP OVER THE CLUB TAB (Pete, 1 Oct 2026: kit color, mark color and the
 ## home town are popups): "kit", "mark", "town" or "".
 var popup := ""
+var sign_btn: Button = null
 var town_area := ""
 
 ## One row per grade down the left, the chosen one's sentence on the right.
@@ -186,7 +187,16 @@ func _fighter_controls() -> void:
 	name_edit.placeholder_text = UiKit.t("His name")
 	name_edit.text = card.display_name
 	## The card is the working copy of the new man, so typing goes straight on it.
-	name_edit.text_changed.connect(func(t: String): card.display_name = t)
+	name_edit.text_changed.connect(func(t: String):
+		var was_blank := card.display_name.strip_edges() == ""
+		card.display_name = t
+		## A NAME ARRIVING OR GOING flips Sign between grey and gold, and gold is a
+		## style, so the row is rebuilt and the cursor put back where it was.
+		if was_blank != (t.strip_edges() == ""):
+			_rebuild()
+			if name_edit != null:
+				name_edit.grab_focus()
+				name_edit.caret_column = t.length())
 	ui.add_child(name_edit)
 
 	var lim := _limits()
@@ -237,7 +247,9 @@ func _fighter_controls() -> void:
 	var sign_b := UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
 		Vector2(BOTTOM_X, 486), Vector2(260, 42), _sign)
 	## GREY WHEN THE PURSE CANNOT COVER HIM; gold only when the tap can land.
-	sign_b.disabled = shop.cost() > season.office.credits
+	## AND WHEN HE HAS NO NAME (review, 1 Oct 2026).
+	sign_b.disabled = shop.cost() > season.office.credits or card.display_name.strip_edges() == ""
+	sign_btn = sign_b
 	ui.add_child(sign_b if sign_b.disabled else UiKit.primary(sign_b))
 	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(BOTTOM_X + 272, 486), Vector2(160, 42), func():
 		card = Workshop.blank()
@@ -803,6 +815,8 @@ func _popup_controls() -> void:
 			areas.append(a)
 	areas.sort()
 	if town_area == "" or not areas.has(town_area):
+		town_area = Cities.area_of(season.city())
+	if not areas.has(town_area):
 		town_area = areas[0] if not areas.is_empty() else ""
 	for i in areas.size():
 		var a: String = areas[i]

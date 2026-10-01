@@ -677,7 +677,10 @@ func _the_man() -> void:
 	## written for a case a peak-as-a-wall rule created, and that rule lasted one
 	## pass. Only 99 in all four gets a man there now, and a screen that keeps
 	## explaining a rule the game no longer has is the `xp_cost` ladder again.
-	var word := UiKit.t("1 POINT TO SPEND") if waiting else UiKit.t("%d / %d xp") % [man.xp, bar]
+	## THE SAME COUNT AS THE TEAM SHEET'S "+3" (review, 1 Oct 2026).
+	var banked := maxi(1, Career.levels_banked(man))
+	var word := (UiKit.tn("%d POINT TO SPEND", "%d POINTS TO SPEND", banked) % banked) if waiting \
+		else UiKit.t("%d / %d xp") % [man.xp, bar]
 	var tint := UiKit.YOU if waiting else UiKit.DIM
 	if capped:
 		word = UiKit.t("at his ceiling")

@@ -256,14 +256,11 @@ static func _market_controls(v: SeasonScene) -> void:
 static func _armorers_controls(v: SeasonScene) -> void:
 	var o := v.season.office
 	var r := armorers_rect()
-	var pool := Armorer.pool(v.season.seed_value, v.season.world.season)
+	var pool := Armorer.pool(v.season.seed_value, v.season.world.season, String(v.season.office.armorer.get("name", "")))
 	for i in pool.size():
 		var a: Dictionary = pool[i]
-		var y := r.position.y + 70.0 + float(i) * 58.0
+		var y := r.position.y + 70.0 + float(i + 1) * ROW
 		var st := int(a["stars"])
-		var mine: bool = String(a["name"]) == String(o.armorer.get("name", "")) and st == int(o.armorer.get("stars", 1))
-		if mine:
-			continue
 		if not Armorer.will_come(st, o.tier):
 			continue
 		var b := UiKit.button(UiKit.t("Hire · %d CC") % Armorer.wage_of(a), Vector2(r.end.x - 170.0, y - 4.0),
@@ -283,9 +280,12 @@ static func _armorers_controls(v: SeasonScene) -> void:
 	v.ui.add_child(close_b)
 
 
+const ROW := 56.0
+
+
 static func armorers_rect() -> Rect2:
-	var sz := Vector2(minf(820.0, UiKit.screen().x - 48.0), 400.0)
-	return Rect2(Vector2(floorf((UiKit.screen().x - sz.x) * 0.5), 70.0), sz)
+	var sz := Vector2(minf(820.0, UiKit.screen().x - 48.0), 430.0)
+	return Rect2(Vector2(floorf((UiKit.screen().x - sz.x) * 0.5), 64.0), sz)
 
 
 static func _draw_armorers(v: SeasonScene) -> void:
@@ -295,13 +295,16 @@ static func _draw_armorers(v: SeasonScene) -> void:
 	UiKit.panel(v, r)
 	UiKit.text(v, v.font, UiKit.t("ARMORERS"), r.position + Vector2(24, 40), 19, UiKit.INK)
 	UiKit.right(v, v.font, UiKit.t("%d CC") % o.credits, Vector2(r.end.x - 70.0, r.position.y + 40.0), 16, UiKit.YOU, 120)
-	var pool := Armorer.pool(v.season.seed_value, v.season.world.season)
-	for i in pool.size():
-		var a: Dictionary = pool[i]
-		var y := r.position.y + 70.0 + float(i) * 58.0
+	var pool := Armorer.pool(v.season.seed_value, v.season.world.season, String(v.season.office.armorer.get("name", "")))
+	## YOURS FIRST, then who is looking for work.
+	var rows: Array = [o.armorer]
+	rows.append_array(pool)
+	for i in rows.size():
+		var a: Dictionary = rows[i]
+		var y := r.position.y + 70.0 + float(i) * ROW
 		var st := int(a["stars"])
-		var mine: bool = String(a["name"]) == String(o.armorer.get("name", "")) and st == int(o.armorer.get("stars", 1))
-		var plate := Rect2(r.position.x + 16.0, y - 8.0, r.size.x - 32.0, 50.0)
+		var mine: bool = i == 0
+		var plate := Rect2(r.position.x + 16.0, y - 8.0, r.size.x - 32.0, ROW - 6.0)
 		v.draw_rect(plate, UiKit.SELECT if mine else UiKit.BG)
 		UiKit.text_fit(v, v.font, String(a["name"]), Vector2(plate.position.x + 12.0, y + 14.0), 16, UiKit.INK, 180.0)
 		UiKit.stars(v, Vector2(plate.position.x + 12.0, y + 20.0), st * 20, UiKit.YOU, 10.0, 2.0)

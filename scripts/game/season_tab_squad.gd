@@ -158,7 +158,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 	var n_res: int = v.season.club.reserves().size()
 	for i in range(n_res, MeleeClub.RESERVE_SIZE):
 		var hb := UiKit.button(UiKit.t("+  Hire free agent"),
-			Vector2(SeasonScene.RESERVE_X, _reserve_y(i) - 20.0), Vector2(SeasonScene.SQUAD_W, SeasonScene.SQUAD_ROW - 4.0),
+			Vector2(SeasonScene.RESERVE_X, _reserve_y(i) - 21.0), Vector2(SeasonScene.SQUAD_W, SeasonScene.SQUAD_ROW - 4.0),
 			func():
 				Session.autosave()
 				UiKit.go("res://scenes/Market.tscn"))
@@ -213,7 +213,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 				v._rebuild()))
 		var worth := v.season.trade_value(p)
 		var who := UiKit.clip(p.display_name, 8)
-		v.ui.add_child(UiKit.danger(UiKit.button((UiKit.t("Trade %s  ·  %d CC") % [who, worth])
+		v.ui.add_child(UiKit.danger(UiKit.button((UiKit.t("Trade %s  ·  +%d CC") % [who, worth])
 				if worth > 0 else (UiKit.t("Cut %s") % who),
 			Vector2(706, ay), Vector2(UiKit.right_edge() - 706.0, 46), func():
 				if not UiKit.confirm("release:" + p.display_name):

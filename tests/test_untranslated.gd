@@ -134,7 +134,7 @@ func _world() -> void:
 		names[String(c.get("name", ""))] = true
 	## The armorers too (1 Oct 2026): yours and this season's five.
 	names[String(world.office.armorer.get("name", ""))] = true
-	for a in Armorer.pool(world.seed_value, world.world.season):
+	for a in Armorer.pool(world.seed_value, world.world.season, String(world.office.armorer.get("name", ""))):
 		names[String(a["name"])] = true
 	names[world.coach.display_name] = true
 	for reg in Cities.Region.values():

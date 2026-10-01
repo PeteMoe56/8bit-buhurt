@@ -94,7 +94,7 @@ func _build() -> void:
 		_build()))
 	for i in 5:
 		var y := SKILL_Y + 66.0 + float(i) * SKILL_ROW
-		var plus := UiKit.button("+", Vector2(UiKit.right_edge(56.0), y - 22.0), Vector2(40, 34), func(k = i):
+		var plus := UiKit.button("+", Vector2(UiKit.right_edge(60.0), y - 26.0), Vector2(46, 44), func(k = i):
 			var err := c.spend(k)
 			flash = err
 			if err == "" and not creating:
@@ -103,7 +103,7 @@ func _build() -> void:
 		plus.disabled = c.points <= 0 or c.skill(i) >= Coach.SKILL_MAX
 		ui.add_child(plus)
 		if creating:
-			var minus := UiKit.button("-", Vector2(UiKit.right_edge(104.0), y - 22.0), Vector2(40, 34), func(k = i):
+			var minus := UiKit.button("-", Vector2(UiKit.right_edge(112.0), y - 26.0), Vector2(46, 44), func(k = i):
 				c.unspend(k)
 				_build())
 			minus.disabled = c.skill(i) <= (1 if i == int(Coach.BACKGROUND_SKILL[c.background]) else 0)
