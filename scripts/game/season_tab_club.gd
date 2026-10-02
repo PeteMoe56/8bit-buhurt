@@ -410,6 +410,11 @@ static func _schedule(v: SeasonScene) -> void:
 	## list as a cup round, in the cup's color, so the table never moves — or
 	## fails to — without the list saying why.
 	UiKit.text(v, v.font, UiKit.t("COMING UP"), Vector2(24, y), 14, UiKit.DIM)
+	## THE WEEKDAYS, SAID (Pete, 2 Oct 2026): every week has them before its
+	## event, and the work done in them is open whatever the weekend holds.
+	var cw := v.font.get_string_size(UiKit.t("COMING UP"), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	UiKit.text_fit(v, v.font, UiKit.t("weekdays now: repair, train, sign"), Vector2(24 + cw + 14.0, y), 13,
+		UiKit.YOU, SeasonScene.fixture_w() - cw - 14.0)
 	y += 24.0
 	var days := v.season.world.events_this_season()
 	for i in rest.size():

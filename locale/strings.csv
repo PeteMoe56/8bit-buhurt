@@ -83,6 +83,7 @@ Out: %s,Out: %s,Fuera: %s,Éliminé : %s,Raus: %s,Fuori: %s,Fora: %s,Odpadli: %s
 Out: pools,Out: pools,Fuera: grupos,Éliminé : poules,Raus: Gruppen,Fuori: gironi,Fora: grupos,Odpadli: grupy,Вылет: группы,予選敗退
 Out early,Out early,Fuera pronto,Éliminé tôt,Früh raus,Fuori presto,Fora cedo,Odpadli wcześnie,Ранний вылет,早期敗退
 THE SEASON,THE SEASON,LA TEMPORADA,LA SAISON,DIE SAISON,LA STAGIONE,A TEMPORADA,SEZON,СЕЗОН,シーズン
+now: weekdays,now: weekdays,ahora: entre semana,en ce moment : semaine,jetzt: Wochentage,ora: in settimana,agora: dias úteis,teraz: dni robocze,сейчас: будни,今:平日
 %d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s,%d.  %s
 %s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s%d日
 Your show,Your show,Tu torneo,Votre tournoi,Euer Turnier,Il vostro torneo,Seu torneio,Wasz turniej,Ваш турнир,主催大会
@@ -589,6 +590,7 @@ Tap Sim it again to hand the cup bout to the AI.,Tap Sim it again to hand the cu
 "%s, finished %s. Now in the %s.%s%s","%s, finished %s. Now in the %s.%s%s","%s, acabó %s. Ahora en %s.%s%s","%s, terminé %s. Désormais en %s.%s%s","%s, Platz %s. Jetzt in der %s.%s%s","%s, chiuso %s. Ora in %s.%s%s","%s, terminou em %s. Agora em: %s.%s%s","%s, miejsce: %s. Teraz: %s.%s%s",%s: место %s. Теперь: %s.%s%s,%s、%sで終了。現在%s所属。%s%s
 Choose at the Arena,Choose at the Arena,Elegir en la arena,Choisir à l'arène,In der Arena wählen,Scegli all'arena,Escolher na arena,Wybierz na arenie,Выбрать на арене,アリーナで選ぶ
 COMING UP,COMING UP,PRÓXIMAMENTE,À VENIR,DEMNÄCHST,IN ARRIVO,A SEGUIR,WKRÓTCE,ВПЕРЕДИ,今後の予定
+"weekdays now: repair, train, sign","weekdays now: repair, train, sign","entre semana: reparar, entrenar, fichar","en semaine : réparer, entraîner, recruter","unter der Woche: reparieren, trainieren, holen","in settimana: ripara, allena, ingaggia","dias úteis: reparar, treinar, contratar","w tygodniu: naprawy, trening, transfery","будни: ремонт, тренировки, подписания",平日:修理・練習・契約
 Bye,Bye,Libre,Exempt,Spielfrei,Riposo,Folga,Pauza,Пропуск,不戦
 Home  ·  %s,Home  ·  %s,Local  ·  %s,Domicile  ·  %s,Heim  ·  %s,Casa  ·  %s,Casa  ·  %s,U siebie  ·  %s,Дома  ·  %s,ホーム  ·  %s
 Away  ·  %s,Away  ·  %s,Visitante  ·  %s,Extérieur  ·  %s,Auswärts  ·  %s,Trasferta  ·  %s,Fora  ·  %s,Na wyjeździe  ·  %s,В гостях  ·  %s,アウェー  ·  %s
@@ -1050,6 +1052,10 @@ carried off — out for %d events,carried off — out for %d events,sacado en ca
 There is nothing on the table.,There is nothing on the table.,No hay nada sobre la mesa.,Rien sur la table.,Es liegt nichts auf dem Tisch.,Non c'è niente sul tavolo.,Não há nada na mesa.,Nic nie ma na stole.,На столе ничего нет.,提示されているものはありません。
 No such date.,No such date.,No existe esa fecha.,Date inconnue.,Diesen Termin gibt es nicht.,Data inesistente.,Data inexistente.,Nie ma takiego terminu.,Нет такой даты.,その日程はありません。
 The date and the budget come to %d CC and you have %d.,The date and the budget come to %d CC and you have %d.,La fecha y el presupuesto suman %d CC y tienes %d.,La date et le budget font %d CC et tu as %d.,"Termin und Budget kosten %d CC, du hast %d.",Data e budget fanno %d CC e ne hai %d.,A data e a verba somam %d CC e você tem %d.,"Termin i budżet to %d CC, a masz %d.","Дата и бюджет — %d CC, а у тебя %d.",日程と予算で%d CC、所持金は%d。
+A cup tie won,A cup tie won,Eliminatoria de copa ganada,Tour de coupe gagné,Pokalrunde gewonnen,Turno di coppa vinto,Rodada da copa vencida,Wygrana runda pucharu,Победа в кубковом раунде,カップ戦の勝利
+Won the cup,Won the cup,Copa ganada,Coupe remportée,Pokal gewonnen,Coppa vinta,Copa conquistada,Puchar zdobyty,Кубок выигран,カップ優勝
+Cup runner-up,Cup runner-up,Subcampeón de copa,Finaliste de la coupe,Pokalfinalist,Finalista di coppa,Vice da copa,Finalista pucharu,Финалист кубка,カップ準優勝
+Cup bronze,Cup bronze,Bronce de copa,Bronze de la coupe,Pokal-Bronze,Bronzo di coppa,Bronze da copa,Brąz pucharu,Бронза кубка,カップ3位
 You already have %s in the diary.,You already have %s in the diary.,Ya tienes %s en la agenda.,Tu as déjà %s à l'agenda.,Du hast schon %s im Kalender.,Hai già %s in agenda.,Você já tem %s na agenda.,Masz już w terminarzu: %s.,В дневнике уже есть: %s.,すでに%sが日誌に入っています。
 You have already put a demo on this week.,You have already put a demo on this week.,Ya has montado una exhibición esta semana.,Tu as déjà organisé une démo cette semaine.,Du hast diese Woche schon einen Schaukampf gemacht.,Hai già organizzato un'esibizione questa settimana.,Você já fez uma demo esta semana.,W tym tygodniu już był pokaz.,Ты уже проводил показ на этой неделе.,今週はすでにデモを開催済み。
 A demo at the ground,A demo at the ground,Una exhibición en el estadio,Une démo au stade,Ein Schaukampf in der Arena,Un'esibizione all'impianto,Uma demo no estádio,Pokaz na stadionie,Показ на арене,本拠地でデモ

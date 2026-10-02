@@ -225,6 +225,11 @@ static func sim_cup_tie(s: Season) -> void:
 static func _finish_cup_round(s: Season, c: Cup, won: bool) -> void:
 	s.office.morale_after(won, false)
 	s.office.after_event(won, false)
+	## A TIE WON PAYS (Pete, 2 Oct 2026: "Cup win rewards ... seemed small" —
+	## they were nothing: an invitational paid no CC at all, round or trophy).
+	var purse := cup_purse(s)
+	if won and purse > 0:
+		s.office.take(purse, UiKit.t("A cup tie won"), "event", ClubOffice.LINE_CUP)
 	if Calendar.is_tournament(s.world.week_kind()):
 		## A TOURNAMENT IS ONE WEEK — a cup or your show a weekend, the Worlds a
 		## whole week (Pete, 30 Sep). Every round is fought inside it, several
@@ -245,6 +250,7 @@ static func _finish_cup_round(s: Season, c: Cup, won: bool) -> void:
 		## Out, or champion: the rest of the day on paper, then the money.
 		c.run_all(r)
 		_crown(s, c)
+		_pay_podium(s, c, purse)
 		if s.booked != null and s.booked.cup == c:
 			s._settle_gate(s.booked, c)
 		else:
@@ -262,6 +268,46 @@ static func _finish_cup_round(s: Season, c: Cup, won: bool) -> void:
 ## system, because a mood is a state you are in and this is a moment that has
 ## just passed. Everybody who travelled gets the honor, not only the five on the
 ## line for the final — a cup is won by an eight.
+## WHAT ONE CUP TIE WON IS WORTH, by division: 6% of what a season leaves the
+## squad (`League.TIERS[t]["slack"]`), never under 2 — so 2 in the Backyard and
+## State, 3 Regional, 5 National, and double at the Worlds. Tuned on the bench
+## with the weekdays open (register 30.89): career power back to its old level. 0 for your own show (it has its
+## gate and podium) and for the playoff (the season pays for where you finish).
+const CUP_TIE_SHARE := 0.06
+const CUP_PODIUM := [4, 2, 1]     ## champion, runner-up, third, in ties' worth
+const WORLDS_MULT := 2
+const CUP_TIE_MIN := 2
+## Never less than 2 a tie: a Backyard cup won is 2+2+2 and 8 for the trophy.
+
+
+static func cup_purse(s: Season) -> int:
+	var kind := s.world.week_kind()
+	if kind != Calendar.Kind.CUP and kind != Calendar.Kind.WORLDS:
+		return 0
+	var t := clampi(s.world.player_tier(), 0, League.TIERS.size() - 1)
+	var p := maxi(CUP_TIE_MIN, int(round(float(League.TIERS[t]["slack"]) * CUP_TIE_SHARE)))
+	return p * (WORLDS_MULT if kind == Calendar.Kind.WORLDS else 1)
+
+
+## THE PODIUM, once the cup is over: four ties' worth to the champion, two to
+## the runner-up, one for bronze.
+static func _pay_podium(s: Season, c: Cup, purse: int) -> void:
+	if purse <= 0 or not c.is_over() or c.has_meta("podium_paid"):
+		return
+	var place := -1
+	if c.champion == s.world.player_club:
+		place = 0
+	elif c.runner_up == s.world.player_club:
+		place = 1
+	elif c.third == s.world.player_club:
+		place = 2
+	if place < 0:
+		return
+	c.set_meta("podium_paid", true)
+	s.office.take(purse * CUP_PODIUM[place], (UiKit.t("Won the cup") if place == 0
+		else (UiKit.t("Cup runner-up") if place == 1 else UiKit.t("Cup bronze"))), "event", ClubOffice.LINE_CUP)
+
+
 static func _crown(s: Season, c: Cup) -> void:
 	if c.is_over() and c.champion == s.world.player_club and not c.has_meta("crowned"):
 		c.set_meta("crowned", true)

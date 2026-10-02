@@ -324,6 +324,10 @@ func _side() -> void:
 	var r := Rect2(sx, top, SIDE_W, h() - 70.0 - top)
 	UiKit.panel(self, r)
 	UiKit.text(self, font, UiKit.t("THE SEASON"), Vector2(sx + 12, top + 22), 12, UiKit.DIM)
+	## WHERE WE ARE IN THE WEEK (2 Oct 2026): before the event, the weekdays.
+	if not s.world.season_complete():
+		UiKit.right_fit(self, font, UiKit.t("now: weekdays"), Vector2(r.end.x - 12.0, top + 22), 12, UiKit.YOU,
+			SIDE_W - 110.0)
 	var row_h := 21.0
 	var fit := int((r.size.y - 40.0) / row_h)
 	var n := s.world.weeks_this_season()

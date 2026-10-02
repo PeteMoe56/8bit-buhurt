@@ -607,11 +607,20 @@ func _practice() -> void:
 var practiced_week: int = -1
 
 
-## THE WEEK TELLS THE OFFICE WHAT IT IS, so the between-fixtures work is only
-## sold in a league week. Derived, not saved: called as each week begins and
-## after a load.
+## EVERY WEEK HAS ITS WEEKDAYS (Pete, 2 Oct 2026: "We should have an in between
+## Fight (Week days)" — he was refused a repair before a cup weekend because
+## that week was "training"). The armorer, the paid session and the extra reps
+## are open every week now, whatever is on at the weekend. The old rule (league
+## weeks only, register 30.52) was a balance lever for five shopping weeks a
+## Backyard season against nine on the calendar; the weekdays are the sink the
+## hoarding needed, and the bench re-tunes around them (30.89).
+## Derived, not saved: called as each week begins and after a load.
+const WEEKDAYS_EVERY_WEEK := true
+
+
 func sync_week() -> void:
-	office.fixture_week = world.week_kind() == Calendar.Kind.LEAGUE or world.season_complete()
+	office.fixture_week = WEEKDAYS_EVERY_WEEK or world.week_kind() == Calendar.Kind.LEAGUE \
+		or world.season_complete()
 
 
 ## What one week's practice is worth against the old league-day practice: the
