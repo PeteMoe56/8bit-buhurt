@@ -2998,8 +2998,9 @@ func _draw_splash() -> void:
 	## THE TWO CLUBS, badge over name over record, either side of the middle.
 	_splash_club(sim.clubs[0], 0, 236.0)
 	_splash_club(sim.clubs[1], 1, 724.0)
-	## A "V" YOU CAN SEE (round 9: "the v is tiny").
-	UiKit.raw(self, font, Vector2(0, 232), "V", HORIZONTAL_ALIGNMENT_CENTER,
+	## A "V" YOU CAN SEE (round 9: "the v is tiny"), and "VS", not "V" (round 2,
+	## 2 Oct: a lone V read as a letter, not the versus).
+	UiKit.raw(self, font, Vector2(0, 232), "VS", HORIZONTAL_ALIGNMENT_CENTER,
 		int(SCREEN.x), 40, UiKit.YOU)
 
 
