@@ -123,9 +123,18 @@ func _draw_watermarks() -> void:
 			draw_texture(wm, Vector2(x, y).floor(), col)
 
 
+## THE LAST WHOLE-PIXEL STEP THE WALLPAPER DREW (2 Oct 2026, battery): the
+## drift is ~10 px a second, so the screen redraws when it has moved a pixel,
+## not sixty times a second.
+var _drift_px := Vector2i(-1, -1)
+
+
 func _process(delta: float) -> void:
 	t += delta
-	queue_redraw()
+	var d := Vector2i(int(fposmod(t * DRIFT.x, TILE_STEP.x * 2.0)), int(fposmod(t * DRIFT.y, TILE_STEP.y * 2.0)))
+	if d != _drift_px:
+		_drift_px = d
+		queue_redraw()
 	if quit_armed_until > 0.0 and t > quit_armed_until:
 		quit_armed_until = -1.0
 		queue_redraw()

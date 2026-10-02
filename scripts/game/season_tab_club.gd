@@ -846,6 +846,63 @@ static func _table(v: SeasonScene) -> void:
 ## halfway, to a club in the playoff places on a ground the division above
 ## would refuse. A build button for the next step (one a week, as ever) and
 ## Later. Built all the way, it closes itself.
+## THE PROMOTION GATE, AS A CARD THAT HAS TO BE ANSWERED (Pete, 2 Oct 2026:
+## "Agree" — a player who only ever presses Fight was promoted, could not go up
+## on his ground, and nothing in front of him said so). When the place is won
+## and the ground is short, the hub shows this and nothing else until it is
+## answered: build what the division needs and go up, or stay down.
+static func gate_due(v: SeasonScene) -> bool:
+	return v.season.blocked_by() == "promotion" and not v.season.ground_gap().is_empty()
+
+
+static func _gate_controls(v: SeasonScene) -> void:
+	var card := _ground_card()
+	var gap: Dictionary = v.season.ground_gap()
+	var pt: Dictionary = v.season.promotion_terms()
+	var o := v.season.office
+	var build := UiKit.button(UiKit.with_upkeep(UiKit.t("Build now · %d CC") % int(gap["total"]),
+			o.arena_upkeep_at(Arena.level_for_tier(v.season.world.player_tier() + 1))),
+		Vector2(card.end.x - 24.0 - 300.0, card.end.y - 62.0), Vector2(300, 44), func():
+			var err: String = v.season.build_for_promotion()
+			if err != "":
+				v.flash = UiKit.said(err)
+			else:
+				err = v.season.answer_promotion(true)
+				v.flash = UiKit.said(err) if err != "" else UiKit.t("%s built. Up to the %s.") % [
+					UiKit.t(String(gap["need"])), String(pt["to"])]
+			Session.autosave()
+			v._rebuild(), "hall")
+	build.disabled = o.credits < int(gap["total"])
+	v.ui.add_child(UiKit.primary(build) if not build.disabled else build)
+	v.ui.add_child(UiKit.button(UiKit.t("Stay down"), Vector2(card.position.x + 24.0, card.end.y - 62.0),
+		Vector2(170, 44), func():
+			v.season.answer_promotion(false)
+			v.flash = UiKit.t("Staying in the %s another year.") % String(pt["from"])
+			Session.autosave()
+			v._rebuild(), "shield"))
+
+
+static func _draw_gate(v: SeasonScene) -> void:
+	var card := _ground_card()
+	var gap: Dictionary = v.season.ground_gap()
+	var pt: Dictionary = v.season.promotion_terms()
+	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(v, card)
+	var w := card.size.x - 48.0
+	UiKit.text_fit(v, v.font, UiKit.t("PROMOTED, IF YOU CAN HOST IT"), card.position + Vector2(24, 40), 18, UiKit.YOU, w)
+	UiKit.para(v, v.font, UiKit.t("You have won a place in the %s, and it won't fight in a %s.") % [
+		String(pt["to"]), UiKit.t(String(gap["have"]))], card.position + Vector2(24, 76), 15, UiKit.INK, w, 20.0, 2)
+	var parts: Array = []
+	for st in gap["steps"]:
+		parts.append(UiKit.t(String(st)))
+	UiKit.para(v, v.font, UiKit.t("To go up: %s. %d CC in all.") % [" → ".join(parts), int(gap["total"])],
+		card.position + Vector2(24, 132), 15, UiKit.DIM, w, 20.0, 2)
+	var short := int(gap["total"]) - v.season.office.credits
+	UiKit.text_fit(v, v.font, (UiKit.t("You hold %d CC.") % v.season.office.credits) if short <= 0
+		else UiKit.t("You hold %d CC: %d short. Stay down and build next year.") % [v.season.office.credits, short],
+		card.position + Vector2(24, 188), 15, UiKit.UP if short <= 0 else UiKit.DOWN, w)
+
+
 static func _ground_card() -> Rect2:
 	var sz := Vector2(560.0, 300.0)
 	return Rect2(Vector2(floorf((UiKit.screen().x - sz.x) * 0.5), 120.0), sz)

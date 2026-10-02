@@ -145,7 +145,8 @@ const MARKET_ASK := true
 const MARKET_ASK_ALWAYS := false
 ## AND TO A HOARD: a club holding `Season.HOARD_SUMMERS` summers' bills, the
 ## line the hoard note already draws.
-const MARKET_ASK_HOARD := false
+## ON (Pete, 2 Oct 2026): the gold bot signed 15 -> 29 (seed 1) and 16 -> 22 (seed 2).
+const MARKET_ASK_HOARD := true
 
 
 ## THE SEASON A CLUB FIRST PLAYS IN A DIVISION IT WAS PROMOTED INTO.

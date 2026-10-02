@@ -18,10 +18,16 @@ class_name FightCorner
 ## turns it off and the guard triangle and the boxes over the man come back.
 
 const RI := 126.0          ## the hub's edge; the sides start here (room for its words)
-const RO := 252.0          ## the sides' outer edge: 140 px of thumb
+const RO := 300.0          ## the sides' outer edge: 174 px of thumb, room for the words (2 Oct)
 const BAND := 10.0         ## the clock on the outer edge
 const SPAN := 30.0         ## each side, in degrees
-const WORDS_R := 194.0     ## where a side's words sit, from the corner
+## Where each line of a side's words runs, from the corner (outermost first).
+const NAME_R := 272.0
+const CHANCE_R := 248.0
+const EFFECT_R := 226.0
+const MARK_R := 176.0
+## How much of a side's arc its words may fill before they step down a size.
+const ARC_FILL := 0.86
 
 const RUST := Color("7a3b2a")
 const RUST_EDGE := Color("c0623f")
@@ -136,6 +142,18 @@ static func _asking(v, idx: int) -> bool:
 	return m.team == 0 and m.prompt != null and not m.prompt.by_player and m.standing()
 
 
+## A TICK UNDER THE THUMB (Pete, 2 Oct 2026): a short buzz when a side takes,
+## a longer one when it is refused. The thumb is over the corner, so the hand
+## is where the answer has to land. Phones only; nothing anywhere else.
+const BUZZ_OK := 18
+const BUZZ_NO := 70
+
+
+static func buzz(ok: bool) -> void:
+	if OS.has_feature("mobile"):
+		Input.vibrate_handheld(BUZZ_OK if ok else BUZZ_NO)
+
+
 static func next_man(v) -> void:
 	var live: Array = v.corner_order
 	if live.size() < 2:
@@ -160,11 +178,13 @@ static func press_bar(v, p: Vector2) -> bool:
 	var acts: Array = Tuning.acts_for(m.prompt.menu)
 	if v.sim.answer_prompt(idx, acts[h]):
 		Audio.play("tap")
+		buzz(true)
 		v.corner_pick = -1
 	else:
 		## Not yet (a clinch still getting ready, a takedown on a steady man):
 		## the same refusal every other "no" in the game makes.
 		Audio.play("refuse")
+		buzz(false)
 	return true
 
 
@@ -296,23 +316,19 @@ static func _draw_corner(v, m, kind: String) -> void:
 		var hot: bool = kind == "wheel" and act == v.wheel_hot
 		var lit: bool = act == pick and not waiting
 		var ink: Color = v.COL_DIM if waiting else (UiKit.BG if hot else UiKit.INK)
-		var at: Vector2 = _pt(c, WORDS_R, (s.x + s.y) * 0.5)
-		## Kept on the screen near the wall: the top side's words would run off it.
-		var lw: float = 160.0
-		var edge_x: float = v.SCREEN.x + v.off_x - 6.0 if right() else -v.off_x + 6.0
-		at.x = minf(at.x, edge_x - lw * 0.5) if right() else maxf(at.x, edge_x + lw * 0.5)
-		## THE MARK BESIDE THE NAME, not above it (a mark above reached into the
-		## next side's words).
-		var name: String = Tuning.act_name(act)
-		var nw: float = v.font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
-		UiKit.icon(v, v._act_mark(act), at + Vector2(-nw * 0.5 - 22.0, -24.0), UiKit.YOU if lit else ink, 1)
-		UiKit.mid(v, v.font, name, at + Vector2(-lw * 0.5, -10), 15, ink, lw)
+		var mid_a := (s.x + s.y) * 0.5
+		## THE WORDS FOLLOW THE SIDE (Pete, 2 Oct 2026: options 4 and 5 — a bigger
+		## corner, the words curved along each side's arc). Name on the outside,
+		## the chance, then what it does; the mark sits straight in the side's
+		## inner end. Nothing crosses an edge, in either hand.
 		var r: Dictionary = read(v, m, act)
-		var y: float = 6.0
+		arc_text(v, Tuning.act_name(act), c, NAME_R, mid_a, 16, ink)
 		if float(r["p"]) >= 0.0:
-			UiKit.mid(v, v.font, UiKit.t("%d%% chance") % int(round(float(r["p"]) * 100.0)), at + Vector2(-lw * 0.5, y), 12, v.COL_DIM if waiting else v._odds_col(float(r["p"])), lw)
-			y += 15.0
-		UiKit.mid(v, v.font, String(r["effect"]), at + Vector2(-lw * 0.5, y), 12, v.COL_DIM if waiting else r["col"], lw)
+			arc_text(v, UiKit.t("%d%% chance") % int(round(float(r["p"]) * 100.0)), c, CHANCE_R, mid_a, 13,
+				v.COL_DIM if waiting else v._odds_col(float(r["p"])))
+		arc_text(v, String(r["effect"]), c, EFFECT_R, mid_a, 12, v.COL_DIM if waiting else r["col"])
+		var ip := _pt(c, MARK_R, mid_a)
+		UiKit.icon(v, v._act_mark(act), ip - Vector2(16, 16), UiKit.YOU if lit else ink, 2)
 	## THE CLOCK, on the outer edge: draining while he can be overruled, filling
 	## grey while a clinched man gets ready.
 	var q: Vector2 = quadrant()
@@ -345,9 +361,31 @@ static func _draw_corner(v, m, kind: String) -> void:
 	else:
 		UiKit.icon(v, "lock", Vector2(hx - 8.0, c.y - 78.0), UiKit.INK, 1)
 		UiKit.mid(v, v.font, UiKit.t("CLINCH"), Vector2(box.position.x, c.y - 42.0), 14, UiKit.INK, box.size.x)
-		UiKit.mid(v, v.font, UiKit.t("getting ready") if waiting else UiKit.t("act now"),
+		UiKit.mid(v, v.font, UiKit.t("not ready") if waiting else UiKit.t("act now"),
 			Vector2(box.position.x, c.y - 27.0), 12, v.COL_DIM if waiting else UiKit.YOU, box.size.x)
 	## MORE THAN ONE MAN ASKING: how many, and that the hub moves between them.
 	if kind != "wheel" and v.corner_order.size() > 1:
 		UiKit.mid(v, v.font, UiKit.t("+%d · tap here") % (v.corner_order.size() - 1),
 			Vector2(box.position.x, c.y - 12.0), 12, UiKit.YOU, box.size.x)
+
+
+## TEXT ALONG AN ARC, centred on `mid_deg` (degrees clockwise from up), reading
+## clockwise with its tops facing out of the corner. It steps its size down
+## (to 11) until it fits the side; past that it is cut, and a side's words are
+## kept short enough that it never is in any language we ship.
+static func arc_text(v, text: String, c: Vector2, r: float, mid_deg: float, size: int, col: Color) -> void:
+	var font: Font = v.font
+	var room := deg_to_rad(SPAN) * r * ARC_FILL
+	var px := size
+	while px > 11 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x > room:
+		px -= 1
+	var w: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	var a := deg_to_rad(mid_deg - 90.0) - (w * 0.5) / r
+	for ch in text:
+		var cw: float = font.get_string_size(ch, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+		var t := a + (cw * 0.5) / r
+		var at := c + Vector2(cos(t), sin(t)) * r
+		v.draw_set_transform(at, t + PI * 0.5, Vector2.ONE)
+		v.draw_string(font, Vector2(-cw * 0.5, px * 0.35), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, px, col)
+		a += cw / r
+	v.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

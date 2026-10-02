@@ -180,29 +180,14 @@ static func _squad_controls(v: SeasonScene) -> void:
 			Session.viewing_fighter = p
 			Session.autosave()
 			UiKit.go("res://scenes/Fighter.tscn"), "helm"))
-		## THE PROSPECT, SAID AS WHAT IT DOES (playtest 30 Sep #6).
-		var ground := v.season.office.level(ClubOffice.Facility.TRAINING)
-		v.ui.add_child(UiKit.button(
-			UiKit.t("Not prospect") if v.season.prospect == p else UiKit.t("Prospect: +%d POT") % Career.PROSPECT_GAIN,
-			Vector2(300, ay), Vector2(170, 46), func():
-				if v.season.prospect == p:
-					v.season.prospect = null
-					v.flash = UiKit.t("%s is no longer your prospect.") % p.display_name
-				elif ground < Career.PROSPECT_GROUND:
-					v.flash = UiKit.t("One man a year can be your prospect: +%d to his max at the winter. Needs a Training ground at %d.") % [
-						Career.PROSPECT_GAIN, Career.PROSPECT_GROUND]
-				else:
-					v.season.prospect = p
-					v.flash = UiKit.t("%s is your prospect — +%d to his max at the winter.") % [
-						p.display_name, Career.PROSPECT_GAIN]
-					Session.autosave()
-				v._rebuild()))
+		## THE PROSPECT MOVED TO HIS PAGE, as Invest (Pete, 2 Oct 2026: "Sounds like
+		## you're prospecting a free agent. Bring it to a player's Card").
 		var out_of_deal: bool = p.years <= 0
 		var deal_cost: int = v.season.resign_cost(p) if out_of_deal else v.season.extend_cost(p)
 		v.ui.add_child(UiKit.button(
 			"%s  ·  %s/yr" % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
 				ClubOffice.money(deal_cost)],
-			Vector2(478, ay), Vector2(196, 46), func():
+			Vector2(300, ay), Vector2(220, 46), func():
 				var err := v.season.resign(p) if out_of_deal else v.season.extend(p)
 				if err == "":
 					v.flash = UiKit.t("%s: %s a year for %d years.") % [p.display_name,
@@ -215,7 +200,7 @@ static func _squad_controls(v: SeasonScene) -> void:
 		var who := UiKit.clip(p.display_name, 8)
 		v.ui.add_child(UiKit.danger(UiKit.button((UiKit.t("Trade %s  ·  +%d CC") % [who, worth])
 				if worth > 0 else (UiKit.t("Cut %s") % who),
-			Vector2(706, ay), Vector2(UiKit.right_edge() - 706.0, 46), func():
+			Vector2(UiKit.right_edge(250.0), ay), Vector2(250.0, 46), func():
 				if not UiKit.confirm("release:" + p.display_name):
 					v.flash = (UiKit.t("Tap again to trade %s. He does not come back.") if worth > 0
 						else UiKit.t("Tap again to cut %s. He does not come back.")) % p.display_name
@@ -426,11 +411,11 @@ static func _draw_info(v: SeasonScene) -> void:
 		## third of the screen). The five's four ratings, the line's average, and
 		## what tapping does.
 		UiKit.text(v, v.font, UiKit.t("YOUR FIVE"), Vector2(x, y), 13, UiKit.DIM)
-		var five: Array = v.season.club.starting_five()
-		var sum := 0
-		for m in five:
-			sum += m.overall()
-		UiKit.right(v, v.font, UiKit.t("OVR %d") % int(round(float(sum) / float(maxi(1, five.size())))),
+		## ONE NUMBER FOR THE FIVE (Pete, 2 Oct 2026: "Starting 5 score only"). It
+		## said "OVR 51" here — the plain average of their overalls — beside a
+		## header saying "rating 49", the position-weighted figure the league
+		## sorts on. Now both say the league's number.
+		UiKit.right(v, v.font, UiKit.t("RATING %d") % v.season.club.power(),
 			Vector2(r.end.x - 14.0, y), 16, UiKit.INK, 120)
 		TeamCard.draw_stars(v, v.font, Vector2(x, y + 28.0), v.season.club, 2, (r.size.x - 28.0) * 0.5, 13)
 		UiKit.text(v, v.font, UiKit.t("Tap a fighter to see him here."), Vector2(x, r.end.y - 12.0), 13, UiKit.DIM)
@@ -526,10 +511,12 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 		UiKit.DOWN if f.fading() else col, SeasonScene.COL_RATING_BOX)
 	UiKit.right(v, v.font, "%d" % f.potential, Vector2(x + SeasonScene.COL_POT_TO, y), 14,
 		UiKit.UP if f.headroom() >= 6 else UiKit.DIM, SeasonScene.COL_POT_BOX)
-	## The prospect wears a mark rather than a word — one man a year, and the
-	## screen has no room for a sentence about him.
+	## THE INVESTED MAN'S CEILING IS GREEN AND CARRIES A "+" (2 Oct 2026: the old
+	## prospect star sat cramped against his position; the choice lives on his
+	## page now, as Invest, and the sheet only says which ceiling is rising).
 	if v.season.prospect == f:
-		UiKit.text(v, v.font, "*", Vector2(x + SeasonScene.COL_POS - 16.0, y), 16, UiKit.UP)
+		var pw: float = v.font.get_string_size("%d" % f.potential, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+		UiKit.text(v, v.font, "+", Vector2(x + SeasonScene.COL_POT_TO - pw - 9.0, y), 14, UiKit.UP)
 
 
 

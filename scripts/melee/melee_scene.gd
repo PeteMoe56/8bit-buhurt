@@ -1723,6 +1723,7 @@ func _wheel_answer(m, opt: int) -> void:
 	else:
 		sim.answer_prompt(m.idx, opt)
 	Audio.play("tap")
+	FightCorner.buzz(true)
 	wheel_man = _wheel_candidate()
 
 

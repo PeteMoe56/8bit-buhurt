@@ -86,7 +86,7 @@ static func page(i: int) -> Array:
 			UiKit.t("Light: less XP, happier men. Normal: steady. Hard: half again the XP, but more knocks and grumbling."),
 			UiKit.t("Session: once in a fight week, pay CC for an extra week of practice."),
 			UiKit.t("Winter camp: your training ground and captains share out points over the winter."),
-			UiKit.t("Prospect: each winter, name one man for +3 POT. Needs training ground 3."),
+			UiKit.t("Invest: once a year, tap Invest on a man's page for +3 POT at the winter. Needs training ground 3."),
 		]
 		5: return [
 			UiKit.t("Every man's harness has a metal and a condition. Below the pass mark he cannot fight."),

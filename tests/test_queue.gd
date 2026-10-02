@@ -348,6 +348,13 @@ func _first_button(s: Season) -> String:
 		if best == null or (btn.has_meta("primary") and not best.has_meta("primary")) \
 				or btn.position.x < best.position.x:
 			best = btn
+	## THE PROMOTION GATE IS A CARD (2 Oct 2026): when nothing sits on the action
+	## row, the card's gold button is the step on offer.
+	if best == null:
+		for b in _buttons(n):
+			if (b as Button).is_visible_in_tree() and (b as Button).has_meta("primary"):
+				best = b
+				break
 	var got := best.text if best != null else "(none)"
 	n.queue_free()
 	await process_frame

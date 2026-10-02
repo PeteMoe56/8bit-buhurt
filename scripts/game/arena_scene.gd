@@ -200,7 +200,7 @@ func _draw() -> void:
 			UiKit.crowd_word(office.attendance()),
 			int(round(office.fill() * 100.0)), office.crowd_pay()],
 		Vector2(UiKit.right_edge(), 58), 14, UiKit.INK, 560.0)
-	UiKit.right(self, font, UiKit.t("the bar fills toward the next pay rise"),
+	UiKit.right(self, font, UiKit.t("each tick is a gate pay rise"),
 		Vector2(UiKit.right_edge(), 94), 12, UiKit.DIM, 440.0)
 	## THE PURSE WHERE IT IS ON EVERY OTHER SCREEN (round 6).
 	UiKit.purse(self, font, office.credits, Vector2(UiKit.right_edge(), 32), 18, UiKit.YOU, 200)
@@ -241,18 +241,18 @@ func _draw() -> void:
 
 
 ## A five-segment bar: the bands behind, the band being filled, the bands ahead.
+## ONE BAR, THE SAME NUMBER AS THE WORDS (Pete, 2 Oct 2026: "43% full" beside a
+## bar that was not 43% full — it was six equal pay bands, and the bands are not
+## equal). The bar is how full the ground is, 0 to 100%; a tick stands at each
+## fill where the gate pays more, gold once passed.
 func _meter(at: Vector2, w: float) -> void:
-	var n: int = ClubOffice.CROWD_PAY.size()
-	var gap: float = 3.0
-	var seg: float = (w - gap * float(n - 1)) / float(n)
-	var band: int = office.crowd_band()
-	var fill: float = office.crowd_meter()
-	for i in n:
-		var x: float = at.x + float(i) * (seg + gap)
-		draw_rect(Rect2(Vector2(x, at.y), Vector2(seg, 8.0)), UiKit.BG.lerp(UiKit.DIM, 0.35))
-		var how: float = 1.0 if i < band else (fill if i == band else 0.0)
-		if how > 0.0:
-			draw_rect(Rect2(Vector2(x, at.y), Vector2(seg * how, 8.0)), UiKit.YOU)
+	var f: float = office.fill()
+	draw_rect(Rect2(at, Vector2(w, 8.0)), UiKit.BG.lerp(UiKit.DIM, 0.35))
+	draw_rect(Rect2(at, Vector2(w * f / ClubOffice.CROWD_TOP, 8.0)), UiKit.YOU)
+	for g in ClubOffice.CROWD_GATES:
+		var x: float = at.x + w * float(g) / ClubOffice.CROWD_TOP
+		draw_rect(Rect2(Vector2(x - 1.0, at.y - 3.0), Vector2(2.0, 14.0)),
+			UiKit.YOU.lightened(0.4) if f >= float(g) else UiKit.INK)
 
 
 func _fans_word() -> String:

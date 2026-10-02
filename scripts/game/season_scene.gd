@@ -282,6 +282,10 @@ func _rebuild() -> void:
 		SeasonClubhouseTab._help_controls(self)
 		queue_redraw()
 		return
+	if SeasonClubTab.gate_due(self):
+		SeasonClubTab._gate_controls(self)
+		queue_redraw()
+		return
 	if ground_open:
 		SeasonClubTab._ground_controls(self)
 		queue_redraw()
@@ -682,6 +686,9 @@ func _draw() -> void:
 		return
 	if help_key != "":
 		SeasonClubhouseTab._draw_help(self)
+		return
+	if SeasonClubTab.gate_due(self):
+		SeasonClubTab._draw_gate(self)
 		return
 	if ground_open:
 		SeasonClubTab._draw_ground(self)

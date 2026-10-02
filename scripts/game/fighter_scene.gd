@@ -267,10 +267,32 @@ func _build() -> void:
 	## separates it from a leaderboard the game fills in for you.
 	var tagged: bool = season.world.in_hall(man.display_name)
 	## THE STAR IS AN ICON, not a character: no face this game ships draws ★.
-	ui.add_child(UiKit.button(UiKit.t("In the Hall") if tagged else UiKit.t("Tag for the Hall"),
+	## INVEST, BESIDE IT (Pete, 2 Oct 2026: the old "Prospect" read like scouting
+	## a free agent, and lived on the team sheet). One man a year: +3 to his max
+	## at the winter, with a Training ground at 3. Tap again to take it back.
+	var invested: bool = season.prospect == man
+	var half := (COL_W - 32.0 - 8.0) * 0.5
+	var inv := UiKit.button(UiKit.t("Invested") if invested else UiKit.t("Invest +%d") % Career.PROSPECT_GAIN,
+		Vector2(R_X + 16, COL_Y + COL_H - 48), Vector2(half, 38), func():
+			var ground := season.office.level(ClubOffice.Facility.TRAINING)
+			if season.prospect == man:
+				season.prospect = null
+				flash = UiKit.t("%s is no longer your investment.") % man.display_name
+			elif ground < Career.PROSPECT_GROUND:
+				flash = UiKit.t("Invest in one man a year: +%d to his max at the winter. Needs a Training ground at %d.") % [
+					Career.PROSPECT_GAIN, Career.PROSPECT_GROUND]
+			else:
+				season.prospect = man
+				flash = UiKit.t("%s is your investment: +%d to his max at the winter.") % [
+					man.display_name, Career.PROSPECT_GAIN]
+			Session.autosave()
+			_build(), "up")
+	ui.add_child(UiKit.selected(inv, invested))
+	## "To the Hall": "Tag for the Hall" shrank to a squint at half the panel.
+	ui.add_child(UiKit.button(UiKit.t("In the Hall") if tagged else UiKit.t("To the Hall"),
 		## IN HIS RECORD'S PANEL, under the honors it is about (blind review
 		## round 3: it sat cramped in the page header).
-		Vector2(R_X + 16, COL_Y + COL_H - 48), Vector2(COL_W - 32, 38), func():
+		Vector2(R_X + 16 + half + 8.0, COL_Y + COL_H - 48), Vector2(half, 38), func():
 			if tagged:
 				season.world.untag_from_hall(man.display_name)
 				flash = UiKit.t("%s taken out of the Hall.") % man.display_name
