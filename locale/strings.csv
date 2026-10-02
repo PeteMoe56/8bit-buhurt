@@ -318,7 +318,7 @@ RATING,RATING,MEDIA,NOTE,WERTUNG,VALORE,NOTA,OCENA,РЕЙТИНГ,能力値
 CEILING,CEILING,TECHO,PLAFOND,POTENZIAL,TETTO,TETO,PUŁAP,ПОТОЛОК,潜在能力
 LEVEL,LEVEL,NIVEL,NIVEAU,STUFE,LIVELLO,NÍVEL,POZIOM,УРОВЕНЬ,レベル
 %d / %d xp,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d XP
-Each level: +%d to one stat below.,Each level: +%d to one stat below.,Cada nivel: +%d a una estadística abajo.,Chaque niveau : +%d à une stat dessous.,Jede Stufe: +%d auf einen Wert unten.,Ogni livello: +%d a una statistica qui sotto.,Cada nível: +%d a um atributo abaixo.,Każdy poziom: +%d do jednej cechy niżej.,Каждый уровень: +%d к одной характеристике.,1レベルごとに下の能力1つへ+%d。
+Each level: +%d to one stat below.,Each level: +%d to one stat below.,Cada nivel: +%d a un atributo.,Chaque niveau : +%d à une stat.,Jede Stufe: +%d auf einen Wert.,Ogni livello: +%d a una stat.,Cada nível: +%d a um atributo.,Każdy poziom: +%d do cechy.,Каждый уровень: +%d к навыку.,1レベルごとに能力1つへ+%d。
 He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-signera pas.,Er unterschreibt nicht nochmal.,Non rinnoverà.,Ele não vai renovar.,Więcej nie podpisze.,Больше не подпишет.,再契約には応じない。
 Asks at renewal,Asks at renewal,Pide al renovar,Demande au renouvellement,Will bei Verlängerung,Chiede al rinnovo,Pede na renovação,Chce przy odnowieniu,Просит при продлении,更新時の要求
 %s/yr · %dy,%s/yr · %dy,%s/año · %da,%s/an · %da,%s/Jahr · %dJ,%s/anno · %da,%s/ano · %da,%s/rok · %d l.,%s/год · %d г.,年%s · %d年

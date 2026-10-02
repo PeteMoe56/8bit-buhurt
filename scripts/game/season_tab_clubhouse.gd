@@ -382,7 +382,7 @@ static func _draw_office(v: SeasonScene) -> void:
 		var nxt := row_upkeep_next(v, kind) if row_cost(v, kind) > 0 else keep
 		UiKit.right(v, v.font, (UiKit.t("Upkeep %d → %d CC/yr") % [keep, nxt]) if nxt != keep
 			else UiKit.t("Upkeep %d CC/yr") % keep, Vector2(UPGRADE_X + UPGRADE_W, y + 52.0), 13,
-			UiKit.DOWN if keep > 0 else UiKit.DIM, UPGRADE_W - 60.0)
+			UiKit.DOWN if keep > 0 else UiKit.DIM, UPGRADE_W)
 	var ty := v._office_row_y(SeasonScene.OFFICE_ROWS.size()) + 16.0
 	v.draw_line(Vector2(SeasonScene.BAR_X, ty - 18.0), Vector2(UPGRADE_X + UPGRADE_W, ty - 18.0), UiKit.FRAME, 1.0)
 	UiKit.pair(v, v.font, UiKit.t("Maintenance total, arena included"), UiKit.t("%d CC/yr") % upkeep_total(v),

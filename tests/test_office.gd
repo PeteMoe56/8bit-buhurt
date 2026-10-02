@@ -1137,7 +1137,8 @@ func _test_a_buy_button_says_its_upkeep() -> void:
 	if err != "" or o.federation_upkeep() - fed_before + ins_before != want or want <= 0:
 		bad.append("insurance: said %d/yr, the bill moved %d -> %d (%s)" % [want, fed_before, o.federation_upkeep(), err])
 	var label := UiKit.with_upkeep("Build Club gym · 6 CC", 4)
-	if label != UiKit.t("%s · %d/yr") % ["Build Club gym · 6 CC", 4] or not label.ends_with("4/yr"):
+	## "4 CC/yr" since round 2 (2 Oct): one wage unit on every screen.
+	if label != UiKit.t("%s · %d CC/yr") % ["Build Club gym · 6 CC", 4] or not label.ends_with("4 CC/yr"):
 		bad.append("the label reads '%s'" % label)
 	if UiKit.with_upkeep("Cap", 0) != "Cap":
 		bad.append("a purchase with no keep still prints one")
