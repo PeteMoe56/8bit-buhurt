@@ -45,7 +45,7 @@ jobs:
           path: runs
           pattern: bot-*
           merge-multiple: true
-      - run: python3 tools/novice/summarize.py runs/*.jsonl >> $GITHUB_STEP_SUMMARY
+      - run: python3 tools/novice/summarize.py runs/*.jsonl | tee -a $GITHUB_STEP_SUMMARY
       - run: python3 tools/novice/jargon.py runs/wanderer_*.jsonl runs/gold_*.jsonl > jargon.md || true
       - uses: actions/upload-artifact@v4
         with:
