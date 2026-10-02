@@ -414,7 +414,7 @@ const PROSPECT_GROUND: int = 3       ## Training ground level required
 ## this is one point at a time, throttled to one job a week like every other
 ## building, priced off how much ceiling the man already has, and hard-capped at
 ## what a man of his age could ever have had.
-const RAISE_COST_PER: int = 2
+const RAISE_COST_PER: int = 4
 const RAISE_STEP: int = 1
 ## What a man's ceiling moves on its own, per winter, once he has caught it. See
 ## the end of `winter()` — this is the free half of the same idea.
@@ -833,7 +833,12 @@ static func level_into(f: FighterCard, stat: int) -> Dictionary:
 		return {"levelled": false, "reason": UiKit.t("not earned"),
 			"short": next_level_at(f) - f.xp}
 	var before := f.overall()
-	write_stat(f, stat, read_stat(f, stat) + 1)
+	## POINTS_PER_LEVEL INTO THE STAT HE CHOSE, stopping at his ceiling or the
+	## stat's own top — the same rule the automatic path keeps.
+	for k in POINTS_PER_LEVEL:
+		if k > 0 and (at_ceiling(f) or not raisable(f).has(stat)):
+			break
+		write_stat(f, stat, read_stat(f, stat) + 1)
 	return _took(f, before, stat)
 
 
@@ -872,8 +877,14 @@ const GAIN_MAX: int = 5
 ## only ever on the automatic path — CPU clubs and old saves — while a level the
 ## player placed by hand paid +1, so the computer's men grew up to five times as
 ## fast as his. Age still sets how fast the bar fills (`learn_rate`).
+## PETE, LATER THE SAME DAY: "play with the stat points per upgraded level".
+## One flat number for every club and every man; `tools/sweep` and the bases
+## tune it. A level's worth no longer depends on who is taking it.
+const POINTS_PER_LEVEL: int = 3
+
+
 static func gain_for(_f: FighterCard) -> int:
-	return 1
+	return POINTS_PER_LEVEL
 
 
 static func level_up(f: FighterCard) -> Dictionary:

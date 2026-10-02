@@ -109,7 +109,7 @@ func market(s: Season, went_up: bool = false) -> int:
 		for f in pool:
 			if s.office.credits <= keep + s.market_fee(f):
 				continue
-			if s.club.roster.size() >= 13 and value(f) <= lo + 1:
+			if s.club.roster.size() >= MeleeClub.SQUAD_MAX and value(f) <= lo + 1:
 				continue
 			make_room(s, f)
 			if s.sign_from_market(f) != "":
@@ -194,7 +194,7 @@ func make_room(s: Season, want: FighterCard) -> void:
 	while guard < 8 and s.club.roster.size() > 6:
 		guard += 1
 		var over: bool = ClubOffice.wage_bill(s.club) + s.market_wage(want) > s.office.cap()
-		var full: bool = s.club.roster.size() >= 13
+		var full: bool = s.club.roster.size() >= MeleeClub.SQUAD_MAX
 		if not over and not full:
 			return
 		var five: Array = s.club.starting_five()

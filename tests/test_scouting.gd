@@ -95,7 +95,7 @@ func _test_every_ceiling_is_shown() -> void:
 		"%d men, %d shown as anything but their real ceiling" % [n, wrong])
 
 
-## A LEVEL IS ONE POINT FOR EVERYBODY (Pete, 1 Oct 2026: "Everyone should get
+## A LEVEL IS THE SAME FOR EVERYBODY (Pete, 1 Oct 2026: "Everyone should get
 ## +1, age only messes with experience gain speed"). This checked the opposite —
 ## that room under the ceiling bought more points a level — and that rule is
 ## gone, so the check now holds the new one: room changes nothing about a level.
@@ -114,8 +114,10 @@ func _test_room_is_speed() -> void:
 		Career.level_up(b)
 		ga += _points(a) - sa
 		gb += _points(b) - sb
-	_ok(ga == 3 and gb <= 3,
-		"a level is one point, however much room he has",
+	## Each level pays POINTS_PER_LEVEL whoever takes it, until the ceiling stops
+	## him: the man with room takes all of it, the man near his ceiling no more.
+	_ok(ga == 3 * Career.POINTS_PER_LEVEL and gb <= ga,
+		"a level pays the same points, however much room he has",
 		"three levels: %d points with 24 room, %d with 2" % [ga, gb])
 
 

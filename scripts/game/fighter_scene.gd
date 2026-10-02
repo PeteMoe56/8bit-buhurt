@@ -321,7 +321,7 @@ func _build() -> void:
 		for i in Career.STATS.size():
 			var stat: int = Career.STATS[i]
 			var ok: bool = can.has(stat)
-			var b := UiKit.button(UiKit.t("+1 %s") % Career.stat_name(stat),
+			var b := UiKit.button(UiKit.t("+%d %s") % [Career.POINTS_PER_LEVEL, Career.stat_name(stat)],
 				Vector2(L_X + float(i) * (bw + GAP), LEVEL_ROW_Y),
 				Vector2(bw, ROW_H), func():
 					## It can still refuse — a stat at 99, or a level he has not

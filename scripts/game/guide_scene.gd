@@ -72,7 +72,7 @@ static func page(i: int) -> Array:
 			UiKit.t("Five starters, three on the bench, up to four in reserve. Reserves do not travel."),
 			UiKit.t("OVR is how good he is now. POT is as good as he can get."),
 			UiKit.t("Strength puts men down. Base keeps him up. Skill wins the grapple. Gas is his tank."),
-			UiKit.t("Bouts and practice give XP. A full bar is a point to spend on his page."),
+			UiKit.t("Bouts and practice give XP. A full bar is a level: +%d to the stat you pick, on his page.") % Career.POINTS_PER_LEVEL,
 			UiKit.t("His deal is $ a year, counted against your salary cap. Extend early and he costs less."),
 			UiKit.t("Free agents cost CC to sign, and their wage goes on your books."),
 			UiKit.t("Unhappy men turn down new deals and walk. Men start to retire from 33."),

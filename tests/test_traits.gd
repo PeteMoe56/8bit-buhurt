@@ -550,7 +550,7 @@ func _test_a_level_goes_where_you_put_it() -> void:
 	## `_raise_one` would have taken strength, because it is lowest. The point of
 	## the rework is that the club can choose otherwise and build a specialist.
 	var r := Career.level_into(f, Career.Stat.SKILL)
-	_ok(bool(r.get("levelled", false)) and f.skill == 56 and f.strength == 40,
+	_ok(bool(r.get("levelled", false)) and f.skill == 55 + Career.POINTS_PER_LEVEL and f.strength == 40,
 		"a level lands on the stat you chose, not the one he is worst at",
 		"skill 55 to %d, strength untouched at %d" % [f.skill, f.strength])
 	_ok(Career.levels_waiting(f) == 0, "and it is spent once", "nothing waiting")
@@ -581,7 +581,7 @@ func _test_a_level_goes_where_you_put_it() -> void:
 	## arithmetic on it, which is the version already thrown out once.
 	old_man.xp = Career.next_level_at(old_man)
 	var r2 := Career.level_into(old_man, Career.Stat.GAS)
-	_ok(bool(r2.get("levelled", false)) and old_man.gas == f.gas + 1,
+	_ok(bool(r2.get("levelled", false)) and old_man.gas == f.gas + Career.POINTS_PER_LEVEL,
 		"the old dog does learn the trick",
 		"gas %d to %d at 38, which the peak rule forbade" % [f.gas, old_man.gas])
 	## THE BAR IS THE ONLY GATE. One bar short and it refuses; it does not refuse
