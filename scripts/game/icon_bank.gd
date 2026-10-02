@@ -96,6 +96,14 @@ const MARK_COLORS: Array[Color] = [
 	## SIXTEEN (1 Oct 2026), two of them dark for the bright kits.
 	Color("ffffff"), Color("d4af37"), Color("c0c0c0"), Color("f5deb3"), Color("b0e0e6"),
 	Color("1c1c1c"), Color("3b2416"),
+	## TWENTY-FOUR: THE PRIMARIES (Pete, 2 Oct 2026 playtest: "Mark Color is
+	## missing a lot of colors like red and primaries"). Red, blue, green,
+	## yellow, orange, purple, teal and maroon, on the end so saved indices hold.
+	## The contrast rule still greys out a pair that would not read.
+	## Bright, because these kits are mid and dark: a mid-red mark on a mid kit
+	## fails any rule that can see.
+	Color("ff3b30"), Color("d62828"), Color("4aa3ff"), Color("34c759"),
+	Color("ffd60a"), Color("ff9500"), Color("b06cf0"), Color("2ec4c4"),
 ]
 
 
@@ -166,7 +174,39 @@ static func luma(c: Color) -> float:
 
 
 static func contrast_ok(kit: Color, mark: Color) -> bool:
-	return absf(luma(kit) - luma(mark)) >= MIN_CONTRAST
+	if absf(luma(kit) - luma(mark)) >= MIN_CONTRAST:
+		return true
+	## OR A DIFFERENT COLOR THAT IS ALSO A DIFFERENT LIGHTNESS (2 Oct 2026, with
+	## the primaries): red on navy reads at any size though their lumas are
+	## close, because the eye reads hue as well as brightness. Two tests, both
+	## needed: far apart as colors (CIELAB distance), and at least 20 apart in
+	## lightness, so a yellow on cream — far apart in hue, close in lightness —
+	## is still refused.
+	var a := lab(kit)
+	var b := lab(mark)
+	return a.distance_to(b) >= HUE_CONTRAST and absf(a.x - b.x) >= LIGHT_CONTRAST
+
+
+const HUE_CONTRAST: float = 55.0
+const LIGHT_CONTRAST: float = 20.0
+
+
+## sRGB to CIELAB (D65): x is L*, y is a*, z is b*.
+static func lab(c: Color) -> Vector3:
+	var lin := func(v: float) -> float:
+		return v / 12.92 if v <= 0.04045 else pow((v + 0.055) / 1.055, 2.4)
+	var r: float = lin.call(c.r)
+	var g: float = lin.call(c.g)
+	var bl: float = lin.call(c.b)
+	var x := (0.4124 * r + 0.3576 * g + 0.1805 * bl) / 0.95047
+	var y := 0.2126 * r + 0.7152 * g + 0.0722 * bl
+	var z := (0.0193 * r + 0.1192 * g + 0.9505 * bl) / 1.08883
+	var f := func(t: float) -> float:
+		return pow(t, 1.0 / 3.0) if t > 0.008856 else 7.787 * t + 16.0 / 116.0
+	var fx: float = f.call(x)
+	var fy: float = f.call(y)
+	var fz: float = f.call(z)
+	return Vector3(116.0 * fy - 16.0, 500.0 * (fx - fy), 200.0 * (fy - fz))
 
 
 # ------------------------------------------------------------------- drawing

@@ -86,7 +86,7 @@ static func draw_logo(ci: CanvasItem, path: String, at: Vector2,
 	return true
 
 
-static func draw_wash(ci: CanvasItem, screen: Vector2, strength := WASH) -> void:
+static func draw_wash(ci: CanvasItem, screen: Vector2, strength := WASH, origin := Vector2.ZERO) -> void:
 	var t := tex(WATERMARK)
 	if t == null:
 		return
@@ -94,5 +94,5 @@ static func draw_wash(ci: CanvasItem, screen: Vector2, strength := WASH) -> void
 	## FURTHER INTO THE CORNER THAN LOOKS RIGHT. At 0.72/0.80 the helmet sat
 	## under the reserve column's right-hand numbers; the quiet region of this
 	## layout is narrower than it looks, because the right column is a table too.
-	var at := Vector2(screen.x - s.x * 0.58, screen.y - s.y * 0.72)
+	var at := origin + Vector2(screen.x - s.x * 0.58, screen.y - s.y * 0.72)
 	ci.draw_texture(t, at.floor(), Color(1.0, 1.0, 1.0, strength))

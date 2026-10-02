@@ -81,6 +81,12 @@ const GRADE_ROW := 44.0
 const GRADE_BTN := Vector2(228.0, 38.0)
 const GRADE_TEXT_X := 288.0
 const GRADE_TEXT_W := 648.0
+## THREE COLUMNS (Pete, 2 Oct 2026 playtest: "Move the Difficulty settings a
+## little to the right. The middle for the explanation, and the Right to show
+## the effects"). The grades, what the one in use is, and what it changes.
+const GRADE_BTN_X := 44.0
+const GRADE_MID := Vector2(292.0, 214.0)    ## x and width of the middle panel
+const GRADE_FX_X := 520.0
 
 const STATS := ["strength", "base", "skill", "gas", "aggression"]
 const STAT_LABEL := ["Strength", "Base", "Skill", "Gas", "Aggression"]
@@ -110,6 +116,8 @@ func _ready() -> void:
 	pack_i = maxi(0, IconBank.packs().find(String(IconBank.entry(icon_i)["pack"])))
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	_rebuild()
 
 
@@ -448,7 +456,7 @@ func _grade_controls() -> void:
 	for i in Grade.ORDER.size():
 		var g: int = Grade.ORDER[i]
 		ui.add_child(UiKit.selected(UiKit.button(Grade.short_of(g),
-			Vector2(STAT_X, GRADE_Y + float(i) * GRADE_ROW), GRADE_BTN, func():
+			Vector2(GRADE_BTN_X, GRADE_Y + float(i) * GRADE_ROW), GRADE_BTN, func():
 				## THROUGH THE SEASON'S OWN VERB. This wrote the two fields by
 				## hand, and the day the grade became changeable from a second
 				## screen that would have been two places resetting MATCHED's
@@ -480,7 +488,7 @@ const DIAL_ROW_H := 21.0
 
 
 func _dial_y(k: int) -> float:
-	return GRADE_Y + 90.0 + float(k) * DIAL_ROW_H + (8.0 if k >= DIAL_FIGHT_FROM else 0.0)
+	return GRADE_Y + 34.0 + float(k) * DIAL_ROW_H + (8.0 if k >= DIAL_FIGHT_FROM else 0.0)
 
 
 func _dial(key: String, dir: int) -> void:
@@ -500,41 +508,32 @@ func _draw_grade() -> void:
 	var g := season.grade
 	## WHICH WAY IS HARDER (round 6: "nothing shows the grades run easy to hard").
 	UiKit.text_fit(self, font, UiKit.t("Easiest at the top"),
-		Vector2(STAT_X, GRADE_Y - 10.0), 12, UiKit.DIM, GRADE_TEXT_X - STAT_X - 12.0)
-	## THE PANEL FILLS THE COLUMN. It was 384 wide and the second read-out was
-	## printed at x 708, which is 36 pixels PAST its own right edge — the figure
-	## was sitting on the background outside the frame that was meant to contain
-	## it. Measured now rather than built out of offsets that were true once.
-	## THE DIALS ARE CUSTOM'S (1 Oct novice report, Pete approved): first-timers
-	## read "Free swing on arrival", "Missed bullrush, he falls" and "Grabbed or
-	## tripped passing" as things to worry about before they had seen a fight.
-	## Every other grade is its name and one sentence.
+		Vector2(GRADE_BTN_X, GRADE_Y - 10.0), 12, UiKit.DIM, GRADE_BTN.x)
 	var custom := g == Grade.G.CUSTOM
-	var box := Rect2(GRADE_TEXT_X, GRADE_Y - 8.0, UiKit.right_edge() - GRADE_TEXT_X,
-		(_dial_y(DIAL_ROWS.size() - 1) - GRADE_Y + 30.0) if custom else GRADE_ONE_H)
-	UiKit.window(self, box, Grade.name_of(g), font)
-	var ix := box.position.x + 18.0
-	var iw := box.size.x - 36.0
-	## `draw_string` does not wrap and `draw_multiline_string` does, which is the
-	## whole difference between a blurb and a blurb with its tail off the screen.
-	draw_multiline_string(font, Vector2(ix, GRADE_Y + 34.0), Grade.blurb_of(g),
-		HORIZONTAL_ALIGNMENT_LEFT, iw, 15, 4, UiKit.INK)
-	if not custom:
-		UiKit.text(self, font, UiKit.t("Tap a grade to use it. It is saved with the club, and you can change it later."), Vector2(STAT_X, 452.0), 14, UiKit.DIM)
-		return
-
-	## WHAT IT IS WORTH, in the numbers a player can act on, and the multiplier
-	## is deliberately printed. This game puts a two-digit overall next to every
-	## name on four screens; a setting that quietly changed what those numbers
-	## mean without saying so would make the roster screen a liar — which is the
-	## XCOM 2 problem, and XCOM at least does not print a stat line.
-	##
-	## EVERY DIAL THE GRADE TURNS, one row each (Pete, 28 Sep 2026: *"we can
-	## always just show those"*). On CUSTOM the same rows carry − and +.
+	## As tall as the column of grades, or as the dials need on CUSTOM.
+	var bottom := maxf(GRADE_Y + float(Grade.ORDER.size()) * GRADE_ROW - 4.0,
+		_dial_y(DIAL_ROWS.size() - 1) + 22.0 if custom else 0.0)
+	## THE MIDDLE: the grade in use, in its own words.
+	## CUSTOM gives the middle 44 to the dials, which need room for their buttons.
+	var give := 44.0 if custom else 0.0
+	var mid := Rect2(GRADE_MID.x, GRADE_Y - 8.0, GRADE_MID.y - give, bottom - GRADE_Y + 8.0)
+	UiKit.window(self, mid, Grade.name_of(g), font)
+	UiKit.para(self, font, Grade.blurb_of(g), Vector2(mid.position.x + 16.0, GRADE_Y + 34.0), 15, UiKit.INK,
+		mid.size.x - 32.0, 20.0, 9)
+	## THE RIGHT: WHAT IT CHANGES, in the numbers a player can act on, and the
+	## multiplier is deliberately printed. This game puts a two-digit overall next
+	## to every name on four screens; a setting that quietly changed what those
+	## numbers mean without saying so would make the roster screen a liar.
+	## The fight's own dials (free swing, the fall, the trip, the read) stay on
+	## CUSTOM (1 Oct novice report: first-timers read them as things to fear).
+	var fx := Rect2(GRADE_FX_X - give, GRADE_Y - 8.0, UiKit.right_edge() - GRADE_FX_X + give, mid.size.y)
+	UiKit.window(self, fx, UiKit.t("WHAT IT CHANGES"), font)
+	var ix := fx.position.x + 16.0
 	var cg := season.custom_grade
 	var sc := Grade.scale_for(g, season.matched_step, 60, League.Tier.REGIONAL, cg)
 	var bills := Grade.bills_for(g, season.matched_step, cg)
 	var ceiling: bool = g == Grade.G.HARD_LIST or (g == Grade.G.CUSTOM and bool(cg.get("ceiling", false)))
+	var kn := Grade.knocks_for(g, season.matched_step, cg)
 	var rows := [
 		[UiKit.t("Opposition strength"), "x%.2f" % sc,
 			UiKit.DOWN if sc > 1.0 else (UiKit.UP if sc < 1.0 else UiKit.INK)],
@@ -543,39 +542,38 @@ func _draw_grade() -> void:
 		[UiKit.t("Corner, between rounds"), "%ds" % int(Grade.corner_time(g, cg)), UiKit.INK],
 		[UiKit.t("Dues and renewals"), "x%.2f" % bills,
 			UiKit.DOWN if bills > 1.0 else (UiKit.UP if bills < 1.0 else UiKit.INK)],
-		[UiKit.t("Knocks that land"), "%d%%" % int(round(Grade.knocks_for(g, season.matched_step, cg) * 100.0)),
-			UiKit.UP if Grade.knocks_for(g, season.matched_step, cg) < 0.6
-			else (UiKit.DOWN if Grade.knocks_for(g, season.matched_step, cg) > 0.6 else UiKit.INK)],
+		[UiKit.t("Knocks that land"), "%d%%" % int(round(kn * 100.0)),
+			UiKit.UP if kn < 0.6 else (UiKit.DOWN if kn > 0.6 else UiKit.INK)],
 		[UiKit.t("Every club at its division's top"), UiKit.t("yes") if ceiling else UiKit.t("no"),
 			UiKit.DOWN if ceiling else UiKit.INK],
 	]
-	## THE CONTACT WHEEL (29 Sep 2026). Greener is kinder to you, as above.
-	var w := Grade.wheel_for(g, season.matched_step, cg)
-	var sw := float(w["swing"])
-	var fa := float(w["fall"])
-	var pa := float(w["pass"])
-	rows.append([UiKit.t("Free swing on arrival"),
-		UiKit.t("off") if sw <= 0.0 else "%d%%" % int(round(sw * 100.0)),
-		UiKit.UP if sw > 0.5 else (UiKit.DOWN if sw < 0.5 else UiKit.INK)])
-	rows.append([UiKit.t("Missed bullrush, he falls"), "%d%%" % int(round(fa * 100.0)),
-		UiKit.DOWN if fa > 0.2 else (UiKit.UP if fa < 0.2 else UiKit.INK)])
-	rows.append([UiKit.t("Grabbed or tripped passing"), "%d%%" % int(round(pa * 100.0)),
-		UiKit.DOWN if pa > 0.12 else (UiKit.UP if pa < 0.12 else UiKit.INK)])
-	var rd := float(w["read"])
-	rows.append([UiKit.t("Bullrush on a wobbling man"), "+%d%%" % int(round(rd * 100.0)),
-		UiKit.UP if rd > 0.3 else (UiKit.DOWN if rd < 0.3 else UiKit.INK)])
+	if custom:
+		## THE CONTACT WHEEL (29 Sep 2026). Greener is kinder to you, as above.
+		var w := Grade.wheel_for(g, season.matched_step, cg)
+		var sw := float(w["swing"])
+		var fa := float(w["fall"])
+		var pa := float(w["pass"])
+		var rd := float(w["read"])
+		rows.append([UiKit.t("Free swing on arrival"),
+			UiKit.t("off") if sw <= 0.0 else "%d%%" % int(round(sw * 100.0)),
+			UiKit.UP if sw > 0.5 else (UiKit.DOWN if sw < 0.5 else UiKit.INK)])
+		rows.append([UiKit.t("Missed bullrush, he falls"), "%d%%" % int(round(fa * 100.0)),
+			UiKit.DOWN if fa > 0.2 else (UiKit.UP if fa < 0.2 else UiKit.INK)])
+		rows.append([UiKit.t("Grabbed or tripped passing"), "%d%%" % int(round(pa * 100.0)),
+			UiKit.DOWN if pa > 0.12 else (UiKit.UP if pa < 0.12 else UiKit.INK)])
+		rows.append([UiKit.t("Bullrush on a wobbling man"), "+%d%%" % int(round(rd * 100.0)),
+			UiKit.UP if rd > 0.3 else (UiKit.DOWN if rd < 0.3 else UiKit.INK)])
+	## On CUSTOM the − and + sit at the right edge, so the figure stands left of them.
+	var val_r := (UiKit.right_edge() - 18.0 - 2.0 * DIAL_BTN.x - 14.0) if custom else fx.end.x - 16.0
+	var label_w := val_r - ix - 58.0
 	for k in rows.size():
-		var y := _dial_y(k)
-		UiKit.text(self, font, rows[k][0], Vector2(ix, y), 14, UiKit.DIM)
-		UiKit.text(self, font, rows[k][1], Vector2(ix + 300.0, y), 16, rows[k][2])
-	var ry := _dial_y(DIAL_FIGHT_FROM) - 19.0
-	draw_line(Vector2(ix, ry), Vector2(ix + iw, ry), UiKit.EDGE, 1.0)
-
-	## THE FOOTER SAYS THE TWO THINGS A PLAYER NEEDS AND THE HEADER SAID NEITHER.
-	## Two lines of preamble used to sit at y 108, under a tab strip that runs to
-	## 110 with its drop — text drawn behind a button, which is the exact fault
-	## the layout sweep exists to catch and which a comment at the top of a screen
-	## is always the first to commit.
+		var y := _dial_y(k) if custom else GRADE_Y + 34.0 + float(k) * 26.0
+		UiKit.text_fit(self, font, rows[k][0], Vector2(ix, y), 14, UiKit.DIM, label_w)
+		UiKit.right(self, font, rows[k][1], Vector2(val_r, y), 16, rows[k][2], 56.0)
+	if custom:
+		var ry := _dial_y(DIAL_FIGHT_FROM) - 19.0
+		draw_line(Vector2(ix, ry), Vector2(fx.end.x - 16.0, ry), UiKit.EDGE, 1.0)
+	## THE FOOTER SAYS THE TWO THINGS A PLAYER NEEDS.
 	UiKit.text(self, font, UiKit.t("Tap a grade to use it. It is saved with the club, and you can change it later."), Vector2(STAT_X, 452.0), 14, UiKit.DIM)
 
 
@@ -840,8 +838,9 @@ func _popup_controls() -> void:
 		town_area = areas[0] if not areas.is_empty() else ""
 	for i in areas.size():
 		var a: String = areas[i]
-		var at := r.position + Vector2(24.0 + float(i % 4) * 78.0, 60.0 + float(i / 4) * 34.0)
-		ui.add_child(UiKit.selected(UiKit.button(a, at, Vector2(72, 30), func(k = a):
+		## SIX ACROSS (2 Oct 2026): every state now has towns, 51 buttons in 9 rows.
+		var at := r.position + Vector2(24.0 + float(i % 6) * 54.0, 60.0 + float(i / 6) * 31.0)
+		ui.add_child(UiKit.selected(UiKit.button(a, at, Vector2(50, 28), func(k = a):
 			town_area = k
 			_rebuild()), a == town_area))
 	var y := 0
@@ -864,7 +863,7 @@ func _popup_controls() -> void:
 
 func _draw_popup() -> void:
 	var r := _pop_rect()
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(self, r)
 	var title := UiKit.t("KIT COLOR") if popup == "kit" else (UiKit.t("MARK COLOR") if popup == "mark" else UiKit.t("HOME TOWN"))
 	UiKit.text(self, font, title, r.position + Vector2(24, 38), 19, UiKit.INK)

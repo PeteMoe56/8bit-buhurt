@@ -58,12 +58,11 @@ func _build() -> void:
 		Vector2(260, 54), _play)))
 	ui.add_child(UiKit.button(UiKit.t("Settings"), Vector2(center() - 130, y + 66),
 		Vector2(260, 46), _settings))
-	## QUIT IS NOT OFFERED ON A PHONE. Mobile platforms have their own way out
-	## and a Quit button in a mobile game reads as a bug; on desktop its absence
-	## reads as one.
-	if not OS.has_feature("mobile"):
-		ui.add_child(UiKit.button(UiKit.t("Quit"), Vector2(center() - 130, y + 124),
-			Vector2(260, 40), func(): get_tree().quit()))
+	## QUIT ON EVERY PLATFORM (Pete, 2 Oct 2026 playtest: "Opening screen should
+	## have Quit button"). It was hidden on phones on the theory that a Quit in a
+	## mobile game reads as a bug; on his phone its absence read as one.
+	ui.add_child(UiKit.button(UiKit.t("Quit"), Vector2(center() - 130, y + 124),
+		Vector2(260, 40), func(): get_tree().quit()))
 	queue_redraw()
 
 
@@ -97,8 +96,36 @@ func go_back() -> bool:
 
 ## NOTHING HERE MOVES, so nothing is redrawn 60 times a second — except while
 ## the "press back again" line is up, which has to disappear on time.
+## THE FRONT DOOR'S WATERMARK (Pete, 2 Oct 2026 playtest: "Opening screen
+## should have a cool logo watermark"). The grayed mark as a wallpaper: rows of
+## small crests, every other row offset half a step, the whole sheet drifting
+## slowly up and to the left — the screen's only motion, and faint enough that
+## the buttons and the lockup stay the picture.
+const WATERMARK_ALPHA := 0.07
+const TILE := "res://art/brand/watermark_tile.png"
+const TILE_STEP := Vector2(150.0, 124.0)
+const DRIFT := Vector2(-9.0, -6.0)   ## pixels a second
+
+
+func _draw_watermarks() -> void:
+	var wm := Brand.tex(TILE)
+	if wm == null:
+		return
+	var scr := UiKit.screen()
+	var col := Color(1, 1, 1, WATERMARK_ALPHA)
+	var off := Vector2(fposmod(t * DRIFT.x, TILE_STEP.x * 2.0), fposmod(t * DRIFT.y, TILE_STEP.y * 2.0))
+	var rows := int(ceil(scr.y / TILE_STEP.y)) + 3
+	var cols := int(ceil(scr.x / TILE_STEP.x)) + 3
+	for r in rows:
+		for c in cols:
+			var x := float(c) * TILE_STEP.x - TILE_STEP.x * 2.0 + off.x + (TILE_STEP.x * 0.5 if r % 2 == 1 else 0.0)
+			var y := float(r) * TILE_STEP.y - TILE_STEP.y * 2.0 + off.y
+			draw_texture(wm, Vector2(x, y).floor(), col)
+
+
 func _process(delta: float) -> void:
 	t += delta
+	queue_redraw()
 	if quit_armed_until > 0.0 and t > quit_armed_until:
 		quit_armed_until = -1.0
 		queue_redraw()
@@ -106,6 +133,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	UiKit.ground(self, false)
+	_draw_watermarks()
 
 	## THE MARK IS THE SCREEN NOW, and the plate it used to sit on is gone.
 	##

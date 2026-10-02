@@ -38,6 +38,8 @@ func _ready() -> void:
 	s = Session.season
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	if s != null:
 		var sea := s.world.season
 		first = Calendar.date_of(sea, 0)
@@ -515,7 +517,7 @@ func _honor_of(wi: int, wk: Dictionary) -> Dictionary:
 
 
 func _popup() -> void:
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.55))
+	draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.55))
 	UiKit.panel(self, _pop())
 	var info := _info(pick)
 	var wk: Dictionary = s.world.calendar[pick]

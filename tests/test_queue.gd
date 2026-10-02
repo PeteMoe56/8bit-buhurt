@@ -185,42 +185,44 @@ func _gold_step() -> void:
 		if s.gold_step() != "kit" or got != UiKit.t("Fix kit"):
 			bad.append("kit under the pass mark: step '%s', gold '%s'" % [s.gold_step(), got])
 		## 2. Kit passes; the ground is short and the next level is affordable.
+		## The fight KEEPS the gold (Pete, 2 Oct 2026 playtest) and the ground
+		## card offers the build instead.
 		man.armor = was
 		var gap := s.ground_gap()
 		var want := UiKit.with_upkeep(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])),
 			int(gap["next_cost"])], s.office.arena_upkeep_next())
-		got = await _first_button(s)
-		if s.gold_step() != "build" or got != want:
-			bad.append("ground short, purse full: step '%s', gold '%s', want '%s'" % [s.gold_step(), got, want])
-		## 3. Short of the price: the fight is gold again.
-		s.office.credits = int(gap["next_cost"]) - 1
-		got = await _first_button(s)
 		var opp := s.opponent_id()
 		var fight := (UiKit.t("Fight: vs %s") % String(s.world.clubs[opp].get("short", "?"))) if opp >= 0 else ""
-		if s.gold_step() != "" or (opp >= 0 and got != fight):
-			bad.append("ground short, purse short: step '%s', gold '%s', want '%s'" % [s.gold_step(), got, fight])
-		## 4. Pressing Build builds it, and the fight takes the gold back for the week.
+		got = await _first_button(s)
+		if s.gold_step() != "" or (opp >= 0 and got != fight) or s.ground_offer().is_empty():
+			bad.append("ground short, purse full: step '%s', gold '%s', want '%s', card %s" % [s.gold_step(), got,
+				fight, str(not s.ground_offer().is_empty())])
+		## 3. Short of the price: no card (it has nothing to offer), the fight gold.
+		s.office.credits = int(gap["next_cost"]) - 1
+		got = await _first_button(s)
+		if s.gold_step() != "" or (opp >= 0 and got != fight) or not s.ground_offer().is_empty():
+			bad.append("ground short, purse short: step '%s', gold '%s', card %s" % [s.gold_step(), got,
+				str(not s.ground_offer().is_empty())])
+		## 4. The card opens on the hub by itself, and its Build builds.
 		s.office.credits = 9999
 		var lv := s.office.arena.level
 		var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
 		Session.season = s
 		root.add_child(n)
 		await process_frame
-		n.set("ground_open", false)
-		n.call("_rebuild")
-		await process_frame
+		var opened: bool = bool(n.get("ground_open"))
 		for b in _buttons(n):
 			if (b as Button).text == want:
 				(b as Button).pressed.emit()
 				break
 		await process_frame
-		if s.office.arena.level != lv + 1 or s.gold_step() == "build":
-			bad.append("Build pressed: level %d -> %d, step now '%s'" % [lv, s.office.arena.level, s.gold_step()])
+		if not opened or s.office.arena.level != lv + 1:
+			bad.append("the card: opened %s, level %d -> %d" % [str(opened), lv, s.office.arena.level])
 		n.queue_free()
 		await process_frame
 		s.office.credits = purse
-	_ok(bad.is_empty(), "the gold button is the next real step: Fix kit, Build <next>, else the fight",
-		"kit, ground, short purse and a pressed Build read off the hub" if bad.is_empty() else "; ".join(bad))
+	_ok(bad.is_empty(), "the gold button is the next real step: Fix kit, else the fight; the ground is a card",
+		"kit, ground card, short purse and a pressed Build read off the hub" if bad.is_empty() else "; ".join(bad))
 
 
 ## THE BID CARD HAS A REAL BUTTON (1 Oct novice report, Pete approved): the gold

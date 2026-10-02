@@ -77,6 +77,8 @@ func _ready() -> void:
 	board = season.board
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	_load_slot(0)
 	_rebuild()
 
@@ -410,6 +412,8 @@ func _mark_at(p: Vector2) -> int:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	## Into the scene's own frame: it is drawn shifted when centred (`UiKit.frame`).
+	event = make_input_local(event)
 	if slot >= _slots_owned():
 		return
 	if event is InputEventScreenTouch:

@@ -37,6 +37,8 @@ func _ready() -> void:
 	season = Session.season
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	if Session.staff_browse:
 		Session.staff_browse = false
 		browsing = true
@@ -107,7 +109,8 @@ func _market_controls() -> void:
 	var catch_ := Button.new()
 	catch_.flat = true
 	catch_.position = Vector2.ZERO
-	catch_.size = UiKit.screen()
+	catch_.position = UiKit.full_rect().position
+	catch_.size = UiKit.full_rect().size
 	catch_.focus_mode = Control.FOCUS_NONE
 	ui.add_child(catch_)
 	var pool := season.staff_pool()
@@ -135,7 +138,7 @@ func _market_controls() -> void:
 
 
 func _draw_market() -> void:
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.ledger_cover()
 	UiKit.panel(self, LIST)
 	UiKit.text(self, font, UiKit.t("CAPTAINS FOR HIRE"), LIST.position + Vector2(20, 32), 18, UiKit.YOU)

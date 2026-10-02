@@ -804,8 +804,8 @@ func _test_nothing_stands_on_the_tab_strip() -> void:
 		await process_frame
 		var tab_y: float = float(s.get("TAB_Y"))
 		var tab_h: float = float(s.get("TAB_H"))
-		var tab_w: float = float(s.get("TAB_W"))
-		var strip := Rect2(24.0, tab_y, 5.0 * (tab_w + 6.0), tab_h)
+		## The strip spans the screen now (2 Oct 2026 playtest).
+		var strip := Rect2(24.0, tab_y, UiKit.right_edge(24.0) - 24.0, tab_h)
 		var cs: Array = []
 		_controls(s, cs)
 		## The five tabs are the five widest things starting on the strip's own

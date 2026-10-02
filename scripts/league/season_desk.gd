@@ -233,11 +233,27 @@ static func gold_step(s: Season) -> String:
 		for f in s.club.active_eight().slice(0, MeleeClub.LINE_SIZE):
 			if not (f as FighterCard).passes_inspection():
 				return "kit"
-	if not ground_gap(s).is_empty():
-		var o := s.office
-		if o.arena.can_build(o.tier, o.credits) == "" and not o.done_this_week(ClubOffice.SLOT_ARENA):
-			return "build"
+	## THE GROUND IS NO LONGER A GOLD STEP (Pete, 2 Oct 2026 playtest: "Build
+	## Club Gym on main page should be a popup, not take the place of the golden
+	## Fight buttons"). It is offered by the ground card instead: `ground_offer`.
 	return ""
+
+
+## THE GROUND CARD, the first week a build can go ahead or from halfway through
+## the league (`ground_ask`), once a season either way. {} when not due.
+static func ground_offer(s: Season) -> Dictionary:
+	var ask := ground_ask(s)
+	if not ask.is_empty():
+		return ask
+	if s.ground_warned == s.world.season or s.season_complete() or s.blocked_by() != "":
+		return {}
+	var gap := ground_gap(s)
+	if gap.is_empty():
+		return {}
+	var o := s.office
+	if o.arena.can_build(o.tier, o.credits) != "" or o.done_this_week(ClubOffice.SLOT_ARENA):
+		return {}
+	return gap
 
 
 ## WHAT THE KIT IS COSTING THE RATING, in whole points (1 Oct novice report, Pete

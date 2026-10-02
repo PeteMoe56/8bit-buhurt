@@ -9,6 +9,13 @@ extends Node2D
 const SKILL_X := 492.0
 const SKILL_Y := 120.0
 const SKILL_ROW := 50.0
+## The making of a coach, left column (2 Oct 2026 playtest: names up, face bigger).
+const NAME_Y := 108.0
+const PART_Y := 162.0
+const PART_STEP := 58.0
+const PART_X := 196.0
+const PORTRAIT := Vector2(160.0, 164.0)
+const BG_Y := 352.0
 
 var font: Font
 var ui: CanvasLayer
@@ -29,6 +36,8 @@ func _ready() -> void:
 	season = Session.season
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	_build()
 
 
@@ -69,21 +78,31 @@ func _build() -> void:
 		return
 	var creating := not c.created
 	if creating:
-		first_edit = _edit(Vector2(24, 160), 200.0, draft_first if draft_first != null else c.first_name,
+		## HIGHER, AND THE FACE BIGGER (Pete, 2 Oct 2026 playtest: "First Name/Last
+		## Name can be brought up, the portrait/Face/Kit/Beard can be made larger").
+		first_edit = _edit(Vector2(24, NAME_Y), 200.0, draft_first if draft_first != null else c.first_name,
 			UiKit.t("First name"), func(t: String): draft_first = t)
-		last_edit = _edit(Vector2(240, 160), 220.0, draft_last if draft_last != null else c.last_name,
+		last_edit = _edit(Vector2(240, NAME_Y), 220.0, draft_last if draft_last != null else c.last_name,
 			UiKit.t("Last name"), func(t: String): draft_last = t)
 		## THE FACE, KIT AND BEARD (art to follow): three cycling parts.
 		var parts := [[UiKit.t("Face"), "face"], [UiKit.t("Kit"), "kit"], [UiKit.t("Beard"), "beard"]]
+		## Each part both ways: < back, the part itself (forward), > forward.
 		for i in parts.size():
 			var p: Array = parts[i]
-			ui.add_child(UiKit.button("<  %s %d  >" % [String(p[0]), int(c.get(String(p[1]))) + 1],
-				Vector2(146, 222 + float(i) * 42.0), Vector2(170, 34), func(key = String(p[1])):
+			var y := PART_Y + float(i) * PART_STEP
+			ui.add_child(UiKit.arrow(false, Vector2(PART_X, y), Vector2(48, 48), func(key = String(p[1])):
+				c.set(key, (int(c.get(key)) + 5) % 6)
+				_build()))
+			ui.add_child(UiKit.button("%s %d" % [String(p[0]), int(c.get(String(p[1]))) + 1],
+				Vector2(PART_X + 54.0, y), Vector2(150, 48), func(key = String(p[1])):
 					c.set(key, (int(c.get(key)) + 1) % 6)
 					_build()))
+			ui.add_child(UiKit.arrow(true, Vector2(PART_X + 210.0, y), Vector2(48, 48), func(key = String(p[1])):
+				c.set(key, (int(c.get(key)) + 1) % 6)
+				_build()))
 		for b in 3:
 			ui.add_child(UiKit.selected(UiKit.button(Coach.background_name(b),
-				Vector2(24 + float(b) * 148.0, 382), Vector2(140, 36), func(k = b):
+				Vector2(24 + float(b) * 148.0, BG_Y), Vector2(140, 40), func(k = b):
 					c.set_background(k)
 					_build()), c.background == b))
 	## THE SKILLS: + to spend, − to take back while still creating.
@@ -189,13 +208,13 @@ func _draw() -> void:
 			UiKit.text_fit(self, font, String(now[i]), Vector2(24, 290 + i * 26), 15,
 				UiKit.INK if c.skill(i) > 0 else UiKit.DIM, 440.0)
 	else:
-		UiKit.text(self, font, UiKit.t("FIRST NAME"), Vector2(24, 152), 12, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("LAST NAME"), Vector2(240, 152), 12, UiKit.DIM)
-		UiKit.panel(self, Rect2(24, 222, 110, 118))
-		UiKit.mid(self, font, UiKit.t("art to follow"), Vector2(24, 286), 12, UiKit.DIM, 110)
-		UiKit.text(self, font, UiKit.t("BACKGROUND"), Vector2(24, 374), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("FIRST NAME"), Vector2(24, NAME_Y - 8.0), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("LAST NAME"), Vector2(240, NAME_Y - 8.0), 12, UiKit.DIM)
+		UiKit.panel(self, Rect2(24, PART_Y, PORTRAIT.x, PORTRAIT.y))
+		UiKit.mid(self, font, UiKit.t("art to follow"), Vector2(24, PART_Y + PORTRAIT.y * 0.5 + 4.0), 12, UiKit.DIM, PORTRAIT.x)
+		UiKit.text(self, font, UiKit.t("BACKGROUND"), Vector2(24, BG_Y - 8.0), 12, UiKit.DIM)
 		UiKit.para(self, font, UiKit.t("Each background starts with a point: Training, Business or Tactics."),
-			Vector2(24, 440), 13, UiKit.DIM, 440.0, 16.0, 2)
+			Vector2(24, BG_Y + 60.0), 13, UiKit.DIM, 440.0, 16.0, 2)
 	# ---- the skills
 	var r := Rect2(SKILL_X - 8.0, SKILL_Y - 8.0, UiKit.right_edge() - SKILL_X + 16.0, 352.0)
 	UiKit.panel(self, r)
@@ -212,7 +231,7 @@ func _draw() -> void:
 		UiKit.text_fit(self, font, flash, Vector2(196, 512), 14, UiKit.DOWN, 500.0)
 	if help_open:
 		var hr := _help_rect()
-		draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+		draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 		UiKit.panel(self, hr)
 		UiKit.text(self, font, UiKit.t("YOUR SKILLS"), hr.position + Vector2(24, 40), 19, UiKit.INK)
 		for i in 5:

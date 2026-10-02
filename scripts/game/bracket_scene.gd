@@ -50,6 +50,8 @@ func _ready() -> void:
 	me = cup.player_club if cup != null else -1
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	## Pools use the whole screen — four tables reach to within a few pixels of
 	## the bottom — so Back moves to the top right rather than the tables being
 	## squeezed to make room for it.

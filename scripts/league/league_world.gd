@@ -262,7 +262,7 @@ func _build_pyramid(player_power: int) -> void:
 ## his own row should never have to read the second word.
 func _unique_name(used: Dictionary) -> String:
 	for _try in 400:
-		var pool := Cities.names(region)
+		var pool := Cities.league_names(region)
 		var first: String = pool[rng.randi() % pool.size()]
 		if used.has(first):
 			continue

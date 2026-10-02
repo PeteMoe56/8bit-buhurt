@@ -81,7 +81,7 @@ const BLURB := {
 	G.FULL_STEEL: "They came to end it, so you get one fewer call from the corner and a shorter breather.",
 	G.HARD_LIST: "Full Steel, and every club in the country fights at the top "
 		+ "of its division whatever its rating says.",
-	G.CUSTOM: "Your own dials. Set each one below.",
+	G.CUSTOM: "Your own dials. Set each one on the right.",
 }
 
 const ORDER: Array[int] = [G.MATCHED, G.FRIENDLY, G.SANCTIONED, G.FULL_STEEL, G.HARD_LIST, G.CUSTOM]

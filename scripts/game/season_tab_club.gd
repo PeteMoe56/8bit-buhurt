@@ -900,7 +900,11 @@ static func _draw_ground(v: SeasonScene) -> void:
 	var w := card.size.x - 48.0
 	UiKit.text_fit(v, v.font, UiKit.t("THE %s NEEDS A %s") % [String(gap["to"]).to_upper(),
 		UiKit.t(String(gap["need"])).to_upper()], card.position + Vector2(24, 40), 18, UiKit.YOU, w)
-	UiKit.para(v, v.font, UiKit.t("You are in the playoff places. If you go up, the %s won't fight in a %s.") % [
+	## IN THE PLAYOFF PLACES, OR NOT YET: the card now also comes the first week
+	## a build is affordable (2 Oct 2026), before the table says anything.
+	var in_places: bool = v.season.world.player_position() <= SeasonDesk.PLAYOFF_PLACES
+	UiKit.para(v, v.font, (UiKit.t("You are in the playoff places. If you go up, the %s won't fight in a %s.") if in_places
+		else UiKit.t("You can build now. If you go up, the %s won't fight in a %s.")) % [
 		String(gap["to"]), UiKit.t(String(gap["have"]))], card.position + Vector2(24, 76), 15, UiKit.INK, w, 20.0, 2)
 	var parts: Array = []
 	for st in gap["steps"]:

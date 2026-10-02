@@ -46,9 +46,60 @@ static var _screen: Vector2 = DESIGN
 static var _screen_frame: int = -1
 
 
+## THE 960 FRAME, CENTRED (Pete, 2 Oct 2026 playtest: "There's a lot of layouts
+## that need centered like Team/The Hall"). Most menu screens were laid out for
+## 960 wide and drawn from the left, so on a 19.5:9 phone they hugged the left
+## edge with 200 empty pixels on the right. A screen that calls `frame()` is
+## moved to the middle as a whole — its drawing node and its control layer — and
+## while it is up `screen()` answers the 960 it was laid out for, so everything
+## it right-aligns lands at the frame's right edge, not the phone's. The ground
+## and the watermark still fill the real screen (`real_screen()`).
+static var framed := false
+static var frame_off := 0.0
+
+
+static func frame(node: Node2D, layer: CanvasLayer = null) -> void:
+	var off := floorf(maxf(0.0, real_screen().x - DESIGN.x) * 0.5)
+	framed = off > 0.0
+	frame_off = off
+	_screen_frame = -1
+	node.position.x = off
+	if layer != null:
+		layer.offset.x = off
+	if not node.tree_exiting.is_connected(_unframe):
+		node.tree_exiting.connect(_unframe)
+
+
+static func _unframe() -> void:
+	framed = false
+	frame_off = 0.0
+	_screen_frame = -1
+
+
+## THE WHOLE SCREEN in a scene's own drawing frame: a dimmer behind a card has
+## to reach the real edges of a framed (centred) scene, not just its 960.
+static func full_rect() -> Rect2:
+	return Rect2(Vector2(-frame_off, 0.0) if framed else Vector2.ZERO, real_screen())
+
+
+## The whole visible canvas, framed or not: for grounds, veils and anything else
+## that must reach the real edges.
+static func real_screen() -> Vector2:
+	var loop := Engine.get_main_loop()
+	if loop is SceneTree:
+		var root := (loop as SceneTree).root
+		if root != null:
+			var sz := root.get_visible_rect().size
+			if sz.x > 1.0 and sz.y > 1.0:
+				return sz
+	return DESIGN
+
+
 ## The live canvas, in the units everything is drawn in. Cached per frame — it
 ## is read dozens of times a draw and the answer cannot change inside one.
 static func screen() -> Vector2:
+	if framed:
+		return Vector2(DESIGN.x, real_screen().y)
 	var f := Engine.get_process_frames()
 	if f == _screen_frame:
 		return _screen
@@ -931,9 +982,11 @@ static func fit_px(font: Font, s: String, px: int, width: float) -> String:
 ## which is what the three screens that already had it have always done.
 static func ground(ci: CanvasItem, wash: bool = true) -> void:
 	Audio.music("menu")
-	ci.draw_rect(Rect2(Vector2.ZERO, screen()), BG)
+	## The REAL screen, from its real left edge: a framed scene is drawn shifted.
+	var o := Vector2(-frame_off, 0.0) if framed else Vector2.ZERO
+	ci.draw_rect(Rect2(o, real_screen()), BG)
 	if wash:
-		Brand.draw_wash(ci, screen())
+		Brand.draw_wash(ci, real_screen(), Brand.WASH, o)
 
 
 ## A LABEL ON THE LEFT AND A NOTE ON THE RIGHT, ON ONE LINE, THAT CANNOT MEET.

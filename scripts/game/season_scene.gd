@@ -21,9 +21,19 @@ enum Tab { CLUB, SQUAD, MARKET, OFFICE, FINANCES }
 ## which is the layout the extra width is FOR: the fixture and the table are
 ## side by side instead of the table being pushed below the fold, and the squad
 ## screen shows the eight and the reserve at once instead of scrolling.
-const TAB_Y := 72.0
-const TAB_H := 34.0
+const TAB_Y := 70.0
+## TALLER AND ACROSS THE WHOLE WIDTH (Pete, 2 Oct 2026 playtest: "Top row can be
+## a little larger and make it so they span the width"). `tab_rect` divides the
+## row between the tabs that are showing.
+const TAB_H := 42.0
 const TAB_W := 160.0
+const TAB_GAP := 6.0
+const TAB_PX := 18
+
+
+static func tab_rect(slot: int, count: int) -> Rect2:
+	var w := (UiKit.right_edge(24.0) - 24.0 - TAB_GAP * float(count - 1)) / float(maxi(1, count))
+	return Rect2(24.0 + float(slot) * (w + TAB_GAP), TAB_Y, w, TAB_H)
 ## Where a tab's own content may start: below the tab strip and below the line
 ## the flash message is written on. Every tab used to pick its own top and the
 ## SQUAD one collided with the tab underline.
@@ -165,7 +175,7 @@ func _ready() -> void:
 			UiKit.t(" and %d more.") % (season.last_emergency.size() - 1)
 				if season.last_emergency.size() > 1 else ".")
 		season.last_emergency = []
-	if not season.ground_ask().is_empty():
+	if not season.ground_offer().is_empty():
 		ground_open = true
 	elif not season.market_ask().is_empty():
 		market_open = true
@@ -305,14 +315,25 @@ func _rebuild() -> void:
 		shown.append(i)
 	if tab == Tab.MARKET and not shown.has(Tab.MARKET):
 		tab = Tab.CLUB
+	var tab_px := -1
 	for slot in shown.size():
 		var i: int = shown[slot]
-		ui.add_child(UiKit.selected(UiKit.button(names[i], Vector2(24 + float(slot) * (TAB_W + 6.0), TAB_Y),
-			Vector2(TAB_W, TAB_H), func():
+		var tr := tab_rect(slot, shown.size())
+		var tb := UiKit.button(names[i], tr.position, tr.size, func():
 				tab = i
 				picked = null
 				fin_full = false
-				_rebuild(), marks[i]), i == tab))
+				_rebuild(), marks[i])
+		## ONE SIZE FOR THE ROW: 18 where every label fits (a wide phone), less on
+		## 960, where MAINTENANCE at 18 would grow its button into the next.
+		if tab_px < 0:
+			var tf: Font = tb.get_theme_font("font")
+			tab_px = TAB_PX
+			for nm in names:
+				while tab_px > 14 and tf.get_string_size(String(nm), HORIZONTAL_ALIGNMENT_LEFT, -1, tab_px).x > tr.size.x - 52.0:
+					tab_px -= 1
+		tb.add_theme_font_size_override("font_size", tab_px)
+		ui.add_child(UiKit.selected(tb, i == tab))
 	## ONE MENU BUTTON (Pete, 1 Oct 2026: "Menu - Resume, Settings, Save/Load,
 	## Quit"). The rooms that used to hang off the header — staff, playbook,
 	## records, create — live on the Management tab now.
@@ -453,7 +474,7 @@ func _sim_controls() -> void:
 			flash = UiKit.t("Event simulated.") if season.last_emergency.is_empty() \
 				else "Event simulated. " + season.last_emergency[0] + "."
 			var warn := season.summer_warning()
-			if not season.ground_ask().is_empty():
+			if not season.ground_offer().is_empty():
 				ground_open = true
 			if warn != "":
 				flash = warn
@@ -681,9 +702,13 @@ func _draw() -> void:
 	## Button's own styling is the one thing here that is not mine to draw.
 	## The slot, not the index: before bout one the Armorer's tab is not there.
 	var slot := tab
-	if not season.first_bout_done() and tab > Tab.MARKET:
-		slot -= 1
-	draw_rect(Rect2(24 + float(slot) * (TAB_W + 6.0), TAB_Y + TAB_H, TAB_W, 3), UiKit.YOU)
+	var count := 5
+	if not season.first_bout_done():
+		count = 4
+		if tab > Tab.MARKET:
+			slot -= 1
+	var ur := tab_rect(slot, count)
+	draw_rect(Rect2(ur.position.x, TAB_Y + TAB_H, ur.size.x, 3), UiKit.YOU)
 	if flash != "":
 		## BY PIXELS, ACROSS THE WHOLE WIDTH, and smaller when it is long. It was
 		## cut at 58 characters, which dropped the winter report off the end of

@@ -143,6 +143,8 @@ func _ready() -> void:
 		man = season.club.roster[0]
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	_build()
 
 
@@ -785,7 +787,7 @@ func _pace(y: float) -> void:
 ## destination: the card always draws the man, and the roll only decides how far
 ## along the way it has got.
 func _draw_meeting() -> void:
-	draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(self, card())
 	UiKit.mid(self, font, UiKit.t("MEETING: %s") % man.display_name.to_upper(),
 		Vector2(card().position.x, card().position.y + 22.0), 19, UiKit.INK,

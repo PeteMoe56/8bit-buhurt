@@ -40,6 +40,8 @@ func _ready() -> void:
 		Session.market_pick = ""
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	_build()
 
 
@@ -200,6 +202,14 @@ func _draw() -> void:
 			"foot": (UiKit.t("sign %d CC") % fee) if afford else (UiKit.t("%d CC · can't afford") % fee),
 			"foot_col": UiKit.YOU if afford else UiKit.DOWN,
 		}, true)
+		## STARS, NOW AND AT HIS BEST (Pete, 2 Oct 2026 playtest: "Free agents
+		## need more info like star rating and Ceiling"): the same two rows of
+		## stars his own page shows, so a signing reads the way a squad man does.
+		var sy := r.position.y + 116.0
+		UiKit.text(self, font, UiKit.t("RATING"), Vector2(r.position.x + 10.0, sy + 9.0), 11, UiKit.DIM)
+		UiKit.stars(self, Vector2(r.position.x + 72.0, sy), f.overall(), UiKit.YOU)
+		UiKit.text(self, font, UiKit.t("CEILING"), Vector2(r.position.x + 152.0, sy + 9.0), 11, UiKit.DIM)
+		UiKit.stars(self, Vector2(r.position.x + 222.0, sy), f.potential, UiKit.UP)
 
 	_footer()
 	if flash != "":

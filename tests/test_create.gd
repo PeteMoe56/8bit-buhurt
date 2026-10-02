@@ -376,12 +376,18 @@ func _test_the_dials_are_customs() -> void:
 		await process_frame
 		await process_frame
 		var drawn := UiKit.ledger_stop()
+		## THE FIGHT'S DIALS stay Custom's; WHAT IT CHANGES (strength, calls,
+		## dues...) shows on every grade since the 2 Oct 2026 playtest ("the
+		## Right to show the effects").
 		var rows := 0
+		var effects := 0
 		for e in drawn:
 			var t := String(e.get("text", ""))
 			if t == UiKit.t("Free swing on arrival") or t == UiKit.t("Missed bullrush, he falls") \
-					or t == UiKit.t("Grabbed or tripped passing") or t == UiKit.t("Opposition strength"):
+					or t == UiKit.t("Grabbed or tripped passing"):
 				rows += 1
+			if t == UiKit.t("Opposition strength"):
+				effects += 1
 		var dials := 0
 		for c in n.get_children():
 			for b in c.get_children():
@@ -389,26 +395,26 @@ func _test_the_dials_are_customs() -> void:
 					dials += 1
 		var nm := Grade.name_of(int(g))
 		if int(g) == Grade.G.CUSTOM:
-			if rows < 4 or dials < 2 * n.DIAL_ROWS.size():
+			if rows < 3 or effects < 1 or dials < 2 * n.DIAL_ROWS.size():
 				bad.append("%s shows %d rows and %d dials" % [nm, rows, dials])
 		else:
-			if rows > 0 or dials > 0:
-				bad.append("%s shows %d rows and %d dials" % [nm, rows, dials])
+			if rows > 0 or dials > 0 or effects < 1:
+				bad.append("%s shows %d fight rows, %d dials, %d effects" % [nm, rows, dials, effects])
 			var en := String(Grade.BLURB[int(g)])
 			if en.count(". ") > 0 or not en.ends_with("."):
 				bad.append("%s is more than one sentence" % nm)
 	n.queue_free()
 	await process_frame
 	Session.create_tab = -1
-	## The sentence fits its window (four lines at 15 px) in every language.
+	## The sentence fits its window (nine lines at 15 px, the middle column) in every language.
 	var was := TranslationServer.get_locale()
-	var iw: float = UiKit.right_edge() - 288.0 - 36.0
+	var iw: float = float((load("res://scripts/game/create_scene.gd") as GDScript).get_script_constant_map()["GRADE_MID"].y) - 32.0
 	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
 		TranslationServer.set_locale(loc)
 		for g in Grade.ORDER:
 			var lines := UiKit.wrap(UiKit.body(), Grade.blurb_of(int(g)), iw, 15)
-			if lines.size() > 4:
+			if lines.size() > 9:
 				bad.append("%s %s runs to %d lines" % [loc, Grade.name_of(int(g)), lines.size()])
 	TranslationServer.set_locale(was)
-	_ok(bad.is_empty(), "the dials are Custom's: every other grade is one sentence",
+	_ok(bad.is_empty(), "the dials are Custom's: every grade shows what it changes, in one sentence",
 		"%d grades read off the screen" % Grade.ORDER.size() if bad.is_empty() else "; ".join(bad))

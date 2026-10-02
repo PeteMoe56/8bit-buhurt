@@ -127,6 +127,8 @@ func _ready() -> void:
 		Session.guide_topic = -1
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## CENTRED ON A WIDE PHONE (2 Oct 2026 playtest): see `UiKit.frame`.
+	UiKit.frame(self, ui)
 	_rebuild()
 
 
