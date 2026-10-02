@@ -177,6 +177,25 @@ static func gold_step(s: Season) -> String:
 	return ""
 
 
+## WHAT THE KIT IS COSTING THE RATING, in whole points (1 Oct novice report, Pete
+## approved): a first-timer won, saw the rating fall, and had no idea why. Kit
+## wears in fights (register 30.63) and a worn harness takes a man's base down,
+## so after a bout the rating dips by exactly this much. The rating with every
+## travelling man's harness at the top of his own metal, less the rating now; 0
+## when the wear costs less than a point.
+static func kit_dip(s: Season) -> int:
+	var men := s.club.active_eight()
+	var was: Array[float] = []
+	var now := s.club.power_exact()
+	for f in men:
+		was.append((f as FighterCard).armor)
+		f.armor = maxf(f.armor, Quartermaster.ceiling(f))
+	var whole := s.club.power_exact()
+	for i in men.size():
+		(men[i] as FighterCard).armor = was[i]
+	return maxi(0, int(round(whole)) - int(round(now)))
+
+
 ## Take it or leave it. Returns "" like every other verb here.
 static func answer_promotion(s: Season, take: bool) -> String:
 	if not s.promotion_place():

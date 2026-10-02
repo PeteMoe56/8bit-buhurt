@@ -705,6 +705,14 @@ func _header() -> void:
 	UiKit.text(self, font, UiKit.clip_px(font, String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
 	var sub := UiKit.t("%s  ·  Season %d  ·  rating %d") % [
 		season.tier_name(), season.world.season, int(w["power"])]
+	## AND WHAT THE KIT IS TAKING OFF IT (1 Oct novice report): "rating 48 (-2
+	## kit)". When the season's number will not fit beside it, the season goes.
+	var dip := season.kit_dip()
+	if dip > 0:
+		sub = UiKit.t("%s  ·  Season %d  ·  rating %d (-%d kit)") % [
+			season.tier_name(), season.world.season, int(w["power"]), dip]
+		if font.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x > room:
+			sub = UiKit.t("%s  ·  rating %d (-%d kit)") % [season.tier_name(), int(w["power"]), dip]
 	UiKit.text(self, font, UiKit.clip_px(font, sub, 14, room), Vector2(68, 50), 14, UiKit.DIM)
 	## WHO RUNS IT (Pete, 1 Oct 2026: "You're not named").
 	var sw := font.get_string_size(sub + "  ·  ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x

@@ -953,6 +953,11 @@ func build_for_promotion() -> String:
 
 
 ## -> SeasonDesk (season_desk.gd)
+func kit_dip() -> int:
+	return SeasonDesk.kit_dip(self)
+
+
+## -> SeasonDesk (season_desk.gd)
 func gold_step() -> String:
 	return SeasonDesk.gold_step(self)
 

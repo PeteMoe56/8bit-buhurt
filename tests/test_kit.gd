@@ -15,6 +15,7 @@ func _initialize() -> void:
 	_test_the_bench_is_the_traveling_party()
 	_test_somebody_cannot_get_the_weekend_off()
 	_test_the_three_reasons_are_three_reasons()
+	_test_the_rating_says_what_the_kit_took()
 
 	print("")
 	for n in notes:
@@ -279,3 +280,37 @@ func _test_the_three_reasons_are_three_reasons() -> void:
 	notes.append("the three reasons read: %s" % str(words))
 	_ok(bad.is_empty(), "the three reasons are three reasons",
 		"a knock, a failed harness and a missed weekend each say so in their own words, and a fit man says nothing")
+
+
+## THE KIT LINE (1 Oct novice report, Pete approved): "rating 48 (-2 kit)". A
+## club in whole kit shows nothing; after real fights wear it, the number the
+## hub prints is exactly what topping every travelling harness up to its metal
+## gives back — and once it is given back, the line is gone.
+func _test_the_rating_says_what_the_kit_took() -> void:
+	var bad: Array[String] = []
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	for f in s.club.roster:
+		f.armor = Quartermaster.ceiling(f)
+	if s.kit_dip() != 0:
+		bad.append("whole kit still shows -%d" % s.kit_dip())
+	## Wear it the way a season does: bouts take BOUT_WEAR off the five.
+	var g := 0
+	while s.kit_dip() == 0 and g < 12:
+		g += 1
+		for f in s.club.active_eight().slice(0, 5):
+			f.armor = maxf(FighterCard.INSPECTION_MIN, f.armor - 0.12)
+	var dip := s.kit_dip()
+	var before := s.club.power()
+	if dip <= 0:
+		bad.append("worn kit never shows on the rating (%d rounds of wear)" % g)
+	for f in s.club.active_eight():
+		f.armor = maxf(f.armor, Quartermaster.ceiling(f))
+	if s.club.power() - before != dip:
+		bad.append("said -%d, repairs gave back %d" % [dip, s.club.power() - before])
+	if s.kit_dip() != 0:
+		bad.append("still -%d after the repair" % s.kit_dip())
+	var line := UiKit.t("%s  ·  rating %d (-%d kit)") % ["Backyard Circuit", 48, 2]
+	if not line.ends_with("rating 48 (-2 kit)"):
+		bad.append("the line reads '%s'" % line)
+	_ok(bad.is_empty(), "the rating says what the kit took off it",
+		"-%d after wear, given back exactly by repairs, gone after" % dip if bad.is_empty() else "; ".join(bad))
