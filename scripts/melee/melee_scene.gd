@@ -1269,6 +1269,12 @@ func _draw_corner() -> void:
 			UiKit.raw(self, font, Vector2(hx, 72), String(head[i][1]),
 				HORIZONTAL_ALIGNMENT_LEFT, 150, 17, head[i][2])
 	draw_line(Vector2(C_LX, 86.5), Vector2(890, 86.5), COL_EDGE, 1.0)
+	## WHY EVERY SUB BOX IS DEAD, under the rows (novice report 2: after two subs
+	## all five went grey with a man still on the bench, and nothing said why).
+	var no_sub := corner_sub_word()
+	if no_sub != "":
+		UiKit.raw(self, font, Vector2(C_LX, minf(C_LY + float(line.size()) * (row_h + C_ROW_GAP) + 18.0, 504.0)),
+			UiKit.fit(font, no_sub, 11, C_LW), HORIZONTAL_ALIGNMENT_LEFT, C_LW, 11, COL_DIM)
 
 	for i in line.size():
 		var m = _man_in_slot(i)
@@ -2994,6 +3000,15 @@ const C_FAV_GAP := 8.0
 const C_BAR_X := 206.0
 const C_BAR_W := 148.0
 const C_STAT_X := 126.0
+
+
+## Why no SUB box works this break, or "" when one can.
+func corner_sub_word() -> String:
+	if Tuning.SWAPS_PER_CORNER - sim.swaps_used[0] <= 0:
+		return UiKit.t("No swaps left this break.")
+	if sim.bench(0).is_empty():
+		return UiKit.t("Nobody left on the bench.")
+	return ""
 
 
 func _corner_rows() -> float:
