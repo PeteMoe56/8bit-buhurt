@@ -2144,6 +2144,12 @@ func _draw_held() -> void:
 ## test runner turns them off (`Settings.tips_enabled`).
 ## Literal `t()` calls, so the string extractor sees them.
 static func _tip_words(key: String) -> Array[String]:
+	## THE WHEEL, the first time it opens (1 Oct novice report, Pete approved):
+	## first-timers did not know the sides were choices, that the timer picks
+	## for them, or what "N of M choices picked" was counting.
+	if key == "wheel":
+		return [UiKit.t("A choice"),
+			UiKit.t("Your man has reached an enemy. Tap a side of the wheel to choose what he does; each side shows its chance. Leave it and he chooses himself. HOLD stops the fight so you can give an order. \"N of M choices picked\" counts the choices you made.")]
 	if key == "corner":
 		return [UiKit.t("The corner"),
 			UiKit.t("Swap a tired man for one from the bench and change the plan. When the clock runs out they go back in.")]
@@ -2155,7 +2161,9 @@ func _maybe_tip() -> void:
 	if tip != "" or Session.season == null:
 		return
 	var key := ""
-	if screen == Screen.FIGHT and sim.phase == MeleeSim.Phase.LIVE:
+	if screen == Screen.FIGHT and wheel_man != -1 and Settings.tip_due("wheel"):
+		key = "wheel"
+	elif screen == Screen.FIGHT and sim.phase == MeleeSim.Phase.LIVE:
 		key = "route"
 	elif screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER:
 		key = "corner"
@@ -2169,7 +2177,9 @@ func _show_tip(key: String) -> void:
 	tip_layer = CanvasLayer.new()
 	tip_layer.layer = 20
 	add_child(tip_layer)
-	var box := Rect2(SCREEN.x * 0.5 - 250.0 + off_x, 140.0 + off_y, 500.0, 196.0)
+	## The wheel's card has five lines to say, the others three.
+	var tall := 76.0 if key == "wheel" else 0.0
+	var box := Rect2(SCREEN.x * 0.5 - 250.0 + off_x, 140.0 - tall * 0.5 + off_y, 500.0, 196.0 + tall)
 	## A full-screen catch, so a tap meant for the tip never lands on the fight.
 	var veil := Control.new()
 	veil.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -2180,7 +2190,7 @@ func _show_tip(key: String) -> void:
 		var words := _tip_words(key)
 		UiKit.text(veil, font, words[0], box.position + Vector2(24, 40), 20, UiKit.YOU)
 		UiKit.para(veil, font, words[1], box.position + Vector2(24, 72), 14,
-			UiKit.INK, box.size.x - 48.0, 20.0, 3))
+			UiKit.INK, box.size.x - 48.0, 20.0, 3 if tall <= 0.0 else 6))
 	tip_layer.add_child(veil)
 	tip_layer.add_child(UiKit.button(UiKit.t("Got it"),
 		box.position + Vector2(box.size.x - 24.0 - 150.0, box.size.y - 58.0), Vector2(150, 44),
