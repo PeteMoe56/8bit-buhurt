@@ -143,6 +143,9 @@ const PLAYOFF_PLACES := 4
 ## wage of a free agent who outrates a man on its eight. {} otherwise.
 const MARKET_ASK := true
 const MARKET_ASK_ALWAYS := false
+## AND TO A HOARD: a club holding `Season.HOARD_SUMMERS` summers' bills, the
+## line the hoard note already draws.
+const MARKET_ASK_HOARD := false
 
 
 ## THE SEASON A CLUB FIRST PLAYS IN A DIVISION IT WAS PROMOTED INTO.
@@ -182,7 +185,9 @@ static func market_ask(s: Season) -> Dictionary:
 	if not MARKET_ASK or s.market_warned == s.world.season or not s.results.is_empty() or s.season_complete() \
 			or s.blocked_by() != "":
 		return {}
-	if not MARKET_ASK_ALWAYS and not just_promoted(s):
+	var hoard: bool = MARKET_ASK_HOARD \
+		and s.office.credits >= maxi(1, s.office.summer_bill()) * Season.HOARD_SUMMERS
+	if not MARKET_ASK_ALWAYS and not hoard and not just_promoted(s):
 		return {}
 	var ups := market_upgrades(s)
 	if ups.is_empty():
