@@ -19,7 +19,7 @@ env:
   GODOT: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64
 jobs:
   plan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       tier: ${{ steps.t.outputs.tier }}
     steps:
@@ -30,7 +30,7 @@ jobs:
           else echo "tier=fast" >> $GITHUB_OUTPUT; fi
   files:
     needs: plan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -51,7 +51,7 @@ jobs:
   screens:
     needs: plan
     if: needs.plan.outputs.tier != 'balance'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -69,7 +69,7 @@ jobs:
   gate:
     needs: [files, screens]
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - run: |
           [ "${{ needs.files.result }}" = "success" ] || { echo "files: ${{ needs.files.result }}"; exit 1; }
