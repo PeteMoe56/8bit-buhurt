@@ -473,6 +473,8 @@ func _grade_controls() -> void:
 const DIAL_ROWS: Array[String] = ["scale", "pauses", "corner", "bills", "knocks", "ceiling",
 	"swing", "fall", "pass", "read"]
 const DIAL_FIGHT_FROM := 6
+## A grade other than Custom: its name and one sentence (four lines at most).
+const GRADE_ONE_H := 130.0
 const DIAL_BTN := Vector2(40.0, 22.0)
 const DIAL_ROW_H := 21.0
 
@@ -503,8 +505,13 @@ func _draw_grade() -> void:
 	## printed at x 708, which is 36 pixels PAST its own right edge — the figure
 	## was sitting on the background outside the frame that was meant to contain
 	## it. Measured now rather than built out of offsets that were true once.
+	## THE DIALS ARE CUSTOM'S (1 Oct novice report, Pete approved): first-timers
+	## read "Free swing on arrival", "Missed bullrush, he falls" and "Grabbed or
+	## tripped passing" as things to worry about before they had seen a fight.
+	## Every other grade is its name and one sentence.
+	var custom := g == Grade.G.CUSTOM
 	var box := Rect2(GRADE_TEXT_X, GRADE_Y - 8.0, UiKit.right_edge() - GRADE_TEXT_X,
-		_dial_y(DIAL_ROWS.size() - 1) - GRADE_Y + 30.0)
+		(_dial_y(DIAL_ROWS.size() - 1) - GRADE_Y + 30.0) if custom else GRADE_ONE_H)
 	UiKit.window(self, box, Grade.name_of(g), font)
 	var ix := box.position.x + 18.0
 	var iw := box.size.x - 36.0
@@ -512,6 +519,9 @@ func _draw_grade() -> void:
 	## whole difference between a blurb and a blurb with its tail off the screen.
 	draw_multiline_string(font, Vector2(ix, GRADE_Y + 34.0), Grade.blurb_of(g),
 		HORIZONTAL_ALIGNMENT_LEFT, iw, 15, 4, UiKit.INK)
+	if not custom:
+		UiKit.text(self, font, UiKit.t("Tap a grade to use it. It is saved with the club, and you can change it later."), Vector2(STAT_X, 452.0), 14, UiKit.DIM)
+		return
 
 	## WHAT IT IS WORTH, in the numbers a player can act on, and the multiplier
 	## is deliberately printed. This game puts a two-digit overall next to every

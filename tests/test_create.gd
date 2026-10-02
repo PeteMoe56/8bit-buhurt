@@ -33,6 +33,7 @@ func _initialize() -> void:
 	_test_every_mark_reads()
 	_test_the_contrast_rule_holds()
 	_test_the_workshop_saves()
+	await _test_the_dials_are_customs()
 
 	print("")
 	for n in notes:
@@ -353,3 +354,61 @@ func _season(credits: int) -> Season:
 	s.office.credits = credits
 	s.office.tier = 0
 	return s
+
+
+## THE DIALS ARE CUSTOM'S (1 Oct novice report, Pete approved): every grade but
+## Custom is its name and one sentence — no read-out rows, no − and + — and the
+## sentence is one sentence and fits its window in every language. Custom keeps
+## every row and every dial.
+func _test_the_dials_are_customs() -> void:
+	var bad: Array[String] = []
+	var s := _season(40)
+	Session.season = s
+	Session.create_tab = 2
+	var n: Node = load("res://scenes/Create.tscn").instantiate()
+	root.add_child(n)
+	await process_frame
+	for g in Grade.ORDER:
+		s.set_grade(int(g))
+		n.call("_rebuild")
+		UiKit.ledger_start()
+		n.queue_redraw()
+		await process_frame
+		await process_frame
+		var drawn := UiKit.ledger_stop()
+		var rows := 0
+		for e in drawn:
+			var t := String(e.get("text", ""))
+			if t == UiKit.t("Free swing on arrival") or t == UiKit.t("Missed bullrush, he falls") \
+					or t == UiKit.t("Grabbed or tripped passing") or t == UiKit.t("Opposition strength"):
+				rows += 1
+		var dials := 0
+		for c in n.get_children():
+			for b in c.get_children():
+				if b is Button and ((b as Button).text == "-" or (b as Button).text == "+"):
+					dials += 1
+		var nm := Grade.name_of(int(g))
+		if int(g) == Grade.G.CUSTOM:
+			if rows < 4 or dials < 2 * n.DIAL_ROWS.size():
+				bad.append("%s shows %d rows and %d dials" % [nm, rows, dials])
+		else:
+			if rows > 0 or dials > 0:
+				bad.append("%s shows %d rows and %d dials" % [nm, rows, dials])
+			var en := String(Grade.BLURB[int(g)])
+			if en.count(". ") > 0 or not en.ends_with("."):
+				bad.append("%s is more than one sentence" % nm)
+	n.queue_free()
+	await process_frame
+	Session.create_tab = -1
+	## The sentence fits its window (four lines at 15 px) in every language.
+	var was := TranslationServer.get_locale()
+	var iw: float = UiKit.right_edge() - 288.0 - 36.0
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+		TranslationServer.set_locale(loc)
+		for g in Grade.ORDER:
+			var lines := UiKit.wrap(UiKit.body(), Grade.blurb_of(int(g)), iw, 15)
+			if lines.size() > 4:
+				bad.append("%s %s runs to %d lines" % [loc, Grade.name_of(int(g)), lines.size()])
+	TranslationServer.set_locale(was)
+	_ok(bad.is_empty(), "the dials are Custom's: every other grade is one sentence",
+		"%d grades read off the screen" % Grade.ORDER.size() if bad.is_empty() else "; ".join(bad))
