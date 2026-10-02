@@ -329,10 +329,11 @@ func _coverage() -> void:
 
 func _armorer_card() -> void:
 	var a: Dictionary = season.office.armorer
-	var r := Rect2(24, ARM_Y, CARD_W, 68)
+	## 74 TALL (review, 2 Oct: "Makes up to Rust" sat on the bottom edge at 68).
+	var r := Rect2(24, ARM_Y, CARD_W, 74)
 	UiKit.panel(self, r)
 	UiKit.text(self, font, UiKit.t("ARMORER"), r.position + Vector2(12, 18), 11, UiKit.DIM)
-	UiKit.text_fit(self, font, String(a.get("name", "")), r.position + Vector2(12, 42), 16, UiKit.INK, 130.0)
+	UiKit.text_fit(self, font, String(a.get("name", "")), r.position + Vector2(12, 41), 16, UiKit.INK, 130.0)
 	UiKit.stars(self, r.position + Vector2(150, 30), int(a.get("stars", 1)) * 20, UiKit.YOU, 10.0, 2.0)
 	UiKit.text_fit(self, font, UiKit.t("Makes up to %s") % Armorer.metal_name(Armorer.cap_of(a)),
-		r.position + Vector2(12, 60), 12, UiKit.DIM, CARD_W - 24.0)
+		r.position + Vector2(12, 61), 12, UiKit.DIM, CARD_W - 24.0)

@@ -1359,11 +1359,13 @@ func _draw_corner() -> void:
 	var fw: float = (C_RW - C_FAV_GAP) * 0.5
 	var fh: float = fw * (PLAY_CARD.y / PLAY_CARD.x)
 	var cy: float = C_LY + 6.0 + fh * 2.0 + C_FAV_GAP + 10.0 + 44.0
-	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 32.0), COL_PANEL.lightened(0.08))
-	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 32.0), UiKit.YOU, false, 1.0)
-	UiKit.raw(self, font, Vector2(C_RX + 9, cy + 13), UiKit.t("CHOSEN"),
+	## 36 TALL, TWO LINES AT THE 12 PX FLOOR (review, 2 Oct: "CHOSEN" sat on the
+	## strip's top edge — it was laid out for 7 px and drawn at 12).
+	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 36.0), COL_PANEL.lightened(0.08))
+	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 36.0), UiKit.YOU, false, 1.0)
+	UiKit.raw(self, font, Vector2(C_RX + 9, cy + 15), UiKit.t("CHOSEN"),
 		HORIZONTAL_ALIGNMENT_LEFT, 80, 7, COL_DIM)
-	UiKit.raw(self, font, Vector2(C_RX + 9, cy + 26),
+	UiKit.raw(self, font, Vector2(C_RX + 9, cy + 30),
 		UiKit.fit(font, _chosen_label(), 10, C_RW - 24.0),
 		HORIZONTAL_ALIGNMENT_LEFT, int(C_RW - 24.0), 10,
 		UiKit.YOU if not chosen_call.is_empty() else COL_DIM)
@@ -1754,9 +1756,11 @@ func _draw_wheel(m) -> void:
 			top = at.y - 22.0
 		## A PLATE UNDER THE WORDS, so they read over a sprite or a line.
 		var chance_s := UiKit.t("%d%% chance") % int(round(p_land * 100.0))
+		## MEASURED AT THE SIZE DRAWN (review, 2 Oct: measured at 13 and drawn at
+		## 14, "his balance -9%" ran out of its plate).
 		var tw := maxf(font.get_string_size(Tuning.act_name(act), HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x,
-			maxf(font.get_string_size(chance_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x,
-				font.get_string_size(effect, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x)) + 10.0
+			maxf(font.get_string_size(chance_s, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x,
+				font.get_string_size(effect, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x)) + 10.0
 		var px0 := at.x + (lw - tw) * 0.5 if align == HORIZONTAL_ALIGNMENT_CENTER else (
 			at.x - 5.0 if align == HORIZONTAL_ALIGNMENT_LEFT else at.x + lw - tw + 5.0)
 		draw_rect(Rect2(px0, top - 1.0, tw, 52.0), Color(COL_PANEL, 0.82))

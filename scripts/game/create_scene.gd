@@ -531,7 +531,7 @@ func _draw_grade() -> void:
 		[UiKit.t("Calls from the corner"), "%d" % Grade.pauses_for(g, season.matched_step,
 			season.office.extra_calls(), cg), UiKit.INK],
 		[UiKit.t("Corner, between rounds"), "%ds" % int(Grade.corner_time(g, cg)), UiKit.INK],
-		[UiKit.t("Dues and renewals"), "x%.1f" % bills,
+		[UiKit.t("Dues and renewals"), "x%.2f" % bills,
 			UiKit.DOWN if bills > 1.0 else (UiKit.UP if bills < 1.0 else UiKit.INK)],
 		[UiKit.t("Knocks that land"), "%d%%" % int(round(Grade.knocks_for(g, season.matched_step, cg) * 100.0)),
 			UiKit.UP if Grade.knocks_for(g, season.matched_step, cg) < 0.6
@@ -715,14 +715,14 @@ func _draw_club() -> void:
 ## a padlock.
 ## A colour square inside a button, left of its words, which step right to clear it.
 func _swatched(b: Button, col: Color) -> Button:
-	var sw := ColorRect.new()
-	sw.color = col
-	sw.size = Vector2(16, 16)
-	sw.position = Vector2(10, (b.size.y - 16.0) * 0.5 - 2.0)
-	sw.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	b.add_child(sw)
+	## THE BUTTON'S OWN ICON, so the words are laid out beside it rather than
+	## padded with spaces (review, 2 Oct: "Mark color" ran into its square).
+	var img := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+	img.fill(col)
+	b.icon = ImageTexture.create_from_image(img)
+	b.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	b.add_theme_constant_override("h_separation", 8)
 	b.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	b.text = "    " + b.text
 	return b
 
 
