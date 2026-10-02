@@ -79,6 +79,10 @@ const BAND_NAME: Array[String] = ["Journeyman", "Steady", "Good", "Strong", "Sta
 ## is what a Star should cost, and what "save up for him" means.
 const BAND_SHARE: Array[float] = [0.06, 0.18, 0.37, 0.68, 1.10, 2.60]
 
+## THE FIRST YEAR UP, FEES ARE THIS SHARE OF THE LIST (lane B, 2 Oct 2026).
+## See `SeasonDesk.market_fee`.
+const PROMOTED_FEE_MULT: float = 1.0
+
 
 ## THE FOREIGN MAN, and he exists because the top of the pyramid had nothing to
 ## want. Pete, 15 Sep 2026: *"a rare foreign man that upfront costs are large can

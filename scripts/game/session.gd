@@ -72,6 +72,9 @@ static var guide_topic: int = -1
 static var staff_browse: bool = false
 ## OPEN THE HUB ON MAINTENANCE WITH THE ARMORERS UP (from the staff room).
 static var open_armorers: bool = false
+## OPEN THE FREE AGENTS WITH THIS MAN PICKED (`Market.taken_key`), from the
+## hub's free-agent prompt. "" for none.
+static var market_pick: String = ""
 ## A NEW CAREER'S FIRST STOP (playtest 30 Sep #2: "New game has no Create a
 ## Team"). While set, the Create screen is the club's founding: its Save takes
 ## the player into the season, and its Back does too, keeping what it shows.

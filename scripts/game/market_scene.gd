@@ -32,6 +32,12 @@ func _ready() -> void:
 	font = UiKit.body()
 	Settings.load_once()
 	season = Session.season
+	## FROM THE HUB'S FREE-AGENT PROMPT: the man it named, already picked.
+	if Session.market_pick != "" and season != null:
+		for f in season.market():
+			if Market.taken_key(f) == Session.market_pick:
+				picked = f
+		Session.market_pick = ""
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_build()
@@ -92,16 +98,27 @@ func _build() -> void:
 	ui.add_child(reroll)
 	if picked != null:
 		var fee := season.market_fee(picked)
-		var short: bool = season.office.credits < fee
-		var sign := UiKit.button((UiKit.t("Can't afford %s  ·  %d CC") if short else UiKit.t("Sign %s  ·  %d CC"))
-			% [UiKit.clip(picked.display_name, 12), fee],
+		## GOLD ONLY WHEN IT WILL GO THROUGH (lane B, 2 Oct 2026). Gold on a man
+		## the cap or a full roster refuses was a button a player pressed and was
+		## refused by, again and again: the gold-button novice pressed it 79,154
+		## times. The label says which wall it is.
+		var wall := season.sign_wall(picked)
+		var nm := UiKit.clip(picked.display_name, 12)
+		var label := UiKit.t("Sign %s  ·  %d CC") % [nm, fee]
+		if wall == "fee":
+			label = UiKit.t("Can't afford %s  ·  %d CC") % [nm, fee]
+		elif wall == "full":
+			label = UiKit.t("Books full at %d") % MeleeClub.SQUAD_MAX
+		elif wall == "cap":
+			label = UiKit.t("%s: over the cap") % nm
+		var sign := UiKit.button(label,
 			Vector2(560, UiKit.screen().y - 56), Vector2(376, 44), func():
 				flash = UiKit.said(season.sign_from_market(picked))
 				if flash == "":
 					picked = null
 				Session.autosave()
 				_build())
-		ui.add_child(sign if short else UiKit.primary(sign))
+		ui.add_child(sign if wall != "" else UiKit.primary(sign))
 	queue_redraw()
 
 

@@ -48,6 +48,7 @@ func _initialize() -> void:
 	_test_a_refusal_names_a_door_that_opens()
 	_test_the_shelf_spans_three_divisions()
 	_test_selling_him_on()
+	_test_the_first_year_up()
 
 	print("")
 	for n in notes:
@@ -248,6 +249,71 @@ func _test_a_refusal_names_a_door_that_opens() -> void:
 	_ok(f.years == 0 and s.resign(f) == "",
 		"and a deal run out can be re-signed the next winter",
 		"one year -> out of contract -> re-signed")
+
+## THE FIRST YEAR UP (lane B, 2 Oct 2026). A club just promoted, with money,
+## is asked about the free agents before its first bout; a man signed who
+## outrates one on the eight takes his place; the fee is the promotion share.
+func _test_the_first_year_up() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 31337)
+	while s.club.roster.size() >= MeleeClub.SQUAD_MAX:
+		s.club.roster.pop_back()
+	s.office.credits = 5000
+	while s.office.cap_level < 60:
+		s.office.cap_level += 1
+	var quiet: bool = s.market_ask().is_empty()
+	s.world.history.append({"season": s.world.season - 1, "promoted": true, "tier": 0})
+	var ask: Dictionary = s.market_ask()
+	var low := SeasonDesk.weakest_on_eight(s)
+	_ok((quiet or SeasonDesk.MARKET_ASK_ALWAYS) and not ask.is_empty()
+			and ask["best"].rating() > low.rating() and int(ask["weakest"]) == low.overall(),
+		"a club just promoted, with money, is asked about the free agents",
+		"not promoted: %s; promoted: %d men outrate the weakest (%d)" % [
+			"asked" if not quiet else "quiet", int(ask.get("count", 0)), low.overall()])
+	var best: FighterCard = ask["best"]
+	var base_fee := Market.fee(best.overall(), s.world.player_tier())
+	var want := maxi(1, int(round(float(base_fee) * s.coach.recruit_mult() * Market.PROMOTED_FEE_MULT)))
+	_ok(s.market_fee(best) == want, "the first year up, the fee is the promotion share",
+		"%d CC listed, %d charged (x%.2f)" % [base_fee, s.market_fee(best), Market.PROMOTED_FEE_MULT])
+	var power_before := s.club.power_exact()
+	var key := Market.taken_key(best)
+	var err := s.sign_from_market(best)
+	var signed: FighterCard = null
+	for f in s.club.roster:
+		if Market.taken_key(f) == key or f.display_name == best.display_name:
+			signed = f
+	_ok(err == "" and signed != null and signed.active == SeasonDesk.SIGNING_STARTS
+			and not (SeasonDesk.SIGNING_STARTS and low.active) and s.club.power_exact() >= power_before,
+		"a signing who outrates a man on the eight takes his place",
+		"%s on the eight: %s; %s stood down: %s; power %.1f -> %.1f" % [best.display_name,
+			str(signed != null and signed.active), low.display_name, str(not low.active),
+			power_before, s.club.power_exact()])
+	s.market_warned = s.world.season
+	_ok(s.market_ask().is_empty(), "and the ask is made once a season", "answered for season %d" % s.world.season)
+	## THE GOLD BUTTON'S WALL IS THE SIGNING'S WALL: every man on the list, at
+	## the starting cap, then with the books full and then with no money. A fresh
+	## club for every try, so one signing cannot change the next.
+	var lied: Array[String] = []
+	var tried := 0
+	for stage in 3:
+		for k in 6:
+			var t := Season.new(MeleeRosters.starting_club(), 31337)
+			t.office.credits = 0 if stage == 2 else 5000
+			if stage == 1:
+				t.office.cap_level = 60
+				while t.club.roster.size() < MeleeClub.SQUAD_MAX:
+					t.club.roster.append(t.club.roster[-1].copy())
+			var pool := t.market()
+			if k >= pool.size():
+				continue
+			var f: FighterCard = pool[k]
+			var wall := t.sign_wall(f)
+			var said := t.sign_from_market(f)
+			tried += 1
+			if (wall == "") != (said == ""):
+				lied.append("stage %d %s: wall '%s', signing '%s'" % [stage, f.display_name, wall, said])
+	_ok(lied.is_empty() and tried >= 12, "the market's gold Sign is gold exactly when the signing goes through",
+		"%d tries at the starting cap, full books, no money%s" % [tried, "" if lied.is_empty() else ": " + "; ".join(lied)])
+
 
 func _ok(cond: bool, label: String, detail: String) -> void:
 	checks += 1
