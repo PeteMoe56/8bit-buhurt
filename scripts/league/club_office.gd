@@ -280,7 +280,7 @@ func upgrade(f: int) -> String:
 ## screen now asks the office, like the facilities and the cap already did.
 func build_arena() -> String:
 	if _throttled(SLOT_ARENA):
-		return throttle_word("ground")
+		return throttle_word(UiKit.t("ground"))
 	var err := arena.can_build(tier, credits)
 	if err != "":
 		return err
