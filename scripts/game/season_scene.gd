@@ -353,7 +353,7 @@ func _next_controls() -> void:
 	if tab == Tab.SQUAD and picked != null:
 		return
 	## And a picked man owns the Armorer's (Repair, Upgrade).
-	if tab == Tab.MARKET and qm_pick != null:
+	if tab == Tab.MARKET and SeasonArmorerTab.pick_has_action(self):
 		return
 	## SAYS WHAT IS NEXT (blind review round 2: "Next event" with crossed swords
 	## read as close). "vs ATL" for a fight, "Bye" when there is nobody.

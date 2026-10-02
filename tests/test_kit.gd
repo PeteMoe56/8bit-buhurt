@@ -9,6 +9,7 @@ var notes: Array[String] = []
 
 
 func _initialize() -> void:
+	await process_frame
 	print("\n=== 8-Bit Buhurt — kit and availability ===\n")
 	_test_a_failed_harness_keeps_a_man_off()
 	_test_the_bus_has_a_size()
@@ -16,6 +17,7 @@ func _initialize() -> void:
 	_test_somebody_cannot_get_the_weekend_off()
 	_test_the_three_reasons_are_three_reasons()
 	_test_the_rating_says_what_the_kit_took()
+	await _test_a_man_with_nothing_to_buy_says_why()
 
 	print("")
 	for n in notes:
@@ -314,3 +316,52 @@ func _test_the_rating_says_what_the_kit_took() -> void:
 		bad.append("the line reads '%s'" % line)
 	_ok(bad.is_empty(), "the rating says what the kit took off it",
 		"-%d after wear, given back exactly by repairs, gone after" % dip if bad.is_empty() else "; ".join(bad))
+## A TAPPED MAN WITH NOTHING ON OFFER (novice report 2, the Retro Bowl player:
+## "the row highlights but no repair panel opens, and the hint text and the
+## Fight button disappear"). A new club's one-star armorer works rust only, so a
+## rust harness at its top has no fix and no better metal: the screen must say
+## so in words and leave the way forward where it was.
+func _test_a_man_with_nothing_to_buy_says_why() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 7)
+	Session.season = s
+	## The armorer's tab opens after the first bout.
+	s.skip_event()
+	var f: FighterCard = s.club.active_eight()[0]
+	f.harness = Quartermaster.Grade.BORROWED
+	f.armor = Quartermaster.repair_top(f, s.office.armorer_cap())
+	var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	n.set("ground_open", false)
+	n.set("tab", SeasonScene.Tab.MARKET)
+	n.set("qm_pick", f)
+	n.call("_rebuild")
+	await process_frame
+	_ok(int(n.get("tab")) == SeasonScene.Tab.MARKET, "on the armorer's tab", "tab %d" % int(n.get("tab")))
+	var cap := s.office.armorer_cap()
+	var nxt := Quartermaster.next_grade(f)
+	_ok(Quartermaster.topped_out(f, cap) and (nxt < 0 or nxt > cap),
+		"the case is the one the player hit", "rust at its top, armorer cap %d" % cap)
+	_ok(not SeasonArmorerTab.pick_has_action(n), "nothing on offer is known",
+		"pick_has_action false")
+	var why := SeasonArmorerTab.pick_refusal(n)
+	_ok(why.contains(String(s.office.armorer.get("name", ""))),
+		"the screen says why", "'%s'" % why)
+	var fight := ""
+	var row_y := float(SeasonScene.action_y())
+	for b in _buttons(n):
+		var btn := b as Button
+		if btn.is_visible_in_tree() and btn.has_meta("primary") and absf(btn.position.y - row_y) <= 1.0:
+			fight = btn.text
+	_ok(fight != "", "the way forward stays", "gold button on the action row with him picked: '%s'" % fight)
+	n.queue_free()
+	await process_frame
+
+
+func _buttons(n: Node) -> Array:
+	var out: Array = []
+	for c in n.get_children():
+		if c is Button:
+			out.append(c)
+		out.append_array(_buttons(c))
+	return out

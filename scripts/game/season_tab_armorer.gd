@@ -108,6 +108,11 @@ static func _draw_market(v: SeasonScene) -> void:
 	if v.qm_pick == null:
 		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to fix his kit or buy him a better harness."),
 			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
+	elif not pick_has_action(v):
+		## NOTHING TO SELL HIM, AND IT SAYS WHY (novice report 2: a tapped man lit
+		## up, the hint and the Fight button went, and nothing came in their place).
+		UiKit.text_fit(v, v.font, pick_refusal(v), Vector2(24, SeasonScene.action_y() - 14.0), 14,
+			UiKit.INK, UiKit.span())
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
 		var y: float = row["y"]
@@ -352,3 +357,25 @@ static func _any_next(v: SeasonScene, cap: int) -> bool:
 		if n >= 0 and n <= cap:
 			return true
 	return false
+
+
+## WHETHER THE PICKED MAN HAS A BUTTON: a fix, or a better harness this armorer
+## can make. Without one the row below is empty and the Fight button stays.
+static func pick_has_action(v: SeasonScene) -> bool:
+	if v.qm_pick == null:
+		return false
+	var cap := v.season.office.armorer_cap()
+	if not Quartermaster.topped_out(v.qm_pick, cap):
+		return true
+	var nxt := Quartermaster.next_grade(v.qm_pick)
+	return nxt >= 0 and nxt <= cap
+
+
+## WHY THERE IS NOTHING TO DO FOR HIM, in the office's own refusal words.
+static func pick_refusal(v: SeasonScene) -> String:
+	var o := v.season.office
+	var f := v.qm_pick
+	if Quartermaster.next_grade(f) < 0:
+		return UiKit.t("%s's harness is as good as it gets.") % f.display_name
+	return UiKit.t("%s works up to %s. A better armorer makes better metal.") % [
+		String(o.armorer.get("name", "")), Armorer.metal_name(o.armorer_cap())]
