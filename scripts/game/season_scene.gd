@@ -117,6 +117,8 @@ var club_menu_open := false
 var training_open := false
 ## WHICH "?" IS OPEN on the Upgrades tab, or "".
 var help_key := ""
+## THE GROUND PROMPT, mid-season (Pete, 1 Oct 2026). See SeasonDesk.ground_ask.
+var ground_open := false
 ## THE FULL BOOKS are open on the Management tab (its Finances button).
 var fin_full := false
 ## THE ARMORERS FOR HIRE are open on the Maintenance tab.
@@ -154,6 +156,8 @@ func _ready() -> void:
 			UiKit.t(" and %d more.") % (season.last_emergency.size() - 1)
 				if season.last_emergency.size() > 1 else ".")
 		season.last_emergency = []
+	if not season.ground_ask().is_empty():
+		ground_open = true
 	if flash == "":
 		flash = season.summer_warning()
 	if flash == "":
@@ -169,6 +173,9 @@ func _ready() -> void:
 ## BACK (Android back / Esc), via AppLife. A modal closes first; then back to
 ## the Club tab; then out to the title, the same as Menu.
 func go_back() -> bool:
+	if ground_open:
+		SeasonClubTab.close_ground(self)
+		return true
 	if club_menu_open or training_open or help_key != "" or armorer_open:
 		club_menu_open = false
 		training_open = false
@@ -249,6 +256,10 @@ func _rebuild() -> void:
 		return
 	if help_key != "":
 		SeasonClubhouseTab._help_controls(self)
+		queue_redraw()
+		return
+	if ground_open:
+		SeasonClubTab._ground_controls(self)
 		queue_redraw()
 		return
 	if armorer_open:
@@ -376,6 +387,8 @@ func _sim_controls() -> void:
 			flash = UiKit.t("Event simulated.") if season.last_emergency.is_empty() \
 				else "Event simulated. " + season.last_emergency[0] + "."
 			var warn := season.summer_warning()
+			if not season.ground_ask().is_empty():
+				ground_open = true
 			if warn != "":
 				flash = warn
 			elif _levels_note() != "":
@@ -582,6 +595,9 @@ func _draw() -> void:
 		return
 	if help_key != "":
 		SeasonClubhouseTab._draw_help(self)
+		return
+	if ground_open:
+		SeasonClubTab._draw_ground(self)
 		return
 	if armorer_open:
 		SeasonArmorerTab._draw_armorers(self)

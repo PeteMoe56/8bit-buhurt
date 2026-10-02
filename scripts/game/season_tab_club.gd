@@ -185,6 +185,23 @@ static func _club_controls(v: SeasonScene) -> void:
 				v.flash = UiKit.t("Staying in the %s another year.") % String(pt["from"])
 				Session.autosave()
 				v._rebuild(), "shield"))
+		## BUILD NOW, AT THE GATE (Pete, 1 Oct 2026). The ground the division above
+		## needs, every missing level at once, and then the place is taken — the
+		## one tap a club that has just won it wants. Gold, because it is the step.
+		var gap: Dictionary = v.season.ground_gap()
+		if not gap.is_empty():
+			v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Build now · %d CC") % int(gap["total"]),
+				Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0), SeasonScene.action_y()),
+				Vector2(SeasonScene.NEXT_W, 46), func():
+					var err: String = v.season.build_for_promotion()
+					if err != "":
+						v.flash = UiKit.said(err)
+					else:
+						err = v.season.answer_promotion(true)
+						v.flash = UiKit.said(err) if err != "" else UiKit.t("%s built. Up to the %s.") % [
+							UiKit.t(String(gap["need"])), String(pt["to"])]
+					Session.autosave()
+					v._rebuild(), "hall")))
 		return
 
 	if block == "bid":
@@ -813,3 +830,65 @@ static func _table(v: SeasonScene) -> void:
 			int(r["played"]), int(r["won"]), int(r["drawn"]), int(r["lost"]),
 			League.round_diff(r), League.margin_diff(r), int(r["points"])],
 			Vector2(stat_x, y), 14, col)
+
+
+## ------------------------------------------------------------ the ground
+## MID-SEASON, THE GROUND THE NEXT DIVISION NEEDS (Pete, 1 Oct 2026: "make a
+## prompt about mid-season about needing the next arena"). Once a season, from
+## halfway, to a club in the playoff places on a ground the division above
+## would refuse. A build button for the next step (one a week, as ever) and
+## Later. Built all the way, it closes itself.
+static func _ground_card() -> Rect2:
+	var sz := Vector2(560.0, 300.0)
+	return Rect2(Vector2(floorf((UiKit.screen().x - sz.x) * 0.5), 120.0), sz)
+
+
+static func close_ground(v: SeasonScene) -> void:
+	v.ground_open = false
+	v.season.ground_warned = v.season.world.season
+	Session.autosave()
+	v._rebuild()
+
+
+static func _ground_controls(v: SeasonScene) -> void:
+	var card := _ground_card()
+	var gap: Dictionary = v.season.ground_gap()
+	if gap.is_empty():
+		close_ground(v)
+		return
+	var o := v.season.office
+	var b := UiKit.button(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])), int(gap["next_cost"])],
+		Vector2(card.end.x - 24.0 - 300.0, card.end.y - 62.0), Vector2(300, 44), func():
+			var err := o.build_arena()
+			v.flash = UiKit.said(err) if err != "" else UiKit.t("Built. %s.") % o.arena.arena_name()
+			Session.autosave()
+			if v.season.ground_gap().is_empty():
+				close_ground(v)
+			else:
+				v._rebuild(), "hall")
+	var ok := o.arena.can_build(o.tier, o.credits) == "" and not o.done_this_week(ClubOffice.SLOT_ARENA)
+	v.ui.add_child(UiKit.primary(b) if ok else b)
+	v.ui.add_child(UiKit.button(UiKit.t("Later"), Vector2(card.position.x + 24.0, card.end.y - 62.0),
+		Vector2(150, 44), func(): close_ground(v)))
+
+
+static func _draw_ground(v: SeasonScene) -> void:
+	var card := _ground_card()
+	var gap: Dictionary = v.season.ground_gap()
+	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(v, card)
+	if gap.is_empty():
+		return
+	var w := card.size.x - 48.0
+	UiKit.text_fit(v, v.font, UiKit.t("THE %s NEEDS A %s") % [String(gap["to"]).to_upper(),
+		UiKit.t(String(gap["need"])).to_upper()], card.position + Vector2(24, 40), 18, UiKit.YOU, w)
+	UiKit.para(v, v.font, UiKit.t("You are in the playoff places. If you go up, the %s won't fight in a %s.") % [
+		String(gap["to"]), UiKit.t(String(gap["have"]))], card.position + Vector2(24, 76), 15, UiKit.INK, w, 20.0, 2)
+	var parts: Array = []
+	for st in gap["steps"]:
+		parts.append(UiKit.t(String(st)))
+	UiKit.para(v, v.font, UiKit.t("Still to build: %s. %d CC in all, one build a week.") % [
+		" → ".join(parts), int(gap["total"])], card.position + Vector2(24, 132), 15, UiKit.DIM, w, 20.0, 2)
+	UiKit.text_fit(v, v.font, UiKit.t("You hold %d CC.") % v.season.office.credits,
+		card.position + Vector2(24, 188), 15,
+		UiKit.UP if v.season.office.credits >= int(gap["next_cost"]) else UiKit.DOWN, w)

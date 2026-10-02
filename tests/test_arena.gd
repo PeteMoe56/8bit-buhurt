@@ -39,6 +39,7 @@ func _initialize() -> void:
 	_test_the_badge_improves_with_the_ground()
 	_test_the_arena_saves()
 	_test_the_art_spec_matches_the_code()
+	_test_the_ground_is_asked_for_in_time()
 
 	print("")
 	for n in notes:
@@ -477,3 +478,28 @@ func _test_the_art_spec_matches_the_code() -> void:
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "the art spec matches the code",
 		"every slot the game looks for is named in docs/ART.md at its real path and size")
+
+
+## THE GROUND IS ASKED FOR IN TIME (Pete, 1 Oct 2026). Every novice in the
+## first test won the Backyard and stayed there: the ground came up only when
+## promotion was refused. Mid-season the club in the playoff places is told what
+## is still to build; at the gate one tap builds it all.
+func _test_the_ground_is_asked_for_in_time() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 5150)
+	var gap := s.ground_gap()
+	_ok(gap.get("steps", []) == ["Club gym", "Fenced ground"] and int(gap.get("total", 0)) == 18,
+		"a Backyard club on a back field is told the whole road to the State League",
+		"steps %s, %d CC" % [str(gap.get("steps", [])), int(gap.get("total", 0))])
+	_ok(s.ground_ask().is_empty(), "and not on the first day of the season",
+		"asked before halfway: %s" % str(not s.ground_ask().is_empty()))
+	s.office.credits = 10
+	var err := s.build_for_promotion()
+	_ok(err != "" and s.office.arena.level == 0, "Build now refuses a purse that cannot pay, and says why", err)
+	s.office.credits = 30
+	err = s.build_for_promotion()
+	_ok(err == "" and s.office.arena.fit_for(1) and s.office.credits == 12 and s.ground_gap().is_empty(),
+		"Build now puts down every level the division above needs, at their full price",
+		"%s, %d CC left" % [s.office.arena.arena_name(), s.office.credits])
+	s.ground_warned = s.world.season
+	_ok(s.ground_ask().is_empty(), "and once it has been said, or built, it is not said again",
+		"ground fit, warned season %d" % s.ground_warned)

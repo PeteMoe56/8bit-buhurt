@@ -933,6 +933,25 @@ func answer_promotion(take: bool) -> String:
 	return SeasonDesk.answer_promotion(self, take)
 
 
+## The season the mid-season ground prompt was last shown (-1 never).
+var ground_warned: int = -1
+
+
+## -> SeasonDesk (season_desk.gd)
+func ground_gap() -> Dictionary:
+	return SeasonDesk.ground_gap(self)
+
+
+## -> SeasonDesk (season_desk.gd)
+func ground_ask() -> Dictionary:
+	return SeasonDesk.ground_ask(self)
+
+
+## -> SeasonDesk (season_desk.gd)
+func build_for_promotion() -> String:
+	return SeasonDesk.build_for_promotion(self)
+
+
 
 
 ## What he said, for the summer report. `true` is went up, `false` is stayed.

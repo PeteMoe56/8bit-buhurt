@@ -88,6 +88,73 @@ static func promotion_terms(s: Season) -> Dictionary:
 
 
 
+## THE GROUND THE NEXT DIVISION NEEDS, AND WHAT IS LEFT TO BUILD (Pete, 1 Oct
+## 2026: "make a prompt about mid-season about needing the next arena. Then a
+## 'Build Now' prompt at the promotion gate"). Every novice in the 1 Oct test
+## won the Backyard and stayed there, because the only word about the ground
+## came at the moment promotion was refused. {} when the ground is already fit
+## or there is nowhere to go.
+static func ground_gap(s: Season) -> Dictionary:
+	var t := s.world.player_tier()
+	if t >= League.TIERS.size() - 1:
+		return {}
+	var up := t + 1
+	var a := s.office.arena
+	if a.fit_for(up):
+		return {}
+	var need := Arena.level_for_tier(up)
+	var steps: Array = []
+	var total := 0
+	for lv in range(a.level + 1, need + 1):
+		steps.append(String(Arena.LEVELS[lv]["name"]))
+		total += int(Arena.LEVELS[lv]["cost"])
+	return {"to": League.tier_name(up), "have": a.arena_name(), "need": Arena.arena_name_of(need),
+		"steps": steps, "total": total, "next": String(Arena.LEVELS[a.level + 1]["name"]),
+		"next_cost": int(Arena.LEVELS[a.level + 1]["cost"])}
+
+
+## SAID ONCE A SEASON, from halfway through the league, to a club in the
+## playoff places whose ground the division above would refuse.
+static func ground_ask(s: Season) -> Dictionary:
+	if s.ground_warned == s.world.season or s.season_complete():
+		return {}
+	var gap := ground_gap(s)
+	if gap.is_empty():
+		return {}
+	var t := s.world.player_tier()
+	var days := int(League.TIERS[t]["clubs"]) - 1
+	if int(s.world.days_played.get(t, 0)) * 2 < days:
+		return {}
+	if s.world.player_position() > PLAYOFF_PLACES:
+		return {}
+	return gap
+
+
+const PLAYOFF_PLACES := 4
+
+
+## BUILD NOW, at the gate: every level still missing, in one go. The one-a-week
+## rule is for a season in progress; at the gate the season is over and the
+## club is choosing between the ground and another year where it is.
+static func build_for_promotion(s: Season) -> String:
+	var gap := ground_gap(s)
+	if gap.is_empty():
+		return ""
+	if s.office.credits < int(gap["total"]):
+		return UiKit.t("The %s costs %d CC from here and you have %d.") % [
+			UiKit.t(String(gap["need"])), int(gap["total"]), s.office.credits]
+	var t := s.world.player_tier()
+	while not s.office.arena.fit_for(t + 1):
+		var err := s.office.arena.can_build(s.office.tier, s.office.credits)
+		if err != "":
+			return err
+		s.office.spend(s.office.arena.next_cost(), ClubOffice.LINE_GROUND)
+		s.office.arena.level += 1
+		s.office.arena.built()
+	s.sync_power()
+	return ""
+
+
 ## Take it or leave it. Returns "" like every other verb here.
 static func answer_promotion(s: Season, take: bool) -> String:
 	if not s.promotion_place():

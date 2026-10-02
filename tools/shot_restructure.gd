@@ -38,6 +38,7 @@ func _initialize() -> void:
 		["cap_help", "Season", func(n): n.set("tab", 3); n.set("help_key", "cap"); n.call("_rebuild"), false],
 		["menu", "Season", func(n): n.set("club_menu_open", true); n.call("_rebuild"), false],
 		["management", "Season", func(n): n.set("tab", 4); n.call("_rebuild"), false],
+		["ground", "Season", func(n): n.set("ground_open", true); n.call("_rebuild"), false],
 	]
 
 

@@ -505,6 +505,7 @@ static func to_dict(season: Season) -> Dictionary:
 		## again after a reload — and the world forgot the answer it had acted on.
 		"stay_down": season.world.stay_down,
 		"promotion_answered": season.promotion_answered,
+		"ground_warned": season.ground_warned,
 		"bout_live": season.bout_live.duplicate(),
 	}
 
@@ -618,6 +619,7 @@ static func from_dict(d: Dictionary) -> Season:
 		s.dilemma_recent.append(String(k))
 	s.world.stay_down = bool(d.get("stay_down", false))
 	s.promotion_answered = bool(d.get("promotion_answered", false))
+	s.ground_warned = int(d.get("ground_warned", -1))
 	s.bout_live = (d.get("bout_live", {}) as Dictionary).duplicate()
 	s.market_taken.clear()
 	for k in d.get("market_taken", []):
