@@ -122,6 +122,7 @@ func _initialize() -> void:
 	_ok(order_bad.is_empty(), "and the season's own order is bid, cup, send-off, dilemma, promotion",
 		"every blocked state checked" if order_bad.is_empty() else "; ".join(order_bad.slice(0, 4)))
 	await _gold_step()
+	await _bid_card_button()
 	print("")
 	if failures.is_empty():
 		print("THE QUEUE HOLDS (%d checks)\n" % checks)
@@ -217,6 +218,53 @@ func _gold_step() -> void:
 		s.office.credits = purse
 	_ok(bad.is_empty(), "the gold button is the next real step: Fix kit, Build <next>, else the fight",
 		"kit, ground, short purse and a pressed Build read off the hub" if bad.is_empty() else "; ".join(bad))
+
+
+## THE BID CARD HAS A REAL BUTTON (1 Oct novice report, Pete approved): the gold
+## words "Choose at the Arena >" read as a caption. A framed, visible button now
+## sits inside the card, clear of its words, and leads to the Arena.
+func _bid_card_button() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	var g := 0
+	while g < 20 and s.blocked_by() != "bid":
+		g += 1
+		s.skip_event()
+	var bad: Array[String] = []
+	if s.blocked_by() != "bid":
+		bad.append("no bid on the table to look at")
+	else:
+		Session.season = s
+		var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
+		root.add_child(n)
+		await process_frame
+		n.set("ground_open", false)
+		n.set("tab", 0)
+		n.call("_rebuild")
+		await process_frame
+		var card := Rect2(24, SeasonScene.CONTENT_Y + 20.0, SeasonScene.fixture_w(), SeasonScene.FIXTURE_H)
+		var found: Button = null
+		for b in _buttons(n):
+			if (b as Button).has_meta("bid_card"):
+				found = b
+		if found == null:
+			bad.append("no button on the bid card")
+		else:
+			var r := found.get_global_rect()
+			if found.flat or not found.is_visible_in_tree():
+				bad.append("the card's button is flat or hidden")
+			if found.text != UiKit.t("Choose at the Arena"):
+				bad.append("it says '%s'" % found.text)
+			if not card.encloses(r):
+				bad.append("it sits outside the card: %s in %s" % [r, card])
+			## Below the line of words above it (baseline CONTENT_Y + 20 + 70).
+			if r.position.y < card.position.y + 74.0:
+				bad.append("it overlaps the card's words (top %.0f)" % r.position.y)
+			if found.pressed.get_connections().is_empty():
+				bad.append("pressing it does nothing")
+		n.queue_free()
+		await process_frame
+	_ok(bad.is_empty(), "the bid card has a real button to the Arena",
+		"framed, inside the card, under its words" if bad.is_empty() else "; ".join(bad))
 
 
 ## The button the club tab offers as the way forward: the gold (primary) one on
