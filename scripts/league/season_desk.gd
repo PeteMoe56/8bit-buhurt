@@ -171,9 +171,7 @@ static func market_upgrades(s: Season) -> Array:
 		return out
 	var spare := s.office.credits - s.office.summer_bill()
 	for f in s.market():
-		if f.rating() <= low.rating() or s.market_fee(f) > spare:
-			continue
-		if ClubOffice.wage_bill(s.club) + s.market_wage(f) > s.office.cap():
+		if f.rating() <= low.rating() or s.market_fee(f) > spare or sign_wall(s, f) != "":
 			continue
 		out.append(f)
 	out.sort_custom(func(a, b): return a.rating() > b.rating())
@@ -528,6 +526,19 @@ static func market_wage(s: Season, f: FighterCard) -> int:
 ## number, because "you cannot afford him" without a figure is a screen telling
 ## you to go and do arithmetic somewhere else.
 const SIGNING_STARTS := true
+
+
+## WHICH WALL A SIGNING WOULD HIT, in the order `sign_from_market` checks them:
+## "fee", "cap", "full", or "" when it would go through. The market's gold
+## button reads this, so it is never gold on a man the signing refuses.
+static func sign_wall(s: Season, f: FighterCard) -> String:
+	if s.office.credits < s.market_fee(f):
+		return "fee"
+	if ClubOffice.wage_bill(s.club) + s.market_wage(f) > s.office.cap():
+		return "cap"
+	if s.club.roster.size() >= MeleeClub.SQUAD_MAX:
+		return "full"
+	return ""
 
 
 static func sign_from_market(s: Season, f: FighterCard) -> String:

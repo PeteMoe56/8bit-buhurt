@@ -1293,6 +1293,11 @@ func market_wage(f: FighterCard) -> int:
 
 
 ## -> SeasonDesk (season_desk.gd)
+func sign_wall(f: FighterCard) -> String:
+	return SeasonDesk.sign_wall(self, f)
+
+
+## -> SeasonDesk (season_desk.gd)
 func sign_from_market(f: FighterCard) -> String:
 	return SeasonDesk.sign_from_market(self, f)
 

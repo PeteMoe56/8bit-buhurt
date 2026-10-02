@@ -289,6 +289,30 @@ func _test_the_first_year_up() -> void:
 			power_before, s.club.power_exact()])
 	s.market_warned = s.world.season
 	_ok(s.market_ask().is_empty(), "and the ask is made once a season", "answered for season %d" % s.world.season)
+	## THE GOLD BUTTON'S WALL IS THE SIGNING'S WALL: every man on the list, at
+	## the starting cap, then with the books full and then with no money. A fresh
+	## club for every try, so one signing cannot change the next.
+	var lied: Array[String] = []
+	var tried := 0
+	for stage in 3:
+		for k in 6:
+			var t := Season.new(MeleeRosters.starting_club(), 31337)
+			t.office.credits = 0 if stage == 2 else 5000
+			if stage == 1:
+				t.office.cap_level = 60
+				while t.club.roster.size() < MeleeClub.SQUAD_MAX:
+					t.club.roster.append(t.club.roster[-1].copy())
+			var pool := t.market()
+			if k >= pool.size():
+				continue
+			var f: FighterCard = pool[k]
+			var wall := t.sign_wall(f)
+			var said := t.sign_from_market(f)
+			tried += 1
+			if (wall == "") != (said == ""):
+				lied.append("stage %d %s: wall '%s', signing '%s'" % [stage, f.display_name, wall, said])
+	_ok(lied.is_empty() and tried >= 12, "the market's gold Sign is gold exactly when the signing goes through",
+		"%d tries at the starting cap, full books, no money%s" % [tried, "" if lied.is_empty() else ": " + "; ".join(lied)])
 
 
 func _ok(cond: bool, label: String, detail: String) -> void:
