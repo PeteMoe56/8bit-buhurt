@@ -82,6 +82,7 @@ func _initialize() -> void:
 	_test_a_button_runs_what_it_was_given()
 	await _test_every_button_is_wired_to_something()
 	await _test_the_sub_popup_is_not_a_pile()
+	await _test_the_fighter_flash_is_not_under_the_level_row()
 
 	print("")
 	for n in notes:
@@ -279,6 +280,34 @@ func _test_the_sub_popup_is_not_a_pile() -> void:
 	_ok(open_word == "" and seen_subs > 0 and live_subs == 0 and dead_word != "",
 		"with the swaps spent every SUB box is dead and the corner says why",
 		"before: '%s'; after: %d of %d live, '%s'" % [open_word, live_subs, seen_subs, dead_word])
+	n.queue_free()
+	await process_frame
+
+
+## WHAT A +3 TAP SAID WAS UNDER THE +3 ROW (novice report 2: "Calder put a
+## level into strength" and the "more xp" refusal were drawn at the foot of the
+## page, behind the buttons a man with a level waiting grows across it).
+func _test_the_fighter_flash_is_not_under_the_level_row() -> void:
+	_world()
+	var n: Node = await _open("res://scenes/Fighter.tscn")
+	if n == null:
+		_ok(false, "the fighter page opens", "it did not")
+		return
+	var man = n.get("man")
+	n.set("flash", "Calder put a level into strength.")
+	n.queue_redraw()
+	await process_frame
+	var y: float = n.call("flash_y")
+	var band := Rect2(24.0, y - 14.0, UiKit.span(), 18.0)
+	var found: Array = []
+	_controls(n, found)
+	var under: Array[String] = []
+	for c in found:
+		if (c["rect"] as Rect2).intersects(band):
+			under.append(String(c["name"]))
+	_ok(Career.can_place(man) and under.is_empty(),
+		"with a level waiting, the fighter page's flash line is clear of every control",
+		"level row up: %s; flash at y %d; under: %s" % [str(Career.can_place(man)), int(y), ", ".join(under)])
 	n.queue_free()
 	await process_frame
 
