@@ -492,6 +492,23 @@ func _test_the_ground_is_asked_for_in_time() -> void:
 		"steps %s, %d CC" % [str(gap.get("steps", [])), int(gap.get("total", 0))])
 	_ok(s.ground_ask().is_empty(), "and not on the first day of the season",
 		"asked before halfway: %s" % str(not s.ground_ask().is_empty()))
+	## THE CARD SAYS WHY A BUILD CANNOT GO AHEAD (novice report 2): the flash
+	## bar is under the card's veil, so a refusal there was a dead button.
+	var s2 := Season.new(MeleeRosters.starting_club(), 5151)
+	s2.office.credits = 40
+	s2.office.fixture_week = true
+	_ok(SeasonClubTab.ground_block(s2) == "" and s2.office.build_arena() == "",
+		"the card's first build goes ahead", s2.office.arena.arena_name())
+	var why := SeasonClubTab.ground_block(s2)
+	var said := s2.office.build_arena()
+	_ok(why != "" and why == said, "the second build that week is refused on the card in the office's own words",
+		"card '%s', office '%s'" % [why, said])
+	s2.office.built_this_week.clear()
+	s2.office.credits = 0
+	why = SeasonClubTab.ground_block(s2)
+	said = s2.office.build_arena()
+	_ok(why != "" and why == said, "and a purse that cannot pay is told so on the card",
+		"card '%s'" % why)
 	s.office.credits = 10
 	var err := s.build_for_promotion()
 	_ok(err != "" and s.office.arena.level == 0, "Build now refuses a purse that cannot pay, and says why", err)

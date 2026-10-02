@@ -866,10 +866,19 @@ static func _ground_controls(v: SeasonScene) -> void:
 				close_ground(v)
 			else:
 				v._rebuild(), "hall")
-	var ok := o.arena.can_build(o.tier, o.credits) == "" and not o.done_this_week(ClubOffice.SLOT_ARENA)
-	v.ui.add_child(UiKit.primary(b) if ok else b)
+	v.ui.add_child(UiKit.primary(b) if ground_block(v.season) == "" else b)
 	v.ui.add_child(UiKit.button(UiKit.t("Later"), Vector2(card.position.x + 24.0, card.end.y - 62.0),
 		Vector2(150, 44), func(): close_ground(v)))
+
+
+## WHY THE BUILD CANNOT GO AHEAD THIS WEEK, or "" when it can. Said on the card:
+## the flash bar is under the card's veil (novice report 2: a gym built from the
+## card, then "Build Fenced ground" tapped and nothing seemed to happen).
+static func ground_block(s: Season) -> String:
+	var o := s.office
+	if o.done_this_week(ClubOffice.SLOT_ARENA):
+		return ClubOffice.throttle_word(UiKit.t("ground"))
+	return o.arena.can_build(o.tier, o.credits)
 
 
 static func _draw_ground(v: SeasonScene) -> void:
@@ -892,3 +901,6 @@ static func _draw_ground(v: SeasonScene) -> void:
 	UiKit.text_fit(v, v.font, UiKit.t("You hold %d CC.") % v.season.office.credits,
 		card.position + Vector2(24, 188), 15,
 		UiKit.UP if v.season.office.credits >= int(gap["next_cost"]) else UiKit.DOWN, w)
+	var why := ground_block(v.season)
+	if why != "":
+		UiKit.para(v, v.font, why, card.position + Vector2(24, 210), 13, UiKit.DOWN, w, 17.0, 2)
