@@ -252,9 +252,10 @@ func _new_bout(seed_value: int) -> void:
 	## nudge. `Juice.down` plays the sound itself, so there is one call here and
 	## not a sound call that somebody later forgets to keep in step.
 	sim.fighter_downed.connect(_on_downed)
-	sim.action_resolved.connect(func(_i, _a, _t, ok):
+	sim.action_resolved.connect(func(i, a, _t, ok):
 		if ok and not skipping:
-			Audio.play("clash"))
+			Audio.play("clash")
+		_on_call_resolved(i, a, ok))
 	sim.bout_finished.connect(_on_bout_finished)
 	screen = Screen.PREFIGHT
 	accum = 0.0
@@ -335,6 +336,10 @@ func _fit_width() -> void:
 func _process(delta: float) -> void:
 	_fit_width()
 	marshal_t = maxf(0.0, marshal_t - delta)
+	for k in call_words.keys():
+		call_words[k]["t"] = float(call_words[k]["t"]) - delta
+		if float(call_words[k]["t"]) <= 0.0 or screen != Screen.FIGHT:
+			call_words.erase(k)
 	## THE THREE THAT DO NOT TICK. The splash joins the report and the pre-fight
 	## panel: the sim must not advance behind a screen the player has not
 	## answered, and the corner branch below would otherwise drag him straight
@@ -514,6 +519,50 @@ func _sync_controls() -> void:
 ## is a count that goes wrong the first time somebody reloads a bout mid-fight —
 ## and this game reloads bouts mid-fight.
 var skipping: bool = false
+
+
+## WHAT A WHEEL CALL CAME TO, over the man who made it (1 Oct novice report,
+## Pete approved): first-timers picked a side of the wheel and could not tell
+## whether it had worked. A word for about a second — DOWN!, held, missed,
+## free, hit — and only for a call the player picked (`acting_for_player`), so
+## the nine men nobody sent stay quiet. A later resolve in the same moment (the
+## chosen act after its free swing) replaces the earlier word.
+const CALL_WORD_S := 1.0
+var call_words: Dictionary = {}
+
+
+static func call_word(act: int, ok: bool) -> String:
+	match act:
+		Tuning.Act.BULLRUSH, Tuning.Act.TAKEDOWN:
+			return UiKit.t("DOWN!") if ok else UiKit.t("missed")
+		Tuning.Act.GRAPPLE, Tuning.Act.HOLD:
+			return UiKit.t("held") if ok else UiKit.t("missed")
+		Tuning.Act.ESCAPE, Tuning.Act.BREAK:
+			return UiKit.t("free") if ok else UiKit.t("missed")
+		Tuning.Act.HIT:
+			return UiKit.t("hit") if ok else UiKit.t("missed")
+	return ""
+
+
+static func call_word_color(act: int, ok: bool) -> Color:
+	if not ok:
+		return UiKit.DOWN
+	if act == Tuning.Act.BULLRUSH or act == Tuning.Act.TAKEDOWN:
+		return UiKit.YOU
+	return UiKit.UP if act == Tuning.Act.ESCAPE or act == Tuning.Act.BREAK else UiKit.INK
+
+
+func _on_call_resolved(idx: int, act: int, ok: bool) -> void:
+	if skipping or idx < 0 or idx >= sim.men.size() or not sim.men[idx].acting_for_player:
+		return
+	call_words[idx] = {"text": call_word(act, ok), "col": call_word_color(act, ok), "t": CALL_WORD_S}
+
+
+func _draw_call_words() -> void:
+	for idx in call_words.keys():
+		var w: Dictionary = call_words[idx]
+		var at := _to_screen(sim.men[int(idx)].pos) + Vector2(-60.0, -30.0)
+		UiKit.raw(self, font, at, String(w["text"]), HORIZONTAL_ALIGNMENT_CENTER, 120, 16, w["col"])
 
 
 func _on_downed(idx: int, _by: int) -> void:
@@ -919,6 +968,8 @@ func _draw() -> void:
 	_draw_hint()
 	_draw_calls()
 	_draw_held()
+	if screen == Screen.FIGHT:
+		_draw_call_words()
 	for m in sim.men:
 		if m.prompt != null and m.team == 0 and m.idx != wheel_man:
 			_draw_prompt(m)
@@ -1357,7 +1408,7 @@ func _draw_corner() -> void:
 	UiKit.raw(self, font, Vector2(C_RX, C_LY - 4), UiKit.t("PLAYBOOK"),
 		HORIZONTAL_ALIGNMENT_LEFT, 200, 10, COL_DIM)
 	var fw: float = (C_RW - C_FAV_GAP) * 0.5
-	var fh: float = fw * (PLAY_CARD.y / PLAY_CARD.x)
+	var fh: float = fw * FAV_RATIO
 	var cy: float = C_LY + 6.0 + fh * 2.0 + C_FAV_GAP + 10.0 + 44.0
 	## 36 TALL, TWO LINES AT THE 12 PX FLOOR (review, 2 Oct: "CHOSEN" sat on the
 	## strip's top edge — it was laid out for 7 px and drawn at 12).
@@ -2097,6 +2148,12 @@ func _draw_held() -> void:
 ## test runner turns them off (`Settings.tips_enabled`).
 ## Literal `t()` calls, so the string extractor sees them.
 static func _tip_words(key: String) -> Array[String]:
+	## THE WHEEL, the first time it opens (1 Oct novice report, Pete approved):
+	## first-timers did not know the sides were choices, that the timer picks
+	## for them, or what "N of M choices picked" was counting.
+	if key == "wheel":
+		return [UiKit.t("A choice"),
+			UiKit.t("Your man has reached an enemy. Tap a side of the wheel to choose what he does; each side shows its chance. Leave it and he chooses himself. HOLD stops the fight so you can give an order. \"N of M choices picked\" counts the choices you made.")]
 	if key == "corner":
 		return [UiKit.t("The corner"),
 			UiKit.t("Swap a tired man for one from the bench and change the plan. When the clock runs out they go back in.")]
@@ -2108,7 +2165,9 @@ func _maybe_tip() -> void:
 	if tip != "" or Session.season == null:
 		return
 	var key := ""
-	if screen == Screen.FIGHT and sim.phase == MeleeSim.Phase.LIVE:
+	if screen == Screen.FIGHT and wheel_man != -1 and Settings.tip_due("wheel"):
+		key = "wheel"
+	elif screen == Screen.FIGHT and sim.phase == MeleeSim.Phase.LIVE:
 		key = "route"
 	elif screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER:
 		key = "corner"
@@ -2122,7 +2181,9 @@ func _show_tip(key: String) -> void:
 	tip_layer = CanvasLayer.new()
 	tip_layer.layer = 20
 	add_child(tip_layer)
-	var box := Rect2(SCREEN.x * 0.5 - 250.0 + off_x, 140.0 + off_y, 500.0, 196.0)
+	## The wheel's card has five lines to say, the others three.
+	var tall := 76.0 if key == "wheel" else 0.0
+	var box := Rect2(SCREEN.x * 0.5 - 250.0 + off_x, 140.0 - tall * 0.5 + off_y, 500.0, 196.0 + tall)
 	## A full-screen catch, so a tap meant for the tip never lands on the fight.
 	var veil := Control.new()
 	veil.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -2133,7 +2194,7 @@ func _show_tip(key: String) -> void:
 		var words := _tip_words(key)
 		UiKit.text(veil, font, words[0], box.position + Vector2(24, 40), 20, UiKit.YOU)
 		UiKit.para(veil, font, words[1], box.position + Vector2(24, 72), 14,
-			UiKit.INK, box.size.x - 48.0, 20.0, 3))
+			UiKit.INK, box.size.x - 48.0, 20.0, 3 if tall <= 0.0 else 6))
 	tip_layer.add_child(veil)
 	tip_layer.add_child(UiKit.button(UiKit.t("Got it"),
 		box.position + Vector2(box.size.x - 24.0 - 150.0, box.size.y - 58.0), Vector2(150, 44),
@@ -2276,8 +2337,11 @@ func _hide_panel() -> void:
 ## screen; a fixed grid would be a screen that silently stops showing you things
 ## you paid for.
 const SHAPE_COL_W := 216.0
-const SHAPE_CARD := Vector2(208.0, 96.0)
-const PLAY_CARD := Vector2(232.0, 128.0)
+## Each 15 taller than before for its caption line (1 Oct novice report).
+const SHAPE_CARD := Vector2(208.0, 111.0)
+const PLAY_CARD := Vector2(232.0, 143.0)
+## The corner's four favorites keep the card's old shape: they carry no caption.
+const FAV_RATIO := 128.0 / 232.0
 const BOOK_GAP := 8.0
 
 ## Which shape's plays the right pane is showing. It is NOT the shape you are
@@ -2397,7 +2461,7 @@ func _build_book(box: Vector2) -> void:
 		## for. It is a shape picker, so it shows the shape.
 		var b := Playbook.card_button(SHAPE_CARD, sh["spots"], Playbook.Mode.SHAPE,
 			null, int(sh["id"]) == live_shape, String(sh["name"]),
-			func(): book_shape = take; _rebuild_book())
+			func(): book_shape = take; _rebuild_book(), 14, Playbook.formation_caption(int(sh["id"])))
 		left.add_child(b)
 
 	## ---- what you can run out of it
@@ -2431,7 +2495,8 @@ func _build_book(box: Vector2) -> void:
 			## for the Hall with the same glyph, and two symbols for "this one is
 			## picked out" is two vocabularies.
 			("\u2605 " if starred else "") + String(call_["name"]),
-			func(): _tap_call(shapes[book_shape], call_, key))
+			func(): _tap_call(shapes[book_shape], call_, key), 14,
+			Playbook.strategy_caption(int(call_["id"])) if is_push else UiKit.t("A play you drew."))
 		b.tooltip_text = String(call_.get("blurb", UiKit.t("A play you drew.")))
 		grid.add_child(b)
 
@@ -3119,7 +3184,7 @@ func _build_corner() -> void:
 	## THE FOUR FAVORITES, two by two, at the width the column gives them.
 	var fav := _fav_calls()
 	var fw: float = (C_RW - C_FAV_GAP) * 0.5
-	var fh: float = fw * (PLAY_CARD.y / PLAY_CARD.x)
+	var fh: float = fw * FAV_RATIO
 	for i in fav.size():
 		var call_: Dictionary = fav[i]
 		var shape: Dictionary = _shape_of(int(call_["shape"]))

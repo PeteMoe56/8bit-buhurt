@@ -62,10 +62,16 @@ const CLUB_BTN_W := 104.0
 const HEADER_SHIFT := CLUB_BTN_W + 8.0
 ## The Menu button spans what Exit and Club used to: the purse keeps its place.
 const MENU_BTN_W := 98.0 + HEADER_SHIFT
-const MENU_W := 140.0
+## 108, not 140: the purse's "?" took the 32 between the purse and the mood.
+const MENU_W := 108.0
 ## 42 (review, 2 Oct: the wages line under the purse sat on the box's bottom edge at 38).
 const PURSE_H := 42.0
 const PURSE_SIZE: int = 18
+
+
+## Room right of the purse for its "?" (30 wide, 6 clear of the box); the
+## mood moves over by it.
+const HELP_GAP := 32.0
 
 
 static func purse_box() -> Rect2:
@@ -303,6 +309,15 @@ func _rebuild() -> void:
 		Vector2(MENU_W, 36), func():
 			club_menu_open = true
 			_rebuild(), "cog"))
+	## A "?" BY THE CC (1 Oct novice report, Pete approved): first-timers did not
+	## know what CC were or where they came from. It opens the Guide on Money.
+	var money_q := UiKit.button("?", Vector2(purse_box().end.x + 6.0, 16), Vector2(30, 32), func():
+		Session.guide_topic = GuideScene.Topic.MONEY
+		Session.autosave()
+		UiKit.go("res://scenes/Guide.tscn"))
+	money_q.tooltip_text = UiKit.t("Money")
+	money_q.set_meta("money_help", true)
+	ui.add_child(money_q)
 	## The tape's own control goes with the tab's, so leaving the club tab takes
 	## it down and nothing has to remember to.
 	_tape_label = null
@@ -365,8 +380,47 @@ func _next_controls() -> void:
 			tab = Tab.CLUB
 			_rebuild()
 	## THE MARK IS THE CROSSED SWORDS, not a ▶: the pixel fonts have no arrow.
-	ui.add_child(UiKit.primary(UiKit.button(label, Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
-		Vector2(NEXT_W, 46), go, "sword")))
+	var fight := UiKit.button(label, Vector2(UiKit.right_edge(NEXT_W + 24.0) - step_shift(), action_y()),
+		Vector2(NEXT_W, 46), go, "sword")
+	ui.add_child(fight if step_shift() > 0.0 else UiKit.primary(fight))
+	_step_control()
+
+
+## THE GOLD BUTTON IS THE NEXT REAL STEP (1 Oct novice report, Pete approved).
+## On the hub, a starter who fails inspection or a ground the division above
+## would refuse, and can be built this week, takes the gold slot; the fight
+## steps left beside it, plain. `Season.gold_step()` decides.
+func _step_control() -> void:
+	if step_shift() <= 0.0:
+		return
+	var o := season.office
+	var b: Button
+	if season.gold_step() == "kit":
+		b = UiKit.button(UiKit.t("Fix kit"), Vector2(UiKit.right_edge(STEP_W + 24.0), action_y()),
+			Vector2(STEP_W, 46), func():
+				tab = Tab.MARKET
+				_rebuild(), "anvil")
+	else:
+		var gap: Dictionary = season.ground_gap()
+		b = UiKit.button(UiKit.with_upkeep(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])),
+				int(gap["next_cost"])], o.arena_upkeep_next()),
+			Vector2(UiKit.right_edge(STEP_W + 24.0), action_y()), Vector2(STEP_W, 46), func():
+				var err := o.build_arena()
+				flash = UiKit.said(err) if err != "" else UiKit.t("Built. %s.") % o.arena.arena_name()
+				Session.autosave()
+				_rebuild(), "hall")
+	ui.add_child(UiKit.primary(b))
+
+
+## How far the fight (and Sim it) step left for the gold step. 0 when there is none.
+func step_shift() -> float:
+	if tab != Tab.CLUB or team_card >= 0 or season.gold_step() == "":
+		return 0.0
+	return STEP_W + 12.0
+
+
+## Wider than the fight's: "Build Club gym · 6 CC · 4/yr" is the longest it says.
+const STEP_W := 280.0
 ## -> SeasonClubTab (season_tab_club.gd)
 func _club_controls() -> void:
 	SeasonClubTab._club_controls(self)
@@ -652,6 +706,14 @@ func _header() -> void:
 	UiKit.text(self, font, UiKit.clip_px(font, String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
 	var sub := UiKit.t("%s  ·  Season %d  ·  rating %d") % [
 		season.tier_name(), season.world.season, int(w["power"])]
+	## AND WHAT THE KIT IS TAKING OFF IT (1 Oct novice report): "rating 48 (-2
+	## kit)". When the season's number will not fit beside it, the season goes.
+	var dip := season.kit_dip()
+	if dip > 0:
+		sub = UiKit.t("%s  ·  Season %d  ·  rating %d (-%d kit)") % [
+			season.tier_name(), season.world.season, int(w["power"]), dip]
+		if font.get_string_size(sub, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x > room:
+			sub = UiKit.t("%s  ·  rating %d (-%d kit)") % [season.tier_name(), int(w["power"]), dip]
 	UiKit.text(self, font, UiKit.clip_px(font, sub, 14, room), Vector2(68, 50), 14, UiKit.DIM)
 	## WHO RUNS IT (Pete, 1 Oct 2026: "You're not named").
 	var sw := font.get_string_size(sub + "  ·  ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
@@ -677,8 +739,8 @@ func _header() -> void:
 		Vector2(purse_box().position.x + 18.0, 45.0), 12, UiKit.DOWN if bill > cap else UiKit.DIM,
 		PURSE_W - 22.0)
 	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.
-	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 20), 12, UiKit.DIM)
-	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 40), 16,
+	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(UiKit.right_edge(194.0 - HELP_GAP + HEADER_SHIFT), 20), 12, UiKit.DIM)
+	UiKit.text(self, font, season.office.morale_word(), Vector2(UiKit.right_edge(194.0 - HELP_GAP + HEADER_SHIFT), 40), 16,
 		UiKit.UP if season.office.morale >= 0.6 else
 		(UiKit.DOWN if season.office.morale < 0.35 else UiKit.DIM))
 

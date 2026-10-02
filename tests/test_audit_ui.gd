@@ -16,6 +16,7 @@ func _initialize() -> void:
 	_test_a_short_button_has_a_thumb_margin()
 	await _test_stacked_buttons_share_the_gap()
 	await _test_a_coach_mark_shows_once_and_holds_the_fight()
+	await _test_the_wheel_explains_itself_once()
 	await _test_back_closes_the_modal_first()
 	await _test_a_typed_club_name_survives_a_rebuild()
 	await _test_every_root_screen_answers_back()
@@ -150,6 +151,79 @@ func _test_a_coach_mark_shows_once_and_holds_the_fight() -> void:
 	_ok(shown == "route" and held and remembered and second == "" and runs,
 		"the route tip shows on the first fight, holds it, and never shows again",
 		"first '%s', clock held %s, remembered %s, second fight '%s' and its clock runs %s" % [shown, held, remembered, second, runs])
+
+
+## THE CONTACT WHEEL'S CARD (1 Oct novice report, Pete approved): the first
+## time the wheel opens, a one-time card says the sides are choices, that he
+## chooses if you do not, what HOLD is, and what "N of M choices picked" counts.
+## Once dismissed it never shows again, and its words fit the card in every
+## language.
+func _test_the_wheel_explains_itself_once() -> void:
+	var was_path := Settings.path
+	var was_on := Settings.tips_enabled
+	Settings.load_once()
+	Settings.path = "user://test_tips_wheel.cfg"
+	Settings.tips_enabled = true
+	Settings.tips_seen.clear()
+	Settings.tips_seen.append("route")
+	Session.season = Season.new(MeleeRosters.starting_club(), 4242)
+	var bad: Array[String] = []
+	var first := await _live_fight()
+	var before := String(first.get("tip"))
+	await _open_wheel(first)
+	var shown := String(first.get("tip"))
+	if before != "":
+		bad.append("a card ('%s') before the wheel opened" % before)
+	if shown != "wheel":
+		bad.append("the wheel opened and the card is '%s'" % shown)
+	first.call("_close_tip")
+	if not Settings.tips_seen.has("wheel"):
+		bad.append("not remembered")
+	first.queue_free()
+	await process_frame
+	var again := await _live_fight()
+	await _open_wheel(again)
+	if String(again.get("tip")) != "":
+		bad.append("shown again: '%s'" % String(again.get("tip")))
+	again.queue_free()
+	await process_frame
+	## The words, in every language, inside the card's six lines at its size.
+	var MS = load("res://scripts/melee/melee_scene.gd")
+	var was_loc := TranslationServer.get_locale()
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+		TranslationServer.set_locale(loc)
+		var words: Array = MS._tip_words("wheel")
+		var lines := UiKit.wrap(UiKit.body(), String(words[1]), 500.0 - 48.0, 14)
+		if lines.size() > 6:
+			bad.append("%s runs to %d lines" % [loc, lines.size()])
+		if String(words[1]) == "" or (loc != "en" and String(words[1]).begins_with("Your man")):
+			bad.append("%s is not translated" % loc)
+	TranslationServer.set_locale(was_loc)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.path))
+	Settings.path = was_path
+	Settings.tips_enabled = was_on
+	Settings.tips_seen.clear()
+	Session.season = null
+	_ok(bad.is_empty(), "the contact wheel's card shows the first time it opens, once, and fits",
+		"shown on the first wheel, never again, six lines or fewer in nine languages" if bad.is_empty() else "; ".join(bad))
+
+
+## The contact test_wheel opens: our man onto a free enemy, his prompt up.
+func _open_wheel(scene: Node) -> void:
+	var sim: MeleeSim = scene.get("sim")
+	var us = sim.men[2]
+	var them = sim.men[7]
+	them.pos = Vector2(Tuning.LIST_W * 0.5, Tuning.LIST_H * 0.45)
+	them.state = MeleeSim.State.CLOSING
+	them.target = us.idx
+	us.pos = them.pos + Vector2(-26, 0)
+	var path: Array[Vector2] = []
+	sim.give_order(us.idx, path, them.idx)
+	sim._open_prompt(us, Tuning.Menu.APPROACH, them.idx)
+	for i in 4:
+		if bool(scene.get("paused")):
+			scene.call("_set_paused", false)
+		await process_frame
 
 
 func _live_fight() -> Node:

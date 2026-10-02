@@ -37,6 +37,7 @@ func _initialize() -> void:
 	_test_the_bills_come_due()
 	_test_what_you_cannot_pay_falls_down()
 	_test_one_job_at_a_time()
+	_test_a_buy_button_says_its_upkeep()
 
 	print("")
 	for n in notes:
@@ -1108,3 +1109,42 @@ func _test_the_meeting_sells_what_it_offers() -> void:
 		notes.append("  " + ", ".join(bad))
 	_ok(bad.is_empty(), "the meeting sells what it offers",
 		"the armorer repairs a harness once a week at a price that scales with the damage, and extra reps buy the bar and leave the choice of stat alone")
+
+
+## A BUY BUTTON THAT CREATES UPKEEP SAYS SO (1 Oct novice report, Pete
+## approved): "Build Club gym · 6 CC · 4/yr". The figure a button prints must be
+## the keep the purchase really leaves behind — so each is predicted, bought,
+## and compared: the ground's next level, each room's next level, insurance one
+## up, and an armorer's wage.
+func _test_a_buy_button_says_its_upkeep() -> void:
+	var bad: Array[String] = []
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	var o := s.office
+	o.credits = 9999
+	var want := o.arena_upkeep_next()
+	var err := o.build_arena()
+	if err != "" or o.arena_upkeep() != want or want <= 0:
+		bad.append("ground: said %d/yr, keeps %d (%s)" % [want, o.arena_upkeep(), err])
+	for f in [ClubOffice.Facility.TRAINING, ClubOffice.Facility.INFIRMARY]:
+		want = o.facility_upkeep_next(f)
+		err = o.upgrade(f)
+		if err != "" or o.facility_upkeep(f) != want or want <= 0:
+			bad.append("%s: said %d/yr, keeps %d (%s)" % [ClubOffice.FACILITIES[f]["name"], want, o.facility_upkeep(f), err])
+	var fed_before := o.federation_upkeep()
+	var ins_before := int(Federation.UPKEEP[Federation.Rule.INSURANCE]) * o.rule_level(Federation.Rule.INSURANCE)
+	want = o.rule_upkeep_next(Federation.Rule.INSURANCE)
+	err = o.raise_rule(Federation.Rule.INSURANCE)
+	if err != "" or o.federation_upkeep() - fed_before + ins_before != want or want <= 0:
+		bad.append("insurance: said %d/yr, the bill moved %d -> %d (%s)" % [want, fed_before, o.federation_upkeep(), err])
+	var label := UiKit.with_upkeep("Build Club gym · 6 CC", 4)
+	if label != UiKit.t("%s · %d/yr") % ["Build Club gym · 6 CC", 4] or not label.ends_with("4/yr"):
+		bad.append("the label reads '%s'" % label)
+	if UiKit.with_upkeep("Cap", 0) != "Cap":
+		bad.append("a purchase with no keep still prints one")
+	## The armorer's line is his wage, which the summer bill charges every year.
+	var a: Dictionary = Armorer.pool(4242, 1)[0]
+	o.hire_armorer(a)
+	if o.armorer_wage() != Armorer.wage_of(a):
+		bad.append("an armorer's wage is not what the summer charges (%d vs %d)" % [Armorer.wage_of(a), o.armorer_wage()])
+	_ok(bad.is_empty(), "a buy button that creates upkeep says what it will cost a year",
+		"ground, both rooms, insurance and the armorer predicted, bought and matched" if bad.is_empty() else "; ".join(bad))

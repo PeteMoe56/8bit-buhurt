@@ -28,6 +28,14 @@ static func row_upkeep(v: SeasonScene, kind) -> int:
 	return o.facility_upkeep(int(kind))
 
 
+## WHAT ROW `i` WILL COST TO KEEP, a year, after one more step (on its button).
+static func row_upkeep_next(v: SeasonScene, kind) -> int:
+	var o := v.season.office
+	if kind is String:
+		return o.rule_upkeep_next(Federation.Rule.INSURANCE) if kind == "insurance" else 0
+	return o.facility_upkeep_next(int(kind))
+
+
 static func row_cost(v: SeasonScene, kind) -> int:
 	var o := v.season.office
 	if kind is String:
@@ -62,7 +70,8 @@ static func _office_controls(v: SeasonScene) -> void:
 		var cost := row_cost(v, kind)
 		if cost <= 0:
 			continue
-		var b := UiKit.button(upgrade_word(v, kind) + UiKit.t(" · %d CC") % cost,
+		var b := UiKit.button(UiKit.with_upkeep(upgrade_word(v, kind) + UiKit.t(" · %d CC") % cost,
+				row_upkeep_next(v, kind)),
 			Vector2(UPGRADE_X, y + 4.0), Vector2(UPGRADE_W, 34), func():
 				var err: String
 				if kind is String and kind == "cap":

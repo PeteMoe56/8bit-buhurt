@@ -42,12 +42,57 @@ func _process(_d: float) -> bool:
 		sim._open_prompt(us, Tuning.Menu.APPROACH, them.idx)
 	if n == 10:
 		_checks()
+	## THE CALL'S RESULT, over the man (1 Oct novice report): the tap above
+	## committed a call; let the fight run until it resolves and read the word.
+	## THE CALL'S RESULT, over the man (1 Oct novice report). A call the player
+	## made resolves through the sim's own `_resolve` with `acting_for_player`
+	## set, as `_clinch_act` and the approach do; an AI man's resolve does not.
+	## (Waiting for the tapped call to land is a coin toss: the enemy closing on
+	## him often ties him up first and the approach never happens.)
+	if n == 11:
+		var sim: MeleeSim = scene.sim
+		var us = sim.men[watch]
+		us.acting_for_player = true
+		sim._resolve(us, Tuning.Act.HOLD, 7)
+		us.acting_for_player = false
+		var them = sim.men[7]
+		sim._resolve(them, Tuning.Act.HOLD, watch)
+	if n == 14:
+		_call_word_checks(scene.get("call_words"))
 		return _finish()
 	return false
 
 
+var watch := -1
+
+
+func _call_word_checks(words: Dictionary) -> void:
+	var bad: Array[String] = []
+	if not words.has(watch):
+		bad.append("no word over man %d after the call (%s)" % [watch, str(words.keys())])
+	else:
+		var w: Dictionary = words[watch]
+		if String(w["text"]) != UiKit.t("held"):
+			bad.append("a Hold that held says '%s'" % String(w["text"]))
+		if float(w["t"]) > scene.CALL_WORD_S or float(w["t"]) <= 0.0:
+			bad.append("it lives %.2f s" % float(w["t"]))
+	if words.has(7):
+		bad.append("a word over a man nobody sent (the AI's own Hold)")
+	## The map: a down is DOWN!, a miss is missed, whatever the act.
+	var MS = scene.get_script()
+	if MS.call_word(Tuning.Act.TAKEDOWN, true) != UiKit.t("DOWN!") \
+			or MS.call_word(Tuning.Act.BULLRUSH, false) != UiKit.t("missed") \
+			or MS.call_word(Tuning.Act.HOLD, true) != UiKit.t("held") \
+			or MS.call_word(Tuning.Act.ESCAPE, true) != UiKit.t("free") \
+			or MS.call_word(Tuning.Act.BREAK, true) != UiKit.t("free"):
+		bad.append("the words map wrongly")
+	_ok(bad.is_empty(), "a wheel call's result floats over the man for about a second",
+		"'%s' over man %d" % [String(words[watch]["text"]), watch] if bad.is_empty() else "; ".join(bad))
+
+
 func _checks() -> void:
 	var wm: int = int(scene.get("wheel_man"))
+	watch = wm
 	_ok(wm != -1, "contact opens the wheel", "wheel_man %d" % wm)
 	if wm == -1:
 		return

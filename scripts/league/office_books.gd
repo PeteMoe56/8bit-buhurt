@@ -29,6 +29,34 @@ static func facility_upkeep(o: ClubOffice, f: int) -> int:
 
 
 
+## WHAT A PURCHASE WILL COST TO KEEP, a year, once it is bought (1 Oct novice
+## report: "Build Club gym · 6 CC · 4/yr"). Each is the keep of the thing after
+## the step — the ground at its next level, the room at its next level,
+## insurance one level up — measured by taking the step on the real numbers.
+static func arena_upkeep_next(o: ClubOffice) -> int:
+	return 0 if o.arena.at_top() else arena_upkeep_at(o, o.arena.level + 1)
+
+
+static func arena_upkeep_at(o: ClubOffice, lv: int) -> int:
+	var was := o.arena.level
+	o.arena.level = lv
+	var n := o.arena_upkeep()
+	o.arena.level = was
+	return n
+
+
+static func facility_upkeep_next(o: ClubOffice, f: int) -> int:
+	return ClubOffice.upkeep_of(o.facility_cost(f))
+
+
+static func rule_upkeep_next(o: ClubOffice, r: int) -> int:
+	if o.rule_level(r) >= Federation.MAX_LEVEL:
+		return 0
+	return int(Federation.UPKEEP[r]) * (o.rule_level(r) + 1)
+
+
+
+
 static func upkeep_bill(o: ClubOffice) -> int:
 	var t := o.arena_upkeep()
 	for f in o.facilities.keys():

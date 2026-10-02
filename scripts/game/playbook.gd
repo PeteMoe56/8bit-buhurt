@@ -31,15 +31,40 @@ enum Mode {
 const DEPTH: float = 0.76
 const DOT: float = 5.0
 const LABEL_H: float = 19.0
+## The caption line under the name, when a card has one.
+const CAPTION_H: float = 15.0
+const CAPTION_PX: int = 11
 const PAD := Vector2(7.0, 6.0)
 
 
 ## The ground a play is drawn on. Split out because the shape picker, the card
 ## and any future editor all want the same rectangle out of the same box.
-static func pitch_of(r: Rect2, labelled: bool) -> Rect2:
+static func pitch_of(r: Rect2, labelled: bool, captioned: bool = false) -> Rect2:
 	var body := Rect2(r.position, r.size - Vector2(UiKit.DROP_PX, UiKit.DROP_PX))
 	return Rect2(body.position + PAD,
-		body.size - PAD * 2.0 - Vector2(0.0, LABEL_H if labelled else 0.0))
+		body.size - PAD * 2.0 - Vector2(0.0, (LABEL_H if labelled else 0.0)
+			+ (CAPTION_H if captioned else 0.0)))
+
+
+## ONE SHORT LINE PER CARD (1 Oct novice report, Pete approved): first-timers
+## could not tell a 2-1-2 from a Depth, or what a Rush or a Turtle would do,
+## from the arrows alone. The long `blurb`s stay in the tooltips.
+## Literal `t()` calls, so the string extractor sees them.
+static func formation_caption(id: int) -> String:
+	match id:
+		Tuning.Formation.TWO_ONE_TWO: return UiKit.t("The even line")
+		Tuning.Formation.DEPTH: return UiKit.t("Center hangs back")
+		Tuning.Formation.STRONG_LEFT: return UiKit.t("Left pair steps up")
+	return UiKit.t("A shape you drew")
+
+
+static func strategy_caption(id: int) -> String:
+	match id:
+		Tuning.Strategy.RUSH_LEFT: return UiKit.t("Left side drives first")
+		Tuning.Strategy.RUSH_RIGHT: return UiKit.t("Right side drives first")
+		Tuning.Strategy.TURTLE_LEFT: return UiKit.t("Shell up on your left rail")
+		Tuning.Strategy.TURTLE_RIGHT: return UiKit.t("Shell up on your right rail")
+	return ""
 
 
 ## push 0..DEPTH across, lane 0..1 down. Inset so a dot on the edge still has its
@@ -78,7 +103,7 @@ static func card(ci: CanvasItem, r: Rect2, spots: Array, mode: int, data,
 ## at two call sites is a card that starts rendering differently on the screen
 ## nobody is looking at. One body, two doors.
 static func card_face(ci: CanvasItem, r: Rect2, spots: Array, mode: int, data,
-		live: bool, label: String, font: Font, label_px: int = 14) -> void:
+		live: bool, label: String, font: Font, label_px: int = 14, caption: String = "") -> void:
 	var body := Rect2(r.position, r.size - Vector2(UiKit.DROP_PX, UiKit.DROP_PX))
 	## THE FACE GOES DARK FIRST. On a loose card the panel underneath is already
 	## PANEL; on a Button it is the skin's blue fill, and the label band was the
@@ -91,7 +116,7 @@ static func card_face(ci: CanvasItem, r: Rect2, spots: Array, mode: int, data,
 	else:
 		ci.draw_rect(body, UiKit.FRAME, false, 1.0)
 
-	var pitch := pitch_of(r, label != "")
+	var pitch := pitch_of(r, label != "", caption != "")
 	ci.draw_rect(pitch, UiKit.BG.lightened(0.05))
 	## YOUR RAIL, at the left. Theirs is off the right edge — a card shows the
 	## push, not the whole arena, which is why DEPTH stops at 0.76.
@@ -132,10 +157,14 @@ static func card_face(ci: CanvasItem, r: Rect2, spots: Array, mode: int, data,
 		ci.draw_rect(Rect2(a - Vector2(DOT, DOT), Vector2(DOT * 2.0, DOT * 2.0)),
 			UiKit.PANEL, false, 1.0)
 
+	var cap_h := CAPTION_H if caption != "" else 0.0
 	if label != "":
 		UiKit.text(ci, font, UiKit.fit(font, label, label_px, body.size.x - 16.0),
-			Vector2(body.position.x + 8.0, body.end.y - 5.0), label_px,
+			Vector2(body.position.x + 8.0, body.end.y - 5.0 - cap_h), label_px,
 			UiKit.YOU if live else UiKit.INK)
+	if caption != "":
+		UiKit.text(ci, font, UiKit.fit(font, caption, CAPTION_PX, body.size.x - 16.0),
+			Vector2(body.position.x + 8.0, body.end.y - 5.0), CAPTION_PX, UiKit.DIM)
 
 
 ## ------------------------------------------------------------------ the button
@@ -152,7 +181,7 @@ static func card_face(ci: CanvasItem, r: Rect2, spots: Array, mode: int, data,
 ## collects Buttons, LineEdits and Sliders, so a decorative Control is invisible
 ## to it and cannot be reported as sitting on the button it belongs to.
 static func card_button(size: Vector2, spots: Array, mode: int, data, live: bool,
-		label: String, on_press: Callable, label_px: int = 14) -> Button:
+		label: String, on_press: Callable, label_px: int = 14, caption: String = "") -> Button:
 	var b := Button.new()
 	b.custom_minimum_size = size
 	b.size = size
@@ -167,6 +196,8 @@ static func card_button(size: Vector2, spots: Array, mode: int, data, live: bool
 	art.live = live
 	art.label = label
 	art.label_px = label_px
+	art.caption = caption
+	b.set_meta("caption", caption)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
 	b.add_child(art)
@@ -180,6 +211,7 @@ class Paint extends Control:
 	var live := false
 	var label := ""
 	var label_px := 14
+	var caption := ""
 
 	func _draw() -> void:
 		if spots.size() < 5:
@@ -187,4 +219,4 @@ class Paint extends Control:
 		## The button has already painted its own frame and drop, so the card
 		## draws onto the face of it: same rectangle, no panel underneath.
 		Playbook.card_face(self, Rect2(Vector2.ZERO, size + Vector2(UiKit.DROP_PX,
-			UiKit.DROP_PX)), spots, mode, data, live, label, UiKit.body(), label_px)
+			UiKit.DROP_PX)), spots, mode, data, live, label, UiKit.body(), label_px, caption)

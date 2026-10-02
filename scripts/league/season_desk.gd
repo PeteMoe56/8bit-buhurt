@@ -155,6 +155,47 @@ static func build_for_promotion(s: Season) -> String:
 	return ""
 
 
+## THE NEXT REAL STEP, when it is not the fight (1 Oct novice report, Pete
+## approved): every first-timer pressed the gold button and only the gold
+## button, so a starter the marshals would turn away and a ground the division
+## above would refuse went unseen until they cost a bout or a promotion.
+## "kit" — a man in the first five fails inspection (and Maintenance is open);
+## "build" — the ground is short for the division above and the next level can
+## be built this week; "" — the fight is the step. Asked only of a week with
+## nothing blocking it.
+static func gold_step(s: Season) -> String:
+	if s.blocked_by() != "" or s.season_complete():
+		return ""
+	if s.first_bout_done():
+		for f in s.club.active_eight().slice(0, MeleeClub.LINE_SIZE):
+			if not (f as FighterCard).passes_inspection():
+				return "kit"
+	if not ground_gap(s).is_empty():
+		var o := s.office
+		if o.arena.can_build(o.tier, o.credits) == "" and not o.done_this_week(ClubOffice.SLOT_ARENA):
+			return "build"
+	return ""
+
+
+## WHAT THE KIT IS COSTING THE RATING, in whole points (1 Oct novice report, Pete
+## approved): a first-timer won, saw the rating fall, and had no idea why. Kit
+## wears in fights (register 30.63) and a worn harness takes a man's base down,
+## so after a bout the rating dips by exactly this much. The rating with every
+## travelling man's harness at the top of his own metal, less the rating now; 0
+## when the wear costs less than a point.
+static func kit_dip(s: Season) -> int:
+	var men := s.club.active_eight()
+	var was: Array[float] = []
+	var now := s.club.power_exact()
+	for f in men:
+		was.append((f as FighterCard).armor)
+		f.armor = maxf(f.armor, Quartermaster.ceiling(f))
+	var whole := s.club.power_exact()
+	for i in men.size():
+		(men[i] as FighterCard).armor = was[i]
+	return maxi(0, int(round(whole)) - int(round(now)))
+
+
 ## Take it or leave it. Returns "" like every other verb here.
 static func answer_promotion(s: Season, take: bool) -> String:
 	if not s.promotion_place():

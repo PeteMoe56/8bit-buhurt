@@ -190,7 +190,8 @@ static func _club_controls(v: SeasonScene) -> void:
 		## one tap a club that has just won it wants. Gold, because it is the step.
 		var gap: Dictionary = v.season.ground_gap()
 		if not gap.is_empty():
-			v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Build now · %d CC") % int(gap["total"]),
+			v.ui.add_child(UiKit.primary(UiKit.button(UiKit.with_upkeep(UiKit.t("Build now · %d CC") % int(gap["total"]),
+					v.season.office.arena_upkeep_at(Arena.level_for_tier(v.season.world.player_tier() + 1))),
 				Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0), SeasonScene.action_y()),
 				Vector2(SeasonScene.NEXT_W, 46), func():
 					var err: String = v.season.build_for_promotion()
@@ -213,16 +214,11 @@ static func _club_controls(v: SeasonScene) -> void:
 			Vector2(SeasonScene.NEXT_W, 46), func():
 				Session.autosave()
 				UiKit.go("res://scenes/Arena.tscn"), "gate")))
-		## AND THE CARD ITSELF IS THE WAY IN (blind review round 3: "looks like a
-		## card but doesn't look tappable"). A flat hit box over the drawn card,
-		## which draws its own "Choose at the Arena >" as the cue.
-		var hit := UiKit.button("", Vector2(24, SeasonScene.CONTENT_Y + 20.0),
-			Vector2(SeasonScene.fixture_w(), SeasonScene.FIXTURE_H), func():
-				Session.autosave()
-				UiKit.go("res://scenes/Arena.tscn"))
-		hit.flat = true
-		hit.focus_mode = Control.FOCUS_NONE
-		v.ui.add_child(hit)
+		## AND THE CARD HAS A BUTTON THAT LOOKS LIKE ONE (1 Oct novice report:
+		## the gold "Choose at the Arena >" was read as a caption and nobody
+		## tapped it). It replaces the flat hit box that lay over the whole card
+		## (blind review round 3), which would sit on top of it.
+		v.ui.add_child(bid_button(v))
 		return
 	if block == "cup":
 		## THE FIGHT IS WHERE EVERY OTHER TAB'S NEXT STEP IS: bottom right,
@@ -335,13 +331,25 @@ static func _club_controls(v: SeasonScene) -> void:
 	## NOTHING TO SIM ON A SATURDAY WITH NO FIXTURE.
 	if v.season.opponent_id() < 0:
 		return
-	v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0 + 204.0 + 12.0),
+	v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0 + 204.0 + 12.0) - v.step_shift(),
 		SeasonScene.action_y()), Vector2(204, 46),
 		func():
 			v.sim_asking = true
 			v._rebuild(), "clock"))
 
 
+
+
+## THE BID CARD'S WAY IN: a framed button in the card's bottom-right corner.
+static func bid_button(_v: SeasonScene) -> Button:
+	var w := minf(240.0, SeasonScene.fixture_w() * 0.55)
+	var card := Rect2(24, SeasonScene.CONTENT_Y + 20.0, SeasonScene.fixture_w(), SeasonScene.FIXTURE_H)
+	var b := UiKit.button(UiKit.t("Choose at the Arena"),
+		Vector2(card.end.x - 12.0 - w, card.end.y - 8.0 - 32.0), Vector2(w, 32), func():
+			Session.autosave()
+			UiKit.go("res://scenes/Arena.tscn"), "gate")
+	b.set_meta("bid_card", true)
+	return b
 
 
 static func _draw_club(v: SeasonScene) -> void:
@@ -667,15 +675,15 @@ static func _fixture(v: SeasonScene) -> void:
 			UiKit.UP if int(t["in_hand"]) >= int(t["dues_up"]) else UiKit.DOWN)
 		return
 	if v.season.bid_open():
-		UiKit.text(v, v.font, UiKit.t("Three dates on offer"), Vector2(44, y + 52), 22, UiKit.INK)
+		UiKit.text(v, v.font, UiKit.t("Three dates on offer"), Vector2(44, y + 48), 22, UiKit.INK)
 		## WRAPPED TO THE CARD. This ran 53 pixels past the fixture panel's right
 		## edge — it is in the very first screenshot in `shots/`, clipped
 		## mid-sentence, and nobody read it as a fault because a sentence that
 		## stops at a panel edge looks like a sentence that stops.
 		UiKit.text_fit(v, v.font, UiKit.t("Hold your own event this year, or pass."),
-			Vector2(44, y + 80), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
-		UiKit.right(v, v.font, UiKit.t("Choose at the Arena  >"),
-			Vector2(r.end.x - 16.0, y + 104), 14, UiKit.YOU, SeasonScene.fixture_w() - 40.0)
+			Vector2(44, y + 70), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
+		## "Choose at the Arena" is a real button now, in the card's corner
+		## (`bid_button`): drawn as gold words it read as a caption.
 		return
 	var cup := v.season.pending_cup()
 	if cup != null:
@@ -857,7 +865,8 @@ static func _ground_controls(v: SeasonScene) -> void:
 		close_ground(v)
 		return
 	var o := v.season.office
-	var b := UiKit.button(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])), int(gap["next_cost"])],
+	var b := UiKit.button(UiKit.with_upkeep(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])),
+			int(gap["next_cost"])], o.arena_upkeep_next()),
 		Vector2(card.end.x - 24.0 - 300.0, card.end.y - 62.0), Vector2(300, 44), func():
 			var err := o.build_arena()
 			v.flash = UiKit.said(err) if err != "" else UiKit.t("Built. %s.") % o.arena.arena_name()

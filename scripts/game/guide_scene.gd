@@ -24,6 +24,8 @@ var ui: CanvasLayer
 var season: Season
 ## Which topic is open. `tab` so the layout and ink sweeps can open every page.
 var tab := 0
+## The pages, by name, for a button that opens one (`Session.guide_topic`).
+enum Topic { SEASON, TABLE, FIGHT, TEAM, TRAINING, KIT, MONEY, UPGRADES, COACH }
 
 
 static func topics() -> Array:
@@ -119,6 +121,9 @@ func _ready() -> void:
 	Juice.arm()
 	font = UiKit.body()
 	season = Session.season
+	if Session.guide_topic >= 0:
+		tab = clampi(Session.guide_topic, 0, topics().size() - 1)
+		Session.guide_topic = -1
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_rebuild()

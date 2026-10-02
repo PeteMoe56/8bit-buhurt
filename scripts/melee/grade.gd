@@ -73,13 +73,12 @@ const SHORT := {
 ## same reason: the alternative is XCOM's hidden aim assist, and this is a game
 ## where the numbers on the screen are the interface.
 const BLURB := {
-	G.MATCHED: "The country fights you as well as you have been fighting. "
-		+ "Win and it hardens; lose and it eases. Starts gentle.",
-	G.FRIENDLY: "They turn up, but nobody came to hurt anybody. "
-		+ "An extra call from the corner and a longer breather between rounds.",
-	G.SANCTIONED: "A properly sanctioned fight. Their numbers mean what they say.",
-	G.FULL_STEEL: "They came to end it. One fewer call from the corner, "
-		+ "and a shorter breather.",
+	## ONE SENTENCE EACH (1 Oct novice report, Pete approved): the grades other
+	## than Custom show this and nothing else; the dials are Custom's.
+	G.MATCHED: "The country fights you as well as you have been fighting, hardening when you win and easing when you lose.",
+	G.FRIENDLY: "Nobody came to hurt anybody, so you get an extra call from the corner and a longer breather between rounds.",
+	G.SANCTIONED: "A properly sanctioned fight, where their numbers mean what they say.",
+	G.FULL_STEEL: "They came to end it, so you get one fewer call from the corner and a shorter breather.",
 	G.HARD_LIST: "Full Steel, and every club in the country fights at the top "
 		+ "of its division whatever its rating says.",
 	G.CUSTOM: "Your own dials. Set each one below.",
