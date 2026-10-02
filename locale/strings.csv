@@ -433,6 +433,14 @@ sign %d CC,sign %d CC,fichar %d CC,signer %d CC,holen %d CC,firma %d CC,contrata
 %d CC · can't afford,%d CC · can't afford,%d CC · no alcanza,%d CC · trop cher,%d CC · zu teuer,%d CC · non basta,%d CC · sem dinheiro,%d CC · za drogo,%d CC · не хватает,%d CC · 不足
 BILL,BILL,NÓMINA,SALAIRES,KOSTEN,STIPENDI,FOLHA,RACHUNEK,ФОНД,人件費
 over by %s,over by %s,excede en %s,dépassé de %s,%s drüber,sforato di %s,acima em %s,ponad o %s,превышение: %s,%s超過
+The even line,The even line,La línea pareja,La ligne égale,Die gleiche Linie,La linea pari,A linha igual,Równa linia,Ровная линия,均等な列
+Center hangs back,Center hangs back,El Centro se queda atrás,Le Centre reste derrière,Mitte bleibt hinten,Il Centro sta dietro,O Centro fica atrás,Środek zostaje z tyłu,Центр держится сзади,センターが下がる
+Left pair steps up,Left pair steps up,La pareja izq. adelanta,La paire gauche avance,Linkes Paar rückt vor,La coppia sx avanza,O par esq. avança,Lewa para wychodzi,Левая пара выходит,左ペアが前へ
+A shape you drew,A shape you drew,Una formación tuya,Ta formation,Deine Formation,Una tua formazione,Uma formação sua,Twoje ustawienie,Твоя расстановка,自作の陣形
+Left side drives first,Left side drives first,La izquierda empuja primero,La gauche pousse d'abord,Links drückt zuerst,La sinistra spinge prima,A esquerda avança primeiro,Lewa naciera pierwsza,Левый край давит первым,左側が先に押す
+Right side drives first,Right side drives first,La derecha empuja primero,La droite pousse d'abord,Rechts drückt zuerst,La destra spinge prima,A direita avança primeiro,Prawa naciera pierwsza,Правый край давит первым,右側が先に押す
+Shell up on your left rail,Shell up on your left rail,Cierre en tu banda izq.,Carapace à gauche,Igel an der linken Bande,Guscio sulla sponda sx,Casco na lateral esq.,Skorupa przy lewej,Панцирь у левого борта,左の壁で固める
+Shell up on your right rail,Shell up on your right rail,Cierre en tu banda der.,Carapace à droite,Igel an der rechten Bande,Guscio sulla sponda dx,Casco na lateral dir.,Skorupa przy prawej,Панцирь у правого борта,右の壁で固める
 This year,This year,Este año,Cette année,Dieses Jahr,Quest'anno,Este ano,Ten rok,Этот год,今年
 The club,The club,El club,Le club,Der Verein,Il club,O clube,Klub,Клуб,クラブ
 History,History,Historia,Historique,Geschichte,Storia,História,Historia,История,歴史

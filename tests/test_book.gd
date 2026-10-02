@@ -34,6 +34,7 @@ func _initialize() -> void:
 	await _test_calling_a_drawn_shape_stands_the_men_in_it()
 	await _test_a_play_does_not_replace_the_push()
 	await _test_every_card_draws()
+	await _test_every_card_says_what_it_is()
 
 	print("")
 	for n in notes:
@@ -246,3 +247,63 @@ func _test_every_card_draws() -> void:
 		% [s.board.formation_choices().size(), drawn_ok])
 	img.queue_free()
 	await process_frame
+
+
+## ONE SHORT LINE ON EVERY CARD (1 Oct novice report, Pete approved): 2-1-2,
+## Depth, Strong left, the Rushes and the Turtles each carry a caption under the
+## name, a drawn shape or play says it is yours, and every caption fits its card
+## — in all nine languages, at the size it is drawn.
+func _test_every_card_says_what_it_is() -> void:
+	var s := _season()
+	var scene := await _open()
+	scene.call("_show_playbook")
+	await process_frame
+	var bad: Array[String] = []
+	var shapes := 0
+	var plays := 0
+	for b in _all_buttons(scene):
+		if not (b as Button).has_meta("caption"):
+			continue
+		var cap := String((b as Button).get_meta("caption"))
+		if cap == "":
+			bad.append("a card with no caption")
+		if is_equal_approx((b as Button).size.x, scene.SHAPE_CARD.x):
+			shapes += 1
+		else:
+			plays += 1
+	if shapes < Tuning.FORMATIONS.size():
+		bad.append("%d captioned shape cards for %d formations" % [shapes, Tuning.FORMATIONS.size()])
+	if plays < Tuning.STRATEGIES.size():
+		bad.append("%d captioned play cards for %d pushes" % [plays, Tuning.STRATEGIES.size()])
+	var was := TranslationServer.get_locale()
+	## The card's face less its margins and the column's scroll bar.
+	var shape_room: float = scene.SHAPE_CARD.x - UiKit.DROP_PX - 16.0 - 8.0
+	var play_room: float = scene.PLAY_CARD.x - UiKit.DROP_PX - 16.0 - 8.0
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+		TranslationServer.set_locale(loc)
+		var caps: Array = []
+		for f in Tuning.FORMATIONS.keys():
+			caps.append([Playbook.formation_caption(int(f)), shape_room])
+		for st in Tuning.STRATEGIES.keys():
+			caps.append([Playbook.strategy_caption(int(st)), play_room])
+		for pair in caps:
+			var c := String(pair[0])
+			var room := float(pair[1])
+			var w := UiKit.body().get_string_size(c, HORIZONTAL_ALIGNMENT_LEFT, -1.0, Playbook.CAPTION_PX).x
+			if c == "" or w > room:
+				bad.append("%s: '%s' is %.0f of %.0f" % [loc, c, w, room])
+	TranslationServer.set_locale(was)
+	scene.queue_free()
+	await process_frame
+	_ok(bad.is_empty(), "every playbook card says in a line what it is",
+		"%d shape and %d play cards captioned; every caption fits in nine languages" % [shapes, plays]
+			if bad.is_empty() else "; ".join(bad.slice(0, 6)))
+
+
+func _all_buttons(n: Node) -> Array:
+	var out: Array = []
+	for c in n.get_children():
+		if c is Button:
+			out.append(c)
+		out.append_array(_all_buttons(c))
+	return out

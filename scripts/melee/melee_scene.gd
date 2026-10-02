@@ -1408,7 +1408,7 @@ func _draw_corner() -> void:
 	UiKit.raw(self, font, Vector2(C_RX, C_LY - 4), UiKit.t("PLAYBOOK"),
 		HORIZONTAL_ALIGNMENT_LEFT, 200, 10, COL_DIM)
 	var fw: float = (C_RW - C_FAV_GAP) * 0.5
-	var fh: float = fw * (PLAY_CARD.y / PLAY_CARD.x)
+	var fh: float = fw * FAV_RATIO
 	var cy: float = C_LY + 6.0 + fh * 2.0 + C_FAV_GAP + 10.0 + 44.0
 	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 32.0), COL_PANEL.lightened(0.08))
 	draw_rect(Rect2(C_RX, cy, C_RW - UiKit.DROP_PX, 32.0), UiKit.YOU, false, 1.0)
@@ -2333,8 +2333,11 @@ func _hide_panel() -> void:
 ## screen; a fixed grid would be a screen that silently stops showing you things
 ## you paid for.
 const SHAPE_COL_W := 216.0
-const SHAPE_CARD := Vector2(208.0, 96.0)
-const PLAY_CARD := Vector2(232.0, 128.0)
+## Each 15 taller than before for its caption line (1 Oct novice report).
+const SHAPE_CARD := Vector2(208.0, 111.0)
+const PLAY_CARD := Vector2(232.0, 143.0)
+## The corner's four favorites keep the card's old shape: they carry no caption.
+const FAV_RATIO := 128.0 / 232.0
 const BOOK_GAP := 8.0
 
 ## Which shape's plays the right pane is showing. It is NOT the shape you are
@@ -2454,7 +2457,7 @@ func _build_book(box: Vector2) -> void:
 		## for. It is a shape picker, so it shows the shape.
 		var b := Playbook.card_button(SHAPE_CARD, sh["spots"], Playbook.Mode.SHAPE,
 			null, int(sh["id"]) == live_shape, String(sh["name"]),
-			func(): book_shape = take; _rebuild_book())
+			func(): book_shape = take; _rebuild_book(), 14, Playbook.formation_caption(int(sh["id"])))
 		left.add_child(b)
 
 	## ---- what you can run out of it
@@ -2488,7 +2491,8 @@ func _build_book(box: Vector2) -> void:
 			## for the Hall with the same glyph, and two symbols for "this one is
 			## picked out" is two vocabularies.
 			("\u2605 " if starred else "") + String(call_["name"]),
-			func(): _tap_call(shapes[book_shape], call_, key))
+			func(): _tap_call(shapes[book_shape], call_, key), 14,
+			Playbook.strategy_caption(int(call_["id"])) if is_push else UiKit.t("A play you drew."))
 		b.tooltip_text = String(call_.get("blurb", UiKit.t("A play you drew.")))
 		grid.add_child(b)
 
@@ -3176,7 +3180,7 @@ func _build_corner() -> void:
 	## THE FOUR FAVORITES, two by two, at the width the column gives them.
 	var fav := _fav_calls()
 	var fw: float = (C_RW - C_FAV_GAP) * 0.5
-	var fh: float = fw * (PLAY_CARD.y / PLAY_CARD.x)
+	var fh: float = fw * FAV_RATIO
 	for i in fav.size():
 		var call_: Dictionary = fav[i]
 		var shape: Dictionary = _shape_of(int(call_["shape"]))
