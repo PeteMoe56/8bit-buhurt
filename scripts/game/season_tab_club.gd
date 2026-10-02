@@ -213,17 +213,10 @@ static func _club_controls(v: SeasonScene) -> void:
 			Vector2(SeasonScene.NEXT_W, 46), func():
 				Session.autosave()
 				UiKit.go("res://scenes/Arena.tscn"), "gate")))
-		## AND THE CARD ITSELF IS THE WAY IN (blind review round 3: "looks like a
-		## card but doesn't look tappable"). A flat hit box over the drawn card.
-		var hit := UiKit.button("", Vector2(24, SeasonScene.CONTENT_Y + 20.0),
-			Vector2(SeasonScene.fixture_w(), SeasonScene.FIXTURE_H), func():
-				Session.autosave()
-				UiKit.go("res://scenes/Arena.tscn"))
-		hit.flat = true
-		hit.focus_mode = Control.FOCUS_NONE
-		v.ui.add_child(hit)
-		## AND A BUTTON THAT LOOKS LIKE ONE (1 Oct novice report: the gold
-		## "Choose at the Arena >" was read as a caption and nobody tapped it).
+		## AND THE CARD HAS A BUTTON THAT LOOKS LIKE ONE (1 Oct novice report:
+		## the gold "Choose at the Arena >" was read as a caption and nobody
+		## tapped it). It replaces the flat hit box that lay over the whole card
+		## (blind review round 3), which would sit on top of it.
 		v.ui.add_child(bid_button(v))
 		return
 	if block == "cup":
