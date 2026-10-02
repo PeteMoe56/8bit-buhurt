@@ -88,6 +88,12 @@ static func roll_over(s: Season) -> void:
 				"season", ClubOffice.LINE_SQUAD)
 	for f in s.club.roster:
 		f.injury = 0            ## nobody carries a knock across a winter
+		## THE ARMORER EARNS HIS WAGE (Pete, 1 Oct 2026: "Agreed, but kits cannot
+		## upgrade to higher level without them buying the new armor"). Every
+		## harness goes back to the top of its OWN metal — never a better one —
+		## and only as far as the armorer can work, after the summer bill has
+		## decided which armorer that is. In-season repairs stay by hand.
+		f.armor = maxf(f.armor, Quartermaster.repair_top(f, s.office.armorer_cap()))
 	s.sync_power()
 
 	## THE BID IS PART OF THE SUMMER. New division, new calendar, new dates — and

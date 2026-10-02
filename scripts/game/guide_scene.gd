@@ -90,7 +90,7 @@ static func page(i: int) -> Array:
 			UiKit.t("Metals: Rust, Mild, Hardened, Stainless, Titanium. Better metal wears slower."),
 			UiKit.t("Your armorer's stars are the best metal he can make and keep up. More stars, more wage."),
 			UiKit.t("Every fight wears the kit of the men who fought it. Training does not."),
-			UiKit.t("Repair each man once a week, in a fight week."),
+			UiKit.t("Repair each man once a week, in a fight week. Each winter your armorer restores every harness to the best its own metal allows."),
 			UiKit.t("Worn kit makes a man easier to put down."),
 		]
 		6: return [

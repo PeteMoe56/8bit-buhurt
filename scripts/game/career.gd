@@ -867,8 +867,13 @@ const GAIN_PER_GAP: int = 3
 const GAIN_MAX: int = 5
 
 
-static func gain_for(f: FighterCard) -> int:
-	return clampi(1 + maxi(0, f.potential - f.overall()) / GAIN_PER_GAP, 1, GAIN_MAX)
+## ONE POINT A LEVEL, FOR EVERYBODY (Pete, 1 Oct 2026: "Everyone should get
+## +1, age only messes with experience gain speed"). The accelerator above was
+## only ever on the automatic path — CPU clubs and old saves — while a level the
+## player placed by hand paid +1, so the computer's men grew up to five times as
+## fast as his. Age still sets how fast the bar fills (`learn_rate`).
+static func gain_for(_f: FighterCard) -> int:
+	return 1
 
 
 static func level_up(f: FighterCard) -> Dictionary:
