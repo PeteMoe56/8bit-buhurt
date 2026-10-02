@@ -21,7 +21,7 @@ env:
   GODOT: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64
 jobs:
   learn:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
