@@ -349,10 +349,31 @@ func _last_label() -> String:
 	return _last_pressed
 
 
+## The season object the trackers below were counting. A different one is a
+## career started or a slot loaded.
+var _counted: Season = null
+var loads := 0
+
+
 func _milestones(_scene: Node) -> void:
 	var s: Season = Session.season
 	if s == null:
 		return
+	## A LOAD IS NOT A PROMOTION (2 Oct 2026, novice report 2). The learner found
+	## Menu → Save/Load, and each reload across a promotion swung the tier back
+	## and forth: +12 up, −6 down, so a reload loop paid +6 a lap and saves 1–3
+	## learned to farm it (~30 "promotions" a save). The trackers now rebase on
+	## the loaded season, silently — loading is allowed, it just earns nothing.
+	if s != _counted:
+		if _counted != null:
+			loads += 1
+			_log({"t": "load", "season": s.world.season, "tier": s.world.player_tier()})
+		_counted = s
+		last_tier = s.world.player_tier()
+		results_seen = s.results.size()
+		seasons_done = s.world.history.size()
+		honors_seen = s.world.honors.size()
+		last_power = -1.0
 	if persona == "learner":
 		_learn_rewards(s)
 	var tier := s.world.player_tier()
@@ -454,7 +475,7 @@ func _finish(why: String) -> void:
 		"season": s.world.season if s != null else 0,
 		"tier": s.world.player_tier() if s != null else -1,
 		"credits": s.office.credits if s != null else 0,
-		"relegations": relegations, "first": first})
+		"relegations": relegations, "loads": loads, "first": first})
 	if persona == "learner" and values_path != "":
 		var fa := FileAccess.open(values_path, FileAccess.WRITE)
 		fa.store_string(JSON.stringify({"Q": Q, "questions": questions}))
