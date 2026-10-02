@@ -95,6 +95,10 @@ func _test_every_ceiling_is_shown() -> void:
 		"%d men, %d shown as anything but their real ceiling" % [n, wrong])
 
 
+## A LEVEL IS ONE POINT FOR EVERYBODY (Pete, 1 Oct 2026: "Everyone should get
+## +1, age only messes with experience gain speed"). This checked the opposite —
+## that room under the ceiling bought more points a level — and that rule is
+## gone, so the check now holds the new one: room changes nothing about a level.
 func _test_room_is_speed() -> void:
 	var a := FighterCard.new()
 	a.age = 21
@@ -104,15 +108,22 @@ func _test_room_is_speed() -> void:
 	var ga := 0
 	var gb := 0
 	for i in 3:
-		var a0 := a.overall()
-		var b0 := b.overall()
+		var sa := _points(a)
+		var sb := _points(b)
 		Career.level_up(a)
 		Career.level_up(b)
-		ga += a.overall() - a0
-		gb += b.overall() - b0
-	_ok(ga >= gb * 2 and ga > 0,
-		"a man with room takes more from a level than a man near his ceiling",
+		ga += _points(a) - sa
+		gb += _points(b) - sb
+	_ok(ga == 3 and gb <= 3,
+		"a level is one point, however much room he has",
 		"three levels: %d points with 24 room, %d with 2" % [ga, gb])
+
+
+static func _points(f: FighterCard) -> int:
+	var n := 0
+	for st in Career.STATS:
+		n += Career.read_stat(f, st)
+	return n
 
 
 ## A BETTER SCOUT FINDS MORE (28 Sep 2026): the Scout trait's extra names are
