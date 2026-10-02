@@ -380,14 +380,15 @@ func _step_control() -> void:
 	var o := season.office
 	var b: Button
 	if season.gold_step() == "kit":
-		b = UiKit.button(UiKit.t("Fix kit"), Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
-			Vector2(NEXT_W, 46), func():
+		b = UiKit.button(UiKit.t("Fix kit"), Vector2(UiKit.right_edge(STEP_W + 24.0), action_y()),
+			Vector2(STEP_W, 46), func():
 				tab = Tab.MARKET
 				_rebuild(), "anvil")
 	else:
 		var gap: Dictionary = season.ground_gap()
-		b = UiKit.button(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])), int(gap["next_cost"])],
-			Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()), Vector2(NEXT_W, 46), func():
+		b = UiKit.button(UiKit.with_upkeep(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])),
+				int(gap["next_cost"])], o.arena_upkeep_next()),
+			Vector2(UiKit.right_edge(STEP_W + 24.0), action_y()), Vector2(STEP_W, 46), func():
 				var err := o.build_arena()
 				flash = UiKit.said(err) if err != "" else UiKit.t("Built. %s.") % o.arena.arena_name()
 				Session.autosave()
@@ -399,7 +400,11 @@ func _step_control() -> void:
 func step_shift() -> float:
 	if tab != Tab.CLUB or team_card >= 0 or season.gold_step() == "":
 		return 0.0
-	return NEXT_W + 12.0
+	return STEP_W + 12.0
+
+
+## Wider than the fight's: "Build Club gym · 6 CC · 4/yr" is the longest it says.
+const STEP_W := 280.0
 ## -> SeasonClubTab (season_tab_club.gd)
 func _club_controls() -> void:
 	SeasonClubTab._club_controls(self)

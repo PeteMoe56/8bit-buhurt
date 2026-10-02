@@ -148,7 +148,8 @@ func _expected(s: Season, head: String) -> String:
 	## A CLUB WHOSE GROUND THE DIVISION ABOVE WOULD REFUSE is offered the build
 	## first, in gold (Pete, 1 Oct 2026: a "Build Now" at the promotion gate).
 	if head == "promotion" and not s.ground_gap().is_empty():
-		return UiKit.t("Build now · %d CC") % int(s.ground_gap()["total"])
+		return UiKit.with_upkeep(UiKit.t("Build now · %d CC") % int(s.ground_gap()["total"]),
+			s.office.arena_upkeep_at(Arena.level_for_tier(s.world.player_tier() + 1)))
 	return String(FIRST_BUTTON[head])
 
 
@@ -185,7 +186,8 @@ func _gold_step() -> void:
 		## 2. Kit passes; the ground is short and the next level is affordable.
 		man.armor = was
 		var gap := s.ground_gap()
-		var want := UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])), int(gap["next_cost"])]
+		var want := UiKit.with_upkeep(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])),
+			int(gap["next_cost"])], s.office.arena_upkeep_next())
 		got = await _first_button(s)
 		if s.gold_step() != "build" or got != want:
 			bad.append("ground short, purse full: step '%s', gold '%s', want '%s'" % [s.gold_step(), got, want])

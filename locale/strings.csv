@@ -846,6 +846,7 @@ Played %s,Played %s,Jugado %s,Joué %s,Gespielt %s,Giocato %s,Jogado %s,Grane %s
 LAST PLAYED,LAST PLAYED,ÚLTIMA,DERNIÈRE,ZULETZT,ULTIMA,ÚLTIMA,OSTATNIA,ПОСЛЕДНЯЯ,前回
 rated %d,rated %d,nivel %d,note %d,Wert %d,valore %d,nota %d,ocena %d,рейтинг %d,評価%d
 ...,...,...,...,...,...,...,...,...,...
+%s · %d/yr,%s · %d/yr,%s · %d/año,%s · %d/an,%s · %d/Jahr,%s · %d/anno,%s · %d/ano,%s · %d/rok,%s · %d/год,%s · 年%d
 %dst,%dst,%dº,%der,%d.,%dº,%dº,%d.,%d,%d位
 %dnd,%dnd,%dº,%de,%d.,%dº,%dº,%d.,%d,%d位
 %drd,%drd,%dº,%de,%d.,%dº,%dº,%d.,%d,%d位

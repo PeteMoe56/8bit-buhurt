@@ -689,6 +689,26 @@ func upkeep_bill() -> int:
 	return OfficeBooks.upkeep_bill(self)
 
 
+## -> OfficeBooks (office_books.gd)
+func arena_upkeep_next() -> int:
+	return OfficeBooks.arena_upkeep_next(self)
+
+
+## -> OfficeBooks (office_books.gd)
+func arena_upkeep_at(lv: int) -> int:
+	return OfficeBooks.arena_upkeep_at(self, lv)
+
+
+## -> OfficeBooks (office_books.gd)
+func facility_upkeep_next(f: int) -> int:
+	return OfficeBooks.facility_upkeep_next(self, f)
+
+
+## -> OfficeBooks (office_books.gd)
+func rule_upkeep_next(r: int) -> int:
+	return OfficeBooks.rule_upkeep_next(self, r)
+
+
 
 
 ## EVERYTHING THE SUMMER WILL ASK FOR, in one number: the division's dues, every

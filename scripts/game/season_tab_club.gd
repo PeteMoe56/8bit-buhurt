@@ -190,7 +190,8 @@ static func _club_controls(v: SeasonScene) -> void:
 		## one tap a club that has just won it wants. Gold, because it is the step.
 		var gap: Dictionary = v.season.ground_gap()
 		if not gap.is_empty():
-			v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Build now · %d CC") % int(gap["total"]),
+			v.ui.add_child(UiKit.primary(UiKit.button(UiKit.with_upkeep(UiKit.t("Build now · %d CC") % int(gap["total"]),
+					v.season.office.arena_upkeep_at(Arena.level_for_tier(v.season.world.player_tier() + 1))),
 				Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0), SeasonScene.action_y()),
 				Vector2(SeasonScene.NEXT_W, 46), func():
 					var err: String = v.season.build_for_promotion()
@@ -864,7 +865,8 @@ static func _ground_controls(v: SeasonScene) -> void:
 		close_ground(v)
 		return
 	var o := v.season.office
-	var b := UiKit.button(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])), int(gap["next_cost"])],
+	var b := UiKit.button(UiKit.with_upkeep(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])),
+			int(gap["next_cost"])], o.arena_upkeep_next()),
 		Vector2(card.end.x - 24.0 - 300.0, card.end.y - 62.0), Vector2(300, 44), func():
 			var err := o.build_arena()
 			v.flash = UiKit.said(err) if err != "" else UiKit.t("Built. %s.") % o.arena.arena_name()

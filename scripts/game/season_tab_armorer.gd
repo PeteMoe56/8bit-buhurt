@@ -272,8 +272,8 @@ static func _armorers_controls(v: SeasonScene) -> void:
 		var st := int(a["stars"])
 		if not Armorer.will_come(st, o.tier):
 			continue
-		var b := UiKit.button(UiKit.t("Hire · %d CC") % Armorer.wage_of(a), Vector2(r.end.x - 170.0, y - 4.0),
-			Vector2(150, 38), func(pick = a):
+		var b := UiKit.button(UiKit.with_upkeep(UiKit.t("Hire · %d CC") % Armorer.wage_of(a), Armorer.wage_of(a)),
+			Vector2(r.end.x - 190.0, y - 4.0), Vector2(170, 38), func(pick = a):
 				var err := o.hire_armorer(pick)
 				v.flash = UiKit.said(err) if err != "" else UiKit.t("%s is your armorer.") % String(pick["name"])
 				if err == "":

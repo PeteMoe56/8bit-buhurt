@@ -1682,6 +1682,13 @@ static func dither(ci: CanvasItem, r: Rect2, a: Color, b: Color, cell: float = 2
 ## sound and a hard little nudge make a refusal read as a RULE rather than as a
 ## bug, which is the entire difference between a game that is strict and a game
 ## that seems broken.
+## A BUY BUTTON THAT CREATES UPKEEP SAYS SO (1 Oct novice report): "Build Club
+## gym · 6 CC · 4/yr". `per_year` is what the thing will cost to keep a year
+## once it is bought; nothing is added when it is nothing.
+static func with_upkeep(label: String, per_year: int) -> String:
+	return label if per_year <= 0 else UiKit.t("%s · %d/yr") % [label, per_year]
+
+
 static func said(err: String) -> String:
 	if err == "":
 		Audio.play("confirm")
