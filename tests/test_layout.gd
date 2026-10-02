@@ -256,6 +256,29 @@ func _test_the_sub_popup_is_not_a_pile() -> void:
 	_ok(clash.is_empty(), "and no two of them are closer than the drop shadow",
 		"%d controls, %d too close: %s" % [found.size(), clash.size(),
 			", ".join(clash.slice(0, _cap(4)))])
+	## AND A DEAD SUB BOX SAYS WHY (novice report 2: two subs at the end of round
+	## one and all five boxes went grey, a man still on the bench, no word).
+	var sim = n.get("sim")
+	n.set("sub_open", -1)
+	sim.swaps_used[0] = 0
+	n.call("_build_corner")
+	var open_word := String(n.call("corner_sub_word"))
+	sim.swaps_used[0] = Tuning.SWAPS_PER_CORNER
+	n.call("_build_corner")
+	await process_frame
+	var live_subs := 0
+	var seen_subs := 0
+	var after: Array = []
+	_controls(n, after)
+	for c in after:
+		if String(c["name"]) == UiKit.t("SUB"):
+			seen_subs += 1
+			if not (c["node"] as Button).disabled:
+				live_subs += 1
+	var dead_word := String(n.call("corner_sub_word"))
+	_ok(open_word == "" and seen_subs > 0 and live_subs == 0 and dead_word != "",
+		"with the swaps spent every SUB box is dead and the corner says why",
+		"before: '%s'; after: %d of %d live, '%s'" % [open_word, live_subs, seen_subs, dead_word])
 	n.queue_free()
 	await process_frame
 
