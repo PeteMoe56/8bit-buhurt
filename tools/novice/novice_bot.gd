@@ -18,6 +18,12 @@ extends SceneTree
 ##   simmer    skips, sims and fights; never reads
 ##   spender   buys whatever it can
 ##   hoarder   never spends a CC
+##   learner   layer 2: starts by tapping at random and learns from what
+##             happens — wins, promotions, money, refusals — across saves.
+##             Extra args: <values.json> <save index> <max seasons>. Its
+##             beliefs (a value per screen and button) are read at the start
+##             of a save and written at the end, so save 30 plays with what
+##             saves 1–29 learned.
 ##
 ## Fights: bots press only the buttons a fight shows (FIGHT, SKIP ROUND, HOLD,
 ## the corner, the report). A bot that has watched a round for WATCH frames
@@ -65,6 +71,21 @@ var honors_seen := 0
 var broke_events := 0
 var relegations := 0
 
+## THE LEARNER'S BELIEFS. key "scene|label" -> value. Labels lose their
+## numbers ("Buy a slot · 5 CC" and "· 7 CC" are one action).
+var values_path := ""
+var save_index := 0
+var max_seasons := 15
+var Q := {}
+var trace: Array = []          ## [key, eligibility]
+var last_power := -1.0
+var last_credits := 0
+var career_seasons := 0
+var questions := {}            ## text -> {count, first_step, answered_by}
+const ALPHA := 0.15
+const TRACE_DECAY := 0.92
+const TRACE_LEN := 40
+
 
 func _initialize() -> void:
 	var a := OS.get_cmdline_user_args()
@@ -73,6 +94,14 @@ func _initialize() -> void:
 	rng.seed = int(a[1]) if a.size() > 1 else 7
 	steps_wanted = int(a[2]) if a.size() > 2 else steps_wanted
 	out_path = String(a[3]) if a.size() > 3 else out_path
+	values_path = String(a[4]) if a.size() > 4 else ""
+	save_index = int(a[5]) if a.size() > 5 else 0
+	max_seasons = int(a[6]) if a.size() > 6 else max_seasons
+	if values_path != "" and FileAccess.file_exists(values_path):
+		var j = JSON.parse_string(FileAccess.get_file_as_string(values_path))
+		if j is Dictionary:
+			Q = j.get("Q", {})
+			questions = j.get("questions", {})
 	seed(rng.seed)
 	SaveGame.set_namespace("novice_%s_%d" % [persona, rng.seed])
 	Settings.path = "user://novice_%s_%d_settings.cfg" % [persona, rng.seed]
@@ -209,6 +238,8 @@ func _press(b: Button) -> void:
 	pressed_on[state_key][l] = true
 	presses += 1
 	_last_pressed = l
+	if persona == "learner":
+		_trace_push(_akey(l))
 	_log({"t": "press", "scene": here, "label": l, "primary": b.has_meta("primary")})
 	if not first.has("first_fight_press") and l.to_lower() == "fight" and here == "Melee":
 		first["first_fight_press"] = presses
@@ -241,6 +272,8 @@ func _choose(buttons: Array) -> Button:
 			return _weighted(safe, {"move": 20.0, "spend": 0.2, "skip": 30.0})
 		"spender":
 			return _weighted(safe, {"move": 3.0, "spend": 8.0})
+		"learner":
+			return _learn_pick(safe)
 		"hoarder":
 			var keep: Array = safe.filter(func(b): return not _has(_label(b), SPEND) or _has(_label(b), MOVE))
 			if keep.is_empty():
@@ -303,6 +336,9 @@ func _refusal(scene: Node) -> void:
 	var s := String(f) if f != null else ""
 	if s != "" and s != last_flash:
 		_log({"t": "flash", "scene": here, "text": s, "after": _last_label()})
+		if persona == "learner" and _refusal_words(s):
+			_reward(-0.3)
+			_ask("Why won't '%s' work?" % _norm(_last_label()), "the game said: " + s)
 	last_flash = s
 
 
@@ -317,32 +353,53 @@ func _milestones(_scene: Node) -> void:
 	var s: Season = Session.season
 	if s == null:
 		return
+	if persona == "learner":
+		_learn_rewards(s)
 	var tier := s.world.player_tier()
 	if last_tier == -1:
 		last_tier = tier
 	if s.results.size() > results_seen:
 		for i in range(results_seen, s.results.size()):
 			var r: Dictionary = s.results[i]
-			if bool(r.get("fought", false)) and int(r.get("rf", 0)) > int(r.get("ra", 0)):
+			var won := int(r.get("rf", 0)) > int(r.get("ra", 0))
+			var lost := int(r.get("rf", 0)) < int(r.get("ra", 0))
+			if won:
 				_first("first_win")
+			if persona == "learner" and not bool(r.get("bye", false)):
+				_reward(1.0 if won else (-0.4 if lost else 0.2))
 		results_seen = s.results.size()
 	if tier > last_tier:
 		_first("first_promotion")
+		if persona == "learner":
+			_reward(12.0)
 		_log({"t": "milestone", "kind": "promoted", "tier": tier, "season": s.world.season})
 	elif tier < last_tier:
 		relegations += 1
+		if persona == "learner":
+			_reward(-6.0)
 		_log({"t": "milestone", "kind": "relegated", "tier": tier, "season": s.world.season})
 	last_tier = tier
 	if s.world.history.size() > seasons_done:
 		seasons_done = s.world.history.size()
 		var h: Dictionary = s.world.history[-1]
+		## THE QUESTION A CLIMBER ASKS: "we won it — why are we still here?"
+		if persona == "learner" and int(h.get("position", 9)) <= 2 and not bool(h.get("promoted", false)) \
+				and int(h.get("tier", 0)) < 3:
+			_ask("We finished top two. Why didn't we go up?", "see the season screen and the ground's level")
 		_log({"t": "season_end", "season": int(h.get("season", 0)), "tier": int(h.get("tier", 0)),
 			"position": int(h.get("position", 0)), "credits": s.office.credits,
 			"roster": s.club.roster.size(), "coach_level": s.coach.level})
 		## Results reset each season.
 		results_seen = 0
+		career_seasons += 1
+		if persona == "learner" and career_seasons >= max_seasons:
+			_finish("save over")
+			return
 	if s.office.credits < 0:
 		broke_events += 1
+		if persona == "learner" and broke_events == 1:
+			_reward(-2.0)
+			_ask("Why are we in debt?", "summer bills and dues")
 		if broke_events == 1:
 			_log({"t": "milestone", "kind": "broke", "season": s.world.season, "credits": s.office.credits})
 	if s.world.honors.size() > honors_seen:
@@ -352,6 +409,8 @@ func _milestones(_scene: Node) -> void:
 				var id := String(h2.get("id", ""))
 				_log({"t": "milestone", "kind": "trophy", "id": id, "name": String(h2.get("name", "")),
 					"season": int(h2.get("season", 0))})
+				if persona == "learner":
+					_reward(60.0 if id == "worlds" else 6.0)
 				if id.begins_with("playoff"):
 					_first("first_title")
 				elif id == "worlds":
@@ -396,6 +455,10 @@ func _finish(why: String) -> void:
 		"tier": s.world.player_tier() if s != null else -1,
 		"credits": s.office.credits if s != null else 0,
 		"relegations": relegations, "first": first})
+	if persona == "learner" and values_path != "":
+		var fa := FileAccess.open(values_path, FileAccess.WRITE)
+		fa.store_string(JSON.stringify({"Q": Q, "questions": questions}))
+		fa.close()
 	out.close()
 	for i in SaveGame.SLOTS:
 		SaveGame.delete(i)
@@ -479,3 +542,82 @@ static func modal_layer(root_n: Node) -> int:
 						and ctl.size.x >= screen.x * 0.9 and ctl.size.y >= screen.y * 0.9:
 					best = maxi(best, layer_of(ctl))
 	return best
+
+
+## ------------------------------------------------------------------- the learner
+static func _norm(l: String) -> String:
+	var r := RegEx.new()
+	r.compile("[0-9$%+\\-,.]+")
+	return r.sub(l, "#", true).strip_edges()
+
+
+func _akey(l: String) -> String:
+	return "%s|%s" % [here, _norm(l)]
+
+
+## SOFTMAX OVER WHAT IT BELIEVES, cooling with every save: save 0 is close to
+## random, save 30 mostly does what has paid. An action it has never tried is
+## worth a little more than nothing, so it keeps looking.
+func _learn_pick(buttons: Array) -> Button:
+	var temp := maxf(0.08, 1.2 * pow(0.88, float(save_index)))
+	var ws: Array[float] = []
+	var total := 0.0
+	for b in buttons:
+		var v := float(Q.get(_akey(_label(b)), 0.15))
+		var w := exp(clampf(v / temp, -30.0, 30.0))
+		ws.append(w)
+		total += w
+	var r := rng.randf() * total
+	for i in buttons.size():
+		r -= ws[i]
+		if r <= 0.0:
+			return buttons[i]
+	return buttons[-1]
+
+
+func _trace_push(k: String) -> void:
+	for t in trace:
+		t[1] = float(t[1]) * TRACE_DECAY
+	trace.append([k, 1.0])
+	if trace.size() > TRACE_LEN:
+		trace.pop_front()
+
+
+func _reward(r: float) -> void:
+	for t in trace:
+		var k: String = t[0]
+		var q := float(Q.get(k, 0.15))
+		Q[k] = q + ALPHA * float(t[1]) * (r - q * 0.05)
+
+
+func _learn_rewards(s: Season) -> void:
+	var power := s.club.power_exact()
+	if last_power < 0.0:
+		last_power = power
+		last_credits = s.office.credits
+	if absf(power - last_power) > 0.01:
+		_reward(0.15 * (power - last_power))
+		last_power = power
+	## Money is only worth something if it turns into something; a little
+	## credit for having it, none for sitting on a mountain of it.
+	var dc := s.office.credits - last_credits
+	if dc != 0:
+		_reward(clampf(0.01 * float(dc), -0.2, 0.2))
+		last_credits = s.office.credits
+	_reward(-0.0005)
+
+
+func _refusal_words(f: String) -> bool:
+	var low := f.to_lower()
+	for w in ["can't", "cannot", "not enough", "you have", "you hold", "needs", "no room", "refus",
+			"over the cap", "already", "only once", "full", "costs"]:
+		if low.find(w) != -1:
+			return true
+	return false
+
+
+func _ask(q: String, answer: String) -> void:
+	if not questions.has(q):
+		questions[q] = {"count": 0, "save": save_index, "answer": answer}
+		_log({"t": "question", "q": q, "answer": answer, "scene": here})
+	questions[q]["count"] = int(questions[q]["count"]) + 1
