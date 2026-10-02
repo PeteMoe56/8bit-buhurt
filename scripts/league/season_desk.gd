@@ -155,6 +155,28 @@ static func build_for_promotion(s: Season) -> String:
 	return ""
 
 
+## THE NEXT REAL STEP, when it is not the fight (1 Oct novice report, Pete
+## approved): every first-timer pressed the gold button and only the gold
+## button, so a starter the marshals would turn away and a ground the division
+## above would refuse went unseen until they cost a bout or a promotion.
+## "kit" — a man in the first five fails inspection (and Maintenance is open);
+## "build" — the ground is short for the division above and the next level can
+## be built this week; "" — the fight is the step. Asked only of a week with
+## nothing blocking it.
+static func gold_step(s: Season) -> String:
+	if s.blocked_by() != "" or s.season_complete():
+		return ""
+	if s.first_bout_done():
+		for f in s.club.active_eight().slice(0, MeleeClub.LINE_SIZE):
+			if not (f as FighterCard).passes_inspection():
+				return "kit"
+	if not ground_gap(s).is_empty():
+		var o := s.office
+		if o.arena.can_build(o.tier, o.credits) == "" and not o.done_this_week(ClubOffice.SLOT_ARENA):
+			return "build"
+	return ""
+
+
 ## Take it or leave it. Returns "" like every other verb here.
 static func answer_promotion(s: Season, take: bool) -> String:
 	if not s.promotion_place():

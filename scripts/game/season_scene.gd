@@ -364,8 +364,42 @@ func _next_controls() -> void:
 			tab = Tab.CLUB
 			_rebuild()
 	## THE MARK IS THE CROSSED SWORDS, not a ▶: the pixel fonts have no arrow.
-	ui.add_child(UiKit.primary(UiKit.button(label, Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
-		Vector2(NEXT_W, 46), go, "sword")))
+	var fight := UiKit.button(label, Vector2(UiKit.right_edge(NEXT_W + 24.0) - step_shift(), action_y()),
+		Vector2(NEXT_W, 46), go, "sword")
+	ui.add_child(fight if step_shift() > 0.0 else UiKit.primary(fight))
+	_step_control()
+
+
+## THE GOLD BUTTON IS THE NEXT REAL STEP (1 Oct novice report, Pete approved).
+## On the hub, a starter who fails inspection or a ground the division above
+## would refuse, and can be built this week, takes the gold slot; the fight
+## steps left beside it, plain. `Season.gold_step()` decides.
+func _step_control() -> void:
+	if step_shift() <= 0.0:
+		return
+	var o := season.office
+	var b: Button
+	if season.gold_step() == "kit":
+		b = UiKit.button(UiKit.t("Fix kit"), Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()),
+			Vector2(NEXT_W, 46), func():
+				tab = Tab.MARKET
+				_rebuild(), "anvil")
+	else:
+		var gap: Dictionary = season.ground_gap()
+		b = UiKit.button(UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])), int(gap["next_cost"])],
+			Vector2(UiKit.right_edge(NEXT_W + 24.0), action_y()), Vector2(NEXT_W, 46), func():
+				var err := o.build_arena()
+				flash = UiKit.said(err) if err != "" else UiKit.t("Built. %s.") % o.arena.arena_name()
+				Session.autosave()
+				_rebuild(), "hall")
+	ui.add_child(UiKit.primary(b))
+
+
+## How far the fight (and Sim it) step left for the gold step. 0 when there is none.
+func step_shift() -> float:
+	if tab != Tab.CLUB or team_card >= 0 or season.gold_step() == "":
+		return 0.0
+	return NEXT_W + 12.0
 ## -> SeasonClubTab (season_tab_club.gd)
 func _club_controls() -> void:
 	SeasonClubTab._club_controls(self)

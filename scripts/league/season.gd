@@ -952,6 +952,11 @@ func build_for_promotion() -> String:
 	return SeasonDesk.build_for_promotion(self)
 
 
+## -> SeasonDesk (season_desk.gd)
+func gold_step() -> String:
+	return SeasonDesk.gold_step(self)
+
+
 
 
 ## What he said, for the summer report. `true` is went up, `false` is stayed.

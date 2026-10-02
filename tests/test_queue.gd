@@ -121,6 +121,7 @@ func _initialize() -> void:
 		order_bad.append("card and promotion pending: season says '%s', the order says 'dilemma'" % pair_head)
 	_ok(order_bad.is_empty(), "and the season's own order is bid, cup, send-off, dilemma, promotion",
 		"every blocked state checked" if order_bad.is_empty() else "; ".join(order_bad.slice(0, 4)))
+	await _gold_step()
 	print("")
 	if failures.is_empty():
 		print("THE QUEUE HOLDS (%d checks)\n" % checks)
@@ -148,6 +149,74 @@ func _expected(s: Season, head: String) -> String:
 	if head == "promotion" and not s.ground_gap().is_empty():
 		return UiKit.t("Build now · %d CC") % int(s.ground_gap()["total"])
 	return String(FIRST_BUTTON[head])
+
+
+## THE GOLD BUTTON IS THE NEXT REAL STEP (1 Oct novice report, Pete approved).
+## Nothing blocked, first bout fought: a starter under the pass mark makes it
+## "Fix kit"; else a ground short for the division above that can be built this
+## week makes it "Build <next>"; otherwise the fight stays gold. Read off the
+## real hub, one state at a time, and each step's button does what it says.
+func _gold_step() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	var g := 0
+	while g < 40 and (not s.first_bout_done() or s.blocked_by() != ""):
+		g += 1
+		match s.blocked_by():
+			"bid": s.decline_bid()
+			"dilemma": s.answer_dilemma(0)
+			"sendoff": s.answer_send_off()
+			"cup": s.sim_cup_tie()
+			"": s.skip_event()
+			_: break
+	var bad: Array[String] = []
+	if s.blocked_by() != "" or s.season_complete() or s.ground_gap().is_empty():
+		bad.append("no open week with a ground gap to test (blocked '%s')" % s.blocked_by())
+	else:
+		var man: FighterCard = s.club.active_eight()[0]
+		var was := man.armor
+		var purse := s.office.credits
+		## 1. A starter the marshals would turn away.
+		man.armor = FighterCard.INSPECTION_MIN - 0.1
+		s.office.credits = 9999
+		var got: String = await _first_button(s)
+		if s.gold_step() != "kit" or got != UiKit.t("Fix kit"):
+			bad.append("kit under the pass mark: step '%s', gold '%s'" % [s.gold_step(), got])
+		## 2. Kit passes; the ground is short and the next level is affordable.
+		man.armor = was
+		var gap := s.ground_gap()
+		var want := UiKit.t("Build %s · %d CC") % [UiKit.t(String(gap["next"])), int(gap["next_cost"])]
+		got = await _first_button(s)
+		if s.gold_step() != "build" or got != want:
+			bad.append("ground short, purse full: step '%s', gold '%s', want '%s'" % [s.gold_step(), got, want])
+		## 3. Short of the price: the fight is gold again.
+		s.office.credits = int(gap["next_cost"]) - 1
+		got = await _first_button(s)
+		var opp := s.opponent_id()
+		var fight := (UiKit.t("Fight: vs %s") % String(s.world.clubs[opp].get("short", "?"))) if opp >= 0 else ""
+		if s.gold_step() != "" or (opp >= 0 and got != fight):
+			bad.append("ground short, purse short: step '%s', gold '%s', want '%s'" % [s.gold_step(), got, fight])
+		## 4. Pressing Build builds it, and the fight takes the gold back for the week.
+		s.office.credits = 9999
+		var lv := s.office.arena.level
+		var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
+		Session.season = s
+		root.add_child(n)
+		await process_frame
+		n.set("ground_open", false)
+		n.call("_rebuild")
+		await process_frame
+		for b in _buttons(n):
+			if (b as Button).text == want:
+				(b as Button).pressed.emit()
+				break
+		await process_frame
+		if s.office.arena.level != lv + 1 or s.gold_step() == "build":
+			bad.append("Build pressed: level %d -> %d, step now '%s'" % [lv, s.office.arena.level, s.gold_step()])
+		n.queue_free()
+		await process_frame
+		s.office.credits = purse
+	_ok(bad.is_empty(), "the gold button is the next real step: Fix kit, Build <next>, else the fight",
+		"kit, ground, short purse and a pressed Build read off the hub" if bad.is_empty() else "; ".join(bad))
 
 
 ## The button the club tab offers as the way forward: the gold (primary) one on

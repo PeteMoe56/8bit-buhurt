@@ -335,7 +335,7 @@ static func _club_controls(v: SeasonScene) -> void:
 	## NOTHING TO SIM ON A SATURDAY WITH NO FIXTURE.
 	if v.season.opponent_id() < 0:
 		return
-	v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0 + 204.0 + 12.0),
+	v.ui.add_child(UiKit.button(UiKit.t("Sim it"), Vector2(UiKit.right_edge(SeasonScene.NEXT_W + 24.0 + 204.0 + 12.0) - v.step_shift(),
 		SeasonScene.action_y()), Vector2(204, 46),
 		func():
 			v.sim_asking = true
