@@ -143,6 +143,10 @@ func _expected(s: Season, head: String) -> String:
 	if head == "dilemma":
 		var opts: Array = s.dilemma_card().get("options", [])
 		return String((opts[0] as Dictionary)["label"]) if not opts.is_empty() else ""
+	## A CLUB WHOSE GROUND THE DIVISION ABOVE WOULD REFUSE is offered the build
+	## first, in gold (Pete, 1 Oct 2026: a "Build Now" at the promotion gate).
+	if head == "promotion" and not s.ground_gap().is_empty():
+		return UiKit.t("Build now · %d CC") % int(s.ground_gap()["total"])
 	return String(FIRST_BUTTON[head])
 
 
@@ -154,6 +158,9 @@ func _first_button(s: Season) -> String:
 	var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
 	root.add_child(n)
 	await process_frame
+	## THE MID-SEASON GROUND CARD sits over the hub when it is due; it has its
+	## own Later. Read the row under it, as a player does after Later.
+	n.set("ground_open", false)
 	n.set("tab", 0)
 	n.call("_rebuild")
 	await process_frame
