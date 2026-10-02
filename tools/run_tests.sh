@@ -23,7 +23,16 @@
 ## optional: run it before any balance change is committed.
 ##
 ## Check `uptime` before trusting any timing: a busy machine doubles everything.
+##
+## SPLIT FOR CI (1 Oct 2026, GitHub Actions). Two env vars carve one run into
+## parallel jobs; unset, the suite is exactly what it was.
+##   RB_SECTIONS  comma list of parse,files,shapes,langs (default: all four)
+##   RB_SHARD     i/n — this job runs every n-th test file starting at i (0-based)
 set -u
+SECTIONS=",${RB_SECTIONS:-parse,files,shapes,langs},"
+SHARD_I=0; SHARD_N=1
+if [ -n "${RB_SHARD:-}" ]; then SHARD_I="${RB_SHARD%/*}"; SHARD_N="${RB_SHARD#*/}"; fi
+want() { [[ "$SECTIONS" == *",$1,"* ]]; }
 ## NO COACH MARKS IN THE SWEEPS (29 Sep 2026): they would sit over the screens
 ## the sweeps are reading. test_audit_ui turns them back on to test them.
 export RB_NO_TIPS=1
@@ -108,7 +117,7 @@ run_one() {
 ## every script inside the project, where every class_name resolves as it does
 ## in the game, and the engine prints Parse / Compile Error per file. The file
 ## must also print its PARSED line, so a crash part-way is a failure.
-if [ ${#FILES[@]} -eq 0 ]; then
+if [ ${#FILES[@]} -eq 0 ] && want parse; then
   echo "=== every script parses"
   plog="$LOGS/parse_all.log"
   timeout 300 "$G" --headless --path . --script res://tools/parse_all.gd >"$plog" 2>&1
@@ -127,9 +136,13 @@ case "$TIER" in fast) tiers=(fast) ;; balance) tiers=(balance) ;; all) tiers=(fa
 
 if [ ${#FILES[@]} -gt 0 ]; then list=("${FILES[@]}"); else list=(tests/test_*.gd); fi
 
+want files || tiers=()
 for tier in "${tiers[@]}"; do
   echo "=== $tier tier"
+  idx=-1
   for t in "${list[@]}"; do
+    idx=$((idx+1))
+    [ $((idx % SHARD_N)) -eq "$SHARD_I" ] || continue
     ## test_shapes needs a real display; it runs in the shape sweep below.
     [ "$(basename "$t")" = "test_shapes.gd" ] && continue
     ## test_checklist measures bands of the real frame; it runs in the shape sweep.
@@ -147,7 +160,7 @@ done
 ## THE SHAPE SWEEP — the screens at the shapes a handset hands the game.
 ## `stretch/aspect = "expand"` does not letterbox, so 960x540 is the one shape no
 ## phone has. Needs a display, hence xvfb. Missing xvfb is a failure, not a skip.
-if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ]; then
+if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want shapes; then
   echo "=== shape sweep"
   if command -v xvfb-run >/dev/null 2>&1; then
     for res in 960x540 1170x540 1260x540 960x720; do
@@ -166,7 +179,7 @@ fi
 ## and German drafts ran 60 strings off panels, out of columns and under
 ## buttons. Run in parallel (each is a separate engine) and judged exactly as
 ## run_one judges. RB_LOCALE pins the file; see test_ink / test_layout.
-if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ]; then
+if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want langs; then
   echo "=== language sweep @960x540"
   if command -v xvfb-run >/dev/null 2>&1; then
     locs=(es fr de it pt_BR pl ru ja)

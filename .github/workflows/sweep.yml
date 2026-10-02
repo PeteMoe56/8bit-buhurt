@@ -1,0 +1,63 @@
+name: Balance sweep
+## THE BASES, ONE JOB PER VARIANT, ALL AT ONCE (1 Oct 2026). Each variant is a
+## name and sed edits applied to a fresh checkout; every job runs `bb.sh bases`
+## and the summary lists the mean first National title side by side.
+##   variants: JSON list, e.g.
+##   [{"name":"base","edits":[]},
+##    {"name":"p2","edits":[["scripts/game/career.gd","s/^const POINTS_PER_LEVEL: int = 3/const POINTS_PER_LEVEL: int = 2/"]]}]
+on:
+  workflow_dispatch:
+    inputs:
+      variants:
+        description: JSON list of {name, edits:[[file, sed]]}
+        required: true
+        default: '[{"name":"base","edits":[]}]'
+      runs:
+        description: careers per base
+        default: "5"
+      years:
+        description: seasons per career
+        default: "20"
+env:
+  GODOT: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64
+jobs:
+  bases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        v: ${{ fromJSON(github.event.inputs.variants) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the variant
+        run: |
+          echo '${{ toJSON(matrix.v.edits) }}' > /tmp/edits.json
+          python3 - <<'PY'
+          import json, subprocess
+          for f, e in json.load(open('/tmp/edits.json')):
+              subprocess.run(['sed', '-i', e, f], check=True)
+          PY
+          git diff --stat
+      - uses: ./.github/actions/setup-godot
+      - run: bash tools/bb.sh bases ${{ github.event.inputs.runs }} ${{ github.event.inputs.years }} | tee bases.txt
+      - run: mkdir -p out && cp bases.txt "out/${{ matrix.v.name }}.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "bases-${{ matrix.v.name }}"
+          path: out
+  summary:
+    needs: bases
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: all
+          pattern: bases-*
+          merge-multiple: true
+      - run: |
+          echo "| variant | mean first National title |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          for f in all/*.txt; do echo "| $(basename $f .txt) | $(grep -oE 'mean title [0-9.]+' $f | grep -oE '[0-9.]+$') |" >> $GITHUB_STEP_SUMMARY; done
+          cat all/*.txt

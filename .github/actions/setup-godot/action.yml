@@ -1,0 +1,30 @@
+name: Set up Godot
+description: Godot 4.6.2 headless, cached, with xvfb, and the project imported.
+runs:
+  using: composite
+  steps:
+    - name: Cache Godot
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: /tmp/godot462
+        key: godot-4.6.2-stable-linux
+    - name: Download Godot
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        mkdir -p /tmp/godot462 && cd /tmp/godot462
+        curl -sSL -o g.zip https://github.com/godotengine/godot/releases/download/4.6.2-stable/Godot_v4.6.2-stable_linux.x86_64.zip
+        unzip -q g.zip && chmod +x Godot_v4.6.2-stable_linux.x86_64
+    - name: xvfb and fonts
+      shell: bash
+      run: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb > /dev/null
+    - name: Cache the import
+      uses: actions/cache@v4
+      with:
+        path: .godot
+        key: import-${{ hashFiles('project.godot', 'locale/strings.csv', 'fonts/**', 'art/**') }}
+        restore-keys: import-
+    - name: Import
+      shell: bash
+      run: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64 --headless --path . --import > /dev/null 2>&1 || true

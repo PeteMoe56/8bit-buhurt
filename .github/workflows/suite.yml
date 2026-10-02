@@ -1,0 +1,77 @@
+name: Suite
+## THE GATE, split across runners (1 Oct 2026). A push to a branch runs the fast
+## tier; a pull request into main runs everything — "the full check once before
+## anything ships". Same files, same judging as tools/run_tests.sh on a desk.
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: fast, balance or all
+        default: all
+concurrency:
+  group: suite-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  GODOT: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      tier: ${{ steps.t.outputs.tier }}
+    steps:
+      - id: t
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then echo "tier=all" >> $GITHUB_OUTPUT
+          elif [ -n "${{ github.event.inputs.tier }}" ]; then echo "tier=${{ github.event.inputs.tier }}" >> $GITHUB_OUTPUT
+          else echo "tier=fast" >> $GITHUB_OUTPUT; fi
+  files:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-godot
+      - name: Parse sweep (shard 0 only) and files
+        run: |
+          S=files; [ "${{ matrix.shard }}" = "0" ] && S=parse,files
+          RB_SECTIONS=$S RB_SHARD=${{ matrix.shard }}/6 bash tools/run_tests.sh --${{ needs.plan.outputs.tier }}
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-files-${{ matrix.shard }}
+          path: logs/tests
+  screens:
+    needs: plan
+    if: needs.plan.outputs.tier != 'balance'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        section: [shapes, langs]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-godot
+      - run: RB_SECTIONS=${{ matrix.section }} bash tools/run_tests.sh --fast
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.section }}
+          path: logs/tests
+  gate:
+    needs: [files, screens]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          [ "${{ needs.files.result }}" = "success" ] || { echo "files: ${{ needs.files.result }}"; exit 1; }
+          [ "${{ needs.screens.result }}" = "success" ] || [ "${{ needs.screens.result }}" = "skipped" ] || { echo "screens: ${{ needs.screens.result }}"; exit 1; }
+          echo "SUITE GREEN"

@@ -1,0 +1,50 @@
+name: Learning player
+## LAYER 2: saves in order, beliefs carried from one to the next (1 Oct 2026).
+## A job stops after `saves` saves and uploads values.json; start the next
+## chunk with `resume` = the run id of the last one. Under the 6-hour job limit.
+on:
+  workflow_dispatch:
+    inputs:
+      first:
+        description: first save index
+        default: "0"
+      saves:
+        description: saves in this chunk
+        default: "12"
+      seasons:
+        description: seasons per save
+        default: "10"
+      resume:
+        description: run id to take values.json from (blank = start fresh)
+        default: ""
+env:
+  GODOT: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-godot
+      - if: github.event.inputs.resume != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: learner
+          path: out
+          run-id: ${{ github.event.inputs.resume }}
+          github-token: ${{ github.token }}
+      - run: |
+          mkdir -p out
+          f=${{ github.event.inputs.first }}; n=${{ github.event.inputs.saves }}
+          for i in $(seq $f $((f+n-1))); do
+            $GODOT --headless --fixed-fps 60 --path . --script res://tools/novice/novice_bot.gd -- \
+              learner $((1000+i)) 100000 "$PWD/out/save_$i.jsonl" "$PWD/out/values.json" $i ${{ github.event.inputs.seasons }} 2>&1 \
+              | grep -E "^novice|SCRIPT ERROR" || true
+          done
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: learner
+          path: out
+      - if: always()
+        run: python3 tools/novice/summarize.py out/save_*.jsonl >> $GITHUB_STEP_SUMMARY

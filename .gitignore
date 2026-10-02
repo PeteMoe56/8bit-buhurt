@@ -42,3 +42,7 @@ _git_locks_to_delete/
 # Test and tool logs
 /logs/
 __pycache__/
+
+# Patches and renders handed over from Claude sessions; not part of the game.
+Claude outputs/
+logs/

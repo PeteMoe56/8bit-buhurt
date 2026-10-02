@@ -1,0 +1,53 @@
+name: Novice bots
+## LAYER 1 OF THE NOVICE PROGRAM, every persona at once (1 Oct 2026).
+on:
+  workflow_dispatch:
+    inputs:
+      personas:
+        description: JSON list
+        default: '["gold","simmer","spender","hoarder","wanderer"]'
+      seeds:
+        description: JSON list
+        default: '[1, 2]'
+      steps:
+        default: "100000"
+env:
+  GODOT: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        persona: ${{ fromJSON(github.event.inputs.personas) }}
+        seed: ${{ fromJSON(github.event.inputs.seeds) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-godot
+      - run: |
+          mkdir -p out
+          $GODOT --headless --fixed-fps 60 --path . --script res://tools/novice/novice_bot.gd -- \
+            ${{ matrix.persona }} ${{ matrix.seed }} ${{ github.event.inputs.steps }} \
+            "$PWD/out/${{ matrix.persona }}_${{ matrix.seed }}.jsonl" 2>&1 | grep -E "^novice|SCRIPT ERROR" || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "bot-${{ matrix.persona }}-${{ matrix.seed }}"
+          path: out
+  summary:
+    needs: bot
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: runs
+          pattern: bot-*
+          merge-multiple: true
+      - run: python3 tools/novice/summarize.py runs/*.jsonl >> $GITHUB_STEP_SUMMARY
+      - run: python3 tools/novice/jargon.py runs/wanderer_*.jsonl runs/gold_*.jsonl > jargon.md || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: novice-summary
+          path: jargon.md
