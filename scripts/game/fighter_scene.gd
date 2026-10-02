@@ -573,8 +573,14 @@ func _draw() -> void:
 		## CLEAR OF THE BUTTON ROW. The row starts at `screen().y - 56`; at -66 a
 		## 13px line's descenders were inside the buttons' own drop shadow, which
 		## is what "when pressed, it's hidden" was describing.
+		##
+		## AND OVER THE TITLE WHILE THE LEVEL ROW IS UP (novice report 2: "Calder
+		## put a level into strength" and "N more xp before he levels" were drawn
+		## under the +3 buttons, so a spent point and a refusal both looked like
+		## nothing). The band under the name is the one bus_note uses; the two
+		## never show at once.
 		UiKit.text(self, font, UiKit.fit_px(font, flash, 13, UiKit.span()),
-			Vector2(24, UiKit.screen().y - 76), 14, UiKit.DOWN)
+			Vector2(24, flash_y()), 14, UiKit.DOWN)
 	elif bus_note != "":
 		## UNDER THE TITLE, NOT ABOVE THE BUTTONS. The first cut put it on the
 		## same line the flash uses — and the ink sweep failed it at all four
@@ -588,6 +594,12 @@ func _draw() -> void:
 		## under the fighter's name is the only band on this screen that is.
 		UiKit.text(self, font, UiKit.fit_px(font, bus_note, 13, UiKit.span()),
 			Vector2(24, 74), 14, UiKit.DIM)
+
+
+## Where the flash line sits: above the button row, or under the title when the
+## level row is up and would cover it.
+func flash_y() -> float:
+	return 74.0 if man != null and Career.can_place(man) else UiKit.screen().y - 76.0
 
 
 # ------------------------------------------------------------------- column 1
