@@ -199,6 +199,12 @@ if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want langs; then
         ( RB_LOCALE="$loc" RB_TIER=fast timeout 900 "${runner[@]}" --path . --script "res://tests/$t.gd" \
             >"$LOGS/$t@$loc.fast.log" 2>&1; echo $? >"$LOGS/$t@$loc.rc" ) &
         pids+=($!)
+        ## THE FIRST DRAWN RUN GOES ALONE (2 Oct 2026, CI): on a fresh runner the
+        ## shader cache is empty, and eight engines filling it at once fail each
+        ## other — "Can't create shader cache folder", or a header read from a
+        ## file another engine is half-way through writing. One full pass fills
+        ## it; the rest only read.
+        [ "$n" -eq 1 ] && wait "${pids[0]}"
       done
     done
     start=$SECONDS
