@@ -99,6 +99,10 @@ var wheel_man := -1
 var tip := ""
 var tip_layer: CanvasLayer = null
 var wheel_drag := false
+## THE CORNER's queue (FightCorner): men of ours with an open question, in the
+## order they opened, and the one the player moved to with the hub (-1: newest).
+var corner_order: Array = []
+var corner_pick := -1
 ## SPRINT: seconds the drawing finger has rested, and whether it has rested long
 ## enough on the endpoint to make this route a run.
 var draw_rest := 0.0
@@ -742,13 +746,21 @@ func _press(p: Vector2) -> void:
 		## drag that started in the middle of the wheel did nothing, because the
 		## wheel is pushed off a man near the edge and only the man's own spot
 		## started a drag).
+		elif FightCorner.on():
+			## In the corner a press anywhere on it starts the drag.
+			if FightCorner.hit(self, p) != -2:
+				wheel_drag = true
 		elif _wheel_center(wm).distance_to(p) < WHEEL_RI + 6.0 or _to_screen(wm.pos).distance_to(p) < 30.0:
 			wheel_drag = true
 		return
+	## THE CORNER answers while the fight runs: a side, or the hub for the next man.
+	if FightCorner.on():
+		if FightCorner.press_bar(self, p):
+			return
 	## A prompt is a question with three answers. Answering it beats starting a
 	## new route, so it is tested first.
 	for m in sim.men:
-		if m.prompt == null or m.team != 0:
+		if m.prompt == null or m.team != 0 or FightCorner.on():
 			continue
 		var acts: Array = Tuning.acts_for(m.prompt.menu)
 		for i in acts.size():
@@ -970,11 +982,16 @@ func _draw() -> void:
 	_draw_held()
 	if screen == Screen.FIGHT:
 		_draw_call_words()
-	for m in sim.men:
-		if m.prompt != null and m.team == 0 and m.idx != wheel_man:
-			_draw_prompt(m)
-	if wheel_man != -1:
-		_draw_wheel(sim.men[wheel_man])
+	if FightCorner.on():
+		## EVERY CHOICE IN ONE CORNER (Pete, 2 Oct 2026, option E).
+		if screen == Screen.FIGHT:
+			FightCorner.draw(self)
+	else:
+		for m in sim.men:
+			if m.prompt != null and m.team == 0 and m.idx != wheel_man:
+				_draw_prompt(m)
+		if wheel_man != -1:
+			_draw_wheel(sim.men[wheel_man])
 	## THE PANEL NEEDS A FLOOR, NOT JUST A DIMMER.
 	##
 	## There was a scrim here and nothing else, so the formation picker and the
@@ -1673,6 +1690,12 @@ func _wheel_cancel_rect(m) -> Rect2:
 ## released anywhere past the man's own circle counts as the side it points at.
 func _wheel_option_at(m, p: Vector2, by_direction: bool = false) -> int:
 	var opts := _wheel_opts(m)
+	if FightCorner.on():
+		## The corner: a side is its act, the hub is Cancel.
+		var h := FightCorner.hit(self, p)
+		if h == -1:
+			return -1
+		return -2 if h == -2 else int(opts[h])
 	if _wheel_cancel_rect(m).grow(4.0).has_point(p):
 		return -1
 	var v := p - _wheel_center(m)

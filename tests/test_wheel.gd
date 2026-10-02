@@ -16,6 +16,10 @@ var scene: Node
 
 func _initialize() -> void:
 	SaveGame.set_namespace("wheel")
+	## THE CLASSIC CONTROLS: the guard triangle on the man. The corner, the
+	## default since 2 Oct 2026, is held by test_corner.gd.
+	Settings.load_once()
+	Settings.fight_controls = "classic"
 	print("\n=== 8-Bit Buhurt — the guard triangle ===\n")
 	scene = load("res://scenes/Melee.tscn").instantiate()
 	root.add_child.call_deferred(scene)

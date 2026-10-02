@@ -39,6 +39,26 @@ const ABOUT_H := 128.0
 ## "Make a Guide in the Settings/Menu area").
 const GUIDE_Y := CAREER_Y
 const GUIDE_H := 130.0
+## FIGHT CONTROLS took the Guide's panel (2 Oct 2026); the Guide button moved
+## beside Credits.
+const FIGHT_Y := GUIDE_Y
+const FIGHT_H := GUIDE_H
+const FIGHT_ROWS := [
+	{"key": "controls", "y": 36.0, "vals": ["corner", "classic"]},
+	{"key": "hand", "y": 82.0, "vals": ["right", "left"]},
+]
+
+
+## The words for the FIGHT CONTROLS rows, literal so the string table sees them.
+static func fight_word(val: String) -> String:
+	match val:
+		"controls": return UiKit.t("Choices")
+		"hand": return UiKit.t("Corner hand")
+		"corner": return UiKit.t("Corner")
+		"classic": return UiKit.t("On the man")
+		"right": return UiKit.t("Right")
+		"left": return UiKit.t("Left")
+	return val
 
 var font: Font
 var ui: CanvasLayer
@@ -131,10 +151,29 @@ func _build() -> void:
 	## THE CREDITS LIVE BEHIND THEIR OWN BUTTON (blind review, 29 Sep: they took
 	## half the screen and outranked the settings). Every line is still there, in
 	## full, above the licence texts.
+	## THE GUIDE SHARES ABOUT'S ROW (2 Oct 2026): its panel became FIGHT CONTROLS.
+	var ah := (COL_W - 36.0 - 8.0) * 0.5
 	ui.add_child(UiKit.button(UiKit.t("Credits & licenses"), Vector2(RIGHT_X + 18, ABOUT_Y + 80.0),
-		Vector2(COL_W - 36.0, 40), _show_licences, "scroll"))
-	ui.add_child(UiKit.button(UiKit.t("Open the Guide"), Vector2(LEFT_X + 18, GUIDE_Y + 80.0),
-		Vector2(COL_W - 36.0, 40), func(): UiKit.go("res://scenes/Guide.tscn"), "book"))
+		Vector2(ah, 40), _show_licences, "scroll"))
+	ui.add_child(UiKit.button(UiKit.t("Open the Guide"), Vector2(RIGHT_X + 18 + ah + 8.0, ABOUT_Y + 80.0),
+		Vector2(ah, 40), func(): UiKit.go("res://scenes/Guide.tscn"), "book"))
+	## FIGHT CONTROLS (Pete, 2 Oct 2026): where a fight's choices are made, and
+	## which thumb the corner sits under. Each row is a pair, the one in use lit.
+	var bw := 124.0
+	var bx := LEFT_X + COL_W - 18.0 - bw * 2.0 - 6.0
+	for row in FIGHT_ROWS:
+		var y := FIGHT_Y + float(row["y"])
+		for k in 2:
+			var val: String = row["vals"][k]
+			var cur: String = Settings.fight_controls if row["key"] == "controls" else Settings.fight_hand
+			ui.add_child(UiKit.selected(UiKit.button(fight_word(val),
+				Vector2(bx + float(k) * (bw + 6.0), y), Vector2(bw, 38), func(key = String(row["key"]), v = val):
+					if key == "controls":
+						Settings.set_fight_controls(v)
+					else:
+						Settings.set_fight_hand(v)
+					Audio.play("tap")
+					_build()), val == cur))
 	queue_redraw()
 
 
@@ -325,8 +364,9 @@ func _draw() -> void:
 	UiKit.text_fit(self, font, UiKit.t("Built by BonkWorks."),
 		Vector2(RIGHT_X + 18, ABOUT_Y + 70), 14, UiKit.DIM, COL_W - 36.0)
 
-	# ----------------------------------------------------------------- guide
-	UiKit.panel(self, Rect2(LEFT_X, GUIDE_Y, COL_W, GUIDE_H))
-	UiKit.text(self, font, UiKit.t("GUIDE"), Vector2(LEFT_X + 18, GUIDE_Y + 24), 15, UiKit.DIM)
-	UiKit.para(self, font, UiKit.t("What every number and word means."),
-		Vector2(LEFT_X + 18, GUIDE_Y + 50), 14, UiKit.INK, COL_W - 36.0, 18.0)
+	# -------------------------------------------------------- fight controls
+	UiKit.panel(self, Rect2(LEFT_X, FIGHT_Y, COL_W, FIGHT_H))
+	UiKit.text(self, font, UiKit.t("FIGHT CONTROLS"), Vector2(LEFT_X + 18, FIGHT_Y + 24), 15, UiKit.DIM)
+	for row in FIGHT_ROWS:
+		UiKit.text_fit(self, font, fight_word(String(row["key"])), Vector2(LEFT_X + 18, FIGHT_Y + float(row["y"]) + 26.0),
+			16, UiKit.INK, COL_W - 36.0 - 254.0 - 8.0)

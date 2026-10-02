@@ -7,6 +7,7 @@ extends SceneTree
 ##         | clinch (a clinched man's Takedown/Hold/Escape strip)
 ##         | clinch_plain (the clinch, no strip)
 ##   spot: mid | edge (top rail, near our end) | far (bottom rail, near theirs)
+##   then optionally a language code (de, es, ...)
 ## Prints our man's and his target's screen positions for the overlay.
 
 var mode := "plain"
@@ -26,6 +27,10 @@ func _initialize() -> void:
 		spot = String(a[1])
 	if a.size() > 2:
 		out_path = String(a[2])
+	## An optional language, for checking the words fit in each.
+	if a.size() > 3:
+		Settings.language = String(a[3])
+		Settings.apply_language()
 	## "wheel": today's contact wheel, at the same spots, for the comparison.
 	Tuning.contact_wheel = mode == "wheel"
 	scene = load("res://scenes/Melee.tscn").instantiate()

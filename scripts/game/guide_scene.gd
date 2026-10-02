@@ -66,7 +66,8 @@ static func page(i: int) -> Array:
 			UiKit.t("A man who goes down stays down until the round is over."),
 			UiKit.t("A round ends when a side is wiped out, it is three on one, or time runs out. More men standing wins it."),
 			UiKit.t("HOLD freezes the fight so you can give one order. You get two a bout."),
-			UiKit.t("Drag your man onto an enemy to send him. A wheel opens on contact: lift your thumb to commit."),
+			UiKit.t("Drag your man onto an enemy to send him. When he gets there the fight stops and his three choices open in the corner."),
+			UiKit.t("A man who meets someone on his own shows his choices too, his own pick outlined, without stopping the fight. Rust means clinched: wait for the edge to fill."),
 			UiKit.t("Between rounds you can swap in up to two men from the bench. Rested men come back fresher."),
 			UiKit.t("Your Playbook plan steers your line for the opening seconds of each round."),
 		]

@@ -16,6 +16,15 @@ static var music: float = 0.80
 static var sfx: float = 0.90
 static var interface: float = 0.65
 static var _loaded := false
+## FIGHT CONTROLS (Pete, 2 Oct 2026: "start with E for both ... a gameplay
+## setting with left/right handed as well"). Where every choice in a fight is
+## made: "corner", a quarter-wheel under the thumb, or "classic", the guard
+## triangle on the man and the three boxes over him. `fight_hand` puts the
+## corner under the right thumb or the left.
+const CONTROLS := ["corner", "classic"]
+const HANDS := ["right", "left"]
+static var fight_controls: String = "corner"
+static var fight_hand: String = "right"
 
 
 static func load_once() -> void:
@@ -28,6 +37,10 @@ static func load_once() -> void:
 		sfx = clampf(float(cfg.get_value("audio", "sfx", sfx)), 0.0, 1.0)
 		interface = clampf(float(cfg.get_value("audio", "ui", interface)), 0.0, 1.0)
 		language = String(cfg.get_value("general", "language", ""))
+		var fc := String(cfg.get_value("controls", "fight", fight_controls))
+		fight_controls = fc if CONTROLS.has(fc) else "corner"
+		var fh := String(cfg.get_value("controls", "hand", fight_hand))
+		fight_hand = fh if HANDS.has(fh) else "right"
 		var seen = cfg.get_value("general", "tips_seen", [])
 		tips_seen.clear()
 		if seen is Array:
@@ -44,7 +57,21 @@ static func save_to_disk() -> void:
 	cfg.set_value("audio", "ui", interface)
 	cfg.set_value("general", "language", language)
 	cfg.set_value("general", "tips_seen", tips_seen)
+	cfg.set_value("controls", "fight", fight_controls)
+	cfg.set_value("controls", "hand", fight_hand)
 	cfg.save(path)
+
+
+static func set_fight_controls(which: String) -> void:
+	if CONTROLS.has(which):
+		fight_controls = which
+		save_to_disk()
+
+
+static func set_fight_hand(which: String) -> void:
+	if HANDS.has(which):
+		fight_hand = which
+		save_to_disk()
 
 
 # ---------------------------------------------------------------------- tips
