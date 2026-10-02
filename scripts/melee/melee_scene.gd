@@ -3000,7 +3000,7 @@ func _draw_splash() -> void:
 	_splash_club(sim.clubs[1], 1, 724.0)
 	## A "V" YOU CAN SEE (round 9: "the v is tiny"), and "VS", not "V" (round 2,
 	## 2 Oct: a lone V read as a letter, not the versus).
-	UiKit.raw(self, font, Vector2(0, 232), "VS", HORIZONTAL_ALIGNMENT_CENTER,
+	UiKit.raw(self, font, Vector2(0, 232), UiKit.t("VS"), HORIZONTAL_ALIGNMENT_CENTER,
 		int(SCREEN.x), 40, UiKit.YOU)
 
 
