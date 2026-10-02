@@ -196,7 +196,14 @@ if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want langs; then
         else
           runner=(xvfb-run -n $((140 + n)) -s "-screen 0 960x540x24" "$G" --audio-driver Dummy --resolution 960x540)
         fi
-        ( RB_LOCALE="$loc" RB_TIER=fast timeout 900 "${runner[@]}" --path . --script "res://tests/$t.gd" \
+        ## ITS OWN USER DATA DIR (2 Oct 2026). Sixteen engines shared one
+        ## user:// and so one shader cache; on main's CI test_ink@it read a
+        ## cache file another engine was half-way through writing
+        ## (`header != String(shader_file_header)`). Each run gets a fresh dir.
+        ud="/tmp/rb_userdata/$t-$loc"
+        rm -rf "$ud"; mkdir -p "$ud"
+        ( XDG_DATA_HOME="$ud/data" XDG_CACHE_HOME="$ud/cache" RB_LOCALE="$loc" RB_TIER=fast \
+            timeout 900 "${runner[@]}" --path . --script "res://tests/$t.gd" \
             >"$LOGS/$t@$loc.fast.log" 2>&1; echo $? >"$LOGS/$t@$loc.rc" ) &
         pids+=($!)
       done
