@@ -141,6 +141,7 @@ const PLAYOFF_PLACES := 4
 ## Once a season, before its first bout, to a club that has just gone up (or
 ## every season, with MARKET_ASK_ALWAYS) and can spare the fee and carry the
 ## wage of a free agent who outrates a man on its eight. {} otherwise.
+const MARKET_ASK := true
 const MARKET_ASK_ALWAYS := false
 
 
@@ -180,7 +181,7 @@ static func market_upgrades(s: Season) -> Array:
 
 
 static func market_ask(s: Season) -> Dictionary:
-	if s.market_warned == s.world.season or not s.results.is_empty() or s.season_complete() \
+	if not MARKET_ASK or s.market_warned == s.world.season or not s.results.is_empty() or s.season_complete() \
 			or s.blocked_by() != "":
 		return {}
 	if not MARKET_ASK_ALWAYS and not just_promoted(s):

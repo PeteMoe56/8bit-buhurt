@@ -161,6 +161,7 @@ func _first_button(s: Season) -> String:
 	## THE MID-SEASON GROUND CARD sits over the hub when it is due; it has its
 	## own Later. Read the row under it, as a player does after Later.
 	n.set("ground_open", false)
+	n.set("market_open", false)
 	n.set("tab", 0)
 	n.call("_rebuild")
 	await process_frame
