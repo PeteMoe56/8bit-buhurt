@@ -252,9 +252,10 @@ func _new_bout(seed_value: int) -> void:
 	## nudge. `Juice.down` plays the sound itself, so there is one call here and
 	## not a sound call that somebody later forgets to keep in step.
 	sim.fighter_downed.connect(_on_downed)
-	sim.action_resolved.connect(func(_i, _a, _t, ok):
+	sim.action_resolved.connect(func(i, a, _t, ok):
 		if ok and not skipping:
-			Audio.play("clash"))
+			Audio.play("clash")
+		_on_call_resolved(i, a, ok))
 	sim.bout_finished.connect(_on_bout_finished)
 	screen = Screen.PREFIGHT
 	accum = 0.0
@@ -335,6 +336,10 @@ func _fit_width() -> void:
 func _process(delta: float) -> void:
 	_fit_width()
 	marshal_t = maxf(0.0, marshal_t - delta)
+	for k in call_words.keys():
+		call_words[k]["t"] = float(call_words[k]["t"]) - delta
+		if float(call_words[k]["t"]) <= 0.0 or screen != Screen.FIGHT:
+			call_words.erase(k)
 	## THE THREE THAT DO NOT TICK. The splash joins the report and the pre-fight
 	## panel: the sim must not advance behind a screen the player has not
 	## answered, and the corner branch below would otherwise drag him straight
@@ -514,6 +519,50 @@ func _sync_controls() -> void:
 ## is a count that goes wrong the first time somebody reloads a bout mid-fight —
 ## and this game reloads bouts mid-fight.
 var skipping: bool = false
+
+
+## WHAT A WHEEL CALL CAME TO, over the man who made it (1 Oct novice report,
+## Pete approved): first-timers picked a side of the wheel and could not tell
+## whether it had worked. A word for about a second — DOWN!, held, missed,
+## free, hit — and only for a call the player picked (`acting_for_player`), so
+## the nine men nobody sent stay quiet. A later resolve in the same moment (the
+## chosen act after its free swing) replaces the earlier word.
+const CALL_WORD_S := 1.0
+var call_words: Dictionary = {}
+
+
+static func call_word(act: int, ok: bool) -> String:
+	match act:
+		Tuning.Act.BULLRUSH, Tuning.Act.TAKEDOWN:
+			return UiKit.t("DOWN!") if ok else UiKit.t("missed")
+		Tuning.Act.GRAPPLE, Tuning.Act.HOLD:
+			return UiKit.t("held") if ok else UiKit.t("missed")
+		Tuning.Act.ESCAPE, Tuning.Act.BREAK:
+			return UiKit.t("free") if ok else UiKit.t("missed")
+		Tuning.Act.HIT:
+			return UiKit.t("hit") if ok else UiKit.t("missed")
+	return ""
+
+
+static func call_word_color(act: int, ok: bool) -> Color:
+	if not ok:
+		return UiKit.DOWN
+	if act == Tuning.Act.BULLRUSH or act == Tuning.Act.TAKEDOWN:
+		return UiKit.YOU
+	return UiKit.UP if act == Tuning.Act.ESCAPE or act == Tuning.Act.BREAK else UiKit.INK
+
+
+func _on_call_resolved(idx: int, act: int, ok: bool) -> void:
+	if skipping or idx < 0 or idx >= sim.men.size() or not sim.men[idx].acting_for_player:
+		return
+	call_words[idx] = {"text": call_word(act, ok), "col": call_word_color(act, ok), "t": CALL_WORD_S}
+
+
+func _draw_call_words() -> void:
+	for idx in call_words.keys():
+		var w: Dictionary = call_words[idx]
+		var at := _to_screen(sim.men[int(idx)].pos) + Vector2(-60.0, -30.0)
+		UiKit.raw(self, font, at, String(w["text"]), HORIZONTAL_ALIGNMENT_CENTER, 120, 16, w["col"])
 
 
 func _on_downed(idx: int, _by: int) -> void:
@@ -919,6 +968,8 @@ func _draw() -> void:
 	_draw_hint()
 	_draw_calls()
 	_draw_held()
+	if screen == Screen.FIGHT:
+		_draw_call_words()
 	for m in sim.men:
 		if m.prompt != null and m.team == 0 and m.idx != wheel_man:
 			_draw_prompt(m)
