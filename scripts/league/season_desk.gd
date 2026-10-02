@@ -247,6 +247,10 @@ static func ground_offer(s: Season) -> Dictionary:
 		return ask
 	if s.ground_warned == s.world.season or s.season_complete() or s.blocked_by() != "":
 		return {}
+	## FROM THE SECOND WEEK: a card on the very first look at the hub, before a
+	## first-timer has seen a fight, is a card about a thing he has no reason to want.
+	if int(s.world.days_played.get(s.world.player_tier(), 0)) < 1:
+		return {}
 	var gap := ground_gap(s)
 	if gap.is_empty():
 		return {}
