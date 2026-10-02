@@ -123,6 +123,7 @@ func _initialize() -> void:
 		"every blocked state checked" if order_bad.is_empty() else "; ".join(order_bad.slice(0, 4)))
 	await _gold_step()
 	await _bid_card_button()
+	await _money_help()
 	print("")
 	if failures.is_empty():
 		print("THE QUEUE HOLDS (%d checks)\n" % checks)
@@ -267,6 +268,56 @@ func _bid_card_button() -> void:
 		await process_frame
 	_ok(bad.is_empty(), "the bid card has a real button to the Arena",
 		"framed, inside the card, under its words" if bad.is_empty() else "; ".join(bad))
+
+
+## A "?" BY THE CC (1 Oct novice report, Pete approved) opens the Guide on its
+## Money page. It sits in the header clear of the purse box and the club's name,
+## and pressing it lands on the Guide with Money open.
+func _money_help() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 4242)
+	Session.season = s
+	var bad: Array[String] = []
+	var n: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	n.set("ground_open", false)
+	n.call("_rebuild")
+	await process_frame
+	var q: Button = null
+	for b in _buttons(n):
+		if (b as Button).has_meta("money_help"):
+			q = b
+	if q == null or not q.is_visible_in_tree():
+		bad.append("no '?' by the CC")
+	else:
+		var r := q.get_global_rect()
+		if r.intersects(SeasonScene.purse_box()):
+			bad.append("the '?' sits on the purse box")
+		if r.end.y > 62.0:
+			bad.append("the '?' hangs below the header")
+		q.pressed.emit()
+		var guide: Node = null
+		for i in 30:
+			await process_frame
+			for c in root.get_children():
+				if c is GuideScene:
+					guide = c
+			if guide != null:
+				break
+		if guide == null:
+			bad.append("pressing it did not open the Guide")
+		elif int(guide.get("tab")) != GuideScene.Topic.MONEY \
+				or String(GuideScene.topics()[int(guide.get("tab"))]) != UiKit.t("Money"):
+			bad.append("the Guide opened on page %d" % int(guide.get("tab")))
+		if Session.guide_topic != -1:
+			bad.append("the page request was not cleared")
+		if guide != null:
+			guide.queue_free()
+	if is_instance_valid(n):
+		n.queue_free()
+	await process_frame
+	_ok(bad.is_empty(), "a '?' by the CC opens the Guide on Money",
+		"in the header, clear of the purse, lands on Money" if bad.is_empty() else "; ".join(bad))
 
 
 ## The button the club tab offers as the way forward: the gold (primary) one on
