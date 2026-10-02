@@ -70,8 +70,9 @@ static func _office_controls(v: SeasonScene) -> void:
 		var cost := row_cost(v, kind)
 		if cost <= 0:
 			continue
-		var b := UiKit.button(UiKit.with_upkeep(upgrade_word(v, kind) + UiKit.t(" · %d CC") % cost,
-				row_upkeep_next(v, kind)),
+		## THE PRICE ONLY: the upkeep it brings is on the labelled line under it
+		## (round 2, 2 Oct: "1/yr" on the button and "0 CC/Year" floating below).
+		var b := UiKit.button(upgrade_word(v, kind) + UiKit.t(" · %d CC") % cost,
 			Vector2(UPGRADE_X, y + 4.0), Vector2(UPGRADE_W, 34), func():
 				var err: String
 				if kind is String and kind == "cap":
@@ -378,11 +379,13 @@ static func _draw_office(v: SeasonScene) -> void:
 			UiKit.meter(v, bar, o.level(f), ClubOffice.FACILITY_MAX, UiKit.UP if o.level(f) > 0 else UiKit.EDGE)
 		UiKit.pair(v, v.font, label, right, Vector2(SeasonScene.BAR_X, y), HELP_X + 34.0, 13, 12, UiKit.DIM, UiKit.INK)
 		var keep := row_upkeep(v, kind)
-		UiKit.right(v, v.font, UiKit.t("%d CC/Year") % keep, Vector2(UPGRADE_X + UPGRADE_W, y + 52.0), 13,
+		var nxt := row_upkeep_next(v, kind) if row_cost(v, kind) > 0 else keep
+		UiKit.right(v, v.font, (UiKit.t("Upkeep %d → %d CC/yr") % [keep, nxt]) if nxt != keep
+			else UiKit.t("Upkeep %d CC/yr") % keep, Vector2(UPGRADE_X + UPGRADE_W, y + 52.0), 13,
 			UiKit.DOWN if keep > 0 else UiKit.DIM, UPGRADE_W - 60.0)
 	var ty := v._office_row_y(SeasonScene.OFFICE_ROWS.size()) + 16.0
 	v.draw_line(Vector2(SeasonScene.BAR_X, ty - 18.0), Vector2(UPGRADE_X + UPGRADE_W, ty - 18.0), UiKit.FRAME, 1.0)
-	UiKit.pair(v, v.font, UiKit.t("Maintenance total, arena included"), UiKit.t("%d CC/Year") % upkeep_total(v),
+	UiKit.pair(v, v.font, UiKit.t("Maintenance total, arena included"), UiKit.t("%d CC/yr") % upkeep_total(v),
 		Vector2(SeasonScene.BAR_X, ty), UPGRADE_X + UPGRADE_W, 15, 15, UiKit.INK, UiKit.DOWN)
 	_draw_arena_panel(v)
 
@@ -412,7 +415,7 @@ static func _draw_arena_panel(v: SeasonScene) -> void:
 	UiKit.pair(v, v.font, UiKit.t("A home fight pays"), UiKit.t("%d CC") % o.crowd_pay(),
 		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.UP)
 	y += 24.0
-	UiKit.pair(v, v.font, UiKit.t("Maintenance"), UiKit.t("%d CC/Year") % o.arena_upkeep(),
+	UiKit.pair(v, v.font, UiKit.t("Maintenance"), UiKit.t("%d CC/yr") % o.arena_upkeep(),
 		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.DOWN)
 	y += 24.0
 	if not a.at_top():

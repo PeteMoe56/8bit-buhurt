@@ -458,7 +458,7 @@ static func _draw_info(v: SeasonScene) -> void:
 		UiKit.UP if f.headroom() >= 6 else UiKit.DIM, 70)
 	var banked := Career.levels_banked(f)
 	if banked > 0:
-		UiKit.mid(v, v.font, UiKit.t("+%d to spend") % banked, Vector2(px, y + 66.0), 13, UiKit.YOU, 142)
+		UiKit.mid(v, v.font, UiKit.tn("%d level to spend", "%d levels to spend", banked) % banked, Vector2(px, y + 66.0), 13, UiKit.YOU, 142)
 
 
 

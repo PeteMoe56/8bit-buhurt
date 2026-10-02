@@ -76,8 +76,9 @@ func _build() -> void:
 			## RELEASE STANDS OFF (round 8: "right next to +1 yr").
 			## A VERB ON EACH (round 9: "+1 yr" needed one), Release narrower and
 			## apart so both read at the same size.
+			## 116 AND 92, 8 apart (round 2, 2 Oct: at 92 the Extend label shrank to a squint).
 			var ext := UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W - 124.0, 38), _extend.bind(i))
+				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W - 100.0, 38), _extend.bind(i))
 			ext.disabled = ClubOffice.extend_cost(season.office.captains[i]) > season.office.credits
 			ui.add_child(ext)
 			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 8.0),

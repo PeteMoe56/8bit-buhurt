@@ -1686,7 +1686,7 @@ static func dither(ci: CanvasItem, r: Rect2, a: Color, b: Color, cell: float = 2
 ## gym · 6 CC · 4/yr". `per_year` is what the thing will cost to keep a year
 ## once it is bought; nothing is added when it is nothing.
 static func with_upkeep(label: String, per_year: int) -> String:
-	return label if per_year <= 0 else UiKit.t("%s · %d/yr") % [label, per_year]
+	return label if per_year <= 0 else UiKit.t("%s · %d CC/yr") % [label, per_year]
 
 
 static func said(err: String) -> String:

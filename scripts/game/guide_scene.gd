@@ -68,7 +68,7 @@ static func page(i: int) -> Array:
 			UiKit.t("HOLD freezes the fight so you can give one order. You get two a bout."),
 			UiKit.t("Drag your man onto an enemy to send him. A wheel opens on contact: lift your thumb to commit."),
 			UiKit.t("Between rounds you can swap in up to two men from the bench. Rested men come back fresher."),
-			UiKit.t("The chalkboard plan steers your line for the opening seconds of each round."),
+			UiKit.t("Your Playbook plan steers your line for the opening seconds of each round."),
 		]
 		3: return [
 			UiKit.t("Five starters, three on the bench, up to four in reserve. Reserves do not travel."),

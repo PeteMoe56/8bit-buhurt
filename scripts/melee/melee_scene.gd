@@ -1911,7 +1911,9 @@ func _draw_scoreboard() -> void:
 	## club standing down each side was the same fact printed twice.
 	UiKit.raw(self, font, Vector2(0, 30), UiKit.t("R%d  %d:%02d") % [sim.round_no, int(clock) / 60, int(clock) % 60],
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 22, COL_INK)
-	UiKit.raw(self, font, Vector2(0, 50), UiKit.t("%s   |   %s") % [
+	## 52, NOT 50 (round 2, 2 Oct: the line touched HOLD and SKIP ROUND above it;
+	## 54 sat on the field).
+	UiKit.raw(self, font, Vector2(0, 52), UiKit.t("%s   |   %s") % [
 		_our_shape_name(),
 		Tuning.STRATEGIES[sim.strategies[0]]["name"],
 	], HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 14, COL_DIM)
@@ -2284,7 +2286,7 @@ func _add_spend_button() -> void:
 	var pts := 0
 	for f in waiting:
 		pts += Career.levels_banked(f)
-	spend_button = UiKit.primary(UiKit.button(UiKit.t("Spend points (%d)") % pts,
+	spend_button = UiKit.primary(UiKit.button(UiKit.t("Spend levels (%d)") % pts,
 		Vector2(REP_PANEL.position.x + 24.0, again_button.position.y), Vector2(260, 48), func():
 			Session.viewing_fighter = waiting[0]
 			Session.level_run = true

@@ -76,8 +76,8 @@ static func _draw_market(v: SeasonScene) -> void:
 			heads[ci] = word
 		elif heads[ci] != word and not String(heads[ci]).contains(word):
 			heads[ci] = String(heads[ci]) + "  ·  " + word
-	if heads[1] == heads[0]:
-		heads[1] = ""
+	## BOTH COLUMNS SAY IT, even when it is the same word (round 2, 2 Oct: two
+	## reviewers read the bare right-hand column as a different group).
 	for ci in 2:
 		UiKit.text(v, v.font, String(heads[ci]),
 			Vector2(24 + float(ci) * (cell + SeasonScene.QM_GAP), SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)

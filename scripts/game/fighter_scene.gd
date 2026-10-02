@@ -693,7 +693,10 @@ func _the_man() -> void:
 	## explaining a rule the game no longer has is the `xp_cost` ladder again.
 	## THE SAME COUNT AS THE TEAM SHEET'S "+3" (review, 1 Oct 2026).
 	var banked := maxi(1, Career.levels_banked(man))
-	var word := (UiKit.tn("%d POINT TO SPEND", "%d POINTS TO SPEND", banked) % banked) if waiting \
+	## LEVELS, NOT POINTS (round 2, 2 Oct: "3 POINTS TO SPEND" over buttons that
+	## each give +3 read as nine points). The count is levels; the line under says
+	## what one buys.
+	var word := (UiKit.tn("%d LEVEL TO SPEND", "%d LEVELS TO SPEND", banked) % banked) if waiting \
 		else UiKit.t("%d / %d xp") % [man.xp, bar]
 	var tint := UiKit.YOU if waiting else UiKit.DIM
 	if capped:
@@ -709,8 +712,7 @@ func _the_man() -> void:
 	if waiting and not capped:
 		## NO NUMBER IN IT (review, 2 Oct: "+1s" under buttons that read "+3", and
 		## cut at the panel's edge). The buttons say what a point buys.
-		UiKit.text_fit(self, font, UiKit.t("Earned. Spend it below.") if Career.levels_banked(man) <= 1
-			else UiKit.t("Earned. Spend them below."),
+		UiKit.text_fit(self, font, UiKit.t("Each level: +%d to one stat below.") % Career.POINTS_PER_LEVEL,
 			Vector2(L_X + 16, y + 40.0), 12, UiKit.YOU, COL_W - 32.0)
 	else:
 		_pace(y + 38.0)
