@@ -318,8 +318,8 @@ RATING,RATING,MEDIA,NOTE,WERTUNG,VALORE,NOTA,OCENA,РЕЙТИНГ,能力値
 CEILING,CEILING,TECHO,PLAFOND,POTENZIAL,TETTO,TETO,PUŁAP,ПОТОЛОК,潜在能力
 LEVEL,LEVEL,NIVEL,NIVEAU,STUFE,LIVELLO,NÍVEL,POZIOM,УРОВЕНЬ,レベル
 %d / %d xp,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d xp,%d / %d xp,%d / %d xp,%d / %d XP,%d / %d XP
-Earned. Spend it on a +1 below.,Earned. Spend it on a +1 below.,Ganado: úsalo en un +1.,Acquis : un +1 à placer dessous.,Verdient. Setz ihn unten auf +1.,Guadagnato: usalo con un +1.,Conquistado: use num +1.,Zdobyty. Wydaj na +1 poniżej.,Заработано. Потратьте на +1 ниже.,獲得。下の+1で使おう。
-Earned. Spend them on the +1s below.,Earned. Spend them on the +1s below.,Ganados. Gástalos en los +1 de abajo.,Gagnés. Dépense-les sur les +1 ci-dessous.,Verdient. Verteile sie unten auf die +1.,Guadagnati. Spendili sui +1 qui sotto.,Ganhos. Gaste-os nos +1 abaixo.,Zdobyte. Wydaj je na +1 poniżej.,Заработано. Потратьте на +1 ниже.,獲得済み。下の+1に使おう。
+Earned. Spend it below.,Earned. Spend it below.,Ganado. Úsalo abajo.,Acquis. À placer dessous.,Verdient. Unten setzen.,Guadagnato. Usalo qui sotto.,Conquistado. Use abaixo.,Zdobyty. Wydaj poniżej.,Заработано. Потратьте ниже.,獲得。下で使おう。
+Earned. Spend them below.,Earned. Spend them below.,Ganados. Úsalos abajo.,Acquis. À placer dessous.,Verdient. Unten verteilen.,Guadagnati. Usali qui sotto.,Ganhos. Use-os abaixo.,Zdobyte. Wydaj je poniżej.,Заработано. Потратьте ниже.,獲得済み。下で使おう。
 He will not sign again.,He will not sign again.,No volverá a firmar.,Il ne re-signera pas.,Er unterschreibt nicht nochmal.,Non rinnoverà.,Ele não vai renovar.,Więcej nie podpisze.,Больше не подпишет.,再契約には応じない。
 Asks at renewal,Asks at renewal,Pide al renovar,Demande au renouvellement,Will bei Verlängerung,Chiede al rinnovo,Pede na renovação,Chce przy odnowieniu,Просит при продлении,更新時の要求
 %s/yr · %dy,%s/yr · %dy,%s/año · %da,%s/an · %da,%s/Jahr · %dJ,%s/anno · %da,%s/ano · %da,%s/rok · %d l.,%s/год · %d г.,年%s · %d年

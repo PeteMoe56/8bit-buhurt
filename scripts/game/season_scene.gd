@@ -63,7 +63,8 @@ const HEADER_SHIFT := CLUB_BTN_W + 8.0
 ## The Menu button spans what Exit and Club used to: the purse keeps its place.
 const MENU_BTN_W := 98.0 + HEADER_SHIFT
 const MENU_W := 140.0
-const PURSE_H := 38.0
+## 42 (review, 2 Oct: the wages line under the purse sat on the box's bottom edge at 38).
+const PURSE_H := 42.0
 const PURSE_SIZE: int = 18
 
 
@@ -673,7 +674,7 @@ func _header() -> void:
 	var bill := ClubOffice.wage_bill(season.club)
 	var cap := season.office.cap()
 	UiKit.text_fit(self, font, UiKit.t("%s/%s wages") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-		Vector2(purse_box().position.x + 18.0, 44.0), 12, UiKit.DOWN if bill > cap else UiKit.DIM,
+		Vector2(purse_box().position.x + 18.0, 45.0), 12, UiKit.DOWN if bill > cap else UiKit.DIM,
 		PURSE_W - 22.0)
 	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.
 	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(UiKit.right_edge(194.0 + HEADER_SHIFT), 20), 12, UiKit.DIM)
@@ -724,8 +725,11 @@ func _banner() -> void:
 	var occ := season.occasion()
 	if occ != "":
 		line += "  ·  " + occ
-	var w := font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-	UiKit.text(self, font, line, Vector2((UiKit.screen().x - w) * 0.5, UiKit.screen().y - 3.0), 14, UiKit.BG)
+	## TWELVE, MEASURED AT TWELVE, ON A BASELINE FOUR UP (review, 2 Oct: at 14 on
+	## three up the "g" of "Pittsburgh" ran off the bottom of the screen, and the
+	## line was centred on a 13 px measure).
+	var w := font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+	UiKit.text(self, font, line, Vector2((UiKit.screen().x - w) * 0.5, UiKit.screen().y - 4.0), 12, UiKit.BG)
 ## -> SeasonClubTab (season_tab_club.gd)
 func _draw_club() -> void:
 	SeasonClubTab._draw_club(self)

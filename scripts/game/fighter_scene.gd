@@ -695,8 +695,10 @@ func _the_man() -> void:
 			else (UiKit.YOU if waiting else UiKit.SELECT))
 	## A FULL BAR SAYS WHY IT IS FULL (item 2): the level is earned and waiting.
 	if waiting and not capped:
-		UiKit.text_fit(self, font, UiKit.t("Earned. Spend it on a +1 below.") if Career.levels_banked(man) <= 1
-			else UiKit.t("Earned. Spend them on the +1s below."),
+		## NO NUMBER IN IT (review, 2 Oct: "+1s" under buttons that read "+3", and
+		## cut at the panel's edge). The buttons say what a point buys.
+		UiKit.text_fit(self, font, UiKit.t("Earned. Spend it below.") if Career.levels_banked(man) <= 1
+			else UiKit.t("Earned. Spend them below."),
 			Vector2(L_X + 16, y + 40.0), 12, UiKit.YOU, COL_W - 32.0)
 	else:
 		_pace(y + 38.0)
