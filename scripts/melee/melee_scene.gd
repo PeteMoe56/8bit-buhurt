@@ -689,7 +689,11 @@ func _press(p: Vector2) -> void:
 		var opt := _wheel_option_at(wm, p)
 		if opt != -2:
 			_wheel_answer(wm, opt)
-		elif _to_screen(wm.pos).distance_to(p) < 30.0:
+		## FROM THE HUB, wherever the hub was drawn (first-timer test, 1 Oct: a
+		## drag that started in the middle of the wheel did nothing, because the
+		## wheel is pushed off a man near the edge and only the man's own spot
+		## started a drag).
+		elif _wheel_center(wm).distance_to(p) < WHEEL_RI + 6.0 or _to_screen(wm.pos).distance_to(p) < 30.0:
 			wheel_drag = true
 		return
 	## A prompt is a question with three answers. Answering it beats starting a
@@ -1026,12 +1030,20 @@ func _draw_report_table() -> void:
 		UiKit.fit(font, UiKit.t("AST assists  ·  UP rounds on his feet  ·  OFF carried off"), 12, REP_LW - 110.0),
 		HORIZONTAL_ALIGNMENT_RIGHT, int(REP_LW - 110.0), 12, COL_DIM)
 	var i := 0
+	## EIGHT ROWS WHEN THE BENCH FOUGHT (first-timer test, 1 Oct: the eighth row
+	## was drawn over the AFTER ACTION REPORT heading). The rows close up to fit
+	## above it rather than running into it.
+	var n_rows := 0
+	for m in sim.fought():
+		if m.team == 0 and m.card != null:
+			n_rows += 1
+	var rh := minf(REP_ROW_H, (310.0 - REP_ROW_Y) / float(maxi(1, n_rows - 1)))
 	for m in sim.fought():
 		if m.team != 0 or m.card == null:
 			continue
-		var y := REP_ROW_Y + float(i) * REP_ROW_H
+		var y := REP_ROW_Y + float(i) * rh
 		if i % 2 == 0:
-			draw_rect(Rect2(REP_LX, y - 12.0, REP_LW, 24.0), Color(1, 1, 1, 0.022))
+			draw_rect(Rect2(REP_LX, y - 12.0, REP_LW, rh - 1.0), Color(1, 1, 1, 0.022))
 		UiKit.raw(self, font, Vector2(REP_LX + 6.0, y + 4), UiKit.t("#%d %s") % [
 			m.card.number, m.card.display_name],
 			HORIZONTAL_ALIGNMENT_LEFT, 140, 11, COL_INK)
@@ -1260,6 +1272,12 @@ func _draw_corner() -> void:
 
 	for i in line.size():
 		var m = _man_in_slot(i)
+		## A MAN JUST SWAPPED IN IS NOT THE MAN WHO FOUGHT THE ROUND (first-timer
+		## test, 1 Oct: a fresh sub wore his predecessor's DOWNED and his downs).
+		## The slot's Man is rebuilt when the corner ends; until then, read him
+		## only if he is still the card on the line.
+		if m != null and m.card != line[i]:
+			m = null
 		var ry: float = C_LY + float(i) * (row_h + C_ROW_GAP)
 		var downed: bool = m != null and m.downed_round
 		draw_rect(Rect2(C_LX, ry, C_LW, row_h), COL_PANEL.lightened(0.05))
@@ -1274,8 +1292,10 @@ func _draw_corner() -> void:
 			UiKit.raw(self, font, Vector2(C_LX + 10, ry + 50), UiKit.t("DOWNED"),
 				HORIZONTAL_ALIGNMENT_LEFT, 120, 8, COL_HOT)
 		elif FighterTrait.flag(f.trait_id, "no_sub"):
-			UiKit.raw(self, font, Vector2(C_LX + 10, ry + 50), UiKit.t("WILL NOT COME OFF"),
-				HORIZONTAL_ALIGNMENT_LEFT, 120, 8, COL_DIM)
+			## SHORT ENOUGH FOR ITS COLUMN (first-timer test, 1 Oct: "WILL NOT COME
+			## O…" cut off in all three runs).
+			UiKit.raw(self, font, Vector2(C_LX + 10, ry + 50), UiKit.fit(font, UiKit.t("STAYS ON"), 8, 110.0),
+				HORIZONTAL_ALIGNMENT_LEFT, 110, 8, COL_DIM)
 		## THE TWO NUMBERS THE ROUND PRODUCED. Blank before the charge, because a
 		## column of noughts on the pre-fight screen is a report on nothing.
 		if not first and m != null:
@@ -1929,6 +1949,13 @@ func _draw_strip() -> void:
 		## seconds is five lines of chrome telling you nothing has happened yet.
 		var tally := _tally(m)
 		if tally != "":
+			## CLEAR OF THE POSITION WORD (first-timer test, 1 Oct: "Center" and
+			## "1 down · 1 assist" printed over each other).
+			var room := CARD_W - 20.0 - font.get_string_size(m.card.pos_name(),
+				HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x - 8.0
+			if font.get_string_size(tally, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x > room:
+				## The downs first: they are the number the stop rule watches.
+				tally = UiKit.fit(font, tally.split(" · ")[0], 13, room)
 			UiKit.raw(self, font, r.position + Vector2(10, 42), tally,
 				HORIZONTAL_ALIGNMENT_RIGHT, int(CARD_W - 20), 13,
 				COL_GOOD if live else Color("5a5148"))
@@ -1986,7 +2013,9 @@ func _draw_hint() -> void:
 	for m in sim.men:
 		if m.prompt != null:
 			open += 1
-	var msg := UiKit.t("Drag a fighter to send him. Tap him to hold ground.")
+	## SHORTER, so it is never cut (first-timer test, 1 Oct: "Tap him to." lost
+	## its last two words).
+	var msg := UiKit.t("Drag a man to send him. Tap to hold ground.")
 	if drawing != -1:
 		msg = UiKit.t("Release on ground, or on a man.")
 	elif open > 0:
@@ -2006,7 +2035,7 @@ func _draw_hint() -> void:
 	if sim.orders_issued > 0 or calls > 0:
 		## The calls half only once there has been a call (round 9: "0 of 0").
 		var said: String = UiKit.t("%d sent") % sim.orders_issued if calls == 0 \
-			else UiKit.t("%d sent  ·  %d of %d calls made") % [sim.orders_issued, sim.prompts_answered, calls]
+			else UiKit.t("%d sent  ·  %d of %d choices picked") % [sim.orders_issued, sim.prompts_answered, calls]
 		UiKit.raw(self, font, Vector2(SCREEN.x - 304, 50), UiKit.fit(font, said, 14, 280.0),
 			HORIZONTAL_ALIGNMENT_RIGHT, 280, 14, COL_DIM)
 	## THE FIRST THING TO DO, big, in the empty middle of the list until he has

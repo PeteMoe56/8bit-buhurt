@@ -83,7 +83,8 @@ func _do(cmd: String) -> void:
 			var i := int(p[1]) if p.size() > 1 else -1
 			if i >= 0 and i < last_buttons.size() and is_instance_valid(last_buttons[i]):
 				var b: Button = last_buttons[i]
-				if not b.disabled and b.is_visible_in_tree():
+				if not b.disabled and b.is_visible_in_tree() \
+						and layer_of(b) >= modal_layer(current_scene):
 					b.pressed.emit()
 		"back":
 			AppLife.back_pressed()
@@ -116,13 +117,14 @@ func _snapshot() -> void:
 	if scene != null:
 		_collect(scene)
 	var bl: Array = []
+	var veil := modal_layer(scene) if scene != null else -1000000
 	for i in last_buttons.size():
 		var b: Button = last_buttons[i]
 		var r := b.get_global_rect()
 		var t := String(b.text).strip_edges()
 		if t == "" and b.has_meta("mark"):
 			t = "[%s icon]" % String(b.get_meta("mark"))
-		bl.append({"n": i, "label": t, "enabled": not b.disabled, "gold": b.has_meta("primary"),
+		bl.append({"n": i, "label": t, "enabled": not b.disabled and layer_of(b) >= veil, "gold": b.has_meta("primary"),
 			"x": int(r.position.x), "y": int(r.position.y), "w": int(r.size.x), "h": int(r.size.y)})
 	var el: Array = []
 	for i in last_edits.size():
@@ -150,3 +152,31 @@ func _collect(n: Node) -> void:
 		elif c is LineEdit and (c as LineEdit).is_visible_in_tree():
 			last_edits.append(c)
 		_collect(c)
+
+
+## A BUTTON UNDER A MODAL VEIL IS NOT THERE FOR A FINGER. The fight's tutorial
+## card is a full-screen catch on a higher CanvasLayer; a tester pressing by
+## number reached HOLD through it, which no thumb can (first-timer test, 1 Oct).
+static func layer_of(n: Node) -> int:
+	var p := n.get_parent()
+	while p != null:
+		if p is CanvasLayer:
+			return (p as CanvasLayer).layer
+		p = p.get_parent()
+	return 0
+
+
+static func modal_layer(root_n: Node) -> int:
+	var best := -1000000
+	var stack: Array = [root_n]
+	var screen := UiKit.screen()
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		for c in n.get_children():
+			stack.append(c)
+			if c is Control and not (c is Button):
+				var ctl := c as Control
+				if ctl.is_visible_in_tree() and ctl.mouse_filter == Control.MOUSE_FILTER_STOP \
+						and ctl.size.x >= screen.x * 0.9 and ctl.size.y >= screen.y * 0.9:
+					best = maxi(best, layer_of(ctl))
+	return best

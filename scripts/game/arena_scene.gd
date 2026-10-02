@@ -394,6 +394,12 @@ func _draw_diary() -> void:
 		var net := int(p["net"])
 		UiKit.text_fit(self, font, UiKit.t("Expected: %+d CC  ·  %+d CC if you win it") % [net, int(p["best"])],
 			Vector2(RIGHT_X, 434), 15, UiKit.UP if net >= 0 else UiKit.DOWN, UiKit.screen().x - 24.0 - RIGHT_X)
+		## WHY "TAKE THE DATE" IS GREY (first-timer test, 1 Oct: greyed with no
+		## reason; the player worked it out by cycling the budget).
+		var need := int(o["bid"]) + int(ClubEvent.BUDGETS[budget_i]["cost"])
+		if need > season.office.credits and flash == "":
+			UiKit.text_fit(self, font, UiKit.t("Date and budget come to %d CC. You hold %d.") % [need, season.office.credits],
+				Vector2(RIGHT_X, 516), 14, UiKit.DOWN, UiKit.screen().x - 24.0 - RIGHT_X)
 		return
 	if season.booked == null and not season.bid_open():
 		## WHAT THE DEMO IS (round 4: "Run a demo" unexplained).

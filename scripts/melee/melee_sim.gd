@@ -784,12 +784,17 @@ func swap_in(team: int, slot: int, card) -> bool:
 		return false
 	if slot < 0 or slot >= 5 or card == null:
 		return false
-	if swaps_used[team] >= Tuning.SWAPS_PER_CORNER:
+	## THE CORNER'S TWO SWAPS ARE THE CORNER'S. A change before the first charge
+	## is the line being picked, not a substitution, so it does not spend them
+	## (first-timer test, 1 Oct: two pre-fight swaps left every SUB grey after
+	## round one, because the count only reset when the first corner ended).
+	if not before_first and swaps_used[team] >= Tuning.SWAPS_PER_CORNER:
 		return false
 	if not bench(team).has(card):
 		return false
 	lineups[team][slot] = card
-	swaps_used[team] += 1
+	if not before_first:
+		swaps_used[team] += 1
 	## Before the charge there is no corner to leave, so the line is re-read now.
 	if before_first:
 		_set_the_line()

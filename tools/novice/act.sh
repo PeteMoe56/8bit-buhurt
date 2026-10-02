@@ -4,9 +4,11 @@
 d="$1"; shift
 prev=$(cat "$d/ready.txt" 2>/dev/null || echo 0)
 echo "$*" > "$d/cmd.txt.tmp" && mv "$d/cmd.txt.tmp" "$d/cmd.txt"
-for i in $(seq 1 600); do
-  now=$(cat "$d/ready.txt" 2>/dev/null || echo 0)
-  if [ "$now" != "$prev" ]; then
+[ "$1" = "quit" ] && { sleep 1; echo "quit sent"; exit 0; }
+for i in $(seq 1 900); do
+  now=$(cat "$d/ready.txt" 2>/dev/null)
+  if [ -n "$now" ] && [ "$now" != "$prev" ] && [ -f "$d/state_$now.json" ]; then
+    sleep 0.05
     echo "PICTURE: $d/state_$now.png"
     cat "$d/state_$now.json"
     exit 0

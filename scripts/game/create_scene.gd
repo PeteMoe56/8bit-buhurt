@@ -333,7 +333,9 @@ func _club_controls() -> void:
 	club_name_edit.max_length = 30
 	club_name_edit.placeholder_text = UiKit.t("Club name")
 	club_name_edit.text = draft_club_name if draft_club_name != null else season.club.display_name
-	club_name_edit.text_changed.connect(func(t: String): draft_club_name = t)
+	club_name_edit.text_changed.connect(func(t: String):
+		draft_club_name = t
+		queue_redraw())
 	ui.add_child(club_name_edit)
 
 	club_short_edit = LineEdit.new()
@@ -343,7 +345,11 @@ func _club_controls() -> void:
 	club_short_edit.max_length = 4
 	club_short_edit.placeholder_text = "CLB"
 	club_short_edit.text = draft_club_short if draft_club_short != null else season.club.short_name
-	club_short_edit.text_changed.connect(func(t: String): draft_club_short = t)
+	## THE CREST REDRAWS AS YOU TYPE (first-timer test, 1 Oct: it kept the old
+	## letters after the short name changed).
+	club_short_edit.text_changed.connect(func(t: String):
+		draft_club_short = t
+		queue_redraw())
 	ui.add_child(club_short_edit)
 
 	## ------------------------------------------------------------ the town
