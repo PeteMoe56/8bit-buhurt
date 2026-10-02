@@ -32,6 +32,12 @@ func _ready() -> void:
 	font = UiKit.body()
 	Settings.load_once()
 	season = Session.season
+	## FROM THE HUB'S FREE-AGENT PROMPT: the man it named, already picked.
+	if Session.market_pick != "" and season != null:
+		for f in season.market():
+			if Market.taken_key(f) == Session.market_pick:
+				picked = f
+		Session.market_pick = ""
 	ui = CanvasLayer.new()
 	add_child(ui)
 	_build()

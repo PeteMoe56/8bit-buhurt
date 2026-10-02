@@ -892,3 +892,52 @@ static func _draw_ground(v: SeasonScene) -> void:
 	UiKit.text_fit(v, v.font, UiKit.t("You hold %d CC.") % v.season.office.credits,
 		card.position + Vector2(24, 188), 15,
 		UiKit.UP if v.season.office.credits >= int(gap["next_cost"]) else UiKit.DOWN, w)
+
+
+## ------------------------------------------------------------ the free agents
+## THE FIRST WEEK UP, THE MEN THE NEW DIVISION NEEDS (lane B, 2 Oct 2026). Once
+## a season, before its first bout, to a club just promoted that can take a free
+## agent who outrates a man on its eight. Free agents opens the list with him
+## picked; Later closes it for the season.
+static func close_market(v: SeasonScene) -> void:
+	v.market_open = false
+	v.season.market_warned = v.season.world.season
+	Session.autosave()
+	v._rebuild()
+
+
+static func _market_ask_controls(v: SeasonScene) -> void:
+	var card := _ground_card()
+	var ask: Dictionary = v.season.market_ask()
+	if ask.is_empty():
+		close_market(v)
+		return
+	var best: FighterCard = ask["best"]
+	v.ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Free agents"),
+		Vector2(card.end.x - 24.0 - 300.0, card.end.y - 62.0), Vector2(300, 44), func():
+			v.season.market_warned = v.season.world.season
+			v.market_open = false
+			Session.market_pick = Market.taken_key(best)
+			Session.autosave()
+			UiKit.go("res://scenes/Market.tscn"), "coin")))
+	v.ui.add_child(UiKit.button(UiKit.t("Later"), Vector2(card.position.x + 24.0, card.end.y - 62.0),
+		Vector2(150, 44), func(): close_market(v)))
+
+
+static func _draw_market_ask(v: SeasonScene) -> void:
+	var card := _ground_card()
+	var ask: Dictionary = v.season.market_ask()
+	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	UiKit.panel(v, card)
+	if ask.is_empty():
+		return
+	var w := card.size.x - 48.0
+	var best: FighterCard = ask["best"]
+	UiKit.text_fit(v, v.font, UiKit.t("THE %s HITS HARDER") % String(ask["tier"]).to_upper(),
+		card.position + Vector2(24, 40), 18, UiKit.YOU, w)
+	UiKit.para(v, v.font, UiKit.t("The weakest man on your eight rates %d. %d free agents rate higher, and you can pay for them.") % [
+		int(ask["weakest"]), int(ask["count"])], card.position + Vector2(24, 76), 15, UiKit.INK, w, 20.0, 2)
+	UiKit.para(v, v.font, UiKit.t("Best of them: %s, %d, %d CC.") % [best.display_name, best.overall(),
+		v.season.market_fee(best)], card.position + Vector2(24, 132), 15, UiKit.DIM, w, 20.0, 2)
+	UiKit.text_fit(v, v.font, UiKit.t("You hold %d CC.") % v.season.office.credits,
+		card.position + Vector2(24, 188), 15, UiKit.UP, w)

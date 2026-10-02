@@ -947,6 +947,15 @@ func ground_ask() -> Dictionary:
 	return SeasonDesk.ground_ask(self)
 
 
+## The season the free-agent prompt was last shown (-1 never).
+var market_warned: int = -1
+
+
+## -> SeasonDesk (season_desk.gd)
+func market_ask() -> Dictionary:
+	return SeasonDesk.market_ask(self)
+
+
 ## -> SeasonDesk (season_desk.gd)
 func build_for_promotion() -> String:
 	return SeasonDesk.build_for_promotion(self)

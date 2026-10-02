@@ -119,6 +119,8 @@ var training_open := false
 var help_key := ""
 ## THE GROUND PROMPT, mid-season (Pete, 1 Oct 2026). See SeasonDesk.ground_ask.
 var ground_open := false
+## THE FREE-AGENT PROMPT, the first week up (lane B, 2 Oct 2026). See SeasonDesk.market_ask.
+var market_open := false
 ## THE FULL BOOKS are open on the Management tab (its Finances button).
 var fin_full := false
 ## THE ARMORERS FOR HIRE are open on the Maintenance tab.
@@ -158,6 +160,8 @@ func _ready() -> void:
 		season.last_emergency = []
 	if not season.ground_ask().is_empty():
 		ground_open = true
+	elif not season.market_ask().is_empty():
+		market_open = true
 	if flash == "":
 		flash = season.summer_warning()
 	if flash == "":
@@ -175,6 +179,9 @@ func _ready() -> void:
 func go_back() -> bool:
 	if ground_open:
 		SeasonClubTab.close_ground(self)
+		return true
+	if market_open:
+		SeasonClubTab.close_market(self)
 		return true
 	if club_menu_open or training_open or help_key != "" or armorer_open:
 		club_menu_open = false
@@ -260,6 +267,10 @@ func _rebuild() -> void:
 		return
 	if ground_open:
 		SeasonClubTab._ground_controls(self)
+		queue_redraw()
+		return
+	if market_open:
+		SeasonClubTab._market_ask_controls(self)
 		queue_redraw()
 		return
 	if armorer_open:
@@ -598,6 +609,9 @@ func _draw() -> void:
 		return
 	if ground_open:
 		SeasonClubTab._draw_ground(self)
+		return
+	if market_open:
+		SeasonClubTab._draw_market_ask(self)
 		return
 	if armorer_open:
 		SeasonArmorerTab._draw_armorers(self)

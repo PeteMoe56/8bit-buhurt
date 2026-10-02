@@ -11,6 +11,9 @@ on:
         default: '[1, 2]'
       steps:
         default: "100000"
+      edits:
+        description: 'JSON list of [file, sed] applied before the run (a variant, as in sweep.yml)'
+        default: '[]'
 env:
   GODOT: /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64
 jobs:
@@ -24,6 +27,15 @@ jobs:
         seed: ${{ fromJSON(github.event.inputs.seeds) }}
     steps:
       - uses: actions/checkout@v4
+      - name: Apply the variant
+        run: |
+          echo '${{ github.event.inputs.edits }}' > /tmp/edits.json
+          python3 - <<'PY'
+          import json, subprocess
+          for f, e in json.load(open('/tmp/edits.json')):
+              subprocess.run(['sed', '-i', e, f], check=True)
+          PY
+          git diff --stat
       - uses: ./.github/actions/setup-godot
       - run: |
           mkdir -p out

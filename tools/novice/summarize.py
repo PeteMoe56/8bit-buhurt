@@ -33,3 +33,21 @@ for path in sys.argv[1:]:
     print("| %s | %d | %d | %d | %d | %d | %d | %s | %s | %s | %s | %s |" % (
         os.path.basename(path).replace(".jsonl", ""), len(se), promos, rel, top, by_titles,
         len(trophies), end.get("credits", se[-1]["credits"] if se else "—"), peak, signs, fw, fp))
+
+## THE CLIMB, RUN BY RUN: the division each season ended in (0 Backyard … 3
+## National) and the bank every ten seasons — a yo-yo and a hoard both show here.
+print()
+print("| run | division by season | CC at 10/20/30/40/50/60 |")
+print("|---|---|---|")
+for path in sys.argv[1:]:
+    se = []
+    for line in open(path, encoding="utf-8"):
+        try:
+            e = json.loads(line)
+        except ValueError:
+            continue
+        if e.get("t") == "season_end":
+            se.append(e)
+    tiers = "".join(str(e.get("tier", 0)) for e in se)
+    cc = "/".join(str(se[i - 1]["credits"]) for i in (10, 20, 30, 40, 50, 60) if len(se) >= i)
+    print("| %s | %s | %s |" % (os.path.basename(path).replace(".jsonl", ""), tiers, cc))

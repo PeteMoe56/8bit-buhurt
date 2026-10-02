@@ -133,6 +133,65 @@ static func ground_ask(s: Season) -> Dictionary:
 const PLAYOFF_PLACES := 4
 
 
+## ------------------------------------------------------------- the first year up
+## THE FREE AGENTS, ASKED FOR AT THE TOP OF A NEW DIVISION (lane B, 2 Oct 2026).
+## The gold-button novice won 18,623 CC across 60 seasons, signed nobody and went
+## up and down nine times each way: promoted on a Backyard squad, sent straight
+## back. The ground was asked for in time (30.67); the men were never asked for.
+## Once a season, before its first bout, to a club that has just gone up (or
+## every season, with MARKET_ASK_ALWAYS) and can spare the fee and carry the
+## wage of a free agent who outrates a man on its eight. {} otherwise.
+const MARKET_ASK_ALWAYS := false
+
+
+## THE SEASON A CLUB FIRST PLAYS IN A DIVISION IT WAS PROMOTED INTO.
+static func just_promoted(s: Season) -> bool:
+	if s.world.history.is_empty():
+		return false
+	var h: Dictionary = s.world.history[-1]
+	return bool(h.get("promoted", false)) and int(h.get("season", -9)) == s.world.season - 1
+
+
+## The weakest man on the eight, by rating. null for an empty club.
+static func weakest_on_eight(s: Season) -> FighterCard:
+	var low: FighterCard = null
+	for f in s.club.active_eight():
+		if low == null or f.rating() < low.rating():
+			low = f
+	return low
+
+
+## THE MEN WHO WOULD MAKE THE EIGHT AND THE CLUB CAN TAKE: fee paid with the
+## summer bill still in hand, wage under the cap, a place on the books. Best first.
+static func market_upgrades(s: Season) -> Array:
+	var out: Array = []
+	var low := weakest_on_eight(s)
+	if low == null or s.club.roster.size() >= MeleeClub.SQUAD_MAX:
+		return out
+	var spare := s.office.credits - s.office.summer_bill()
+	for f in s.market():
+		if f.rating() <= low.rating() or s.market_fee(f) > spare:
+			continue
+		if ClubOffice.wage_bill(s.club) + s.market_wage(f) > s.office.cap():
+			continue
+		out.append(f)
+	out.sort_custom(func(a, b): return a.rating() > b.rating())
+	return out
+
+
+static func market_ask(s: Season) -> Dictionary:
+	if s.market_warned == s.world.season or not s.results.is_empty() or s.season_complete() \
+			or s.blocked_by() != "":
+		return {}
+	if not MARKET_ASK_ALWAYS and not just_promoted(s):
+		return {}
+	var ups := market_upgrades(s)
+	if ups.is_empty():
+		return {}
+	return {"tier": League.tier_name(s.world.player_tier()), "weakest": weakest_on_eight(s).overall(),
+		"count": ups.size(), "best": ups[0]}
+
+
 ## BUILD NOW, at the gate: every level still missing, in one go. The one-a-week
 ## rule is for a season in progress; at the gate the season is over and the
 ## club is choosing between the ground and another year where it is.
@@ -441,7 +500,12 @@ static func market(s: Season) -> Array:
 static func market_fee(s: Season, f: FighterCard) -> int:
 	## THE COACH'S RECRUITING: 5% off a star, never below a credit.
 	var fee := Market.fee(f.overall(), s.world.player_tier())
-	return maxi(1, int(round(float(fee) * s.coach.recruit_mult()))) if fee > 0 else fee
+	var mult: float = s.coach.recruit_mult()
+	## A CLUB THAT HAS JUST GONE UP IS A DRAW (lane B, 2 Oct 2026): men want the
+	## bigger stage, and the first year up is when a club most needs them.
+	if just_promoted(s):
+		mult *= Market.PROMOTED_FEE_MULT
+	return maxi(1, int(round(float(fee) * mult))) if fee > 0 else fee
 
 
 
@@ -462,6 +526,9 @@ static func market_wage(s: Season, f: FighterCard) -> int:
 ## The refusals are in the order the player would hit them, and each one says the
 ## number, because "you cannot afford him" without a figure is a screen telling
 ## you to go and do arithmetic somewhere else.
+const SIGNING_STARTS := true
+
+
 static func sign_from_market(s: Season, f: FighterCard) -> String:
 	var fee := s.market_fee(f)
 	if s.office.credits < fee:
@@ -482,6 +549,21 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
 	var err := s.club.sign(card)
 	if err != "":
 		return err
+	## A SIGNING WHO OUTRATES A MAN ON THE EIGHT TAKES HIS PLACE (lane B, 2 Oct
+	## 2026). He landed in the reserve and stayed there until the player swapped
+	## him up by hand, so a club that signed and never swapped paid for a man who
+	## never fought. The weakest man on the eight steps down for him (one in his
+	## own place first), if the five still fill; the line's order is not touched.
+	if SIGNING_STARTS and not card.active:
+		var low: FighterCard = null
+		for m in s.club.active_eight():
+			if int(m.pos) == int(card.pos) and m.rating() < card.rating() \
+					and (low == null or m.rating() < low.rating()):
+				low = m
+		if low == null:
+			low = weakest_on_eight(s)
+		if low != null and card.rating() > low.rating():
+			s.club.swap_squad(low, card)
 	s.office.spend(fee, ClubOffice.LINE_SQUAD)
 	s.market_taken.append(Market.taken_key(f))
 	s.sync_power()
