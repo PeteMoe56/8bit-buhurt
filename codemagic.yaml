@@ -1,14 +1,14 @@
 # 8-Bit Buhurt: Combat Club — store builds on Codemagic (2 Oct 2026).
 #
-#   android-play     Linux  → signed AAB → Play internal track (draft)
+#   android-play     Linux  → signed AAB (artifact; upload to Play by hand)
 #   ios-testflight   Mac    → Xcode project → signed IPA → TestFlight
 #
 # Both start by hand (no triggers): a store build is a decision, not a push.
 # Nothing secret lives in this file. Set these up once in Codemagic:
 #   Team settings → Code signing → Android keystores:  upload key, reference "combatclub_upload"
-#   Env group "google_play":  GCLOUD_SERVICE_ACCOUNT_CREDENTIALS (Play service account JSON, secure)
-#   Team integrations → Developer Portal: an App Store Connect API key named "BonkWorks ASC"
-#   Env group "apple":  APPLE_TEAM_ID (10 characters), APP_STORE_APPLE_ID (the app's numeric id)
+#   The App Store Connect API key integration "bonkworks_asc" (the one ACTM already uses)
+# No environment variables or groups are needed. The Android bundle is uploaded to
+# Play by hand, the same way ACTM does it; there is no Play service account.
 # The project doc claude/BUILD-1.md walks through each one.
 
 definitions:
@@ -16,15 +16,16 @@ definitions:
     GODOT_VERSION: "4.6.2"
     PACKAGE: "com.bonkworks.combatclub"
     VERSION_NAME: "1.0.0"
+    ## Not secrets: the team id is printed on every signed app, the Apple id is in the store URL.
+    APPLE_TEAM_ID: "H32NHK9HZR"
+    APP_STORE_APPLE_ID: "6818717021"
 
 workflows:
   android-play:
-    name: Android → Play internal
+    name: Android → Play bundle (upload by hand)
     instance_type: linux_x2
     max_build_duration: 90
     environment:
-      groups:
-        - google_play
       android_signing:
         - combatclub_upload
       java: 17
@@ -62,10 +63,8 @@ workflows:
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_pass = "android"
           EOF
-      - name: Next version code (Play's latest + 1)
-        script: |
-          LATEST=$(google-play get-latest-build-number --package-name "$PACKAGE" --tracks internal,alpha,beta,production 2>/dev/null || echo 0)
-          echo "VERSION_CODE=$(( ${LATEST:-0} + 1 ))" >> $CM_ENV
+      - name: Version code (Codemagic's build number)
+        script: echo "VERSION_CODE=${BUILD_NUMBER:-1}" >> $CM_ENV
       - name: Signed app bundle
         script: |
           export GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$CM_KEYSTORE_PATH"
@@ -74,21 +73,14 @@ workflows:
           bash tools/aab_release.sh "build/combat-club-$VERSION_NAME-$VERSION_CODE.aab"
     artifacts:
       - build/*.aab
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: true
 
   ios-testflight:
     name: iOS → TestFlight
     instance_type: mac_mini_m2
     max_build_duration: 90
     integrations:
-      app_store_connect: BonkWorks ASC
+      app_store_connect: bonkworks_asc
     environment:
-      groups:
-        - apple
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.bonkworks.combatclub
