@@ -27,6 +27,7 @@ func _initialize() -> void:
 	_test_a_release_build_cannot_mint_credits()
 	_test_the_shop_says_why_it_is_shut()
 	_test_play_billing_end_to_end()
+	_test_app_store_end_to_end()
 	_cleanup()
 	print("")
 	for n in notes:
@@ -119,6 +120,68 @@ func _test_play_billing_end_to_end() -> void:
 		"owed %d" % Store.owed)
 
 	Store.use_client(null)
+	Store.owed = 0
+	Store.receipts.clear()
+	Store.save_wallet()
+
+
+## THE APP STORE (3 Oct 2026): StoreKit 2 through `AppleStore`, which speaks
+## the Play client's language, so the same `Store` code credits and finishes.
+## Driven through a stand-in StoreKitManager with the addon's signal shapes.
+func _test_app_store_end_to_end() -> void:
+	var sk = load("res://tests/fake_storekit.gd").new()
+	var apple := AppleStore.new()
+	apple.attach(sk, false)
+	Store.owed = 0
+	Store.receipts.clear()
+	Store.save_wallet()
+	Store.use_client(apple)
+	Store.connect_backend()
+	apple.connected.emit()
+	_ok(sk.started and Store.available() and Store.price_word("cc_small") == "1,99 €",
+		"the App Store opens the shop, starts the listener and prices the packs locally",
+		"started %s, price %s" % [sk.started, Store.price_word("cc_small")])
+
+	var err := Store.buy("cc_small")
+	_ok(err == "" and Store.owed == 0 and sk.bought == ["cc_small"],
+		"a tap asks StoreKit to buy and credits nothing yet", "err '%s', owed %d" % [err, Store.owed])
+
+	var t = sk.answer(0)
+	_ok(Store.owed == 20 and sk.finished == [t.transaction_id],
+		"a paid transaction is credited once and then finished",
+		"owed %d, finished %s" % [Store.owed, str(sk.finished)])
+
+	## Apple re-delivers an unfinished transaction (finish never landed): no second credit.
+	sk.transaction_updated.emit(t)
+	_ok(Store.owed == 20, "a re-delivered transaction is not paid twice", "owed %d" % Store.owed)
+
+	## Cancelled and pending pay nothing.
+	Store.buy("cc_large")
+	sk.answer(4)
+	var canceled := Store.last_error
+	Store.buy("cc_large")
+	sk.answer(5)
+	_ok(Store.owed == 20 and canceled != "" and Store.pending == 1,
+		"a cancelled purchase and an Ask to Buy credit nothing",
+		"owed %d, pending %d" % [Store.owed, Store.pending])
+	## The approval arrives later, outside any purchase call.
+	sk.transaction_updated.emit(sk.tx("cc_large"))
+	_ok(Store.owed == 170, "an approved Ask to Buy lands when StoreKit delivers it", "owed %d" % Store.owed)
+
+	## Restore = ask StoreKit for anything unfinished.
+	var asked_before: int = sk.unfinished_asked
+	Store.resolve_pending()
+	_ok(sk.unfinished_asked == asked_before + 1, "Restore a purchase asks StoreKit for unfinished transactions",
+		"asked %d" % sk.unfinished_asked)
+
+	## A product the store never priced cannot be bought.
+	apple._products.erase("cc_medium")
+	var e2 := Store.buy("cc_medium")
+	_ok(e2 != "" and not sk.bought.has("cc_medium"), "a pack StoreKit did not return is refused, with a reason",
+		"'%s'" % e2)
+
+	Store.use_client(null)
+	sk.free()
 	Store.owed = 0
 	Store.receipts.clear()
 	Store.save_wallet()

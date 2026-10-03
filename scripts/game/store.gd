@@ -147,10 +147,10 @@ static func closed_word() -> String:
 		State.READY:
 			return ""
 		_:
-			## iOS too, until StoreKit is wired (2 Oct 2026): the first App Store
-			## build sells nothing in-app, and "not available on this device"
-			## reads to a reviewer as a broken shop.
-			if OS.get_name() in ["Windows", "macOS", "Linux", "iOS"]:
+			## iOS only when the StoreKit addon is missing from the build (it is
+			## fetched by Codemagic): "not available on this device" reads to a
+			## reviewer as a broken shop.
+			if OS.get_name() in ["Windows", "macOS", "Linux"] or (OS.get_name() == "iOS" and not AppleStore.present()):
 				return UiKit.t("Credits are earned on this version, not bought.")
 			return UiKit.t("The store is not available on this device.")
 
@@ -182,6 +182,10 @@ static func unit_cents(p: Dictionary) -> float:
 static func _backend():
 	if client == null and OS.get_name() == "Android" and ResourceLoader.exists(BILLING_SCRIPT):
 		client = (load(BILLING_SCRIPT) as Script).new()
+	## THE APP STORE (3 Oct 2026): StoreKit 2, wrapped to speak the Play client's
+	## language (see apple_store.gd), so everything below is one code path.
+	if client == null and OS.get_name() == "iOS" and AppleStore.present():
+		client = AppleStore.new()
 	return client
 
 

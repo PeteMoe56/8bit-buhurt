@@ -50,6 +50,20 @@ workflows:
           echo "GODOT=$HOME/godot/Godot.app/Contents/MacOS/Godot" >> $CM_ENV
           T="$HOME/Library/Application Support/Godot/export_templates/$GODOT_VERSION.stable"; mkdir -p "$T"
           unzip -o -q -j "$C/templates.tpz" templates/version.txt templates/ios.zip -d "$T"
+      - name: StoreKit addon (GodotApplePlugins, pinned)
+        script: |
+          set -e
+          ## StoreKit 2 for the credit packs (scripts/game/apple_store.gd). Fetched
+          ## here, not committed: ~100 MB of Apple frameworks the desk never needs.
+          ## Pinned to one build; bump GAP_BUILD on purpose, never by drift.
+          GAP_BUILD="a6d667dda4d4f7b008009d3704f679b06f81424f"
+          C="$HOME/godot-cache"; Z="$C/gap-$GAP_BUILD.zip"
+          [ -f "$Z" ] || curl -sSL -o "$Z" "https://github.com/migueldeicaza/GodotApplePlugins/releases/download/build-$GAP_BUILD/GodotApplePlugins-addons-$GAP_BUILD.zip"
+          rm -rf /tmp/gap && mkdir -p /tmp/gap && unzip -q "$Z" -d /tmp/gap
+          for d in GodotApplePluginsStoreKit GodotApplePluginsRuntime; do
+            rm -rf "addons/$d"; cp -R "/tmp/gap/dist/addons/$d" "addons/$d"
+          done
+          ls addons
       - name: Next build number (TestFlight's latest + 1)
         script: |
           LATEST=$(app-store-connect get-latest-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || echo 0)
