@@ -46,3 +46,7 @@ __pycache__/
 # Patches and renders handed over from Claude sessions; not part of the game.
 Claude outputs/
 logs/
+
+# Upload/release keys never live in the repo (2 Oct 2026)
+*.jks
+*.keystore
