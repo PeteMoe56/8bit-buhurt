@@ -781,6 +781,7 @@ static func fighter_to_dict(f: FighterCard) -> Dictionary:
 		"armor": f.armor, "harness": f.harness,
 		"active": f.active, "available": f.available,
 		"injury": f.injury,
+		"injury_kind": f.injury_kind,
 		## THE CAREER LAYER. A file without these decodes into a squad of
 		## 26-year-olds whose ceilings equal their current rating — a club that
 		## can never improve and never retires anybody — which is why VERSION
@@ -834,6 +835,7 @@ static func fighter_from_dict(d: Dictionary) -> FighterCard:
 	f.active = bool(d["active"])
 	f.available = bool(d["available"])
 	f.injury = int(d.get("injury", 0))
+	f.injury_kind = String(d.get("injury_kind", ""))
 	f.age = int(d.get("age", 26))
 	f.potential = int(d.get("potential", f.overall()))
 	f.xp = int(d.get("xp", 0))

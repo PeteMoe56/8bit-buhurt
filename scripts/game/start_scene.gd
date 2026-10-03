@@ -184,8 +184,11 @@ func _draw() -> void:
 	if t < quit_armed_until:
 		UiKit.mid(self, font, UiKit.t("Press back again to quit"),
 			Vector2(0.0, UiKit.screen().y - 60), 14, UiKit.YOU, UiKit.screen().x)
-	UiKit.text(self, font, UiKit.t("BonkWorks"), Vector2(24, UiKit.screen().y - 24), 13,
-		UiKit.DIM)
+	## AND WHICH BUILD (audit, 3 Oct 2026: testers could not say). The store
+	## builds write "1.0.0 (3)" into a scratch copy of project.godot; a desk run
+	## says what the tracked file says.
+	UiKit.text(self, font, UiKit.t("BonkWorks") + "  ·  " + String(ProjectSettings.get_setting(
+		"application/config/version", "")), Vector2(24, UiKit.screen().y - 24), 13, UiKit.DIM)
 	## The credit the licence asks for, on the screen the music is playing on.
 	## The full list is in Settings; this is the one that is a condition.
 	UiKit.right(self, font, UiKit.t("Music: HeatleyBros — heatleybros.com"),

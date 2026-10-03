@@ -18,7 +18,7 @@
 
 param(
     [int]$Code = 0,
-    [string]$Name = "1.0.0",
+    [string]$Name = "",
     [string]$Keystore = "C:\Dev\keys\combatclub-upload.jks",
     [string]$Alias = "upload"
 )
@@ -46,6 +46,12 @@ $m = [regex]::Match($text, '(?m)^version/code=(\d+)')
 if (-not $m.Success) { Die "version/code not found in export_presets.cfg" }
 $last = [int]$m.Groups[1].Value
 if ($Code -le 0) { $Code = $last + 1 }
+## THE NAME FROM THE PRESET unless one is passed: bump version/name there (or
+## run "Build_Store.bat 1.0.1") for a new version.
+if (-not $Name) {
+    $nm = [regex]::Match($text, '(?m)^version/name="([^"]*)"')
+    $Name = if ($nm.Success) { $nm.Groups[1].Value } else { "1.0.0" }
+}
 if ($Code -le $last -and $last -gt 1) {
     Write-Host "   version/code $Code is not above the last one built ($last) - Play will refuse it if $last was uploaded." -ForegroundColor Yellow
 }
@@ -89,6 +95,11 @@ $t = [IO.File]::ReadAllText($pp)
 $t = [regex]::Replace($t, '(?m)^version/code=.*$', "version/code=$Code")
 $t = [regex]::Replace($t, '(?m)^version/name=.*$', "version/name=""$Name""")
 [IO.File]::WriteAllText($pp, $t)
+## The title screen shows the build: "1.0.0 (3)".
+$pg = Join-Path $p "project.godot"
+$g2 = [IO.File]::ReadAllText($pg)
+$g2 = [regex]::Replace($g2, '(?m)^config/version=.*$', "config/version=""$Name ($Code)""")
+[IO.File]::WriteAllText($pg, $g2)
 New-Item -ItemType Directory -Force -Path (Join-Path $p "build") | Out-Null
 
 # ------------------------------------------------------------------ 5. export

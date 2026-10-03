@@ -1176,7 +1176,11 @@ func invitational_city(set_i: int, slot: int) -> String:
 		if t < 0 or not (INVITATIONAL_SETS[set_i]["tiers"] as Array).has(t):
 			continue
 		var ct := city_of(int(c["id"]))
-		if ct != "" and not near.has(ct):
+		## NEVER YOUR OWN TOWN (Pete, 3 Oct 2026: "I passed on a tournament
+		## this year, yet it still made one"). A federation cup called the
+		## "Detroit Open" for a Detroit club reads as the show you just turned
+		## down. Your own town hosts only the show you bid for.
+		if ct != "" and ct != mine and not near.has(ct):
 			near.append(ct)
 	near.sort_custom(func(a, b): return Cities.distance(mine, a) < Cities.distance(mine, b))
 	if near.is_empty():

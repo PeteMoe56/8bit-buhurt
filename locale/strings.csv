@@ -319,6 +319,7 @@ OUT OF CONTRACT,OUT OF CONTRACT,SIN CONTRATO,EN FIN DE CONTRAT,OHNE VERTRAG,SENZ
 the line,the line,la línea,la ligne,die Linie,la linea,a linha,linia,линия,先発
 the bench,the bench,el banquillo,le banc,die Bank,la panchina,o banco,ławka,скамейка,ベンチ
 reserve,reserve,reserva,réserve,Reserve,riserva,reserva,rezerwa,резерв,控え
+Hurt · %d,Hurt · %d,Lesión · %d,Blessé · %d,Verletzt · %d,Ferito · %d,Lesão · %d,Uraz · %d,Травма · %d,負傷 · %d
 Morale,Morale,Moral,Moral,Moral,Morale,Moral,Morale,Боевой дух,士気
 Known for,Known for,Conocido por,Réputé pour,Bekannt für,Noto per,Conhecido por,Znany z,Славится,持ち味
 RATING,RATING,MEDIA,NOTE,WERTUNG,VALORE,NOTA,OCENA,РЕЙТИНГ,能力値
@@ -349,8 +350,6 @@ Nothing yet.,Nothing yet.,Nada aún.,Rien encore.,Noch nichts.,Ancora niente.,Na
 %d cups,%d cups,%d copas,%d coupes,%d Pokale,%d coppe,%d copas,Puchary: %d,Кубков: %d,カップ優勝%d回
 %s signed for %d year.,%s signed for %d year.,%s firmó por %d año.,%s a signé pour %d an.,%s hat für %d Jahr unterschrieben.,%s ha firmato per %d anno.,%s assinou por %d ano.,"%s podpisał kontrakt, lata: %d.","%s подписал контракт, лет: %d.",%sが%d年契約にサインした。
 %s signed for %d years.,%s signed for %d years.,%s firmó por %d años.,%s signé pour %d ans.,%s unterschreibt für %d Jahre.,%s ha firmato per %d anni.,%s assinou por %d anos.,%s podpisał na %d l.,%s подписан на %d г.,%sと%d年契約。
-out %d event,out %d event,baja %d evento,absent %d rencontre,%d Event raus,fuori %d evento,fora por %d evento,"poza grą, zawody: %d","выбыл, турниров: %d",%d大会欠場
-out %d events,out %d events,baja %d eventos,absent %d rencontres,%d Events raus,fuori %d eventi,fora por %d eventos,"poza grą, zawody: %d","выбыл, турниров: %d",%d大会欠場
 %d LEVEL TO SPEND,%d LEVEL TO SPEND,%d NIVEL POR GASTAR,%d NIVEAU À PLACER,%d STUFE ZU VERGEBEN,%d LIVELLO DA SPENDERE,%d NÍVEL PARA GASTAR,%d POZIOM DO WYDANIA,%d УРОВЕНЬ,残り%dレベル
 %d LEVELS TO SPEND,%d LEVELS TO SPEND,%d NIVELES POR GASTAR,%d NIVEAUX À PLACER,%d STUFEN ZU VERGEBEN,%d LIVELLI DA SPENDERE,%d NÍVEIS PARA GASTAR,%d POZIOMÓW DO WYDANIA,%d УРОВНЕЙ,残り%dレベル
 Age,Age,Edad,Âge,Alter,Età,Idade,Wiek,Возраст,年齢
@@ -549,6 +548,7 @@ A week of training. The squad is a little better for it.,A week of training. The
 %s  ·  rating %d (-%d kit),%s  ·  rating %d (-%d kit),%s  ·  media %d (-%d equipo),%s  ·  note %d (-%d équip.),%s  ·  Wertung %d (-%d Rüst.),%s  ·  valore %d (-%d kit),%s  ·  nota %d (-%d kit),%s  ·  ocena %d (-%d sprzęt),%s  ·  рейтинг %d (-%d снаряж.),%s  ·  能力値 %d (装備-%d)
 "%s, level %d","%s, level %d","%s, nivel %d","%s, niveau %d","%s, Stufe %d","%s, livello %d","%s, nível %d","%s, poziom %d","%s, ур. %d",%s レベル%d
 %s/%s wages,%s/%s wages,%s/%s nómina,%s/%s paie,%s/%s Löhne,%s/%s paghe,%s/%s salários,%s/%s płace,%s/%s зарплаты,給与 %s/%s
+%d credits.,%d credits.,%d créditos.,%d crédits.,%d Credits.,%d crediti.,%d créditos.,Kredyty: %d.,Кредитов: %d.,%dクレジット。
 YOUR ARMORER  ·  %d CC a season,YOUR ARMORER  ·  %d CC a season,TU ARMERO  ·  %d CC por temporada,TON ARMURIER  ·  %d CC par saison,DEIN WAFFENSCHMIED  ·  %d CC pro Saison,IL TUO ARMAIOLO  ·  %d CC a stagione,SEU ARMEIRO  ·  %d CC por temporada,TWÓJ PŁATNERZ  ·  %d CC na sezon,ВАШ ОРУЖЕЙНИК  ·  %d CC за сезон,専属の鎧職人  ·  1シーズン%d CC
 Every traveling harness passes inspection.,Every traveling harness passes inspection.,Todos los arneses del viaje pasan la inspección.,Tous les harnois du voyage passent l'inspection.,Jede Reiserüstung besteht die Prüfung.,Ogni armatura in trasferta passa l'ispezione.,Toda armadura da viagem passa na inspeção.,Każda zbroja w drodze przechodzi kontrolę.,Все доспехи в поездке проходят проверку.,遠征組のアーマーはすべて検査合格。
 nothing owing,nothing owing,nada pendiente,rien à payer,nichts offen,nulla da pagare,nada devido,nic do zapłaty,долгов нет,未払いなし
@@ -662,7 +662,6 @@ CAPTAIN  ·  %s,CAPTAIN  ·  %s,CAPITÁN  ·  %s,CAPITAINE  ·  %s,KAPITÄN  · 
 "Hard: XP ×1.5, morale down, knocks ×5","Hard: XP ×1.5, morale down, knocks ×5","Duro: XP ×1,5, la moral baja, lesiones ×5","Dur : XP ×1,5, moral en baisse, blessures ×5","Hart: EP ×1,5, Moral sinkt, Verletzungen ×5","Duro: XP ×1,5, morale in giù, infortuni ×5","Pesado: XP ×1,5, moral cai, lesões ×5","Ciężki: PD ×1,5, morale w dół, urazy ×5","Тяжёлый: опыт ×1,5, дух падает, травмы ×5",厳しめ：経験値×1.5、士気低下、ケガ×5
 Normal: XP ×1.0,Normal: XP ×1.0,"Normal: XP ×1,0","Normal : XP ×1,0","Normal: EP ×1,0","Normale: XP ×1,0","Normal: XP ×1,0","Normalny: PD ×1,0","Обычный: опыт ×1,0",普通：経験値×1.0
 %d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s,%d  ·  %s
-%d credits.,%d credits.,%d créditos.,%d crédits.,%d Credits.,%d crediti.,%d créditos.,Kredyty: %d.,Кредитов: %d.,%dクレジット。
 Asked the store. Credits land when it answers.,Asked the store. Credits land when it answers.,Pedido a la tienda. Los créditos llegan cuando responda.,Demande envoyée à la boutique. Les crédits arrivent à sa réponse.,"Beim Store angefragt. Die Credits kommen, sobald er antwortet.",Richiesta inviata allo store. I crediti arrivano alla risposta.,Pedido enviado à loja. Os créditos chegam quando ela responder.,Zapytano sklep. Kredyty dotrą po odpowiedzi.,Запрос отправлен в магазин. Кредиты придут после ответа.,ストアに問い合わせ中。応答があればクレジットが届きます。
 Restore a purchase,Restore a purchase,Restaurar compra,Restaurer un achat,Kauf wiederherstellen,Ripristina acquisto,Restaurar compra,Przywróć zakup,Восстановить покупку,購入を復元
 Asked the store for anything outstanding.,Asked the store for anything outstanding.,Pedido a la tienda lo pendiente.,Demande à la boutique de ce qui reste dû.,Beim Store nach Offenem gefragt.,Chiesto allo store ciò che è in sospeso.,Pedido à loja o que estiver pendente.,Zapytano sklep o zaległe zakupy.,Запрошены у магазина неполученные покупки.,未受領の購入をストアに問い合わせました。
@@ -772,8 +771,9 @@ Tap a fighter to see him here.,Tap a fighter to see him here.,Toca un luchador p
 %dy left  ·  %s a year,%dy left  ·  %s a year,quedan %d años  ·  %s/año,%d ans restants  ·  %s/an,noch %d J.  ·  %s pro Jahr,%d anni rimasti  ·  %s all'anno,%d anos restantes  ·  %s/ano,zostało %d l.  ·  %s/rok,осталось %d г.  ·  %s в год,残り%d年  ·  年%s
 OVR,OVR,GLB,GÉN,GES,TOT,GER,OGÓ,ОБЩ,総合
 POT,POT,POT,POT,POT,POT,POT,POT,ПОТ,潜在
+%s  ·  age %d,%s  ·  age %d,%s  ·  %d años,%s  ·  %d ans,%s  ·  %d Jahre,%s  ·  %d anni,%s  ·  %d anos,%s  ·  wiek %d,%s  ·  %d лет,%s  ·  %d歳
+%s kit %d%%,%s kit %d%%,equipo %s %d%%,tenue %s %d%%,Ausrüstung %s %d%%,divisa %s %d%%,equipamento %s %d%%,strój %s %d%%,форма %s %d%%,装備 %s %d%%
 +%d,+%d,+%d,+%d,+%d,+%d,+%d,+%d,+%d,+%d
-Hurt · %d,Hurt · %d,Lesión · %d,Blessé · %d,Verletzt · %d,Ferito · %d,Lesão · %d,Uraz · %d,Травма · %d,負傷 · %d
 %dy,%dy,%da,%da,%dJ,%da,%da,%dl,%dг,%d年
 DEAL,DEAL,CONT,ANS,VERTR,CONTR,CONTR,UMOWA,КОНТР,契約
 %d level to spend,%d level to spend,%d nivel por gastar,%d niveau à placer,%d Stufe zu vergeben,%d livello da spendere,%d nível para gastar,%d poziom do wydania,%d уровень,残り%dレベル
@@ -1045,8 +1045,8 @@ The gate  ·  %s,The gate  ·  %s,La taquilla  ·  %s,Le guichet  ·  %s,Die Kas
 The counter  ·  %s,The counter  ·  %s,La barra  ·  %s,Le comptoir  ·  %s,Der Tresen  ·  %s,Bar  ·  %s,O balcão  ·  %s,Bufet  ·  %s,Буфет  ·  %s,売店  ·  %s
 Won the event,Won the event,Evento ganado,Rencontre gagnée,Kampftag gewonnen,Evento vinto,Venceu o evento,Wygrane zawody,Турнир выигран,大会優勝
 Drew the event,Drew the event,Evento empatado,Rencontre nulle,Kampftag unentschieden,Evento pareggiato,Empatou o evento,Remis w zawodach,Турнир вничью,大会引き分け
-carried off — out for %d event,carried off — out for %d event,sacado en camilla — fuera %d evento,évacué — absent %d rencontre,vom Platz getragen — %d Event raus,portato via — fuori %d evento,carregado — fora por %d evento,"zniesiony — poza grą, zawody: %d","унесён — выбыл, турниров: %d",担架で退場 — %d大会欠場
-carried off — out for %d events,carried off — out for %d events,sacado en camilla — fuera %d eventos,évacué — absent %d rencontres,vom Platz getragen — %d Events raus,portato via — fuori %d eventi,carregado — fora por %d eventos,"zniesiony — poza grą, zawody: %d","унесён — выбыл, турниров: %d",担架で退場 — %d大会欠場
+"carried off — %s, out for %d event","carried off — %s, out for %d event","sacado en camilla — %s, fuera %d evento","évacué — %s, absent %d rencontre","vom Platz getragen — %s, %d Event raus","portato via — %s, fuori %d evento","carregado para fora — %s, fora %d evento","zniesiony — %s, pauzuje %d wydarzenie","унесли — %s, пропустит %d турнир",担架で退場 — %s、%d大会欠場
+"carried off — %s, out for %d events","carried off — %s, out for %d events","sacado en camilla — %s, fuera %d eventos","évacué — %s, absent %d rencontres","vom Platz getragen — %s, %d Events raus","portato via — %s, fuori %d eventi","carregado para fora — %s, fora %d eventos","zniesiony — %s, pauzuje %d wydarzeń","унесли — %s, пропустит %d турн.",担架で退場 — %s、%d大会欠場
 %d assist — second man on somebody else's takedown,%d assist — second man on somebody else's takedown,%d asistencia — segundo hombre en el derribo de otro,%d passe — second homme sur la mise au sol d'un autre,%d Assist — zweiter Mann bei fremdem Niederwurf,%d assist — secondo uomo sull'atterramento di un altro,%d assistência — o segundo homem na queda de outro,asysty: %d — drugi przy cudzym obaleniu,помощь: %d — второй в чужом сбитии,アシスト%d — 他の選手のテイクダウンを助けた
 %d assists — second man on somebody else's takedown,%d assists — second man on somebody else's takedown,%d asistencias — segundo hombre en el derribo de otro,%d passes — second homme sur la mise au sol d'un autre,%d Assists — zweiter Mann bei fremdem Niederwurf,%d assist — secondo uomo sull'atterramento di un altro,%d assistências — o segundo homem na queda de outro,asysty: %d — drugi przy cudzym obaleniu,помощь: %d — второй в чужом сбитии,アシスト%d — 他の選手のテイクダウンを助けた
 There is nothing on the table.,There is nothing on the table.,No hay nada sobre la mesa.,Rien sur la table.,Es liegt nichts auf dem Tisch.,Non c'è niente sul tavolo.,Não há nada na mesa.,Nic nie ma na stole.,На столе ничего нет.,提示されているものはありません。
@@ -1136,6 +1136,18 @@ CLINCH,CLINCH,TRABA,AU CORPS,CLINCH,PRESA,AGARRE,KLINCZ,КЛИНЧ,組み合い
 not ready,not ready,no listo,pas prêt,nicht bereit,non pronto,não pronto,nie gotów,не готов,まだ
 act now,act now,actúa ya,agis,jetzt handeln,agisci ora,aja agora,działaj,действуй,今だ
 +%d · tap here,+%d · tap here,+%d · toca,+%d · touche,+%d · tippen,+%d · tocca,+%d · toque,+%d · dotknij,+%d · жми,+%d・タップ
+bruised ribs,bruised ribs,costillas magulladas,côtes contusionnées,geprellte Rippen,costole contuse,costelas machucadas,stłuczone żebra,ушиб рёбер,肋骨の打撲
+jammed fingers,jammed fingers,dedos torcidos,doigts foulés,verstauchte Finger,dita slogate,dedos torcidos,skręcone palce,выбитые пальцы,突き指
+sprained wrist,sprained wrist,muñeca torcida,poignet foulé,verstauchtes Handgelenk,polso slogato,punho torcido,skręcony nadgarstek,растяжение запястья,手首の捻挫
+split eyebrow,split eyebrow,ceja abierta,arcade ouverte,Platzwunde an der Braue,sopracciglio spaccato,supercílio aberto,rozcięty łuk brwiowy,рассечённая бровь,眉の裂傷
+sprained ankle,sprained ankle,tobillo torcido,cheville foulée,verstauchter Knöchel,caviglia slogata,tornozelo torcido,skręcona kostka,растяжение голеностопа,足首の捻挫
+strained shoulder,strained shoulder,hombro forzado,épaule froissée,gezerrte Schulter,spalla stirata,ombro distendido,naciągnięty bark,растяжение плеча,肩の肉離れ
+twisted knee,twisted knee,rodilla torcida,genou tordu,verdrehtes Knie,ginocchio storto,joelho torcido,skręcone kolano,вывих колена,膝のひねり
+concussion,concussion,conmoción cerebral,commotion cérébrale,Gehirnerschütterung,commozione cerebrale,concussão,wstrząśnienie mózgu,сотрясение,脳しんとう
+torn knee ligament,torn knee ligament,ligamento de rodilla roto,ligament du genou déchiré,Kreuzbandriss,legamento del ginocchio rotto,ligamento do joelho rompido,zerwane więzadło kolana,разрыв связки колена,膝靭帯断裂
+cracked ribs,cracked ribs,costillas fisuradas,côtes fêlées,angebrochene Rippen,costole incrinate,costelas trincadas,pęknięte żebra,трещина рёбер,肋骨のひび
+broken hand,broken hand,mano rota,main cassée,gebrochene Hand,mano rotta,mão quebrada,złamana dłoń,перелом кисти,手の骨折
+knock,knock,golpe,choc,Blessur,botta,pancada,uraz,ушиб,打撲
 Exceptional,Exceptional,Excepcional,Exceptionnel,Hervorragend,Eccezionale,Excepcional,Wyjątkowe,Исключительно,最高
 Great,Great,Genial,Excellent,Super,Ottimo,Ótimo,Świetne,Отлично,とても良い
 Ok,Ok,Pasable,Correct,Ok,Ok,Ok,Ok,Норм,まあまあ
@@ -1193,10 +1205,11 @@ Back to the club,Back to the club,Volver al club,Retour au club,Zurück zum Vere
 PAUSED,PAUSED,PAUSA,PAUSE,PAUSE,IN PAUSA,PAUSADO,PAUZA,ПАУЗА,一時停止
 Tap to carry on,Tap to carry on,Toca para seguir,Touche pour continuer,Tippen: weiter,Tocca per continuare,Toque para continuar,"Stuknij, by grać dalej","Нажми, чтобы продолжить",タップで再開
 "If the game closes, this bout starts again from the walk-out.","If the game closes, this bout starts again from the walk-out.","Si el juego se cierra, este combate empieza de nuevo desde la salida.","Si le jeu se ferme, ce combat reprend depuis l'entrée.","Wird das Spiel beendet, beginnt dieser Kampf neu beim Einlauf.","Se il gioco si chiude, questo scontro riparte dall'ingresso.","Se o jogo fechar, esta luta recomeça da entrada.","Jeśli gra się zamknie, ta walka zacznie się od wyjścia.","Если игра закроется, бой начнётся заново с выхода.",ゲームが終了した場合、この試合は入場からやり直します。
+END OF ROUND %d,END OF ROUND %d,FIN DEL ASALTO %d,FIN DE LA MANCHE %d,ENDE RUNDE %d,FINE ROUND %d,FIM DO ROUND %d,KONIEC RUNDY %d,КОНЕЦ РАУНДА %d,第%dラウンド終了
+%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s
 "You take it. Rounds %d-%d, %d down across the bout.","You take it. Rounds %d-%d, %d down across the bout.","Victoria. Asaltos %d-%d, %d al suelo en toda la tarde.","Tu l'emportes. Manches %d-%d, %d au sol sur l'après-midi.","Du holst ihn. Runden %d-%d, %d am Boden über den Nachmittag.","Vinci. Round %d-%d, %d a terra nel pomeriggio.","Você venceu. Rounds %d-%d, %d quedas na tarde.","Wygrana. Rundy %d-%d, powaleń przez całe popołudnie: %d.","Ты забираешь бой. Раунды %d-%d, сбитых за день: %d.",結果: 勝利。ラウンド%d-%d、この日のダウン%d。
 "You share it. Rounds %d-%d, %d down across the bout.","You share it. Rounds %d-%d, %d down across the bout.","Empate. Asaltos %d-%d, %d al suelo en toda la tarde.","Tu partages. Manches %d-%d, %d au sol sur l'après-midi.","Du teilst ihn. Runden %d-%d, %d am Boden über den Nachmittag.","Pareggi. Round %d-%d, %d a terra nel pomeriggio.","Você empatou. Rounds %d-%d, %d quedas na tarde.","Remis. Rundy %d-%d, powaleń przez całe popołudnie: %d.","Ты делишь бой. Раунды %d-%d, сбитых за день: %d.",結果: 引き分け。ラウンド%d-%d、この日のダウン%d。
 "You lose it. Rounds %d-%d, %d down across the bout.","You lose it. Rounds %d-%d, %d down across the bout.","Derrota. Asaltos %d-%d, %d al suelo en toda la tarde.","Tu perds. Manches %d-%d, %d au sol sur l'après-midi.","Du verlierst ihn. Runden %d-%d, %d am Boden über den Nachmittag.","Perdi. Round %d-%d, %d a terra nel pomeriggio.","Você perdeu. Rounds %d-%d, %d quedas na tarde.","Porażka. Rundy %d-%d, powaleń przez całe popołudnie: %d.","Ты проигрываешь бой. Раунды %d-%d, сбитых за день: %d.",結果: 敗北。ラウンド%d-%d、この日のダウン%d。
-%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s,%s %d - %d %s
 THE EVENT,THE EVENT,LA TARDE,L'APRÈS-MIDI,DER NACHMITTAG,IL POMERIGGIO,A TARDE,POPOŁUDNIE,ИТОГИ ДНЯ,この日の結果
 WHAT THEY SAID,WHAT THEY SAID,LO QUE DIJERON,CE QU'ILS ONT DIT,WAS SIE SAGTEN,COSA HANNO DETTO,O QUE DISSERAM,CO POWIEDZIELI,ЧТО ОНИ СКАЗАЛИ,選手の声
 AFTER ACTION REPORT,AFTER ACTION REPORT,INFORME DE COMBATE,RAPPORT D'APRÈS-COMBAT,KAMPFBERICHT,RAPPORTO POST-SCONTRO,RELATÓRIO PÓS-AÇÃO,RAPORT PO WALCE,РАЗБОР БОЯ,戦闘報告
@@ -1216,7 +1229,6 @@ scroll ^,scroll ^,subir ^,défiler ^,scrollen ^,scorri ^,rolar ^,przewiń ^,ли
 more v,more v,más v,suite v,mehr v,altro v,mais v,więcej v,ещё v,続き v
 BEFORE THE CHARGE,BEFORE THE CHARGE,ANTES DE LA CARGA,AVANT LA CHARGE,VOR DEM ANSTURM,PRIMA DELLA CARICA,ANTES DA CARGA,PRZED SZARŻĄ,ПЕРЕД АТАКОЙ,突撃前
 your line %d  ·  v %s  ·  their line %d,your line %d  ·  v %s  ·  their line %d,tu línea %d  ·  v %s  ·  su línea %d,votre ligne %d  ·  c. %s  ·  leur ligne %d,deine Linie %d  ·  gg. %s  ·  ihre Linie %d,la tua linea %d  ·  v %s  ·  la loro %d,sua linha %d  ·  x %s  ·  linha deles %d,twoja linia %d  ·  v %s  ·  ich linia %d,ваша линия %d  ·  против %s  ·  их линия %d,自軍%d  ·  対 %s  ·  相手%d
-END OF ROUND %d,END OF ROUND %d,FIN DEL ASALTO %d,FIN DE LA MANCHE %d,ENDE RUNDE %d,FINE ROUND %d,FIM DO ROUND %d,KONIEC RUNDY %d,КОНЕЦ РАУНДА %d,第%dラウンド終了
 STILL STANDING,STILL STANDING,AÚN EN PIE,ENCORE DEBOUT,NOCH STEHEND,ANCORA IN PIEDI,AINDA DE PÉ,WCIĄŻ NA NOGACH,ЕЩЁ НА НОГАХ,立っている
 BACK IN,BACK IN,VUELVEN EN,RETOUR DANS,ZURÜCK IN,RIENTRO,VOLTAM EM,POWRÓT ZA,ВЫХОД ЧЕРЕЗ,再開まで
 DOWNED,DOWNED,DERRIBADO,AU SOL,AM BODEN,A TERRA,CAIU,POWALONY,СБИТ,ダウン

@@ -160,6 +160,14 @@ func _flow_new_career_and_first_bout() -> void:
 	sim.run_to_end()
 	await process_frame
 	await process_frame
+	## THE BEAT (3 Oct 2026): the last round's score holds on the field for a
+	## couple of seconds before the report and its button come up.
+	for i in 400:
+		var m := current_scene
+		if m == null or float(m.get("beat_t")) <= 0.0:
+			break
+		await process_frame
+	await process_frame
 	await _press("Back to the club")
 	var back := await _arrive("Season.tscn")
 	on_disk = SaveGame._read(0)

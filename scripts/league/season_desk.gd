@@ -504,7 +504,8 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 				else UiKit.t("%s's harness worse")) % man.display_name)
 		if fx.has("injury"):
 			man.injury = maxi(man.injury, int(fx["injury"]))
-			said.append(UiKit.t("%s out %d") % [man.display_name, int(fx["injury"])])
+			man.injury_kind = FighterCard.injury_for(man.injury, hash(man.display_name + str(s.world.event)))
+			said.append(UiKit.t("%s out %d") % [man.display_name, int(fx["injury"])] + " · " + man.injury_word())
 		if fx.has("xp"):
 			man.xp += int(fx["xp"])
 		if fx.has("potential"):

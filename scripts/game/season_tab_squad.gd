@@ -420,6 +420,13 @@ static func _draw_info(v: SeasonScene) -> void:
 		TeamCard.draw_stars(v, v.font, Vector2(x, y + 28.0), v.season.club, 2, (r.size.x - 28.0) * 0.5, 13)
 		UiKit.text(v, v.font, UiKit.t("Tap a fighter to see him here."), Vector2(x, r.end.y - 12.0), 13, UiKit.DIM)
 		return
+	## THE TALL BOX (an iPad, or any screen taller than 16:9) gets the large
+	## layout and a place kept for his portrait (Pete, 3 Oct 2026: "the info can
+	## be bigger as it doesn't fill much of the box. Set aside space for a future
+	## profile portrait"). A phone's box is full as it is, so it keeps this one.
+	if r.size.y >= TALL_INFO:
+		_draw_info_tall(v, f, r)
+		return
 	var right_w := 150.0
 	UiKit.text_fit(v, v.font, f.display_name, Vector2(x, y), 18, UiKit.INK, r.size.x - right_w - 40.0)
 	var sub := UiKit.t("%s  ·  age %d  ·  %s kit %d%%") % [Tuning.pos_name(int(f.pos)), f.age,
@@ -446,6 +453,58 @@ static func _draw_info(v: SeasonScene) -> void:
 		UiKit.mid(v, v.font, UiKit.tn("%d level to spend", "%d levels to spend", banked) % banked, Vector2(px, y + 66.0), 13, UiKit.YOU, 142)
 
 
+
+
+## How tall the info box has to be before it gets the large layout.
+const TALL_INFO := 230.0
+## The place kept for his portrait, top left of the tall box.
+const PORTRAIT := Vector2(104.0, 124.0)
+
+
+static func _draw_info_tall(v: SeasonScene, f: FighterCard, r: Rect2) -> void:
+	var pad := 16.0
+	var top := r.position.y + pad
+	## THE PORTRAIT'S PLACE. Empty until the art exists: a darker well the size
+	## the picture will be, so the layout does not move when it arrives.
+	var well := Rect2(r.position.x + pad, top, PORTRAIT.x, PORTRAIT.y)
+	v.draw_rect(well, Color(0, 0, 0, 0.28))
+	v.draw_rect(well, UiKit.FRAME * Color(1, 1, 1, 0.5), false, 1.0)
+	## WHO HE IS, beside it.
+	var tx := well.end.x + 14.0
+	var tw := r.end.x - pad - tx
+	UiKit.text_fit(v, v.font, f.display_name, Vector2(tx, top + 22.0), 24, UiKit.INK, tw)
+	UiKit.text_fit(v, v.font, UiKit.t("%s  ·  age %d") % [Tuning.pos_name(int(f.pos)), f.age],
+		Vector2(tx, top + 50.0), 15, UiKit.DIM, tw)
+	UiKit.text_fit(v, v.font, UiKit.t("%s kit %d%%") % [Quartermaster.name_of(f), int(round(f.armor * 100.0))],
+		Vector2(tx, top + 74.0), 15, UiKit.DIM, tw)
+	var deal := UiKit.t("%dy left  ·  %s a year") % [maxi(0, f.years), ClubOffice.money(ClubOffice.billed(f))]
+	UiKit.text_fit(v, v.font, deal, Vector2(tx, top + 98.0), 15,
+		UiKit.DOWN if f.years <= 0 else (UiKit.YOU if f.years == 1 else UiKit.DIM), tw)
+	if f.injury > 0:
+		UiKit.text_fit(v, v.font, UiKit.t("Hurt · %d") % f.injury + "  ·  " + f.injury_word(),
+			Vector2(tx, top + 122.0), 15, UiKit.DOWN, tw)
+	## HIS FOUR across the box under the portrait, then OVR and POT large.
+	var stats := [f.strength, f.base, f.skill, f.gas]
+	var sw := (r.size.x - pad * 2.0 - 40.0) * 0.5
+	var sy0 := well.end.y + 36.0
+	for i in 4:
+		var sx := r.position.x + pad + float(i % 2) * (sw + 40.0)
+		var sy := sy0 + float(i / 2) * 30.0
+		UiKit.text(v, v.font, TeamCard.cat_name(i), Vector2(sx, sy), 16, UiKit.DIM)
+		UiKit.right(v, v.font, "%d" % int(stats[i]), Vector2(sx + sw, sy), 18, UiKit.INK, 40)
+	var ry := sy0 + 74.0
+	var half := (r.size.x - pad * 2.0) * 0.5
+	var lx := r.position.x + pad
+	UiKit.text(v, v.font, UiKit.t("OVR"), Vector2(lx, ry), 14, UiKit.DIM)
+	UiKit.right(v, v.font, "%d" % f.overall(), Vector2(lx + half - 20.0, ry + 8.0), 38,
+		UiKit.DOWN if f.fading() else UiKit.INK, 90)
+	UiKit.text(v, v.font, UiKit.t("POT"), Vector2(lx + half + 20.0, ry), 14, UiKit.DIM)
+	UiKit.right(v, v.font, "%d" % f.potential, Vector2(r.end.x - pad, ry + 8.0), 38,
+		UiKit.UP if f.headroom() >= 6 else UiKit.DIM, 90)
+	var banked := Career.levels_banked(f)
+	if banked > 0:
+		UiKit.mid(v, v.font, UiKit.tn("%d level to spend", "%d levels to spend", banked) % banked,
+			Vector2(r.position.x, ry + 40.0), 14, UiKit.YOU, r.size.x)
 
 
 static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: float) -> void:

@@ -465,7 +465,14 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	if card.is_empty():
 		return
 	var y := SeasonScene.CONTENT_Y + 10.0
-	UiKit.panel(v, Rect2(24, y, UiKit.span(), 300))
+	## THE PANEL RUNS DOWN TO THE BUTTONS on every screen shape, and the rule and
+	## the answers hang off ITS bottom (Pete, 3 Oct 2026: "the dilemma choices are
+	## all too high and are clipped into the lines"). It was a fixed 300 tall
+	## with the answers placed off the button row, so the first line of each
+	## answer sat on the rule, and on an iPad the answers fell out of the panel.
+	var bottom := SeasonScene.action_y() - 14.0
+	UiKit.panel(v, Rect2(24, y, UiKit.span(), bottom - y))
+	var rule_y := bottom - 98.0
 	UiKit.text(v, v.font, String(card["title"]).to_upper(), Vector2(48, y + 36), 20, UiKit.YOU)
 	## The body wraps by hand rather than by a Label, because everything else on
 	## this screen is drawn and a single themed Label in the middle of it reads
@@ -526,7 +533,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	## of the panel and the answers read as though they had come loose from it.
 	## The line says the bottom of this panel is a different kind of thing, which
 	## is true — it is the only structure on the card that encodes something.
-	UiKit.rule(v, UiKit.RULE_GEM, Vector2(48.0, SeasonScene.action_y() - 104.0), UiKit.span(48.0), UiKit.FRAME)
+	UiKit.rule(v, UiKit.RULE_GEM, Vector2(48.0, rule_y), UiKit.span(48.0), UiKit.FRAME)
 	## AND A KEY TO THE TWO WORDS NOBODY CAN GUESS.
 	##
 	## Pete, item 16 of the 15 Sep playtest: *"No idea what room or name mean."*
@@ -548,7 +555,7 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 		var x := 24.0 + float(i) * (w + 12.0)
 		## TWENTY HIGHER, so a two-line answer keeps its figures inside the panel
 		## (playtest 30 Sep: "room -4 · name +1" printed on the panel's edge).
-		var by := SeasonScene.action_y() - 86.0
+		var by := rule_y + 34.0
 		## Inset to the same ten pixels a button pads its own label by, so a
 		## column of prose sits over its button rather than over the gap, and the
 		## leftmost one stops touching the edge of the panel.

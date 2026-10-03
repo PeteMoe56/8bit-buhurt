@@ -66,6 +66,10 @@ workflows:
           s = re.sub(r'application/short_version="[^"]*"', 'application/short_version="%s"' % os.environ["VERSION_NAME"], s)
           s = re.sub(r'application/version="[^"]*"', 'application/version="%s"' % os.environ["BUILD_NO"], s)
           open(p, "w").write(s)
+          ## The title screen shows the build: "1.0.0 (3)".
+          g = open("project.godot").read()
+          g = re.sub(r'(?m)^config/version="[^"]*"', 'config/version="%s (%s)"' % (os.environ["VERSION_NAME"], os.environ["BUILD_NO"]), g)
+          open("project.godot", "w").write(g)
           PY
           mkdir -p build/ios
           "$GODOT" --headless --path . --import >/dev/null 2>&1 || true

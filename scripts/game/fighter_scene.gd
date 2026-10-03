@@ -649,7 +649,13 @@ func _the_man() -> void:
 	_line("Where", UiKit.t("the line") if season.club.starting_five().has(man)
 		else (UiKit.t("the bench") if man.active else UiKit.t("reserve")), y)
 	y += ROW
-	_line("Fit", UiKit.t("ready") if man.fit() else UiKit.tn("out %d event", "out %d events", man.injury) % man.injury, y)
+	## HURT: what it is, and for how long, on the one line (Pete, 3 Oct 2026).
+	if man.injury > 0:
+		## "Hurt · 3" is the team sheet's own word for it: 3 = events he misses.
+		UiKit.text(self, font, UiKit.t("Hurt · %d") % man.injury, Vector2(L_X + 16, y), 14, UiKit.DOWN)
+		UiKit.right(self, font, man.injury_word(), Vector2(L_X + COL_W - 16, y), 14, UiKit.DOWN, 175)
+	else:
+		_line("Fit", UiKit.t("ready") if man.fit() else man.unfit_reason(), y)
 	y += ROW
 	## HIS MOOD, and it belongs on this list rather than in a panel of its own:
 	## it is a fact about the man in the same way his weight is, and it is the one

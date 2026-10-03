@@ -378,14 +378,15 @@ static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
 				maxi(1, int(k["events"]) - s.office.injury_relief()
 					+ int(FighterTrait.mod(card.trait_id, "injury_events", 0.0))))
 			if card.injury > was:
+				card.injury_kind = FighterCard.injury_for(card.injury, roll.randi())
 				card.knocks += 1
 				## Recorded here rather than counted off the roster afterwards:
 				## `_apply_bout_injuries` is the only place that knows this knock
 				## is new, and a later pass over the squad cannot tell a man hurt
 				## today from a man hurt last week.
 				s._note_change("knock", card.display_name,
-					UiKit.tn("carried off — out for %d event", "carried off — out for %d events",
-						card.injury) % card.injury, -1)
+					UiKit.tn("carried off — %s, out for %d event", "carried off — %s, out for %d events",
+						card.injury) % [card.injury_word(), card.injury], -1)
 
 
 

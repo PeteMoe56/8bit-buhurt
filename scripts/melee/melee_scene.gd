@@ -85,6 +85,17 @@ var font: Font
 var accum := 0.0
 var marshal_text := ""
 var marshal_t := 0.0
+## THE BEAT AT THE END OF A ROUND (Pete, 3 Oct 2026: "rounds end too suddenly, it
+## should have a beat where it shows the field and the final round score"). The
+## field stays up, frozen, with the round's score over it, before the corner or
+## the report takes the screen. The bout is posted and saved at once; only the
+## screen change waits.
+const BEAT := 2.4
+var beat_t := 0.0
+var beat_round := 0
+var beat_report := false
+var _beat_node: Node2D = null
+var _beat_layer: CanvasLayer = null
 
 ## live drawing state
 var drawing := -1
@@ -210,6 +221,14 @@ var drawn_shape_id: int = -1
 func _ready() -> void:
 	Juice.arm()
 	font = UiKit.body()
+	## THE BEAT'S OWN LAYER, over the men and the knock-down pops (those are on
+	## Juice's layer 100, above this canvas).
+	_beat_layer = CanvasLayer.new()
+	_beat_layer.layer = 101
+	add_child(_beat_layer)
+	_beat_node = Node2D.new()
+	_beat_layer.add_child(_beat_node)
+	_beat_node.draw.connect(_draw_beat)
 	_build_ui()
 	_fit_width()
 	_new_bout(randi())
@@ -261,6 +280,9 @@ func _new_bout(seed_value: int) -> void:
 			Audio.play("clash")
 		_on_call_resolved(i, a, ok))
 	sim.bout_finished.connect(_on_bout_finished)
+	sim.round_finished.connect(func(r, _w):
+		beat_round = r
+		beat_t = BEAT)
 	screen = Screen.PREFIGHT
 	accum = 0.0
 	marshal_text = ""
@@ -335,11 +357,18 @@ func _fit_width() -> void:
 	position = Vector2(off_x, off_y)
 	if ui != null:
 		ui.offset = Vector2(off_x, off_y)
+	if _beat_layer != null:
+		_beat_layer.offset = Vector2(off_x, off_y)
 
 
 func _process(delta: float) -> void:
 	_fit_width()
 	marshal_t = maxf(0.0, marshal_t - delta)
+	if beat_t > 0.0 and not paused:
+		beat_t = maxf(0.0, beat_t - delta)
+		if beat_t <= 0.0 and beat_report:
+			beat_report = false
+			_show_report()
 	for k in call_words.keys():
 		call_words[k]["t"] = float(call_words[k]["t"]) - delta
 		if float(call_words[k]["t"]) <= 0.0 or screen != Screen.FIGHT:
@@ -367,7 +396,8 @@ func _process(delta: float) -> void:
 		return
 
 	var in_corner: bool = sim.phase == MeleeSim.Phase.CORNER
-	if in_corner and screen != Screen.CORNER and corner_done_for_round != sim.round_no:
+	if in_corner and screen != Screen.CORNER and corner_done_for_round != sim.round_no \
+			and beat_t <= 0.0:
 		screen = Screen.CORNER
 		_show_strategy_panel()
 	elif not in_corner and screen == Screen.CORNER:
@@ -411,7 +441,7 @@ func _process(delta: float) -> void:
 	if skipping and not paused:
 		_skip_slice()
 	elif screen == Screen.FIGHT and not Juice.frozen() and not held and not paused and wheel_man == -1 \
-			and tip == "":
+			and tip == "" and beat_t <= 0.0:
 		## NO CATCH-UP AFTER A STALL. A hitch or an app resume handed the loop a
 		## huge delta, and the fight fast-forwarded until it caught up.
 		accum = minf(accum + delta, 0.25)
@@ -510,7 +540,7 @@ func _sync_controls() -> void:
 	if call_button == null or skip_button == null:
 		return
 	var live: bool = screen == Screen.FIGHT and not sim.is_over() \
-		and sim.phase != MeleeSim.Phase.CORNER and not skipping
+		and sim.phase != MeleeSim.Phase.CORNER and not skipping and beat_t <= 0.0
 	## Not while the wheel is up: the fight is frozen and the ring needs the
 	## bottom of the list the two buttons sit over.
 	call_button.visible = live and not held and calls_left > 0 and wheel_man == -1
@@ -600,6 +630,16 @@ func _on_bout_finished(_w: int) -> void:
 		Session.clear_bout()
 		Session.autosave()
 		again_button.text = UiKit.t("Back to the club")
+	## The beat first: the field and the last round's score, then the report.
+	if beat_t > 0.0:
+		beat_report = true
+		return
+	_show_report()
+
+
+func _show_report() -> void:
+	## Built here, not at the final whistle, so it doesn't sit over the beat.
+	if Session.in_season():
 		_add_spend_button()
 	_quips_cache = []
 	_news_cache = []
@@ -1026,6 +1066,8 @@ func _draw() -> void:
 		UiKit.raw(self, font, Vector2(0, SCREEN.y * 0.46), marshal_text,
 			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 40,
 			Tuning.COL_MARSHAL * Color(1, 1, 1, clampf(marshal_t / 1.6, 0, 1)))
+	if _beat_node != null:
+		_beat_node.queue_redraw()
 	if paused:
 		var sz := SCREEN
 		draw_rect(Rect2(Vector2(-off_x, -off_y), UiKit.screen()), Color(0, 0, 0, 0.6))
@@ -1039,6 +1081,25 @@ func _draw() -> void:
 			UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 64),
 				UiKit.t("If the game closes, this bout starts again from the walk-out."),
 				HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 14, COL_DIM)
+
+
+# ------------------------------------------------------------- the beat
+## The round's score over the frozen field: who took it reads off the numbers.
+func _draw_beat() -> void:
+	if beat_t <= 0.0 or screen != Screen.FIGHT or sim == null:
+		return
+	var c: Node2D = _beat_node
+	var a := clampf(beat_t / 0.3, 0.0, 1.0)
+	var box := Rect2(SCREEN.x * 0.5 - 160.0, SCREEN.y * 0.17, 320.0, 84.0)
+	c.draw_rect(box, Color(0.08, 0.07, 0.06, 0.96 * a))
+	c.draw_rect(box, UiKit.FRAME * Color(1, 1, 1, a), false, 2.0)
+	UiKit.raw(c, font, Vector2(box.position.x, box.position.y + 26.0),
+		UiKit.t("END OF ROUND %d") % beat_round, HORIZONTAL_ALIGNMENT_CENTER,
+		int(box.size.x), 16, COL_DIM * Color(1, 1, 1, a))
+	UiKit.raw(c, font, Vector2(box.position.x, box.position.y + 66.0),
+		UiKit.t("%s %d - %d %s") % [sim.clubs[0].short_name, sim.rounds_won[0],
+			sim.rounds_won[1], sim.clubs[1].short_name],
+		HORIZONTAL_ALIGNMENT_CENTER, int(box.size.x), 30, UiKit.YOU * Color(1, 1, 1, a))
 
 
 # ----------------------------------------------------------- the report

@@ -948,6 +948,18 @@ func _process(_delta: float) -> void:
 	if flash != "" and Time.get_ticks_msec() - _flash_at > FLASH_MS:
 		flash = ""
 		queue_redraw()
+	## A PURCHASE LANDS WHERE YOU ARE (audit, 3 Oct 2026). Play answers a
+	## purchase after the tap, into the wallet; nothing moved it into the career
+	## until the next tap or a reload, so a player who had paid saw his CC sit
+	## still. Checked once a second, so a save that will not write is not
+	## retried every frame.
+	_claim_t += _delta
+	if season != null and Store.owed > 0 and _claim_t >= 1.0:
+		_claim_t = 0.0
+		var got := Store.claim(season.office, Session.autosave)
+		if got > 0:
+			flash = UiKit.t("%d credits.") % got
+			_rebuild()
 	if season == null or tab != Tab.CLUB:
 		return
 	## THE TAPE ASKS FOR ITS OWN FRAMES, which is the lesson of the note above:
@@ -969,6 +981,9 @@ func _process(_delta: float) -> void:
 	if not Juice.type_done("dilemma:" + String(card["title"])):
 		queue_redraw()
 ## -> SeasonClubTab (season_tab_club.gd)
+var _claim_t := 0.0
+
+
 func _draw_dilemma() -> void:
 	SeasonClubTab._draw_dilemma(self)
 

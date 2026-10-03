@@ -121,6 +121,33 @@ extends Resource
 ## stops him fighting, and the eight has to cover for him, which is the entire
 ## point of carrying a bench and a reserve.
 @export var injury: int = 0
+## WHAT IT IS (Pete, 3 Oct 2026, twice: "fighter is hurt and you don't know what
+## the injury is"). Picked when the knock lands, sized to how long he is out,
+## and kept with him until he is fit. "" on a save from before it existed.
+@export var injury_kind: String = ""
+
+## The knocks of the sport, by how long they keep a man out.
+const INJURY_KINDS := [
+	["bruised ribs", "jammed fingers", "sprained wrist", "split eyebrow"],
+	["sprained ankle", "strained shoulder", "twisted knee"],
+	["concussion", "torn knee ligament", "cracked ribs", "broken hand"],
+]
+
+
+## For the string table, which reads literals inside t().
+static func _injury_keys() -> Array:
+	return [UiKit.t("bruised ribs"), UiKit.t("jammed fingers"), UiKit.t("sprained wrist"), UiKit.t("split eyebrow"), UiKit.t("sprained ankle"), UiKit.t("strained shoulder"), UiKit.t("twisted knee"), UiKit.t("concussion"), UiKit.t("torn knee ligament"), UiKit.t("cracked ribs"), UiKit.t("broken hand")]
+
+
+## One knock for a stretch of `events` out, chosen by `roll`.
+static func injury_for(events: int, roll: int) -> String:
+	var band: Array = INJURY_KINDS[clampi(events, 1, INJURY_KINDS.size()) - 1]
+	return String(band[absi(roll) % band.size()])
+
+
+## What he has, for the screens. A save from before the kinds says "knock".
+func injury_word() -> String:
+	return UiKit.t(injury_kind) if injury_kind != "" else UiKit.t("knock")
 
 
 ## Can he go out this weekend? Everything that picks a line asks this rather
@@ -372,6 +399,7 @@ func copy() -> FighterCard:
 	c.active = active
 	c.available = available
 	c.injury = injury
+	c.injury_kind = injury_kind
 	c.age = age
 	c.potential = potential
 	c.xp = xp

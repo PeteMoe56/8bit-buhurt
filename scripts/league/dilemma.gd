@@ -424,7 +424,9 @@ static func costs(option: Dictionary) -> Array[Dictionary]:
 		## CREDITS ARE WHOLE AND EVERYTHING ELSE IS A FRACTION OF A 0-1 SCALE, so
 		## the fractions are shown as the change a player can feel rather than as
 		## a decimal nobody can price: a tenth of the room is "room -10".
-		var n: int = int(round(v)) if key == "cc" or key == "note" or key == "fans" \
+		## CROWD IS A FRACTION TOO (3 Oct 2026): "fans": 0.10 rounded to 0 and
+		## the figure never showed on any card.
+		var n: int = int(round(v)) if key == "cc" or key == "note" \
 			else int(round(v * 100.0))
 		if n == 0:
 			continue
