@@ -140,5 +140,9 @@ $text = [regex]::Replace($text, '(?m)^version/code=.*$', "version/code=$Code")
 $mb = [math]::Round((Get-Item $keep).Length / 1MB, 1)
 Write-Host ""
 Write-Host "DONE  $keep  ($mb MB)" -ForegroundColor Green
-Write-Host "export_presets.cfg version/code is now $Code - commit it with the release." -ForegroundColor Green
+## THE CODE IS COMMITTED WITH THE BUNDLE (3 Oct 2026): left uncommitted it rode
+## along unseen and blocked the next merge. Only the preset, only this line.
+& git -C $root commit -q -m "Play bundle $Name ($Code)" -- export_presets.cfg 2>$null
+if ($LASTEXITCODE -eq 0) { Write-Host "Committed export_presets.cfg: version/code $Code." -ForegroundColor Green }
+else { Write-Host "export_presets.cfg version/code is now $Code - commit it." -ForegroundColor Yellow }
 Write-Host "Upload: Play Console > Test and release > Closed testing > the draft release > Upload." -ForegroundColor Green

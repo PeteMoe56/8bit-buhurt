@@ -7,6 +7,6 @@ echo.
 git push origin main
 if errorlevel 1 ( echo  [X] Push failed - see above. & pause & exit /b 1 )
 echo.
-echo  [OK] Pushed. In Codemagic: 8bit-buhurt - Start new build - workflow "Android - Play internal".
+echo  [OK] Pushed. In Codemagic: 8bit-buhurt - Start new build - workflow "iOS - TestFlight".
 pause
 endlocal
