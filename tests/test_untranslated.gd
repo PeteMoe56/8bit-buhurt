@@ -63,6 +63,12 @@ func _initialize() -> void:
 		await _sweep_fight(st)
 	for c in Dilemma.CARDS:
 		await _sweep_dilemma(String(c["id"]))
+	## THREE MORE STATES (3 Oct 2026): the knockout bracket (its round headers
+	## shipped in English to German), the city picker, and the playbook.
+	await _sweep_bracket(1)
+	await _sweep_bracket(99)
+	await _sweep_city_picker()
+	await _sweep_playbook()
 	TranslationServer.pseudolocalization_enabled = false
 	TranslationServer.reload_pseudolocalization()
 	print("\n=== 8-Bit Buhurt — nothing drawn escapes the string table ===\n")
@@ -86,7 +92,7 @@ func _initialize() -> void:
 	var fails: Array[String] = []
 	var glued := _english_in_args()
 	print("  %s  every string drawn on %d screens and states went through the string table — %s" % [
-		"pass" if keys.is_empty() else "FAIL", SCREENS.size() + FIGHT_LABEL.size() + Dilemma.CARDS.size(),
+		"pass" if keys.is_empty() else "FAIL", SCREENS.size() + FIGHT_LABEL.size() + Dilemma.CARDS.size() + 4,
 		"none escaped" if keys.is_empty() else "%d escaped (listed above)" % keys.size()])
 	if not keys.is_empty():
 		fails.append("%d drawn strings skip UiKit.t()" % keys.size())
@@ -141,6 +147,7 @@ func _world() -> void:
 	for reg in Cities.Region.values():
 		for c in Cities.names(reg):
 			names[Cities.full_name(c)] = true
+			names[Cities.area_of(c)] = true
 	## The invitationals' names and towns are proper nouns too (1 Oct 2026).
 	for si in LeagueWorld.INVITATIONAL_SETS.size():
 		for slot in 2:
@@ -383,3 +390,55 @@ func _inside_a_key(frag: String) -> bool:
 				parts.append(TranslationServer.translate(row[0]))
 		_rendered = "\n".join(parts)
 	return _rendered.contains(frag)
+
+
+## An eight-club knockout with `rounds` rounds played (99 = to the end), so the
+## tree, the road and the champion all draw.
+func _sweep_bracket(rounds: int) -> void:
+	Session.season = world
+	var me: int = world.world.player_club
+	var ids: Array = [me]
+	for i in world.world.clubs.size():
+		if ids.size() < 8 and i != me:
+			ids.append(i)
+	var cup := Cup.new(world.world.invitational_name(0, 0), ids, 7, me, false)
+	var home := func(_a: int, _b: int) -> Array: return [2, 1, 5, 1]
+	for r in rounds:
+		if cup.is_over():
+			break
+		for m in cup.current_round():
+			if not bool(m["played"]):
+				var res: Array = home.call(int(m["a"]), int(m["b"]))
+				cup.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
+		cup.settle_third(home)
+		cup.advance()
+	Session.viewing_cup = cup
+	var n: Node = (load("res://scenes/Bracket.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	await _collect(n, "Bracket/knockout %d" % rounds)
+	Session.viewing_cup = null
+
+
+func _sweep_city_picker() -> void:
+	Session.season = world
+	var n: Node = (load("res://scenes/Title.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	n.set("picking", 0)
+	n.call("_offer_cities")
+	n.call("_build")
+	await process_frame
+	await _collect(n, "Title/city picker")
+
+
+func _sweep_playbook() -> void:
+	Session.season = world
+	var n: Node = (load("res://scenes/Chalkboard.tscn") as PackedScene).instantiate()
+	root.add_child(n)
+	await process_frame
+	n.set("mode", 1)
+	n.call("_load_slot", 0)
+	n.call("_rebuild")
+	await process_frame
+	await _collect(n, "Chalkboard/plays")

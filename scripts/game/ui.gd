@@ -2029,6 +2029,10 @@ static func ordinal(n: int) -> String:
 		return "—"
 	## Each English suffix is a key, so a language words its own: "%d." in
 	## German, "%dº" in Spanish, "%der" / "%de" in French.
+	## FRENCH SAYS "1er" BUT "21e" (3 Oct 2026): only the first takes "er", so
+	## every other number goes to the "%de" form the table already has.
+	if n != 1 and TranslationServer.get_locale().begins_with("fr"):
+		return "%de" % n
 	if n % 100 < 11 or n % 100 > 13:
 		match n % 10:
 			1: return UiKit.t("%dst") % n

@@ -105,7 +105,11 @@ func _build_city_picker() -> void:
 	## it is already in is the oldest bad button in software.
 	var other: int = Cities.Region.EU if region == Cities.Region.US \
 		else Cities.Region.US
-	ui.add_child(UiKit.button(String(Cities.REGION_NAME[other]),
+	## REGION NAME TRANSLATED (3 Oct 2026). Literal keys rather than
+	## t(REGION_NAME[..]) so the extractor sees them without a table entry.
+	var other_name: String = UiKit.t("Europe") if other == Cities.Region.EU \
+		else UiKit.t("United States")
+	ui.add_child(UiKit.button(other_name,
 		Vector2(UiKit.screen().x - 48.0 - 240.0, CITY_AT.y - 54.0),
 		Vector2(240, 40), func():
 			region = other
@@ -412,7 +416,7 @@ func _draw() -> void:
 		UiKit.text(self, font, UiKit.t("WHERE ARE YOU FROM?"),
 			Vector2(CITY_AT.x, CITY_AT.y - 34), 20, UiKit.YOU)
 		UiKit.text(self, font,
-			"Your town names the club, and it is where you play at home.",
+			UiKit.t("Your town names the club, and it is where you play at home."),
 			Vector2(CITY_AT.x, CITY_AT.y - 12), 14, UiKit.DIM)
 		## THE AREA UNDER EACH NAME. Drawn rather than put in the button, because
 		## a two-line button either clips the second line or shrinks the first,

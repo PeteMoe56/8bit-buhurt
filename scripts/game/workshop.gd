@@ -110,17 +110,20 @@ static func fighter_legal(card: FighterCard, tier: int) -> String:
 	var lim := limits(tier)
 	if card.display_name.strip_edges() == "":
 		return UiKit.t("Give him a name.")
+	## KEYED BY THE DISPLAYED NAME (3 Oct 2026): the keys are printed below, so
+	## they go through the translator — German read "Strength 9 is over…".
 	var stats := {
-		"Strength": card.strength, "Base": card.base, "Skill": card.skill,
-		"Gas": card.gas, "Aggression": card.aggression,
+		UiKit.t("Strength"): card.strength, UiKit.t("Base"): card.base,
+		UiKit.t("Skill"): card.skill, UiKit.t("Gas"): card.gas,
+		UiKit.t("Aggression"): card.aggression,
 	}
 	for k in stats:
 		if int(stats[k]) > int(lim["stat"]):
 			return UiKit.t("%s %d is over what the %s allows a new man (%d).") % [
-				k, int(stats[k]), lim["tier"], int(lim["stat"])]
+				k, int(stats[k]), UiKit.t(String(lim["tier"])), int(lim["stat"])]
 	if card.rating() > float(lim["rating"]):
 		return UiKit.t("He rates %d; the %s caps a made man at %d.") % [
-			card.overall(), lim["tier"], int(lim["rating"])]
+			card.overall(), UiKit.t(String(lim["tier"])), int(lim["rating"])]
 	return ""
 
 

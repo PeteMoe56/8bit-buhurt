@@ -924,5 +924,5 @@ func _draw_popup() -> void:
 	UiKit.badge(self, Vector2(r.position.x + 70.0, r.end.y - 50.0), 34,
 		IconBank.KIT_COLORS[kit_i], IconBank.MARK_COLORS[mark_col_i], icon_i)
 	if popup == "mark":
-		UiKit.para(self, font, UiKit.t("Greyed colors are too close to your kit to read."),
+		UiKit.para(self, font, UiKit.t("Grayed colors are too close to your kit to read."),
 			Vector2(r.position.x + 120.0, r.end.y - 50.0), 13, UiKit.DIM, 300.0, 16.0, 2)

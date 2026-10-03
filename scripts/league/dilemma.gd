@@ -272,7 +272,7 @@ const CARDS: Array[Dictionary] = [
 	"title": "Contract talk",
 	"text": "Two other clubs have been asking about {man}, your best fighter. He wants to know now whether you will extend his contract. If you do, he will want a raise.",
 	"options": [
-		{"label": "Extend him a year", "blurb": "He stays another season, on about 18% more pay.",
+		{"label": "Extend him a year", "blurb": "He stays another season. His pay rises about 18%.",
 			"fx": {"years": 1, "wage": 1.18, "morale": 0.08}},
 		{"label": "Talk after the season", "blurb": "No raise yet, but he and the squad feel brushed off.",
 			"fx": {"morale": -0.08}},
@@ -400,7 +400,7 @@ const CARDS: Array[Dictionary] = [
 	"weight": 2,
 	"tone": Tone.CLEAN,
 	"title": "Beast wants a sponsor",
-	"text": "Beast Energy wants to sponsor {club}: their claw logo on every surcoat, cans at every event, and a cash payment each season. In return they pick your walkout music, and it's loud.",
+	"text": "Beast Energy wants to sponsor {club}: their fang logo on every surcoat, cans at every event, and a cash payment each season. In return they pick your walkout music, and it's loud.",
 	"options": [
 		{"label": "Sign the full deal", "blurb": "Real money and a big name. The fighters hate the walkout music.",
 			"fx": {"cc": 8, "morale": -0.06, "note": 2.0, "fans": 0.05}},

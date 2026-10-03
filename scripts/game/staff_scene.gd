@@ -325,7 +325,7 @@ func _coverage() -> void:
 		if taught:
 			line = UiKit.t(String(ClubOffice.REGIME_NAME[o.regime_for(role)]))
 			if is_spec:
-				line += "  ·  specialty"
+				line += UiKit.t("  ·  specialty")
 		UiKit.text(self, font, line, Vector2(x, y + 20), 12,
 			(UiKit.UP if is_spec else _regime_color(o.regime_for(role))) if taught else UiKit.DOWN)
 

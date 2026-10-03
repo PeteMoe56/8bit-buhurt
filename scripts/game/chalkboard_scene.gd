@@ -276,8 +276,8 @@ func _current_name() -> String:
 
 func _bind_label() -> String:
 	if bind_to == Chalkboard.UNIVERSAL:
-		return "Runs from: any shape"
-	return "Runs from: %s" % UiKit.clip(board.formation_name(bind_to), 14)
+		return UiKit.t("Runs from: any shape")
+	return UiKit.t("Runs from: %s") % UiKit.clip(board.formation_name(bind_to), 14)
 
 
 ## Pete's check mark, as a cycle rather than a checkbox plus a dropdown: every
@@ -573,14 +573,14 @@ func _draw_slots() -> void:
 		UiKit.panel(self, r, false)
 		var nm := ""
 		if mode == Mode.FORMATION:
-			nm = String(board.formations[i]["name"]) if i < board.formations.size() else "— empty —"
+			nm = String(board.formations[i]["name"]) if i < board.formations.size() else UiKit.t("— empty —")
 		else:
-			nm = String(board.plays[i]["name"]) if i < board.plays.size() else "— empty —"
+			nm = String(board.plays[i]["name"]) if i < board.plays.size() else UiKit.t("— empty —")
 		UiKit.text(self, font, UiKit.clip(nm, 20), Vector2(LEFT_X + 12, y + 28),
 			16, UiKit.INK)
 		if mode == Mode.PLAY and i < board.plays.size():
 			var f := int(board.plays[i]["formation"])
-			var tag := "any" if f == Chalkboard.UNIVERSAL else UiKit.clip(board.formation_name(f), 10)
+			var tag := UiKit.t("any") if f == Chalkboard.UNIVERSAL else UiKit.clip(board.formation_name(f), 10)
 			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 28), 14, UiKit.DIM, 120.0)
 
 

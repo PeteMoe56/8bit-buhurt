@@ -127,9 +127,13 @@ func _build() -> void:
 				_build())
 			minus.disabled = c.skill(i) <= (1 if i == int(Coach.BACKGROUND_SKILL[c.background]) else 0)
 			ui.add_child(minus)
-	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 486), Vector2(150, 42), _leave_back))
+	## BOTTOM GUTTER, NOT y=486 (3 Oct 2026): on an iPad (1024x768) the fixed
+	## row floated at ~540 with a quarter screen of nothing under it. Same line
+	## as UiKit.back_button, so Back sits where it does on every other screen.
+	var row_y := UiKit.screen().y - 56.0
+	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, row_y), Vector2(150, 44), _leave_back))
 	var next := UiKit.t("Next: your team  >") if Session.founding else UiKit.t("Done")
-	ui.add_child(UiKit.primary(UiKit.button(next, Vector2(UiKit.right_edge(284.0), 486), Vector2(260, 42), _next)))
+	ui.add_child(UiKit.primary(UiKit.button(next, Vector2(UiKit.right_edge(284.0), row_y), Vector2(260, 44), _next)))
 	queue_redraw()
 
 
@@ -228,7 +232,7 @@ func _draw() -> void:
 	UiKit.mid(self, font, pts, Vector2(r.position.x, r.end.y - 16.0), 16,
 		UiKit.YOU if c.points > 0 else UiKit.DIM, r.size.x)
 	if flash != "":
-		UiKit.text_fit(self, font, flash, Vector2(196, 512), 14, UiKit.DOWN, 500.0)
+		UiKit.text_fit(self, font, flash, Vector2(196, UiKit.screen().y - 28.0), 14, UiKit.DOWN, 480.0)
 	if help_open:
 		var hr := _help_rect()
 		draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))

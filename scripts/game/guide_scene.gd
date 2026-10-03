@@ -50,7 +50,7 @@ static func page(i: int) -> Array:
 			UiKit.t("The top four go to the playoff. Both finalists go up a division."),
 			UiKit.t("The bottom two go down. Nobody goes down from the Backyard Circuit."),
 			UiKit.t("To go up, your ground must be big enough for the division above. See Upgrades."),
-			UiKit.t("Top three when a cup weekend comes round are invited, if your insurance is high enough."),
+			UiKit.t("Top three when a cup weekend comes around are invited, if your insurance is high enough."),
 			UiKit.t("Backyard, State, Regional, National. Win the National playoff to go to the Worlds."),
 		]
 		1: return [

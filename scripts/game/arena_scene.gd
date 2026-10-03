@@ -410,8 +410,10 @@ func _draw_diary() -> void:
 			Vector2(RIGHT_X, 456), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)
 	if season.booked != null:
 		var away := season.booked.events_away(season.world.event)
-		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(),
-			UiKit.t("this event") if away == 0 else UiKit.t("in %d events") % away],
+		## ONE OR MANY (3 Oct 2026): "in 1 events" read wrong in every language.
+		var when: String = UiKit.t("this event") if away == 0 \
+			else UiKit.tn("in %d event", "in %d events", away) % away
+		UiKit.text(self, font, UiKit.t("%s, %s") % [season.booked.kind_name(), when],
 			Vector2(RIGHT_X, 312), 14, UiKit.YOU)
 		UiKit.para(self, font, UiKit.t("The budget is already spent. Win it and it comes back."),
 			Vector2(RIGHT_X, 334), 14, UiKit.DIM, UiKit.screen().x - 24.0 - RIGHT_X, 18.0)

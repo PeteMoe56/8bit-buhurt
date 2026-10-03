@@ -94,6 +94,16 @@ func _fit(id: int, px: int, width: float) -> String:
 	return UiKit.fit_name(font, _name(id), short, px, width)
 
 
+## TRANSLATED ROUND HEADERS (3 Oct 2026): Cup.ROUND_NAMES is the English key,
+## and German showed "QUARTER-FINALS". Same mapping as Cup.round_label().
+func _round_label(clubs: int) -> String:
+	match clubs:
+		2: return UiKit.t("Final")
+		4: return UiKit.t("Semi-finals")
+		8: return UiKit.t("Quarter-finals")
+	return UiKit.t("Round of %d") % clubs
+
+
 func _name(id: int) -> String:
 	if Session.season == null or id < 0:
 		return "—"
@@ -183,7 +193,7 @@ func _tree() -> void:
 					"b": int(fb.get("winner", -1)) if bool(fb.get("played", false)) else -1,
 					"played": false})
 		var ties: int = int(pow(2.0, float(n_cols - 1 - i)))
-		var label: String = String(Cup.ROUND_NAMES.get(ties * 2, "Round of %d" % (ties * 2)))
+		var label: String = _round_label(ties * 2)
 		UiKit.text(self, font, label.to_upper(), Vector2(x, 106), 12, UiKit.DIM)
 		var span := TREE_H / float(maxi(1, ties))
 		for j in ties:
@@ -256,7 +266,7 @@ func _road() -> void:
 				if int(cand["a"]) == me or int(cand["b"]) == me:
 					m = cand
 		var ties: int = int(pow(2.0, float(total - 1 - i)))
-		var label: String = String(Cup.ROUND_NAMES.get(ties * 2, "Round of %d" % (ties * 2)))
+		var label: String = _round_label(ties * 2)
 		UiKit.text(self, font, label.to_upper(), Vector2(ROAD_X + 16, y), 11, UiKit.DIM)
 		if m.is_empty():
 			## ONE "OUT", NOT THREE. Losing in the quarter-finals used to print
@@ -284,7 +294,8 @@ func _road() -> void:
 		y += 78.0
 	if cup.champion >= 0:
 		UiKit.text(self, font, UiKit.t("CHAMPION"), Vector2(ROAD_X + 16, 430), 11, UiKit.DIM)
-		UiKit.text(self, font, UiKit.clip(_name(cup.champion), 17),
+		## FIT BY PIXELS, NOT CHARACTERS (3 Oct 2026): "Columbus Free Compa.".
+		UiKit.text(self, font, _fit(cup.champion, 15, NAME_W),
 			Vector2(ROAD_X + 16, 452), 15,
 			UiKit.YOU if cup.champion == me else UiKit.INK)
 
@@ -319,14 +330,17 @@ func _pools() -> void:
 			if through:
 				draw_rect(Rect2(px + 12, ry - 16, 3, 22), UiKit.UP)
 			UiKit.text(self, font, "%d" % (i + 1), Vector2(px + 24, ry), 12, UiKit.DIM)
-			UiKit.text(self, font, UiKit.clip(_name(id), 20), Vector2(px + 44, ry), 14, col)
-			UiKit.right(self, font, UiKit.t("%d   %d   %d   %d   %+d")
+			var stats: String = UiKit.t("%d   %d   %d   %d   %+d") \
 				% [int(row.get("played", 0)), int(row.get("won", 0)),
 					int(row.get("drawn", 0)), int(row.get("lost", 0)),
 					## Margin is kept as for/against, like the league table —
 					## there is no "margin" field and asking for one silently
 					## returned zero for every club in every pool.
-					int(row.get("mf", 0)) - int(row.get("ma", 0))],
-				Vector2(px + 426, ry), 14, col, 240)
+					int(row.get("mf", 0)) - int(row.get("ma", 0))]
+			## FIT BY PIXELS, NOT CHARACTERS (3 Oct 2026): the name gets whatever
+			## the numbers leave, less a gap, instead of a twenty-character cut.
+			var stats_w := font.get_string_size(stats, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+			UiKit.text(self, font, _fit(id, 14, 426.0 - 44.0 - stats_w - 16.0), Vector2(px + 44, ry), 14, col)
+			UiKit.right(self, font, stats, Vector2(px + 426, ry), 14, col, 240)
 	UiKit.text(self, font, UiKit.t("Top %d of each pool make the knockout.") % Cup.POOLS_ADVANCE,
 		Vector2(194, UiKit.bottom(16.0)), 14, UiKit.DIM)

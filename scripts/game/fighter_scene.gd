@@ -666,16 +666,19 @@ func _the_man() -> void:
 	_line("Contract", UiKit.t("%s/yr  ·  %dy left") % [ClubOffice.money(ClubOffice.billed(man)),
 		man.years] if man.years > 0 else UiKit.t("OUT OF CONTRACT"), y)
 	y += ROW
-	_line("Where", UiKit.t("the line") if season.club.starting_five().has(man)
-		else (UiKit.t("the bench") if man.active else UiKit.t("reserve")), y)
+	## AN INJURED MAN IS "OUT N EVENTS" WHERE HE WOULD BE (3 Oct 2026): the count
+	## and the injury's name did not fit one 256px line, so the count moved here.
+	_line("Where", (UiKit.tn("out %d event", "out %d events", man.injury) % man.injury) if man.injury > 0
+		else (UiKit.t("the line") if season.club.starting_five().has(man)
+		else (UiKit.t("the bench") if man.active else UiKit.t("reserve"))), y)
 	y += ROW
 	## HURT: what it is, and for how long, on the one line (Pete, 3 Oct 2026).
 	if man.injury > 0:
 		## "Hurt · 3" is the team sheet's own word for it: 3 = events he misses.
 		## WITH ITS UNIT (3 Oct 2026): "Hurt · 3" left the 3 to be guessed. As a
 		## pair, so the count and the injury's name cannot run into each other.
-		UiKit.pair(self, font, UiKit.tn("Out %d event", "Out %d events", man.injury) % man.injury,
-			man.injury_word(), Vector2(L_X + 16, y), L_X + COL_W - 16, 14, 14, UiKit.DOWN, UiKit.DOWN)
+		UiKit.pair(self, font, UiKit.t("Hurt"), man.injury_word(), Vector2(L_X + 16, y),
+			L_X + COL_W - 16, 14, 14, UiKit.DOWN, UiKit.DOWN)
 	else:
 		_line("Fit", UiKit.t("ready") if man.fit() else man.unfit_reason(), y)
 	y += ROW

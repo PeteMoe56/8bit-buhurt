@@ -855,9 +855,9 @@ static func _table(v: SeasonScene) -> void:
 	## its own right edge, sized for the widest figure it can hold.
 	var cols := _table_cols(v)
 	var stat_x: float = float(cols[0]["x"]) - float(cols[0]["w"])
-	var heads := UiKit.t("P  W  D  L   RD   MG  PTS").split(" ", false)
-	if heads.size() != cols.size():
-		heads = "P  W  D  L   RD   MG  PTS".split(" ", false)
+	## ONE KEY PER HEAD, since each is drawn on its own over its column.
+	var heads := [UiKit.t("P"), UiKit.t("W"), UiKit.t("D"), UiKit.t("L"),
+		UiKit.t("RD"), UiKit.t("MG"), UiKit.t("PTS")]
 	for c in cols.size():
 		UiKit.right(v, v.font, heads[c], Vector2(float(cols[c]["x"]), SeasonScene.TABLE_Y - 6),
 			12, UiKit.DIM, float(cols[c]["w"]) + 8.0)
@@ -918,11 +918,16 @@ static func _table(v: SeasonScene) -> void:
 ## wide as the widest figure it holds at the size the rows are drawn (3 Oct 2026).
 static func _table_cols(v: SeasonScene) -> Array:
 	var widest := ["99", "99", "99", "99", "-99", "-999", "99"]
+	var heads_en := [UiKit.t("P"), UiKit.t("W"), UiKit.t("D"), UiKit.t("L"),
+		UiKit.t("RD"), UiKit.t("MG"), UiKit.t("PTS")]
 	var gap := 8.0
 	var out: Array = []
 	var x := UiKit.right_edge(24.0)
 	for c in range(widest.size() - 1, -1, -1):
-		var w := v.font.get_string_size(widest[c], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+		## AS WIDE AS ITS HEAD TOO: "PTS" is wider than "99", and the heads ran
+		## together as "MGPTS".
+		var w := maxf(v.font.get_string_size(widest[c], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x,
+			v.font.get_string_size(heads_en[c], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 12).x)
 		out.push_front({"x": x, "w": w})
 		x -= w + gap
 	return out

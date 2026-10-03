@@ -185,7 +185,7 @@ func _year() -> void:
 	UiKit.rule(self, UiKit.RULE_GEM, Vector2(40, 382), UiKit.span(40.0), UiKit.FRAME)
 	var pts_all: int = int(sum["diff"])
 	UiKit.text(self, font, UiKit.t("%d fought") % int(sum["fought"])
-		+ ("" if int(sum["simmed"]) == 0 else ", %d simulated" % int(sum["simmed"])),
+		+ ("" if int(sum["simmed"]) == 0 else UiKit.t(", %d simulated") % int(sum["simmed"])),
 		Vector2(40, 414), 14, UiKit.DIM)
 	UiKit.right(self, font, "%d-%d" % [int(sum["rf"]), int(sum["ra"])],
 		Vector2(UiKit.right_edge(260.0), 414), 14, UiKit.INK, 120)
@@ -223,7 +223,7 @@ func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:
 	var g: int = int(r.get("grade", Grade.DEFAULT))
 	var word := Grade.short_of(g).to_lower()
 	if g == Grade.G.MATCHED:
-		word = "matched %+d" % int(r.get("step", Grade.STEP_START))
+		word = UiKit.t("matched %+d") % int(r.get("step", Grade.STEP_START))
 	UiKit.right(self, font, word, Vector2(cx + year_col_w(), y), 11, UiKit.DIM, 140)
 
 

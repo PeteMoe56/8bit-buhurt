@@ -22,7 +22,12 @@ func _initialize() -> void:
 	Store.owed = 7
 	Store.state = Store.State.READY
 	var scene: Node = load("res://scenes/Season.tscn").instantiate()
-	scene.set("tab", 3)
+	## THE COUNTER MOVED (3 Oct 2026). Tab 3 is still Upgrades, but "Buy credits"
+	## now sits on Management > Finances (the full books), so the first two
+	## frames photographed a screen with no counter on it. Named, not numbered,
+	## so the next restructure breaks loudly instead of photographing the wrong tab.
+	scene.set("tab", SeasonScene.Tab.FINANCES)
+	scene.set("fin_full", true)
 	root.add_child(scene)
 
 func _process(_d: float) -> bool:

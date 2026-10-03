@@ -384,7 +384,7 @@ func _info(wi: int) -> Array:
 				lines.append([UiKit.t("Wednesday: the national camp. Two weeks of training in three days."), UiKit.DIM])
 				lines.append([UiKit.t("Saturday: the tabard. You go to the Worlds as %s.") % SendOff.team_name(s), UiKit.YOU])
 			else:
-				lines.append([UiKit.t("No fixture. The squad trains, and knocks get a week to heal."), UiKit.DIM])
+				lines.append([UiKit.t("No match. The squad trains, and knocks get a week to heal."), UiKit.DIM])
 		_:
 			_tournament_info(wi, wk, lines)
 			if kind == Calendar.Kind.WORLDS:

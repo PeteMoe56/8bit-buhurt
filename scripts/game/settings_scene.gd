@@ -195,7 +195,7 @@ var _licences: Control = null
 
 
 static func credits_text() -> String:
-	var out: Array[String] = ["CREDITS", "", "MUSIC"]
+	var out: Array[String] = [UiKit.t("CREDITS"), "", UiKit.t("MUSIC")]
 	for c in Settings.credit_lines():
 		out.append(String(c["line"]))
 		out.append(UiKit.t("from %s  ·  %s") % [String(c["from"]), String(c["url"])])
@@ -203,7 +203,7 @@ static func credits_text() -> String:
 		out.append("")
 	out.append(UiKit.t("All other audio written for this game."))
 	out.append("")
-	out.append("TYPE")
+	out.append(UiKit.t("TYPE"))
 	var fc := Settings.face_credit()
 	out.append(String(fc["name"]))
 	out.append(UiKit.t("after %s") % String(fc["from"]))
@@ -211,7 +211,7 @@ static func credits_text() -> String:
 	out.append(UiKit.t("Buhurt Rail, Gorget and Maul drawn for this game."))
 	out.append(UiKit.t("Other alphabets: LanaPixel by eishiya, SIL OFL 1.1"))
 	out.append("")
-	out.append("GAME")
+	out.append(UiKit.t("GAME"))
 	out.append(Brand.short_name())
 	out.append(UiKit.t("Built by BonkWorks."))
 	return "\n".join(out)
