@@ -472,7 +472,18 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 	## answer sat on the rule, and on an iPad the answers fell out of the panel.
 	var bottom := SeasonScene.action_y() - 14.0
 	UiKit.panel(v, Rect2(24, y, UiKit.span(), bottom - y))
-	var rule_y := bottom - 98.0
+	## THE RULE SITS AS HIGH AS THE TALLEST ANSWER NEEDS (3 Oct 2026, the deck
+	## rewrite): a fixed 98 held two-line answers, and the rewritten charity card's
+	## three lines of prose plus a wrapped row of figures printed "crowd +3" on
+	## the panel's edge. Measured with the same wrap the drawing below uses.
+	var opts0: Array = card.get("options", [])
+	var w0: float = (UiKit.span(32.0) - float(maxi(0, opts0.size() - 1)) * 12.0) / float(maxi(1, opts0.size()))
+	var need := 98.0
+	for o0 in opts0:
+		var nb := UiKit.wrap(v.font, UiKit.t(String(o0["blurb"])), w0 - 20.0, 14).size()
+		var rows := _cost_rows(v, Dilemma.costs(o0), w0)
+		need = maxf(need, 34.0 + float(nb) * 18.0 + float(rows - 1) * 17.0 + 14.0)
+	var rule_y := bottom - need
 	UiKit.text(v, v.font, String(card["title"]).to_upper(), Vector2(48, y + 36), 20, UiKit.YOU)
 	## The body wraps by hand rather than by a Label, because everything else on
 	## this screen is drawn and a single themed Label in the middle of it reads
@@ -590,6 +601,25 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 			UiKit.text(v, v.font, t, Vector2(fx, by + 2.0), 13,
 				UiKit.UP if int(e["dir"]) > 0 else UiKit.DOWN)
 			fx += v.font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
+
+
+## How many rows an answer's figures take in a column `w` wide — the same
+## breaking rule as the drawing loop above, without drawing.
+static func _cost_rows(v, bill: Array, w: float) -> int:
+	if bill.is_empty():
+		return 1
+	var rows := 1
+	var fx := 10.0
+	for j in bill.size():
+		var t := String(bill[j]["text"])
+		var tw: float = v.font.get_string_size(" · " + t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+		if j > 0 and fx + tw > w - 4.0:
+			fx = 10.0
+			rows += 1
+		elif j > 0:
+			fx += v.font.get_string_size(" · ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
+		fx += v.font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
+	return rows
 
 
 
