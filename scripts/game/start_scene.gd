@@ -61,8 +61,14 @@ func _build() -> void:
 	## QUIT ON EVERY PLATFORM (Pete, 2 Oct 2026 playtest: "Opening screen should
 	## have Quit button"). It was hidden on phones on the theory that a Quit in a
 	## mobile game reads as a bug; on his phone its absence read as one.
-	ui.add_child(UiKit.button(UiKit.t("Quit"), Vector2(center() - 130, y + 124),
-		Vector2(260, 40), func(): get_tree().quit()))
+	## EXCEPT iOS (Pete, 3 Oct 2026: "Quit button does not work on iPads"). iOS
+	## has no way for an app to close itself — Godot's quit() is a no-op there by
+	## design, and Apple's review treats an app that kills itself as a crash. The
+	## button can't be made to work on iPhone/iPad, so it isn't drawn; the player
+	## leaves the way every iOS app is left, by swiping up.
+	if OS.get_name() != "iOS":
+		ui.add_child(UiKit.button(UiKit.t("Quit"), Vector2(center() - 130, y + 124),
+			Vector2(260, 40), func(): get_tree().quit()))
 	queue_redraw()
 
 
