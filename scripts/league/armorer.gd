@@ -15,7 +15,7 @@ extends RefCounted
 const MAX_STARS: int = 5
 ## CC a season, by stars.
 ## The one-star hand is free (Pete, 1 Oct 2026: a new club starts with him for nothing).
-const WAGE := [0, 0, 2, 4, 7, 12]
+const WAGE := [0, 0, 2, 4, 9, 18]  ## top two priced up 2 Oct 2026 (were 7, 12)
 ## The lowest division each grade of man will work in.
 const MIN_TIER := [0, 0, 0, 0, 1, 3]
 const POOL_SIZE: int = 5

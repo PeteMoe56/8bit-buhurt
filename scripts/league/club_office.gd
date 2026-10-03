@@ -223,7 +223,17 @@ func cap_cost() -> int:
 enum Facility { TRAINING = 1, INFIRMARY = 2 }
 
 const FACILITY_MAX: int = 5
-const FACILITY_COST := [3, 5, 7, 9, 11]
+## THE TOP OF THE LADDER COSTS MORE (Pete, 2 Oct 2026: "raise some other
+## prices at the higher end of stars"). The first two rungs are unchanged —
+## the Backyard has no room — and the last two are where a rich club spends.
+const FACILITY_COST := [3, 5, 8, 12, 18]
+## RENEWED EVERY WINTER, LIKE INSURANCE (Pete, 2 Oct 2026: "having to
+## re-purchase insurance is normal"). Retro Bowl's facilities lose a level each
+## season and are bought back; here the buying back is the winter bill, so a
+## club that pays keeps its level and one that cannot falls one. Cheap at the
+## bottom (the 28% fraction gave 1/2/2/…; a Backyard club's bills were already
+## most of its income) and nearly the full price at the top, where the hoard is.
+const FACILITY_KEEP := [1, 2, 4, 8, 14]
 
 const FACILITIES := {
 	Facility.TRAINING: {
@@ -1171,6 +1181,9 @@ func knock_guard() -> float:
 ## most of a season's savings.
 const CAPTAIN_COST: int = 5
 const CAPTAIN_COST_PER_STAR: int = 3
+## By stars, one to five: the old line (5 + 3 a star) up to three, steeper after
+## (2 Oct 2026, the high end priced up).
+const CAPTAIN_PRICE := [5, 8, 12, 17, 24]
 ## How long a new captain signs for, and what one more year costs. Extending is
 ## deliberately cheap against hiring: keeping the man you have should be the easy
 ## decision and finding a better one the expensive one.
@@ -1181,7 +1194,7 @@ const SPECIALTIES: int = 2
 
 
 static func cost_of(c: Dictionary) -> int:
-	return CAPTAIN_COST + CAPTAIN_COST_PER_STAR * (int(c.get("grade", 1)) - 1)
+	return int(CAPTAIN_PRICE[clampi(int(c.get("grade", 1)), 1, CAPTAIN_PRICE.size()) - 1])
 
 ## THE TRAINING REGIME, and these numbers are Retro Bowl's own.
 ##

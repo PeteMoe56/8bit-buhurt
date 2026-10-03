@@ -24,7 +24,7 @@ static func arena_upkeep(o: ClubOffice) -> int:
 
 static func facility_upkeep(o: ClubOffice, f: int) -> int:
 	var l := o.level(f)
-	return 0 if l <= 0 else ClubOffice.upkeep_of(ClubOffice.FACILITY_COST[l - 1])
+	return 0 if l <= 0 else int(ClubOffice.FACILITY_KEEP[l - 1])
 
 
 
@@ -46,7 +46,8 @@ static func arena_upkeep_at(o: ClubOffice, lv: int) -> int:
 
 
 static func facility_upkeep_next(o: ClubOffice, f: int) -> int:
-	return ClubOffice.upkeep_of(o.facility_cost(f))
+	var l := o.level(f)
+	return 0 if l >= ClubOffice.FACILITY_MAX else int(ClubOffice.FACILITY_KEEP[l])
 
 
 static func rule_upkeep_next(o: ClubOffice, r: int) -> int:
