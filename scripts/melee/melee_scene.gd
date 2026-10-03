@@ -118,6 +118,9 @@ var corner_pick := -1
 ## enough on the endpoint to make this route a run.
 var draw_rest := 0.0
 var draw_run := false
+## Where the man stood when the stroke began on him (list space): the route is
+## joined from his position at release, not walked back to here. See `MeleeSim.join_route`.
+var draw_from := Vector2.ZERO
 
 var ui: CanvasLayer
 var panel_box: VBoxContainer
@@ -341,6 +344,7 @@ func _new_bout(seed_value: int) -> void:
 var off_x: float = 0.0
 var off_y: float = 0.0
 var _quips_cache: Array = []
+var _rows_cache: Array = []
 var _news_cache: Array = []
 
 
@@ -539,7 +543,8 @@ var skip_downs: int = 0
 func _sync_controls() -> void:
 	if call_button == null or skip_button == null:
 		return
-	var live: bool = screen == Screen.FIGHT and not sim.is_over() \
+	## NOT UNDER THE PAUSE (audit, 3 Oct 2026): they sit on a layer above it.
+	var live: bool = screen == Screen.FIGHT and not sim.is_over() and not paused \
 		and sim.phase != MeleeSim.Phase.CORNER and not skipping and beat_t <= 0.0
 	## Not while the wheel is up: the fight is frozen and the ring needs the
 	## bottom of the list the two buttons sit over.
@@ -611,7 +616,7 @@ func _on_downed(idx: int, _by: int) -> void:
 	## Popped in SCREEN space, not sim space. The popup layer lives above the
 	## whole game and does not know this screen has a camera; handing it a sim
 	## coordinate would put "DOWN" in the top-left corner of the world.
-	Juice.pop("down%d" % idx, "DOWN",
+	Juice.pop("down%d" % idx, UiKit.t("DOWN"),
 		_to_screen(sim.men[idx].pos) + Vector2(off_x, off_y - 16.0), col)
 
 
@@ -643,6 +648,7 @@ func _show_report() -> void:
 		_add_spend_button()
 	_quips_cache = []
 	_news_cache = []
+	_rows_cache = []
 	screen = Screen.REPORT
 	_hide_panel()
 	quip_scroll = 0.0
@@ -757,6 +763,12 @@ func go_back() -> bool:
 func _set_paused(on: bool) -> void:
 	paused = on
 	accum = 0.0
+	## THE CONTROL LAYER GOES UNDER THE PAUSE TOO (audit, 3 Oct 2026). It is a
+	## CanvasLayer above the scrim, so HOLD, SKIP ROUND and the corner's buttons
+	## drew over PAUSED and still took taps — a skip queued, a hold spent.
+	if ui != null:
+		ui.visible = not on
+	_sync_controls()
 	if on:
 		drawing = -1
 		draw_finger = -1
@@ -785,12 +797,10 @@ func _press(p: Vector2) -> void:
 		## FROM THE HUB, wherever the hub was drawn (first-timer test, 1 Oct: a
 		## drag that started in the middle of the wheel did nothing, because the
 		## wheel is pushed off a man near the edge and only the man's own spot
-		## started a drag).
-		elif FightCorner.on():
-			## In the corner a press anywhere on it starts the drag.
-			if FightCorner.hit(self, p) != -2:
-				wheel_drag = true
-		elif _wheel_center(wm).distance_to(p) < WHEEL_RI + 6.0 or _to_screen(wm.pos).distance_to(p) < 30.0:
+		## started a drag). The corner's own drag branch went (audit, 3 Oct 2026):
+		## every press on the corner is a side or the hub, answered above, so it
+		## could never run.
+		elif not FightCorner.on() and _wheel_center(wm).distance_to(p) < WHEEL_RI + 6.0 or _to_screen(wm.pos).distance_to(p) < 30.0:
 			wheel_drag = true
 		return
 	## THE CORNER answers while the fight runs: a side, or the hub for the next man.
@@ -822,6 +832,7 @@ func _press(p: Vector2) -> void:
 		return
 	drawing = idx
 	draw_path.clear()
+	draw_from = man.pos
 	draw_screen = PackedVector2Array([_to_screen(man.pos)])
 
 
@@ -834,7 +845,13 @@ func _extend(p: Vector2) -> void:
 	draw_rest = 0.0
 	draw_run = false
 	draw_screen.append(p)
-	draw_path.append(_to_list(p))
+	## ONLY GROUND ON THE LIST BECOMES A WAYPOINT (audit, 3 Oct 2026). A drag that
+	## starts on a fighter CARD begins below the list, and its first point sent
+	## him into the rail to stand under the card. The stroke still draws from
+	## there; the route starts where the finger reaches the ground.
+	var lp := _to_list(p)
+	if lp.x >= 0.0 and lp.x <= Tuning.LIST_W and lp.y >= 0.0 and lp.y <= Tuning.LIST_H:
+		draw_path.append(lp)
 	hover_enemy = _enemy_at(p)
 
 
@@ -909,7 +926,7 @@ func _release(p: Vector2) -> void:
 		## The last leg is the approach; the sim homes on the live man from
 		## there, because he will not still be standing where you drew.
 		draw_path.remove_at(draw_path.size() - 1)
-	sim.give_order(idx, draw_path, target, draw_run)
+	sim.give_order(idx, draw_path, target, draw_run, draw_from)
 	draw_run = false
 	draw_rest = 0.0
 	draw_path.clear()
@@ -1062,7 +1079,9 @@ func _draw() -> void:
 	## AND THE MARSHAL IS NOT SHOUTING OVER THE CORNER. His call belongs to the
 	## round; on a panel that has replaced the round it is forty-pixel text
 	## through the middle of five men's numbers.
-	if marshal_t > 0.0 and screen == Screen.FIGHT:
+	## NOR OVER THE END-OF-ROUND BEAT (3 Oct 2026): "Stop fight!" landed on the
+	## round's score banner.
+	if marshal_t > 0.0 and screen == Screen.FIGHT and beat_t <= 0.0:
 		UiKit.raw(self, font, Vector2(0, SCREEN.y * 0.46), marshal_text,
 			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 40,
 			Tuning.COL_MARSHAL * Color(1, 1, 1, clampf(marshal_t / 1.6, 0, 1)))
@@ -1111,9 +1130,14 @@ func _draw_report() -> void:
 	var them := 1
 	## Three whole sentences, not a verb dropped into one: a language that bends
 	## the verb, or puts it last, has to see the sentence it lands in.
-	var verdict := UiKit.t("You take it. Rounds %d-%d, %d down across the bout.") \
-		if sim.bout_winner() == us else (UiKit.t("You share it. Rounds %d-%d, %d down across the bout.") \
-		if sim.bout_winner() == -1 else UiKit.t("You lose it. Rounds %d-%d, %d down across the bout."))
+	## COUNTED, so one is "1 down" and five are "5 downs" (audit, 3 Oct 2026).
+	var nd: int = sim.downs[us] + sim.downs[them]
+	var verdict := UiKit.tn("You take it. Rounds %d-%d, %d down across the bout.",
+		"You take it. Rounds %d-%d, %d downs across the bout.", nd) \
+		if sim.bout_winner() == us else (UiKit.tn("You share it. Rounds %d-%d, %d down across the bout.",
+		"You share it. Rounds %d-%d, %d downs across the bout.", nd) \
+		if sim.bout_winner() == -1 else UiKit.tn("You lose it. Rounds %d-%d, %d down across the bout.",
+		"You lose it. Rounds %d-%d, %d downs across the bout.", nd))
 	UiKit.raw(self, font, Vector2(REP_LX, 56), UiKit.t("%s %d - %d %s") % [
 		sim.clubs[us].display_name.to_upper(), sim.rounds_won[us],
 		sim.rounds_won[them], sim.clubs[them].display_name.to_upper()],
@@ -1162,14 +1186,15 @@ func _draw_report_table() -> void:
 	## EIGHT ROWS WHEN THE BENCH FOUGHT (first-timer test, 1 Oct: the eighth row
 	## was drawn over the AFTER ACTION REPORT heading). The rows close up to fit
 	## above it rather than running into it.
-	var n_rows := 0
-	for m in sim.fought():
-		if m.team == 0 and m.card != null:
-			n_rows += 1
+	## BUILT ONCE PER REPORT (audit, 3 Oct 2026): `fought()` makes a new Man for
+	## every subbed-off fighter, and this ran it twice a frame on a still screen.
+	if _rows_cache.is_empty():
+		for m in sim.fought():
+			if m.team == 0 and m.card != null:
+				_rows_cache.append(m)
+	var n_rows := _rows_cache.size()
 	var rh := minf(REP_ROW_H, (310.0 - REP_ROW_Y) / float(maxi(1, n_rows - 1)))
-	for m in sim.fought():
-		if m.team != 0 or m.card == null:
-			continue
+	for m in _rows_cache:
 		var y := REP_ROW_Y + float(i) * rh
 		if i % 2 == 0:
 			draw_rect(Rect2(REP_LX, y - 12.0, REP_LW, rh - 1.0), Color(1, 1, 1, 0.022))
@@ -1194,7 +1219,7 @@ func _draw_report_table() -> void:
 		_cell("%d" % m.card.level, "lv", y, 11,
 			UiKit.YOU if Career.can_place(m.card) else COL_INK)
 		if Career.at_ceiling(m.card):
-			_cell("PEAK", "next", y, 10, COL_DIM)
+			_cell(UiKit.t("PEAK"), "next", y, 10, COL_DIM)
 		elif Career.can_place(m.card):
 			## QUIETER THAN A SHOUT PER ROW (item 2): the Spend button carries the
 			## count; each row only says his is ready.
@@ -1465,8 +1490,9 @@ func _draw_corner() -> void:
 			continue
 		## The preview is the OUTGOING man's recovery; a man just swapped in is
 		## shown as he is, not with somebody else's rest added on.
-		var back: float = sim.corner_preview(m) \
-			if (m != null and not first and m.card == f) else now_e
+		## A MAN JUST SWAPPED IN gets the bench's rest, and the bar says so (audit,
+		## 3 Oct 2026) — it showed his bench figure and he walked out fuller.
+		var back: float = now_e if first else sim.corner_preview_card(f)
 		UiKit.raw(self, font, Vector2(C_LX + C_BAR_X, ry + 17), UiKit.t("ENERGY"),
 			HORIZONTAL_ALIGNMENT_LEFT, 80, 7, COL_DIM)
 		draw_rect(Rect2(C_LX + C_BAR_X, ry + 21, C_BAR_W, 8), Color(0, 0, 0, 0.45))
@@ -1968,7 +1994,8 @@ func _draw_prompt(m) -> void:
 			HORIZONTAL_ALIGNMENT_CENTER, int(r.size.x), 15,
 			(COL_INK if chosen else COL_DIM) * fade)
 	var first := _prompt_rect(m, 0)
-	var frac := clampf(m.prompt.t / Tuning.PROMPT_TIME, 0.0, 1.0)
+	## Against the clock it was OPENED with — READER's is longer (3 Oct 2026).
+	var frac := clampf(m.prompt.t / maxf(0.01, m.prompt.dur), 0.0, 1.0)
 	var bar_col := Tuning.COL_ROUTE * Color(1, 1, 1, 0.7)
 	if waiting:
 		frac = clampf(1.0 - m.next_act / float(Tuning.ACT_CLINCH[1]), 0.0, 1.0)
@@ -2136,7 +2163,8 @@ func _draw_strip() -> void:
 func _tally(m) -> String:
 	var bits: Array[String] = []
 	if m.downs_caused > 0:
-		bits.append(UiKit.t("%d down") % m.downs_caused)
+		## THE SAME PLURAL AS THE CORNER'S (audit, 3 Oct 2026: "3 down" here, "3 downs" there).
+		bits.append(UiKit.tn("%d down", "%d downs", m.downs_caused) % m.downs_caused)
 	if m.assists > 0:
 		bits.append(UiKit.tn("%d assist", "%d assists", m.assists) % m.assists)
 	return " · ".join(bits)
@@ -2172,8 +2200,9 @@ func _draw_hint() -> void:
 	## fixture text in the middle starts at about 390.
 	## NOT TWICE (round 9): while the big first-order band is up, it is the
 	## instruction, and the corner line waits.
+	## AND NOT DURING THE BEAT (3 Oct 2026): the band sat on END OF ROUND.
 	var band_up: bool = sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 \
-		and wheel_man == -1 and not held and not _veteran()
+		and wheel_man == -1 and not held and not _veteran() and beat_t <= 0.0
 	if not band_up:
 		UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 14, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 14, COL_INK)
 	## SAID IN WORDS (blind review round 3: "0 routes · 0 of 0 calls" unexplained).
@@ -2189,7 +2218,7 @@ func _draw_hint() -> void:
 	## THE FIRST THING TO DO, big, in the empty middle of the list until he has
 	## done it once (blind review round 3: the key instruction was 10 px grey in
 	## a corner).
-	if sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 and wheel_man == -1 and not held and not _veteran():
+	if band_up:
 		var band := Rect2(LIST_ORIGIN.x + 140.0, 190.0, Tuning.LIST_H * LIST_SCALE - 280.0, 74.0)
 		draw_rect(band, Color(0, 0, 0, 0.55))
 		draw_rect(band, Tuning.COL_MARSHAL, false, 2.0)

@@ -331,7 +331,7 @@ func unfit_reason() -> String:
 	if not passes_inspection():
 		return UiKit.t("kit failed")
 	if not available:
-		return "unavailable"
+		return UiKit.t("unavailable")
 	return ""
 
 

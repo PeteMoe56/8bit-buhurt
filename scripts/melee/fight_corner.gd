@@ -333,7 +333,8 @@ static func _draw_corner(v, m, kind: String) -> void:
 	## grey while a clinched man gets ready.
 	var q: Vector2 = quadrant()
 	if kind == "bar":
-		var frac: float = clampf(m.prompt.t / Tuning.PROMPT_TIME, 0.0, 1.0)
+		## Against the clock it was OPENED with — READER's is longer (3 Oct 2026).
+		var frac: float = clampf(m.prompt.t / maxf(0.01, m.prompt.dur), 0.0, 1.0)
 		var a1: float = q.x + 90.0 * frac if right() else q.y
 		var a0: float = q.x if right() else q.y - 90.0 * frac
 		if frac > 0.0:

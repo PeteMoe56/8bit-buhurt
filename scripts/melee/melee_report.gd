@@ -84,20 +84,26 @@ static func quips(sim: MeleeSim, season) -> Array:
 		played[m.card] = true
 		var name := m.card.display_name
 		## A BIG AFTERNOON, and he wants you to know it.
-		if m.downs_caused >= 3:
+		## "NEVER LEFT MY FEET" ONLY FROM A MAN WHO DID NOT (audit, 3 Oct 2026).
+		if m.downs_caused >= 3 and m.times_downed == 0:
 			_say(out, spoke, name, UiKit.t("%d down and I never left my feet. Put me back on.")
+				% m.downs_caused, 1)
+		elif m.downs_caused >= 3:
+			_say(out, spoke, name, UiKit.t("%d of theirs on the floor before they got me.")
 				% m.downs_caused, 1)
 		elif m.downs_caused >= 2:
 			_say(out, spoke, name, UiKit.t("Two of theirs on the floor. I could go again now."), 1)
 		## EMPTY. He blames the winter, which is the honest read — the tank is a
 		## stat the club did or did not buy him.
-		if m.gassed_at >= 0.0 and m.gassed_at < 45.0:
+		## "AFTER THE FIRST" MEANS ROUND ONE (audit, 3 Oct 2026). `gassed_at` is the
+		## ROUND clock, so 0:30 of round three read as blowing after the first.
+		if m.gassed_at >= 0.0 and m.gassed_at < 45.0 and m.gassed_round <= 1:
 			_say(out, spoke, name,
 				UiKit.t("I was blowing after the first. That is the winter, not the afternoon."), -1)
 		## PUT DOWN REPEATEDLY, and he blames the shape, which is the player's.
 		if m.times_downed >= 2:
 			_say(out, spoke, name,
-				UiKit.t("We were stood in the wrong shape and everyone could see it."), -1)
+				UiKit.t("We were standing in the wrong shape and everyone could see it."), -1)
 		## THE WORK NOBODY WATCHES, in his own words.
 		if int(m.assists) >= 2 and m.downs_caused == 0:
 			_say(out, spoke, name,

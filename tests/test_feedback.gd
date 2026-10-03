@@ -14,6 +14,7 @@ func _initialize() -> void:
 	_test_the_name_survives_a_save()
 	_test_a_local_cup_is_not_in_your_town()
 	_test_the_round_ends_on_a_beat()
+	_test_a_route_starts_where_he_is()
 	print("")
 	if failures.is_empty():
 		print("THE FEEDBACK FIXES HOLD (%d checks)\n" % checks)
@@ -69,3 +70,17 @@ func _test_a_local_cup_is_not_in_your_town() -> void:
 func _test_the_round_ends_on_a_beat() -> void:
 	var beat: float = (load("res://scripts/melee/melee_scene.gd") as GDScript).get_script_constant_map().get("BEAT", 0.0)
 	_ok(beat >= 1.5 and beat <= 4.0, "beat", "%.1f s on the field before the corner" % beat)
+
+
+## Pete, 3 Oct: a route drawn while the man was moving sent him back to where
+## the stroke began. He joins the line where he is now.
+func _test_a_route_starts_where_he_is() -> void:
+	var from := Vector2(100, 200)
+	var path: Array[Vector2] = [Vector2(120, 200), Vector2(140, 200), Vector2(160, 200), Vector2(160, 240)]
+	var still := MeleeSim.join_route(from, from, path)
+	_ok(still.size() == 4, "route, quick draw", "nothing dropped: %d of 4 waypoints" % still.size())
+	var moved := MeleeSim.join_route(Vector2(145, 203), from, path)
+	_ok(moved.size() == 2 and moved[0] == Vector2(160, 200), "route, he kept walking",
+		"joins ahead of him at %s, %d waypoints left" % [str(moved[0]) if not moved.is_empty() else "-", moved.size()])
+	var past := MeleeSim.join_route(Vector2(170, 260), from, path)
+	_ok(past.size() == 1 and past[0] == Vector2(160, 240), "route, ran past the end", "goes to the last point only")

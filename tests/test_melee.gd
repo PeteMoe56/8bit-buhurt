@@ -42,6 +42,7 @@ func _initialize() -> void:
 		_test_report_blames_the_roster()
 		_test_the_corner_pays_the_men_who_sat()
 		_test_a_route_can_be_taken_back()
+		_test_audit_3_oct()
 		await _test_the_tap_on_the_screen()
 	## THE STATISTICAL MEASURES — balance targets, not invariants. Balance tier.
 	if stats:
@@ -112,6 +113,40 @@ func _test_the_tap_on_the_screen() -> void:
 		"%d frames; round %d/%d, downs %s/%s" % [frames, ss.round_no, twin.round_no,
 			str(ss.downs), str(twin.downs)])
 	sk.queue_free()
+	Session.clear_bout()
+	await process_frame
+	## THE PAUSE TAKES THE CONTROLS WITH IT, AND A DRAG FROM A CARD STARTS ON THE
+	## GROUND (audit, 3 Oct 2026).
+	var pz := _melee_scene()
+	await process_frame
+	var ps: MeleeSim = pz.get("sim")
+	pz.set("screen", 2)
+	ps.phase = MeleeSim.Phase.LIVE
+	pz.call("_set_paused", true)
+	var hidden: bool = not (pz.get("ui") as CanvasLayer).visible \
+		and not (pz.get("skip_button") as Button).visible
+	pz.call("_set_paused", false)
+	var back_on: bool = (pz.get("ui") as CanvasLayer).visible
+	_ok(hidden and back_on, "the pause hides HOLD, SKIP ROUND and the corner's buttons",
+		"hidden while paused %s, back after %s" % [hidden, back_on])
+	var card: Rect2 = pz.call("_card_rect", 2)
+	var c0: Vector2 = card.get_center()
+	pz.call("_press", c0)
+	for k in range(1, 8):
+		pz.call("_extend", c0 + Vector2(0, -30.0 * k))
+	var on_ground := true
+	for v in (pz.get("draw_path") as Array):
+		on_ground = on_ground and v.x >= 0.0 and v.x <= Tuning.LIST_W \
+			and v.y >= 0.0 and v.y <= Tuning.LIST_H
+	pz.call("_release", c0 + Vector2(0, -210.0))
+	var o = ps.men[2].order
+	var reach := o != null
+	if reach:
+		for v in o.path:
+			reach = reach and v.x <= Tuning.LIST_W - Tuning.RAIL_INSET
+	_ok(on_ground and reach, "a drag from a fighter card starts its route on the list",
+		"waypoints on the ground %s, all reachable %s" % [on_ground, reach])
+	pz.queue_free()
 	Session.clear_bout()
 	await process_frame
 	Session.clear_bout()
@@ -803,3 +838,105 @@ func _test_a_route_can_be_taken_back() -> void:
 	## read where it lives. A screen that stopped asking would silently let a tap
 	## pull one fighter out of the line's plan.
 	notes.append("the cancel: given, withdrawn, and withdrawn again with no order on him")
+
+
+## THE FRESH-EYES AUDIT OF 3 OCT 2026, one check a defect. Each of these was a
+## thing the screen let a player do that the sim then got wrong.
+func _test_audit_3_oct() -> void:
+	## 1. A SENT MAN GRABBED ON THE WAY IN IS NOT LEFT HOLDING A DEAD QUESTION.
+	var sim := MeleeSim.new(MeleeRosters.player_club(), MeleeRosters.rival_club(), 5000)
+	for k in 60:
+		sim.tick()
+	var me: MeleeSim.Man = sim.men[2]
+	var foe := -1
+	var bd := 1.0e9
+	for e in sim.men:
+		if e.team == 1 and e.standing() and e.pos.distance_to(me.pos) < bd:
+			bd = e.pos.distance_to(me.pos)
+			foe = e.idx
+	var none: Array[Vector2] = []
+	sim.give_order(2, none, foe)
+	var guard := 300
+	while me.prompt == null and guard > 0 and me.standing():
+		sim.tick()
+		guard -= 1
+	var asked := me.prompt != null and me.prompt.menu != Tuning.Menu.GRAPPLED
+	if asked:
+		sim.answer_prompt(2, me.prompt.choice)
+		sim._enter_grapple(sim.men[foe], me)
+	_ok(asked and me.prompt == null,
+		"a sent man grabbed before contact drops his approach question",
+		"asked=%s, prompt after the grab=%s" % [asked, str(me.prompt)])
+
+	## 2. A ROUTE CANNOT BE DRAWN FROM A MAN IN A CLINCH.
+	var held := -1
+	for k in 3000:
+		sim.tick()
+		for m in sim.men:
+			if m.team == 0 and m.state == MeleeSim.State.GRAPPLED:
+				held = m.idx
+				break
+		if held != -1 or sim.phase != MeleeSim.Phase.LIVE:
+			break
+	if held != -1:
+		var partner: int = sim.men[held].target
+		var away: Array[Vector2] = [sim.men[held].pos + Vector2(0, -60)]
+		var took := sim.give_order(held, away, -1)
+		_ok(not took and sim.men[held].target == partner,
+			"a clinched man keeps hold of his partner when a route is drawn from him",
+			"accepted=%s, target %d -> %d" % [took, partner, sim.men[held].target])
+	else:
+		_ok(false, "a clinched man keeps hold of his partner", "no clinch in 100 s")
+
+	## 3. EVERY WAYPOINT IS GROUND HE CAN REACH — a drag from a card starts off the list.
+	var s3 := _mirror(30303)
+	var off: Array[Vector2] = [Vector2(341.0, -28.0), Vector2(299.0, 600.0)]
+	s3.give_order(0, off, -1)
+	var inside := true
+	for v in s3.men[0].order.path:
+		inside = inside and v.x >= Tuning.RAIL_INSET and v.x <= Tuning.LIST_W - Tuning.RAIL_INSET \
+			and v.y >= Tuning.RAIL_INSET and v.y <= Tuning.LIST_H - Tuning.RAIL_INSET
+	_ok(inside, "a route's waypoints are clamped inside the rail",
+		"path %s" % str(s3.men[0].order.path))
+
+	## 4. A MAN SWAPPED OUT BEFORE THE FIRST CHARGE DID NOT FIGHT.
+	var s4 := MeleeSim.new(MeleeRosters.player_club(), MeleeRosters.rival_club(), 4)
+	var bench := s4.bench(0)
+	if not bench.is_empty():
+		var out_card = s4.lineups[0][0]
+		s4.swap_in(0, 0, bench[0])
+		var listed := false
+		for m in s4.fought():
+			listed = listed or m.card == out_card
+		_ok(not listed and s4.fought().size() == s4.men.size(),
+			"a pre-fight swap does not put the benched man in fought()",
+			"listed=%s, fought %d of %d" % [listed, s4.fought().size(), s4.men.size()])
+
+		## 5. THE CORNER'S PREVIEW FOR A BENCH CARD INCLUDES THE BENCH'S REST.
+		var b2 := s4.bench(0)
+		if not b2.is_empty():
+			s4.conditions[b2[0]] = 0.3
+			_ok(is_equal_approx(s4.corner_preview_card(b2[0]),
+					clampf(0.3 + Tuning.BENCH_RECOVER, 0.0, 1.0)),
+				"a man coming on is previewed with his bench recovery",
+				"preview %.2f" % s4.corner_preview_card(b2[0]))
+
+	## 6. THE WEAR LEDGER IS THE ROUND'S.
+	var s6 := _mirror(60606)
+	s6.men[0].wear[7] = 0.5
+	s6.men[0].td_misses = 3
+	s6._set_the_line()
+	_ok(s6.men[0].wear.is_empty() and s6.men[0].td_misses == 0,
+		"wear and missed takedowns are cleared when the line is set",
+		"wear %s, misses %d" % [str(s6.men[0].wear), s6.men[0].td_misses])
+
+	## 13. THE WHEEL'S ODDS DO NOT COUNT AS BLOWS.
+	var fb := sim.flank_blows + sim.front_blows
+	for m in sim.men:
+		if m.team == 0 and m.standing():
+			for e in sim.men:
+				if e.team == 1 and e.standing():
+					sim.contact_odds(m.idx, Tuning.Act.BULLRUSH, e.idx)
+	_ok(sim.flank_blows + sim.front_blows == fb,
+		"asking the wheel's odds leaves the blow counters alone",
+		"%d -> %d" % [fb, sim.flank_blows + sim.front_blows])

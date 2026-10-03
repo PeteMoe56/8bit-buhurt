@@ -56,6 +56,9 @@ class Prompt extends RefCounted:
 	var menu: int = Tuning.Menu.APPROACH
 	var target: int = -1
 	var t: float = 0.0
+	## HOW LONG IT WAS OPENED FOR (3 Oct 2026). READER adds to the clock, and a bar
+	## drawn against the bare PROMPT_TIME sat full for his extra 0.8 s.
+	var dur: float = Tuning.PROMPT_TIME
 	var choice: int = -1        ## what will happen; AI's pick until the player overrides
 	var by_player: bool = false
 	## He holds at prompt range while this is false. Without it he crossed the
@@ -609,6 +612,15 @@ func _set_the_line() -> void:
 		m.prompt = null
 		m.stability = Tuning.STABILITY_MAX
 		m.exposed_t = 0.0
+		## THE ROUND'S WORK IS THE ROUND'S (audit, 3 Oct 2026). `wear` is keyed by
+		## the attacker's INDEX, and a swap keeps the slot's index — so a sub was
+		## credited assists for his predecessor's hits, and round one's blows
+		## counted toward a round-three takedown. The takedown-miss run is the
+		## same: a sub inherited the other man's misses.
+		m.wear.clear()
+		m.td_misses = 0
+		m.td_miss_on = -1
+		m.grip_t = 0.0
 		m.hit_cd = 0.0
 		m.grapple_t = 0.0
 		m.idle_t = 0.0
@@ -627,13 +639,24 @@ func _set_the_line() -> void:
 # ------------------------------------------------------------- player input
 ## Hand a fighter a drawn path. `path` is in list coordinates; `target` is an
 ## enemy index or -1. Returns false if he cannot be given one right now.
-func give_order(idx: int, path: Array[Vector2], target: int = -1, run: bool = false) -> bool:
+func give_order(idx: int, path: Array[Vector2], target: int = -1, run: bool = false,
+		from: Vector2 = Vector2.INF) -> bool:
 	if phase == Phase.OVER or idx < 0 or idx >= men.size():
 		return false
 	var m := men[idx]
 	if m.team != 0 or not m.standing():
 		return false
+	## NOT A MAN IN A CLINCH (audit, 3 Oct 2026). `_order` writes the route's
+	## target over `m.target`, which in a clinch is the man he is HOLDING — so he
+	## went passive, stopped taking the grind, and his clinch actions landed on
+	## whoever the route ended on, from across the list. A tap asks for his
+	## options; a route waits until he is free.
+	if m.state == State.GRAPPLED:
+		return false
 	m.planted = false
+	if from != Vector2.INF:
+		path = join_route(m.pos, from, path)
+	path = clamp_route(path)
 	_order(m, path, target, false)
 	m.order.sprint = run and Tuning.sprint > 1.0
 	m.orders_given += 1
@@ -642,6 +665,49 @@ func give_order(idx: int, path: Array[Vector2], target: int = -1, run: bool = fa
 	## split command and there should not be — the player already expressed it
 	## by sending him somewhere his partner is not.
 	return true
+
+
+## THE ROUTE PICKS UP WHERE THE MAN IS NOW (Pete, 3 Oct 2026: "it doesn't take
+## into account his current movement, so if I tell it to go forward, depending
+## how long I take, it stops/backs up to go from where that draw started").
+## The fight keeps running while a finger draws, so by release the man is
+## somewhere down the line from `from`, the point the stroke began on him. The
+## waypoints he has already passed are dropped: he joins the drawn line at the
+## nearest point on it and carries on from the next waypoint ahead, rather than
+## walking back to the first one.
+static func join_route(now: Vector2, from: Vector2, path: Array[Vector2]) -> Array[Vector2]:
+	if path.is_empty():
+		return path
+	var line: Array[Vector2] = [from]
+	line.append_array(path)
+	var best := INF
+	var seg := 0
+	for i in line.size() - 1:
+		var q := Geometry2D.get_closest_point_to_segment(now, line[i], line[i + 1])
+		var d := q.distance_squared_to(now)
+		if d < best:
+			best = d
+			seg = i
+	## Segment `seg` runs line[seg] -> line[seg + 1], i.e. into path[seg]: the
+	## next waypoint ahead is path[seg], and everything before it is behind him.
+	var out: Array[Vector2] = []
+	for j in range(seg, path.size()):
+		out.append(path[j])
+	return out
+
+
+## EVERY WAYPOINT ON GROUND HE CAN STAND ON (audit, 3 Oct 2026). A man is held
+## RAIL_INSET inside the rail and a waypoint counts at WAYPOINT_HIT, so a point
+## drawn within six units of the edge — or off the list altogether, which is
+## where a drag from a fighter CARD starts — could never be reached: he walked
+## into the rail and stood there with the order live for the rest of the round.
+static func clamp_route(path: Array[Vector2]) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for v in path:
+		out.append(Vector2(
+			clampf(v.x, Tuning.RAIL_INSET, Tuning.LIST_W - Tuning.RAIL_INSET),
+			clampf(v.y, Tuning.RAIL_INSET, Tuning.LIST_H - Tuning.RAIL_INSET)))
+	return out
 
 
 func _order(m: Man, path: Array, target: int, from_play: bool) -> void:
@@ -811,6 +877,12 @@ var _ledger: Dictionary = {}
 
 func _stash(m: Man) -> void:
 	if m.card == null:
+		return
+	## NOT BEFORE THE FIRST CHARGE (audit, 3 Oct 2026). A pre-fight swap is the
+	## line being picked: the man taken out never fought, and stashing him put
+	## him in `fought()` — a bout on his book, XP for sitting, a report row, and
+	## no Prima Donna for being left out.
+	if bout_t <= 0.0:
 		return
 	var d := {"team": m.team, "slot": m.slot}
 	for k in BOUT_STATS:
@@ -987,6 +1059,16 @@ func corner_lift(m: Man) -> float:
 ## And where he lands, which is the figure the corner row prints on the right.
 func corner_preview(m: Man) -> float:
 	return clampf(m.gas_frac() + corner_lift(m), 0.0, 1.0)
+
+
+## WHERE ANY CARD LANDS after the corner (audit, 3 Oct 2026). A man just swapped
+## in was shown at his bench figure, but `_corner_recovery` gives him the bench's
+## rest — the row said 70% and he walked out at 100%.
+func corner_preview_card(card) -> float:
+	for m in men:
+		if m.card == card:
+			return corner_preview(m)
+	return clampf(float(conditions.get(card, 1.0)) + Tuning.BENCH_RECOVER, 0.0, 1.0)
 
 
 func _corner_recovery() -> void:
@@ -1389,6 +1471,7 @@ func _open_prompt(m: Man, menu: int, target: int) -> void:
 	p.menu = menu
 	p.target = target
 	p.t = Tuning.PROMPT_TIME + m.tmod("prompt_time", 0.0)
+	p.dur = p.t
 	## The AI's answer is filled in the moment the prompt opens. That is what
 	## makes ignoring it free: nothing waits on the player, and the fighter
 	## keeps closing while the buttons are up.
@@ -1526,7 +1609,7 @@ func _tick_grapples() -> void:
 		## "Break!" — the marshal ends an inactive clinch past ten seconds.
 		if m.grapple_t >= Tuning.GRAPPLE_MIN and m.idle_t >= Tuning.BREAK_INACTIVE:
 			var o := men[m.target] if m.target != -1 else null
-			marshal_called.emit("Break!")
+			marshal_called.emit(UiKit.t("Break!"))
 			_ungrapple(m)
 			if o != null:
 				_ungrapple(o)
@@ -1601,6 +1684,13 @@ func _enter_grapple(a: Man, b: Man) -> void:
 	var open_b := b.tmod("grapple_open", 0.0)
 	if open_b > 0.0:
 		_wear(a, b, open_b)
+	## A QUESTION ABOUT THE APPROACH IS OVER ONCE HE IS HELD (audit, 3 Oct 2026).
+	## A sent man grabbed before he reached his man kept his approach prompt open,
+	## and the clinch only acts for a man with no prompt — so he stood in it doing
+	## nothing for ten seconds while the other man ground him down.
+	for x in [a, b]:
+		if x.prompt != null and x.prompt.menu != Tuning.Menu.GRAPPLED:
+			_close_prompt(x)
 	a.state = State.GRAPPLED
 	b.state = State.GRAPPLED
 	a.target = b.idx
@@ -1662,11 +1752,18 @@ func _clinch_side(a: Man, d: Man) -> int:
 	if face.length() < 0.01 or to_a.length() < 0.01:
 		return 0
 	var ang := rad_to_deg(face.angle_to(to_a))
+	## THE WHEEL ASKS THIS EVERY FRAME (audit, 3 Oct 2026); only a real blow counts.
 	if absf(ang) > Tuning.flank_arc * 0.5:
-		flank_blows += 1
+		if not _previewing:
+			flank_blows += 1
 		return 1
-	front_blows += 1
+	if not _previewing:
+		front_blows += 1
 	return -1
+
+
+## True while `contact_odds` is asking, so the probe counters see only real blows.
+var _previewing := false
 
 
 ## WHICH WAY A MAN FACES: at the man he is clinched with or closing on, else the
@@ -1737,6 +1834,7 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 	var t := men[target]
 	var was := m.acting_for_player
 	m.acting_for_player = true
+	_previewing = true
 	var out := {"p": 1.0, "fall": 0.0, "dent": 0.0}
 	## THE FREE FIRST SWING lands before the act he picks, so the odds shown are
 	## the odds after it — otherwise the wheel undersells every choice on it.
@@ -1759,6 +1857,7 @@ func contact_odds(idx: int, act: int, target: int) -> Dictionary:
 			out["p"] = _takedown_chance(m, t, false)
 	t.stability = t_stab
 	m.acting_for_player = was
+	_previewing = false
 	return out
 
 
