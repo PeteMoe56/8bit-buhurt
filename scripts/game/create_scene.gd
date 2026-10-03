@@ -73,6 +73,7 @@ var replace_i := 0
 ## home town are popups): "kit", "mark", "town" or "".
 var popup := ""
 var sign_btn: Button = null
+var save_btn: Button = null
 var town_area := ""
 
 ## One row per grade down the left, the chosen one's sentence on the right.
@@ -121,6 +122,18 @@ func _ready() -> void:
 	_rebuild()
 
 
+## THE BUTTON ROW SITS ON THE REAL BOTTOM (3 Oct 2026), the way the season
+## scene's does: pinned at y=486 it floated 180 pixels up on a 4:3 tablet, and
+## the corner Back beside it (at `screen().y - 56`) did not.
+func bottom_y() -> float:
+	return UiKit.screen().y - 54.0
+
+
+## The message line, just above that row.
+func flash_line_y() -> float:
+	return UiKit.screen().y - 74.0
+
+
 func _limits() -> Dictionary:
 	return Workshop.limits(season.office.tier)
 
@@ -130,6 +143,7 @@ func _rebuild() -> void:
 	for c in ui.get_children():
 		c.queue_free()
 	name_edit = null
+	save_btn = null
 	club_name_edit = null
 	club_short_edit = null
 
@@ -145,11 +159,11 @@ func _rebuild() -> void:
 		else:
 			_grade_controls()
 			ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Start the season  >"),
-				Vector2(UiKit.right_edge(284.0), 486), Vector2(260, 42), func():
+				Vector2(UiKit.right_edge(284.0), bottom_y()), Vector2(260, 42), func():
 					Session.founding = false
 					Session.autosave()
 					UiKit.go("res://scenes/Season.tscn"))))
-			ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 486), Vector2(150, 42), func():
+			ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, bottom_y()), Vector2(150, 42), func():
 				tab = Tab.CLUB
 				flash = ""
 				_rebuild()))
@@ -253,13 +267,13 @@ func _fighter_controls() -> void:
 			replace_i = (replace_i + 1) % out.size()
 			_rebuild()))
 	var sign_b := UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
-		Vector2(BOTTOM_X, 486), Vector2(260, 42), _sign)
+		Vector2(BOTTOM_X, bottom_y()), Vector2(260, 42), _sign)
 	## GREY WHEN THE PURSE CANNOT COVER HIM; gold only when the tap can land.
 	## AND WHEN HE HAS NO NAME (review, 1 Oct 2026).
 	sign_b.disabled = shop.cost() > season.office.credits or card.display_name.strip_edges() == ""
 	sign_btn = sign_b
 	ui.add_child(sign_b if sign_b.disabled else UiKit.primary(sign_b))
-	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(BOTTOM_X + 272, 486), Vector2(160, 42), func():
+	ui.add_child(UiKit.button(UiKit.t("Start over"), Vector2(BOTTOM_X + 272, bottom_y()), Vector2(160, 42), func():
 		card = Workshop.blank()
 		flash = ""
 		_rebuild()))
@@ -268,6 +282,34 @@ func _fighter_controls() -> void:
 ## Only the reserve. A man on the eight cannot be written over from here — the
 ## model refuses it, and offering him in the list anyway would be a button whose
 ## only outcome is an error message.
+## WHAT IS WRONG WITH THE CLUB AS TYPED, or "" — read by the Save button and by
+## the line that says why.
+func _identity_bad() -> String:
+	var short: String = club_short_edit.text if club_short_edit != null else season.club.short_name
+	return Workshop.identity_legal(club_name_edit.text if club_name_edit != null else "xxx", short,
+		IconBank.KIT_COLORS[kit_i], IconBank.MARK_COLORS[mark_col_i])
+
+
+## OFF WHILE THE CLUB AS TYPED WOULD BE REFUSED (3 Oct 2026): it stayed gold and
+## lit with "The short name is two to four letters." printed under it. Restyled
+## in place as the player types, so the field keeps its focus.
+func _refresh_save() -> void:
+	if save_btn == null or not is_instance_valid(save_btn):
+		return
+	var off := _identity_bad() != ""
+	if not save_btn.is_inside_tree():
+		save_btn.disabled = off
+		ui.add_child(save_btn if off else UiKit.primary(save_btn))
+		return
+	if off == save_btn.disabled:
+		return
+	save_btn.disabled = off
+	if off:
+		UiKit.skin(save_btn)
+	else:
+		UiKit.primary(save_btn)
+
+
 func _cuttable() -> Array:
 	var out: Array = []
 	for f in season.club.reserves():
@@ -289,7 +331,8 @@ func _sign() -> void:
 		return
 	season.sync_power()
 	Session.autosave()
-	flash = UiKit.t("%s signed%s. He is on the reserve — promote him in SQUAD.") % [
+	## THE TAB IS CALLED TEAM (3 Oct 2026); there is no SQUAD to look for.
+	flash = UiKit.t("%s signed%s. He is on the reserve — promote him in TEAM.") % [
 		card.display_name, "" if who == null else UiKit.t(", %s released") % who.display_name]
 	replace_i = 0
 	card = Workshop.blank()
@@ -343,6 +386,7 @@ func _club_controls() -> void:
 	club_name_edit.text = draft_club_name if draft_club_name != null else season.club.display_name
 	club_name_edit.text_changed.connect(func(t: String):
 		draft_club_name = t
+		_refresh_save()
 		queue_redraw())
 	ui.add_child(club_name_edit)
 
@@ -357,6 +401,7 @@ func _club_controls() -> void:
 	## letters after the short name changed).
 	club_short_edit.text_changed.connect(func(t: String):
 		draft_club_short = t
+		_refresh_save()
 		queue_redraw())
 	ui.add_child(club_short_edit)
 
@@ -439,11 +484,12 @@ func _club_controls() -> void:
 		bank_b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(bank_b)
 
-	ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Next: difficulty  >") if Session.founding
-		else UiKit.t("Save the club"), Vector2(BOTTOM_X, 486), Vector2(260, 42),
-		_save_club)))
+	save_btn = UiKit.button(UiKit.t("Next: difficulty  >") if Session.founding
+		else UiKit.t("Save the club"), Vector2(BOTTOM_X, bottom_y()), Vector2(260, 42),
+		_save_club)
+	_refresh_save()
 	if Session.founding:
-		ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, 486), Vector2(150, 42), func():
+		ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, bottom_y()), Vector2(150, 42), func():
 			Session.autosave()
 			UiKit.go("res://scenes/Coach.tscn")))
 
@@ -617,8 +663,11 @@ func _draw() -> void:
 	## the corner Back is there.
 	UiKit.purse(self, font, season.office.credits,
 		Vector2(UiKit.right_edge(24.0 if Session.founding else 120.0), 40), 18, UiKit.YOU, 200.0)
-	if flash != "":
-		UiKit.text(self, font, flash, Vector2(24, 466), 14, UiKit.DIM)
+	## THE CLUB'S OWN REFUSAL TAKES THE MESSAGE LINE while it stands; `_draw_club`
+	## writes it there.
+	if flash != "" and not (tab == Tab.CLUB and popup == "" and _identity_bad() != ""):
+		UiKit.text(self, font, UiKit.fit_px(font, flash, 14, UiKit.span()),
+			Vector2(24, flash_line_y()), 14, UiKit.DIM)
 	if tab == Tab.FIGHTER:
 		_draw_fighter()
 	elif tab == Tab.CLUB:
@@ -709,10 +758,13 @@ func _draw_club() -> void:
 	UiKit.text(self, font, IconBank.icon_name(icon_i),
 		Vector2(STAT_X + 168, 372), 14, UiKit.DIM)
 
+	## ON THE MESSAGE LINE, ABOVE THE ROW (3 Oct 2026): at (324, bottom - 28) it
+	## was drawn under the Save button and read "e is two to four letters."
 	var bad := Workshop.identity_legal(
 		club_name_edit.text if club_name_edit != null else "xxx", short, kit, mark)
-	if bad != "":
-		UiKit.text(self, font, bad, Vector2(STAT_X + 300.0, UiKit.bottom(28.0)), 14, UiKit.DOWN)
+	if bad != "" and popup == "":
+		UiKit.text(self, font, UiKit.fit_px(font, bad, 14, UiKit.span()), Vector2(STAT_X, flash_line_y()),
+			14, UiKit.DOWN)
 
 	_draw_bank(kit, mark)
 
@@ -761,7 +813,7 @@ func _draw_bank(kit: Color, mark: Color) -> void:
 		## THE PRICE IS A TAG ON THE TILE (round 4: "Chevron 1 CC" ran into the
 		## next name), with a lock, so an unowned mark cannot pass for an owned one.
 		if not have:
-			var tag := "%d CC" % IconBank.cost(id)
+			var tag := UiKit.t("%d CC") % IconBank.cost(id)
 			var tw := font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 26.0
 			var tr := Rect2(at + Vector2(BANK_R - tw, -BANK_R), Vector2(tw, 18))
 			draw_rect(tr, Color(0, 0, 0, 0.78))

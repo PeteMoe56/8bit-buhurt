@@ -68,6 +68,8 @@ static func info_rect() -> Rect2:
 
 ## The gap the BENCH box's title is written into.
 const BENCH_GAP := 30.0
+## The space between the deal button and the red trade one (3 Oct 2026).
+const TRADE_GAP := 40.0
 ## Where on the line each of the five stands, said the way the sport says it.
 const SLOT_WORD := ["L rail", "L flank", "Center", "R flank", "R rail"]
 ## For the string table, which reads literals inside t().
@@ -184,23 +186,33 @@ static func _squad_controls(v: SeasonScene) -> void:
 		## you're prospecting a free agent. Bring it to a player's Card").
 		var out_of_deal: bool = p.years <= 0
 		var deal_cost: int = v.season.resign_cost(p) if out_of_deal else v.season.extend_cost(p)
-		v.ui.add_child(UiKit.button(
-			"%s  ·  %s/yr" % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
+		var deal_b := UiKit.button(
+			UiKit.t("%s · %s/yr") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend"),
 				ClubOffice.money(deal_cost)],
 			Vector2(300, ay), Vector2(220, 46), func():
 				var err := v.season.resign(p) if out_of_deal else v.season.extend(p)
 				if err == "":
-					v.flash = UiKit.t("%s: %s a year for %d years.") % [p.display_name,
-						ClubOffice.money(ClubOffice.billed(p)), p.years]
+					## ONE YEAR IS A YEAR (3 Oct 2026): "for 1 years".
+					v.flash = UiKit.tn("%s: %s a year for %d year.", "%s: %s a year for %d years.",
+						p.years) % [p.display_name, ClubOffice.money(ClubOffice.billed(p)), p.years]
 					Session.autosave()
 				else:
-					v.flash = err
-				v._rebuild()))
+					v.flash = UiKit.said(err)
+				v._rebuild())
+		## OFF WHEN HE WILL NOT SIGN (3 Oct 2026), as on his page: a deal he refuses
+		## is a button that can only say no.
+		deal_b.disabled = bool(Contracts.demand(p)["refuses"]) \
+			or (not out_of_deal and not Contracts.can_extend(p))
+		v.ui.add_child(deal_b)
 		var worth := v.season.trade_value(p)
 		var who := UiKit.clip(p.display_name, 8)
 		v.ui.add_child(UiKit.danger(UiKit.button((UiKit.t("Trade %s  ·  +%d CC") % [who, worth])
 				if worth > 0 else (UiKit.t("Cut %s") % who),
-			Vector2(UiKit.right_edge(250.0), ay), Vector2(250.0, 46), func():
+			## OUT OF THE PRIMARY SLOT (3 Oct 2026): bottom-right is where the gold
+			## Fight button sits on every other tab, and a thumb that goes there by
+			## habit should not find an irreversible trade. It joins the man's own
+			## row, after a clear gap; red stays, because it cannot be undone.
+			Vector2(300.0 + 220.0 + TRADE_GAP, ay), Vector2(250.0, 46), func():
 				if not UiKit.confirm("release:" + p.display_name):
 					v.flash = (UiKit.t("Tap again to trade %s. He does not come back.") if worth > 0
 						else UiKit.t("Tap again to cut %s. He does not come back.")) % p.display_name
@@ -273,7 +285,7 @@ static func _tap(v: SeasonScene, f: FighterCard) -> void:
 	elif v.picked.active and f.active:
 		err = v.season.club.swap_order(v.picked, f)
 	else:
-		err = "Two in the reserve: bring one up to the eight first."
+		err = UiKit.t("Two in the reserve: bring one up to the eight first.")
 	if err == "":
 		## REPORT WHAT CHANGED, NOT WHAT WAS TAPPED.
 		##

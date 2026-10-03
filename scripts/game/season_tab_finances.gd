@@ -103,7 +103,9 @@ static func _draw_management(v: SeasonScene) -> void:
 	var o_n := ClubOffice.book_total(o.books_out)
 	UiKit.pair(v, v.font, UiKit.t("In"), UiKit.t("%d CC") % i_n, Vector2(x, y), x + w, 20, 20, UiKit.INK, UiKit.UP)
 	y += 32.0
-	UiKit.pair(v, v.font, UiKit.t("Out"), UiKit.t("%d CC") % o_n, Vector2(x, y), x + w, 20, 20, UiKit.INK, UiKit.DOWN)
+	## WHAT GOES OUT IS NOT A DANGER (3 Oct 2026): red is kept for the year's net
+	## when it is short, below, and for a bill that cannot be met.
+	UiKit.pair(v, v.font, UiKit.t("Out"), UiKit.t("%d CC") % o_n, Vector2(x, y), x + w, 20, 20, UiKit.INK, UiKit.INK)
 	y += 14.0
 	v.draw_line(Vector2(x, y), Vector2(x + w, y), UiKit.FRAME, 1.0)
 	y += 28.0
@@ -209,7 +211,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	y += 32.0
 	UiKit.text(v, v.font, UiKit.t("GOING OUT, CC"), Vector2(SeasonScene.FIN_LEFT, y), 14, UiKit.DIM)
 	y += 24.0
-	y = v._fin_block(o.books_out, was_out, ClubOffice.OUT_ORDER, y, UiKit.DOWN)
+	y = v._fin_block(o.books_out, was_out, ClubOffice.OUT_ORDER, y, UiKit.INK)
 	var out_now := ClubOffice.book_total(o.books_out)
 	var out_was := ClubOffice.book_total(was_out)
 	y = v._fin_rule(y)
@@ -336,7 +338,7 @@ static func _fin_ground(v: SeasonScene) -> void:
 		## 958 of a 960 canvas and `UiKit.pair` right-aligns, so on any narrower
 		## shape the sentence walked back over its own label.
 		UiKit.pair(v, v.font, UiKit.t("Pays a year"),
-			"%d CC  ·  %d lost to neglect" % [pays, full - pays],
+			UiKit.t("%d CC  ·  %d lost to neglect") % [pays, full - pays],
 			Vector2(SeasonScene.FIN_RIGHT, y), UiKit.right_edge(), 14, 14, UiKit.DIM, UiKit.DOWN)
 	y += 22.0
 

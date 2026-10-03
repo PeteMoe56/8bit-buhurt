@@ -38,7 +38,8 @@ static func tab_rect(slot: int, count: int) -> Rect2:
 ## the flash message is written on. Every tab used to pick its own top and the
 ## SQUAD one collided with the tab underline.
 const CONTENT_Y := 132.0
-const FLASH_Y := 122.0
+## The message bar's height, in the bottom gutter (3 Oct 2026).
+const FLASH_H := 24.0
 var flash_px := 15
 var flash_room := 0.0
 const ROW_H := 22.0
@@ -476,7 +477,7 @@ func _sim_controls() -> void:
 			season.skip_event()
 			Session.autosave()
 			flash = UiKit.t("Event simulated.") if season.last_emergency.is_empty() \
-				else "Event simulated. " + season.last_emergency[0] + "."
+				else UiKit.t("Event simulated. %s.") % season.last_emergency[0]
 			var warn := season.summer_warning()
 			if not season.ground_offer().is_empty():
 				ground_open = true
@@ -733,13 +734,20 @@ func _draw() -> void:
 		Tab.FINANCES: _draw_finances()
 	## THE MESSAGE IS A BAR OVER THE TAB, drawn last on its own ground (playtest
 	## 30 Sep: it printed through "THE ARMORER" underneath it).
+	## IN THE BOTTOM GUTTER, NOT UNDER THE TABS (3 Oct 2026): at y 105-129 the bar
+	## sat on the tab row and over every tab's first line — the table's column
+	## heads, STARTERS — and the tabs clipped the tops of its own letters. The
+	## gutter under the action row is empty on every tab, and the message
+	## answers a button that lives just above it. The ticker steps aside for it.
+	if _tape_clip != null:
+		_tape_clip.visible = flash == ""
 	if flash != "":
-		var bar := Rect2(16, FLASH_Y - 17.0, UiKit.span() + 16.0, 24.0)
+		var bar := Rect2(16, UiKit.screen().y - FLASH_H - 2.0, UiKit.span() + 16.0, FLASH_H)
 		draw_rect(bar, UiKit.PANEL)
 		draw_rect(Rect2(bar.position, Vector2(3, bar.size.y)), UiKit.YOU)
 		draw_rect(bar, UiKit.FRAME, false, 1.0)
 		UiKit.text(self, font, UiKit.clip_px(font, flash, flash_px, flash_room - 8.0),
-			Vector2(28, FLASH_Y), flash_px, UiKit.YOU)
+			Vector2(28, bar.end.y - 7.0), flash_px, UiKit.YOU)
 
 
 func _header() -> void:

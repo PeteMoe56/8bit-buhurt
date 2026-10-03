@@ -76,6 +76,8 @@ var man: FighterCard
 var flash: String = ""
 ## Why the bus button is dead, when it is. Set in `_build`, drawn in `_draw`.
 var bus_note: String = ""
+## Why the deal button is off, for the same line (3 Oct 2026).
+var deal_note: String = ""
 
 ## --------------------------------------------------------------- the meeting
 ## PETE, 14 Sep 2026: *"Let's go with B and add the affected stats underneath.
@@ -301,11 +303,18 @@ func _build() -> void:
 				flash = UiKit.said(err) if err != "" else UiKit.t("%s tagged for the Hall.") % man.display_name
 			Session.autosave()
 			_build(), "star" if tagged else "hall"))
-	ui.add_child(UiKit.button(UiKit.t("%s · %s/yr") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend early"),
+	var deal_b := UiKit.button(UiKit.t("%s · %s/yr") % [UiKit.t("Re-sign") if out_of_deal else UiKit.t("Extend early"),
 		ClubOffice.money(cost)], Vector2(376, y), Vector2(250, 44), func():
 			flash = UiKit.said(season.resign(man) if out_of_deal else season.extend(man))
 			Session.autosave()
-			_build()))
+			_build())
+	## OFF WHEN HE WILL NOT SIGN (3 Oct 2026), and the line under the title says
+	## why: a lit button beside "He will not sign again." could only answer no.
+	var refuses := bool(Contracts.demand(man)["refuses"])
+	deal_b.disabled = refuses or (not out_of_deal and not Contracts.can_extend(man))
+	deal_note = UiKit.t("He will not sign while his morale is this low. A talk can lift it.") \
+		if refuses else ""
+	ui.add_child(deal_b)
 
 	## THE ARROWS AROUND THE COUNT THEY MOVE (round 8: "group the arrows with
 	## the counter"). "3 of 13" is drawn between them in `_draw`.
@@ -444,8 +453,13 @@ func _meeting_row(i: int) -> Dictionary:
 				"value": man.morale_word(), "col": man.morale_color(),
 				"bar": _roll("morale", man.morale), "bar_col": man.morale_color()}
 		1:
+			## THE ARMORER'S PRICE AND THE ARMORER'S ANSWER (3 Oct 2026): this quoted
+			## titanium-cap money the Maintenance tab did not, and stayed lit at a
+			## harness's ceiling, in a training week and after this week's repair.
+			var cap := season.office.armorer_cap()
 			return {"key": "kit", "label": UiKit.t("CONDITION"), "verb": UiKit.t("Fix kit"),
-				"cc": ClubOffice.kit_cost(man), "off": man.armor >= 1.0,
+				"cc": ClubOffice.kit_cost(man, cap),
+				"off": Quartermaster.topped_out(man, cap) or SeasonArmorerTab.repair_block(season, man) != "",
 				"value": "%d%%" % int(round(_roll("kit", man.armor) * 100.0)),
 				"col": UiKit.INK,
 				"bar": _roll("kit", man.armor), "bar_col": UiKit.YOU}
@@ -469,7 +483,7 @@ func _meeting_row(i: int) -> Dictionary:
 				"verb": UiKit.t("Re-sign") if man.years <= 0 else UiKit.t("Extend"),
 				"wage": season.resign_cost(man) if man.years <= 0 \
 					else season.extend_cost(man), "cc": 0,
-				"off": man.years > 0 and not Contracts.can_extend(man),
+				"off": Contracts.refuses(man) or (man.years > 0 and not Contracts.can_extend(man)),
 				"value": ClubOffice.money(int(round(_roll("wage",
 					float(man.wage_agreed))))),
 				"col": UiKit.INK,
@@ -547,8 +561,8 @@ func _buy(which: String) -> void:
 				flash = UiKit.tn("%s signed for %d year.", "%s signed for %d years.", man.years) \
 					% [man.display_name, man.years]
 	if err != "":
+		## `said` already shakes once (3 Oct 2026); a second call shook twice.
 		flash = UiKit.said(err)
-		Juice.refuse()
 		_build()
 		return
 	season.sync_power()
@@ -603,8 +617,11 @@ func _draw() -> void:
 		## under the +3 buttons, so a spent point and a refusal both looked like
 		## nothing). The band under the name is the one bus_note uses; the two
 		## never show at once.
-		UiKit.text(self, font, UiKit.fit_px(font, flash, 13, UiKit.span()),
-			Vector2(24, flash_y()), 14, UiKit.DOWN)
+		## IN GOLD, NOT RED (3 Oct 2026): most of what lands here is good news —
+		## a level spent, a man tagged for the Hall — and red is for danger. Fitted
+		## at the size it is drawn, or a line could run 8% past its room.
+		UiKit.text(self, font, UiKit.fit_px(font, flash, 14, UiKit.span()),
+			Vector2(24, flash_y()), 14, UiKit.YOU)
 	elif bus_note != "":
 		## UNDER THE TITLE, NOT ABOVE THE BUTTONS. The first cut put it on the
 		## same line the flash uses — and the ink sweep failed it at all four
@@ -616,7 +633,10 @@ func _draw() -> void:
 		## looking at the button he tapped. This is standing state, drawn every
 		## frame, so it needs somewhere that is free every frame — and the strip
 		## under the fighter's name is the only band on this screen that is.
-		UiKit.text(self, font, UiKit.fit_px(font, bus_note, 13, UiKit.span()),
+		UiKit.text(self, font, UiKit.fit_px(font, bus_note, 14, UiKit.span()),
+			Vector2(24, 74), 14, UiKit.DIM)
+	elif deal_note != "" and not meeting_open:
+		UiKit.text(self, font, UiKit.fit_px(font, deal_note, 14, UiKit.span()),
 			Vector2(24, 74), 14, UiKit.DIM)
 
 
@@ -652,8 +672,10 @@ func _the_man() -> void:
 	## HURT: what it is, and for how long, on the one line (Pete, 3 Oct 2026).
 	if man.injury > 0:
 		## "Hurt · 3" is the team sheet's own word for it: 3 = events he misses.
-		UiKit.text(self, font, UiKit.t("Hurt · %d") % man.injury, Vector2(L_X + 16, y), 14, UiKit.DOWN)
-		UiKit.right(self, font, man.injury_word(), Vector2(L_X + COL_W - 16, y), 14, UiKit.DOWN, 175)
+		## WITH ITS UNIT (3 Oct 2026): "Hurt · 3" left the 3 to be guessed. As a
+		## pair, so the count and the injury's name cannot run into each other.
+		UiKit.pair(self, font, UiKit.tn("Out %d event", "Out %d events", man.injury) % man.injury,
+			man.injury_word(), Vector2(L_X + 16, y), L_X + COL_W - 16, 14, 14, UiKit.DOWN, UiKit.DOWN)
 	else:
 		_line("Fit", UiKit.t("ready") if man.fit() else man.unfit_reason(), y)
 	y += ROW
@@ -774,7 +796,8 @@ func _the_man() -> void:
 		UiKit.right(self, font, UiKit.t("%s/yr · %dy") % [
 			ClubOffice.money(wage_asked), int(asks["years"])],
 			Vector2(L_X + COL_W - 16, y + 56), 12,
-			UiKit.DOWN if float(asks["mood"]) > 1.02 else (
+			## A DEARER ASK IS A PRICE, NOT A DANGER (3 Oct 2026): gold, not red.
+			UiKit.YOU if float(asks["mood"]) > 1.02 else (
 				UiKit.UP if float(asks["mood"]) < 0.98 else UiKit.INK), 200)
 
 
@@ -918,21 +941,22 @@ func _attributes() -> void:
 		UiKit.right(self, font,
 			("%d → %d" % [base, fights_at]) if chipped else ("%d" % base),
 			Vector2(M_X + COL_W - 16 - (66.0 if grow > base else 0.0), y), 14,
-			man.morale_color() if chipped else UiKit.INK, 110)
+			_chip_col(fights_at, base) if chipped else UiKit.INK, 110)
+		## THE HEADROOM IS GOOD NEWS (3 Oct 2026): in the gain color, not red.
 		if grow > base:
-			UiKit.right(self, font, UiKit.t("max %d") % grow, Vector2(M_X + COL_W - 16, y), 12, UiKit.DOWN, 62)
+			UiKit.right(self, font, UiKit.t("max %d") % grow, Vector2(M_X + COL_W - 16, y), 12, UiKit.DIM, 62)
 		var track := Rect2(M_X + 16, y + 8, COL_W - 32, 13)
 		UiKit.bar(self, track, float(base) / 100.0, UiKit.YOU)
 		if grow > base:
 			var gx0 := track.position.x + track.size.x * (float(base) / 100.0)
 			var gx1 := track.position.x + track.size.x * (float(grow) / 100.0)
-			draw_rect(Rect2(gx0, track.position.y - 1.0, gx1 - gx0, track.size.y + 2.0), UiKit.DOWN, false, 2.0)
+			draw_rect(Rect2(gx0, track.position.y - 1.0, gx1 - gx0, track.size.y + 2.0), UiKit.UP, false, 2.0)
 		## The chip drawn past the fill, so you can see what the mood is buying.
 		if chipped:
 			var x0 := track.position.x + track.size.x * (float(base) / 100.0)
 			var x1 := track.position.x + track.size.x * (float(fights_at) / 100.0)
 			draw_rect(Rect2(x0, track.position.y, maxf(2.0, x1 - x0), track.size.y),
-				man.morale_color())
+				_chip_col(fights_at, base))
 		## NO CEILING TICK ON THESE BARS. The first version drew one at
 		## `potential` on every stat, which says a man has a ceiling per stat.
 		## He does not — `potential` is a ceiling on his OVERALL, and the winter
@@ -952,10 +976,18 @@ func _attributes() -> void:
 	## bottom of this panel, so it is one line, on the baseline the contented
 	## version already proved clear.
 	UiKit.text_fit(self, font,
-		(UiKit.t("%s — he fights above his card.") % man.morale_word()) if man.angry()
-			else UiKit.t("Red box: how far he can grow."),
+		(UiKit.t("%s: a boost, for now.") % man.morale_word()) if man.angry()
+			else UiKit.t("Green box: how far he can grow."),
 		Vector2(M_X + 16, COL_Y + COL_H - 14), 13,
-		man.morale_color() if man.angry() else UiKit.DIM, COL_W - 32.0)
+		UiKit.YOU if man.angry() else UiKit.DIM, COL_W - 32.0)
+
+
+## A STAT HIS MOOD LIFTS IS A GAIN (3 Oct 2026): a Toxic man's "50 → 56" was
+## drawn in the mood's red, which read the buff as damage. The line under the
+## panel keeps the warning, in gold — a boost, for now; a mood that drags a stat
+## down keeps the mood's own color.
+func _chip_col(fights_at: int, base: int) -> Color:
+	return UiKit.UP if fights_at > base else man.morale_color()
 
 
 # ------------------------------------------------------------------- column 3

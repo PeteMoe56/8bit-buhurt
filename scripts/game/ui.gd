@@ -160,8 +160,10 @@ static func safe_right() -> float:
 	return _safe_r
 
 
+## ENDS WHERE `right_edge` ENDS (3 Oct 2026): it used to ignore the safe inset,
+## so a full-width panel ran into a punch-hole while the text on it stopped short.
 static func span(margin: float = 24.0) -> float:
-	return screen().x - margin * 2.0
+	return right_edge(margin) - margin
 
 
 ## A CROWD, IN WORDS A PERSON USES. 40, 1.2k, 80k — because "80000" in a
@@ -170,8 +172,11 @@ static func span(margin: float = 24.0) -> float:
 static func crowd_word(heads: int) -> String:
 	if heads < 1000:
 		return str(heads)
-	if heads < 100000:
-		return "%.1fk" % (float(heads) / 1000.0)
+	## ON THE ROUNDED FIGURE (3 Oct 2026), as `purse_word` does: 99,960 printed
+	## "100.0k" from the branch meant to keep it short.
+	var k := float(heads) / 1000.0
+	if k < 99.95:
+		return "%.1fk" % k
 	return "%dk" % int(round(float(heads) / 1000.0))
 
 

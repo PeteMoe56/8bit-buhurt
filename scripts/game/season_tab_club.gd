@@ -22,21 +22,21 @@ static func _winter_word(v: SeasonScene) -> String:
 	var took: Array = w.get("signed", [])
 	if gone.is_empty() and walked.is_empty():
 		return ""
+	## EVERY PIECE THROUGH THE STRING TABLE (3 Oct 2026): these were spliced into
+	## a translated season message as English, and "1 walk-ons" was hand-rolled.
 	var s := ""
 	if not gone.is_empty():
-		s += "  %s retired" % String(gone[0]).split(" (")[0]
-		if gone.size() > 1:
-			s += " and %d more" % (gone.size() - 1)
-		s += "."
+		var g0 := String(gone[0]).split(" (")[0]
+		s += "  " + (UiKit.t("%s retired.") % g0 if gone.size() == 1
+			else UiKit.t("%s and %d more retired.") % [g0, gone.size() - 1])
 	## A man who WALKED is the more alarming of the two and gets said separately,
 	## because the player could have stopped it and a retirement he could not.
 	if not walked.is_empty():
-		s += "  %s left on a free" % String(walked[0]).split(" (")[0]
-		if walked.size() > 1:
-			s += " with %d more" % (walked.size() - 1)
-		s += "."
+		var w0 := String(walked[0]).split(" (")[0]
+		s += "  " + (UiKit.t("%s left on a free.") % w0 if walked.size() == 1
+			else UiKit.t("%s and %d more left on a free.") % [w0, walked.size() - 1])
 	if not took.is_empty():
-		s += "  %d walk-on%s signed." % [took.size(), "" if took.size() == 1 else "s"]
+		s += "  " + UiKit.tn("%d walk-on signed.", "%d walk-ons signed.", took.size()) % took.size()
 	return s
 
 
@@ -53,8 +53,9 @@ static func _split_word(v: SeasonScene) -> String:
 	if sp.is_empty():
 		return ""
 	var took: Array = sp.get("took", [])
-	return "THE CLUB SPLIT. %d men walked out to found %s, who are in your division this season." % [
-		took.size(), String(sp.get("club", "a rival"))]
+	return UiKit.tn("THE CLUB SPLIT. %d man walked out to found %s, who are in your division this season.",
+		"THE CLUB SPLIT. %d men walked out to found %s, who are in your division this season.",
+		took.size()) % [took.size(), String(sp.get("club", UiKit.t("a rival")))]
 
 
 
@@ -70,9 +71,9 @@ static func _upkeep_word(v: SeasonScene) -> String:
 		return ""
 	var lost: Array = u.get("lost", [])
 	if not lost.is_empty():
-		return "  Could not keep the %s — it fell a level." % String(lost[0]).to_lower()
+		return "  " + UiKit.t("Could not keep the %s — it fell a level.") % String(lost[0]).to_lower()
 	var billed: int = int(u.get("billed", 0))
-	return "" if billed <= 0 else "  Upkeep %d CC." % billed
+	return "" if billed <= 0 else "  " + UiKit.t("Upkeep %d CC.") % billed
 
 
 
@@ -506,7 +507,14 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 		v._typing_key = key
 		Juice.type_start(key, String(card["body"]))
 	var body := Juice.typed(key)
-	var lines := v._wrap(body, 74)
+	## WRAPPED BY PIXELS, AND STOPPED ABOVE THE RULE (3 Oct 2026). 74 characters
+	## of a 12-pixel face is 888px from x=48, past the panel's inner edge at
+	## 960, and nothing kept a long body off the answers' block below the rule.
+	var lines := UiKit.wrap(v.font, body, UiKit.span(48.0) - 24.0, 16)
+	var fit_n := maxi(1, int(floor((rule_y - 12.0 - (y + 78.0)) / 26.0)) + 1)
+	if lines.size() > fit_n:
+		lines = lines.slice(0, fit_n)
+		lines[fit_n - 1] = UiKit.fit_px(v.font, lines[fit_n - 1] + "...", 16, UiKit.span(48.0) - 24.0)
 	var line_y := y + 78.0
 	for line in lines:
 		UiKit.text(v, v.font, line, Vector2(48, line_y), 16, UiKit.INK)
@@ -597,10 +605,21 @@ static func _draw_dilemma(v: SeasonScene) -> void:
 				by += 17.0
 			elif j > 0:
 				UiKit.text(v, v.font, " · ", Vector2(fx, by + 2.0), 14, UiKit.DIM)
-				fx += v.font.get_string_size(" · ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
+				fx += v.font.get_string_size(" · ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+			## RED ONLY FOR A PRICE THE CLUB CANNOT PAY (3 Oct 2026). A cost you can
+			## meet is a cost, not a danger; it reads in the quiet ink.
 			UiKit.text(v, v.font, t, Vector2(fx, by + 2.0), 13,
-				UiKit.UP if int(e["dir"]) > 0 else UiKit.DOWN)
+				UiKit.UP if int(e["dir"]) > 0 else (UiKit.DOWN if _cant_pay(v, o, t) else UiKit.DIM))
 			fx += v.font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
+
+
+## THE ONE FIGURE THAT CAN BE UNAFFORDABLE is the money: a CC cost above what
+## the club holds (3 Oct 2026).
+static func _cant_pay(v: SeasonScene, o: Dictionary, text: String) -> bool:
+	if not text.begins_with(UiKit.t(String(Dilemma.FX_WORD["cc"])) + " "):
+		return false
+	var cc := float((o.get("fx", {}) as Dictionary).get("cc", 0.0))
+	return cc < 0.0 and int(round(-cc)) > v.season.office.credits
 
 
 ## How many rows an answer's figures take in a column `w` wide — the same
@@ -617,7 +636,7 @@ static func _cost_rows(v, bill: Array, w: float) -> int:
 			fx = 10.0
 			rows += 1
 		elif j > 0:
-			fx += v.font.get_string_size(" · ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
+			fx += v.font.get_string_size(" · ", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
 		fx += v.font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
 	return rows
 
@@ -707,7 +726,7 @@ static func _fixture(v: SeasonScene) -> void:
 				Vector2(44, y + 80), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
 		else:
 			UiKit.text_fit(v, v.font,
-				UiKit.t("Needs a %s. You have a %s.") % [String(t["arena_need"]), String(t["arena_have"])],
+				UiKit.t("Needs: %s. Yours: %s.") % [String(t["arena_need"]), String(t["arena_have"])],
 				Vector2(44, y + 80), 14, UiKit.DOWN, SeasonScene.fixture_w() - 40.0)
 		UiKit.pair(v, v.font,
 			UiKit.t("%s costs %d a season") % [String(t["to"]), int(t["dues_up"])],
@@ -751,8 +770,10 @@ static func _fixture(v: SeasonScene) -> void:
 		var league_week: bool = v.season.world.week_kind() == Calendar.Kind.LEAGUE
 		UiKit.text(v, v.font, UiKit.t("Bye") if league_week else UiKit.t("No fixture for you"),
 			Vector2(44, y + 52), 22, UiKit.INK)
-		UiKit.text_fit(v, v.font, UiKit.t("The squad trains through it. Knocks get a week to heal."),
-			Vector2(44, y + 80), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0)
+		## TWO LINES (3 Oct 2026): 501px of sentence in 381px of card was cut to
+		## "Knocks get a week t." at 960 wide.
+		UiKit.para(v, v.font, UiKit.t("The squad trains through it. Knocks get a week to heal."),
+			Vector2(44, y + 78), 14, UiKit.DIM, SeasonScene.fixture_w() - 40.0, 18.0, 2)
 		return
 	var o: Dictionary = v.season.world.clubs[opp]
 	UiKit.text(v, v.font, UiKit.clip(UiKit.t(String(o["name"])), 26), Vector2(44, y + 52), 22, UiKit.INK)
@@ -779,7 +800,9 @@ static func _fixture(v: SeasonScene) -> void:
 	## never shown anywhere, so the one number that explains why the same rating
 	## feels harder two divisions up was invisible.
 	UiKit.right(v, v.font, UiKit.t(String(Tuning.AI_SKILL[v.season.ai_tier()]["name"])).to_upper(),
-		Vector2(432, y + 28), 12, UiKit.YOU, 200)
+		## OFF THE CARD'S OWN RIGHT EDGE (3 Oct 2026): pinned at x=432 it floated
+		## mid-card on a phone, where the card runs on to 545 or 586.
+		Vector2(24.0 + SeasonScene.fixture_w() - 14.0, y + 28), 12, UiKit.YOU, 200)
 
 	var kind := int(g["kind"])
 	UiKit.text(v, v.font, UiKit.t(String(Venue.NAME[kind])).to_upper(), Vector2(44, y + 28), 12,
@@ -825,11 +848,19 @@ static func _table(v: SeasonScene) -> void:
 	## row and on every screen — but where it BELONGS moves with the canvas, and
 	## pinned at table_x() + 240 it left the numbers stranded mid-row on a handset
 	## with the highlighted row running on past them.
-	var stat_w := v.font.get_string_size("P  W  D  L   RD   MG  PTS",
-		HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x
-	var stat_x := UiKit.right_edge(24.0) - stat_w
-	UiKit.text(v, v.font, UiKit.t("P  W  D  L   RD   MG  PTS"),
-		Vector2(stat_x, SeasonScene.TABLE_Y - 6), 12, UiKit.DIM)
+	## SEVEN RIGHT-ALIGNED COLUMNS, NOT ONE STRING (3 Oct 2026). The block was
+	## measured as the 13px header and drawn as 14px rows of "%2d" whose spaces are
+	## narrower than its digits, so by week ten "+10 +30 21" ended at x=952 on a
+	## 960 screen and the heads sat over the wrong figures. Each column now ends at
+	## its own right edge, sized for the widest figure it can hold.
+	var cols := _table_cols(v)
+	var stat_x: float = float(cols[0]["x"]) - float(cols[0]["w"])
+	var heads := UiKit.t("P  W  D  L   RD   MG  PTS").split(" ", false)
+	if heads.size() != cols.size():
+		heads = "P  W  D  L   RD   MG  PTS".split(" ", false)
+	for c in cols.size():
+		UiKit.right(v, v.font, heads[c], Vector2(float(cols[c]["x"]), SeasonScene.TABLE_Y - 6),
+			12, UiKit.DIM, float(cols[c]["w"]) + 8.0)
 	v.draw_rect(Rect2(SeasonScene.table_x(), SeasonScene.TABLE_Y, UiKit.screen().x - SeasonScene.table_x() - 24, 1), UiKit.EDGE)
 	for i in rows.size():
 		var r: Dictionary = rows[i]
@@ -876,10 +907,25 @@ static func _table(v: SeasonScene) -> void:
 		UiKit.text(v, v.font, UiKit.fit_name(v.font, String(v.season.world.clubs[cid]["name"]),
 			String(v.season.world.clubs[cid].get("short", "")), 14,
 			stat_x - (SeasonScene.table_x() + 38) - 12), Vector2(SeasonScene.table_x() + 38, y), 14, col)
-		UiKit.text(v, v.font, UiKit.t("%2d %2d %2d %2d  %+3d  %+3d  %2d") % [
-			int(r["played"]), int(r["won"]), int(r["drawn"]), int(r["lost"]),
-			League.round_diff(r), League.margin_diff(r), int(r["points"])],
-			Vector2(stat_x, y), 14, col)
+		var vals := ["%d" % int(r["played"]), "%d" % int(r["won"]), "%d" % int(r["drawn"]),
+			"%d" % int(r["lost"]), "%+d" % League.round_diff(r), "%+d" % League.margin_diff(r),
+			"%d" % int(r["points"])]
+		for c in cols.size():
+			UiKit.right(v, v.font, vals[c], Vector2(float(cols[c]["x"]), y), 14, col, float(cols[c]["w"]))
+
+
+## The table's figure columns, right to left from the right edge: each one as
+## wide as the widest figure it holds at the size the rows are drawn (3 Oct 2026).
+static func _table_cols(v: SeasonScene) -> Array:
+	var widest := ["99", "99", "99", "99", "-99", "-999", "99"]
+	var gap := 8.0
+	var out: Array = []
+	var x := UiKit.right_edge(24.0)
+	for c in range(widest.size() - 1, -1, -1):
+		var w := v.font.get_string_size(widest[c], HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
+		out.push_front({"x": x, "w": w})
+		x -= w + gap
+	return out
 
 
 ## ------------------------------------------------------------ the ground
@@ -932,7 +978,7 @@ static func _draw_gate(v: SeasonScene) -> void:
 	UiKit.panel(v, card)
 	var w := card.size.x - 48.0
 	UiKit.text_fit(v, v.font, UiKit.t("PROMOTED, IF YOU CAN HOST IT"), card.position + Vector2(24, 40), 18, UiKit.YOU, w)
-	UiKit.para(v, v.font, UiKit.t("You have won a place in the %s, and it won't fight in a %s.") % [
+	UiKit.para(v, v.font, UiKit.t("You have won a place in the %s, and it won't fight in your %s.") % [
 		String(pt["to"]), UiKit.t(String(gap["have"]))], card.position + Vector2(24, 76), 15, UiKit.INK, w, 20.0, 2)
 	var parts: Array = []
 	for st in gap["steps"]:
@@ -997,13 +1043,15 @@ static func _draw_ground(v: SeasonScene) -> void:
 	if gap.is_empty():
 		return
 	var w := card.size.x - 48.0
-	UiKit.text_fit(v, v.font, UiKit.t("THE %s NEEDS A %s") % [String(gap["to"]).to_upper(),
+	## NO ARTICLE BEFORE A NAME (3 Oct 2026): "NEEDS A ARENA", and "fight in a
+	## Arena" on the lines below — so a colon here and "your" there.
+	UiKit.text_fit(v, v.font, UiKit.t("THE %s NEEDS: %s") % [String(gap["to"]).to_upper(),
 		UiKit.t(String(gap["need"])).to_upper()], card.position + Vector2(24, 40), 18, UiKit.YOU, w)
 	## IN THE PLAYOFF PLACES, OR NOT YET: the card now also comes the first week
 	## a build is affordable (2 Oct 2026), before the table says anything.
 	var in_places: bool = v.season.world.player_position() <= SeasonDesk.PLAYOFF_PLACES
-	UiKit.para(v, v.font, (UiKit.t("You are in the playoff places. If you go up, the %s won't fight in a %s.") if in_places
-		else UiKit.t("You can build now. If you go up, the %s won't fight in a %s.")) % [
+	UiKit.para(v, v.font, (UiKit.t("You are in the playoff places. If you go up, the %s won't fight in your %s.") if in_places
+		else UiKit.t("You can build now. If you go up, the %s won't fight in your %s.")) % [
 		String(gap["to"]), UiKit.t(String(gap["have"]))], card.position + Vector2(24, 76), 15, UiKit.INK, w, 20.0, 2)
 	var parts: Array = []
 	for st in gap["steps"]:

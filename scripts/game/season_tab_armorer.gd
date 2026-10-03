@@ -46,10 +46,12 @@ static func _draw_market(v: SeasonScene) -> void:
 	var head := UiKit.t("Every traveling harness passes inspection.")
 	var head_col := UiKit.UP
 	if int(led["failing"]) > 0:
-		head = "%d of the eight will not pass inspection." % led["failing"]
+		head = UiKit.t("%d of the eight will not pass inspection.") % led["failing"]
 		head_col = UiKit.DOWN
 	elif int(led["at_risk"]) > 0:
-		head = "%d of the eight are a bad week from failing." % led["at_risk"]
+		## ONE MAN "IS" (3 Oct 2026): "1 of the eight are".
+		head = UiKit.tn("%d of the eight is a bad week from failing.",
+			"%d of the eight are a bad week from failing.", int(led["at_risk"])) % led["at_risk"]
 		## YOU, NOT DOWN. A club a bad week from trouble is a warning and a club
 		## already in it is a failure; drawing both in the same red loses the only
 		## distinction the line exists to make.
@@ -61,7 +63,7 @@ static func _draw_market(v: SeasonScene) -> void:
 	var uniform: bool = grades.size() == 1
 	UiKit.text_fit(v, v.font, head, Vector2(card.position.x + 330.0, card.position.y + 24.0), 13, head_col,
 		card.size.x - 330.0 - 210.0)
-	UiKit.text_fit(v, v.font, (("%d CC to put the eight right" % led["bill"]) if int(led["bill"]) > 0
+	UiKit.text_fit(v, v.font, ((UiKit.t("%d CC to put the eight right") % led["bill"]) if int(led["bill"]) > 0
 			else UiKit.t("nothing owing"))
 			+ ((UiKit.t("  ·  all kit %s") % String(grades.keys()[0])) if uniform else ""),
 		Vector2(card.position.x + 330.0, card.position.y + 44.0), 13, UiKit.DIM, card.size.x - 330.0 - 210.0)
@@ -105,9 +107,16 @@ static func _draw_market(v: SeasonScene) -> void:
 
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
-	if v.qm_pick == null:
+	## A TRAINING WEEK SAYS SO before a Fix button is tapped and refused (3 Oct 2026).
+	if v.qm_pick == null and not o.fixture_week:
+		UiKit.text_fit(v, v.font, ClubOffice.between_fixtures_word(),
+			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
+	elif v.qm_pick == null:
 		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to fix his kit or buy him a better harness."),
 			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
+	elif not Quartermaster.topped_out(v.qm_pick, cap) and repair_why(v, v.qm_pick) != "":
+		UiKit.text_fit(v, v.font, repair_why(v, v.qm_pick), Vector2(24, SeasonScene.action_y() - 14.0), 14,
+			UiKit.INK, UiKit.span())
 	elif not pick_has_action(v):
 		## NOTHING TO SELL HIM, AND IT SAYS WHY (novice report 2: a tapped man lit
 		## up, the hint and the Fight button went, and nothing came in their place).
@@ -216,7 +225,7 @@ static func _market_controls(v: SeasonScene) -> void:
 	## I afford the bus this week", and that is one button with the answer on it.
 	var third := (UiKit.span() - 16.0) / 3.0
 	if int(led["bill"]) > 0:
-		v.ui.add_child(UiKit.button(UiKit.t("Fix all traveling kit  ·  %d CC") % led["bill"],
+		var fix_all := UiKit.button(UiKit.t("Fix all traveling kit  ·  %d CC") % led["bill"],
 			Vector2(24, SeasonScene.action_y()), Vector2(third, 46), func():
 				var fixed := 0
 				var spent := 0
@@ -231,7 +240,15 @@ static func _market_controls(v: SeasonScene) -> void:
 					else UiKit.t("%d harnesses seen to, %d CC.") % [fixed, spent])
 				v.season.sync_power()
 				Session.autosave()
-				v._rebuild(), "armor"))
+				v._rebuild(), "armor")
+		## OFF WHEN NOBODY CAN BE SEEN TO THIS WEEK (3 Oct 2026): a training week,
+		## or every man already done, was a lit button that answered "Nothing".
+		var any_fix := false
+		for f in v.season.club.active_eight():
+			if not Quartermaster.topped_out(f, cap) and repair_why(v, f) == "":
+				any_fix = true
+		fix_all.disabled = not any_fix
+		v.ui.add_child(fix_all)
 
 	if v.qm_pick != null:
 		var nm := UiKit.clip(v.qm_pick.display_name, 9)
@@ -241,11 +258,11 @@ static func _market_controls(v: SeasonScene) -> void:
 				Vector2(24 + third + 8.0, SeasonScene.action_y()), Vector2(third, 46), func():
 					var err := o.repair_kit(v.qm_pick)
 					v.flash = UiKit.said(err) if err != "" \
-						else "%s's harness seen to." % v.qm_pick.display_name
+						else UiKit.t("%s's harness seen to.") % v.qm_pick.display_name
 					v.season.sync_power()
 					Session.autosave()
 					v._rebuild())
-			rep_b.disabled = ClubOffice.kit_cost(v.qm_pick, cap) > o.credits
+			rep_b.disabled = repair_why(v, v.qm_pick) != ""
 			v.ui.add_child(rep_b)
 		var nxt := Quartermaster.next_grade(v.qm_pick)
 		if nxt >= 0 and nxt <= cap:
@@ -255,7 +272,7 @@ static func _market_controls(v: SeasonScene) -> void:
 				Vector2(24 + (third + 8.0) * 2.0, SeasonScene.action_y()), Vector2(third, 46), func():
 					var err := o.buy_harness(v.qm_pick)
 					v.flash = UiKit.said(err) if err != "" \
-						else "%s is in %s harness." % [v.qm_pick.display_name,
+						else UiKit.t("%s is in %s harness.") % [v.qm_pick.display_name,
 							Quartermaster.name_of(v.qm_pick).to_lower()]
 					v.season.sync_power()
 					Session.autosave()
@@ -361,6 +378,27 @@ static func _any_next(v: SeasonScene, cap: int) -> bool:
 
 ## WHETHER THE PICKED MAN HAS A BUTTON: a fix, or a better harness this armorer
 ## can make. Without one the row below is empty and the Fight button stays.
+## WHY THE ARMORER WOULD TURN THIS MAN AWAY NOW, or "" (3 Oct 2026). The Fix
+## buttons looked only at the price, and `repair_kit` also refuses in a training
+## week and for a man already seen to this week — two lit buttons that said no.
+## The slot is `ClubOffice.repair_kit`'s own weekly key; `done_this_week` reads it.
+static func repair_why(v: SeasonScene, f: FighterCard) -> String:
+	return repair_block(v.season, f)
+
+
+## The same, for a screen holding only the season — his page's Meeting.
+static func repair_block(s: Season, f: FighterCard) -> String:
+	var o := s.office
+	if not o.fixture_week:
+		return ClubOffice.between_fixtures_word()
+	if o.done_this_week("kit:%s#%d" % [f.display_name, f.number]):
+		return UiKit.t("The armorer has already had %s's kit this week.") % f.display_name
+	var c := ClubOffice.kit_cost(f, o.armorer_cap())
+	if c > o.credits:
+		return UiKit.t("That costs %d CC and you have %d.") % [c, o.credits]
+	return ""
+
+
 static func pick_has_action(v: SeasonScene) -> bool:
 	if v.qm_pick == null:
 		return false

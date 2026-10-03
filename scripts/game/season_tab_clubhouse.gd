@@ -84,7 +84,9 @@ static func _office_controls(v: SeasonScene) -> void:
 				v.flash = UiKit.said(err) if err != "" else UiKit.t("Improved.")
 				Session.autosave()
 				v._rebuild(), "coin")
-		b.disabled = cost > o.credits
+		## AND OFF ONCE THIS ROW HAS BEEN WORKED ON THIS WEEK (3 Oct 2026): the
+		## office takes one job per row per week and refused the second tap.
+		b.disabled = cost > o.credits or o.done_this_week(row_slot(kind))
 		v.ui.add_child(b)
 	## THE ARENA, on the right: the old "The ground" screen behind one button.
 	v.ui.add_child(UiKit.button(UiKit.t("Arena"), Vector2(SIDE_X + 16.0, SIDE_Y + side_h() - 56.0),
@@ -94,6 +96,13 @@ static func _office_controls(v: SeasonScene) -> void:
 
 
 ## Where the upgrade buttons sit and how wide.
+## The office's weekly slot for a row — the keys `ClubOffice` throttles on.
+static func row_slot(kind) -> String:
+	if kind is String:
+		return ClubOffice.SLOT_CAP if kind == "cap" else ClubOffice.SLOT_RULE
+	return str(int(kind))
+
+
 const UPGRADE_X := SeasonScene.BAR_X + SeasonScene.BAR_W + 14.0
 const UPGRADE_W := 250.0
 const SIDE_X := UPGRADE_X + UPGRADE_W + 18.0
@@ -125,8 +134,11 @@ static func upgrade_word(v: SeasonScene, kind) -> String:
 	var l := o.level(f)
 	if f == ClubOffice.Facility.TRAINING:
 		return UiKit.t("Camp +%d → +%d") % [l * 3, (l + 1) * 3]
-	if f == ClubOffice.Facility.INFIRMARY and floori((l + 1) / 2.0) > floori(l / 2.0):
-		return UiKit.t("Knocks -%d → -%d") % [floori(l / 2.0), floori((l + 1) / 2.0)]
+	## A LEVEL IS AN EVENT OFF A KNOCK (3 Oct 2026), as `injury_relief()` and the
+	## help card say: the halved figure printed "Knocks -0 → -1" beside a row
+	## reading "-1 event off a knock".
+	if f == ClubOffice.Facility.INFIRMARY:
+		return UiKit.t("Knocks -%d → -%d") % [l, l + 1]
 	return UiKit.t("Level %d → %d") % [l, l + 1]
 
 
@@ -203,8 +215,10 @@ static func _training_controls(v: SeasonScene) -> void:
 			v.flash = UiKit.said(err) if err != "" else UiKit.t("A week's work in one afternoon.")
 			Session.autosave()
 			v._rebuild())
-	sb.disabled = cost > o.credits
-	v.ui.add_child(sb if idle or sb.disabled else UiKit.primary(sb))
+	## OFF WHEN IT WOULD BE REFUSED (3 Oct 2026) — no captain, a training week,
+	## this week's session spent — and `session_block` says which on the card.
+	sb.disabled = session_block(v) != ""
+	v.ui.add_child(sb if sb.disabled else UiKit.primary(sb))
 	var close_b := UiKit.button("", Vector2(card.end.x - 56.0, card.position.y + 12.0), Vector2(44, 44), func():
 		v.training_open = false
 		v._rebuild(), "close")
@@ -233,6 +247,24 @@ static func _draw_training(v: SeasonScene) -> void:
 	for k in 3:
 		UiKit.text_fit(v, v.font, _regime_line(k), Vector2(card.position.x + 24.0, ly + float(k) * 20.0), 14,
 			[UiKit.UP, UiKit.YOU, UiKit.DOWN][k], card.size.x - 48.0)
+	var why := session_block(v)
+	if why != "" and not o.captains.is_empty():
+		UiKit.text_fit(v, v.font, why, Vector2(card.position.x + 24.0, card.end.y - 78.0), 14,
+			UiKit.YOU, card.size.x - 48.0)
+
+
+## Why a paid session would be refused now, or "".
+static func session_block(v: SeasonScene) -> String:
+	var o := v.season.office
+	if o.captains.is_empty():
+		return UiKit.t("Nobody is teaching. A session with no captain is a warm-up.")
+	if not o.fixture_week:
+		return ClubOffice.between_fixtures_word()
+	if o.done_this_week(ClubOffice.SLOT_SESSION):
+		return UiKit.t("The squad has already had its extra session this week.")
+	if o.session_cost() > o.credits:
+		return UiKit.t("That costs %d CC and you have %d.") % [o.session_cost(), o.credits]
+	return ""
 
 
 static func _regime_line(k: int) -> String:
@@ -274,7 +306,9 @@ static func _shop_controls(v: SeasonScene) -> void:
 		for i in packs.size():
 			var pk: Dictionary = packs[i]
 			## THE STORE'S OWN PRICE, localized, once Play has answered.
-			v.ui.add_child(UiKit.button(UiKit.t("%d  ·  %s") % [int(pk["credits"]), Store.price_word(String(pk["id"]))],
+			## "20 CC · $1.99" (3 Oct 2026): a bare 20 beside a price did not say
+			## what the twenty was.
+			v.ui.add_child(UiKit.button(UiKit.t("%d CC · %s") % [int(pk["credits"]), Store.price_word(String(pk["id"]))],
 				Vector2(v.SHOP_CARD.position.x + pad + float(i) * (pw + 8.0),
 					v.SHOP_CARD.position.y + 150.0), Vector2(pw, 46),
 				func(id = String(pk["id"])):
@@ -292,15 +326,17 @@ static func _shop_controls(v: SeasonScene) -> void:
 		## THE BUTTON A PLAYER WHOSE MONEY WENT MISSING WILL LOOK FOR. For a
 		## consumable there is nothing to re-own — the credits were spent — so
 		## this asks the store for anything it charged for and never delivered.
+		## BACK BOTTOM-LEFT, as on every other screen, and the store's own errand
+		## on the right (3 Oct 2026).
 		v.ui.add_child(UiKit.button(UiKit.t("Restore a purchase"),
-			Vector2(v.SHOP_CARD.position.x + 24.0, y), Vector2(240, 44), func():
+			Vector2(v.SHOP_CARD.end.x - 24.0 - 240.0, y), Vector2(240, 44), func():
 				Store.resolve_pending()
 				var got := Store.claim(v.season.office, Session.autosave)
 				v.flash = (UiKit.t("%d credits.") % got) if got > 0 \
 					else UiKit.t("Asked the store for anything outstanding.")
 				v._rebuild()))
 	v.ui.add_child(UiKit.button(UiKit.t("Back"),
-		Vector2(v.SHOP_CARD.end.x - 184.0, y), Vector2(160, 44), func():
+		Vector2(v.SHOP_CARD.position.x + 24.0, y), Vector2(160, 44), func():
 			v.shop_open = false
 			v._rebuild()))
 
@@ -380,13 +416,15 @@ static func _draw_office(v: SeasonScene) -> void:
 		UiKit.pair(v, v.font, label, right, Vector2(SeasonScene.BAR_X, y), HELP_X + 34.0, 13, 12, UiKit.DIM, UiKit.INK)
 		var keep := row_upkeep(v, kind)
 		var nxt := row_upkeep_next(v, kind) if row_cost(v, kind) > 0 else keep
+		## UPKEEP IN THE QUIET INK (3 Oct 2026): a running cost the club can pay is
+		## not a danger, and red is kept for the ones it cannot.
 		UiKit.right(v, v.font, (UiKit.t("Upkeep %d → %d CC/yr") % [keep, nxt]) if nxt != keep
 			else UiKit.t("Upkeep %d CC/yr") % keep, Vector2(UPGRADE_X + UPGRADE_W, y + 52.0), 13,
-			UiKit.DOWN if keep > 0 else UiKit.DIM, UPGRADE_W)
+			UiKit.DIM, UPGRADE_W)
 	var ty := v._office_row_y(SeasonScene.OFFICE_ROWS.size()) + 16.0
 	v.draw_line(Vector2(SeasonScene.BAR_X, ty - 18.0), Vector2(UPGRADE_X + UPGRADE_W, ty - 18.0), UiKit.FRAME, 1.0)
 	UiKit.pair(v, v.font, UiKit.t("Maintenance total, arena included"), UiKit.t("%d CC/yr") % upkeep_total(v),
-		Vector2(SeasonScene.BAR_X, ty), UPGRADE_X + UPGRADE_W, 15, 15, UiKit.INK, UiKit.DOWN)
+		Vector2(SeasonScene.BAR_X, ty), UPGRADE_X + UPGRADE_W, 15, 15, UiKit.INK, UiKit.INK)
 	_draw_arena_panel(v)
 
 
@@ -416,7 +454,7 @@ static func _draw_arena_panel(v: SeasonScene) -> void:
 		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.UP)
 	y += 24.0
 	UiKit.pair(v, v.font, UiKit.t("Maintenance"), UiKit.t("%d CC/yr") % o.arena_upkeep(),
-		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.DOWN)
+		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.INK)
 	y += 24.0
 	if not a.at_top():
 		UiKit.pair(v, v.font, UiKit.t("Next"), String(UiKit.t(String(a.next()["name"]))),
