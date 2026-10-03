@@ -95,6 +95,19 @@ static var prices: Dictionary = {}
 static var receipts: Array[String] = []
 ## Purchases the store reports as PENDING (a cash payment not yet made).
 static var pending: int = 0
+## WHICH ONES (3 Oct 2026, audit). A bare count was zeroed by every purchase
+## update and by StoreKit's empty "restore" answer, so the "payment is pending"
+## line vanished while the payment was still out and a player could buy twice.
+## Keyed by Play's token, or "ask:<pack>" for an Ask to Buy, which has none.
+static var _pending: Dictionary = {}
+## THE WALLET ON DISK IS BEHIND THE ONE IN MEMORY (3 Oct 2026, audit): a claim
+## landed in the season and the wallet write after it failed. Until it is
+## written, reloading the wallet would hand the same credits out twice.
+static var _wallet_dirty: bool = false
+## Reconnects tried since the last resume, so a store that drops at once cannot
+## spin.
+static var _reconnects: int = 0
+const RECONNECTS_MAX := 3
 
 const WALLET_PATH := "user://%swallet.dat"
 ## Tests set this so they never touch a developer's real wallet (same idea as
@@ -194,6 +207,8 @@ static func use_client(c) -> void:
 	client = c
 	prices.clear()
 	pending = 0
+	_pending.clear()
+	_reconnects = 0
 	state = State.COLD
 
 
@@ -204,7 +219,14 @@ static func use_client(c) -> void:
 ## store that only connects when somebody browses is a store that loses those
 ## until somebody happens to browse.
 static func connect_backend() -> void:
-	load_wallet()
+	if _wallet_dirty:
+		_wallet_dirty = not save_wallet()
+	else:
+		load_wallet()
+	_start()
+
+
+static func _start() -> void:
 	if state == State.CONNECTING or state == State.READY and client != null:
 		return
 	var b = _backend()
@@ -248,8 +270,27 @@ static func _on_connect_error(_code: int, _msg: String) -> void:
 
 
 static func _on_disconnected() -> void:
-	## Asked again at the next start-up; nothing is lost, the wallet holds it.
 	state = State.COLD
+	## ASKED AGAIN NOW, not at the next start-up (3 Oct 2026, audit): until then
+	## the shop said "The store has not opened yet." for the rest of the session.
+	## Capped, so a service that drops at once cannot spin; a resume resets it.
+	if client != null and _reconnects < RECONNECTS_MAX:
+		_reconnects += 1
+		_start()
+
+
+## THE APP CAME BACK (3 Oct 2026, audit). Play asks for `queryPurchases` on
+## resume: a cash payment that cleared, or a code redeemed in the Play Store,
+## happened while we were away and nothing else will ever say so until a cold
+## start. Called by AppLife.
+static func on_resume() -> void:
+	if _wallet_dirty:
+		_wallet_dirty = not save_wallet()
+	_reconnects = 0
+	if state == State.READY:
+		resolve_pending()
+	elif state == State.COLD and client != null:
+		_start()
 
 
 ## THE LOCALIZED PRICE, read defensively: the plugin's product-details dictionary
@@ -279,6 +320,13 @@ static func _on_product_details(r: Dictionary) -> void:
 
 static func _on_purchase_updated(r: Dictionary) -> void:
 	var code := int(r.get("response_code", -99))
+	## AN UNVERIFIED APPLE TRANSACTION (3 Oct 2026, audit): paid for, refused by
+	## StoreKit's check, never credited and never finished. Said, with the code
+	## support needs, instead of vanishing.
+	if r.has("unverified"):
+		last_error = UiKit.t("The App Store could not verify a purchase, so nothing was credited. Contact support with code %s.") % String(r["unverified"])
+		push_warning("Store: unverified transaction %s" % String(r["unverified"]))
+		return
 	if code == RC_USER_CANCELED:
 		last_error = UiKit.t("Purchase canceled. Nothing was charged.")
 		return
@@ -294,32 +342,58 @@ static func _on_purchase_updated(r: Dictionary) -> void:
 
 static func _on_query_purchases(r: Dictionary) -> void:
 	if int(r.get("response_code", -99)) == RC_OK:
-		_take(r.get("purchases", []))
+		_take(r.get("purchases", []), true)
 
 
 ## Credit what is PURCHASED (once per token), count what is PENDING, and consume
 ## every purchased token — a consume that fails is simply asked again next time,
 ## and the receipt stops that second delivery being a second credit.
-static func _take(purchases) -> void:
-	pending = 0
+##
+## `full` is Play's whole list (`query_purchases`): every Play-side pending
+## entry is replaced by what it says. An update carries only its own purchases,
+## so it adds and removes and leaves the rest alone.
+static func _take(purchases, full: bool = false) -> void:
 	if not purchases is Array:
 		return
+	if full:
+		for k in _pending.keys():
+			if not String(k).begins_with("ask:"):
+				_pending.erase(k)
 	for pu in purchases:
 		if not pu is Dictionary:
 			continue
 		var st := int(pu.get("purchase_state", 0))
 		var token := String(pu.get("purchase_token", ""))
+		var ids: Array = pu.get("product_ids", [])
 		if st == PS_PENDING:
-			pending += 1
+			var key := token
+			if key == "":
+				key = "ask:%s" % (String(ids[0]) if not ids.is_empty() else "")
+			_pending[key] = int(_pending.get(key, 0)) + 1 if key.begins_with("ask:") else 1
 			continue
 		if st != PS_PURCHASED or token == "":
 			continue
+		_pending.erase(token)
+		## An approved Ask to Buy arrives with a real token; it clears its pack's mark.
+		for pid in ids:
+			var ask := "ask:%s" % String(pid)
+			if _pending.has(ask):
+				_pending[ask] = int(_pending[ask]) - 1
+				if int(_pending[ask]) <= 0:
+					_pending.erase(ask)
+		## QUANTITY (3 Oct 2026, audit): Play can sell three of a pack in one
+		## purchase if the console allows it; crediting one would keep the money
+		## for two.
+		var qty := maxi(1, int(pu.get("quantity", 1)))
 		var ok := true
-		for pid in pu.get("product_ids", []):
-			if grant(String(pid), token) != "":
+		for pid in ids:
+			if grant(String(pid), token, qty) != "":
 				ok = false
 		if ok and client != null:
 			client.consume_purchase(token)
+	pending = 0
+	for k in _pending:
+		pending += int(_pending[k])
 
 
 static func _on_consumed(_r: Dictionary) -> void:
@@ -400,6 +474,8 @@ static func save_wallet() -> bool:
 ## Without a `persist` nothing is claimed: a claim nobody saves is a claim that
 ## can be lost.
 static func claim(office, persist: Callable = Callable()) -> int:
+	if _wallet_dirty:
+		_wallet_dirty = not save_wallet()
 	if office == null or owed <= 0 or not persist.is_valid():
 		return 0
 	var moved := owed
@@ -415,7 +491,9 @@ static func claim(office, persist: Callable = Callable()) -> int:
 			office.purse_log.pop_front()
 		return 0
 	owed = 0
-	save_wallet()
+	## A FAILED WALLET WRITE IS REMEMBERED (3 Oct 2026, audit). Ignored, the disk
+	## still said "owed" and the next launch paid it into the career again.
+	_wallet_dirty = not save_wallet()
 	return moved
 
 
@@ -472,7 +550,7 @@ static func _stub_buy(p: Dictionary) -> String:
 ##
 ## `token` is the store's purchase token. A token already on the receipt is
 ## credited already: it answers "" (nothing to do) and adds nothing.
-static func grant(id: String, token: String = "") -> String:
+static func grant(id: String, token: String = "", quantity: int = 1) -> String:
 	var p := product(id)
 	if p.is_empty():
 		return UiKit.t("There is no such pack.")
@@ -482,17 +560,20 @@ static func grant(id: String, token: String = "") -> String:
 		return UiKit.t("The store is not available on this device.")
 	if token != "" and receipts.has(token):
 		return ""
-	owed += int(p["credits"])
+	var credits := int(p["credits"]) * maxi(1, quantity)
+	owed += credits
 	if token != "":
 		receipts.append(token)
 		while receipts.size() > RECEIPTS_MAX:
 			receipts.pop_front()
 	if not save_wallet():
-		owed -= int(p["credits"])
+		owed -= credits
 		if token != "":
 			receipts.erase(token)
 		last_error = UiKit.t("The purchase could not be saved. Nothing was charged twice.")
 		return last_error
+	## The wallet just written is the whole wallet, so the disk has caught up.
+	_wallet_dirty = false
 	return ""
 
 

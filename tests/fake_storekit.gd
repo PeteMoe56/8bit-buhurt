@@ -5,6 +5,7 @@ extends Object
 signal products_request_completed(products: Array, status: int)
 signal purchase_completed(transaction, status: int, message: String)
 signal transaction_updated(transaction)
+signal unverified_transaction_updated(transaction, verification_error: int)
 
 var started := false
 var unfinished_asked := 0

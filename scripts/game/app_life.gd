@@ -67,7 +67,12 @@ func _notification(what: int) -> void:
 		NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_APPLICATION_FOCUS_OUT, \
 		NOTIFICATION_WM_CLOSE_REQUEST:
 			_leaving()
-		NOTIFICATION_APPLICATION_RESUMED, NOTIFICATION_APPLICATION_FOCUS_IN:
+		NOTIFICATION_APPLICATION_RESUMED:
+			app_resumed.emit()
+			## THE STORE IS ASKED AGAIN (3 Oct 2026, audit): purchases that
+			## finished while the app was away are only reported when asked.
+			Store.on_resume()
+		NOTIFICATION_APPLICATION_FOCUS_IN:
 			app_resumed.emit()
 		NOTIFICATION_WM_GO_BACK_REQUEST:
 			back_pressed()

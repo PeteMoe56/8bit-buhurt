@@ -32,7 +32,14 @@ static func load_once() -> void:
 		return
 	_loaded = true
 	var cfg := ConfigFile.new()
-	if cfg.load(path) == OK:
+	## THREE DOORS, as the wallet has (3 Oct 2026, audit): the live file, a
+	## finished `.tmp` that never got renamed, then the one before it.
+	var opened := false
+	for p in [path, path + ".tmp", path + ".bak"]:
+		if FileAccess.file_exists(p) and cfg.load(p) == OK:
+			opened = true
+			break
+	if opened:
 		music = clampf(float(cfg.get_value("audio", "music", music)), 0.0, 1.0)
 		sfx = clampf(float(cfg.get_value("audio", "sfx", sfx)), 0.0, 1.0)
 		interface = clampf(float(cfg.get_value("audio", "ui", interface)), 0.0, 1.0)
@@ -59,7 +66,16 @@ static func save_to_disk() -> void:
 	cfg.set_value("general", "tips_seen", tips_seen)
 	cfg.set_value("controls", "fight", fight_controls)
 	cfg.set_value("controls", "hand", fight_hand)
-	cfg.save(path)
+	## WRITTEN ASIDE AND MOVED IN (3 Oct 2026, audit). Straight over the file, a
+	## kill mid-write tore it and every setting came back at its default.
+	var tmp := path + ".tmp"
+	if cfg.save(tmp) != OK:
+		return
+	if FileAccess.file_exists(path):
+		if FileAccess.file_exists(path + ".bak"):
+			DirAccess.remove_absolute(path + ".bak")
+		DirAccess.rename_absolute(path, path + ".bak")
+	DirAccess.rename_absolute(tmp, path)
 
 
 static func set_fight_controls(which: String) -> void:

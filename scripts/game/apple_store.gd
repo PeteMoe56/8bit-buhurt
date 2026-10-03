@@ -49,6 +49,9 @@ var _sk: Object = null
 var _products: Dictionary = {}
 ## token -> StoreTransaction, credited and waiting to be finished.
 var _open: Dictionary = {}
+## The pack last sent to the sheet, so an Ask to Buy can say which pack is
+## pending (3 Oct 2026, audit) — StoreKit's pending answer carries no transaction.
+var _buying: String = ""
 
 
 ## Is the StoreKit addon in this build at all?
@@ -74,6 +77,10 @@ func attach(sk: Object, deferred: bool = true) -> void:
 	_sk.connect("products_request_completed", _on_products, how)
 	_sk.connect("purchase_completed", _on_purchase_completed, how)
 	_sk.connect("transaction_updated", _on_transaction, how)
+	## UNVERIFIED (3 Oct 2026, audit): paid and refused by StoreKit's own check.
+	## Unheard, it was never credited, never finished and never mentioned.
+	if _sk.has_signal("unverified_transaction_updated"):
+		_sk.connect("unverified_transaction_updated", _on_unverified, how)
 	_sk.call("start")
 
 
@@ -100,6 +107,7 @@ func _on_products(products: Array, status: int) -> void:
 func purchase(id: String) -> Dictionary:
 	if _sk == null or not _products.has(id):
 		return {"response_code": RC_ITEM_UNAVAILABLE}
+	_buying = id
 	_sk.call("purchase", _products[id])
 	return {"response_code": RC_OK}
 
@@ -113,7 +121,8 @@ func _on_purchase_completed(transaction, status: int, _message: String) -> void:
 		## Ask to Buy, or a payment that has not cleared: it arrives later
 		## through `transaction_updated`.
 		on_purchase_updated.emit({"response_code": RC_OK,
-			"purchases": [{"purchase_state": 2, "purchase_token": "", "product_ids": []}]})
+			"purchases": [{"purchase_state": 2, "purchase_token": "",
+				"product_ids": [] if _buying == "" else [_buying]}]})
 	else:
 		on_purchase_updated.emit({"response_code": RC_ERROR, "purchases": []})
 
@@ -123,6 +132,14 @@ func _on_purchase_completed(transaction, status: int, _message: String) -> void:
 func _on_transaction(transaction) -> void:
 	if transaction != null:
 		_deliver(transaction)
+
+
+## Not credited (Apple's own guidance: never grant on an unverified one) and
+## not finished, so a later verified delivery can still pay it. `Store` tells
+## the player and gives him the id for support.
+func _on_unverified(transaction, _error: int) -> void:
+	var token := "?" if transaction == null else str(int(transaction.get("transaction_id")))
+	on_purchase_updated.emit({"response_code": RC_ERROR, "unverified": token, "purchases": []})
 
 
 func _deliver(transaction) -> void:
@@ -147,6 +164,9 @@ func consume_purchase(token: String) -> void:
 ## "Restore a purchase", for a consumable: anything Apple charged for and never
 ## saw finished. They come back through `transaction_updated`.
 func query_purchases(_type: int = 0) -> void:
+	## NO EMPTY ANSWER (3 Oct 2026, audit). An immediate "nothing outstanding"
+	## told `Store` there was nothing pending, and the Ask to Buy note vanished
+	## while the parent still had it. What StoreKit finds arrives through
+	## `transaction_updated`.
 	if _sk != null:
 		_sk.call("fetch_unfinished_transactions")
-	query_purchases_response.emit({"response_code": RC_OK, "purchases": []})

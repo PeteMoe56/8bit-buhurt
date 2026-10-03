@@ -123,7 +123,27 @@ static func path_for(slot: int) -> String:
 ## the new one in leaves only `<slot>.bak`, and that is still a career.
 static func has_save(slot: int) -> bool:
 	return FileAccess.file_exists(path_for(slot)) \
-		or FileAccess.file_exists(path_for(slot) + ".bak")
+		or FileAccess.file_exists(path_for(slot) + ".bak") \
+		or _whole_tmp(slot)
+
+
+## A FINISHED `.tmp` IS A SAVE TOO (3 Oct 2026, audit). The very first save of a
+## slot has no live file to move aside, so a kill before the rename leaves only
+## the `.tmp`. Counted only when it decodes: a torn one from a kill mid-write is
+## not a career and must not turn the slot into "Can't open".
+static func _whole_tmp(slot: int) -> bool:
+	var t := path_for(slot) + ".tmp"
+	return FileAccess.file_exists(t) and _usable(_read_file(t))
+
+
+## A SLOT WRITTEN BY A NEWER BUILD (3 Oct 2026, audit). Read off the live file
+## only, so the title can say why the slot will not open.
+static func is_newer(slot: int) -> bool:
+	for p in [path_for(slot), path_for(slot) + ".tmp"]:
+		var d = _read_file(p)
+		if d is Dictionary and int(d.get("version", 0)) > VERSION:
+			return true
+	return false
 
 
 static func delete(slot: int) -> void:
@@ -139,7 +159,9 @@ static func delete(slot: int) -> void:
 static func quarantine(slot: int) -> String:
 	var stamp := int(Time.get_unix_time_from_system())
 	var moved := ""
-	for p in [path_for(slot), path_for(slot) + ".bak"]:
+	## THE `.tmp` GOES WITH THEM (3 Oct 2026): it now counts as a save, so one
+	## left behind would keep the slot "Can't open" after it was set aside.
+	for p in [path_for(slot), path_for(slot) + ".tmp", path_for(slot) + ".bak"]:
 		if FileAccess.file_exists(p):
 			var to := "%s.bad-%d" % [p, stamp]
 			if DirAccess.rename_absolute(p, to) == OK and moved == "":
@@ -157,7 +179,9 @@ static func peek(slot: int) -> Dictionary:
 		return {}
 	var d = _migrate(_read(slot))
 	if d == null:
-		return {"broken": true}
+		## "newer" lets a screen say WHY; the title already reads `broken` as
+		## "damaged or from a newer version of the game".
+		return {"broken": true, "newer": is_newer(slot)}
 	return {
 		"club": String(d.get("club_name", "?")),
 		"season": int(d.get("season", 1)),
@@ -302,6 +326,22 @@ static func _read(slot: int):
 	if not has_save(slot):
 		return null
 	var d = _read_file(path_for(slot))
+	## A NEWER BUILD'S FILE IS REFUSED, NOT STEPPED ROUND (3 Oct 2026, audit).
+	## Falling back to `.bak` opened an older career without a word, and the
+	## next two saves rotated the newer file away for good. Refused, the slot
+	## reads "Can't open … a newer version of the game" and the file is kept.
+	if d is Dictionary and int(d.get("version", 0)) > VERSION:
+		return null
+	## THE FINISHED `.tmp` BEFORE THE BACKUP (3 Oct 2026, audit). A kill between
+	## "live -> .bak" and ".tmp -> live" leaves no live file and a whole, checked
+	## `.tmp` that is one event NEWER than the backup. The wallet already read
+	## it; the saves did not, and lost the latest event.
+	if not _usable(d):
+		var t = _read_file(path_for(slot) + ".tmp")
+		if t is Dictionary and int(t.get("version", 0)) > VERSION:
+			return null
+		if _usable(t):
+			return t
 	## THE BACKUP IS THE SECOND DOOR. A slot whose newest file is torn opens from
 	## the one before it — one event behind is a lot better than gone.
 	## And a file that is whole but would not DECODE is as good as torn
@@ -508,6 +548,10 @@ static func to_dict(season: Season) -> Dictionary:
 		"ground_warned": season.ground_warned,
 		"market_warned": season.market_warned,
 		"bout_live": season.bout_live.duplicate(),
+		## THE WEEK PRACTICE LAST RAN (3 Oct 2026, audit). Unsaved, a reload in the
+		## middle of a tournament week practised the squad a second time when the
+		## week ended — free XP for reloading.
+		"practiced_week": season.practiced_week,
 	}
 
 
@@ -623,6 +667,8 @@ static func from_dict(d: Dictionary) -> Season:
 	s.ground_warned = int(d.get("ground_warned", -1))
 	s.market_warned = int(d.get("market_warned", -1))
 	s.bout_live = (d.get("bout_live", {}) as Dictionary).duplicate()
+	## Soft key: an older file has none and -1 is "not this week", as before.
+	s.practiced_week = int(d.get("practiced_week", -1))
 	s.market_taken.clear()
 	for k in d.get("market_taken", []):
 		s.market_taken.append(String(k))

@@ -28,6 +28,7 @@ func _initialize() -> void:
 	_test_the_shop_says_why_it_is_shut()
 	_test_play_billing_end_to_end()
 	_test_app_store_end_to_end()
+	_test_the_audit_of_3_oct()
 	_cleanup()
 	print("")
 	for n in notes:
@@ -384,3 +385,91 @@ func _test_the_shop_says_why_it_is_shut() -> void:
 		"and a tap on a shut shop gets the same words the screen shows",
 		"'%s'" % err)
 	Store.state = Store.State.COLD
+
+
+## THE 3 OCT 2026 AUDIT: resume, reconnect, pending that stays said, quantity,
+## an unverified Apple purchase, and a wallet write that fails after a claim.
+func _test_the_audit_of_3_oct() -> void:
+	var fake = load("res://tests/fake_billing.gd").new()
+	Store.owed = 0
+	Store.receipts.clear()
+	Store.save_wallet()
+	Store.use_client(fake)
+	Store.connect_backend()
+	fake.connected.emit()
+
+	## RESUME ASKS AGAIN.
+	var asks_before: int = fake.calls.count("query_purchases")
+	Store.on_resume()
+	_ok(fake.calls.count("query_purchases") == asks_before + 1,
+		"coming back to the app asks the store for anything finished while away",
+		"query_purchases %d -> %d" % [asks_before, fake.calls.count("query_purchases")])
+
+	## A DROP RECONNECTS, and not for ever.
+	var starts_before: int = fake.calls.count("start_connection")
+	fake.disconnected.emit()
+	_ok(fake.calls.count("start_connection") == starts_before + 1 and Store.state == Store.State.CONNECTING,
+		"a dropped store connection is asked again at once", "state %d" % Store.state)
+	for i in 6:
+		fake.disconnected.emit()
+	_ok(fake.calls.count("start_connection") <= starts_before + Store.RECONNECTS_MAX,
+		"and a store that keeps dropping is not asked in a loop",
+		"%d starts" % (fake.calls.count("start_connection") - starts_before))
+	Store.on_resume()
+	fake.connected.emit()
+
+	## PENDING STAYS SAID until it is paid or Play's full list drops it.
+	fake.on_purchase_updated.emit({"response_code": 0, "purchases": [fake.bought("cc_large", "tok-p", 2)]})
+	fake.on_purchase_updated.emit({"response_code": 0, "purchases": [fake.bought("cc_small", "tok-a")]})
+	_ok(Store.pending == 1 and Store.owed == 20,
+		"a second purchase does not wipe the note that the first is pending",
+		"pending %d, owed %d" % [Store.pending, Store.owed])
+
+	## QUANTITY.
+	var three: Dictionary = fake.bought("cc_small", "tok-q")
+	three["quantity"] = 3
+	fake.on_purchase_updated.emit({"response_code": 0, "purchases": [three]})
+	_ok(Store.owed == 80, "three of a pack in one purchase credit three packs", "owed %d" % Store.owed)
+	fake.query_purchases_response.emit({"response_code": 0, "purchases": []})
+	_ok(Store.pending == 0, "Play's full list is the truth about what is pending", "pending %d" % Store.pending)
+
+	## A WALLET WRITE THAT FAILS AFTER A CLAIM DOES NOT PAY TWICE.
+	var office := ClubOffice.new()
+	var was_prefix := Store.wallet_prefix
+	Store.save_wallet()
+	Store.wallet_prefix = "no/such/dir/"
+	var got := Store.claim(office, func() -> bool: return true)
+	Store.wallet_prefix = was_prefix
+	Store.connect_backend()
+	_ok(got == 80 and Store.owed == 0 and not Store._wallet_dirty,
+		"a claim whose wallet write failed is written later, not reloaded and paid again",
+		"claimed %d, owed after reconnect %d, dirty %s" % [got, Store.owed, Store._wallet_dirty])
+	Store.use_client(null)
+
+	## AN UNVERIFIED APPLE PURCHASE IS SAID, NOT CREDITED, NOT FINISHED.
+	var sk = load("res://tests/fake_storekit.gd").new()
+	var apple := AppleStore.new()
+	apple.attach(sk, false)
+	Store.use_client(apple)
+	Store.connect_backend()
+	apple.connected.emit()
+	Store.last_error = ""
+	var bad = sk.tx("cc_small")
+	sk.unverified_transaction_updated.emit(bad, 4)
+	_ok(Store.owed == 0 and Store.last_error.contains(str(bad.transaction_id)) and sk.finished.is_empty(),
+		"an unverified App Store purchase is reported with its code and left unfinished",
+		"owed %d, '%s'" % [Store.owed, Store.last_error.left(60)])
+
+	## ASK TO BUY STAYS PENDING THROUGH A RESTORE.
+	Store.buy("cc_large")
+	sk.answer(5)
+	Store.resolve_pending()
+	_ok(Store.pending == 1, "Restore does not clear an Ask to Buy that is still waiting", "pending %d" % Store.pending)
+	sk.transaction_updated.emit(sk.tx("cc_large"))
+	_ok(Store.pending == 0 and Store.owed == 150, "and the approval clears it and pays",
+		"pending %d, owed %d" % [Store.pending, Store.owed])
+	Store.use_client(null)
+	sk.free()
+	Store.owed = 0
+	Store.receipts.clear()
+	Store.save_wallet()

@@ -36,6 +36,7 @@ func _initialize() -> void:
 	_test_a_deep_career_survives_a_reload()
 	_test_an_old_save_is_carried_forward()
 	_test_every_golden_file_opens()
+	_test_the_audit_of_3_oct()
 	SaveGame.delete(SLOT)
 
 	print("")
@@ -618,3 +619,66 @@ func _test_every_golden_file_opens() -> void:
 				% [fname, s.club.display_name, s.world.season, s.world.event,
 					s.club.roster.size(), played])
 	_ok(found > 0, "there is at least one golden save", "%d in tests/fixtures" % found)
+
+
+## THE 3 OCT 2026 AUDIT: a finished `.tmp` beats the backup, a newer build's
+## file is refused rather than stepped round, the practice week survives, and
+## CPU marks do not move when the icon bank grows.
+func _test_the_audit_of_3_oct() -> void:
+	SaveGame.delete(SLOT)
+	var p := SaveGame.path_for(SLOT)
+	var s := _mid_season(9301, 2)
+	SaveGame.save(s, SLOT)
+	s.practiced_week = s.world.week
+	SaveGame.save(s, SLOT)
+	## The kill between "live -> .bak" and ".tmp -> live": put the newest file
+	## back where a torn rename leaves it.
+	DirAccess.rename_absolute(p, p + ".tmp")
+	var back := SaveGame.load_slot(SLOT)
+	_ok(back != null and back.practiced_week == s.world.week,
+		"a finished .tmp left by a kill is the newest save, ahead of the backup, and the practice week is kept",
+		"loaded %s, practiced_week %d (want %d)" % [back != null,
+			back.practiced_week if back != null else -9, s.world.week])
+
+	## A first save killed before its rename leaves only a .tmp, and it counts.
+	SaveGame.delete(SLOT)
+	SaveGame.save(s, SLOT)
+	DirAccess.rename_absolute(p, p + ".tmp")
+	_ok(SaveGame.has_save(SLOT) and not SaveGame.peek(SLOT).get("broken", false),
+		"a slot whose only file is a finished .tmp still opens", str(SaveGame.peek(SLOT)))
+
+	## A torn .tmp alone is not a career.
+	SaveGame.delete(SLOT)
+	var f := FileAccess.open(p + ".tmp", FileAccess.WRITE)
+	f.store_buffer("RBH2xx".to_ascii_buffer())
+	f.close()
+	_ok(not SaveGame.has_save(SLOT), "a torn .tmp alone leaves the slot empty", "")
+
+	## A NEWER BUILD'S FILE: refused, said, and the older backup is not opened.
+	SaveGame.delete(SLOT)
+	SaveGame.save(s, SLOT)
+	SaveGame.save(s, SLOT)
+	var d := SaveGame.to_dict(s)
+	d["version"] = SaveGame.VERSION + 1
+	var body := var_to_bytes(d)
+	var w := FileAccess.open(p, FileAccess.WRITE)
+	w.store_buffer(SaveGame.MAGIC2.to_ascii_buffer())
+	w.store_32(body.size())
+	w.store_buffer(SaveGame._digest(body))
+	w.store_buffer(body)
+	w.close()
+	var info := SaveGame.peek(SLOT)
+	_ok(SaveGame.load_slot(SLOT) == null and info.get("broken", false) and info.get("newer", false),
+		"a save from a newer build is refused with a reason, not swapped for the older backup",
+		str(info))
+	SaveGame.quarantine(SLOT)
+	_ok(not SaveGame.has_save(SLOT), "and setting it aside frees the slot and keeps the file", "")
+	for fn in DirAccess.get_files_at(p.get_base_dir()):
+		if fn.begins_with(p.get_file() + ".") and fn.contains(".bad-"):
+			DirAccess.remove_absolute(p.get_base_dir().path_join(fn))
+
+	## CPU MARKS ARE PINNED to the original twenty.
+	_ok(ClubFactory.CPU_ICONS == 20 and ClubFactory.CPU_ICONS <= IconBank.ICONS.size(),
+		"CPU clubs draw their mark from the original twenty, so a bigger bank moves nobody",
+		"CPU_ICONS %d, bank %d" % [ClubFactory.CPU_ICONS, IconBank.ICONS.size()])
+	SaveGame.delete(SLOT)

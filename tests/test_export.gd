@@ -56,6 +56,7 @@ func _initialize() -> void:
 	_test_the_pack_leaves_the_workshop_behind()
 	_test_android_is_what_play_takes()
 	_test_the_licences_travel()
+	_test_ios_answers_export_compliance()
 	print("")
 	for n in notes:
 		print("   " + n)
@@ -249,3 +250,18 @@ func _test_the_licences_travel() -> void:
 	_ok(missing.is_empty() and has_all, "the licences ship, and the game shows them in full",
 		"%d characters on the Licences page%s" % [text.length(),
 			"" if missing.is_empty() else "; " + ", ".join(missing)])
+
+
+## EXPORT COMPLIANCE (3 Oct 2026, audit). Without the key every iOS upload waits
+## at "Missing Compliance" in TestFlight until somebody answers by hand.
+func _test_ios_answers_export_compliance() -> void:
+	var c := _cfg()
+	if c == null:
+		return
+	var plist := ""
+	for s in c.get_sections():
+		if s.begins_with("preset.") and not s.ends_with(".options") \
+				and String(c.get_value(s, "platform", "")) == "iOS":
+			plist = String(c.get_value(s + ".options", "application/additional_plist_content", ""))
+	_ok(plist.contains("<key>ITSAppUsesNonExemptEncryption</key><false/>"),
+		"the iOS build declares it uses no non-exempt encryption", "plist: '%s'" % plist)
