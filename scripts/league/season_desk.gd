@@ -470,7 +470,10 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		## only thing stopping a run of hard choices pinning a club at the floor,
 		## and a card that set morale directly would be the one place in the game
 		## that could do it.
-		s.office.morale_shift(float(fx["morale"]))
+		## ON THE MEN (3 Oct 2026): a shift on the club figure alone was rebuilt
+		## away by the next event's `sync_morale`. Not softened by the coach —
+		## that is for losses, and a card is a decision.
+		SeasonBouts.room_shift(s, float(fx["morale"]), false)
 		said.append(UiKit.t("squad mood up") if float(fx["morale"]) > 0.0 else UiKit.t("squad mood down"))
 	## THE DECK'S `note` CURRENCY IS NOW THE FOLLOWING TOO.
 	##
@@ -494,12 +497,18 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		said.append(UiKit.t("%d%% more following") % int(round(float(fx["fans"]) * 100.0)))
 	if fx.has("kit"):
 		for f in s.club.roster:
-			f.armor = clampf(f.armor + float(fx["kit"]), 0.0, 1.0)
+			_mend(f, float(fx["kit"]))
 		said.append(UiKit.t("harness mended across the club") if float(fx["kit"]) > 0.0
 			else UiKit.t("harness worse across the club"))
+	## THE EIGHT ONLY (3 Oct 2026): "Order for the eight" mended the reserves too.
+	if fx.has("kit_eight"):
+		for f in s.club.active_eight():
+			_mend(f, float(fx["kit_eight"]))
+		said.append(UiKit.t("harness mended for the eight") if float(fx["kit_eight"]) > 0.0
+			else UiKit.t("harness worse for the eight"))
 	if man != null:
 		if fx.has("armor"):
-			man.armor = clampf(man.armor + float(fx["armor"]), 0.0, 1.0)
+			_mend(man, float(fx["armor"]))
 			said.append((UiKit.t("%s's harness mended") if float(fx["armor"]) > 0.0
 				else UiKit.t("%s's harness worse")) % man.display_name)
 		if fx.has("injury"):
@@ -515,9 +524,12 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 		if fx.has("years"):
 			man.years = clampi(man.years + int(fx["years"]), 0, Contracts.YEARS_MAX)
 			said.append(UiKit.tn("%s has %d year left", "%s has %d years left", man.years) % [man.display_name, man.years])
+		## OFF THE DEAL, NOT THE BILL (3 Oct 2026): the bill already carries his
+		## CHEAP/LOYAL discount and `billed()` applies it again, so an "18% raise"
+		## cut a CHEAP man's bill from 800 to 755.
 		if fx.has("wage"):
-			man.wage_agreed = maxi(1, int(round(float(ClubOffice.billed(man))
-				* float(fx["wage"]))))
+			var deal := man.wage_agreed if man.wage_agreed > 0 else ClubOffice.wage(man)
+			man.wage_agreed = maxi(1, int(round(float(deal) * float(fx["wage"]))))
 
 	s.dilemma = {}
 	s.sync_power()
@@ -529,6 +541,32 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
 	return line.left(1).to_upper() + line.substr(1) + "."
 
 
+
+
+## A CARD MENDS KIT ONLY AS FAR AS THE METAL GOES (3 Oct 2026). It clamped to
+## 1.0, so a borrowed harness with a 0.90 ceiling came back at 1.00 — the rule is
+## that better than the metal costs new armor. Never takes a man down, either.
+static func _mend(f: FighterCard, d: float) -> void:
+	f.armor = clampf(f.armor + d, 0.0, maxf(Quartermaster.ceiling(f), f.armor))
+
+
+## ------------------------------------------------------- signed this season
+## A DEAL SIGNED THIS SEASON CANNOT BE EXTENDED THIS SEASON (3 Oct 2026). Sign
+## at the going rate, extend the same afternoon at up to 28% off and five years:
+## that is the button `Contracts.EXTEND_MAX_OFF` says the fork must not be. The
+## marks ride in `market_taken`, which is saved and cleared every summer.
+static func _signed_key(f: FighterCard) -> String:
+	return "signed:%s#%d" % [f.display_name, f.number]
+
+
+static func note_signed(s: Season, f: FighterCard) -> void:
+	var k := _signed_key(f)
+	if not s.market_taken.has(k):
+		s.market_taken.append(k)
+
+
+static func signed_this_season(s: Season, f: FighterCard) -> bool:
+	return s.market_taken.has(_signed_key(f))
 
 
 # ------------------------------------------------------------------ the market
@@ -602,7 +640,7 @@ const SIGNING_STARTS := true
 static func sign_wall(s: Season, f: FighterCard) -> String:
 	if s.office.credits < s.market_fee(f):
 		return "fee"
-	if ClubOffice.wage_bill(s.club) + s.market_wage(f) > s.office.cap():
+	if ClubOffice.wage_bill(s.club) + ClubOffice.billed_at(f, s.market_wage(f)) > s.office.cap():
 		return "cap"
 	if s.club.roster.size() >= MeleeClub.SQUAD_MAX:
 		return "full"
@@ -614,10 +652,11 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
 	if s.office.credits < fee:
 		return UiKit.t("%s costs %d CC and you have %d.") % [f.display_name, fee, s.office.credits]
 	var wage := s.market_wage(f)
-	if ClubOffice.wage_bill(s.club) + wage > s.office.cap():
+	var bills := ClubOffice.billed_at(f, wage)
+	if ClubOffice.wage_bill(s.club) + bills > s.office.cap():
 		return UiKit.t("%s wants %s a year. That puts you %s over the cap.") % [
-			f.display_name, ClubOffice.money(wage),
-			ClubOffice.money(ClubOffice.wage_bill(s.club) + wage - s.office.cap())]
+			f.display_name, ClubOffice.money(bills),
+			ClubOffice.money(ClubOffice.wage_bill(s.club) + bills - s.office.cap())]
 	var card := f.copy()
 	card.years = Contracts.YEARS_NEW
 	card.wage_agreed = wage
@@ -646,6 +685,7 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
 			s.club.swap_squad(low, card)
 	s.office.spend(fee, ClubOffice.LINE_SQUAD)
 	s.market_taken.append(Market.taken_key(f))
+	note_signed(s, card)
 	s.sync_power()
 	return ""
 
@@ -666,9 +706,11 @@ static func extend(s: Season, f: FighterCard) -> String:
 		if f.years >= Contracts.YEARS_MAX:
 			return UiKit.t("%s is on the longest deal the club can offer.") % f.display_name
 		return UiKit.t("%s is in the last year of his deal. Let it run out, then re-sign him.") % f.display_name
+	if signed_this_season(s, f):
+		return UiKit.t("%s only signed this season. His deal can be extended from next season.") % f.display_name
 	var was := ClubOffice.billed(f)
 	var wage := s.extend_cost(f)
-	var bill := ClubOffice.wage_bill(s.club) - was + wage
+	var bill := ClubOffice.wage_bill(s.club) - was + ClubOffice.billed_at(f, wage)
 	if bill > s.office.cap():
 		return UiKit.t("That deal puts you %s over the cap.") % ClubOffice.money(bill - s.office.cap())
 	f.wage_agreed = wage
@@ -702,6 +744,9 @@ static func resign(s: Season, f: FighterCard) -> String:
 		## asked about every length rather than about the one that had gone wrong.
 		if f.years >= Contracts.YEARS_MAX:
 			return UiKit.t("%s is already on the longest deal the club can offer.") % f.display_name
+		## AND NOT TO A DOOR THAT IS SHUT THIS SEASON (3 Oct 2026).
+		if signed_this_season(s, f):
+			return UiKit.t("%s only signed this season. His deal can be extended from next season.") % f.display_name
 		return UiKit.t("%s has %d years left. Extend him instead.") % [f.display_name, f.years]
 	## WHAT THE FIGHTER CARD PROMISED IS WHAT HAPPENS. The card reads
 	## `Contracts.demand()` — the refusal, the mood-priced wage, two years for a
@@ -710,13 +755,14 @@ static func resign(s: Season, f: FighterCard) -> String:
 	if Contracts.refuses(f):
 		return Contracts.refusal(f)
 	var wage := s.resign_cost(f)
-	var bill := ClubOffice.wage_bill(s.club) - ClubOffice.billed(f) + wage
+	var bill := ClubOffice.wage_bill(s.club) - ClubOffice.billed(f) + ClubOffice.billed_at(f, wage)
 	if bill > s.office.cap():
 		return UiKit.t("%s wants %s a year. That puts you %s over the cap.") % [
-			f.display_name, ClubOffice.money(wage),
+			f.display_name, ClubOffice.money(ClubOffice.billed_at(f, wage)),
 			ClubOffice.money(bill - s.office.cap())]
 	f.wage_agreed = wage
 	f.years = int(Contracts.demand(f)["years"])
+	note_signed(s, f)
 	return ""
 
 

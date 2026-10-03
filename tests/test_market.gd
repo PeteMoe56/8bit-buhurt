@@ -49,6 +49,7 @@ func _initialize() -> void:
 	_test_the_shelf_spans_three_divisions()
 	_test_selling_him_on()
 	_test_the_first_year_up()
+	_test_no_extension_the_season_he_signed()
 
 	print("")
 	for n in notes:
@@ -221,6 +222,9 @@ func _test_a_refusal_names_a_door_that_opens() -> void:
 	var open_now := 0
 	var told := 0
 	for years in range(0, Contracts.YEARS_MAX + 1):
+		## EACH LENGTH AS A FRESH WINTER (3 Oct 2026): the re-sign at 0 marks him
+		## signed this season, which shuts extension until next season.
+		s.market_taken.clear()
 		f.years = years
 		var e: String = s.extend(f) if Contracts.can_extend(f) else "not offered"
 		f.years = years
@@ -595,3 +599,29 @@ func _test_the_cap_raise_has_no_ceiling() -> void:
 			and costs[costs.size() - 1] > costs[0] * 4,
 		"the cap raise has no ceiling",
 		"twenty raises went through and the price kept climbing — a sink that absorbs a surplus without ever being the obvious buy")
+
+
+## SIGN AND EXTEND THE SAME AFTERNOON WAS A FREE DISCOUNT (3 Oct 2026): a 7 wage
+## for three years became 4 for five. A deal signed this season waits a season,
+## and the refusal says so; and a CHEAP man's cap check reads his real bill.
+func _test_no_extension_the_season_he_signed() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 77)
+	s.office.credits = 500
+	s.office.cap_level = 40
+	var target: FighterCard = s.market()[0]
+	var nm := target.display_name
+	_ok(s.sign_from_market(target) == "", "a free agent signs", nm)
+	var man: FighterCard = null
+	for r in s.club.roster:
+		if r.display_name == nm:
+			man = r
+	var why := s.extend(man)
+	_ok(why != "" and why.find("next season") >= 0 and man.years == Contracts.YEARS_NEW,
+		"no extension the season he signed", why)
+	s.market_taken.clear()
+	_ok(s.extend(man) == "" and man.years == Contracts.YEARS_MAX,
+		"and the season after, he can be extended", "%d years" % man.years)
+	var c: FighterCard = s.club.roster[0]
+	c.trait_id = FighterTrait.T.CHEAP
+	_ok(ClubOffice.billed_at(c, 1000) == int(round(1000 * 0.8)),
+		"a cap check reads the bill he will run up", "billed_at(CHEAP, 1000) = %d" % ClubOffice.billed_at(c, 1000))

@@ -238,6 +238,7 @@ static func post_bout(s: Season, sim: MeleeSim) -> void:
 	## does not tick the week — so the identical injury was free in the league
 	## and expensive in a cup. Applying after the tick makes both paths agree.
 	s._apply_bout_injuries(sim)
+	rest_the_injured(s)
 	s._apply_regime(was_home)
 	s._log(opp, before, true, was_home)
 	s._grade_bout(int(s.last_result[0]), int(s.last_result[1]))
@@ -367,8 +368,11 @@ static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
 			## RNG would make a squad decision reshuffle the country, which is a
 			## bug this project has already fixed twice.
 			var roll := RandomNumberGenerator.new()
-			roll.seed = hash("knock:%d:%d:%d:%s" % [s.world.rng.seed, s.world.season,
-				s.world.event, card.display_name])
+			## THE WEEK AND THE BOUT ARE IN THE SEED (3 Oct 2026). Keyed on the
+			## league day alone, every tie of a cup weekend rolled the same number
+			## for a man as the league bout before it: hurt in all, or in none.
+			roll.seed = hash("knock:%d:%d:%d:%d:%d:%s" % [s.world.rng.seed, s.world.season,
+				s.world.event, s.world.week, sim.rng.seed, card.display_name])
 			## AND THE GRADE'S SHARE of it (playtest 30 Sep: too many knocks).
 			if roll.randf() > s.office.regime_injury(Tuning.role_of(int(card.pos))) * s.office.knocks_scale \
 					* s.office.knock_guard():
@@ -463,7 +467,10 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
 	## AND THE WEEK THAT LED UP TO IT. Every man on the books, starters included
 	## — they get a quarter of a practice on top of what the afternoon paid them.
 	## See `_practice`.
-	s._practice()
+	## ONCE A WEEK, NOT ONCE A TIE (3 Oct 2026): a fought cup weekend of three
+	## ties practised the whole roster three times; simmed, once.
+	if s.practiced_week != s.world.week:
+		s._practice()
 
 	## ------------------------------------------------------- who sat, and who
 	## PRIMA DONNA — *"Sours every event he does not start."*
@@ -609,9 +616,12 @@ static func session_xp(s: Season) -> int:
 	var total := 0
 	for f in five:
 		var role := Tuning.role_of(int(f.pos))
+		## THE COACH TOO (3 Oct 2026): `_practice` multiplies by him, so the
+		## button quoted less than the session paid.
 		var got := Career.practice_xp(s.office.coaching(role), not Tuning.session_full_week) \
 			* s.office.practice_ground() * s.office.regime_xp(role) \
-			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
+			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0) \
+			* s.coach.training_mult()
 		total += maxi(1, int(round(got)))
 	return int(round(float(total) / float(five.size())))
 
@@ -822,6 +832,47 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> 
 	s.sync_week()
 
 
+
+
+## THE RESULT, ON THE MEN (3 Oct 2026). The club figure is an average of the
+## eight and `sync_morale` rebuilds it from them, so a swing given only to
+## `office.morale` was gone by the next event. Cup results and dilemma cards
+## come through here; the league result has its own fuller version above.
+static func room_shift(s: Season, swing: float, soften: bool = true) -> void:
+	if swing < 0.0 and soften:
+		swing *= s.coach.morale_loss_mult()
+	for f in s.club.active_eight():
+		f.morale_shift(swing)
+	s.office.sync_morale(s.club)
+
+
+static func result_swing(s: Season, won: bool, drew: bool) -> float:
+	return (ClubOffice.MORALE_WIN if won else (0.0 if drew else ClubOffice.MORALE_LOSS)) \
+		+ s.office.ground_morale()
+
+
+## A HURT MAN DOES NOT HOLD A SEAT WHILE A FIT ONE SITS AT HOME (3 Oct 2026).
+## He cannot fight, so on the bus he is a bench place the corner cannot use. A
+## fit reserve takes his seat; with no fit reserve he still travels, because the
+## eight must be eight.
+static func rest_the_injured(s: Season) -> Array[String]:
+	var out: Array[String] = []
+	for f in s.club.reserves():
+		if not f.fit():
+			continue
+		var hurt: FighterCard = null
+		for a in s.club.active_eight():
+			if a.injury > 0:
+				hurt = a
+				break
+		if hurt == null:
+			break
+		hurt.active = false
+		f.active = true
+		out.append(UiKit.t("%s travels in place of the injured") % f.display_name)
+	if not out.is_empty():
+		s.sync_power()
+	return out
 
 
 static func _roll_availability(s: Season) -> void:

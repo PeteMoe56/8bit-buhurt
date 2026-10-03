@@ -763,8 +763,8 @@ func sim_cup_tie() -> void:
 
 
 ## -> SeasonCups (season_cups.gd)
-func _finish_cup_round(c: Cup, won: bool) -> void:
-	SeasonCups._finish_cup_round(self, c, won)
+func _finish_cup_round(c: Cup, won: bool, drew: bool = false) -> void:
+	SeasonCups._finish_cup_round(self, c, won, drew)
 
 
 ## -> SeasonCups (season_cups.gd)

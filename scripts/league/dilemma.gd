@@ -296,10 +296,12 @@ const CARDS: Array[Dictionary] = [
 	"title": "Worn-out padding",
 	"text": "Most of the padding in your kit room is worn thin and older than some of your fighters. A supplier will give you a bulk discount if you order this week.",
 	"options": [
-		{"label": "Order for all 13", "blurb": "Everybody's padding is new.",
+		## THE BOOKS HOLD TWELVE, NOT THIRTEEN (3 Oct 2026), so the label says the
+		## squad rather than a number that was wrong.
+		{"label": "Order for the whole squad", "blurb": "Everybody's padding is new.",
 			"fx": {"cc": -7, "kit": 0.16}},
 		{"label": "Order for the eight", "blurb": "The traveling squad gets new kit. The reserves feel left out.",
-			"fx": {"cc": -4, "kit": 0.08, "morale": -0.05}},
+			"fx": {"cc": -4, "kit_eight": 0.08, "morale": -0.05}},
 		{"label": "Wait another year", "blurb": "No money spent. The squad is sick of the old kit.",
 			"fx": {"morale": -0.08}},
 	],
@@ -398,7 +400,7 @@ const CARDS: Array[Dictionary] = [
 	"weight": 2,
 	"tone": Tone.CLEAN,
 	"title": "Beast wants a sponsor",
-	"text": "Beast energy drinks wants to sponsor {club}: their claw logo on every surcoat, cans at every event, and a cash payment each season. In return they pick your walkout music, and it's loud.",
+	"text": "Beast Energy wants to sponsor {club}: their claw logo on every surcoat, cans at every event, and a cash payment each season. In return they pick your walkout music, and it's loud.",
 	"options": [
 		{"label": "Sign the full deal", "blurb": "Real money and a big name. The fighters hate the walkout music.",
 			"fx": {"cc": 8, "morale": -0.06, "note": 2.0, "fans": 0.05}},
@@ -443,11 +445,12 @@ const CARDS: Array[Dictionary] = [
 ## you can read rather than a total you can optimise. So: the money, the room,
 ## the kit and the name, in that order, and nothing else. What a card does to one
 ## man's contract or his ceiling stays in the prose where it belongs.
-const FX_SHOWN: Array[String] = ["cc", "morale", "kit", "note", "fans"]
+## `kit_eight` is kit on the travelling eight only (3 Oct 2026) and reads as kit.
+const FX_SHOWN: Array[String] = ["cc", "morale", "kit", "kit_eight", "note", "fans"]
 const FX_WORD := {
 	## PLAIN WORDS (playtest 30 Sep #7: "Why not just have Team Morale? Why
 	## name and not renown?"). They needed a legend; now they do not.
-	"cc": "CC", "morale": "team morale", "kit": "kit", "note": "renown", "fans": "crowd",
+	"cc": "CC", "morale": "team morale", "kit": "kit", "kit_eight": "kit", "note": "renown", "fans": "crowd",
 }
 
 

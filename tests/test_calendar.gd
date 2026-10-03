@@ -26,6 +26,7 @@ func _initialize() -> void:
 	_test_sunday_first()
 	_test_the_sets()
 	_test_team_stars()
+	_test_the_bid_screen_names_the_right_week()
 	await _test_every_week_opens()
 	print("")
 	if failures.is_empty():
@@ -169,3 +170,25 @@ func _test_team_stars() -> void:
 	_ok(mine[0] == int(round(float(sum) / float(five.size()))) and top > bottom + 15.0,
 		"a club's stars are its five's averages, and the National Division reads well above the Backyard",
 		"your strength %d; Backyard mean %.0f, National mean %.0f" % [mine[0], bottom, top])
+
+
+## THE BID SCREEN'S WEEK IS THE WEEK IT LANDS (3 Oct 2026). Asked after the
+## first bout, "Opening weeks" named a day already played: week 2 on the screen,
+## week 3 on the calendar.
+func _test_the_bid_screen_names_the_right_week() -> void:
+	var bad: Array[String] = []
+	for i in 3:
+		var t := Season.new(MeleeRosters.starting_club(), 11)
+		t.skip_event()
+		t.dilemma = {}
+		t.office.credits = 999
+		t.bid_open()
+		var shown := Calendar.own_week_number(t.world.calendar, int(t.bid_offers[i]["event"]))
+		t.take_bid(i, 0)
+		var landed := -1
+		for k in t.world.calendar.size():
+			if int(t.world.calendar[k]["kind"]) == Calendar.Kind.OWN:
+				landed = k + 1
+		if shown != landed:
+			bad.append("offer %d: shown %d, landed %d" % [i, shown, landed])
+	_ok(bad.is_empty(), "the bid screen names the week the show lands", ", ".join(bad) if not bad.is_empty() else "all three")

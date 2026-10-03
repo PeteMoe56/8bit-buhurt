@@ -12,7 +12,18 @@ extends RefCounted
 ## way a cup tie is answered before the next matchday — a decision the game
 ## stops and asks for is a decision the player notices making.
 static func bid_open(s: Season) -> bool:
+	_date_offers(s)
 	return not s.bid_offers.is_empty()
+
+
+## A DATE THAT HAS GONE BY IS THE NEXT ONE (3 Oct 2026). Season one asks after
+## the first bout, so "Opening weeks" named a league day already played: the
+## screen said week 2 and `insert_own` put the show in week 3.
+static func _date_offers(s: Season) -> void:
+	var soonest := s.world.event + 1
+	for o in s.bid_offers:
+		if int(o["event"]) < soonest:
+			o["event"] = soonest
 
 
 
@@ -36,6 +47,7 @@ static func take_bid(s: Season, offer_i: int, budget_i: int) -> String:
 		return UiKit.t("There is nothing on the table.")
 	if offer_i < 0 or offer_i >= s.bid_offers.size():
 		return UiKit.t("No such date.")
+	_date_offers(s)
 	var offer: Dictionary = s.bid_offers[offer_i]
 	var b: Dictionary = ClubEvent.BUDGETS[clampi(budget_i, 0, ClubEvent.BUDGETS.size() - 1)]
 	var total := int(offer["bid"]) + int(b["cost"])
@@ -148,7 +160,11 @@ static func begin_cup_bout(s_: Season) -> MeleeSim:
 	if c == null:
 		return null
 	s_.opponent = s_.club_for(s_.cup_opponent())
-	var s := hash("cup:%d:%d:%d:%d" % [s_.seed_value, s_.world.season, s_.world.event, s_.cup_opponent()])
+	## THE WEEK AND THE MATCH ARE IN THE SEED (3 Oct 2026): the same opponent
+	## twice in one week (a Worlds pool, then the bronze) replayed one bout.
+	var pm := c.player_match()
+	var s := hash("cup:%d:%d:%d:%d:%d:%s:%d" % [s_.seed_value, s_.world.season, s_.world.event,
+		s_.cup_opponent(), s_.world.week, String(pm.get("round", "")), int(pm.get("day", -1))])
 	var sim := MeleeSim.new(s_.club, s_.opponent, s, s_.opposition_scale(s_.cup_opponent()))
 	## NEUTRAL GROUND AND A REAL TRIP. `venue_kind()` already answers NEUTRAL
 	## while a tie is pending, so it is asked rather than re-decided here; the
@@ -178,10 +194,12 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
 	else:
 		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club)
+	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
+		int(m.get("winner", -1)) == -1)
 	## THE KNOCK LANDS AFTER THE WEEK TICKS, as it does in the league — see
 	## `post_bout`. Before, a cup tie never ticked the week at all.
 	s._apply_injuries(sim)
+	SeasonBouts.rest_the_injured(s)
 	## AND THE KIT TAKES THE TIE, as a league bout does (Pete, 1 Oct 2026:
 	## "fights should wear them").
 	SeasonBouts.bout_wear(s)
@@ -211,10 +229,18 @@ static func sim_cup_tie(s: Season) -> void:
 	if c == null:
 		return
 	var m := c.player_match()
-	var res: Array = s.world.quick_bout(int(s.world.clubs[int(m["a"])]["power"]),
-		int(s.world.clubs[int(m["b"])]["power"]))
+	## THE GRADE APPLIES TO A SIMMED TIE (3 Oct 2026), as it does to a simmed
+	## league fixture: the other side's power is scaled, yours is not.
+	var pa := int(s.world.clubs[int(m["a"])]["power"])
+	var pb := int(s.world.clubs[int(m["b"])]["power"])
+	if int(m["a"]) == s.world.player_club:
+		pb = int(round(float(pb) * s.opposition_scale(int(m["b"]))))
+	else:
+		pa = int(round(float(pa) * s.opposition_scale(int(m["a"]))))
+	var res: Array = s.world.quick_bout(pa, pb)
 	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club)
+	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
+		int(m.get("winner", -1)) == -1)
 
 
 
@@ -222,9 +248,12 @@ static func sim_cup_tie(s: Season) -> void:
 ## Everything that happens once the player's tie is in the book: the rest of the
 ## round is played around him, the bracket moves on, and a finished cup is
 ## retired — with the gate settled if it was his own show.
-static func _finish_cup_round(s: Season, c: Cup, won: bool) -> void:
-	s.office.morale_after(won, false)
-	s.office.after_event(won, false)
+static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false) -> void:
+	## ON THE MEN, NOT THE CLUB FIGURE (3 Oct 2026) — `office.morale_after`
+	## was overwritten by the next `sync_morale`, so a cup result moved nobody.
+	## And a drawn pool bout is a draw, not a loss.
+	SeasonBouts.room_shift(s, SeasonBouts.result_swing(s, won, drew))
+	s.office.after_event(won, drew)
 	## A TIE WON PAYS (Pete, 2 Oct 2026: "Cup win rewards ... seemed small" —
 	## they were nothing: an invitational paid no CC at all, round or trophy).
 	var purse := cup_purse(s)

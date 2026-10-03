@@ -139,9 +139,14 @@ static func wage(card: FighterCard) -> int:
 ## do it here rather than at the point of signing so the discount survives a
 ## re-sign — a trait that only applied once would be a one-off, not a trait.
 static func billed(card: FighterCard) -> int:
-	var base := card.wage_agreed if card.wage_agreed > 0 else wage(card)
-	return maxi(1, int(round(float(base)
-		* FighterTrait.mod(card.trait_id, "wage", 1.0))))
+	return billed_at(card, card.wage_agreed if card.wage_agreed > 0 else wage(card))
+
+
+## WHAT A GIVEN DEAL WOULD BILL FOR THIS MAN, trait and all. The cap checks ask
+## this (3 Oct 2026): they used to compare the raw wage, so a CHEAP man was
+## refused for a bill 20% bigger than the one he would actually run up.
+static func billed_at(card: FighterCard, deal: int) -> int:
+	return maxi(1, int(round(float(deal) * FighterTrait.mod(card.trait_id, "wage", 1.0))))
 
 
 static func wage_bill(club: MeleeClub) -> int:

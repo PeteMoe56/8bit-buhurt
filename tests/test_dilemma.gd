@@ -37,6 +37,7 @@ func _initialize() -> void:
 	_test_a_card_cannot_break_a_clamp()
 	_test_morale_reaches_something()
 	_test_every_mood_stays_readable()
+	_test_what_a_card_does_holds()
 
 	print("")
 	for n in notes:
@@ -378,3 +379,52 @@ func _test_every_mood_stays_readable() -> void:
 ## mark reads against a kit. One rule for "can this be read on that".
 static func _luma(c: Color) -> float:
 	return 0.299 * c.r + 0.587 * c.g + 0.114 * c.b
+
+
+## FOUR CARD EFFECTS THAT DID NOT DO WHAT THEY SAID (3 Oct 2026).
+func _test_what_a_card_does_holds() -> void:
+	var s := Season.new(MeleeRosters.starting_club(), 77)
+	s.decline_bid()
+	## A RAISE IS A RAISE for a CHEAP man too: the trait was applied twice.
+	var f: FighterCard = s.club.roster[0]
+	f.trait_id = FighterTrait.T.CHEAP
+	f.wage_agreed = 1000
+	var was := ClubOffice.billed(f)
+	s.dilemma = {"id": "longer_deal", "man": 0, "name": f.display_name, "rival": "x"}
+	s.answer_dilemma(0)
+	_ok(ClubOffice.billed(f) > was, "an 18% raise raises a CHEAP man's bill",
+		"%d -> %d" % [was, ClubOffice.billed(f)])
+	f.wage_agreed = 1
+	## KIT ONLY TO THE METAL'S CEILING.
+	var g: FighterCard = s.club.roster[1]
+	g.armor = Quartermaster.ceiling(g) - 0.05
+	s.dilemma = {"id": "van", "man": 1, "name": g.display_name, "rival": "x"}
+	s.answer_dilemma(1)
+	_ok(g.armor <= Quartermaster.ceiling(g) + 0.0001, "a card mends kit no further than its metal",
+		"%.2f against %.2f" % [g.armor, Quartermaster.ceiling(g)])
+	## "ORDER FOR THE EIGHT" IS THE EIGHT.
+	var eight := s.club.active_eight()
+	var spare: FighterCard = null
+	for r in s.club.roster:
+		if not eight.has(r):
+			spare = r
+	if spare == null:
+		spare = FighterCard.new()
+		spare.display_name = "Spare"
+		s.club.roster.append(spare)
+		spare.active = false
+	spare.armor = 0.3
+	s.dilemma = {"id": "gambesons", "man": 0, "name": f.display_name, "rival": "x"}
+	s.answer_dilemma(1)
+	_ok(is_equal_approx(spare.armor, 0.3), "order for the eight leaves the reserves alone",
+		"reserve kit %.2f" % spare.armor)
+	_ok(String(Dilemma.by_id("gambesons")["options"][0]["label"]).find("13") == -1,
+		"the padding card does not promise thirteen", String(Dilemma.by_id("gambesons")["options"][0]["label"]))
+	## AND A MOOD CARD OUTLIVES THE NEXT RE-SYNC.
+	s.office.sync_morale(s.club)
+	var m0 := s.office.morale
+	s.dilemma = {"id": "longer_deal", "man": 0, "name": f.display_name, "rival": "x"}
+	s.answer_dilemma(1)
+	s.office.sync_morale(s.club)
+	_ok(s.office.morale < m0 - 0.01, "a card's mood survives the room being re-read",
+		"%.3f -> %.3f" % [m0, s.office.morale])

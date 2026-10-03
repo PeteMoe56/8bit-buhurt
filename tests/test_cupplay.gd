@@ -38,6 +38,7 @@ func _initialize() -> void:
 	_test_both_doors_dress_the_same_sim()
 	_test_the_weeks_of_a_year()
 	_test_the_send_off()
+	_test_a_cup_weekend_is_one_week()
 
 	print("")
 	for n in notes:
@@ -413,3 +414,55 @@ func _test_the_send_off() -> void:
 	_ok(w.worlds != null and w.worlds.entrants.has(w.player_club) and home == LeagueWorld.WORLDS_HOME,
 		"and goes to the Worlds as the country's only club",
 		"%d home club(s) in a field of %d" % [home, w.worlds.entrants.size() if w.worlds != null else 0])
+
+
+## A CUP WEEKEND IS ONE WEEK OF PRACTICE, FOUGHT OR SIMMED, AND ITS RESULTS
+## REACH THE MEN (3 Oct 2026). Three fought ties practised the roster three
+## times; a cup result moved only the club figure, which the next re-sync erased.
+func _test_a_cup_weekend_is_one_week() -> void:
+	var gains := []
+	for mode in ["fight", "sim"]:
+		var s := _season()
+		if not _to_a_cup(s):
+			_ok(false, "a cup weekend is one week", "no cup came up")
+			return
+		var wk := s.world.week
+		var five := s.club.starting_five()
+		var x0 := 0
+		for f in s.club.roster:
+			if not five.has(f):
+				x0 += f.xp
+		while s.cup_pending() and s.world.week == wk:
+			if mode == "fight":
+				var sim := s.begin_cup_bout()
+				sim.run_to_end()
+				s.post_cup_bout(sim)
+			else:
+				s.sim_cup_tie()
+		if s.world.week == wk:
+			SeasonCups.end_week(s)
+		var x1 := 0
+		for f in s.club.roster:
+			if not five.has(f):
+				x1 += f.xp
+		gains.append(x1 - x0)
+	_ok(gains[0] == gains[1], "a fought cup weekend practises once, as a simmed one does",
+		"men off the line gained %d fought, %d simmed" % [gains[0], gains[1]])
+	var t := _season()
+	_to_a_cup(t)
+	var c := t.pending_cup()
+	var m := c.player_match()
+	var men := t.club.active_eight()
+	var before := 0.0
+	for f in men:
+		before += f.morale
+	if int(m["a"]) == t.world.player_club:
+		c.record(m, 2, 0, 8, 0)
+	else:
+		c.record(m, 0, 2, 0, 8)
+	t._finish_cup_round(c, true)
+	var after := 0.0
+	for f in men:
+		after += f.morale
+	_ok(after > before, "a cup tie won lifts the men, not just the club figure",
+		"eight's morale %.3f -> %.3f" % [before, after])

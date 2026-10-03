@@ -309,6 +309,10 @@ static func _tune_to(club: MeleeClub, target: int) -> void:
 ## CPU club built from its id must come back in the colors it always had.
 const CPU_KITS: int = 14
 const CPU_MARKS: int = 9
+## AND THE ORIGINAL TWENTY MARKS (3 Oct 2026, audit). `% ICONS.size()` meant
+## the first icon added to the bank re-drew every CPU club's mark in every save.
+## Pinned like the colours; new icons are for the player.
+const CPU_ICONS: int = 20
 
 
 static func _field(rng: RandomNumberGenerator) -> Color:
@@ -325,7 +329,7 @@ static func _icon_color(rng: RandomNumberGenerator) -> Color:
 ## CPU clubs wear anything in the bank. The bank is a shop for the PLAYER; the
 ## other forty-one clubs in the country have their own kit already.
 static func _icon(rng: RandomNumberGenerator) -> int:
-	return int(IconBank.ICONS[rng.randi() % IconBank.ICONS.size()]["id"])
+	return int(IconBank.ICONS[rng.randi() % CPU_ICONS]["id"])
 
 
 

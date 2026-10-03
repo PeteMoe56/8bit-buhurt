@@ -549,6 +549,7 @@ static func _fill_squad(s: Season) -> Array[String]:
 		if s.club.sign(w) != "":
 			break
 		w.active = true
+		SeasonDesk.note_signed(s, w)
 		took.append("%s (%s, %d)" % [w.display_name, w.pos_name(), w.overall()])
 	return took
 
@@ -560,6 +561,9 @@ static func ensure_a_line(s: Season) -> Array[String]:
 	## The travel cap first: the party is the first N active men in roster
 	## order, and N is the office's, not whatever the club was last built with.
 	s.sync_power()
+	## A FIT RESERVE TAKES A HURT MAN'S SEAT, whether or not the five is short
+	## (3 Oct 2026) — see `SeasonBouts.rest_the_injured`.
+	s.last_emergency.append_array(SeasonBouts.rest_the_injured(s))
 	if s.club.starting_five().size() >= MeleeClub.LINE_SIZE:
 		return s.last_emergency
 	for f in s.club.reserves():
@@ -599,8 +603,11 @@ static func ensure_a_line(s: Season) -> Array[String]:
 		## fit man never is — and the note says so.
 		if s.club.roster.size() >= MeleeClub.SQUAD_MAX:
 			var worst: FighterCard = null
+			## THE INJURED ONLY (3 Oct 2026). `fit()` is also false for a man with
+			## the weekend off or a harness short of inspection — one weekend, or
+			## a repair — and he was being cut for good.
 			for f in s.club.roster:
-				if not f.fit() and (worst == null or f.overall() < worst.overall()):
+				if f.injury > 0 and not f.active and (worst == null or f.overall() < worst.overall()):
 					worst = f
 			if worst == null or s.release(worst) != "":
 				break
@@ -614,6 +621,7 @@ static func ensure_a_line(s: Season) -> Array[String]:
 					a.active = false
 					break
 		w.active = true
+		SeasonDesk.note_signed(s, w)
 		s.last_emergency.append(UiKit.t("%s signed as an emergency walk-on") % w.display_name)
 	if not s.last_emergency.is_empty():
 		s.sync_power()

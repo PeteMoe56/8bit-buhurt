@@ -101,6 +101,11 @@ static func own_week_number(cal: Array, after_day: int) -> int:
 		var w: Dictionary = cal[i]
 		if int(w["kind"]) == Kind.LEAGUE and int(w["day"]) + 1 == after_day:
 			return i + 2
+	## THE SAME FALLBACK `insert_own` USES (3 Oct 2026): before the bye and the
+	## playoff, not after the last week.
+	for i in cal.size():
+		if int(cal[i]["kind"]) == Kind.PLAYOFF or int(cal[i]["kind"]) == Kind.BYE:
+			return i + 1
 	return cal.size() + 1
 
 
