@@ -9,7 +9,7 @@
 #   Env group "google_play":  GCLOUD_SERVICE_ACCOUNT_CREDENTIALS (Play service account JSON, secure)
 #   Team integrations → Developer Portal: an App Store Connect API key named "BonkWorks ASC"
 #   Env group "apple":  APPLE_TEAM_ID (10 characters), APP_STORE_APPLE_ID (the app's numeric id)
-# docs/STORE.md walks through each one.
+# The project doc claude/BUILD-1.md walks through each one.
 
 definitions:
   godot: &godot

@@ -147,7 +147,10 @@ static func closed_word() -> String:
 		State.READY:
 			return ""
 		_:
-			if OS.get_name() in ["Windows", "macOS", "Linux"]:
+			## iOS too, until StoreKit is wired (2 Oct 2026): the first App Store
+			## build sells nothing in-app, and "not available on this device"
+			## reads to a reviewer as a broken shop.
+			if OS.get_name() in ["Windows", "macOS", "Linux", "iOS"]:
 				return UiKit.t("Credits are earned on this version, not bought.")
 			return UiKit.t("The store is not available on this device.")
 
