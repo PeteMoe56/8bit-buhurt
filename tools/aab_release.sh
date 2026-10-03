@@ -13,15 +13,16 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 G="${GODOT:-$(command -v godot || echo /tmp/godot462/Godot_v4.6.2-stable_linux.x86_64)}"
-out="$(realpath -m "${1:-build/combat-club.aab}")"
+out="$(python3 -c 'import os,sys; print(os.path.abspath(sys.argv[1]))' "${1:-build/combat-club.aab}")"
 work="$(mktemp -d "${TMPDIR:-/tmp}/rbaab.XXXX")"
 cp -a . "$work/p"
 rm -rf "$work/p/.git" "$work/p/logs" "$work/p/build" "$work/p/android"
 mkdir -p "$work/p/build" "$(dirname "$out")"
 ## VERSION_CODE / VERSION_NAME, when set, go into the COPY's preset (Codemagic
 ## passes Play's latest + 1). The tracked preset keeps its own numbers.
-if [ -n "${VERSION_CODE:-}" ]; then sed -i "s/^version\/code=.*/version\/code=${VERSION_CODE}/" "$work/p/export_presets.cfg"; fi
-if [ -n "${VERSION_NAME:-}" ]; then sed -i "s/^version\/name=.*/version\/name=\"${VERSION_NAME}\"/" "$work/p/export_presets.cfg"; fi
+## perl, not sed -i: the same line runs on Linux and on Codemagic's Mac.
+if [ -n "${VERSION_CODE:-}" ]; then perl -pi -e "s/^version\/code=.*/version\/code=${VERSION_CODE}/" "$work/p/export_presets.cfg"; fi
+if [ -n "${VERSION_NAME:-}" ]; then perl -pi -e "s/^version\/name=.*/version\/name=\"${VERSION_NAME}\"/" "$work/p/export_presets.cfg"; fi
 "$G" --headless --path "$work/p" --import >/dev/null 2>&1 || true
 if [ "${AAB_DEBUG:-0}" = 1 ]; then mode=--export-debug; else
   : "${GODOT_ANDROID_KEYSTORE_RELEASE_PATH:?set the upload keystore path}"
