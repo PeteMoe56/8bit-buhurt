@@ -1,0 +1,147 @@
+# 8-Bit Buhurt: Combat Club — store builds on Codemagic (2 Oct 2026).
+#
+#   android-play     Linux  → signed AAB → Play internal track (draft)
+#   ios-testflight   Mac    → Xcode project → signed IPA → TestFlight
+#
+# Both start by hand (no triggers): a store build is a decision, not a push.
+# Nothing secret lives in this file. Set these up once in Codemagic:
+#   Team settings → Code signing → Android keystores:  upload key, reference "combatclub_upload"
+#   Env group "google_play":  GCLOUD_SERVICE_ACCOUNT_CREDENTIALS (Play service account JSON, secure)
+#   Team integrations → Developer Portal: an App Store Connect API key named "BonkWorks ASC"
+#   Env group "apple":  APPLE_TEAM_ID (10 characters), APP_STORE_APPLE_ID (the app's numeric id)
+# docs/STORE.md walks through each one.
+
+definitions:
+  godot: &godot
+    GODOT_VERSION: "4.6.2"
+    PACKAGE: "com.bonkworks.combatclub"
+    VERSION_NAME: "1.0.0"
+
+workflows:
+  android-play:
+    name: Android → Play internal
+    instance_type: linux_x2
+    max_build_duration: 90
+    environment:
+      groups:
+        - google_play
+      android_signing:
+        - combatclub_upload
+      java: 17
+      vars:
+        <<: *godot
+    cache:
+      cache_paths:
+        - $HOME/godot-cache
+        - $HOME/.gradle/caches
+    scripts:
+      - name: Godot and its export templates
+        script: |
+          set -e
+          C="$HOME/godot-cache"; mkdir -p "$C"
+          V="$GODOT_VERSION-stable"
+          [ -f "$C/godot.zip" ] || curl -sSL -o "$C/godot.zip" "https://github.com/godotengine/godot-builds/releases/download/$V/Godot_v${V}_linux.x86_64.zip"
+          [ -f "$C/templates.tpz" ] || curl -sSL -o "$C/templates.tpz" "https://github.com/godotengine/godot-builds/releases/download/$V/Godot_v${V}_export_templates.tpz"
+          unzip -o -q "$C/godot.zip" -d "$HOME/godot"
+          echo "GODOT=$HOME/godot/Godot_v${V}_linux.x86_64" >> $CM_ENV
+          T="$HOME/.local/share/godot/export_templates/$GODOT_VERSION.stable"; mkdir -p "$T"
+          unzip -o -q -j "$C/templates.tpz" templates/version.txt templates/android_source.zip templates/android_release.apk templates/android_debug.apk -d "$T"
+          ## Godot finds the SDK and the JDK through its editor settings, not the environment.
+          mkdir -p "$HOME/.config/godot" "$HOME/.android"
+          [ -f "$HOME/.android/debug.keystore" ] || keytool -genkeypair -keystore "$HOME/.android/debug.keystore" \
+            -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          cat > "$HOME/.config/godot/editor_settings-4.6.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$SDK"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/debug_keystore = "$HOME/.android/debug.keystore"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+      - name: Next version code (Play's latest + 1)
+        script: |
+          LATEST=$(google-play get-latest-build-number --package-name "$PACKAGE" --tracks internal,alpha,beta,production 2>/dev/null || echo 0)
+          echo "VERSION_CODE=$(( ${LATEST:-0} + 1 ))" >> $CM_ENV
+      - name: Signed app bundle
+        script: |
+          export GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$CM_KEYSTORE_PATH"
+          export GODOT_ANDROID_KEYSTORE_RELEASE_USER="$CM_KEY_ALIAS"
+          export GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD="$CM_KEYSTORE_PASSWORD"
+          bash tools/aab_release.sh "build/combat-club-$VERSION_NAME-$VERSION_CODE.aab"
+    artifacts:
+      - build/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
+
+  ios-testflight:
+    name: iOS → TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 90
+    integrations:
+      app_store_connect: BonkWorks ASC
+    environment:
+      groups:
+        - apple
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.bonkworks.combatclub
+      xcode: latest
+      vars:
+        <<: *godot
+    cache:
+      cache_paths:
+        - $HOME/godot-cache
+    scripts:
+      - name: Godot and the iOS template
+        script: |
+          set -e
+          C="$HOME/godot-cache"; mkdir -p "$C"
+          V="$GODOT_VERSION-stable"
+          [ -f "$C/godot-mac.zip" ] || curl -sSL -o "$C/godot-mac.zip" "https://github.com/godotengine/godot-builds/releases/download/$V/Godot_v${V}_macos.universal.zip"
+          [ -f "$C/templates.tpz" ] || curl -sSL -o "$C/templates.tpz" "https://github.com/godotengine/godot-builds/releases/download/$V/Godot_v${V}_export_templates.tpz"
+          unzip -o -q "$C/godot-mac.zip" -d "$HOME/godot"
+          echo "GODOT=$HOME/godot/Godot.app/Contents/MacOS/Godot" >> $CM_ENV
+          T="$HOME/Library/Application Support/Godot/export_templates/$GODOT_VERSION.stable"; mkdir -p "$T"
+          unzip -o -q -j "$C/templates.tpz" templates/version.txt templates/ios.zip -d "$T"
+      - name: Next build number (TestFlight's latest + 1)
+        script: |
+          LATEST=$(app-store-connect get-latest-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || echo 0)
+          echo "BUILD_NO=$(( ${LATEST:-0} + 1 ))" >> $CM_ENV
+      - name: Xcode project from Godot
+        script: |
+          set -e
+          ## The team id and numbers go into a scratch edit of the preset that
+          ## is never committed (tests/test_export.gd keeps the tracked one empty).
+          python3 - <<'PY'
+          import os, re
+          p = "export_presets.cfg"; s = open(p).read()
+          s = re.sub(r'application/app_store_team_id=""', 'application/app_store_team_id="%s"' % os.environ["APPLE_TEAM_ID"], s)
+          s = re.sub(r'application/short_version="[^"]*"', 'application/short_version="%s"' % os.environ["VERSION_NAME"], s)
+          s = re.sub(r'application/version="[^"]*"', 'application/version="%s"' % os.environ["BUILD_NO"], s)
+          open(p, "w").write(s)
+          PY
+          mkdir -p build/ios
+          "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
+          "$GODOT" --headless --path . --export-release "iOS" build/ios/CombatClub.xcodeproj
+          test -d build/ios/CombatClub.xcodeproj
+      - name: Signing profiles onto the project
+        script: xcode-project use-profiles --project build/ios/CombatClub.xcodeproj
+      - name: Signed IPA
+        script: |
+          xcode-project build-ipa \
+            --project build/ios/CombatClub.xcodeproj \
+            --scheme CombatClub
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

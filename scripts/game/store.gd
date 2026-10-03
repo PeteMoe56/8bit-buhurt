@@ -247,7 +247,7 @@ static func _on_disconnected() -> void:
 
 ## THE LOCALIZED PRICE, read defensively: the plugin's product-details dictionary
 ## mirrors Play's ProductDetails, whose one-time price sits under
-## `one_time_purchase_offer_details.formatted_price`.
+## `one_time_purchase_offer_details_list[0].formatted_price` (plugin 3.3).
 static func _on_product_details(r: Dictionary) -> void:
 	if int(r.get("response_code", -99)) != RC_OK:
 		return
@@ -255,7 +255,12 @@ static func _on_product_details(r: Dictionary) -> void:
 		if not d is Dictionary:
 			continue
 		var id := String(d.get("product_id", d.get("id", "")))
+		## Plugin 3.3 (Billing 9) sends a LIST of one-time offers under
+		## `one_time_purchase_offer_details_list`; older builds sent one dict.
 		var offer = d.get("one_time_purchase_offer_details", {})
+		var offers = d.get("one_time_purchase_offer_details_list", [])
+		if offers is Array and not offers.is_empty() and offers[0] is Dictionary:
+			offer = offers[0]
 		var word := ""
 		if offer is Dictionary:
 			word = String(offer.get("formatted_price", ""))

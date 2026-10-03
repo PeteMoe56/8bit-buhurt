@@ -69,7 +69,7 @@ func _test_play_billing_end_to_end() -> void:
 	## LOCALIZED PRICES, from the store's own answer.
 	fake.query_product_details_response.emit({"response_code": 0, "product_details": [
 		{"product_id": "cc_small", "one_time_purchase_offer_details": {"formatted_price": "1,99 €"}},
-		{"product_id": "cc_medium", "one_time_purchase_offer_details": {"formatted_price": "3,99 €"}},
+		{"product_id": "cc_medium", "one_time_purchase_offer_details_list": [{"formatted_price": "3,99 €"}]},
 	]})
 	_ok(Store.price_word("cc_small") == "1,99 €" and Store.price_word("cc_large") == "$7.99",
 		"the shelf shows the store's own price, and the list price until it has one",

@@ -29,6 +29,10 @@ for a, b in [("gradle_build/use_gradle_build=true", "gradle_build/use_gradle_bui
     s = s.replace(a, b, 1)
 open(p, "w").write(s)
 p = root + "/project.godot"; s = open(p).read()
+## The billing plugin is a gradle-only (v2) plugin; a plain APK cannot carry it,
+## so the desk copy leaves it off and Store says "no billing" on screen.
+import re
+s = re.sub(r"\n\[editor_plugins\]\n\nenabled=PackedStringArray\([^)]*\)\n", "\n", s)
 if "import_etc2_astc" not in s:
     s = s.replace("[rendering]\n", "[rendering]\n\ntextures/vram_compression/import_etc2_astc=true\n", 1)
 open(p, "w").write(s)

@@ -18,7 +18,7 @@ run/max_fps=60
 run/low_processor_mode=true
 boot_splash/bg_color=Color(0.180392, 0.164706, 0.141176, 1)
 boot_splash/image="res://art/brand/crest_512.png"
-boot_splash/fullsize=false
+boot_splash/stretch_mode=0
 boot_splash/use_filter=false
 
 [display]
@@ -55,3 +55,7 @@ pointing/emulate_touch_from_mouse=true
 [internationalization]
 
 locale/translations=PackedStringArray("res://locale/strings.en.translation", "res://locale/strings.es.translation", "res://locale/strings.fr.translation", "res://locale/strings.de.translation", "res://locale/strings.it.translation", "res://locale/strings.pt_BR.translation", "res://locale/strings.pl.translation", "res://locale/strings.ru.translation", "res://locale/strings.ja.translation")
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/GodotGooglePlayBilling/plugin.cfg")
