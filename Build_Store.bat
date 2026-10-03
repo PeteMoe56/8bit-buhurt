@@ -1,6 +1,6 @@
 @echo off
 REM Build_Store.bat - the signed Google Play bundle (AAB) for 8-Bit Buhurt: Combat Club.
-REM Built here with the upload key at C:\Dev\keys, like ACTM. Asks for the key password.
+REM Built here with the upload key at C:\Dev\keys, like ACTM. Key password: asked once, then read from C:\Dev\keys\combatclub-upload.properties.
 REM Output: build\combat-club-<name>-<code>.aab  -> upload it in Play Console by hand.
 REM   Build_Store.bat            next version code (last + 1), name 1.0.0
 REM   Build_Store.bat 1.0.1      next code, that version name

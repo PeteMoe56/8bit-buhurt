@@ -7,9 +7,9 @@
 # upload key that lives on this machine, and uploaded to Play by hand. Codemagic
 # is for iOS only (Linux runners aren't on the free plan anyway).
 #
-# THE KEY NEVER TOUCHES THE REPO. The keystore stays at C:\Dev\keys, the
-# password is typed into this window, held only in this process's environment
-# (GODOT_ANDROID_KEYSTORE_RELEASE_*), and cleared when the export finishes.
+# THE KEY NEVER TOUCHES THE REPO. The keystore and its password file both live
+# in C:\Dev\keys; the password goes to Godot through this process's environment
+# (GODOT_ANDROID_KEYSTORE_RELEASE_*), cleared when the export finishes.
 #
 # VERSION CODE: Play refuses a code it has seen. The last code shipped is kept
 # in export_presets.cfg (version/code); this bumps it by one, writes it back,
@@ -52,9 +52,27 @@ if ($Code -le $last -and $last -gt 1) {
 Write-Host "   version $Name ($Code)" -ForegroundColor Green
 
 # ---------------------------------------------------------------- 3. the key
-$sec = Read-Host "Upload key password for $Keystore" -AsSecureString
-$pw = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
-if (-not $pw) { Die "No password typed." }
+# THE ACTM ARRANGEMENT: ACTM keeps its upload-key password in android\key.properties
+# (gitignored), so its bat never asks. Same here, but the file sits beside the
+# key in C:\Dev\keys, outside the repo entirely. Asked ONCE, the first run,
+# then saved there; never asked again.
+$props = [IO.Path]::ChangeExtension($Keystore, ".properties")
+$pw = $null
+if (Test-Path $props) {
+    foreach ($line in Get-Content $props) {
+        if ($line -match '^\s*storePassword\s*=\s*(.*)$') { $pw = $Matches[1].Trim() }
+        if ($line -match '^\s*keyAlias\s*=\s*(.*)$')      { $Alias = $Matches[1].Trim() }
+    }
+    Write-Host "   key password from $props" -ForegroundColor DarkGray
+}
+if (-not $pw) {
+    Write-Host "   First run: the password you set in make_upload_key.bat. It is saved to" -ForegroundColor Yellow
+    Write-Host "   $props (outside the repo) and not asked again." -ForegroundColor Yellow
+    $sec = Read-Host "Upload key password" -AsSecureString
+    $pw = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
+    if (-not $pw) { Die "No password typed." }
+    $savePw = $true
+}
 
 # NATIVE STDERR IS NOT AN ERROR. Under "Stop", Windows PowerShell 5.1 turns
 # any line Godot or gradle writes to stderr (warnings included) into a throw.
@@ -89,7 +107,6 @@ try {
     Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD -ErrorAction SilentlyContinue
     Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH -ErrorAction SilentlyContinue
     Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_USER -ErrorAction SilentlyContinue
-    $pw = $null
 }
 if (-not (Test-Path $aab)) { Die "No bundle was made - the lines above name the missing piece. Scratch copy kept at $p" }
 
@@ -99,6 +116,13 @@ New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $keep = Join-Path $outDir "combat-club-$Name-$Code.aab"
 Copy-Item $aab $keep -Force
 Remove-Item $work -Recurse -Force -ErrorAction SilentlyContinue
+# A typo'd password fails the signing step above, so it is only saved once a
+# signed bundle exists.
+if ($savePw) {
+    Set-Content -Path $props -Value @("storeFile=$Keystore", "keyAlias=$Alias", "storePassword=$pw") -Encoding ASCII
+    Write-Host "   saved $props - next run won't ask" -ForegroundColor DarkGray
+}
+$pw = $null
 # Only now, with a bundle in hand, does the tracked code move.
 $text = [regex]::Replace($text, '(?m)^version/code=.*$', "version/code=$Code")
 [IO.File]::WriteAllText($preset, $text)
