@@ -260,7 +260,14 @@ func _test_the_first_year_up() -> void:
 	s.office.credits = 5000
 	while s.office.cap_level < 60:
 		s.office.cap_level += 1
+	## Not promoted and not hoarding: quiet. (5000 CC is a hoard, so the quiet
+	## check holds the purse at one summer's bill.)
+	s.office.credits = maxi(1, s.office.summer_bill())
 	var quiet: bool = s.market_ask().is_empty()
+	s.office.credits = 5000
+	_ok(not SeasonDesk.MARKET_ASK_HOARD or not s.market_ask().is_empty(),
+		"a club sitting on many summers' bills is asked too (the hoard card)",
+		"%d CC against a %d CC summer bill" % [s.office.credits, s.office.summer_bill()])
 	s.world.history.append({"season": s.world.season - 1, "promoted": true, "tier": 0})
 	var ask: Dictionary = s.market_ask()
 	var low := SeasonDesk.weakest_on_eight(s)
