@@ -194,6 +194,27 @@ func _ready() -> void:
 
 ## BACK (Android back / Esc), via AppLife. A modal closes first; then back to
 ## the Club tab; then out to the title, the same as Menu.
+## THE SHOULDERS STEP THE TABS (controller, 4 Oct 2026): LB left, RB right,
+## through the tabs this season shows, wrapping. The same as pressing the tab.
+var tabs_shown: Array[int] = []
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var step := 0
+	if event.is_action_pressed("pad_tab_next"):
+		step = 1
+	elif event.is_action_pressed("pad_tab_prev"):
+		step = -1
+	if step == 0 or tabs_shown.is_empty() or season == null or season.blocked_by() != "":
+		return
+	get_viewport().set_input_as_handled()
+	var at := maxi(0, tabs_shown.find(tab))
+	tab = tabs_shown[(at + step + tabs_shown.size()) % tabs_shown.size()]
+	picked = null
+	fin_full = false
+	_rebuild()
+
+
 func go_back() -> bool:
 	if ground_open:
 		SeasonClubTab.close_ground(self)
@@ -320,6 +341,7 @@ func _rebuild() -> void:
 		shown.append(i)
 	if tab == Tab.MARKET and not shown.has(Tab.MARKET):
 		tab = Tab.CLUB
+	tabs_shown = shown
 	var tab_px := -1
 	for slot in shown.size():
 		var i: int = shown[slot]

@@ -491,9 +491,7 @@ func _club_controls() -> void:
 					else:
 						flash = err
 				_rebuild())
-		bank_b.flat = true
-		bank_b.focus_mode = Control.FOCUS_NONE
-		ui.add_child(bank_b)
+		ui.add_child(Pad.row(bank_b))
 
 	## NEXT IS BOTTOM-RIGHT ON EVERY STEP (3 Oct 2026): step 2 had it beside Back,
 	## steps 1 and 3 on the right. Save stays where it was outside founding.

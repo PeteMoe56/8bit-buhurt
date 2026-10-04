@@ -336,9 +336,7 @@ static func _man_button(v: SeasonScene, f: FighterCard, y: float, x: float) -> B
 static func _man_button_h(v: SeasonScene, f: FighterCard, y: float, x: float, h: float) -> Button:
 	var b := UiKit.button("", Vector2(x, y - UiKit.tk(20.0)), Vector2(SeasonScene.SQUAD_W, h - 2.0),
 		v._tap.bind(f))
-	b.flat = true
-	b.focus_mode = Control.FOCUS_NONE
-	return b
+	return Pad.row(b)
 
 
 

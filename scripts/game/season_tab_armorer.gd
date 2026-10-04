@@ -217,9 +217,7 @@ static func _market_controls(v: SeasonScene) -> void:
 				v.qm_pick = f
 				v.flash = ""
 				v._rebuild())
-		b.flat = true
-		b.focus_mode = Control.FOCUS_NONE
-		v.ui.add_child(b)
+		v.ui.add_child(Pad.row(b))
 
 	## THE BULK ACTION IS THE ONE A PLAYER ACTUALLY WANTS. Thirteen taps to fix
 	## thirteen harnesses is not a decision, it is a chore — the decision is "can

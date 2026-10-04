@@ -1573,6 +1573,9 @@ static func _fit_slop(b: Button) -> void:
 ## Create and the Chalkboard were Godot's stock LineEdit — a smooth sans in a
 ## rounded grey box, the one control on those screens that was not pixel type.
 static func skin_edit(e: LineEdit, px: int = 16) -> void:
+	## STEAM DECK: a name field opens Steam's own keyboard (Verified needs it).
+	if not e.focus_entered.is_connected(Pad.on_screen_keyboard.bind(e)):
+		e.focus_entered.connect(Pad.on_screen_keyboard.bind(e))
 	e.add_theme_font_override("font", body())
 	e.add_theme_font_size_override("font_size", px)
 	e.add_theme_color_override("font_color", INK)
@@ -1601,6 +1604,17 @@ static func skin_edit(e: LineEdit, px: int = 16) -> void:
 ## and the box shifts down and right into where the shadow was, which is how a
 ## physical key behaves and how every 8-bit button that was worth pressing
 ## behaved. A hover tint is a mouse idea and this game is played with a thumb.
+## The pad's "you are here": a hollow gold ring just outside the control.
+static func focus_ring(out_px: float = 4.0) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.draw_center = false
+	sb.border_color = YOU
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(0)
+	sb.set_expand_margin_all(out_px)
+	return sb
+
+
 static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	b.add_theme_font_override("font", body())
 	b.add_theme_font_size_override("font_size", GRID * 2)
@@ -1628,7 +1642,11 @@ static func skin(b: Button, pad: float = ICON_PAD) -> void:
 	## happening" — until something else was touched.
 	b.add_theme_stylebox_override("hover", _sb(SELECT if touch_ui() else YOU, FRAME, DROP_PX, pad))
 	b.add_theme_stylebox_override("pressed", _sb(YOU, FRAME, 0.0, pad))
-	b.add_theme_stylebox_override("focus", _sb(SELECT, YOU, DROP_PX, pad))
+	## FOCUS IS A RING OUTSIDE THE BUTTON (controller, 4 Oct 2026). Godot draws
+	## the focus box ON TOP of the button's own state, and a gold frame inside
+	## the button is already what a SELECTED tab looks like — so the pad's "you
+	## are here" sits outside the edge, where nothing else in the game draws.
+	b.add_theme_stylebox_override("focus", focus_ring())
 	## A DISABLED BUTTON IS STILL A BUTTON (round 10: the dark, flat box read
 	## as a text field): the same shape and drop, the colour drained out of it.
 	b.add_theme_stylebox_override("disabled", _sb(SELECT.lerp(PANEL, 0.7), EDGE, DROP_PX, pad))

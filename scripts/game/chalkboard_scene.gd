@@ -223,9 +223,7 @@ func _rebuild() -> void:
 				_load_slot(take)
 				flash = ""
 				_rebuild())
-			b.flat = true
-			b.focus_mode = Control.FOCUS_NONE
-			ui.add_child(b)
+			ui.add_child(Pad.row(b))
 		elif i == owned:
 			## Only the NEXT slot is for sale. Four buy buttons in a column
 			## would read as four separate things to want.

@@ -31,6 +31,7 @@ static func node() -> AppLife:
 func _enter_tree() -> void:
 	_me = self
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	Pad.setup()
 	## A WINDOW THAT CHANGES SIZE LAYS THE SCREEN OUT AGAIN (playtest 30 Sep:
 	## fullscreen left the title's buttons where the 960-wide window had put
 	## them). Screens build their controls once, in `_ready`, against the canvas
@@ -38,6 +39,59 @@ func _enter_tree() -> void:
 	var r := get_tree().root
 	if not r.size_changed.is_connected(_resized):
 		r.size_changed.connect(_resized)
+
+
+## 4. A PAD ALWAYS HAS SOMETHING FOCUSED (Steam Deck, 4 Oct 2026). Once the
+##    player has used keys or a pad, a screen that loses its focus — it rebuilt,
+##    or it is new — gets it back on the next frame, on the same button or the
+##    one nearest where it was. Mouse or touch hands the screen back to pointing.
+##    See `Pad`.
+var _pad_mode := false
+var _last_text := ""
+var _last_pos := Vector2.INF
+var _last_scene := 0
+
+
+## Is the player on keys or a pad right now (for screens that draw a cursor)?
+static func pad_active() -> bool:
+	var me := node()
+	return me != null and me._pad_mode
+
+
+## A SCREEN CAN TAKE THE PAD FOR ITSELF: the fight drives a cursor with it, and a
+## focused HOLD button would eat every A press. `pad_owns_input() -> true` turns
+## the focus-walking off while it says so.
+func _scene_owns_pad() -> bool:
+	var s := get_tree().current_scene
+	return s != null and s.has_method("pad_owns_input") and bool(s.call("pad_owns_input"))
+
+
+func _ready() -> void:
+	get_viewport().gui_focus_changed.connect(func(c: Control) -> void:
+		if c is Button:
+			_last_text = (c as Button).text
+		_last_pos = c.get_global_rect().get_center())
+
+
+func _process(_delta: float) -> void:
+	if not _pad_mode:
+		return
+	var scene := get_tree().current_scene
+	if scene == null:
+		return
+	if scene.get_instance_id() != _last_scene:
+		_last_scene = scene.get_instance_id()
+		_last_text = ""
+		_last_pos = Vector2.INF
+	if _scene_owns_pad():
+		var f := get_viewport().gui_get_focus_owner()
+		if f != null:
+			f.release_focus()
+		return
+	if get_viewport().gui_get_focus_owner() == null and not Juice.wiping():
+		var c := Pad.pick(scene, _last_text, _last_pos)
+		if c != null:
+			c.grab_focus()
 
 
 func _resized() -> void:
@@ -97,6 +151,34 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		Settings.toggle_fullscreen()
 		return
+	if event is InputEventMouseButton or event is InputEventScreenTouch \
+			or (event is InputEventMouseMotion and (event as InputEventMouseMotion).relative.length() > 2.0):
+		_pad_mode = false
+	elif Pad.is_nav(event) or event is InputEventJoypadButton:
+		var first := not _pad_mode or get_viewport().gui_get_focus_owner() == null
+		_pad_mode = true
+		if _scene_owns_pad():
+			first = false
+		## The first press only shows where you are; it does not also move or
+		## press something the player has not seen highlighted yet.
+		if first and get_viewport().gui_get_focus_owner() == null:
+			var c := Pad.pick(get_tree().current_scene, _last_text, _last_pos)
+			if c != null:
+				c.grab_focus()
+				get_viewport().set_input_as_handled()
+				return
+		## A DIRECTION MOVES FOCUS BY WHERE THINGS ARE ON SCREEN (`Pad.neighbor`).
+		## A focused LineEdit or slider keeps its own left/right.
+		var f := get_viewport().gui_get_focus_owner()
+		if f != null and f is BaseButton and not _scene_owns_pad():
+			for pair in [["ui_up", Vector2.UP], ["ui_down", Vector2.DOWN],
+					["ui_left", Vector2.LEFT], ["ui_right", Vector2.RIGHT]]:
+				if event.is_action_pressed(String(pair[0]), true, true):
+					var nb := Pad.neighbor(f, pair[1], Pad.candidates(get_tree().current_scene))
+					if nb != null:
+						nb.grab_focus()
+					get_viewport().set_input_as_handled()
+					return
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		back_pressed()

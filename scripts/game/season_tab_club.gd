@@ -98,15 +98,15 @@ static func _club_controls(v: SeasonScene) -> void:
 		## THE ROW PITCH THE TABLE IS DRAWN AT (3 Oct 2026): taller on a tablet.
 		var rh := UiKit.tk(SeasonScene.ROW_H)
 		var top := SeasonScene.TABLE_Y + UiKit.tk(7.0)
-		var hit := UiKit.button("", Vector2(SeasonScene.table_x(), top),
-			Vector2(UiKit.screen().x - SeasonScene.table_x() - 24.0, float(rows.size()) * rh), func():
-				var i := int(floor((v.get_local_mouse_position().y - top) / rh))
-				if i >= 0 and i < rows.size():
-					v.team_card = int(rows[i]["club"])
+		## ONE HIT BOX PER ROW (4 Oct 2026, controller): it was one box over the
+		## whole table that read the mouse's y, which a pad has no way to give.
+		for i in rows.size():
+			var club_id := int(rows[i]["club"])
+			var hit := UiKit.button("", Vector2(SeasonScene.table_x(), top + float(i) * rh),
+				Vector2(UiKit.screen().x - SeasonScene.table_x() - 24.0, rh), func():
+					v.team_card = club_id
 					v._rebuild())
-		hit.flat = true
-		hit.focus_mode = Control.FOCUS_NONE
-		v.ui.add_child(hit)
+			v.ui.add_child(Pad.row(hit))
 	## THE DRAW, WHENEVER THERE IS ONE TO SEE — not only while a tie of yours is
 	## unplayed. It used to be built inside the cup-tie branch, so being knocked
 	## out took the bracket away at exactly the moment it got interesting, and

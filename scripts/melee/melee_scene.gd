@@ -241,6 +241,10 @@ func _ready() -> void:
 	_beat_node.draw.connect(_draw_beat)
 	_build_ui()
 	_fit_width()
+	_pad_node = Node2D.new()
+	_pad_node.z_index = 100
+	add_child(_pad_node)
+	_pad_node.draw.connect(_draw_pad_cursor)
 	_new_bout(randi())
 
 
@@ -378,6 +382,7 @@ func _fit_width() -> void:
 
 func _process(delta: float) -> void:
 	_fit_width()
+	_pad_process(delta)
 	for k in jolts.keys():
 		jolts[k]["amt"] = float(jolts[k]["amt"]) * pow(JOLT_LEFT, delta)
 		if float(jolts[k]["amt"]) < 0.2:
@@ -804,9 +809,133 @@ func _unhandled_input(event: InputEvent) -> void:
 		_extend(event.position)
 
 
+# ------------------------------------------------------------- the controller
+## THE FIGHT ON A PAD (Steam Deck, 4 Oct 2026). The fight is a pointing game, so
+## the pad gets a pointer: the left stick (or the d-pad) moves a cursor over the
+## list, and A is the thumb — press on a man, steer, let go, exactly the touch
+## path (`_press` / `_extend` / `_release`), so a route drawn with a stick is the
+## same route a finger draws. A tap of A on your own man holds his ground.
+##   LB / RB   jump the cursor to the previous / next man of yours on his feet
+##   X         HOLD
+##   B         back: cancels the wheel if it is up, else pauses (as Esc does)
+## With the wheel up, any direction lights the next side and A takes it.
+## Menus on this screen (the corner, the report) are ordinary focus.
+const PAD_SPEED := 420.0        ## cursor, design px per second at full stick
+var pad_cursor := Vector2(SCREEN.x * 0.5, SCREEN.y * 0.45)
+var pad_held := false
+var _pad_node: Node2D
+var _pad_last_dir := Vector2.ZERO
+var _pad_man := -1
+
+
+func pad_owns_input() -> bool:
+	return screen == Screen.FIGHT and not paused and not skipping
+
+
+func _pad_process(delta: float) -> void:
+	if not AppLife.pad_active() or not pad_owns_input():
+		if _pad_node != null and _pad_node.visible:
+			_pad_node.visible = false
+		return
+	_pad_node.visible = true
+	var v := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down", 0.2)
+	if wheel_man != -1:
+		## THE WHEEL: it opens lit on his own pick, so A alone takes the AI's
+		## answer; a fresh push in any direction steps the lit side.
+		if wheel_hot == -2 and sim.men[wheel_man].prompt != null:
+			wheel_hot = sim.men[wheel_man].prompt.choice
+		var d := Vector2(signf(roundf(v.x)), signf(roundf(v.y)))
+		if d != Vector2.ZERO and _pad_last_dir == Vector2.ZERO:
+			var opts := _wheel_opts(sim.men[wheel_man])
+			var at := opts.find(wheel_hot)
+			var step := 1 if (d.x > 0.0 or d.y > 0.0) else -1
+			at = (at + step + opts.size()) % opts.size() if at != -1 else 0
+			wheel_hot = int(opts[at])
+			queue_redraw()
+		_pad_last_dir = d
+		_pad_node.queue_redraw()
+		return
+	_pad_last_dir = Vector2.ZERO
+	if v != Vector2.ZERO:
+		pad_cursor += v * PAD_SPEED * delta
+		pad_cursor = pad_cursor.clamp(Vector2.ZERO, SCREEN)
+		if pad_held and drawing != -1:
+			_extend(pad_cursor)
+		hover_enemy = _enemy_at(pad_cursor) if drawing != -1 else hover_enemy
+		_pad_node.queue_redraw()
+
+
+func _input(event: InputEvent) -> void:
+	if not pad_owns_input() or not (event is InputEventJoypadButton):
+		return
+	var jb := event as InputEventJoypadButton
+	if wheel_man != -1 and jb.pressed:
+		match jb.button_index:
+			JOY_BUTTON_A:
+				if wheel_hot != -2:
+					_wheel_answer(sim.men[wheel_man], wheel_hot)
+					wheel_hot = -2
+				get_viewport().set_input_as_handled()
+			JOY_BUTTON_B:
+				_wheel_answer(sim.men[wheel_man], -1)
+				wheel_hot = -2
+				get_viewport().set_input_as_handled()
+		return
+	match jb.button_index:
+		JOY_BUTTON_A:
+			if jb.pressed and not pad_held:
+				pad_held = true
+				_press(pad_cursor)
+			elif not jb.pressed and pad_held:
+				pad_held = false
+				_release(pad_cursor)
+			get_viewport().set_input_as_handled()
+		JOY_BUTTON_X:
+			if jb.pressed:
+				_hold()
+				_sync_controls()
+			get_viewport().set_input_as_handled()
+		JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER:
+			if jb.pressed:
+				_pad_jump(1 if jb.button_index == JOY_BUTTON_RIGHT_SHOULDER else -1)
+			get_viewport().set_input_as_handled()
+
+
+## The cursor onto the next man of yours still standing.
+func _pad_jump(step: int) -> void:
+	var mine: Array = []
+	for m in sim.men:
+		if m.team == 0 and m.standing():
+			mine.append(m.idx)
+	if mine.is_empty():
+		return
+	var at := mine.find(_pad_man)
+	_pad_man = int(mine[(at + step + mine.size()) % mine.size()] if at != -1 else mine[0])
+	pad_cursor = _to_screen(sim.men[_pad_man].pos)
+	_pad_node.queue_redraw()
+
+
+func _draw_pad_cursor() -> void:
+	if wheel_man != -1:
+		return
+	## A gold cross-hair with a dark outline, on the pixel grid.
+	var p := pad_cursor.round()
+	for o in [Vector2(1, 1)]:
+		_pad_node.draw_rect(Rect2(p + o + Vector2(-9, -1), Vector2(18, 3)), Color(0, 0, 0, 0.7))
+		_pad_node.draw_rect(Rect2(p + o + Vector2(-1, -9), Vector2(3, 18)), Color(0, 0, 0, 0.7))
+	_pad_node.draw_rect(Rect2(p + Vector2(-9, -1), Vector2(18, 2)), UiKit.YOU)
+	_pad_node.draw_rect(Rect2(p + Vector2(-1, -9), Vector2(2, 18)), UiKit.YOU)
+	_pad_node.draw_rect(Rect2(p + Vector2(-12, -12), Vector2(24, 24)), UiKit.YOU, false, 1.0)
+
+
 ## BACK, from the app's one back handler (AppLife). In a fight it pauses — it
 ## used to quit the whole app. On the report it is the report's own way out.
 func go_back() -> bool:
+	## THE WHEEL FIRST: B on a pad, Esc on a keyboard, cancels the question.
+	if wheel_man != -1 and screen == Screen.FIGHT and not paused:
+		_wheel_answer(sim.men[wheel_man], -1)
+		wheel_hot = -2
+		return true
 	if screen == Screen.REPORT:
 		if again_button != null and again_button.visible:
 			again_button.pressed.emit()
@@ -2263,6 +2392,9 @@ func _draw_hint() -> void:
 	## SHORTER, so it is never cut (first-timer test, 1 Oct: "Tap him to." lost
 	## its last two words).
 	var msg := UiKit.t("Drag a man to send him. Tap to hold ground.")
+	## ON A PAD the hint is the pad's (4 Oct 2026).
+	if AppLife.pad_active():
+		msg = UiKit.t("Hold A on a man and steer to send. A: hold.")
 	if drawing != -1:
 		msg = UiKit.t("Release on ground, or on a man.")
 	elif open > 0:

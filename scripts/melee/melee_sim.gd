@@ -403,6 +403,7 @@ var plan_t := [Tuning.PLAN_TIME, Tuning.PLAN_TIME]
 var orders_issued: int = 0
 var prompts_answered: int = 0
 ## FOR THE ACHIEVEMENTS (4 Oct 2026): what the player's own calls did this bout.
+var reopened: int = 0             ## wheels asked again on arrival (the situation changed)
 var called_br_downs: int = 0      ## a bullrush he called off the wheel floored his man
 var called_br_rail: int = 0       ## ...and sent a man skidding into the rail
 var clean_rounds: int = 0         ## rounds won with all five of ours on their feet
@@ -1437,6 +1438,29 @@ func _step_closing(m: Man) -> void:
 	if waiting:
 		return
 	var reach := m.contact_range()
+	if m.charging:
+		reach = _plant_gap() + 0.5
+	## THE PICK IS RE-CHECKED ON ARRIVAL (4 Oct 2026). The wheel opens 100 units
+	## out, and two seconds later the clinch he was sent to break may be over, or
+	## the free man he was sent at may be tied up. An answer to a question that no
+	## longer exists lands as the wrong act — a takedown thrown at a free man. So
+	## when the situation has changed under him, the question is asked again: the
+	## player's wheel reopens for what is in front of him now, and an AI pick is
+	## simply re-picked.
+	if m.prompt != null and m.prompt.committed and m.prompt.menu != Tuning.Menu.GRAPPLED \
+			and m.prompt.menu != menu and d <= reach:
+		var asked_player: bool = m.prompt.by_player
+		m.prompt.menu = menu
+		m.prompt.choice = _ai_choose(m, tgt, menu)
+		m.charging = false
+		if asked_player:
+			m.prompt.by_player = false
+			m.prompt.committed = false
+			m.prompt.t = Tuning.PROMPT_TIME + m.tmod("prompt_time", 0.0)
+			m.prompt.dur = m.prompt.t
+			reopened += 1
+			prompt_opened.emit(m.idx)
+			return
 	if m.charging:
 		reach = _plant_gap() + 0.5
 		if d <= reach and m.brace_t < Tuning.BR_BRACE:

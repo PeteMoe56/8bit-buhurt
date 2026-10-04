@@ -81,9 +81,7 @@ func _build() -> void:
 		var hit := UiKit.button("", _cell_rect(g, d).position, _cell_rect(g, d).size, func():
 			pick = wi
 			_build())
-		hit.flat = true
-		hit.focus_mode = Control.FOCUS_NONE
-		ui.add_child(hit)
+		ui.add_child(Pad.row(hit))
 	## A MONTH EITHER SIDE, within the season.
 	var gx := _grid_right() - 2.0 * 48.0 - 8.0
 	if _month_key(year, month) > _month_key(int(first["year"]), int(first["month"])):

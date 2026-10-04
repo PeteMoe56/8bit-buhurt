@@ -133,6 +133,11 @@ static func _tell_steam(list: Array) -> void:
 	s.call("storeStats")
 
 
+## Steam, if this is a Steam build and it started; null everywhere else.
+static func steam() -> Object:
+	return _steam_obj()
+
+
 ## The GodotSteam singleton, started once, or null. Only on a desktop build: a
 ## Steam singleton in the editor would report a developer's test unlocks.
 static func _steam_obj() -> Object:
@@ -159,4 +164,15 @@ static func _steam_obj() -> Object:
 		print("Achievements: Steam did not start (%s); unlocks are kept locally" % str(res))
 		return null
 	_steam = s
+	## THE OVERLAY PAUSES THE FIGHT (Deck Verified): Shift+Tab, or the Steam
+	## button on a Deck, over a running bout would leave it running.
+	if s.has_signal("overlay_toggled"):
+		s.connect("overlay_toggled", func(active: bool, _user := false, _app := 0) -> void:
+			if not active:
+				return
+			var tree := Engine.get_main_loop() as SceneTree
+			var sc := tree.current_scene if tree != null else null
+			if sc != null and sc.has_method("_set_paused") and sc.has_method("pad_owns_input") \
+					and bool(sc.call("pad_owns_input")):
+				sc.call("_set_paused", true))
 	return _steam
