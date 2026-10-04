@@ -815,13 +815,15 @@ func _the_man() -> void:
 	else:
 		## TWO PRICES, NAMED APART (blind review, 29 Sep: "$23 disagrees with $24").
 		## Extending now and re-signing when the deal runs out are different deals.
-		UiKit.text(self, font, UiKit.t("Asks at renewal"), Vector2(L_X + 16, ay), UiKit.tz(14), UiKit.DIM)
+		## PHONE SIZES ON A TABLET (3 Oct 2026): label and price share 256px that does
+		## not widen, and scaled up they ran into each other.
+		UiKit.text(self, font, UiKit.t("Asks at renewal"), Vector2(L_X + 16, ay), 14, UiKit.DIM)
 		## The price the club would actually pay (a Negotiator captain included),
 		## from the same function `Season.resign` charges.
 		var wage_asked: int = season.resign_cost(man) if season != null else int(asks["wage"])
 		UiKit.right(self, font, UiKit.t("%s/yr · %dy") % [
 			ClubOffice.money(wage_asked), int(asks["years"])],
-			Vector2(L_X + COL_W - 16, ay), UiKit.tz(12),
+			Vector2(L_X + COL_W - 16, ay), 12,
 			## A DEARER ASK IS A PRICE, NOT A DANGER (3 Oct 2026): gold, not red.
 			UiKit.YOU if float(asks["mood"]) > 1.02 else (
 				UiKit.UP if float(asks["mood"]) < 0.98 else UiKit.INK), 200)

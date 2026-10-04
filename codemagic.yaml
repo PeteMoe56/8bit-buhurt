@@ -89,6 +89,10 @@ workflows:
           "$GODOT" --headless --path . --import >/dev/null 2>&1 || true
           "$GODOT" --headless --path . --export-release "iOS" build/ios/CombatClub.xcodeproj
           test -d build/ios/CombatClub.xcodeproj
+          # THE HOME-SCREEN NAME (Pete, 3 Oct 2026: "It should be 8-Bit Buhurt").
+          # Godot writes the full project title; a phone label holds about 12.
+          sed -i '' 's/INFOPLIST_KEY_CFBundleDisplayName = "[^"]*";/INFOPLIST_KEY_CFBundleDisplayName = "8-Bit Buhurt";/' build/ios/CombatClub.xcodeproj/project.pbxproj
+          grep -q 'INFOPLIST_KEY_CFBundleDisplayName = "8-Bit Buhurt"' build/ios/CombatClub.xcodeproj/project.pbxproj
       - name: Signing profiles onto the project
         script: xcode-project use-profiles --project build/ios/CombatClub.xcodeproj
       - name: Signed IPA
