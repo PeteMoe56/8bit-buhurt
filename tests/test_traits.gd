@@ -554,6 +554,16 @@ func _test_a_level_goes_where_you_put_it() -> void:
 		"a level lands on the stat you chose, not the one he is worst at",
 		"skill 55 to %d, strength untouched at %d" % [f.skill, f.strength])
 	_ok(Career.levels_waiting(f) == 0, "and it is spent once", "nothing waiting")
+	## A LEVEL LANDS WHOLE AT THE CEILING (Pete, 4 Oct 2026: +3 into Strength
+	## one short of his ceiling gave +2 and threw the third away).
+	var near := f.copy()
+	near.potential = near.overall() + 1
+	near.xp = Career.next_level_at(near)
+	var s0 := near.strength
+	var rn := Career.level_into(near, Career.Stat.STRENGTH)
+	_ok(bool(rn.get("levelled", false)) and near.strength == s0 + Career.POINTS_PER_LEVEL,
+		"a level started under the ceiling lands all its points",
+		"strength %d to %d, ceiling %d, now %d" % [s0, near.strength, near.potential, near.overall()])
 
 	## THE OLD DOG LEARNS THE SAME TRICKS, SLOWER — Pete, 13 Sep 2026: *"I was
 	## talking about how fast he levels as in from Level 5 to level 6, leave the

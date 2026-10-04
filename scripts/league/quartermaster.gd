@@ -133,11 +133,13 @@ const WEAR := {
 ## of a season and outfitting the whole eight is a project. That is deliberate —
 ## an upgrade a club can buy for everybody in one afternoon is a menu, not a
 ## decision.
+## DOUBLED (Pete, 4 Oct 2026, Steam playthrough: "Armorer prices should be
+## doubled"). Were 3 / 7 / 14 / 24.
 const COST := {
-	Grade.SERVICEABLE: 3,
-	Grade.FITTED: 7,
-	Grade.TOURNAMENT: 14,
-	Grade.TITANIUM: 24,
+	Grade.SERVICEABLE: 6,
+	Grade.FITTED: 14,
+	Grade.TOURNAMENT: 28,
+	Grade.TITANIUM: 48,
 }
 
 

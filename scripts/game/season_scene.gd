@@ -389,7 +389,9 @@ func _rebuild() -> void:
 	_tape_clip = null
 	## NOT ON AN OCCASION: the tape sits on the bottom strip, and on a cup or boss
 	## night that strip is the ribbon naming the occasion — the tape hid it.
-	if tab == Tab.CLUB and season.blocked_by() == "" and season.mood() == UiKit.Mood.NORMAL:
+	## ON EVERY TAB NOW (Pete, 4 Oct 2026: "Ticker is missing from the bottom of
+	## the Menu pages, right now it's just on Fight").
+	if season.blocked_by() == "" and season.mood() == UiKit.Mood.NORMAL:
 		_tape_build()
 	match tab:
 		Tab.CLUB: _club_controls()
@@ -760,6 +762,8 @@ func _draw() -> void:
 		Tab.MARKET: _draw_market()
 		Tab.OFFICE: _draw_office()
 		Tab.FINANCES: _draw_finances()
+	if tab != Tab.CLUB:
+		_tape_draw_ground()
 	## THE MESSAGE IS A BAR OVER THE TAB, drawn last on its own ground (playtest
 	## 30 Sep: it printed through "THE ARMORER" underneath it).
 	## IN THE BOTTOM GUTTER, NOT UNDER THE TABS (3 Oct 2026): at y 105-129 the bar
@@ -890,10 +894,9 @@ func _schedule() -> void:
 ## Pete, item 20: *"Definitely need a Ticker across the bottom full of humor and
 ## results."*
 ##
-## ON THE CLUB TAB AND NOWHERE ELSE. It is a results service, and this is the
-## screen where a player is looking at results — put on every tab it would be a
-## moving object beside a roster somebody is reading, which is the thing the
-## juice rules exist to prevent.
+## ON EVERY TAB (Pete, 4 Oct 2026). It was the club tab only, on the argument
+## that a moving line beside a roster is a distraction; Pete wants it under every
+## menu page, and it sits in the bottom strip, clear of what is being read.
 ##
 ## IT IS A CONTROL, NOT DRAWN INK, AND THAT IS NOT A STYLE CHOICE.
 ##
@@ -996,7 +999,7 @@ func _process(_delta: float) -> void:
 		if got > 0:
 			flash = UiKit.t("%d credits.") % got
 			_rebuild()
-	if season == null or tab != Tab.CLUB:
+	if season == null:
 		return
 	## THE TAPE ASKS FOR ITS OWN FRAMES, which is the lesson of the note above:
 	## an animation on a canvas that only redraws on rebuild is a still frame.
@@ -1009,7 +1012,7 @@ func _process(_delta: float) -> void:
 		_tape_t += _delta
 		var w := _tape_label.size.x
 		_tape_label.position.x = Ticker.offset(_tape_t, w, UiKit.screen().x)
-	if season.blocked_by() != "dilemma":
+	if tab != Tab.CLUB or season.blocked_by() != "dilemma":
 		return
 	var card := season.dilemma_card()
 	if card.is_empty():

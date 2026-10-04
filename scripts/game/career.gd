@@ -833,12 +833,20 @@ static func level_into(f: FighterCard, stat: int) -> Dictionary:
 		return {"levelled": false, "reason": UiKit.t("not earned"),
 			"short": next_level_at(f) - f.xp}
 	var before := f.overall()
-	## POINTS_PER_LEVEL INTO THE STAT HE CHOSE, stopping at his ceiling or the
-	## stat's own top — the same rule the automatic path keeps.
-	for k in POINTS_PER_LEVEL:
-		if k > 0 and (at_ceiling(f) or not raisable(f).has(stat)):
+	## POINTS_PER_LEVEL INTO THE STAT HE CHOSE, AND ALL OF THEM (Pete, 4 Oct
+	## 2026: "I put +3 in a 53/55 Strength, should've shown +1 left"). The
+	## ceiling is checked before a level, not in the middle of one: it stopped a
+	## level two points in, threw the third away and spent the level anyway. A
+	## man one short of his ceiling now finishes the level he started, a fraction
+	## over. A stat at 99 passes its leftover to the next stat with room.
+	var left := POINTS_PER_LEVEL
+	while left > 0:
+		var room := raisable(f)
+		if room.is_empty():
 			break
-		write_stat(f, stat, read_stat(f, stat) + 1)
+		var into: int = stat if room.has(stat) else room[0]
+		write_stat(f, into, read_stat(f, into) + 1)
+		left -= 1
 	return _took(f, before, stat)
 
 

@@ -251,6 +251,7 @@ static func _ready_rig() -> bool:
 	_music = AudioStreamPlayer.new()
 	_music.name = "Music"
 	_music.bus = BUS_MUSIC
+	_music.finished.connect(_on_finished)
 	_rig.add_child(_music)
 	_pool.clear()
 	for i in POOL:
@@ -308,19 +309,84 @@ static func champion() -> void:
 
 
 ## WHAT THE OCCASION SOUNDS LIKE. The one call the rest of the game makes.
+##
+## AN ORDINARY WEEK IS A PLAYLIST (Pete, 4 Oct 2026: "Menu music keeps changing
+## with every Fight/Team/Upgrades/Management. Let's get a shuffled playlist going
+## instead"). The season screen asked for "club" from its draw and `UiKit.ground`
+## then asked for "menu" from the same draw, so every redraw — every tab — faded
+## one out and the other in. Now every menu, whichever door it calls through,
+## asks for the same thing: the playlist, which keeps playing what it is playing.
 static func for_mood(mood: int, fighting: bool = false) -> void:
 	match mood:
 		UiKit.Mood.CUP: music("cup")
 		UiKit.Mood.HOSTED: music("hosted")
 		UiKit.Mood.WORLDS: music("worlds")
 		UiKit.Mood.FINAL: music("final")
-		_: music("fight" if fighting else "club")
+		_:
+			if fighting:
+				music("fight")
+			else:
+				menu()
+
+
+## THE MENU PLAYLIST: every menu track on disk, shuffled, each played to its end
+## and followed by another (never the same one twice running). Asking for it
+## while it plays changes nothing.
+const PLAYLIST := ["menu", "club", "menu_own"]
+static var _bag: Array = []
+static var _last_list := ""
+
+
+static func menu() -> void:
+	if not _ready_rig():
+		return
+	## Playing, or recorded as playing where there is no device (`_begin`).
+	if _in_playlist(_playing) and (_music.playing or not _music.is_inside_tree()):
+		return
+	_next_in_list()
+
+
+static func _in_playlist(id: String) -> bool:
+	return id != "" and _tracks().has(id)
+
+
+## The playlist as it stands on disk: each slot resolved, duplicates dropped (a
+## missing `menu.ogg` resolves to `menu_own`, which is already in the list).
+static func _tracks() -> Array:
+	var out: Array = []
+	for t in PLAYLIST:
+		var r := resolve(String(t))
+		if r != "" and not out.has(r):
+			out.append(r)
+	return out
+
+
+static func _next_in_list() -> void:
+	var all := _tracks()
+	if all.is_empty():
+		stop()
+		return
+	if _bag.is_empty():
+		_bag = all.duplicate()
+		_bag.shuffle()
+		## No track twice in a row across a reshuffle.
+		if _bag.size() > 1 and _bag[0] == _last_list:
+			_bag.push_back(_bag.pop_front())
+	var id := String(_bag.pop_front())
+	_last_list = id
+	music(id, true)
+
+
+## A playlist track ended on its own: the next one, if the menus still want it.
+static func _on_finished() -> void:
+	if _in_playlist(_playing):
+		_next_in_list()
 
 
 ## Start a track, crossfading out whatever is on. A track that is not in the
 ## catalog, or whose file is not there, **stops the music and says nothing** —
 ## which is what lets this whole system ship before a single note is recorded.
-static func music(id: String) -> void:
+static func music(id: String, once: bool = false) -> void:
 	if not _ready_rig():
 		return
 	## Ask for what the screen wants; play the nearest thing that exists.
@@ -339,7 +405,8 @@ static func music(id: String) -> void:
 	if stream == null:
 		stop()
 		return
-	_loop(stream, bool(d.get("loop", true)))
+	## A PLAYLIST TRACK PLAYS ONCE and hands over (`_on_finished`).
+	_loop(stream, bool(d.get("loop", true)) and not once)
 	var db := float(d.get("db", -8.0))
 	var fin := float(d.get("in", FADE_IN))
 	var fout := float(d.get("out", FADE_OUT))

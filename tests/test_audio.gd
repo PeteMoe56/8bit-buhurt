@@ -34,6 +34,7 @@ func _initialize() -> void:
 	_test_volume_is_a_slider_not_decibels()
 	_test_no_screen_is_silent()
 	_test_the_sounds_are_actually_called()
+	_test_the_menus_play_one_playlist()
 
 	print("")
 	for n in notes:
@@ -279,9 +280,12 @@ func _test_the_sounds_are_actually_called() -> void:
 			orphans.append(String(id))
 	## Music is reached through `for_mood` rather than by name, so only the two
 	## that are played explicitly are checked here.
-	for id in ["menu", "champion"]:
+	## "menu" is reached through the menu playlist (4 Oct 2026), not by name.
+	for id in ["champion"]:
 		if not RegEx.create_from_string('music\\(\\s*"%s"' % id).search(src):
 			orphans.append(id)
+	if not Audio.PLAYLIST.has("menu"):
+		orphans.append("menu")
 
 	notes.append("%d one-shots, all reachable from a screen or the sim" % Audio.SOUNDS.size())
 	if not orphans.is_empty():
@@ -365,3 +369,32 @@ func _scripts(dir: String) -> Array[String]:
 	for d in DirAccess.get_directories_at(dir):
 		out.append_array(_scripts(dir + "/" + d))
 	return out
+
+
+## ONE PLAYLIST FOR EVERY MENU (Pete, 4 Oct 2026: the music changed on every tab,
+## because the season screen asked for "club" and the ground under it asked for
+## "menu" in the same draw). Every menu door now asks for the playlist, and a
+## second ask while a playlist track plays keeps it. Played to the end, a track
+## hands over to a different one.
+func _test_the_menus_play_one_playlist() -> void:
+	var was := Audio.enabled
+	Audio.enabled = true
+	Audio.stop(0.0)
+	Audio.for_mood(UiKit.Mood.NORMAL)
+	var first := Audio.now_playing()
+	Audio.menu()
+	Audio.for_mood(UiKit.Mood.NORMAL)
+	var tracks := Audio._tracks()
+	_ok(tracks.size() >= 2 and tracks.has(first) and Audio.now_playing() == first,
+		"every menu door keeps the one playlist track playing",
+		"%s, then %s, of %s" % [first, Audio.now_playing(), str(tracks)])
+	var seen := {first: true}
+	for k in 6:
+		Audio._on_finished()
+		seen[Audio.now_playing()] = true
+	_ok(seen.size() == tracks.size(), "and a finished track hands over through the whole list",
+		"heard %s" % str(seen.keys()))
+	Audio.for_mood(UiKit.Mood.NORMAL, true)
+	_ok(Audio.now_playing() == "fight", "a fight still has its own track", Audio.now_playing())
+	Audio.stop(0.0)
+	Audio.enabled = was

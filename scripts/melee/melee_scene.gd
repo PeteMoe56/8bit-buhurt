@@ -2626,6 +2626,18 @@ func _build_ui() -> void:
 		UiKit.t("Back to the club") if Session.season != null else UiKit.t("Next bout"),
 		Vector2(260, 48), func():
 			if Session.season != null:
+				## LEVELS FIRST (Pete, 4 Oct 2026: "Missing the Player upgrade
+				## screen after a fight. A novice player wouldn't find Team tab >
+				## his page > choose upgrade"). The way out of the report goes
+				## through every man with a level to place, one page each, and
+				## the clubhouse after.
+				var waiting := _levels_waiting()
+				if not waiting.is_empty():
+					Session.viewing_fighter = waiting[0]
+					Session.level_run = true
+					Session.autosave()
+					UiKit.go_back_to("res://scenes/Fighter.tscn", "res://scenes/Season.tscn")
+					return
 				UiKit.back("res://scenes/Season.tscn")
 			else:
 				_new_bout(randi()))
@@ -2642,30 +2654,36 @@ func _build_ui() -> void:
 var spend_button: Button = null
 
 
+func _levels_waiting() -> Array[FighterCard]:
+	var waiting: Array[FighterCard] = []
+	if Session.season == null:
+		return waiting
+	for f in Session.season.club.active_eight():
+		if Career.can_place(f):
+			waiting.append(f)
+	return waiting
+
+
+## ONE WAY OUT, AND IT SAYS WHERE IT GOES: "Level up (N)" when men have levels
+## to place, which is where it now leads; "Back to the club" when none do. The
+## second, optional button beside it is gone — a novice did not find it.
 func _add_spend_button() -> void:
 	if spend_button != null:
 		spend_button.queue_free()
 		spend_button = null
 	if Session.season == null:
 		return
-	var waiting: Array[FighterCard] = []
-	for f in Session.season.club.active_eight():
-		if Career.can_place(f):
-			waiting.append(f)
+	var waiting := _levels_waiting()
 	if waiting.is_empty():
+		again_button.text = UiKit.t("Back to the club")
 		UiKit.primary(again_button)
 		return
 	## THE POINTS, NOT THE MEN: the same count the rows add up to.
 	var pts := 0
 	for f in waiting:
 		pts += Career.levels_banked(f)
-	spend_button = UiKit.primary(UiKit.button(UiKit.t("Spend levels (%d)") % pts,
-		Vector2(REP_PANEL.position.x + 24.0, again_button.position.y), Vector2(260, 48), func():
-			Session.viewing_fighter = waiting[0]
-			Session.level_run = true
-			Session.autosave()
-			UiKit.go_back_to("res://scenes/Fighter.tscn", "res://scenes/Season.tscn"), "up"))
-	ui.add_child(spend_button)
+	again_button.text = UiKit.t("Spend levels (%d)") % pts
+	UiKit.primary(again_button)
 
 
 ## EVERY BUTTON IN THE FIGHT, SKINNED LIKE EVERY OTHER BUTTON IN THE GAME.

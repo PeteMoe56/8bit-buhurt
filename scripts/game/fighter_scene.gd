@@ -309,6 +309,10 @@ func _build() -> void:
 					man.display_name, Career.PROSPECT_GAIN]
 			Session.autosave()
 			_build(), "up")
+	## SAYS WHAT IT DOES BEFORE THE TAP, on a PC hover (the tap's answer is the
+	## gold line under his name).
+	inv.tooltip_text = UiKit.t("Invest in one man a year: +%d to his max at the winter. Needs a Training ground at %d.") % [
+		Career.PROSPECT_GAIN, Career.PROSPECT_GROUND]
 	ui.add_child(UiKit.selected(inv, invested))
 	## "To the Hall": "Tag for the Hall" shrank to a squint at half the panel.
 	ui.add_child(UiKit.button(UiKit.t("In the Hall") if tagged else UiKit.t("To the Hall"),
@@ -664,8 +668,13 @@ func _draw() -> void:
 
 ## Where the flash line sits: above the button row, or under the title when the
 ## level row is up and would cover it.
+##
+## UNDER THE TITLE, ALWAYS (Pete, 4 Oct 2026: "Invest +3 ... whatever clicking it
+## did hides behind 'Meeting · Ellis'"). The low line was clear of the footer
+## row but not of the Meeting door, which sits on the same band — so every
+## answer to a tap on this page that was not a level drew under a button.
 func flash_y() -> float:
-	return 74.0 if man != null and Career.can_place(man) else UiKit.screen().y - 76.0
+	return 74.0
 
 
 # ------------------------------------------------------------------- column 1
@@ -1007,7 +1016,7 @@ func _attributes() -> void:
 	## version already proved clear.
 	UiKit.text_fit(self, font,
 		(UiKit.t("%s: a boost, for now.") % man.morale_word()) if man.angry()
-			else UiKit.t("Green box: how far he can grow."),
+			else UiKit.t("Green box: his room to grow, shared by all four."),
 		## PHONE SIZE ON A TABLET TOO (3 Oct 2026): the column does not widen, and
 		## at 16px the legend was cut to "how far he can gr.".
 		Vector2(M_X + 16, COL_Y + col_h() - 14), 13,

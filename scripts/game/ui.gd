@@ -1265,7 +1265,9 @@ static func fit_px(font: Font, s: String, px: int, width: float) -> String:
 ## already playing, so calling it every frame from a draw costs a comparison —
 ## which is what the three screens that already had it have always done.
 static func ground(ci: CanvasItem, wash: bool = true) -> void:
-	Audio.music("menu")
+	## The occasion's music, which on an ordinary week is the menu playlist —
+	## the same answer the season screen gets, so the two cannot fight.
+	Audio.for_mood(mood)
 	## The REAL screen, from its real left edge: a framed scene is drawn shifted.
 	var o := Vector2(-frame_off, 0.0) if framed else Vector2.ZERO
 	ci.draw_rect(Rect2(o, real_screen()), BG)
