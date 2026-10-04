@@ -17,10 +17,13 @@ static func _finances_controls(v: SeasonScene) -> void:
 			Vector2(200, 44), func():
 				v.fin_full = false
 				v._rebuild()))
-		v.ui.add_child(UiKit.button(UiKit.t("Buy credits"), Vector2(240, SeasonScene.action_y()),
-			Vector2(200, 44), func():
-				v.shop_open = true
-				v._rebuild(), "coin"))
+		## NO COUNTER WHERE NOTHING IS SOLD (Pete, 3 Oct 2026: Steam is earn-only).
+		## On desktop the button opened a shop that only said credits are earned.
+		if Store.available() or OS.get_name() in ["Android", "iOS"]:
+			v.ui.add_child(UiKit.button(UiKit.t("Buy credits"), Vector2(240, SeasonScene.action_y()),
+				Vector2(200, 44), func():
+					v.shop_open = true
+					v._rebuild(), "coin"))
 		return
 	## MANAGEMENT (Pete, 1 Oct 2026): Finances, Staff, You — each a summary and
 	## the button that opens all of it.

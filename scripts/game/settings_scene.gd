@@ -150,6 +150,14 @@ func _build() -> void:
 			_build()))
 	ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(LEFT_X, UiKit.bottom(58.0)),
 		Vector2(160, 46), _back))
+	## DISPLAY, ON A COMPUTER ONLY (Steam, 3 Oct 2026). Says what is on now;
+	## Alt+Enter and F11 do the same.
+	if Settings.is_desktop():
+		ui.add_child(UiKit.button(UiKit.t("Fullscreen: on") if Settings.fullscreen else UiKit.t("Fullscreen: off"),
+			Vector2(LEFT_X + 176.0, UiKit.bottom(58.0)), Vector2(220, 46), func():
+				Settings.toggle_fullscreen()
+				Audio.play("tap")
+				_build()))
 	## THE CREDITS LIVE BEHIND THEIR OWN BUTTON (blind review, 29 Sep: they took
 	## half the screen and outranked the settings). Every line is still there, in
 	## full, above the licence texts.

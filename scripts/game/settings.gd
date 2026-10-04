@@ -25,6 +25,9 @@ const CONTROLS := ["corner", "classic"]
 const HANDS := ["right", "left"]
 static var fight_controls: String = "corner"
 static var fight_hand: String = "right"
+## DESKTOP ONLY (Steam, 3 Oct 2026): start fullscreen; Alt+Enter / F11 and the
+## Settings button flip it. Ignored on phones and tablets.
+static var fullscreen: bool = true
 
 
 static func load_once() -> void:
@@ -53,7 +56,9 @@ static func load_once() -> void:
 		if seen is Array:
 			for k in seen:
 				tips_seen.append(String(k))
+		fullscreen = bool(cfg.get_value("display", "fullscreen", fullscreen))
 	apply()
+	apply_display()
 	apply_language()
 
 
@@ -66,6 +71,7 @@ static func save_to_disk() -> void:
 	cfg.set_value("general", "tips_seen", tips_seen)
 	cfg.set_value("controls", "fight", fight_controls)
 	cfg.set_value("controls", "hand", fight_hand)
+	cfg.set_value("display", "fullscreen", fullscreen)
 	## WRITTEN ASIDE AND MOVED IN (3 Oct 2026, audit). Straight over the file, a
 	## kill mid-write tore it and every setting came back at its default.
 	var tmp := path + ".tmp"
@@ -76,6 +82,34 @@ static func save_to_disk() -> void:
 			DirAccess.remove_absolute(path + ".bak")
 		DirAccess.rename_absolute(path, path + ".bak")
 	DirAccess.rename_absolute(tmp, path)
+
+
+## A desktop window: fullscreen (borderless, the desktop's own resolution) or a
+## window. Phones, tablets and headless runs are left alone.
+## NOT FROM THE EDITOR BINARY: the suite and the shot tools run under xvfb with
+## it, and a fullscreen window there would change the screen every test measures.
+static func is_desktop() -> bool:
+	return OS.has_feature("pc") and not OS.has_feature("editor") and DisplayServer.get_name() != "headless"
+
+
+static func apply_display() -> void:
+	if not is_desktop():
+		return
+	var want := DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
+	if DisplayServer.window_get_mode() != want:
+		DisplayServer.window_set_mode(want)
+		if not fullscreen:
+			## A window big enough to read: two thirds of the screen at 16:9.
+			var scr := DisplayServer.screen_get_size()
+			var w := int(scr.x * 0.66)
+			DisplayServer.window_set_size(Vector2i(w, int(w * 9.0 / 16.0)))
+			DisplayServer.window_set_position((scr - DisplayServer.window_get_size()) / 2)
+
+
+static func toggle_fullscreen() -> void:
+	fullscreen = not fullscreen
+	apply_display()
+	save_to_disk()
 
 
 static func set_fight_controls(which: String) -> void:

@@ -91,6 +91,12 @@ func _input(event: InputEvent) -> void:
 			or event is InputEventScreenDrag or event is InputEventKey):
 		get_viewport().set_input_as_handled()
 		return
+	## ALT+ENTER AND F11, the PC habit (Steam, 3 Oct 2026).
+	if event is InputEventKey and event.pressed and not event.echo and (event.keycode == KEY_F11
+			or (event.keycode == KEY_ENTER and event.alt_pressed)) and Settings.is_desktop():
+		get_viewport().set_input_as_handled()
+		Settings.toggle_fullscreen()
+		return
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		back_pressed()

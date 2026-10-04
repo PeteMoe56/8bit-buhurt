@@ -12,6 +12,10 @@ config/name="8-Bit Buhurt: Combat Club"
 config/version="1.0.0"
 config/description="8-bit buhurt club manager. Draw the route, he goes and does it."
 config/quit_on_go_back=false
+; DESKTOP SAVES IN A FIXED FOLDER (Steam, 3 Oct 2026): BonkWorks/CombatClub under
+; the user's app data, so Steam Cloud has a stable path. Phones keep their sandbox.
+config/use_custom_user_dir.pc=true
+config/custom_user_dir_name.pc="BonkWorks/CombatClub"
 run/main_scene="res://scenes/Start.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://art/brand/crest_512.png"
