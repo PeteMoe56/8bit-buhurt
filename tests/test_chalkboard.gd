@@ -343,4 +343,19 @@ func _test_the_rebuilt_screen() -> void:
 			plays_tab = c
 	plays_tab.pressed.emit()
 	_ok(int(scene.mode) == 1, "and the second tap goes", "mode %d" % int(scene.mode))
+	## A SAVED SLOT SAYS SO (Pete, 4 Oct 2026: "doesn't feel saved"): Save reads
+	## "Saved", dead, while the board matches the file, and "Save" the moment
+	## it does not.
+	for c in scene.ui.get_children():
+		if c is Button and (c as Button).text == UiKit.t("FORMATIONS") and not c.is_queued_for_deletion():
+			(c as Button).pressed.emit()
+			break
+	scene.call("_style_save")
+	var sb: Button = scene.save_b
+	_ok(sb.disabled and sb.text == UiKit.t("Saved") and sb.icon != null,
+		"a slot on file shows Saved with a tick", "'%s' disabled %s" % [sb.text, sb.disabled])
+	scene.spots[2] = Vector2(0.50, 0.05)
+	scene.call("_style_save")
+	_ok(not sb.disabled and sb.text == UiKit.t("Save"), "and Save again once it changes",
+		"'%s' disabled %s" % [sb.text, sb.disabled])
 	scene.queue_free()

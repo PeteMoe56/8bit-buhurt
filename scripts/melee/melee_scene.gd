@@ -457,6 +457,9 @@ func _process(delta: float) -> void:
 	_maybe_tip()
 	if screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER and not paused and tip == "":
 		sim.corner_t -= delta
+		if panel_box != null and panel_box.visible \
+				and int(ceil(maxf(0.0, sim.corner_t))) != _book_clock_shown:
+			_book_title()
 		if sim.corner_t <= 0.0:
 			_corner_time_up()
 	## THE WHEEL FREEZES THE FIGHT like the hold does — the accumulator is gated,
@@ -2249,9 +2252,11 @@ func _draw_prompt(m) -> void:
 ## named a formation the men were not standing in, and a shape drawn on the
 ## Chalkboard could never be named at all.
 func _our_shape_name() -> String:
+	## THE LIVE SHAPE, not the club's starting one: a shape called in the corner
+	## is the one the men stand in this round.
 	if Session.season != null:
-		return Session.season.board.formation_name(Session.season.formation_id)
-	return String(Tuning.FORMATIONS[sim.formations[0]]["name"])
+		return Session.season.board.formation_name(_live_shape_id())
+	return UiKit.t(String(Tuning.FORMATIONS[sim.formations[0]]["name"]))
 
 
 # --------------------------------------------------------------------- HUD
@@ -2605,7 +2610,10 @@ func _build_ui() -> void:
 	ui.add_child(skip_button)
 
 	panel_box = VBoxContainer.new()
-	panel_box.position = Vector2(PANEL_X, 132)
+	## 72, AND THE BOOK 60 TALLER (playtest, 4 Oct 2026: the shape column showed
+	## two cards, so a drawn shape was always below the fold). Same floor as
+	## before; the panel grows up over the scrimmed scoreboard, not down.
+	panel_box.position = Vector2(PANEL_X, 72)
 	panel_box.custom_minimum_size = Vector2(PANEL_W, 0)
 	panel_box.add_theme_constant_override("separation", 10)
 	ui.add_child(panel_box)
@@ -2741,7 +2749,7 @@ func _book_shapes() -> Array:
 				"spots": Session.season.board.spots_for(int(c["id"]))})
 	else:
 		for f in Tuning.FORMATIONS.keys():
-			out.append({"id": int(f), "name": String(Tuning.FORMATIONS[f]["name"]),
+			out.append({"id": int(f), "name": UiKit.t(String(Tuning.FORMATIONS[f]["name"])),
 				"spots": Tuning.FORMATIONS[f]["spots"]})
 	return out
 
@@ -3079,6 +3087,23 @@ func _apply_chosen() -> void:
 ## corner, which meant a swap screen before a round that has not been fought yet
 ## — the line is set in the clubhouse, and a corner is for what the last round
 ## did to it.
+## THE CORNER'S CLOCK ON THE BOOK (4 Oct 2026). Between rounds the book is open
+## while `corner_t` runs, and the clock was drawn only on the corner screen —
+## so a player leafing through his shapes was sent back in with no warning.
+var _book_title_base := ""
+var _book_clock_shown := -1
+
+
+func _book_title() -> void:
+	var t := _book_title_base
+	if screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER:
+		_book_clock_shown = int(ceil(maxf(0.0, sim.corner_t)))
+		t += "   ·   %s 0:%02d" % [UiKit.t("BACK IN"), _book_clock_shown]
+	panel_title.text = t
+	panel_title.add_theme_color_override("font_color",
+		COL_HOT if _book_clock_shown >= 0 and _book_clock_shown < 6 else UiKit.INK)
+
+
 func _show_playbook() -> void:
 	## THE CORNER'S CONTROLS GO WITH IT. They are absolutely positioned on the
 	## shared `ui` layer, so a book opened over them would be a book with five SUB
@@ -3088,10 +3113,12 @@ func _show_playbook() -> void:
 	_clear_panel()
 	var board: Chalkboard = Session.season.board if Session.season != null else null
 	var starred: int = board.live_favorites().size() if board != null else 0
-	panel_title.text = UiKit.t("THE PLAYBOOK — %s") % (UiKit.t("tap to star, %d of %d") % [starred,
+	_book_title_base = UiKit.t("THE PLAYBOOK — %s") % (UiKit.t("tap to star, %d of %d") % [starred,
 		Chalkboard.MAX_FAVORITES] if starring else UiKit.t("pick one"))
 	if book_note != "":
-		panel_title.text += "   ·   " + book_note
+		_book_title_base += "   ·   " + book_note
+	_book_clock_shown = -1
+	_book_title()
 	panel_box.visible = true
 	again_button.visible = false
 	## THE STRIP IS PAID FOR BY THE BOOK, not added to the panel.
@@ -3251,7 +3278,7 @@ const PANEL_X := 120.0
 ## switch and the way back to the corner — and at 300 the panel ran to y 566 of a
 ## 540 frame with "Back to the corner" off the bottom of the screen. The page is
 ## what gives way, because the buttons are the part you cannot scroll to.
-const BOOK_H := 268.0
+const BOOK_H := 328.0
 ## 176 and not 196. At 196 the panel ran to y 530 of a 540 frame — inside the
 ## edge, so the sweep passed it, and close enough to it that the half-card the
 ## scroll was cutting read as the screen running out rather than as a list

@@ -39,6 +39,11 @@ const SLOT_Y := 128.0
 const SLOT_H := 44.0
 const SLOT_W := 240.0
 const MARK_R := 22.0
+## A SAVED SHAPE IS A THING IN A LIST, not a word in a box (Pete, 4 Oct 2026: "a
+## saved play/formation doesn't feel saved, it just sits in the text box"). Every
+## row with something on file carries a little picture of it, the row on the
+## board is framed, and Save turns into a green "Saved" once it is.
+const THUMB := Vector2(58.0, 36.0)
 
 var font: Font
 var season: Season
@@ -69,6 +74,8 @@ var clean_sig := ""
 ## `clean_sig` cannot answer on a slot never saved: has anything been drawn?
 var open_sig := ""
 var save_b: Button
+## The row lights up when Save lands, and fades (`_process`).
+var glow := 0.0
 
 
 func _ready() -> void:
@@ -138,24 +145,42 @@ func _may_leave(key: String) -> bool:
 	return false
 
 
+func _process(delta: float) -> void:
+	if glow > 0.0:
+		glow = maxf(0.0, glow - delta * 1.4)
+		queue_redraw()
+
+
 func _sig() -> String:
 	return "%s|%s|%d|%s" % [str(spots), str(routes), bind_to, str(draft_name)]
 
 
-## Save lights when the working copy differs from what is on file.
+## Save lights when the working copy differs from what is on file, and reads
+## "Saved" with a green tick when it does not and there is something on file.
+var _save_state := -1
+
+
 func _style_save() -> void:
 	if save_b == null or not is_instance_valid(save_b):
 		return
 	var clean := _sig() == clean_sig
-	if clean == save_b.disabled:
+	var state := 1 if clean else 0
+	if state == _save_state and clean == save_b.disabled:
 		return
+	_save_state = state
 	save_b.disabled = clean
 	## GOLD ONLY WHILE THERE IS SOMETHING TO SAVE (checklist C3: never a dead
 	## gold button).
 	if clean:
 		save_b.remove_meta("primary")
 		UiKit.skin(save_b)
+		save_b.text = UiKit.t("Saved")
+		save_b.icon = UiIcons.texture("check", UiKit.UP, 1)
+		save_b.add_theme_color_override("font_disabled_color", UiKit.UP)
 	else:
+		save_b.text = UiKit.t("Save")
+		save_b.icon = null
+		save_b.remove_theme_color_override("font_disabled_color")
 		UiKit.primary(save_b)
 
 
@@ -212,7 +237,7 @@ func _rebuild() -> void:
 			name_edit = LineEdit.new()
 			UiKit.skin_edit(name_edit)
 			name_edit.position = Vector2(LEFT_X, y)
-			name_edit.size = Vector2(SLOT_W, SLOT_H)
+			name_edit.size = Vector2(SLOT_W - THUMB.x - 10.0, SLOT_H)
 			name_edit.max_length = 18
 			name_edit.placeholder_text = UiKit.t("Name it")
 			name_edit.text = draft_name if draft_name != null else _current_name()
@@ -265,7 +290,8 @@ func _rebuild() -> void:
 			Vector2(150, 42), _save)
 		## Starts dead and plain; `_style_save` lights it the moment the board
 		## differs from what is on file.
-		save_b.disabled = true
+		save_b.disabled = false
+		_save_state = -1
 		ui.add_child(save_b)
 		_style_save()
 		ui.add_child(UiKit.button(UiKit.t("Revert"), Vector2(BOARD.position.x + 158, 486),
@@ -342,6 +368,8 @@ func _save() -> void:
 		return
 	Session.autosave()
 	flash = UiKit.t("Saved.")
+	Audio.play("confirm")
+	glow = 1.0
 	clean_sig = _sig()
 	open_sig = clean_sig
 	_rebuild()
@@ -528,6 +556,10 @@ func _draw() -> void:
 	if mode == Mode.FORMATION:
 		UiKit.text_fit(self, font, UiKit.t("Drag a man to where he starts."), Vector2(LEFT_X, hy), 14, UiKit.DIM, hw)
 		UiKit.text_fit(self, font, UiKit.t("The line is as far as he may go."), Vector2(LEFT_X, hy + 18.0), 14, UiKit.DIM, hw)
+		## WHERE THE NEXT BOUT STARTS (4 Oct 2026): the shape last fought in.
+		UiKit.text_fit(self, font, UiKit.t("Next bout opens in:"), Vector2(LEFT_X, hy + 44.0), 14, UiKit.DIM, hw)
+		UiKit.text_fit(self, font, board.formation_name(season.formation_id),
+			Vector2(LEFT_X, hy + 62.0), 14, UiKit.YOU, hw)
 	else:
 		UiKit.text_fit(self, font, UiKit.t("Drag from a man"), Vector2(LEFT_X, hy), 14, UiKit.DIM, hw)
 		UiKit.text_fit(self, font, UiKit.t("to draw his route."), Vector2(LEFT_X, hy + 18.0), 14, UiKit.DIM, hw)
@@ -596,20 +628,69 @@ func _draw_slots() -> void:
 				UiKit.icon(self, "lock", Vector2(LEFT_X + 10, y + 14), UiKit.DIM)
 				UiKit.text(self, font, UiKit.t("Locked"), Vector2(LEFT_X + 32, y + 28), 14, UiKit.DIM)
 			continue
+		var thumb := Rect2(r.end.x - THUMB.x - 4.0, y + (SLOT_H - THUMB.y) * 0.5, THUMB.x, THUMB.y)
 		if i == slot:
-			continue    ## the name field sits here
+			## THE ROW ON THE BOARD: framed in gold, its picture the working copy.
+			## The name field sits over the left of it.
+			UiKit.panel(self, r, false)
+			if glow > 0.0:
+				draw_rect(r.grow(2.0), Color(UiKit.UP, 0.35 * glow))
+			draw_rect(r.grow(2.0), UiKit.YOU, false, 2.0)
+			_draw_thumb(thumb, spots if mode == Mode.FORMATION else _play_spots(),
+				null if mode == Mode.FORMATION else routes)
+			## A DOT FOR WORK NOT ON FILE, the way an editor marks an unsaved tab.
+			if _sig() != clean_sig:
+				draw_rect(Rect2(thumb.end - Vector2(7, 7), Vector2(6, 6)), UiKit.YOU)
+			continue
 		UiKit.panel(self, r, false)
 		var nm := ""
+		var has := false
 		if mode == Mode.FORMATION:
-			nm = String(board.formations[i]["name"]) if i < board.formations.size() else UiKit.t("— empty —")
+			has = i < board.formations.size()
+			nm = String(board.formations[i]["name"]) if has else UiKit.t("— empty —")
 		else:
-			nm = String(board.plays[i]["name"]) if i < board.plays.size() else UiKit.t("— empty —")
-		UiKit.text(self, font, UiKit.clip(nm, 20), Vector2(LEFT_X + 12, y + 28),
-			16, UiKit.INK)
-		if mode == Mode.PLAY and i < board.plays.size():
+			has = i < board.plays.size()
+			nm = String(board.plays[i]["name"]) if has else UiKit.t("— empty —")
+		## A PLAY SAYS WHAT IT RUNS FROM, small, between its name and its picture.
+		var tag := ""
+		if mode == Mode.PLAY and has:
+			var bf := int(board.plays[i]["formation"])
+			tag = UiKit.t("any") if bf == Chalkboard.UNIVERSAL else UiKit.clip(board.formation_name(bf), 8)
+		var tag_w := 0.0 if tag == "" else font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 8.0
+		UiKit.text(self, font, UiKit.clip_px(font, nm, 16, SLOT_W - THUMB.x - 24.0 - tag_w),
+			Vector2(LEFT_X + 12, y + 28), 16, UiKit.INK if has else UiKit.DIM)
+		if tag != "":
+			UiKit.right(self, font, tag, Vector2(thumb.position.x - 6.0, y + 27), 12, UiKit.DIM, tag_w)
+		if not has:
+			continue
+		if mode == Mode.FORMATION:
+			_draw_thumb(thumb, board.formations[i]["spots"], null)
+		else:
 			var f := int(board.plays[i]["formation"])
-			var tag := UiKit.t("any") if f == Chalkboard.UNIVERSAL else UiKit.clip(board.formation_name(f), 10)
-			UiKit.right(self, font, tag, Vector2(LEFT_X + SLOT_W - 10, y + 28), 14, UiKit.DIM, 120.0)
+			_draw_thumb(thumb, board.spots_for(f) if f != Chalkboard.UNIVERSAL
+				else board.spots_for(season.formation_id), board.routes_of(i))
+
+
+## A SHAPE OR A PLAY THE SIZE OF A STAMP: your rail on the left, the men as
+## dots (the Center gold, as on every card), a play's routes as lines. The
+## depth is scaled to what the mode can use, so a formation's men are not all
+## crammed against the rail of a picture drawn for the whole list.
+func _draw_thumb(r: Rect2, sp: Array, rt) -> void:
+	draw_rect(r, UiKit.BG.lightened(0.05))
+	draw_rect(Rect2(r.position, Vector2(2.0, r.size.y)), UiKit.FRAME)
+	var deep: float = Tuning.SET_UP_LINE * 1.35 if rt == null else Tuning.PLAY_MAX_Y
+	var to := func(v: Vector2) -> Vector2:
+		return Vector2(r.position.x + 5.0 + (r.size.x - 10.0) * clampf(v.y / deep, 0.0, 1.0),
+			r.position.y + 4.0 + (r.size.y - 8.0) * clampf(v.x, 0.0, 1.0))
+	for k in mini(5, sp.size()):
+		var a: Vector2 = to.call(Vector2(sp[k]))
+		if rt != null and k < rt.size():
+			var from := a
+			for v in rt[k]:
+				var b: Vector2 = to.call(Vector2(v))
+				draw_line(from, b, UiKit.DIM, 1.0)
+				from = b
+		draw_rect(Rect2(a - Vector2(2, 2), Vector2(4, 4)), UiKit.YOU if k == 2 else UiKit.INK)
 
 
 func _draw_board() -> void:

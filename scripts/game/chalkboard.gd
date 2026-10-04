@@ -137,7 +137,7 @@ func formation_name(id: int) -> String:
 	if not f.is_empty():
 		return String(f["name"])
 	if Tuning.FORMATIONS.has(id):
-		return String(Tuning.FORMATIONS[id]["name"])
+		return UiKit.t(String(Tuning.FORMATIONS[id]["name"]))
 	return "?"
 
 
@@ -146,7 +146,8 @@ func formation_name(id: int) -> String:
 func formation_choices() -> Array:
 	var out: Array = []
 	for k in Tuning.FORMATIONS:
-		out.append({"id": int(k), "name": String(Tuning.FORMATIONS[k]["name"]), "custom": false})
+		## THROUGH t(): "Depth" and "Strong left" were English in every language.
+		out.append({"id": int(k), "name": UiKit.t(String(Tuning.FORMATIONS[k]["name"])), "custom": false})
 	for f in formations:
 		out.append({"id": int(f["id"]), "name": String(f["name"]), "custom": true})
 	return out

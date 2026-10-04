@@ -205,6 +205,8 @@ func _test_the_shape_you_fight_in_is_the_next_start() -> void:
 	scene.call("_call_from_book", drawn, {"kind": "push", "id": Tuning.Strategy.RUSH_LEFT, "name": "Rush left"})
 	_ok(s.formation_id == int(drawn["id"]), "the drawn shape fought in becomes the club's starting shape",
 		"formation_id %d, drawn %d" % [s.formation_id, int(drawn["id"])])
+	_ok(String(scene.call("_our_shape_name")) == String(drawn["name"]), "and the scoreboard names it",
+		String(scene.call("_our_shape_name")))
 	scene.queue_free()
 	await process_frame
 	## A built-in, the other way: the next bout lights it, not 2-1-2.
