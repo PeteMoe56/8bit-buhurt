@@ -59,8 +59,19 @@ func _plan_drag() -> void:
 		path_pts.append(a.lerp(b, t) + bend * sin(PI * t))
 
 
+var wheel_seen := 0
+
+
 func _process(_d: float) -> bool:
 	n += 1
+	## THE WHEEL FREEZES THE FIGHT (and opens at PROMPT_RANGE now, 4 Oct 2026):
+	## let it be seen for a third of a second, then call the Bullrush, so the
+	## clip has the charge and the slide in it.
+	if int(scene.get("wheel_man")) != -1:
+		wheel_seen += 1
+		if wheel_seen >= 20:
+			scene.sim.answer_prompt(int(scene.get("wheel_man")), Tuning.Act.BULLRUSH)
+			wheel_seen = 0
 	if bool(scene.get("paused")):
 		scene.call("_set_paused", false)
 	if n == 4:
