@@ -376,9 +376,18 @@ func _test_drafts_never_ship() -> void:
 	var english := UiKit.t("Back")
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(Settings.path))
 	Settings.path = was_path
-	_ok(rel_offered == ["", "en"] and rel_resolved == "en"
-		and dbg_offered.size() == 2 + Settings.DRAFTS.size()
-		and spoken != "Back" and english == "Back" and marked.ends_with(mark) and mark != "(draft)",
-		"drafts are offered only in a debug build, and never chosen for a player",
+	## ALL NINE SHIP since 4 Oct 2026: a release build offers Automatic + every
+	## SHIPPING language and keeps a saved choice; only a translation that is not
+	## in SHIPPING is debug-only and marked (none today, so the mark is checked on
+	## its own words).
+	var unshipped := 0
+	for code in Settings.DRAFTS:
+		if not Settings.SHIPPING.has(code):
+			unshipped += 1
+	_ok(rel_offered.size() == 1 + Settings.SHIPPING.size() and rel_resolved == "es"
+		and dbg_offered.size() == 1 + Settings.SHIPPING.size() + unshipped
+		and spoken != "Back" and english == "Back" and mark != "(draft)"
+		and (unshipped > 0) == marked.ends_with(mark),
+		"a release build offers every shipping language and keeps a saved choice; drafts stay debug-only",
 		"release offers %s and resolves a saved 'es' to '%s'; debug offers %d; Spanish 'Back' = '%s', named '%s'"
 			% [str(rel_offered), rel_resolved, dbg_offered.size(), spoken, marked])

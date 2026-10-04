@@ -20,6 +20,7 @@ func _initialize() -> void:
 	_test_every_key_is_a_real_string()
 	_test_no_instruction_still_says_tap()
 	_test_the_switch()
+	_test_every_language()
 	print("")
 	if failures.is_empty():
 		print("THE DESKTOP WORDS HOLD (%d checks)\n" % checks)
@@ -100,3 +101,41 @@ func _test_the_switch() -> void:
 		UiKit.t("Tap to carry on"))
 	TranslationServer.set_locale("en")
 	UiKit._pointer = -1
+
+
+## ALL NINE SHIP (4 Oct 2026), so the desktop words are in all nine. Every
+## translated desktop line is keyed by a real string, keeps its blanks, has lost
+## its language's own word for a tap, and is what a desktop in that language reads.
+func _test_every_language() -> void:
+	const TAP := {
+		"es": "(?i)\\btoca|t\u00f3calo", "fr": "(?i)\\btouche", "de": "(?i)tipp",
+		"it": "(?i)\\btocca", "pt_BR": "(?i)\\btoque", "pl": "(?i)dotknij|stuknij",
+		"uk": "(?i)\u0442\u043e\u0440\u043a\u043d|\u0442\u0438\u0441\u043d\u0438", "ja": "\u30bf\u30c3\u30d7",
+	}
+	var keys := _keys()
+	var bad: Array = []
+	for loc in Settings.SHIPPING:
+		if loc == "en":
+			continue
+		if not UiKit.POINTER_L10N.has(loc):
+			bad.append("%s: no table" % loc)
+			continue
+		var re := RegEx.create_from_string(String(TAP[loc]))
+		for k in UiKit.POINTER_L10N[loc]:
+			var v := String(UiKit.POINTER_L10N[loc][k])
+			if not keys.has(k) or not UiKit.POINTER_EN.has(k):
+				bad.append("%s: stray key %s" % [loc, k])
+			elif String(k).count("%") != v.count("%"):
+				bad.append("%s: blanks %s" % [loc, v])
+			elif re.search(v) != null:
+				bad.append("%s: still a tap: %s" % [loc, v])
+	_ok(bad.is_empty(), "every shipping language has its desktop words", str(bad))
+	TranslationServer.set_locale("pl")
+	UiKit._pointer = 1
+	var pl := UiKit.t("Tap to carry on")
+	UiKit._pointer = 0
+	var pl_phone := UiKit.t("Tap to carry on")
+	TranslationServer.set_locale("en")
+	UiKit._pointer = -1
+	_ok(pl.begins_with("Kliknij") and pl != pl_phone, "a Polish desktop clicks, a Polish phone taps",
+		"%s / %s" % [pl, pl_phone])

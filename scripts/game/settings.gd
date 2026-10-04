@@ -153,13 +153,14 @@ static func tip_done(key: String) -> void:
 ## THE LANGUAGE (28 Sep 2026). "" is Automatic: the phone's own language if it is
 ## one this build SHIPS, else English.
 ##
-## SHIPPING is the list Pete has approved after a native read. The eight drafts
-## are registered in project.godot, so without this gate a Spanish phone would
-## open a release build in an unreviewed draft — `apply_language` is what stops
-## it. In a DEBUG build the drafts are offered too, marked, so they can be looked
-## at on a real screen before anybody signs them off.
-const SHIPPING: Array[String] = ["en"]
+## SHIPPING is the list a release build offers. DRAFTS is every translation in the
+## string table; one that is not in SHIPPING is offered only in a DEBUG build,
+## marked, and a release build never resolves to it — so a new language can sit
+## in the table, be looked at on a real screen, and ship by joining SHIPPING.
+## ALL NINE SHIP (Pete, 4 Oct 2026): the store lists nine languages, so the game
+## carries nine. Before that the eight were debug-only drafts.
 const DRAFTS: Array[String] = ["es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]
+const SHIPPING: Array[String] = ["en", "es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]
 const LANG_NAME := {
 	"": "Automatic", "en": "English", "es": "Español", "fr": "Français",
 	"de": "Deutsch", "it": "Italiano", "pt_BR": "Português (BR)", "pl": "Polski",
@@ -175,7 +176,9 @@ static func offered() -> Array[String]:
 	var out: Array[String] = [""]
 	out.append_array(SHIPPING)
 	if OS.is_debug_build() and not release_rules:
-		out.append_array(DRAFTS)
+		for code in DRAFTS:
+			if not SHIPPING.has(code):
+				out.append(code)
 	return out
 
 
