@@ -16,7 +16,7 @@ definitions:
   godot: &godot
     GODOT_VERSION: "4.6.2"
     PACKAGE: "com.bonkworks.combatclub"
-    VERSION_NAME: "1.0.0"
+    VERSION_NAME: "1.0.1"
     ## Not secrets: the team id is printed on every signed app, the Apple id is in the store URL.
     APPLE_TEAM_ID: "H32NHK9HZR"
     APP_STORE_APPLE_ID: "6818717021"
