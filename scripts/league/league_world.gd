@@ -182,7 +182,61 @@ func _init(seed_value: int = 0, player_power: int = 42,
 	## American clubs with a European flag on it.
 	region = region_
 	_build_pyramid(player_power)
+	_seed_history(seed_value)
 	_new_season()
+
+
+## THE BOOK IS NOT EMPTY ON DAY ONE (Pete, 4 Oct 2026: "We need to fill the
+## record books artificially with fighters/teams for past records and
+## championships, make them harder to get those records"). The circuit is older
+## than your club: every record already has a mark, set by a man from another
+## club before you arrived, and the top divisions have won titles between them.
+## A first bout no longer writes the book, and breaking a mark means something.
+##
+## Its own random stream, seeded off the world's: drawing these from `rng` would
+## shift every club the pyramid builds after it, and with it every fixture a
+## fixed seed has ever produced.
+const LEGEND_MARKS := {
+	"downs_event": [6, 8],
+	"downs_career": [95, 130],
+	"events": [55, 70],
+	"standing": [80, 110],
+	"rating": [70, 76],
+}
+
+
+func _seed_history(seed_value: int) -> void:
+	var r := RandomNumberGenerator.new()
+	r.seed = hash("history:%d" % seed_value)
+	for key in LEGEND_MARKS:
+		var band: Array = LEGEND_MARKS[key]
+		var from: Dictionary = clubs[r.randi_range(1, clubs.size() - 1)]
+		records[key] = {
+			"value": r.randi_range(int(band[0]), int(band[1])),
+			## TWO NAMES: a legend is never the namesake of a man on your sheet,
+			## who goes by his surname — so beating him is never "his own record".
+			"holder": "%s %s" % [Armorer.FIRST[r.randi() % Armorer.FIRST.size()],
+				ClubFactory.SURNAMES[r.randi() % ClubFactory.SURNAMES.size()]],
+			"club": String(from.get("short", "")),
+			"season": -r.randi_range(1, 12),
+		}
+	## TITLES BEFORE YOU: twelve past national titles shared among the top two
+	## divisions, mostly the top.
+	var top: Array = []
+	var second: Array = []
+	for c in clubs:
+		if int(c["id"]) == player_club:
+			continue
+		if int(c["tier"]) == League.TIERS.size() - 1:
+			top.append(c)
+		elif int(c["tier"]) == League.TIERS.size() - 2:
+			second.append(c)
+	for k in 12:
+		var pool: Array = second if (r.randf() < 0.2 and not second.is_empty()) else top
+		if pool.is_empty():
+			continue
+		var c: Dictionary = pool[r.randi() % pool.size()]
+		c["titles"] = int(c["titles"]) + 1
 
 
 # ------------------------------------------------------------------- setup

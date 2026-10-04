@@ -298,6 +298,7 @@ func _test_a_record_outlives_its_holder() -> void:
 	## current roster — a scan would lose everything a retired man ever set, which
 	## is most of the history of any club worth having one.
 	var w := LeagueWorld.new(31)
+	w.records.clear()   ## from an empty book; the seeded legends are test_achievements'
 	w.season = 3
 	var bad: Array[String] = []
 	if not w.note_record("downs_event", 5, "Ellis", 3):

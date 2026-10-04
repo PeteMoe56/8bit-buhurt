@@ -298,9 +298,15 @@ func _club() -> void:
 		else:
 			any = true
 			UiKit.right(self, font, "%d" % int(rec["value"]), Vector2(UiKit.right_edge(360.0), y), UiKit.tz(16), UiKit.YOU, 120)
-			UiKit.right(self, font, UiKit.clip(String(rec["holder"]), 18),
-				Vector2(UiKit.right_edge(170.0), y), UiKit.tz(14), UiKit.INK, 180)
-			UiKit.right(self, font, UiKit.t("S%d") % int(rec["season"]),
+			## A MARK FROM BEFORE YOUR CLUB (4 Oct 2026) names the club it was set
+			## for, and says "before you" rather than a season that never was.
+			var who := String(rec["holder"])
+			var mine := not rec.has("club")
+			if not mine:
+				who = UiKit.t("%s  ·  %s") % [who, String(rec["club"])]
+			UiKit.right(self, font, UiKit.clip_px(font, who, UiKit.tz(14), 200.0),
+				Vector2(UiKit.right_edge(170.0), y), UiKit.tz(14), UiKit.INK if mine else UiKit.DIM, 200)
+			UiKit.right(self, font, UiKit.t("S%d") % int(rec["season"]) if int(rec["season"]) > 0 else UiKit.t("before you"),
 				Vector2(UiKit.right_edge(48.0), y), UiKit.tz(14), UiKit.DIM, 120)
 		y += _p(40.0)
 	if not any:

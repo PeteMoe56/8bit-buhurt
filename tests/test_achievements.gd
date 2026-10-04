@@ -83,18 +83,36 @@ func _test_a_bout() -> void:
 	while not sim.is_over() and k < 60000:
 		sim.tick()
 		k += 1
+	## ONE GOOD FIRST BOUT IS NOT FIVE ACHIEVEMENTS (Pete, 4 Oct 2026: "First
+	## fight, I got 6"): a clean round, a called Bullrush down and one into the
+	## rail are counted towards career totals, not handed out.
 	sim.rounds_won = [2, 0]
 	sim.downs = [7, 0]
 	sim.clean_rounds = 1
 	sim.called_br_downs = 1
 	sim.called_br_rail = 1
 	Achievements.after_bout(sim)
-	var want := ["FLAWLESS", "CLEAN_ROUND", "FREIGHT_TRAIN", "OFF_THE_RAIL"]
+	var early: Array = []
+	for id in ["CLEAN_ROUND", "FREIGHT_TRAIN", "OFF_THE_RAIL", "HAT_TRICK"]:
+		if Achievements.has(id):
+			early.append(id)
+	_ok(early.is_empty(), "one good first bout earns none of the counted ones", str(early))
+	## A CAREER OF THEM DOES.
+	for n in 10:
+		Achievements.after_bout(sim)
+	var want := ["CLEAN_ROUND", "FREIGHT_TRAIN", "OFF_THE_RAIL"]
 	var missing: Array = []
 	for id in want:
 		if not Achievements.has(id):
 			missing.append(id)
-	_ok(missing.is_empty(), "a flawless bout with a called bullrush into the rail earns its four", str(missing))
+	_ok(missing.is_empty(), "and ten bouts' worth reach the counts",
+		"%s; clean %d, br %d, rail %d" % [str(missing), Achievements.count("clean_rounds"),
+			Achievements.count("br_downs"), Achievements.count("br_rail")])
+	## FLAWLESS ONLY AGAINST A BETTER SIDE.
+	var better: bool = Achievements._line_rating(sim, 1) > Achievements._line_rating(sim, 0)
+	_ok(Achievements.has("FLAWLESS") == better, "a flawless win counts only against a higher-rated line",
+		"theirs %.1f, ours %.1f, unlocked %s" % [Achievements._line_rating(sim, 1),
+			Achievements._line_rating(sim, 0), Achievements.has("FLAWLESS")])
 	Achievements.reset()
 	sim.rounds_won = [1, 2]
 	sim.downs = [3, 6]
@@ -121,6 +139,10 @@ func _test_nothing_on_disk() -> void:
 func _test_the_record_book() -> void:
 	Achievements.reset()
 	var w := LeagueWorld.new(77)
+	## THE SEEDED BOOK IS HARD (4 Oct 2026): a first season's best is not a record.
+	_ok(not w.note_record("rating", 60, "Ames", 1) and not Achievements.has("IN_THE_BOOK"),
+		"the book starts with marks set before you", "rating record %d by %s" % [int(w.records["rating"]["value"]), String(w.records["rating"]["holder"])])
+	w.records.clear()
 	## Season 1, bout 1: five men write and overwrite the empty book.
 	w.note_record("rating", 50, "Ames", 1)
 	w.note_record("rating", 58, "Brook", 1)

@@ -81,6 +81,10 @@ static func draw(ci: CanvasItem, font: Font, r: Rect2, s: Season, id: int) -> vo
 	UiKit.text_fit(ci, font, UiKit.t("%s  ·  %s") % [div, where], Vector2(x, y), 13, UiKit.DIM, r.size.x - 48.0)
 	y += 30.0
 	UiKit.text(ci, font, UiKit.t("Rating %d") % int(c["power"]), Vector2(x, y), 16, UiKit.INK)
+	## THEIR TITLES, including the ones from before you arrived (4 Oct 2026).
+	if int(c.get("titles", 0)) > 0:
+		UiKit.right(ci, font, UiKit.t("%d titles") % int(c["titles"]) if int(c["titles"]) != 1 else UiKit.t("1 title"),
+			Vector2(r.end.x - 24.0, y), 14, UiKit.YOU, 200.0)
 	if t >= 0:
 		var rec := s.world.record_of(id)
 		var pos := -1

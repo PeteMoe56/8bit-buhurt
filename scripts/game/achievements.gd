@@ -23,11 +23,11 @@ static var path: String = PATH
 
 const LIST := [
 	{"id": "FIRST_WIN", "name": "Off the Tailgate", "desc": "Win your first event."},
-	{"id": "FLAWLESS", "name": "Not a Scratch", "desc": "Win a bout without one of your men going down."},
-	{"id": "CLEAN_ROUND", "name": "Clean Sweep", "desc": "Win a round with all five of yours still standing."},
-	{"id": "HAT_TRICK", "name": "Three Down", "desc": "One of your fighters puts three men down in a single event."},
-	{"id": "FREIGHT_TRAIN", "name": "Freight Train", "desc": "Call a Bullrush off the wheel and put your man on the floor."},
-	{"id": "OFF_THE_RAIL", "name": "Off the Rail", "desc": "Bullrush a man so hard he skids into the rail."},
+	{"id": "FLAWLESS", "name": "Not a Scratch", "desc": "Beat a higher-rated club without one of your men going down."},
+	{"id": "CLEAN_ROUND", "name": "Clean Sweep", "desc": "Win ten rounds with all five of yours still standing."},
+	{"id": "HAT_TRICK", "name": "Five Down", "desc": "One of your fighters puts five men down in a single event."},
+	{"id": "FREIGHT_TRAIN", "name": "Freight Train", "desc": "Put ten men on the floor with Bullrushes you called."},
+	{"id": "OFF_THE_RAIL", "name": "Off the Rail", "desc": "Bullrush five men into the rail."},
 	{"id": "STATE", "name": "State League", "desc": "Win promotion to the State League."},
 	{"id": "REGIONAL", "name": "Regional League", "desc": "Win promotion to the Regional League."},
 	{"id": "NATIONAL", "name": "National Division", "desc": "Win promotion to the National Division."},
@@ -79,18 +79,62 @@ static func unlock(id: String) -> void:
 
 
 ## A FOUGHT BOUT, league or cup, read off the sim once it is over.
+##
+## HARDER (Pete, 4 Oct 2026: "First fight, I got 6 achievements"). The fight's
+## five were each one thing that happens in an ordinary first bout. Now: the
+## flawless win has to come against a better side, and the other four are
+## counted across a career — ten clean rounds, ten called Bullrush downs, five
+## men into the rail — or set a bar a first bout does not reach (five downs).
+const CLEAN_ROUNDS_FOR := 10
+const BR_DOWNS_FOR := 10
+const RAIL_FOR := 5
+const DOWNS_IN_EVENT_FOR := 5
+
+
 static func after_bout(sim: MeleeSim) -> void:
-	if sim.rounds_won[0] > sim.rounds_won[1] and sim.downs[1] == 0:
+	if sim.rounds_won[0] > sim.rounds_won[1] and sim.downs[1] == 0 \
+			and _line_rating(sim, 1) > _line_rating(sim, 0):
 		unlock("FLAWLESS")
-	if sim.clean_rounds > 0:
+	if _bump("clean_rounds", sim.clean_rounds) >= CLEAN_ROUNDS_FOR:
 		unlock("CLEAN_ROUND")
 	for m in sim.fought():
-		if m.team == 0 and m.downs_caused >= 3:
+		if m.team == 0 and m.downs_caused >= DOWNS_IN_EVENT_FOR:
 			unlock("HAT_TRICK")
-	if sim.called_br_downs > 0:
+	if _bump("br_downs", sim.called_br_downs) >= BR_DOWNS_FOR:
 		unlock("FREIGHT_TRAIN")
-	if sim.called_br_rail > 0:
+	if _bump("br_rail", sim.called_br_rail) >= RAIL_FOR:
 		unlock("OFF_THE_RAIL")
+
+
+## The line's rating, as the corner shows it: the five's average overall.
+static func _line_rating(sim: MeleeSim, side: int) -> float:
+	var tot := 0
+	var n := 0
+	for c in sim.lineup(side):
+		if c != null:
+			tot += c.overall()
+			n += 1
+	return float(tot) / float(maxi(1, n))
+
+
+## A COUNT KEPT ACROSS A CAREER, beside the unlocks and under the same rules
+## (local, per Steam account, written only by a desktop build). Returns the total.
+static var _counts: Dictionary = {}
+
+
+static func _bump(key: String, by: int) -> int:
+	_load()
+	if by <= 0:
+		return int(_counts.get(key, 0))
+	_counts[key] = int(_counts.get(key, 0)) + by
+	if Settings.is_desktop():
+		_save()
+	return int(_counts[key])
+
+
+static func count(key: String) -> int:
+	_load()
+	return int(_counts.get(key, 0))
 
 
 ## At launch: start Steam if this is a Steam build, and re-send everything held
@@ -107,6 +151,7 @@ static func boot() -> void:
 ## FOR THE TESTS: forget what this run has unlocked (nothing is on disk).
 static func reset() -> void:
 	_got.clear()
+	_counts.clear()
 	_loaded = true
 
 
@@ -135,6 +180,10 @@ static func _load() -> void:
 			if cfg.has_section(sec):
 				for k in cfg.get_section_keys(sec):
 					_got[String(k)] = cfg.get_value(sec, k, 0)
+		var cs := _account() + "_counts"
+		if cfg.has_section(cs):
+			for k in cfg.get_section_keys(cs):
+				_counts[String(k)] = int(cfg.get_value(cs, k, 0))
 
 
 ## Written aside and renamed in, as Settings does: a kill mid-write leaves the old
@@ -149,6 +198,10 @@ static func _save() -> void:
 		cfg.erase_section(acct)
 	for k in _got:
 		cfg.set_value(acct, k, _got[k])
+	if cfg.has_section(acct + "_counts"):
+		cfg.erase_section(acct + "_counts")
+	for k in _counts:
+		cfg.set_value(acct + "_counts", k, _counts[k])
 	var tmp := path + ".tmp"
 	if cfg.save(tmp) == OK:
 		if FileAccess.file_exists(path):
