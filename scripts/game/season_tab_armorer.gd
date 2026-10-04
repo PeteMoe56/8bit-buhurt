@@ -321,7 +321,7 @@ static func armorers_rect() -> Rect2:
 static func _draw_armorers(v: SeasonScene) -> void:
 	var o := v.season.office
 	var r := armorers_rect()
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, r)
 	UiKit.text(v, v.font, UiKit.t("ARMORERS"), r.position + Vector2(24, 40), 19, UiKit.INK)
 	UiKit.right(v, v.font, UiKit.t("%d CC") % o.credits, Vector2(r.end.x - 70.0, r.position.y + 40.0), 16, UiKit.YOU, 120)

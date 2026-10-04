@@ -42,6 +42,8 @@ func _ready() -> void:
 	UiKit.set_mood(UiKit.Mood.NORMAL)
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## OUT OF THE NOTCH (iPhone 11 tester, 4 Oct 2026): see `UiKit.inset`.
+	UiKit.inset(self, ui)
 	_build()
 	set_process(true)
 

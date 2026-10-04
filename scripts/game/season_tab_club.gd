@@ -386,7 +386,7 @@ static func _draw_club(v: SeasonScene) -> void:
 	v._table()
 	v._tape_draw_ground()
 	if v.team_card >= 0:
-		v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.55))
+		v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.55))
 		TeamCard.draw(v, v.font, _card_rect(), v.season, v.team_card)
 
 
@@ -999,7 +999,7 @@ static func _draw_gate(v: SeasonScene) -> void:
 	var card := _ground_card()
 	var gap: Dictionary = v.season.ground_gap()
 	var pt: Dictionary = v.season.promotion_terms()
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, card)
 	var w := card.size.x - 48.0
 	UiKit.text_fit(v, v.font, UiKit.t("PROMOTED, IF YOU CAN HOST IT"), card.position + Vector2(24, 40), 18, UiKit.YOU, w)
@@ -1063,7 +1063,7 @@ static func ground_block(s: Season) -> String:
 static func _draw_ground(v: SeasonScene) -> void:
 	var card := _ground_card()
 	var gap: Dictionary = v.season.ground_gap()
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, card)
 	if gap.is_empty():
 		return
@@ -1124,7 +1124,7 @@ static func _market_ask_controls(v: SeasonScene) -> void:
 static func _draw_market_ask(v: SeasonScene) -> void:
 	var card := _ground_card()
 	var ask: Dictionary = v.season.market_ask()
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, card)
 	if ask.is_empty():
 		return

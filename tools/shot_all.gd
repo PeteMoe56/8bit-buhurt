@@ -53,6 +53,12 @@ func _initialize() -> void:
 		Settings.load_once()
 		Settings.language = pinned
 		TranslationServer.set_locale(pinned)
+	## RB_INSETS "left,right" in canvas units pretends a notch (iPhone 11
+	## landscape: 1169x540 canvas, 63,63).
+	var ins := OS.get_environment("RB_INSETS")
+	if ins != "":
+		var p := ins.split(",")
+		UiKit.test_insets = Vector2(float(p[0]), float(p[1]))
 	Settings.tips_enabled = false
 	world = Season.new(MeleeRosters.starting_club(), 4242)
 	world.world.season = 3

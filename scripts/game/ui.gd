@@ -59,8 +59,23 @@ static var frame_off := 0.0
 
 
 static func frame(node: Node2D, layer: CanvasLayer = null) -> void:
-	var off := floorf(maxf(0.0, real_screen().x - DESIGN.x) * 0.5)
-	framed = off > 0.0
+	var centre := floorf(maxf(0.0, real_screen().x - DESIGN.x) * 0.5)
+	## NEVER UNDER THE NOTCH: on a phone whose canvas is barely wider than 960
+	## the centring gap can be smaller than the cutout on the left.
+	_place(node, layer, maxf(centre, ceilf(_safe_left_units())), centre > 0.0)
+
+
+## THE FULL-WIDTH SCREENS (season, front door), KEPT OUT OF THE NOTCH (iPhone 11
+## tester, 4 Oct 2026: the left of the clubhouse sat under the notch and the
+## rounded corner). The screen is moved right by the left safe inset as a whole,
+## and `screen()` answers the width that is left, so its right-aligned things
+## still end at `right_edge`. Nothing moves on desktop or a phone with no inset.
+static func inset(node: Node2D, layer: CanvasLayer = null) -> void:
+	_place(node, layer, ceilf(_safe_left_units()), false)
+
+
+static func _place(node: Node2D, layer: CanvasLayer, off: float, centred: bool) -> void:
+	framed = centred
 	frame_off = off
 	_screen_frame = -1
 	node.position.x = off
@@ -79,7 +94,7 @@ static func _unframe() -> void:
 ## THE WHOLE SCREEN in a scene's own drawing frame: a dimmer behind a card has
 ## to reach the real edges of a framed (centred) scene, not just its 960.
 static func full_rect() -> Rect2:
-	return Rect2(Vector2(-frame_off, 0.0) if framed else Vector2.ZERO, real_screen())
+	return Rect2(Vector2(-frame_off, 0.0), real_screen())
 
 
 ## The whole visible canvas, framed or not: for grounds, veils and anything else
@@ -112,7 +127,9 @@ static func screen() -> Vector2:
 			## A viewport of zero is a viewport that is not up yet, and handing
 			## a layout zero width is worse than handing it the design size.
 			if sz.x > 1.0 and sz.y > 1.0:
-				_screen = sz
+				## An inset screen is drawn from `frame_off`: what is left of
+				## the canvas is its width.
+				_screen = Vector2(sz.x - frame_off, sz.y)
 	return _screen
 
 
@@ -138,26 +155,50 @@ static func right_edge(margin: float = 24.0) -> float:
 ## goes through `right_edge`, so this is the one place that needs to know.
 static var _safe_frame: int = -1
 static var _safe_r: float = 0.0
+static var _safe_l: float = 0.0
+## FOR TESTS AND THE SHOT TOOLS: pretend insets (left, right) in canvas units,
+## so a headless run can lay a screen out the way an iPhone 11 sees it.
+## Negative: ask the OS.
+static var test_insets := Vector2(-1.0, -1.0)
 
 
-static func safe_right() -> float:
+static func _read_insets() -> void:
 	var f := Engine.get_process_frames()
 	if f == _safe_frame:
-		return _safe_r
+		return
 	_safe_frame = f
+	_safe_l = 0.0
 	_safe_r = 0.0
+	if test_insets.x >= 0.0:
+		_safe_l = test_insets.x
+		_safe_r = test_insets.y
+		return
 	## Phones only: on a desktop the "safe area" is the monitor minus the
 	## taskbar, in monitor coordinates, and means nothing to a window.
 	if not OS.has_feature("mobile"):
-		return 0.0
+		return
 	var win := DisplayServer.window_get_size()
 	var safe := DisplayServer.get_display_safe_area()
 	if win.x <= 0 or safe.size.x <= 0:
-		return 0.0
-	var right_px := float(win.x - safe.end.x)
-	if right_px > 0.0:
-		_safe_r = right_px * screen().x / float(win.x)
-	return _safe_r
+		return
+	## In units of the REAL canvas: `screen()` may be a frame narrower than it.
+	var k := real_screen().x / float(win.x)
+	_safe_l = maxf(0.0, float(safe.position.x)) * k
+	_safe_r = maxf(0.0, float(win.x - safe.end.x)) * k
+
+
+## The left inset of the whole canvas (iOS reports it on both sides in landscape).
+static func _safe_left_units() -> float:
+	_read_insets()
+	return _safe_l
+
+
+## How far the right cutout reaches into THIS screen's frame: a centred frame
+## already stops short of the edge by its own gutter.
+static func safe_right() -> float:
+	_read_insets()
+	var gutter := real_screen().x - frame_off - screen().x
+	return maxf(0.0, _safe_r - gutter)
 
 
 ## ENDS WHERE `right_edge` ENDS (3 Oct 2026): it used to ignore the safe inset,
@@ -1269,7 +1310,7 @@ static func ground(ci: CanvasItem, wash: bool = true) -> void:
 	## the same answer the season screen gets, so the two cannot fight.
 	Audio.for_mood(mood)
 	## The REAL screen, from its real left edge: a framed scene is drawn shifted.
-	var o := Vector2(-frame_off, 0.0) if framed else Vector2.ZERO
+	var o := Vector2(-frame_off, 0.0)
 	ci.draw_rect(Rect2(o, real_screen()), BG)
 	if wash:
 		Brand.draw_wash(ci, real_screen(), Brand.WASH, o)

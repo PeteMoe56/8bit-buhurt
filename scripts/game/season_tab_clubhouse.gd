@@ -176,7 +176,7 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 
 
 static func _draw_club_menu(v: SeasonScene) -> void:
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, v.CLUB_CARD)
 	UiKit.mid(v, v.font, UiKit.t("MENU"),
 		Vector2(v.CLUB_CARD.position.x, v.CLUB_CARD.position.y + 42.0), 19, UiKit.INK,
@@ -230,7 +230,7 @@ static func _training_controls(v: SeasonScene) -> void:
 static func _draw_training(v: SeasonScene) -> void:
 	var card := v.TRAIN_CARD
 	var o := v.season.office
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, card)
 	UiKit.text(v, v.font, UiKit.t("TRAINING"), card.position + Vector2(24, 40), 19, UiKit.INK)
 	if o.captains.is_empty():
@@ -345,7 +345,7 @@ static func _shop_controls(v: SeasonScene) -> void:
 
 
 static func _draw_shop(v: SeasonScene) -> void:
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, v.SHOP_CARD)
 	UiKit.mid(v, v.font, UiKit.t("COACHING CREDITS"),
 		Vector2(v.SHOP_CARD.position.x, v.SHOP_CARD.position.y + 34.0), 19, UiKit.INK,
@@ -495,7 +495,7 @@ static func _help_controls(v: SeasonScene) -> void:
 static func _draw_help(v: SeasonScene) -> void:
 	var card := _help_card()
 	var h := help_text(v.help_key)
-	v.draw_rect(Rect2(Vector2.ZERO, UiKit.screen()), Color(0, 0, 0, 0.74))
+	v.draw_rect(UiKit.full_rect(), Color(0, 0, 0, 0.74))
 	UiKit.panel(v, card)
 	UiKit.text(v, v.font, String(h[0]), card.position + Vector2(24, 40), 19, UiKit.INK)
 	if v.help_key == "kit":

@@ -189,6 +189,8 @@ func _ready() -> void:
 		flash = UiKit.t("Insurance is below what your league asks: no cups until it is raised in Upgrades.")
 	ui = CanvasLayer.new()
 	add_child(ui)
+	## OUT OF THE NOTCH (iPhone 11 tester, 4 Oct 2026): see `UiKit.inset`.
+	UiKit.inset(self, ui)
 	_rebuild()
 
 
@@ -784,7 +786,7 @@ func _draw() -> void:
 
 func _header() -> void:
 	var w: Dictionary = season.world.clubs[season.world.player_club]
-	draw_rect(Rect2(0, 0, UiKit.screen().x, 62), UiKit.PANEL)
+	draw_rect(Rect2(-UiKit.frame_off, 0, UiKit.real_screen().x, 62), UiKit.PANEL)
 	UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
 		season.club.icon_color, int(season.club.icon))
 	## MEASURED AGAINST THE PURSE, which moved left for the Club button.
@@ -863,12 +865,12 @@ func _banner() -> void:
 	## bottom strip below the action buttons is the only band on this screen that
 	## belongs to nobody — which is why the ribbon lives there and why the top
 	## band is a rule rather than a label.
-	draw_rect(Rect2(0, 0, UiKit.screen().x, 6), UiKit.YOU)
+	draw_rect(Rect2(-UiKit.frame_off, 0, UiKit.real_screen().x, 6), UiKit.YOU)
 	## SIXTEEN, NOT TWENTY. At twenty the ribbon started at y=520 and the action
 	## row ends at 522 with its drop — two pixels of gold under every button on
 	## a cup night. Nobody would have called it a bug and everybody would have
 	## seen it.
-	draw_rect(Rect2(0, UiKit.screen().y - 16, UiKit.screen().x, 16), UiKit.YOU)
+	draw_rect(Rect2(-UiKit.frame_off, UiKit.screen().y - 16, UiKit.real_screen().x, 16), UiKit.YOU)
 	var line := UiKit.mood_name()
 	var occ := season.occasion()
 	if occ != "":
@@ -952,7 +954,7 @@ func _tape_draw_ground() -> void:
 	if _tape == "" or _tape_label == null:
 		return
 	var y := UiKit.screen().y - TAPE_H
-	draw_rect(Rect2(0, y, UiKit.screen().x, TAPE_H), UiKit.PANEL)
+	draw_rect(Rect2(-UiKit.frame_off, y, UiKit.real_screen().x, TAPE_H), UiKit.PANEL)
 	draw_line(Vector2(0, y), Vector2(UiKit.screen().x, y), UiKit.FRAME, 1.0)
 
 
