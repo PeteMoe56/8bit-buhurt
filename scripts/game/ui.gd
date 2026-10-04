@@ -834,7 +834,61 @@ static func t(s: String) -> String:
 	## `test_untranslated.gd` can check each one exists in the string table.
 	if _ledger_on:
 		_t_keys[s] = true
+	if pointer() and TranslationServer.get_locale().begins_with("en"):
+		var pc: String = POINTER_EN.get(s, "")
+		if pc != "":
+			return pc
 	return TranslationServer.translate(s)
+
+
+## A MOUSE, NOT A THUMB (Steam, 4 Oct 2026). On a desktop build every "Tap" a
+## player reads becomes "Click", and the phone that runs out of space becomes the
+## computer. English only for now: release builds ship English (Settings.SHIPPING),
+## and the day a translation ships it gets its own desktop column. A sentence
+## about a phone in the STORY ("the phone does not stop") and "beer on tap" are
+## not instructions, so they stay.
+##
+## The editor binary (tests, shot tools) keeps the phone wording, the same rule as
+## `Settings.is_desktop()`; `RB_POINTER=1` forces the desktop words for a shot.
+static var _pointer := -1
+
+
+static func pointer() -> bool:
+	if _pointer == -1:
+		_pointer = 1 if (OS.get_environment("RB_POINTER") == "1" or Settings.is_desktop()) else 0
+	return _pointer == 1
+
+
+const POINTER_EN := {
+	"Tap Delete again to erase it for good.": "Click Delete again to erase it for good.",
+	"Tap a man to clear his.": "Click a man to clear his.",
+	"Tap %s again to buy it for %d CC.": "Click %s again to buy it for %d CC.",
+	"Tap a grade to use it. It is saved with the club, and you can change it later.":
+		"Click a grade to use it. It is saved with the club, and you can change it later.",
+	"Invest: once a year, tap Invest on a man's page for +3 POT at the winter. Needs training ground 3.":
+		"Invest: once a year, click Invest on a man's page for +3 POT at the winter. Needs training ground 3.",
+	"Tap a man to sign him. A red price is more than you have.":
+		"Click a man to sign him. A red price is more than you have.",
+	"Could not save — your phone may be out of space. The last save is safe.":
+		"Could not save — your disk may be full. The last save is safe.",
+	"Levels to spend: %s. Tap a man, then His page.": "Levels to spend: %s. Click a man, then His page.",
+	"Tap a fighter to fix his kit or buy him a better harness.":
+		"Click a fighter to fix his kit or buy him a better harness.",
+	"Tap again to turn promotion down for this year.": "Click again to turn promotion down for this year.",
+	"Tap Sim it again to hand the cup bout to the AI.": "Click Sim it again to hand the cup bout to the AI.",
+	"Tap the man %s trades places with.": "Click the man %s trades places with.",
+	"Tap again to trade %s. He does not come back.": "Click again to trade %s. He does not come back.",
+	"Tap again to cut %s. He does not come back.": "Click again to cut %s. He does not come back.",
+	"Tap a fighter to see him here.": "Click a fighter to see him here.",
+	"Tap Release again to let him go.": "Click Release again to let him go.",
+	"+%d · tap here": "+%d · click here",
+	"Tap to carry on": "Click to carry on",
+	"Drag a man to send him. Tap to hold ground.": "Drag a man to send him. Click to hold ground.",
+	"Your man has reached an enemy. Tap a side of the wheel to choose what he does; each side shows its chance. Leave it and he chooses himself. HOLD stops the fight so you can give an order. \"N of M choices picked\" counts the choices you made.":
+		"Your man has reached an enemy. Click a side of the wheel to choose what he does; each side shows its chance. Leave it and he chooses himself. HOLD stops the fight so you can give an order. \"N of M choices picked\" counts the choices you made.",
+	"tap to star, %d of %d": "click to star, %d of %d",
+	"IN THE CORNER, IN THIS ORDER — tap to move one left": "IN THE CORNER, IN THIS ORDER — click to move one left",
+}
 
 
 static var _t_keys: Dictionary = {}

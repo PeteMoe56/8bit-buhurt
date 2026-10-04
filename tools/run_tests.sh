@@ -182,7 +182,9 @@ fi
 if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want langs; then
   echo "=== language sweep @960x540"
   if command -v xvfb-run >/dev/null 2>&1; then
-    locs=(es fr de it pt_BR pl uk ja)
+    ## "pc" is English with the desktop words (RB_POINTER=1, 4 Oct 2026): "Click"
+    ## is longer than "Tap", and the boxes were measured on "Tap".
+    locs=(es fr de it pt_BR pl uk ja pc)
     pids=()
     n=0
     for loc in "${locs[@]}"; do
@@ -202,7 +204,9 @@ if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want langs; then
         ## (`header != String(shader_file_header)`). Each run gets a fresh dir.
         ud="/tmp/rb_userdata/$t-$loc"
         rm -rf "$ud"; mkdir -p "$ud"
-        ( XDG_DATA_HOME="$ud/data" XDG_CACHE_HOME="$ud/cache" RB_LOCALE="$loc" RB_TIER=fast \
+        rl="$loc"; rp=""
+        [ "$loc" = pc ] && rl=en && rp=1
+        ( XDG_DATA_HOME="$ud/data" XDG_CACHE_HOME="$ud/cache" RB_LOCALE="$rl" RB_POINTER="$rp" RB_TIER=fast \
             timeout 900 "${runner[@]}" --path . --script "res://tests/$t.gd" \
             >"$LOGS/$t@$loc.fast.log" 2>&1; echo $? >"$LOGS/$t@$loc.rc" ) &
         pids+=($!)
