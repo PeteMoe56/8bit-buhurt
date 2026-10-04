@@ -71,9 +71,25 @@ foreach ($d in @($win, $lin, $scripts)) {
     New-Item -ItemType Directory -Force -Path $d | Out-Null
 }
 
+# IMPORT FIRST (4 Oct 2026). The string table is imported into one .translation
+# per language (git ignores them), so a language added since this machine last
+# opened the editor -- Ukrainian -- has no file and the export stops on
+# "Cannot open file 'res://locale/strings.uk.translation'". An import pass makes
+# them, the same as the store build does.
+Step "Import (string tables, textures)"
+$prevEap = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+& $g.Path --headless --path $root --import 2>&1 | Out-Null
+$ErrorActionPreference = $prevEap
+
 function Export($presetName, $file) {
     Step "Export: $presetName"
+    # Godot writes its log to stderr; under "Stop" PowerShell 5 turns the first
+    # stderr line into a fatal NativeCommandError. Judge the export by its file.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
     & $g.Path --headless --path $root --export-release $presetName $file 2>&1 | ForEach-Object { Write-Host "   $_" -ForegroundColor DarkGray }
+    $ErrorActionPreference = $prevEap
     if (-not (Test-Path $file)) { Die "$presetName export did not produce $file" }
     $mb = [math]::Round((Get-Item $file).Length / 1MB, 1)
     Write-Host "   $file  ($mb MB)" -ForegroundColor Green
