@@ -13,7 +13,7 @@ Locales are the Play listing's nine. Add a column here to add a language.
 """
 import csv, glob, os, re
 
-LOCALES = ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]
+LOCALES = ["en", "es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]
 OUT = "locale/strings.csv"
 LIT = re.compile(r'UiKit\.t\("((?:[^"\\\n]|\\.)*)"\)')
 

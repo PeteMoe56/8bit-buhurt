@@ -190,7 +190,7 @@ func _test_the_wheel_explains_itself_once() -> void:
 	## The words, in every language, inside the card's six lines at its size.
 	var MS = load("res://scripts/melee/melee_scene.gd")
 	var was_loc := TranslationServer.get_locale()
-	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]:
 		TranslationServer.set_locale(loc)
 		var words: Array = MS._tip_words("wheel")
 		var lines := UiKit.wrap(UiKit.body(), String(words[1]), 500.0 - 48.0, 14)

@@ -156,11 +156,11 @@ static func tip_done(key: String) -> void:
 ## it. In a DEBUG build the drafts are offered too, marked, so they can be looked
 ## at on a real screen before anybody signs them off.
 const SHIPPING: Array[String] = ["en"]
-const DRAFTS: Array[String] = ["es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]
+const DRAFTS: Array[String] = ["es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]
 const LANG_NAME := {
 	"": "Automatic", "en": "English", "es": "Español", "fr": "Français",
 	"de": "Deutsch", "it": "Italiano", "pt_BR": "Português (BR)", "pl": "Polski",
-	"ru": "Русский", "ja": "日本語",
+	"uk": "Українська", "ja": "日本語",
 }
 static var language: String = ""
 ## Tests set this to see what a release build would offer.

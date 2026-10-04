@@ -182,7 +182,7 @@ fi
 if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want langs; then
   echo "=== language sweep @960x540"
   if command -v xvfb-run >/dev/null 2>&1; then
-    locs=(es fr de it pt_BR pl ru ja)
+    locs=(es fr de it pt_BR pl uk ja)
     pids=()
     n=0
     for loc in "${locs[@]}"; do

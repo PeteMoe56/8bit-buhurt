@@ -409,7 +409,7 @@ func _test_the_dials_are_customs() -> void:
 	## The sentence fits its window (nine lines at 15 px, the middle column) in every language.
 	var was := TranslationServer.get_locale()
 	var iw: float = float((load("res://scripts/game/create_scene.gd") as GDScript).get_script_constant_map()["GRADE_MID"].y) - 32.0
-	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]:
 		TranslationServer.set_locale(loc)
 		for g in Grade.ORDER:
 			var lines := UiKit.wrap(UiKit.body(), Grade.blurb_of(int(g)), iw, 15)

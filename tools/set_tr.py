@@ -3,14 +3,14 @@
 
     python3 tools/set_tr.py edits.json
 
-edits.json: {"English key": ["es","fr","de","it","pt_BR","pl","ru","ja"], ...}
+edits.json: {"English key": ["es","fr","de","it","pt_BR","pl","uk","ja"], ...}
             or {"English key": {"de": "...", "fr": "..."}} to change some columns.
 A key not yet in the table is appended (run `bb strings` after to reorder/prune).
 Quoting is left to the csv module, so commas inside a translation are safe.
 """
 import csv, io, json, sys
 
-LANGS = ["es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]
+LANGS = ["es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]
 path = "locale/strings.csv"
 edits = json.load(open(sys.argv[1], encoding="utf-8"))
 rows = list(csv.reader(open(path, encoding="utf-8")))

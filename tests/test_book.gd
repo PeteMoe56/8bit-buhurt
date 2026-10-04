@@ -279,7 +279,7 @@ func _test_every_card_says_what_it_is() -> void:
 	## The card's face less its margins and the column's scroll bar.
 	var shape_room: float = scene.SHAPE_CARD.x - UiKit.DROP_PX - 16.0 - 8.0
 	var play_room: float = scene.PLAY_CARD.x - UiKit.DROP_PX - 16.0 - 8.0
-	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]:
 		TranslationServer.set_locale(loc)
 		var caps: Array = []
 		for f in Tuning.FORMATIONS.keys():

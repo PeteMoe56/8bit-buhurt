@@ -197,7 +197,7 @@ func _test_the_words_fit_their_sides() -> void:
 		"breaks free", "fall %d%%", "he holds firm"]
 	var bad: Array[String] = []
 	var was := TranslationServer.get_locale()
-	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]:
 		TranslationServer.set_locale(loc)
 		for a in Tuning.ACT_NAME.size():
 			var s: String = Tuning.act_name(a)
