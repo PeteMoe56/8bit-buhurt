@@ -327,4 +327,20 @@ func _test_the_rebuilt_screen() -> void:
 	## A man dragged is the nearest one, even where two thumbs' worth overlap.
 	var at: Vector2 = scene.call("_to_screen", scene.spots[2])
 	_ok(int(scene.call("_mark_at", at + Vector2(3, 3))) == 2, "a press picks the nearest man", "Center")
+	## UNSAVED WORK SURVIVES ONE STRAY TAP (playtest, 4 Oct 2026): a man moved
+	## and not saved, then the PLAYS tab — the first press warns, the board stays.
+	scene.spots[2] = Vector2(0.50, 0.05)
+	var moved: Vector2 = scene.spots[2]
+	var plays_tab: Button = null
+	for c in scene.ui.get_children():
+		if c is Button and (c as Button).text == UiKit.t("PLAYS"):
+			plays_tab = c
+	plays_tab.pressed.emit()
+	_ok(int(scene.mode) == 0 and scene.spots[2] == moved,
+		"an unsaved board is not dropped on the first tap away", "mode %d, center %s" % [int(scene.mode), str(scene.spots[2])])
+	for c in scene.ui.get_children():
+		if c is Button and (c as Button).text == UiKit.t("PLAYS") and not c.is_queued_for_deletion():
+			plays_tab = c
+	plays_tab.pressed.emit()
+	_ok(int(scene.mode) == 1, "and the second tap goes", "mode %d" % int(scene.mode))
 	scene.queue_free()

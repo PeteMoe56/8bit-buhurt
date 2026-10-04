@@ -326,9 +326,13 @@ func _new_bout(seed_value: int) -> void:
 	## WHICH SHAPE THE CLUBHOUSE SENT. `Season.begin_bout` hands over the spots
 	## for `formation_id`, and that id is the one the book has to light up.
 	drawn_shape_id = -1
-	if Session.season != null and sim.custom_spots[0] != null:
+	if Session.season != null:
 		var fid := int(Session.season.formation_id)
-		if not Tuning.FORMATIONS.has(fid):
+		if Tuning.FORMATIONS.has(fid):
+			## A BUILT-IN STARTING SHAPE IS NAMED TOO: the spots arrive as custom
+			## spots off the board, and the book lights `formations[0]`.
+			sim.formations[0] = fid
+		elif sim.custom_spots[0] != null:
 			drawn_shape_id = fid
 	book_shape = 0
 	for i in _book_shapes().size():
@@ -2717,6 +2721,13 @@ const BOOK_GAP := 8.0
 ## running — you can leaf through the book without calling anything, which is
 ## what a book is for.
 var book_shape: int = 0
+## WHERE EACH PANE WAS SCROLLED, kept across the book's rebuilds (playtest, 4 Oct
+## 2026: *"if I tap it the whole thing resets to the top"*). Every tap in the book
+## rebuilds it, and a rebuilt ScrollContainer starts at 0 — so a drawn shape
+## fourth in the column, or a play low in the list, went back out of reach the
+## moment it was touched. -1: put the pane where the lit card is.
+var book_scroll := [-1, 0]
+var _book_panes: Array = []
 
 
 ## THE SHAPES. The three everyone has, then whatever this club has drawn. Read
@@ -2773,6 +2784,7 @@ func _live_shape_id() -> int:
 func _scroll_column(page: Control, at: Vector2, box: Vector2,
 		sep: int = 8) -> VBoxContainer:
 	var sc := ScrollContainer.new()
+	_book_panes.append(sc)
 	sc.position = at
 	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	sc.follow_focus = true
@@ -2803,7 +2815,7 @@ func _scroll_column(page: Control, at: Vector2, box: Vector2,
 func _build_book(box: Vector2) -> void:
 	var shapes := _book_shapes()
 	book_shape = clampi(book_shape, 0, maxi(0, shapes.size() - 1))
-	var live_shape := _live_shape_id()
+	_book_panes.clear()
 
 	var page := Control.new()
 	page.custom_minimum_size = box
@@ -2828,9 +2840,17 @@ func _build_book(box: Vector2) -> void:
 		## NO ARROWS DOWN THE LEFT. Drawing one push on every shape card says
 		## "these all run this play", which is the opposite of what the column is
 		## for. It is a shape picker, so it shows the shape.
+		## LIT IS THE SHAPE YOU ARE LOOKING AT (playtest, 4 Oct 2026). It was the
+		## shape the men were standing in, so tapping a drawn formation showed its
+		## plays on the right while the left still lit the original — which read
+		## as the tap not having taken.
 		var b := Playbook.card_button(SHAPE_CARD, sh["spots"], Playbook.Mode.SHAPE,
-			null, int(sh["id"]) == live_shape, String(sh["name"]),
-			func(): book_shape = take; _rebuild_book(), 14, Playbook.formation_caption(int(sh["id"])))
+			null, i == book_shape, String(sh["name"]),
+			func():
+				if take != book_shape:
+					book_shape = take
+					book_scroll[1] = 0
+				_rebuild_book(), 14, Playbook.formation_caption(int(sh["id"])))
 		left.add_child(b)
 
 	## ---- what you can run out of it
@@ -2855,8 +2875,12 @@ func _build_book(box: Vector2) -> void:
 		## IN STAR MODE THE LIT CARD IS THE STARRED ONE, not the live one. The
 		## highlight means "this is the one you mean" in both modes; what it means
 		## you mean is what changed.
-		var on: bool = starred if starring else (shape_id == live_shape and is_push
-			and sim.strategies[0] == int(call_["id"]))
+		## AND OUTSIDE IT, THE CHOSEN ONE: what FIGHT will run, which the corner
+		## seeds from what the men are already on.
+		var on: bool = starred if starring else (shape_id == int(chosen_shape.get("id", -99))
+			and String(chosen_call.get("kind", "")) == String(call_["kind"])
+			and int(chosen_call.get("id", -99)) == int(call_["id"])
+			and String(chosen_call.get("name", "")) == String(call_["name"]))
 		var b := Playbook.card_button(PLAY_CARD, spots,
 			Playbook.Mode.STRATEGY if is_push else Playbook.Mode.PLAY,
 			int(call_["id"]) if is_push else call_["routes"], on,
@@ -2868,6 +2892,46 @@ func _build_book(box: Vector2) -> void:
 			Playbook.strategy_caption(int(call_["id"])) if is_push else UiKit.t("A play you drew."))
 		b.tooltip_text = String(call_.get("blurb", UiKit.t("A play you drew.")))
 		grid.add_child(b)
+	_restore_book_scroll()
+
+
+## Remember where both panes are before the book is torn down for a rebuild.
+func _keep_book_scroll() -> void:
+	for k in mini(2, _book_panes.size()):
+		var sc = _book_panes[k]
+		if is_instance_valid(sc):
+			book_scroll[k] = (sc as ScrollContainer).scroll_vertical
+
+
+## And put them back once the new panes have laid out — a scroll set before the
+## container has sorted its children is clamped to a range of zero.
+func _restore_book_scroll() -> void:
+	var panes := _book_panes.duplicate()
+	var want := book_scroll.duplicate()
+	if panes.size() < 2:
+		return
+	var left := panes[0] as ScrollContainer
+	## OPENED AT THE SHAPE IN PLAY: its card in view, not the top of the list.
+	## Worked out from the card size and the column's gap rather than read off
+	## the laid-out card, which may not have been placed yet.
+	if int(want[0]) < 0:
+		var bottom := float(book_shape) * (SHAPE_CARD.y + 8.0) + SHAPE_CARD.y
+		want[0] = int(maxf(0.0, bottom - left.custom_minimum_size.y))
+	## A FEW FRAMES, until the panes have sorted: a scroll set before the range
+	## is known is clamped to zero.
+	for k in 4:
+		await get_tree().process_frame
+		var done := true
+		for j in 2:
+			if not is_instance_valid(panes[j]):
+				return
+			var sc := panes[j] as ScrollContainer
+			sc.scroll_vertical = int(want[j])
+			if sc.scroll_vertical != int(want[j]) and sc.get_v_scroll_bar().max_value \
+					- sc.get_v_scroll_bar().page < float(want[j]):
+				done = false
+		if done:
+			return
 
 
 ## ONE TAP, TWO MEANINGS, decided by the mode the book is in. Splitting it into
@@ -2902,11 +2966,26 @@ func _col_head(page: Control, at: Vector2, t: String) -> void:
 
 ## Rebuild in place, keeping the panel where it is. Leafing through shapes must
 ## not move the page under the thumb that is doing the leafing.
+##
+## IN PLACE BETWEEN ROUNDS TOO (playtest, 4 Oct 2026). This sent the corner's
+## rebuild to `_build_corner`, from when the book was a strip inside the corner;
+## since the book became its own page, a shape tapped between rounds closed the
+## book and dropped the player back on the corner with the old shape chosen.
 func _rebuild_book() -> void:
-	if screen == Screen.CORNER:
-		_build_corner()
-	else:
-		_show_playbook()
+	_show_playbook()
+
+
+## THE WAY IN, from FULL PLAYBOOK: at the shape that is chosen, its card in view.
+func _open_playbook() -> void:
+	_seed_chosen()
+	var shapes := _book_shapes()
+	var want := int(chosen_shape.get("id", _live_shape_id()))
+	for i in shapes.size():
+		if int(shapes[i]["id"]) == want:
+			book_shape = i
+	book_scroll = [-1, 0]
+	_book_panes.clear()
+	_show_playbook()
 
 
 ## Time is up in the corner: go back in on what was chosen, or on the push the
@@ -2953,6 +3032,14 @@ func _apply_chosen() -> void:
 	## half-applied shape is a fight that quietly runs the previous one.
 	var custom: bool = not Tuning.FORMATIONS.has(id)
 	drawn_shape_id = id if custom else -1
+	## THE STARTING POINT (playtest, 4 Oct 2026: *"select it as a starting
+	## point"*). The clubhouse's formation picker went in #20 (15 Sep) for this
+	## screen, and nothing replaced what it wrote: every bout opened in 2-1-2
+	## whatever you fought in last. The shape you go out in now is the one the
+	## next bout opens in — and the one a play drawn "from any shape" starts from
+	## on the chalkboard.
+	if Session.season != null:
+		Session.season.formation_id = id
 	var routes = call_["routes"] if String(call_["kind"]) == "play" else null
 	sim.set_plan(0, shape["spots"] if custom else null, routes)
 	if not custom:
@@ -2997,6 +3084,7 @@ func _show_playbook() -> void:
 	## shared `ui` layer, so a book opened over them would be a book with five SUB
 	## buttons and a FIGHT through it.
 	_clear_corner()
+	_keep_book_scroll()
 	_clear_panel()
 	var board: Chalkboard = Session.season.board if Session.season != null else null
 	var starred: int = board.live_favorites().size() if board != null else 0
@@ -3584,7 +3672,7 @@ func _build_corner() -> void:
 
 	var y: float = C_LY + 6.0 + fh * 2.0 + C_FAV_GAP + 10.0
 	var full := UiKit.button(UiKit.t("FULL PLAYBOOK"), Vector2(C_RX, y), Vector2(C_RW, 34.0),
-		_show_playbook)
+		_open_playbook)
 	corner_nodes.append(full)
 	ui.add_child(full)
 

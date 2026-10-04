@@ -65,6 +65,9 @@ var raw: PackedVector2Array = PackedVector2Array()
 ## WHAT THE SLOT LOOKED LIKE WHEN IT WAS LOADED OR SAVED, so Save can sit dead
 ## until something changes (round 8: Save was gold before any edit).
 var clean_sig := ""
+## WHAT THE BOARD LOOKED LIKE WHEN THIS SLOT WAS OPENED, for the one question
+## `clean_sig` cannot answer on a slot never saved: has anything been drawn?
+var open_sig := ""
 var save_b: Button
 
 
@@ -118,6 +121,21 @@ func _load_slot(i: int) -> void:
 			bind_to = Chalkboard.UNIVERSAL
 	## A slot never saved is a change already; one on file starts clean.
 	clean_sig = _sig() if i < _drawn() else ""
+	open_sig = _sig()
+
+
+## UNSAVED WORK IS NOT DROPPED ON ONE TAP (playtest, 4 Oct 2026: "I can't get to
+## what I drew"). Another slot, the other tab or Revert loaded over the board
+## and the drawing was gone without a word. Now the first press says so and the
+## second goes ahead.
+func _may_leave(key: String) -> bool:
+	if slot >= _slots_owned() or _sig() == open_sig:
+		return true
+	if UiKit.confirm("board-leave:" + key):
+		return true
+	flash = UiKit.t("Not saved. Press again to drop the changes.")
+	_rebuild()
+	return false
 
 
 func _sig() -> String:
@@ -170,11 +188,15 @@ func _rebuild() -> void:
 	## suit, straight through PLAYS beside it. A button narrower than its label
 	## is now a test failure rather than a silent overlap.
 	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("FORMATIONS"), Vector2(LEFT_X, 78), Vector2(144, 38), func():
+		if mode != Mode.FORMATION and not _may_leave("formations"):
+			return
 		mode = Mode.FORMATION
 		flash = ""
 		_load_slot(0)
 		_rebuild()), mode == Mode.FORMATION))
 	ui.add_child(UiKit.selected(UiKit.button(UiKit.t("PLAYS"), Vector2(LEFT_X + 150, 78), Vector2(90, 38), func():
+		if mode != Mode.PLAY and not _may_leave("plays"):
+			return
 		mode = Mode.PLAY
 		flash = ""
 		_load_slot(0)
@@ -220,6 +242,8 @@ func _rebuild() -> void:
 			## The season screen's team sheet already solved it: draw the row,
 			## put a FLAT hit box on top.
 			var b := UiKit.button("", Vector2(LEFT_X, y), Vector2(SLOT_W, SLOT_H), func():
+				if not _may_leave("slot%d" % take):
+					return
 				_load_slot(take)
 				flash = ""
 				_rebuild())
@@ -246,6 +270,8 @@ func _rebuild() -> void:
 		_style_save()
 		ui.add_child(UiKit.button(UiKit.t("Revert"), Vector2(BOARD.position.x + 158, 486),
 			Vector2(130, 42), func():
+				if not _may_leave("revert"):
+					return
 				_load_slot(slot)
 				flash = ""
 				_rebuild()))
@@ -291,6 +317,9 @@ func _cycle_binding() -> void:
 
 
 func _unlock() -> void:
+	## Buying opens the new slot, which would load over an unsaved board.
+	if not _may_leave("unlock"):
+		return
 	var err := board.unlock_formation(season.office) if mode == Mode.FORMATION \
 		else board.unlock_play(season.office)
 	flash = UiKit.said(err) if err != "" else UiKit.t("Slot unlocked.")
@@ -314,6 +343,7 @@ func _save() -> void:
 	Session.autosave()
 	flash = UiKit.t("Saved.")
 	clean_sig = _sig()
+	open_sig = clean_sig
 	_rebuild()
 
 
