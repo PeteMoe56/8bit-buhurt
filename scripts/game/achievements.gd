@@ -69,10 +69,12 @@ static func unlock(id: String) -> void:
 		push_error("Achievements: no achievement '%s' — add it to LIST and to Steamworks" % id)
 		return
 	_load()
-	if not _got.has(id):
-		_got[id] = Time.get_unix_time_from_system()
-		if Settings.is_desktop():
-			_save()
+	if _got.has(id):
+		## Held already, and Steam told at the time (or at the next launch).
+		return
+	_got[id] = Time.get_unix_time_from_system()
+	if Settings.is_desktop():
+		_save()
 	_tell_steam([id])
 
 
@@ -97,12 +99,28 @@ static func boot() -> void:
 	_load()
 	if _steam_obj() != null and not _got.is_empty():
 		_tell_steam(_got.keys())
+		## Unlocks from a Steam-less run now belong to this account.
+		if Settings.is_desktop():
+			_save()
 
 
 ## FOR THE TESTS: forget what this run has unlocked (nothing is on disk).
 static func reset() -> void:
 	_got.clear()
 	_loaded = true
+
+
+## ONE STEAM ACCOUNT'S UNLOCKS, NOT THE COMPUTER'S (audit, 4 Oct 2026). The file
+## sits in the OS user's folder, which every Steam account on that PC shares, and
+## `boot()` re-sends what it holds — so one flat list handed the first account's
+## achievements to the next one to launch. Each account now has its own section
+## (its SteamID); unlocks earned with Steam not running go under "got" and are
+## claimed by the next account that launches, once.
+static func _account() -> String:
+	var s := _steam_obj()
+	if s == null or not s.has_method("getSteamID"):
+		return "got"
+	return "acct_%s" % str(s.call("getSteamID"))
 
 
 static func _load() -> void:
@@ -112,16 +130,30 @@ static func _load() -> void:
 	if not Settings.is_desktop():
 		return
 	var cfg := ConfigFile.new()
-	if cfg.load(path) == OK:
-		for k in cfg.get_section_keys("got") if cfg.has_section("got") else []:
-			_got[String(k)] = cfg.get_value("got", k, 0)
+	if cfg.load(path) == OK or cfg.load(path + ".bak") == OK:
+		for sec in ["got", _account()]:
+			if cfg.has_section(sec):
+				for k in cfg.get_section_keys(sec):
+					_got[String(k)] = cfg.get_value(sec, k, 0)
 
 
+## Written aside and renamed in, as Settings does: a kill mid-write leaves the old
+## file, not half of one.
 static func _save() -> void:
 	var cfg := ConfigFile.new()
+	cfg.load(path)
+	var acct := _account()
+	if acct != "got" and cfg.has_section("got"):
+		cfg.erase_section("got")
+	if cfg.has_section(acct):
+		cfg.erase_section(acct)
 	for k in _got:
-		cfg.set_value("got", k, _got[k])
-	cfg.save(path)
+		cfg.set_value(acct, k, _got[k])
+	var tmp := path + ".tmp"
+	if cfg.save(tmp) == OK:
+		if FileAccess.file_exists(path):
+			DirAccess.rename_absolute(path, path + ".bak")
+		DirAccess.rename_absolute(tmp, path)
 
 
 static func _tell_steam(list: Array) -> void:
@@ -164,15 +196,19 @@ static func _steam_obj() -> Object:
 		print("Achievements: Steam did not start (%s); unlocks are kept locally" % str(res))
 		return null
 	_steam = s
-	## THE OVERLAY PAUSES THE FIGHT (Deck Verified): Shift+Tab, or the Steam
-	## button on a Deck, over a running bout would leave it running.
+	## STEAM DRAWS ITS OVERLAY AND ITS ACHIEVEMENT POP-UPS ON THE GAME'S FRAMES.
+	## Low-processor mode (project.godot) stops drawing frames on a still menu, so
+	## a pop-up for an achievement earned on one (Captain, New Blood) would sit
+	## frozen until something moved. A Steam build draws every frame.
+	OS.low_processor_usage_mode = false
+	## THE OVERLAY PAUSES THE FIGHT AND THE CORNER (Deck Verified): Shift+Tab, or
+	## the Steam button on a Deck, over a running clock would leave it running.
 	if s.has_signal("overlay_toggled"):
 		s.connect("overlay_toggled", func(active: bool, _user := false, _app := 0) -> void:
 			if not active:
 				return
 			var tree := Engine.get_main_loop() as SceneTree
 			var sc := tree.current_scene if tree != null else null
-			if sc != null and sc.has_method("_set_paused") and sc.has_method("pad_owns_input") \
-					and bool(sc.call("pad_owns_input")):
-				sc.call("_set_paused", true))
+			if sc != null and sc.has_method("overlay_pause"):
+				sc.call("overlay_pause"))
 	return _steam

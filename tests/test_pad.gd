@@ -61,6 +61,7 @@ func _initialize() -> void:
 	for e in InputMap.action_get_events("ui_cancel"):
 		b_ok = b_ok or (e is InputEventJoypadButton and e.button_index == JOY_BUTTON_B)
 	_ok(a_ok and b_ok, "A presses, B goes back", "ui_accept has A: %s, ui_cancel has B: %s" % [a_ok, b_ok])
+	_test_the_stick()
 	seed(20260914)
 	Settings.tips_enabled = false
 	world = Season.new(MeleeRosters.starting_club(), 4242)
@@ -146,6 +147,10 @@ func _process(_d: float) -> bool:
 		var label := String(row[0])
 		lines.append("  %-22s %3d buttons, start '%s', unreachable %d %s" % [label, all.size(),
 			(start as Button).text if start is Button else "-", missed.size(), "" if missed.is_empty() else str(missed)])
+		if label.begins_with("18_create_fighter") or label.begins_with("19_create_club"):
+			var edits := all.filter(func(c): return c is LineEdit)
+			_ok(not edits.is_empty(), "the pad reaches the name box on %s" % label,
+				"%d name boxes among %d" % [edits.size(), all.size()])
 		_ok(all.is_empty() or (start != null and missed.is_empty()),
 			"every button on %s is reachable with the d-pad" % label, "%d of %d unreachable %s" % [missed.size(), all.size(), str(missed)])
 		if OS.get_environment("RB_PAD_SHOT") != "" and start != null:
@@ -160,3 +165,22 @@ func _process(_d: float) -> bool:
 		n = 0
 		i += 1
 	return false
+
+
+## ONE PUSH OF THE STICK IS ONE STEP (audit, 4 Oct 2026): a stick sends a stream
+## of motion events, and each one past the dead zone used to step focus again.
+func _test_the_stick() -> void:
+	var life := AppLife.new()
+	var steps := 0
+	for v in [0.2, 0.55, 0.8, 1.0, 0.9, 1.0, 0.6, 0.4, 0.2, 0.0, 0.7, 1.0, 0.1]:
+		var e := InputEventJoypadMotion.new()
+		e.axis = JOY_AXIS_LEFT_Y
+		e.axis_value = v
+		if life._nav_dir(e) == Vector2.DOWN:
+			steps += 1
+	_ok(steps == 2, "two pushes of the stick are two steps, not one per motion event", "%d steps" % steps)
+	var up := InputEventJoypadMotion.new()
+	up.axis = JOY_AXIS_LEFT_Y
+	up.axis_value = -1.0
+	_ok(life._nav_dir(up) == Vector2.UP, "straight from down to up is a step up", str(life._nav_dir(up)))
+	life.free()

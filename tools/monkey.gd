@@ -130,7 +130,13 @@ func _live_button(c: Node) -> bool:
 	if not (c is Button):
 		return false
 	var b := c as Button
-	return not b.disabled and b.is_visible_in_tree() and String(b.text) != "Quit"
+	## QUIT IN WHATEVER LANGUAGE IS UP: the monkey changes the language in
+	## Settings, and an English-only check pressed "Salir" and ended the run.
+	## ON THE FRONT DOOR ONLY: Spanish "Walk out" is also "Salir", and skipping it
+	## everywhere left the monkey stood at the walk-out for good.
+	if here == "Start.tscn" and (String(b.text) == "Quit" or String(b.text) == UiKit.t("Quit")):
+		return false
+	return not b.disabled and b.is_visible_in_tree()
 
 
 func _edits(n: Node) -> Array:

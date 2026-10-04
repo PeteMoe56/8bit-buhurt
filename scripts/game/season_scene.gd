@@ -207,6 +207,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		step = -1
 	if step == 0 or tabs_shown.is_empty() or season == null or season.blocked_by() != "":
 		return
+	## NOT UNDER A MODAL (audit, 4 Oct 2026): the market, the ground, a menu
+	## stayed open over whichever tab the shoulders stepped to.
+	if ground_open or market_open or club_menu_open or training_open or help_key != "" \
+			or armorer_open or shop_open or sim_asking or fin_full or team_card != -1:
+		get_viewport().set_input_as_handled()
+		return
 	get_viewport().set_input_as_handled()
 	var at := maxi(0, tabs_shown.find(tab))
 	tab = tabs_shown[(at + step + tabs_shown.size()) % tabs_shown.size()]

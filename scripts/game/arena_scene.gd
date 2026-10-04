@@ -158,7 +158,7 @@ func _tidy() -> void:
 
 func _bid() -> void:
 	var o: Dictionary = season.bid_offers[offer_i % season.bid_offers.size()]
-	var nm := String(o["name"])
+	var nm := UiKit.t(String(o["name"]))
 	var err := season.take_bid(offer_i % season.bid_offers.size(), budget_i)
 	flash = UiKit.said(err) if err != "" else UiKit.t("%s is yours. The rest of the year is preparation.") % nm
 	if err == "":
@@ -341,7 +341,7 @@ func _draw_diary() -> void:
 			Vector2(RIGHT_X, 146), 14, UiKit.DIM)
 	else:
 		var n := arena.next()
-		UiKit.text(self, font, UiKit.t("Next: %s, holds %d") % [String(n["name"]), int(n["capacity"])],
+		UiKit.text(self, font, UiKit.t("Next: %s, holds %d") % [UiKit.t(String(n["name"])), int(n["capacity"])],
 			Vector2(RIGHT_X, 146), 14, UiKit.DIM)
 		## AND WHICH DIVISION IT NEEDS. `arena.next_tier()` was written for this
 		## screen — its own comment says so — and then never called, so the one

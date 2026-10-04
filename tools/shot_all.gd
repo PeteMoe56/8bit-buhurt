@@ -47,6 +47,12 @@ func _initialize() -> void:
 	if a.size() > 0:
 		out_dir = String(a[0])
 	DirAccess.make_dir_recursive_absolute(out_dir)
+	## RB_LOCALE pins the language, as the ink sweep does.
+	var pinned := OS.get_environment("RB_LOCALE")
+	if pinned != "":
+		Settings.load_once()
+		Settings.language = pinned
+		TranslationServer.set_locale(pinned)
 	Settings.tips_enabled = false
 	world = Season.new(MeleeRosters.starting_club(), 4242)
 	world.world.season = 3

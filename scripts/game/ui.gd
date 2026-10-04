@@ -483,7 +483,10 @@ static func tint(base: Color, amount: float) -> Color:
 ## What the occasion is called, for the banner. Empty on an ordinary matchday,
 ## which is how a screen knows not to draw one.
 static func mood_name() -> String:
-	return String((PALETTES[mood] as Dictionary).get("name", ""))
+	## THROUGH t() (audit, 4 Oct 2026): the band read "CUP NIGHT" in all nine
+	## languages, under a translated occasion.
+	var n := String((PALETTES[mood] as Dictionary).get("name", ""))
+	return t(n) if n != "" else ""
 
 ## A filled bar with a stepped track behind it — the shape Retro Bowl's front
 ## office uses for a cap and a facility, and the right one: a segmented bar says
@@ -858,6 +861,14 @@ static var _pointer := -1
 static func pointer() -> bool:
 	if _pointer == -1:
 		_pointer = 1 if (OS.get_environment("RB_POINTER") == "1" or Settings.is_desktop()) else 0
+		## A STEAM DECK KEEPS "TAP" (audit, 4 Oct 2026): it has a touch screen and
+		## no mouse, and Valve's Verified check fails mouse words shown to a
+		## player who has none.
+		if _pointer == 1 and OS.get_environment("RB_POINTER") != "1":
+			var st := Achievements.steam()
+			if st != null and st.has_method("isSteamRunningOnSteamDeck") \
+					and bool(st.call("isSteamRunningOnSteamDeck")):
+				_pointer = 0
 	return _pointer == 1
 
 
@@ -1574,8 +1585,8 @@ static func _fit_slop(b: Button) -> void:
 ## rounded grey box, the one control on those screens that was not pixel type.
 static func skin_edit(e: LineEdit, px: int = 16) -> void:
 	## STEAM DECK: a name field opens Steam's own keyboard (Verified needs it).
-	if not e.focus_entered.is_connected(Pad.on_screen_keyboard.bind(e)):
-		e.focus_entered.connect(Pad.on_screen_keyboard.bind(e))
+	if not e.focus_entered.is_connected(Pad.on_edit_focus.bind(e)):
+		e.focus_entered.connect(Pad.on_edit_focus.bind(e))
 	e.add_theme_font_override("font", body())
 	e.add_theme_font_size_override("font_size", px)
 	e.add_theme_color_override("font_color", INK)

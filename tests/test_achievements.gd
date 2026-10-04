@@ -18,6 +18,7 @@ func _initialize() -> void:
 	_test_every_id_is_earned_somewhere()
 	_test_a_bout()
 	_test_nothing_on_disk()
+	_test_the_record_book()
 	print("")
 	if failures.is_empty():
 		print("THE ACHIEVEMENTS HOLD (%d checks)\n" % checks)
@@ -112,3 +113,26 @@ func _test_nothing_on_disk() -> void:
 	_ok(Achievements.has("CAPTAIN") and not FileAccess.file_exists(Achievements.path),
 		"a test run unlocks in memory and writes nothing for Steam to pick up",
 		"file at %s: %s" % [Achievements.path, FileAccess.file_exists(Achievements.path)])
+
+
+## IN THE BOOK is for breaking a record that stood — another man's, from an
+## earlier season — not for the book filling up in a club's first bout (audit,
+## 4 Oct 2026: everyone had it by the end of their first event).
+func _test_the_record_book() -> void:
+	Achievements.reset()
+	var w := LeagueWorld.new(77)
+	## Season 1, bout 1: five men write and overwrite the empty book.
+	w.note_record("rating", 50, "Ames", 1)
+	w.note_record("rating", 58, "Brook", 1)
+	w.note_record("events", 1, "Ames", 1)
+	w.note_record("events", 2, "Ames", 1)
+	_ok(not Achievements.has("IN_THE_BOOK"), "the book filling up in season 1 earns nothing",
+		"IN_THE_BOOK %s" % Achievements.has("IN_THE_BOOK"))
+	## Season 2: his own record, carried on, is not breaking one.
+	w.note_record("events", 3, "Ames", 2)
+	_ok(not Achievements.has("IN_THE_BOOK"), "a man extending his own record earns nothing",
+		"IN_THE_BOOK %s" % Achievements.has("IN_THE_BOOK"))
+	## Season 2: another man past last season's mark is.
+	w.note_record("rating", 61, "Cole", 2)
+	_ok(Achievements.has("IN_THE_BOOK"), "another man past a record from an earlier season earns it",
+		"IN_THE_BOOK %s" % Achievements.has("IN_THE_BOOK"))

@@ -163,7 +163,8 @@ done
 if [ ${#FILES[@]} -eq 0 ] && [ "$TIER" != balance ] && want shapes; then
   echo "=== shape sweep"
   if command -v xvfb-run >/dev/null 2>&1; then
-    for res in 960x540 1170x540 1260x540 960x720; do
+    ## 1280x800 IS THE STEAM DECK (16:10, audit 4 Oct 2026): a 960x600 canvas.
+    for res in 960x540 1170x540 1260x540 960x720 1280x800; do
       for t in tests/test_ink.gd tests/test_shapes.gd tests/test_checklist.gd; do
         run_one "$t" fast "$res" xvfb-run -a "$G" --audio-driver Dummy --resolution "$res"
       done

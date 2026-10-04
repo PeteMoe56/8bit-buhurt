@@ -112,6 +112,30 @@ func _process(_d: float) -> bool:
 			_ok(not m.under_orders(), "B cancels the send", "orders %s" % m.under_orders())
 			stage = 2
 		2:
+			## A FIRST-TIME TIP lets go of the pad, so focus can land on its
+			## "Got it" (audit, 4 Oct 2026: it froze the fight and A drew routes
+			## under it, with no way to close it from the pad).
+			scene.set("tip", "route")
+			_ok(not scene.pad_owns_input(), "a tip up lets go of the pad for its Got it",
+				"pad_owns_input %s" % scene.pad_owns_input())
+			scene.set("tip", "")
+			## START pauses; A carries on.
+			_btn(JOY_BUTTON_START, true)
+			var was := bool(scene.get("paused"))
+			_btn(JOY_BUTTON_A, true)
+			_ok(was and not bool(scene.get("paused")), "Start pauses and A carries on",
+				"paused after Start %s, after A %s" % [was, scene.get("paused")])
+			## Y skips the round when SKIP ROUND is up.
+			var sb: Button = scene.get("skip_button")
+			scene.call("_sync_controls")
+			if sb != null and sb.visible:
+				_btn(JOY_BUTTON_Y, true)
+				_ok(bool(scene.get("skipping")) or sim.phase != MeleeSim.Phase.LIVE,
+					"Y skips the round", "skipping %s" % scene.get("skipping"))
+			else:
+				_ok(true, "the Y check skipped: SKIP ROUND is not up", "visible %s" % (sb.visible if sb != null else false))
+			stage = 3
+		3:
 			print("")
 			if failures.is_empty():
 				print("THE FIGHT ON A PAD HOLDS (%d checks)\n" % checks)

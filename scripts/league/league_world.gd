@@ -162,8 +162,13 @@ func note_record(key: String, value: int, holder: String, at_season: int) -> boo
 	var cur: Dictionary = records.get(key, {})
 	if not cur.is_empty() and int(cur.get("value", 0)) >= value:
 		return false
-	## Breaking one, not writing the first line of an empty book.
-	if not cur.is_empty():
+	## BREAKING ONE THAT STOOD: another man's, from an earlier season (audit,
+	## 4 Oct 2026). "Not the first line of an empty book" was not enough — the
+	## book fills in the first bout, the next man past the first rating "broke"
+	## it, and a career count broke its own record every bout after; everyone
+	## had this one by the end of their first event.
+	if not cur.is_empty() and int(cur.get("season", at_season)) < at_season \
+			and String(cur.get("holder", "")) != holder:
 		Achievements.unlock("IN_THE_BOOK")
 	records[key] = {"value": value, "holder": holder, "season": at_season}
 	return true

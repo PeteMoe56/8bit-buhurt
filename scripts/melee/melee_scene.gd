@@ -818,8 +818,13 @@ func _unhandled_input(event: InputEvent) -> void:
 ##   LB / RB   jump the cursor to the previous / next man of yours on his feet
 ##   X         HOLD
 ##   B         back: cancels the wheel if it is up, else pauses (as Esc does)
+##   Y         SKIP ROUND, when the button is up
+##   Start     pause / carry on; paused, A carries on too
 ## With the wheel up, any direction lights the next side and A takes it.
-## Menus on this screen (the corner, the report) are ordinary focus.
+## Menus on this screen (the corner, the report) are ordinary focus — and so is
+## a first-time tip: while one is up the pad lets go of the fight, so focus
+## lands on its "Got it" (audit, 4 Oct 2026: the tip froze the fight and the
+## pad's A went on drawing routes under it, with no way to close it).
 const PAD_SPEED := 420.0        ## cursor, design px per second at full stick
 var pad_cursor := Vector2(SCREEN.x * 0.5, SCREEN.y * 0.45)
 var pad_held := false
@@ -829,10 +834,20 @@ var _pad_man := -1
 
 
 func pad_owns_input() -> bool:
-	return screen == Screen.FIGHT and not paused and not skipping
+	return screen == Screen.FIGHT and not paused and not skipping and tip == ""
+
+
+## STEAM'S OVERLAY OVER THE FIGHT OR THE CORNER pauses it (Deck Verified): both
+## run on a clock. Called by `Achievements` when the overlay opens.
+func overlay_pause() -> void:
+	if (screen == Screen.FIGHT or screen == Screen.CORNER) and not paused:
+		_set_paused(true)
 
 
 func _pad_process(delta: float) -> void:
+	if not pad_owns_input():
+		## Whatever took the pad (a tip, the pause, a skip) took A's release too.
+		pad_held = false
 	if not AppLife.pad_active() or not pad_owns_input():
 		if _pad_node != null and _pad_node.visible:
 			_pad_node.visible = false
@@ -866,9 +881,18 @@ func _pad_process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not pad_owns_input() or not (event is InputEventJoypadButton):
+	if not (event is InputEventJoypadButton):
 		return
 	var jb := event as InputEventJoypadButton
+	## PAUSED ON A PAD: Start or A carries on (the screen says so); B already
+	## does, through Back.
+	if paused and jb.pressed and screen != Screen.REPORT \
+			and (jb.button_index == JOY_BUTTON_START or jb.button_index == JOY_BUTTON_A):
+		_set_paused(false)
+		get_viewport().set_input_as_handled()
+		return
+	if not pad_owns_input():
+		return
 	if wheel_man != -1 and jb.pressed:
 		match jb.button_index:
 			JOY_BUTTON_A:
@@ -894,6 +918,14 @@ func _input(event: InputEvent) -> void:
 			if jb.pressed:
 				_hold()
 				_sync_controls()
+			get_viewport().set_input_as_handled()
+		JOY_BUTTON_Y:
+			if jb.pressed and skip_button != null and skip_button.visible and not skip_button.disabled:
+				skip_button.pressed.emit()
+			get_viewport().set_input_as_handled()
+		JOY_BUTTON_START:
+			if jb.pressed:
+				_set_paused(true)
 			get_viewport().set_input_as_handled()
 		JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER:
 			if jb.pressed:
@@ -956,6 +988,9 @@ func _set_paused(on: bool) -> void:
 	if on:
 		drawing = -1
 		draw_finger = -1
+		## A held when the pause came is not still held after it: the release
+		## went to the pause, and the next press must count.
+		pad_held = false
 	queue_redraw()
 
 
@@ -1276,7 +1311,8 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2(-off_x, -off_y), UiKit.screen()), Color(0, 0, 0, 0.6))
 		UiKit.raw(self, font, Vector2(0, sz.y * 0.46), UiKit.t("PAUSED"),
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 40, UiKit.YOU)
-		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36), UiKit.t("Tap to carry on"),
+		UiKit.raw(self, font, Vector2(0, sz.y * 0.46 + 36),
+			UiKit.t("Press A to carry on") if AppLife.pad_active() else UiKit.t("Tap to carry on"),
 			HORIZONTAL_ALIGNMENT_CENTER, int(sz.x), 16, COL_DIM)
 		## WHAT HAPPENS IF THE PHONE KILLS US NOW (Pete, 29 Sep 2026): the bout
 		## is fought again from the walk-out, on the same seed.

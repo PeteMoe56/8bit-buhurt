@@ -317,6 +317,10 @@ static func _squad_controls(v: SeasonScene) -> void:
 					UiKit.t("%s traded for %d CC.") % [gone, worth] if worth > 0
 					else UiKit.t("%s released.") % gone)
 				if err == "":
+					## THE PLAYER'S OWN TRADE, not the winter making room for a
+					## walk-on (audit, 4 Oct 2026).
+					if worth > 0:
+						Achievements.unlock("BUSINESS")
 					v.picked = null
 					v.season.sync_power()
 					Session.autosave()

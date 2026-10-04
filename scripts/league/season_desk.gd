@@ -32,7 +32,6 @@ static func release(s: Season, f: FighterCard) -> String:
 	if s.prospect == f:
 		s.prospect = null
 	if paid > 0:
-		Achievements.unlock("BUSINESS")
 		s.office.take(paid, UiKit.t("%s traded") % f.display_name,
 			UiKit.t("season %d") % s.world.season, ClubOffice.LINE_TRANSFER)
 	for other in s.club.active_eight():

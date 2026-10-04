@@ -68,8 +68,7 @@ func _scene_owns_pad() -> bool:
 
 func _ready() -> void:
 	get_viewport().gui_focus_changed.connect(func(c: Control) -> void:
-		if c is Button:
-			_last_text = (c as Button).text
+		_last_text = (c as Button).text if c is Button else ""
 		_last_pos = c.get_global_rect().get_center())
 
 
@@ -142,7 +141,8 @@ func _leaving() -> void:
 
 func _input(event: InputEvent) -> void:
 	if Juice.wiping() and (event is InputEventMouseButton or event is InputEventScreenTouch
-			or event is InputEventScreenDrag or event is InputEventKey):
+			or event is InputEventScreenDrag or event is InputEventKey
+			or event is InputEventJoypadButton):
 		get_viewport().set_input_as_handled()
 		return
 	## ALT+ENTER AND F11, the PC habit (Steam, 3 Oct 2026).
@@ -154,7 +154,15 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton or event is InputEventScreenTouch \
 			or (event is InputEventMouseMotion and (event as InputEventMouseMotion).relative.length() > 2.0):
 		_pad_mode = false
+	elif event is InputEventJoypadMotion and not Pad.is_nav(event):
+		## A stick coming back in: it re-arms (`_nav_dir`), and moves nothing.
+		_nav_dir(event)
+		if _pad_mode and not _scene_owns_pad():
+			get_viewport().set_input_as_handled()
 	elif Pad.is_nav(event) or event is InputEventJoypadButton:
+		## Read the stick first, every event, so the push that only shows where
+		## focus is still counts as this push and does not step on the next.
+		var d := _nav_dir(event)
 		var first := not _pad_mode or get_viewport().gui_get_focus_owner() == null
 		_pad_mode = true
 		if _scene_owns_pad():
@@ -170,18 +178,60 @@ func _input(event: InputEvent) -> void:
 		## A DIRECTION MOVES FOCUS BY WHERE THINGS ARE ON SCREEN (`Pad.neighbor`).
 		## A focused LineEdit or slider keeps its own left/right.
 		var f := get_viewport().gui_get_focus_owner()
-		if f != null and f is BaseButton and not _scene_owns_pad():
-			for pair in [["ui_up", Vector2.UP], ["ui_down", Vector2.DOWN],
-					["ui_left", Vector2.LEFT], ["ui_right", Vector2.RIGHT]]:
-				if event.is_action_pressed(String(pair[0]), true, true):
-					var nb := Pad.neighbor(f, pair[1], Pad.candidates(get_tree().current_scene))
-					if nb != null:
-						nb.grab_focus()
-					get_viewport().set_input_as_handled()
-					return
+		## A ON A NAME FIELD opens Steam's keyboard (Deck; nothing elsewhere).
+		if f is LineEdit and event is InputEventJoypadButton \
+				and (event as InputEventJoypadButton).pressed \
+				and (event as InputEventJoypadButton).button_index == JOY_BUTTON_A:
+			Pad.on_screen_keyboard(f as LineEdit)
+			get_viewport().set_input_as_handled()
+			return
+		## A name field keeps left/right for its caret; up and down leave it.
+		if f != null and (f is BaseButton or f is LineEdit) and not _scene_owns_pad():
+			if f is LineEdit and d.x != 0.0:
+				d = Vector2.ZERO
+			if d != Vector2.ZERO:
+				var nb := Pad.neighbor(f, d, Pad.candidates(get_tree().current_scene))
+				if nb != null:
+					nb.grab_focus()
+				get_viewport().set_input_as_handled()
+				return
+			if event is InputEventJoypadMotion:
+				## The stick still out, or coming back: swallowed, so Godot's own
+				## focus walk does not take a step of its own.
+				get_viewport().set_input_as_handled()
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		back_pressed()
+
+
+## ONE STEP PER PUSH OF THE STICK (audit, 4 Oct 2026). A d-pad or a key sends
+## one press; a stick sends a stream of motion events, every one past the dead
+## zone counting as "pressed", so one flick walked focus down several buttons. A
+## stick steps when it goes out past half way and not again until it has come
+## back in under a third.
+var _stick_out := {}
+
+
+func _nav_dir(event: InputEvent) -> Vector2:
+	if event is InputEventJoypadMotion:
+		var jm := event as InputEventJoypadMotion
+		if jm.axis != JOY_AXIS_LEFT_X and jm.axis != JOY_AXIS_LEFT_Y:
+			return Vector2.ZERO
+		var was := int(_stick_out.get(jm.axis, 0))
+		var now := was
+		if absf(jm.axis_value) >= 0.5:
+			now = 1 if jm.axis_value > 0.0 else -1
+		elif absf(jm.axis_value) < 0.33:
+			now = 0
+		_stick_out[jm.axis] = now
+		if now == 0 or now == was:
+			return Vector2.ZERO
+		return Vector2(now, 0) if jm.axis == JOY_AXIS_LEFT_X else Vector2(0, now)
+	for pair in [["ui_up", Vector2.UP], ["ui_down", Vector2.DOWN],
+			["ui_left", Vector2.LEFT], ["ui_right", Vector2.RIGHT]]:
+		if event.is_action_pressed(String(pair[0]), true, true):
+			return pair[1]
+	return Vector2.ZERO
 
 
 ## THE BACK BUTTON, from anywhere. Public so the suite can press it.

@@ -99,6 +99,8 @@ static func candidates(root: Node) -> Array[Control]:
 		var c := flat[k]
 		if c is BaseButton and c.focus_mode != Control.FOCUS_NONE and not (c as BaseButton).disabled:
 			out.append(c)
+		elif c is LineEdit and c.focus_mode != Control.FOCUS_NONE and (c as LineEdit).editable:
+			out.append(c)
 	return out
 
 
@@ -111,7 +113,9 @@ static func _collect(n: Node, out: Array[Control]) -> void:
 		return
 	if n is Control:
 		var c := n as Control
-		if c is BaseButton or (c.mouse_filter == Control.MOUSE_FILTER_STOP and c.focus_mode == Control.FOCUS_NONE):
+		## NAME FIELDS TOO (audit, 4 Oct 2026): a new fighter cannot be signed
+		## without a name, and a pad that could not reach the box could not sign.
+		if c is BaseButton or c is LineEdit or (c.mouse_filter == Control.MOUSE_FILTER_STOP and c.focus_mode == Control.FOCUS_NONE):
 			out.append(c)
 	for ch in n.get_children():
 		_collect(ch, out)
@@ -162,10 +166,20 @@ static func pick(scene: Node, last_text: String, last_pos: Vector2) -> Control:
 	var all := candidates(scene)
 	if all.is_empty():
 		return null
+	## The same words — and of several with the same words (a SUB on every row of
+	## the corner), the one nearest where focus was, not the top one.
 	if last_text != "":
+		var same: Control = null
+		var sd := INF
 		for c in all:
 			if c is Button and (c as Button).text == last_text:
-				return c
+				var d := 0.0 if last_pos == Vector2.INF \
+					else c.get_global_rect().get_center().distance_squared_to(last_pos)
+				if d < sd:
+					sd = d
+					same = c
+		if same != null:
+			return same
 	if last_pos != Vector2.INF:
 		var best: Control = null
 		var bd := INF
@@ -196,7 +210,19 @@ static func on_screen_keyboard(e: LineEdit) -> void:
 	if s.has_method("isSteamRunningOnSteamDeck") and not bool(s.call("isSteamRunningOnSteamDeck")) \
 			and not (s.has_method("isSteamInBigPictureMode") and bool(s.call("isSteamInBigPictureMode"))):
 		return
-	var r := e.get_global_rect()
+	## IN WINDOW PIXELS, not the 960-wide design frame: on a 1280x800 Deck the
+	## frame is drawn 1.33x, and Steam places its keyboard clear of the rect it is
+	## given — the design-frame rect is the wrong place.
+	var xf := e.get_viewport().get_screen_transform() * e.get_global_transform_with_canvas()
+	var at := xf * Vector2.ZERO
+	var sz := xf.basis_xform(e.size)
 	if s.has_method("showFloatingGamepadTextInput"):
-		s.call("showFloatingGamepadTextInput", 0, int(r.position.x), int(r.position.y),
-			int(r.size.x), int(r.size.y))
+		s.call("showFloatingGamepadTextInput", 0, int(at.x), int(at.y), int(sz.x), int(sz.y))
+
+
+## A NAME FIELD GAINING FOCUS. From a touch (a Deck's screen) the keyboard comes
+## up at once; from a pad, focus only passes over the box on its way down the
+## screen, and A on it opens the keyboard (`AppLife`).
+static func on_edit_focus(e: LineEdit) -> void:
+	if not AppLife.pad_active():
+		on_screen_keyboard(e)
