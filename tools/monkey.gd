@@ -107,7 +107,7 @@ func _pick(buttons: Array) -> Button:
 		var t: String = String(b.text).to_lower()
 		var w := 1.0
 		for k in ["fight", "sim it", "next", "continue", "play", "start a club", "take it",
-				"end the season", "roll", "carry on", "back to the clubhouse", "anywhere"]:
+				"end the season", "roll", "carry on", "back to the clubhouse", "anywhere", "ready"]:
 			if t.find(k) != -1:
 				w = 6.0
 		weights.append(w)

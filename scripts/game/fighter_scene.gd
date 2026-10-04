@@ -1016,7 +1016,7 @@ func _attributes() -> void:
 	## version already proved clear.
 	UiKit.text_fit(self, font,
 		(UiKit.t("%s: a boost, for now.") % man.morale_word()) if man.angry()
-			else UiKit.t("Green box: his room to grow, shared by all four."),
+			else UiKit.t("Green: room to grow, shared."),
 		## PHONE SIZE ON A TABLET TOO (3 Oct 2026): the column does not widen, and
 		## at 16px the legend was cut to "how far he can gr.".
 		Vector2(M_X + 16, COL_Y + col_h() - 14), 13,

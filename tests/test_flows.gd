@@ -168,7 +168,17 @@ func _flow_new_career_and_first_bout() -> void:
 			break
 		await process_frame
 	await process_frame
-	await _press("Back to the club")
+	## LEVELS FIRST (4 Oct 2026): with levels to place the way out is "Spend
+	## levels (N)", through the men's pages, and Back from there to the club.
+	var out := "Back to the club"
+	for b in _buttons():
+		if String(b.text).begins_with("Spend levels"):
+			out = String(b.text)
+	await _press(out)
+	if out != "Back to the club":
+		var paged := await _arrive("Fighter.tscn")
+		_ok(paged, "the levels waiting are the next page after the report", out)
+		await _press("Back")
 	var back := await _arrive("Season.tscn")
 	on_disk = SaveGame._read(0)
 	var cleared: bool = on_disk is Dictionary and (on_disk.get("bout_live", {}) as Dictionary).is_empty()

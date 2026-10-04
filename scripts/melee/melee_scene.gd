@@ -469,10 +469,11 @@ func _process(delta: float) -> void:
 		draw_rest += delta
 		if draw_rest >= Tuning.SPRINT_HOLD and Tuning.sprint > 1.0:
 			draw_run = true
+	_tick_planning(delta)
 	if skipping and not paused:
 		_skip_slice()
 	elif screen == Screen.FIGHT and not Juice.frozen() and not held and not paused and wheel_man == -1 \
-			and tip == "" and beat_t <= 0.0:
+			and tip == "" and beat_t <= 0.0 and not planning and count_t <= 0.0:
 		## NO CATCH-UP AFTER A STALL. A hitch or an app resume handed the loop a
 		## huge delta, and the fight fast-forwarded until it caught up.
 		accum = minf(accum + delta, 0.25)
@@ -572,11 +573,106 @@ func _sync_controls() -> void:
 		return
 	## NOT UNDER THE PAUSE (audit, 3 Oct 2026): they sit on a layer above it.
 	var live: bool = screen == Screen.FIGHT and not sim.is_over() and not paused \
-		and sim.phase != MeleeSim.Phase.CORNER and not skipping and beat_t <= 0.0
+		and sim.phase != MeleeSim.Phase.CORNER and not skipping and beat_t <= 0.0 \
+		and not planning and count_t <= 0.0
+	if ready_button != null:
+		ready_button.visible = screen == Screen.FIGHT and planning and not paused and tip == ""
 	## Not while the wheel is up: the fight is frozen and the ring needs the
 	## bottom of the list the two buttons sit over.
 	call_button.visible = live and not held and calls_left > 0 and wheel_man == -1
 	skip_button.visible = live and not held and wheel_man == -1
+
+
+# ------------------------------------------------------------- the planning
+## PLAN, READY, 3-2-1, FIGHT (Pete, 4 Oct 2026, Steam playthrough: "Fights should
+## start with a Planning stage. Have the ability to draw routes on the field,
+## press ready, have a 3,2,1, Fight, and go. Same between rounds, after you're
+## set, give them 10 extra planning seconds before it automatically starts").
+##
+## The line is set and frozen: the men stand on their marks, and a route drawn
+## now is an order given before the whistle (`give_order` takes it in the
+## CHARGE phase, and the sim does not tick until the count is out). Before the
+## first charge it waits for READY; after a corner it waits ten seconds and then
+## goes by itself. READY, Space, Enter or Y on a pad ends it early.
+const PLAN_FIRST := -1.0      ## no clock: the first charge waits for READY
+const PLAN_BETWEEN := 10.0    ## after a corner, ten seconds and then it goes
+const COUNT_FROM := 3.0
+const FIGHT_WORD_T := 0.8
+var planning := false
+var plan_left := -1.0
+var count_t := 0.0
+var fight_word_t := 0.0
+var ready_button: Button = null
+var _count_shown := -1
+
+
+func _begin_planning(secs: float) -> void:
+	planning = true
+	plan_left = secs
+	count_t = 0.0
+	_count_shown = -1
+	accum = 0.0
+	_sync_controls()
+	queue_redraw()
+
+
+func _ready_up() -> void:
+	if not planning:
+		return
+	planning = false
+	plan_left = -1.0
+	count_t = COUNT_FROM
+	_count_shown = -1
+	drawing = -1
+	_sync_controls()
+	queue_redraw()
+
+
+## Real time, not sim time: the sim is frozen for all of it. Not under the pause
+## or a tip, which have the screen.
+func _tick_planning(delta: float) -> void:
+	if fight_word_t > 0.0:
+		fight_word_t = maxf(0.0, fight_word_t - delta)
+	if screen != Screen.FIGHT or paused or tip != "":
+		return
+	if planning and plan_left > 0.0:
+		plan_left -= delta
+		if plan_left <= 0.0:
+			_ready_up()
+	if count_t > 0.0:
+		var n := int(ceil(count_t))
+		if n != _count_shown:
+			_count_shown = n
+			Audio.play("tap")
+		count_t -= delta
+		if count_t <= 0.0:
+			count_t = 0.0
+			fight_word_t = FIGHT_WORD_T
+			Audio.play("whistle")
+
+
+func _draw_planning() -> void:
+	if screen != Screen.FIGHT or paused:
+		return
+	if planning:
+		var line := UiKit.t("Plan the charge: hold A on a man and steer, then Y.") if AppLife.pad_active() \
+			else UiKit.t("Plan the charge: drag from your men, then READY.")
+		if plan_left > 0.0:
+			line += "   " + UiKit.t("Goes in %d") % int(ceil(plan_left))
+		## INSIDE THE LIST, between the two start lines: the scoreboard owns the
+		## strip above. Wrapped, never cut.
+		var col := COL_HOT if plan_left > 0.0 and plan_left < 4.0 else UiKit.YOU
+		var hl := UiKit.wrap(font, line, 460.0, 14)
+		for k in hl.size():
+			UiKit.raw(self, font, Vector2(0, 86 + k * 17), String(hl[k]),
+				HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 14, col)
+	elif count_t > 0.0:
+		UiKit.raw(self, font, Vector2(0, SCREEN.y * 0.46), "%d" % int(ceil(count_t)),
+			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 64, UiKit.YOU)
+	elif fight_word_t > 0.0:
+		UiKit.raw(self, font, Vector2(0, SCREEN.y * 0.46), UiKit.t("FIGHT!"),
+			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 56,
+			UiKit.YOU * Color(1, 1, 1, clampf(fight_word_t / FIGHT_WORD_T * 1.5, 0.0, 1.0)))
 
 
 ## THE THREE SIZES OF A MAN GOING DOWN.
@@ -701,7 +797,8 @@ func _on_bout_finished(_w: int) -> void:
 			Session.season.post_bout(sim)
 		Session.clear_bout()
 		Session.autosave()
-		again_button.text = UiKit.t("Back to the club")
+		## Says where it goes from the moment the bout is posted.
+		_add_spend_button()
 	## The beat first: the field and the last round's score, then the report.
 	if beat_t > 0.0:
 		beat_report = true
@@ -888,6 +985,13 @@ func _pad_process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	## SPACE OR ENTER IS READY while planning (PC).
+	if planning and screen == Screen.FIGHT and not paused and event is InputEventKey \
+			and event.pressed and not event.echo \
+			and ((event as InputEventKey).keycode == KEY_SPACE or (event as InputEventKey).keycode == KEY_ENTER):
+		_ready_up()
+		get_viewport().set_input_as_handled()
+		return
 	if not (event is InputEventJoypadButton):
 		return
 	var jb := event as InputEventJoypadButton
@@ -927,7 +1031,9 @@ func _input(event: InputEvent) -> void:
 				_sync_controls()
 			get_viewport().set_input_as_handled()
 		JOY_BUTTON_Y:
-			if jb.pressed and skip_button != null and skip_button.visible and not skip_button.disabled:
+			if jb.pressed and planning:
+				_ready_up()
+			elif jb.pressed and skip_button != null and skip_button.visible and not skip_button.disabled:
 				skip_button.pressed.emit()
 			get_viewport().set_input_as_handled()
 		JOY_BUTTON_START:
@@ -1260,7 +1366,9 @@ func _draw() -> void:
 	_draw_drawing()
 	_draw_scoreboard()
 	_draw_strip()
-	_draw_hint()
+	## Not under the count: "3" lands where the first-bout band sits.
+	if count_t <= 0.0 and fight_word_t <= 0.0:
+		_draw_hint()
 	_draw_calls()
 	_draw_held()
 	if screen == Screen.FIGHT:
@@ -1311,6 +1419,7 @@ func _draw() -> void:
 		UiKit.raw(self, font, Vector2(0, SCREEN.y * 0.46), marshal_text,
 			HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 40,
 			Tuning.COL_MARSHAL * Color(1, 1, 1, clampf(marshal_t / 1.6, 0, 1)))
+	_draw_planning()
 	if _beat_node != null:
 		_beat_node.queue_redraw()
 	if paused:
@@ -2545,7 +2654,7 @@ func _maybe_tip() -> void:
 	var key := ""
 	if screen == Screen.FIGHT and wheel_man != -1 and Settings.tip_due("wheel"):
 		key = "wheel"
-	elif screen == Screen.FIGHT and sim.phase == MeleeSim.Phase.LIVE:
+	elif screen == Screen.FIGHT and (sim.phase == MeleeSim.Phase.LIVE or planning):
 		key = "route"
 	elif screen == Screen.CORNER and sim.phase == MeleeSim.Phase.CORNER:
 		key = "corner"
@@ -2608,6 +2717,13 @@ func _build_ui() -> void:
 	skip_button.visible = false
 	ui.add_child(call_button)
 	ui.add_child(skip_button)
+	## READY sits where HOLD and SKIP ROUND do, which are not up while planning.
+	## AT THE FOOT OF THE LIST, in the middle: the men stand at the two ends,
+	## and the clock and the shape names are on the strip above.
+	ready_button = UiKit.primary(UiKit.button(UiKit.t("READY"),
+		Vector2(SCREEN.x * 0.5 - 90.0, 372.0), Vector2(180.0, 44.0), _ready_up))
+	ready_button.visible = false
+	ui.add_child(ready_button)
 
 	panel_box = VBoxContainer.new()
 	## 72, AND THE BOOK 60 TALLER (playtest, 4 Oct 2026: the shape column showed
@@ -3025,6 +3141,7 @@ func _corner_time_up() -> void:
 		_clear_corner()
 		_hide_panel()
 		Audio.play("confirm")
+		_begin_planning(PLAN_BETWEEN)
 		return
 	_apply_chosen()
 
@@ -3036,7 +3153,8 @@ func _corner_time_up() -> void:
 func _call_from_book(shape: Dictionary, call_: Dictionary) -> void:
 	chosen_shape = shape
 	chosen_call = call_
-	_apply_chosen()
+	## A SCRIPT DOES NOT PLAN: the tools and probes expect the fight running.
+	_apply_chosen(false)
 
 
 ## THE ONE PLACE THE SIM IS TOUCHED, and it lands whole — a shape and a call
@@ -3045,7 +3163,7 @@ func _call_from_book(shape: Dictionary, call_: Dictionary) -> void:
 ## Every card in the game used to do this on the tap. Now the cards choose and
 ## FIGHT applies, which is the order Pete asked for and is also the only order in
 ## which a player can look at his line before committing to a plan for it.
-func _apply_chosen() -> void:
+func _apply_chosen(plan: bool = true) -> void:
 	if chosen_call.is_empty():
 		Audio.play("refuse")
 		return
@@ -3099,6 +3217,10 @@ func _apply_chosen() -> void:
 	_clear_corner()
 	_hide_panel()
 	Audio.play("confirm")
+	if plan:
+		## Before the first charge the plan waits for READY; between rounds it
+		## gives ten seconds and then goes by itself.
+		_begin_planning(PLAN_FIRST if sim.round_no <= 1 else PLAN_BETWEEN)
 
 
 ## BEFORE THE CHARGE: the book and nothing else. The old panel chained into the
