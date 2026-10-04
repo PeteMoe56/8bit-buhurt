@@ -396,16 +396,17 @@ func _played(equipped: bool) -> Dictionary:
 
 
 func _test_a_knock_costs_you_a_man() -> void:
-	## An injury has to be a squad problem: the man is still on the eight, still
-	## costing wages, and cannot go out — so somebody covers, and the Infirmary
-	## is what buys the weeks back.
+	## An injury has to be a squad problem: the man still costs wages and cannot
+	## go out — so somebody covers, and the Infirmary is what buys the weeks back.
+	## OFF THE EIGHT SINCE 3 OCT 2026 (Pete: "take him off and create an Injured
+	## section"): a hurt man no longer holds a seat on the bus.
 	var club := MeleeRosters.player_club()
 	var starter: FighterCard = club.starting_five()[Tuning.Pos.CENTER]
 	starter.injury = 2
 	var line := club.starting_five()
 	var still_five := line.size() == 5
 	var covered := not line.has(starter)
-	var still_on_eight := club.active_eight().has(starter)
+	var off_the_eight := not club.active_eight().has(starter)
 	var still_paid := ClubOffice.billed(starter) > 0
 
 	## And they have to actually happen in a fight, at a believable rate.
@@ -424,10 +425,10 @@ func _test_a_knock_costs_you_a_man() -> void:
 		o.upgrade(ClubOffice.Facility.INFIRMARY)
 	notes.append("knocks: %.2f per bout across both clubs; a maxed Infirmary takes %d events off each"
 		% [per, o.injury_relief()])
-	_ok(still_five and covered and still_on_eight and still_paid
+	_ok(still_five and covered and off_the_eight and still_paid
 			and per > 0.15 and per < 3.0 and o.injury_relief() > 0,
 		"a knock costs you a man",
-		"an injured Center is covered by the bench, stays on the eight and stays on the wage bill")
+		"an injured Center is covered by the bench, leaves the eight and stays on the wage bill")
 
 
 func _test_the_office_saves() -> void:

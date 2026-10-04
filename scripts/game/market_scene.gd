@@ -59,8 +59,15 @@ func _slots() -> Array:
 		if ra.x + ra.y != rb.x + rb.y:
 			return ra.x + ra.y > rb.x + rb.y
 		return a.overall() > b.overall())
+	## A TALL SCREEN SHOWS A THIRD ROW when the shelf has more than six men, and
+	## otherwise taller cards (3 Oct 2026, iPad: the cards stopped at 60% of the
+	## height). Both are capped by the room above the footer; a phone keeps two
+	## rows at 158, since tall_k() is 1.0 there.
+	var rows := 3 if UiKit.tall_k() >= 1.2 and men.size() > PER_ROW * 2 else 2
+	var room := UiKit.screen().y - 68.0 - TOP - 12.0 * float(rows - 1)
+	var ch := minf(UiKit.tk(CARD_H), floorf(room / float(rows)))
 	for i in men.size():
-		if i >= PER_ROW * 2:
+		if i >= PER_ROW * rows:
 			break
 		var col := i % PER_ROW
 		var row := int(i / PER_ROW)
@@ -69,7 +76,7 @@ func _slots() -> Array:
 		out.append({
 			"card": men[i],
 			"rect": Rect2(x0 + float(col) * (CARD_W + GAP),
-				TOP + float(row) * (CARD_H + 12.0), CARD_W, CARD_H),
+				TOP + float(row) * (ch + 12.0), CARD_W, ch),
 		})
 	return out
 

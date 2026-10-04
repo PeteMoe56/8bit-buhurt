@@ -289,6 +289,9 @@ func sync_power() -> void:
 	## asked — which is why it is the first line of the function everything else
 	## already calls after touching the squad.
 	club.travel_cap = office.travel_slots
+	## NO HURT MAN ON THE BUS, whatever path hurt him (3 Oct 2026). Only acts when
+	## someone is injured; `rest_injured` is a no-op otherwise.
+	club.rest_injured()
 	world.set_player_power(club.power())
 	## The cap is your DIVISION's rule, so it has to follow you up and down the
 	## pyramid. Promotion is a pay rise for the whole club, and relegation is the

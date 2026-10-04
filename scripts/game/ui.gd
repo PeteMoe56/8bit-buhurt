@@ -184,6 +184,28 @@ static func bottom(margin: float = 24.0) -> float:
 	return screen().y - margin
 
 
+## TALL SCREENS GROW THEIR ROWS AND TYPE TOGETHER (Pete, 3 Oct 2026: "Extend and
+## make the text bigger … keep ratio with sizing and fonts"). On an iPad the
+## logical screen is 960x720: the same width as a phone and 180 more tall, and
+## the menus left that band empty. `tall_k()` is 1.0 on every 16:9-or-wider
+## screen, so phones are untouched, and up to 1.25 on 4:3. A screen that wants
+## the room multiplies its row pitch with `tk()` and its font sizes with `tz()`.
+## The cap is 1.25, not 1.33, because the WIDTH does not grow: text 25% bigger
+## in a column sized for 960 is the most that still fits beside its neighbors.
+static func tall_k() -> float:
+	return clampf(screen().y / 540.0, 1.0, 1.25)
+
+
+## A length (row pitch, panel height, gap) scaled for a tall screen.
+static func tk(px: float) -> float:
+	return px * tall_k()
+
+
+## A font size scaled for a tall screen, rounded to a whole pixel size.
+static func tz(px: int) -> int:
+	return int(round(float(px) * tall_k()))
+
+
 ## How much room this screen has beyond the shape it was drawn for. Zero on a
 ## 16:9 window, 210 wide on a 19.5:9 handset, 180 tall on a tablet. Layouts that
 ## want to spend the extra ask for it by name rather than subtracting 960 in

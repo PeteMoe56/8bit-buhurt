@@ -71,8 +71,10 @@ func line_legal() -> String:
 		return UiKit.t("%s's mark does not read against its kit.") % display_name
 	## AGAINST THE PARTY THIS CLUB CAN TAKE, and against the books — the two rules
 	## that are actually rules. The reserve count is whatever is left between them.
+	## SHORT IS LEGAL ONLY WHEN NOBODY IS LEFT TO TAKE (3 Oct 2026): the injured
+	## stay home, so a club with men hurt and no reserve travels light.
 	var eight := active_eight()
-	if eight.size() != party_size():
+	if eight.size() > party_size() or (eight.size() < party_size() and not reserves().is_empty()):
 		return UiKit.t("%s takes %d fighters to an event; it holds %d places.") % [
 			display_name, eight.size(), party_size()]
 	if roster.size() > SQUAD_MAX:
@@ -153,25 +155,72 @@ func party_size() -> int:
 
 
 ## The men who travel, in roster order — which is the depth chart.
+## THE INJURED NEVER TRAVEL (Pete, 3 Oct 2026: "take him off and create an
+## 'Injured' section"). A hurt man is skipped whatever his flag says, so no path
+## — an old save, a dilemma's knock, an AI club — can put him on the bus.
 func active_eight() -> Array:
 	var cap := party_size()
 	var out: Array = []
 	for f in roster:
-		if f.active:
+		if f.active and f.injury <= 0:
 			out.append(f)
 		if out.size() >= cap:
 			break
 	return out
 
 
-## Everyone on the books who is not at the event.
+## Everyone on the books who is not at the event and is not hurt.
+## THE INJURED ARE THEIR OWN LIST (3 Oct 2026): a man who cannot be promoted
+## is not a reserve, and counting him as one filled reserve places he cannot use.
 func reserves() -> Array:
 	var eight := active_eight()
 	var out: Array = []
 	for f in roster:
-		if not eight.has(f):
+		if not eight.has(f) and f.injury <= 0:
 			out.append(f)
 	return out
+
+
+## The men out hurt, in roster order. Still on the books and still paid.
+func injured() -> Array:
+	var out: Array = []
+	for f in roster:
+		if f.injury > 0:
+			out.append(f)
+	return out
+
+
+## TAKE THE HURT OFF THE BUS AND FILL THEIR SEATS (3 Oct 2026). Every injured
+## man's flag is cleared, so when he heals he is a reserve the player promotes,
+## not a man who silently bumps whoever took his seat. Each empty seat goes to
+## a fit reserve first, then any reserve at all, because the eight is eight
+## while there are bodies. Returns the men who came up. `fill` also refills a
+## bus left short with nobody hurt — the healed man's empty seat — and only the
+## matchday path asks for it, so `sync_power` never reshuffles a healthy squad.
+func rest_injured(fill: bool = false) -> Array:
+	var came_up: Array = []
+	var any_hurt := false
+	for f in roster:
+		if f.injury > 0:
+			any_hurt = true
+			f.active = false
+	if not any_hurt and not fill:
+		return came_up
+	for want_fit in [true, false]:
+		while active_eight().size() < party_size():
+			var up: FighterCard = null
+			for f in reserves():
+				if f.active:
+					continue
+				if want_fit and not f.fit():
+					continue
+				if up == null or f.overall() > up.overall():
+					up = f
+			if up == null:
+				break
+			up.active = true
+			came_up.append(up)
+	return came_up
 
 
 ## THE EIGHT IS ALWAYS EIGHT. Every one of these refuses rather than leaving a
@@ -201,6 +250,8 @@ func set_active_would(card: FighterCard, on: bool) -> String:
 	if not roster.has(card):
 		return UiKit.t("not on the books")
 	if on:
+		if card.injury > 0:
+			return UiKit.t("injured")
 		if card.active:
 			return UiKit.t("already on")
 		if active_eight().size() >= party_size():
@@ -219,6 +270,8 @@ func set_active(card: FighterCard, on: bool) -> String:
 	if not roster.has(card):
 		return UiKit.t("%s is not on this club's books.") % card.display_name
 	if on:
+		if card.injury > 0:
+			return UiKit.t("%s is injured and cannot travel.") % card.display_name
 		if card.active:
 			return ""
 		if active_eight().size() >= ACTIVE_SIZE:
@@ -241,6 +294,9 @@ func set_active(card: FighterCard, on: bool) -> String:
 func swap_squad(out_card: FighterCard, in_card: FighterCard) -> String:
 	if not roster.has(out_card) or not roster.has(in_card):
 		return UiKit.t("Both fighters must be on this club's books.")
+	## A HURT MAN CANNOT BE SWAPPED ON (3 Oct 2026).
+	if in_card.injury > 0:
+		return UiKit.t("%s is injured and cannot travel.") % in_card.display_name
 	if not out_card.active or in_card.active:
 		return UiKit.t("Take one off the eight and bring one up from the reserve.")
 	out_card.active = false
@@ -334,8 +390,13 @@ func best_line() -> void:
 		if a.fit() != b.fit():
 			return a.fit()
 		return a.rating() > b.rating())
+	## THE INJURED STAY OFF (3 Oct 2026): they sort last and never take a seat.
+	var seats := 0
 	for i in ranked.size():
-		ranked[i].active = i < ACTIVE_SIZE
+		var go: bool = seats < ACTIVE_SIZE and ranked[i].injury <= 0
+		ranked[i].active = go
+		if go:
+			seats += 1
 
 	## THEN THE ORDER: the best active man for each slot, in slot order, at the
 	## front. Everybody else keeps their relative order behind them, so a reserve

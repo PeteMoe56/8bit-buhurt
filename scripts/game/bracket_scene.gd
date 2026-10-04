@@ -34,6 +34,13 @@ const NAME_W := ROAD_W - 32.0
 const TREE_TOP := 120.0
 const TREE_H := 340.0
 
+
+## TALL SCREENS: THE TREE RUNS DOWN TO THE BUTTONS (3 Oct 2026). It was 340
+## tall on every shape and stopped two thirds of the way down an iPad. Exactly
+## TREE_H on a 540-tall phone.
+static func tree_h() -> float:
+	return TREE_H + maxf(0.0, h() - 540.0)
+
 var font: Font
 var ui: CanvasLayer
 var cup: Cup
@@ -194,16 +201,16 @@ func _tree() -> void:
 					"played": false})
 		var ties: int = int(pow(2.0, float(n_cols - 1 - i)))
 		var label: String = _round_label(ties * 2)
-		UiKit.text(self, font, label.to_upper(), Vector2(x, 106), 12, UiKit.DIM)
-		var span := TREE_H / float(maxi(1, ties))
+		UiKit.text(self, font, label.to_upper(), Vector2(x, 106), UiKit.tz(12), UiKit.DIM)
+		var span := tree_h() / float(maxi(1, ties))
 		for j in ties:
-			var y := TREE_TOP + span * float(j) + span * 0.5 - 30.0
+			var y := TREE_TOP + span * float(j) + span * 0.5 - UiKit.tk(30.0)
 			_tie(Vector2(x, y), COL_W, day[j] if j < day.size() else {}, i)
 			## THE LINES THAT MAKE IT A BRACKET (round 8: "no connecting lines").
 			## From the middle of this tie to the middle of the one it feeds.
 			if i < n_cols - 1:
-				var mid_y := y + 30.0
-				var nspan := TREE_H / float(maxi(1, ties >> 1))
+				var mid_y := y + UiKit.tk(30.0)
+				var nspan := tree_h() / float(maxi(1, ties >> 1))
 				var ny := TREE_TOP + nspan * float(j >> 1) + nspan * 0.5
 				var ex := x + COL_W
 				var hx := ex + COL_GAP * 0.5
@@ -218,9 +225,10 @@ func _tie(at: Vector2, w: float, m: Dictionary, round_i: int) -> void:
 	var played: bool = bool(m.get("played", false))
 	var live: bool = not played and (a == me or b == me) and round_i == cup.rounds.size() - 1
 	if live:
-		draw_rect(Rect2(at - Vector2(4, 4), Vector2(w + 8, 72)), UiKit.SELECT)
+		draw_rect(Rect2(at - Vector2(4, 4), Vector2(w + 8, UiKit.tk(64.0) + 8.0)), UiKit.SELECT)
 	_slot(at, w, a, m, true, played)
-	_slot(at + Vector2(0, 32), w, b, m, false, played)
+	## TALLER SLOTS AND BIGGER NAMES ON A TALL SCREEN (3 Oct 2026); 1.0 on a phone.
+	_slot(at + Vector2(0, UiKit.tk(32.0)), w, b, m, false, played)
 
 
 func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bool) -> void:
@@ -228,20 +236,20 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 	var col := UiKit.INK if (won or not played) else UiKit.DIM
 	if id == me:
 		col = UiKit.YOU
-	UiKit.panel(self, Rect2(at.x, at.y, w, 28), false)
+	UiKit.panel(self, Rect2(at.x, at.y, w, UiKit.tk(28.0)), false)
 	if won:
-		draw_rect(Rect2(at.x, at.y, 3, 28), UiKit.UP)
+		draw_rect(Rect2(at.x, at.y, 3, UiKit.tk(28.0)), UiKit.UP)
 	if id >= 0:
 		UiKit.text(self, font, "%d" % (cup.entrants.find(id) + 1),
-			Vector2(at.x + 8, at.y + 19), 12, UiKit.DIM)
+			Vector2(at.x + 8, at.y + UiKit.tk(19.0)), UiKit.tz(12), UiKit.DIM)
 		## FITTED, NOT CUT AT 16 CHARACTERS (round 5: "New Orleans Gua.").
-		UiKit.text(self, font, _fit(id, 14, NAME_W),
-			Vector2(at.x + 24, at.y + 19), 14, col)
+		UiKit.text(self, font, _fit(id, UiKit.tz(14), NAME_W),
+			Vector2(at.x + 24, at.y + UiKit.tk(19.0)), UiKit.tz(14), col)
 	else:
-		UiKit.text(self, font, "—", Vector2(at.x + 24, at.y + 19), 14, UiKit.DIM)
+		UiKit.text(self, font, "—", Vector2(at.x + 24, at.y + UiKit.tk(19.0)), UiKit.tz(14), UiKit.DIM)
 	if played:
 		UiKit.right(self, font, "%d" % (int(m.get("ra", 0)) if is_a else int(m.get("rb", 0))),
-			Vector2(at.x + w - 8, at.y + 19), 14, UiKit.INK if won else UiKit.DIM, 30)
+			Vector2(at.x + w - 8, at.y + UiKit.tk(19.0)), UiKit.tz(14), UiKit.INK if won else UiKit.DIM, 30)
 
 
 # --------------------------------------------------------------------- road
@@ -249,7 +257,8 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 ## answer "who do I fight next", which is the question the player actually came
 ## with. Both, on one screen, is why this variant was chosen over either alone.
 func _road() -> void:
-	UiKit.panel(self, Rect2(ROAD_X, 96, ROAD_W, 364 - 8))
+	## AS TALL AS THE TREE BESIDE IT (3 Oct 2026); 356 on a phone.
+	UiKit.panel(self, Rect2(ROAD_X, 96, ROAD_W, 364 - 8 + maxf(0.0, h() - 540.0)))
 	if me < 0:
 		UiKit.text(self, font, UiKit.t("NOT YOUR CUP"), Vector2(ROAD_X + 16, 126), 12, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("You were not"), Vector2(ROAD_X + 16, 160), 14, UiKit.DIM)

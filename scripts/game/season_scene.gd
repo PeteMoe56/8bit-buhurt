@@ -1168,8 +1168,18 @@ func _qm_cell() -> float:
 
 
 ## -> SeasonSquadTab (season_tab_squad.gd)
+## TALL SCREENS SPREAD THE ARMORER'S ROWS (3 Oct 2026): the squad tab places
+## them at the phone pitch; this restretches top and pitch by tall_k(), which
+## is 1.0 on a phone, so a phone gets exactly the rows it had.
 func _qm_rows() -> Array:
-	return SeasonSquadTab._qm_rows(self)
+	var rows: Array = SeasonSquadTab._qm_rows(self)
+	var k := UiKit.tall_k()
+	if k == 1.0:
+		return rows
+	var top := CONTENT_Y + QM_TOP
+	for r in rows:
+		r["y"] = CONTENT_Y + QM_TOP * k + (float(r["y"]) - top) * k
+	return rows
 ## -> SeasonArmorerTab (season_tab_armorer.gd)
 func _draw_market() -> void:
 	SeasonArmorerTab._draw_market(self)

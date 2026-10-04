@@ -30,6 +30,30 @@ const LIST := Rect2(40.0, 60.0, 880.0, 420.0)
 const LIST_ROW := 44.0
 
 
+## TALL SCREENS GROW THE ROOM (3 Oct 2026): the cards, the button row, the
+## armorer and the coverage all move down by tall_k on 960x720. Phones: k = 1.
+func card_h() -> float:
+	return UiKit.tk(CARD_H)
+
+
+## The Extend / Release row under each captain.
+func btn_y() -> float:
+	return CUR_Y + card_h() + UiKit.tk(6.0)
+
+
+func arm_y() -> float:
+	return UiKit.tk(ARM_Y)
+
+
+## RELEASE IS 24 CLEAR OF EXTEND AND ON THE CARD'S OUTER EDGE (Pete, 3 Oct 2026:
+## "make them bigger"; at 8 apart their padded hit boxes overlapped). Captain 1
+## has it on the left, captain 2 on the right, so no Release sits beside a safe
+## button on either side. Both 44 tall (40 visible).
+const BTN_H := 44.0
+const REL_W := 76.0
+const REL_GAP := 24.0
+
+
 func _ready() -> void:
 	Juice.arm()
 	font = UiKit.body()
@@ -72,28 +96,30 @@ func _build() -> void:
 			## KEEP HIM, or let the deal run out. Two controls where there was one,
 			## because a captain you cannot re-sign is a captain you are only ever
 			## losing.
-			var half := (CARD_W - 6.0) / 2.0
 			## "+1 yr · 3 CC", and Release in the destructive style, two taps
 			## (round 4: "· 3" had no unit and Release looked like its neighbour).
 			## RELEASE STANDS OFF (round 8: "right next to +1 yr").
 			## A VERB ON EACH (round 9: "+1 yr" needed one), Release narrower and
 			## apart so both read at the same size.
-			## 116 AND 92, 8 apart (round 2, 2 Oct: at 92 the Extend label shrank to a squint).
+			var outer_left := i == 0
+			var ext_w := CARD_W - REL_W - REL_GAP
+			var ext_x := x + REL_W + REL_GAP if outer_left else x
+			var rel_x := x if outer_left else x + CARD_W - REL_W
 			var ext := UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
-				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W - 100.0, 38), _extend.bind(i))
+				Vector2(ext_x, btn_y()), Vector2(ext_w, UiKit.tk(BTN_H)), _extend.bind(i))
 			ext.disabled = ClubOffice.extend_cost(season.office.captains[i]) > season.office.credits
 			ui.add_child(ext)
-			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(x + CARD_W - 92.0, CUR_Y + CARD_H + 8.0),
-				Vector2(92, 38), _release.bind(i))))
+			ui.add_child(UiKit.danger(UiKit.button(UiKit.t("Release"), Vector2(rel_x, btn_y()),
+				Vector2(REL_W, UiKit.tk(BTN_H)), _release.bind(i))))
 		else:
 			## THE MARKET, NOT ONE MAN AND A REROLL.
 			ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Find a captain"),
-				Vector2(x, CUR_Y + CARD_H + 8.0), Vector2(CARD_W, 42), func():
+				Vector2(x, btn_y()), Vector2(CARD_W, UiKit.tk(BTN_H)), func():
 					browsing = true
 					flash = ""
 					_build(), "helm")))
 	## THE ARMORER IS STAFF TOO: his card, and the door to the list.
-	ui.add_child(UiKit.button(UiKit.t("Armorers"), Vector2(24.0 + CARD_W + 16.0, ARM_Y + 14.0), Vector2(CARD_W, 40),
+	ui.add_child(UiKit.button(UiKit.t("Armorers"), Vector2(24.0 + CARD_W + 16.0, arm_y() + UiKit.tk(14.0)), Vector2(CARD_W, UiKit.tk(44.0)),
 		func():
 			Session.open_armorers = true
 			SeasonScene.last_tab = SeasonScene.Tab.MARKET
@@ -204,7 +230,7 @@ func _draw() -> void:
 
 	for i in ClubOffice.MAX_CAPTAINS:
 		var x := 24.0 + float(i) * (CARD_W + 16.0)
-		var r := Rect2(x, CUR_Y, CARD_W, CARD_H)
+		var r := Rect2(x, CUR_Y, CARD_W, card_h())
 		if i < o.captains.size():
 			var c: Dictionary = o.captains[i]
 			var reg := int(c.get("regime", ClubOffice.Regime.NORMAL))
@@ -224,9 +250,9 @@ func _draw() -> void:
 			## one captain teaches at most two of the three jobs, and the third
 			## is a role nobody on your line is being shown how to fight.
 			UiKit.panel(self, r)
-			UiKit.text(self, font, UiKit.t("NO CAPTAIN"), r.position + Vector2(14, 34), 14, UiKit.DOWN)
+			UiKit.text(self, font, UiKit.t("NO CAPTAIN"), r.position + Vector2(14, UiKit.tk(34)), UiKit.tz(14), UiKit.DOWN)
 			UiKit.para(self, font, UiKit.t("An empty chair. Nobody teaches the roles he would cover."),
-				r.position + Vector2(14, 62), 13, UiKit.DIM, r.size.x - 28.0, 17.0, 3)
+				r.position + Vector2(14, UiKit.tk(62)), UiKit.tz(13), UiKit.DIM, r.size.x - 28.0, UiKit.tk(17.0), 3)
 
 	_coverage()
 	_trait_word()
@@ -258,9 +284,9 @@ func _roles_of(c: Dictionary) -> String:
 ## room for the whole sentence rather than thirty characters of it.
 func _trait_word() -> void:
 	var o := season.office
-	var y := CUR_Y + 20.0
-	UiKit.text(self, font, UiKit.t("WHAT ELSE THEY BRING"), Vector2(OFFER_X, y), 12, UiKit.DIM)
-	y += 24.0
+	var y := CUR_Y + UiKit.tk(20.0)
+	UiKit.text(self, font, UiKit.t("WHAT ELSE THEY BRING"), Vector2(OFFER_X, y), UiKit.tz(12), UiKit.DIM)
+	y += UiKit.tk(24.0)
 	var said := 0
 	for i in ClubOffice.MAX_CAPTAINS:
 		if i >= o.captains.size():
@@ -271,13 +297,13 @@ func _trait_word() -> void:
 			continue
 		said += 1
 		UiKit.text(self, font, UiKit.t("%s  ·  %s") % [String(c.get("name", "?")),
-			UiKit.t(String(ClubOffice.TRAIT_NAME[t]))], Vector2(OFFER_X, y), 14, UiKit.UP)
-		UiKit.text(self, font, UiKit.t(String(ClubOffice.TRAIT_BLURB[t])),
-			Vector2(OFFER_X, y + 16.0), 11, UiKit.EDGE.lightened(0.5))
-		y += 40.0
+			UiKit.t(String(ClubOffice.TRAIT_NAME[t]))], Vector2(OFFER_X, y), UiKit.tz(14), UiKit.UP)
+		UiKit.text_fit(self, font, UiKit.t(String(ClubOffice.TRAIT_BLURB[t])),
+			Vector2(OFFER_X, y + UiKit.tk(16.0)), UiKit.tz(11), UiKit.EDGE.lightened(0.5), UiKit.right_edge() - OFFER_X)
+		y += UiKit.tk(40.0)
 	if said == 0:
 		UiKit.text(self, font, UiKit.t("Neither of them brings anything but the coaching."),
-			Vector2(OFFER_X, y), 14, UiKit.EDGE.lightened(0.5))
+			Vector2(OFFER_X, y), UiKit.tz(14), UiKit.EDGE.lightened(0.5))
 
 
 func _regime_color(r: int) -> Color:
@@ -301,43 +327,47 @@ func _coverage() -> void:
 	## left." That is the third absolute-position collision on this one screen, so
 	## the rule it now follows is simple enough to keep: **the left column ends at
 	## 480 and the right begins at 496**, and nothing reaches across.
-	var y := 378.0
-	UiKit.text(self, font, UiKit.t("WHAT IS BEING TAUGHT"), Vector2(24, y), 12, UiKit.DIM)
-	y += 20.0
+	var y := UiKit.tk(378.0)
+	UiKit.text(self, font, UiKit.t("WHAT IS BEING TAUGHT"), Vector2(24, y), UiKit.tz(12), UiKit.DIM)
+	y += UiKit.tk(20.0)
 	var spec := o.club_specialty()
 	if spec >= 0:
 		UiKit.text(self, font, UiKit.t("Club specialty: %s, training ×%.2f")
 			% [UiKit.t(String(Tuning.ROLE_NAME[spec])), ClubOffice.SPECIALTY_XP],
-			Vector2(24, y), 14, UiKit.UP)
+			Vector2(24, y), UiKit.tz(14), UiKit.UP)
 	elif o.presence() > 0.0:
 		UiKit.text(self, font, UiKit.t("No specialty — but the room is a happier one."),
-			Vector2(24, y), 14, UiKit.YOU)
-	y += 24.0
+			Vector2(24, y), UiKit.tz(14), UiKit.YOU)
+	y += UiKit.tk(24.0)
 	var roles := [Tuning.Role.RAIL, Tuning.Role.FLANK, Tuning.Role.CENTER]
 	for i in roles.size():
 		var role: int = roles[i]
 		var taught: bool = o.taught(role)
 		var is_spec: bool = role == spec
-		var x := 24.0 + float(i) * 150.0
-		UiKit.text(self, font, UiKit.t(String(Tuning.ROLE_NAME[role])), Vector2(x, y), 15,
-			(UiKit.UP if is_spec else UiKit.INK) if taught else UiKit.DOWN)
+		## 190 APART (3 Oct 2026): "personne ne l'enseigne" and "Duro · especialidad"
+		## do not fit 144, and the right of this band is empty.
+		var x := 24.0 + float(i) * 190.0
+		UiKit.text_fit(self, font, UiKit.t(String(Tuning.ROLE_NAME[role])), Vector2(x, y), UiKit.tz(15),
+			(UiKit.UP if is_spec else UiKit.INK) if taught else UiKit.DOWN, 184.0)
 		var line := UiKit.t("nobody teaches it")
 		if taught:
 			line = UiKit.t(String(ClubOffice.REGIME_NAME[o.regime_for(role)]))
 			if is_spec:
 				line += UiKit.t("  ·  specialty")
-		UiKit.text(self, font, line, Vector2(x, y + 20), 12,
-			(UiKit.UP if is_spec else _regime_color(o.regime_for(role))) if taught else UiKit.DOWN)
+		## FITTED TO ITS 150 COLUMN (3 Oct 2026): at tablet size "nobody teaches it"
+		## ran into the next role's line.
+		UiKit.text_fit(self, font, line, Vector2(x, y + UiKit.tk(20)), UiKit.tz(12),
+			(UiKit.UP if is_spec else _regime_color(o.regime_for(role))) if taught else UiKit.DOWN, 184.0)
 
 
 
 func _armorer_card() -> void:
 	var a: Dictionary = season.office.armorer
 	## 74 TALL (review, 2 Oct: "Makes up to Rust" sat on the bottom edge at 68).
-	var r := Rect2(24, ARM_Y, CARD_W, 74)
+	var r := Rect2(24, arm_y(), CARD_W, UiKit.tk(74))
 	UiKit.panel(self, r)
-	UiKit.text(self, font, UiKit.t("ARMORER"), r.position + Vector2(12, 18), 11, UiKit.DIM)
-	UiKit.text_fit(self, font, String(a.get("name", "")), r.position + Vector2(12, 41), 16, UiKit.INK, 130.0)
-	UiKit.stars(self, r.position + Vector2(150, 30), int(a.get("stars", 1)) * 20, UiKit.YOU, 10.0, 2.0)
+	UiKit.text(self, font, UiKit.t("ARMORER"), r.position + Vector2(12, UiKit.tk(18)), UiKit.tz(11), UiKit.DIM)
+	UiKit.text_fit(self, font, String(a.get("name", "")), r.position + Vector2(12, UiKit.tk(41)), 16, UiKit.INK, 130.0)
+	UiKit.stars(self, r.position + Vector2(150, UiKit.tk(30)), int(a.get("stars", 1)) * 20, UiKit.YOU, 10.0, 2.0)
 	UiKit.text_fit(self, font, UiKit.t("Makes up to %s") % Armorer.metal_name(Armorer.cap_of(a)),
-		r.position + Vector2(12, 61), 12, UiKit.DIM, CARD_W - 24.0)
+		r.position + Vector2(12, UiKit.tk(61)), UiKit.tz(12), UiKit.DIM, CARD_W - 24.0)

@@ -30,6 +30,7 @@ func _initialize() -> void:
 	_test_a_squad_is_shaped_like_a_squad()
 	_test_the_register_still_describes_the_code()
 	_test_a_player_can_name_his_own_starters()
+	_test_the_injured_stay_home()
 
 	print("")
 	for n in notes:
@@ -1031,3 +1032,72 @@ func _test_a_player_can_name_his_own_starters() -> void:
 		"refused with a sentence, like every other verb on the club")
 	notes.append("the depth chart: %s -> %s and back"
 		% [before[0].display_name, bench_man.display_name])
+
+
+## THE INJURED NEVER TRAVEL (Pete, 3 Oct 2026: "take him off and create an
+## 'Injured' section"). A hurt man is off the eight with or without a reserve to
+## take his seat, cannot be swapped or promoted on, is listed as injured, and is
+## still on the books. Healed, he is a reserve.
+func _test_the_injured_stay_home() -> void:
+	var bad: Array[String] = []
+	for with_reserve in [false, true]:
+		var s := Season.new(MeleeRosters.starting_club(), 77)
+		Session.season = s
+		var c := s.club
+		if with_reserve:
+			var rng := RandomNumberGenerator.new()
+			rng.seed = 3
+			c.sign(ClubFactory.walk_on(rng, 2, 1))
+		var books := c.roster.size()
+		var hurt: FighterCard = c.starting_five()[2]
+		hurt.injury = 3
+		hurt.injury_kind = FighterCard.injury_for(3, 1)
+		s.ensure_a_line()
+		var tag := "with a reserve" if with_reserve else "with none"
+		## THE TEAM TAB: in the INJURED box, nowhere else.
+		var sc: Node = (load("res://scenes/Season.tscn") as PackedScene).instantiate()
+		sc.set("season", s)
+		var kinds: Array = []
+		for row in SeasonSquadTab._squad_rows(sc):
+			if row["card"] == hurt:
+				kinds.append(String(row["kind"]))
+		sc.free()
+		if kinds != ["injured"]:
+			bad.append("%s: the Team tab lists him as %s" % [tag, str(kinds)])
+		if c.active_eight().has(hurt) or hurt.active:
+			bad.append("%s: he still travels" % tag)
+		if c.reserves().has(hurt):
+			bad.append("%s: he is listed as a reserve" % tag)
+		if not c.injured().has(hurt):
+			bad.append("%s: he is not in the injured list" % tag)
+		if c.roster.size() != books or not c.roster.has(hurt):
+			bad.append("%s: he left the books" % tag)
+		if with_reserve and c.active_eight().size() != c.party_size():
+			bad.append("%s: his seat was not filled (%d)" % [tag, c.active_eight().size()])
+		if c.starting_five().size() != 5 or c.line_legal() != "":
+			bad.append("%s: no legal line: %s" % [tag, c.line_legal()])
+		if c.set_active(hurt, true) == "" and hurt.active:
+			bad.append("%s: set_active put him on" % tag)
+		if c.active_eight().size() > 0 and c.swap_squad(c.active_eight()[0], hurt) == "":
+			bad.append("%s: swap_squad put him on" % tag)
+		## Still paid: the wage bill counts him.
+		var bill := ClubOffice.wage_bill(c)
+		var wo := 0
+		for f in c.roster:
+			if f != hurt:
+				wo += ClubOffice.billed(f)
+		if bill <= wo and ClubOffice.billed(hurt) > 0:
+			bad.append("%s: his wage left the bill" % tag)
+		## HEALED: a reserve, not a man who bumps his replacement.
+		hurt.injury = 0
+		s.sync_power()
+		if not c.reserves().has(hurt) and not (not with_reserve and c.active_eight().has(hurt)):
+			bad.append("%s: healed, he is neither reserve nor traveling" % tag)
+		if c.active_eight().size() > c.party_size():
+			bad.append("%s: healed, the bus is over" % tag)
+		## And the next matchday gives a short bus its healed man back.
+		s.ensure_a_line()
+		if not with_reserve and not c.active_eight().has(hurt):
+			bad.append("%s: healed, the short bus left him home" % tag)
+	_ok(bad.is_empty(), "the injured stay home, and are listed as injured",
+		"off the bus, on the books, paid, back to reserve when healed" if bad.is_empty() else "; ".join(bad))

@@ -560,9 +560,12 @@ static func ensure_a_line(s: Season) -> Array[String]:
 	s.last_emergency = []
 	## The travel cap first: the party is the first N active men in roster
 	## order, and N is the office's, not whatever the club was last built with.
-	s.sync_power()
-	## A FIT RESERVE TAKES A HURT MAN'S SEAT, whether or not the five is short
-	## (3 Oct 2026) — see `SeasonBouts.rest_the_injured`.
+	## THE CAP DIRECTLY, NOT `sync_power` (3 Oct 2026): sync_power now rests the
+	## injured itself, silently, and this path wants the names for the status line.
+	s.club.travel_cap = s.office.travel_slots
+	## THE HURT COME OFF THE BUS and a reserve takes each seat, whether or not
+	## the five is short (3 Oct 2026) — see `SeasonBouts.rest_the_injured`,
+	## which also runs `sync_power`.
 	s.last_emergency.append_array(SeasonBouts.rest_the_injured(s))
 	if s.club.starting_five().size() >= MeleeClub.LINE_SIZE:
 		return s.last_emergency

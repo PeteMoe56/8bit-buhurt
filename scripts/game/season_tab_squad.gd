@@ -18,6 +18,17 @@ static func _squad_key_y() -> float:
 
 
 
+## TALL SCREENS GROW THE SHEET (Pete, 3 Oct 2026): rows, pitch and type all
+## scale by `UiKit.tall_k()` — 1.0 on every phone, so a phone is unchanged.
+static func row_h() -> float:
+	return UiKit.tk(SeasonScene.SQUAD_ROW)
+
+
+## The first man's baseline, in both columns.
+static func top_y() -> float:
+	return SeasonScene.CONTENT_Y + UiKit.tk(SeasonScene.SQUAD_TOP)
+
+
 static func _squad_rows(v: SeasonScene) -> Array:
 	var out: Array = []
 	## THE FIVE FIRST, IN SLOT ORDER, THEN THE BENCH (playtest 30 Sep #17).
@@ -26,44 +37,123 @@ static func _squad_rows(v: SeasonScene) -> Array:
 	## line read as benched — which Pete took for a line with one man on it and
 	## no way to fill it. The model was never short; the sheet was lying.
 	var five := v.season.club.starting_five()
-	var y := SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP
+	var rh := row_h()
+	var y := top_y()
 	for i in five.size():
-		out.append({ "card": five[i], "y": y, "kind": "on the line", "x": 24.0, "slot": i })
-		y += SeasonScene.SQUAD_ROW
+		out.append({ "card": five[i], "y": y, "kind": "on the line", "x": 24.0, "slot": i, "h": rh })
+		y += rh
 	var bench_started := false
 	for f in v.season.club.active_eight():
 		if five.has(f):
 			continue
 		if not bench_started:
 			bench_started = true
-			y += BENCH_GAP
-		out.append({ "card": f, "y": y, "kind": "bench", "x": 24.0 })
-		y += SeasonScene.SQUAD_ROW
+			y += UiKit.tk(BENCH_GAP)
+		out.append({ "card": f, "y": y, "kind": "bench", "x": 24.0, "h": rh })
+		y += rh
 	## The reserve stands in its own column rather than below, which is the
 	## whole reason a landscape screen is worth having: the eight and the five
 	## you might promote are visible at the same time, so the swap is a
 	## comparison instead of a memory test.
+	var lay := right_layout(v.season.club)
 	var ri := 0
 	for f in v._reserve_sorted():
-		out.append({ "card": f, "y": _reserve_y(ri), "kind": "reserve", "x": SeasonScene.RESERVE_X })
+		out.append({ "card": f, "y": float(lay["res_y"][ri]), "kind": "reserve",
+			"x": SeasonScene.RESERVE_X, "h": float(lay["rh"]) })
 		ri += 1
+	## THE INJURED, under the reserve (Pete, 3 Oct 2026): off the bus, on the books.
+	var ii := 0
+	for f in v.season.club.injured():
+		out.append({ "card": f, "y": float(lay["hurt_y"][ii]), "kind": "injured",
+			"x": SeasonScene.RESERVE_X, "h": float(lay["rh"]) })
+		ii += 1
 	return out
 
 
-## Where reserve place `i` sits, filled or not.
-static func _reserve_y(i: int) -> float:
-	return SeasonScene.CONTENT_Y + SeasonScene.SQUAD_TOP + float(i) * SeasonScene.SQUAD_ROW
+## THE RIGHT COLUMN, SOLVED ONCE (3 Oct 2026): reserve rows, the hire doors, the
+## INJURED box and the info panel all stack here, so the draw, the hit boxes and
+## the panel read the same numbers. The INJURED box only takes room when someone
+## is hurt. When everything will not fit above a usable info panel, the hire
+## doors fold into one button, then the rows tighten.
+static func right_layout(club: MeleeClub) -> Dictionary:
+	var n_res: int = club.reserves().size()
+	var n_hurt: int = club.injured().size()
+	var open: int = clampi(mini(MeleeClub.RESERVE_SIZE - n_res - n_hurt,
+		MeleeClub.SQUAD_MAX - club.roster.size()), 0, MeleeClub.RESERVE_SIZE)
+	var y0 := top_y()
+	var bottom := SeasonScene._squad_key_y() - 22.0
+	var info_min := UiKit.tk(INFO_MIN)
+	var rh := row_h()
+	var pitch := UiKit.tk(HIRE_PITCH)
+	var gap := UiKit.tk(BENCH_GAP)
+	## How tall the stack is for a given row pitch and hire mode.
+	var stack := func(r: float, single: bool) -> float:
+		var hire_n: int = (1 if open > 0 else 0) if single else open
+		return float(n_res) * r + float(hire_n) * pitch \
+			+ ((gap + float(n_hurt) * r) if n_hurt > 0 else 0.0)
+	## The panel's top: never above where it sat with four reserves.
+	var std_top := y0 + float(MeleeClub.RESERVE_SIZE) * rh - UiKit.tk(4.0)
+	var room := bottom - info_min - UiKit.tk(8.0) - (y0 - UiKit.tk(20.0))
+	var single := false
+	if open > 1 and float(stack.call(rh, false)) > room:
+		single = true
+	## ON A TALL SCREEN THE PORTRAIT PANEL WINS (3 Oct 2026): fold the doors
+	## rather than drop the info box below its tall layout.
+	var tall_room := bottom - TALL_INFO - UiKit.tk(8.0) - (y0 - UiKit.tk(20.0))
+	if open > 1 and UiKit.tall_k() > 1.0 and float(stack.call(rh, false)) > tall_room \
+			and float(stack.call(rh, true)) <= tall_room:
+		single = true
+	var r := rh
+	var rows := n_res + n_hurt
+	if float(stack.call(r, single)) > room and rows > 0:
+		var short: float = float(stack.call(r, single)) - room
+		r = maxf(UiKit.tk(24.0), rh - ceilf(short / float(rows)))
+	var res_y: Array = []
+	var c := y0
+	for i in n_res:
+		res_y.append(c)
+		c += r
+	var hire: Array = []
+	var hire_top := c - UiKit.tk(20.0)
+	var hire_n: int = (1 if open > 0 else 0) if single else open
+	for i in hire_n:
+		hire.append(Rect2(SeasonScene.RESERVE_X, hire_top + float(i) * pitch,
+			SeasonScene.SQUAD_W, UiKit.tk(HIRE_H)))
+	if hire_n > 0:
+		c = hire_top + float(hire_n) * pitch + UiKit.tk(20.0)
+	## Where the reserve box ends: its last row, its last door, or one empty place.
+	var res_end: float = maxf(c - r, y0)
+	var hurt_y: Array = []
+	if n_hurt > 0:
+		c += gap
+		for i in n_hurt:
+			hurt_y.append(c)
+			c += r
+	var content_end: float = (c - r + UiKit.tk(14.0)) if (n_res + n_hurt + hire_n) > 0 else y0
+	var info_top: float = maxf(std_top, content_end + UiKit.tk(12.0))
+	return {"res_y": res_y, "hurt_y": hurt_y, "hire": hire, "open": open,
+		"single": single and open > 1, "rh": r, "res_end": res_end,
+		"info": Rect2(SeasonScene.RESERVE_X - 6.0, info_top, SeasonScene.SQUAD_W + 12.0,
+			bottom - info_top)}
 
 
 ## THE MAN YOU TAPPED, bottom right (Pete, 1 Oct 2026: "Use the bottom right for
-## info panel on whomever you click on"). Under the four reserve places, above
-## the key line.
+## info panel on whomever you click on"). Under the reserve (and the injured),
+## above the key line.
 static func info_rect() -> Rect2:
-	var top := _reserve_y(MeleeClub.RESERVE_SIZE) - 4.0
 	if Session.season != null:
-		top = _reserve_y(maxi(MeleeClub.RESERVE_SIZE, Session.season.club.reserves().size())) - 4.0
+		return right_layout(Session.season.club)["info"]
+	var top := top_y() + float(MeleeClub.RESERVE_SIZE) * row_h() - UiKit.tk(4.0)
 	return Rect2(SeasonScene.RESERVE_X - 6.0, top, SeasonScene.SQUAD_W + 12.0,
 		SeasonScene._squad_key_y() - 22.0 - top)
+
+
+## THE HIRE DOORS (Pete, 3 Oct 2026: they drew 22px tall). Asked for 40 so the
+## button, less its 4px drop, draws 36; 44 apart so each reads as its own door.
+const HIRE_H := 40.0
+const HIRE_PITCH := 44.0
+## The least the info panel can be and still hold a man's four (3 Oct 2026).
+const INFO_MIN := 112.0
 
 
 ## The gap the BENCH box's title is written into.
@@ -157,16 +247,19 @@ static func _squad_controls(v: SeasonScene) -> void:
 			v.training_open = true
 			v._rebuild(), "helm"))
 	## AN EMPTY RESERVE PLACE IS A DOOR TO THE FREE AGENTS (Pete, 1 Oct 2026).
-	var n_res: int = v.season.club.reserves().size()
-	for i in range(n_res, MeleeClub.RESERVE_SIZE):
-		var hb := UiKit.button(UiKit.t("+  Hire free agent"),
-			Vector2(SeasonScene.RESERVE_X, _reserve_y(i) - 21.0), Vector2(SeasonScene.SQUAD_W, SeasonScene.SQUAD_ROW - 4.0),
+	## ONE DOOR WITH A COUNT when the places will not fit as doors (3 Oct 2026).
+	var lay := right_layout(v.season.club)
+	for hr in lay["hire"]:
+		var label := UiKit.t("+  Hire free agent")
+		if bool(lay["single"]):
+			label = UiKit.t("+  Hire free agent (%d open)") % int(lay["open"])
+		var hb := UiKit.button(label, hr.position, hr.size,
 			func():
 				Session.autosave()
 				UiKit.go("res://scenes/Market.tscn"))
 		v.ui.add_child(hb)
 	for row in v._squad_rows():
-		v.ui.add_child(v._man_button(row["card"], float(row["y"]), float(row["x"])))
+		v.ui.add_child(_man_button_h(v, row["card"], float(row["y"]), float(row["x"]), float(row["h"])))
 	if v.picked != null:
 		## THE PICKED MAN'S ROW: Swap, his page, Prospect, the deal, Trade.
 		## Five buttons across the 912 the row has (playtest 30 Sep #5 #6 #16).
@@ -236,7 +329,12 @@ static func _squad_controls(v: SeasonScene) -> void:
 ## flat button on top of it keeps the list looking like a list — a screen of
 ## themed Buttons reads as a form, and this is a team sheet.
 static func _man_button(v: SeasonScene, f: FighterCard, y: float, x: float) -> Button:
-	var b := UiKit.button("", Vector2(x, y - 20), Vector2(446, SeasonScene.SQUAD_ROW - 2),
+	return _man_button_h(v, f, y, x, row_h())
+
+
+## The hit box at the row's own pitch, which the right column may tighten.
+static func _man_button_h(v: SeasonScene, f: FighterCard, y: float, x: float, h: float) -> Button:
+	var b := UiKit.button("", Vector2(x, y - UiKit.tk(20.0)), Vector2(SeasonScene.SQUAD_W, h - 2.0),
 		v._tap.bind(f))
 	b.flat = true
 	b.focus_mode = Control.FOCUS_NONE
@@ -278,7 +376,11 @@ static func _tap(v: SeasonScene, f: FighterCard) -> void:
 	## WHO WAS ON THE LINE BEFORE, so the message can say what actually changed.
 	var five_before: Array = v.season.club.starting_five()
 	var err := ""
-	if v.picked.active and not f.active:
+	## THE INJURED CANNOT BE SWAPPED ANYWHERE (3 Oct 2026).
+	var hurt: FighterCard = v.picked if v.picked.injury > 0 else (f if f.injury > 0 else null)
+	if hurt != null:
+		err = UiKit.t("%s is injured and cannot travel.") % hurt.display_name
+	elif v.picked.active and not f.active:
 		err = v.season.club.swap_squad(v.picked, f)
 	elif f.active and not v.picked.active:
 		err = v.season.club.swap_squad(f, v.picked)
@@ -336,16 +438,16 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## of the words and the reserve column, and a summary belongs beside the thing
 	## it summarises anyway.
 	## THE COUNT IS THE CLUB'S (blind review, 29 Sep: "eight" over six men).
-	UiKit.text(v, v.font, UiKit.t("STARTERS"), Vector2(24, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
-	UiKit.text(v, v.font, UiKit.t("RESERVE"), Vector2(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y), 14, UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("STARTERS"), Vector2(24, SeasonScene.CONTENT_Y), UiKit.tz(14), UiKit.DIM)
+	UiKit.text(v, v.font, UiKit.t("RESERVE"), Vector2(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y), UiKit.tz(14), UiKit.DIM)
 	## The cap, where the decision is: every man on this screen costs against it.
 	var bill := ClubOffice.wage_bill(v.season.club)
 	var cap := v.season.office.cap()
 	UiKit.right(v, v.font, UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-		Vector2(UiKit.right_edge(), SeasonScene.CONTENT_Y), 14, UiKit.DOWN if bill > cap else UiKit.DIM, 300)
+		Vector2(UiKit.right_edge(), SeasonScene.CONTENT_Y), UiKit.tz(14), UiKit.DOWN if bill > cap else UiKit.DIM, 300)
 	## THE HEADINGS, over both columns, before any man is drawn.
-	v._squad_head(24.0, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_HEAD_Y)
-	v._squad_head(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y + SeasonScene.SQUAD_HEAD_Y)
+	v._squad_head(24.0, SeasonScene.CONTENT_Y + UiKit.tk(SeasonScene.SQUAD_HEAD_Y))
+	v._squad_head(SeasonScene.RESERVE_X, SeasonScene.CONTENT_Y + UiKit.tk(SeasonScene.SQUAD_HEAD_Y))
 
 	var rows := v._squad_rows()
 	## THREE BOXES, ONE PER GROUP (playtest 30 Sep #4: "maybe some box
@@ -358,25 +460,35 @@ static func _draw_squad(v: SeasonScene) -> void:
 		if not groups.has(k):
 			groups[k] = Vector2(y, y)
 		groups[k] = Vector2(minf(groups[k].x, y), maxf(groups[k].y, y))
-	## THE RESERVE'S BOX HOLDS ALL FOUR PLACES, filled or not.
-	groups["reserve"] = Vector2(_reserve_y(0), _reserve_y(maxi(MeleeClub.RESERVE_SIZE,
-		v.season.club.reserves().size()) - 1))
+	## THE RESERVE'S BOX HOLDS ITS MEN AND ITS DOORS; the INJURED box sits under
+	## it, and only when somebody is hurt (3 Oct 2026).
+	var lay := right_layout(v.season.club)
+	groups["reserve"] = Vector2(top_y(), float(lay["res_end"]))
 	for k in groups:
 		var span: Vector2 = groups[k]
-		var gx: float = SeasonScene.RESERVE_X if k == "reserve" else 24.0
-		v.draw_rect(Rect2(gx - 6.0, span.x - 24.0, SeasonScene.SQUAD_W + 12.0,
-			span.y - span.x + SeasonScene.SQUAD_ROW + 8.0), UiKit.FRAME, false, 1.0)
+		var gx: float = SeasonScene.RESERVE_X if (k == "reserve" or k == "injured") else 24.0
+		var bottom: float = span.y + UiKit.tk(14.0)
+		if k == "reserve" and not (lay["hire"] as Array).is_empty():
+			var last: Rect2 = (lay["hire"] as Array).back()
+			bottom = maxf(bottom, last.end.y + UiKit.tk(4.0))
+		v.draw_rect(Rect2(gx - 6.0, span.x - UiKit.tk(24.0), SeasonScene.SQUAD_W + 12.0,
+			bottom - span.x + UiKit.tk(24.0)), UiKit.FRAME, false, 1.0)
 	for row in rows:
 		var kind := String(row["kind"])
 		var y := float(row["y"])
 		var x := float(row["x"])
 		if kind == "bench" and y == float(groups["bench"].x):
-			UiKit.text(v, v.font, UiKit.t("BENCH"), Vector2(24, y - 28), 14, UiKit.DIM)
+			UiKit.text(v, v.font, UiKit.t("BENCH"), Vector2(24, y - UiKit.tk(28.0)), UiKit.tz(14), UiKit.DIM)
+		if kind == "injured":
+			if y == float(groups["injured"].x):
+				UiKit.text(v, v.font, UiKit.t("INJURED"), Vector2(x, y - UiKit.tk(28.0)), UiKit.tz(14), UiKit.DOWN)
+			_injured_row(v, row["card"], y, x, float(row["h"]))
+			continue
 		v._man_row(row["card"], y, kind, x)
 		## WHERE HE STANDS ON THE LINE, in place of his listed role.
 		if row.has("slot"):
 			UiKit.text(v, v.font, UiKit.t(String(SLOT_WORD[int(row["slot"])])),
-				Vector2(x + SeasonScene.COL_POS, y), 14,
+				Vector2(x + SeasonScene.COL_POS, y), UiKit.tz(14),
 				UiKit.YOU if Tuning.covers(int(row["card"].pos), int(row["slot"])) == false else UiKit.DIM)
 	_draw_info(v)
 
@@ -393,22 +505,43 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## problem is a key nobody finishes reading.
 	## THE RED PART ONLY WHEN SOMETHING IS RED (round 4: the key promised red
 	## and the sheet had none).
-	var any_red: bool = ClubOffice.wage_bill(v.season.club) > v.season.office.cap()
-	for f in v.season.club.roster:
-		if f.injury > 0 or f.fading() or f.years <= 0 or f.armor < 0.6:
-			any_red = true
-	## ONE LINE (round 8: "cut the two-line legend"). The verb in ink, the key
-	## in dim after it.
-	## SAYS WHAT A TAP DOES NOW: it picks him; his buttons do the rest.
-	var key := (UiKit.t("green = good  ·  gold = final year  ·  Hurt · 2 = out 2 events") if any_red
-		else UiKit.t("green = good  ·  gold = final year"))
+	## NO "HURT" IN THE KEY (3 Oct 2026): the injured have their own box, which
+	## says the injury and the events out in words.
+	var key := UiKit.t("green = good  ·  gold = final year")
 	var any_level := false
 	for f in v.season.club.roster:
 		if Career.levels_banked(f) > 0:
 			any_level = true
 	if any_level:
 		key = UiKit.t("+2 = levels to spend on his page") + UiKit.t("  ·  ") + key
-	UiKit.text_fit(v, v.font, key, Vector2(24, SeasonScene._squad_key_y()), 14, UiKit.DIM, UiKit.span())
+	UiKit.text_fit(v, v.font, key, Vector2(24, SeasonScene._squad_key_y()), UiKit.tz(14), UiKit.DIM, UiKit.span())
+
+
+## AN INJURED MAN'S ROW (Pete, 3 Oct 2026): who, what the injury is, and how
+## many events he misses. Nothing else — he is not a choice this week.
+static func _injured_row(v: SeasonScene, f: FighterCard, y: float, x: float, h: float) -> void:
+	var w := SeasonScene.SQUAD_W
+	if v.picked == f:
+		v.draw_rect(Rect2(x, y - UiKit.tk(20.0), w, h - 2.0), UiKit.SELECT)
+	var out := UiKit.tn("out %d event", "out %d events", f.injury) % f.injury
+	var out_w := v.font.get_string_size(out, HORIZONTAL_ALIGNMENT_LEFT, -1.0, cz(14)).x
+	UiKit.right(v, v.font, out, Vector2(x + w - 4.0, y), cz(14), UiKit.DIM, out_w + 4.0)
+	UiKit.text(v, v.font, UiKit.fit_px(v.font, f.display_name, UiKit.tz(16), INJ_NAME_W),
+		Vector2(x + SeasonScene.COL_NAME, y), UiKit.tz(16), UiKit.INK)
+	UiKit.text_fit(v, v.font, f.injury_word(), Vector2(x + INJ_WORD_X, y), cz(14), UiKit.DOWN,
+		w - 4.0 - out_w - 12.0 - INJ_WORD_X)
+
+
+## The injured row's stops: a shorter name budget so "torn knee ligament" fits.
+const INJ_NAME_W := 118.0
+const INJ_WORD_X := 136.0
+
+
+## TABLE TYPE GROWS LESS THAN THE NAME (3 Oct 2026): the six columns keep their
+## phone stops in a 446 box, so on an iPad the figures grow at most 2px or
+## "100%" runs into the deal. Phones: unchanged.
+static func cz(px: int) -> int:
+	return mini(UiKit.tz(px), px + 2)
 
 
 ## THE INFO PANEL: who he is, what he is wearing, his deal, his four and the pair.
@@ -416,59 +549,68 @@ static func _draw_info(v: SeasonScene) -> void:
 	var r := info_rect()
 	UiKit.panel(v, r)
 	var f: FighterCard = v.picked
+	## SCALED WITH THE SHEET on a tall screen (3 Oct 2026); 1.0 on phones.
+	var k := UiKit.tall_k()
 	var x := r.position.x + 14.0
-	var y := r.position.y + 26.0
+	var y := r.position.y + 26.0 * k
 	if f == null:
 		## NOBODY PICKED: THE TEAM ITSELF (review, 1 Oct 2026: an empty box was a
 		## third of the screen). The five's four ratings, the line's average, and
 		## what tapping does.
-		UiKit.text(v, v.font, UiKit.t("YOUR FIVE"), Vector2(x, y), 13, UiKit.DIM)
+		UiKit.text(v, v.font, UiKit.t("YOUR FIVE"), Vector2(x, y), UiKit.tz(13), UiKit.DIM)
 		## ONE NUMBER FOR THE FIVE (Pete, 2 Oct 2026: "Starting 5 score only"). It
 		## said "OVR 51" here — the plain average of their overalls — beside a
 		## header saying "rating 49", the position-weighted figure the league
 		## sorts on. Now both say the league's number.
 		UiKit.right(v, v.font, UiKit.t("RATING %d") % v.season.club.power(),
-			Vector2(r.end.x - 14.0, y), 16, UiKit.INK, 120)
-		TeamCard.draw_stars(v, v.font, Vector2(x, y + 28.0), v.season.club, 2, (r.size.x - 28.0) * 0.5, 13)
-		UiKit.text(v, v.font, UiKit.t("Tap a fighter to see him here."), Vector2(x, r.end.y - 12.0), 13, UiKit.DIM)
+			Vector2(r.end.x - 14.0, y), UiKit.tz(16), UiKit.INK, 120)
+		TeamCard.draw_stars(v, v.font, Vector2(x, y + 28.0 * k), v.season.club, 2, (r.size.x - 28.0) * 0.5, UiKit.tz(13))
+		UiKit.text(v, v.font, UiKit.t("Tap a fighter to see him here."), Vector2(x, r.end.y - 12.0), UiKit.tz(13), UiKit.DIM)
 		return
 	## THE TALL BOX (an iPad, or any screen taller than 16:9) gets the large
 	## layout and a place kept for his portrait (Pete, 3 Oct 2026: "the info can
 	## be bigger as it doesn't fill much of the box. Set aside space for a future
 	## profile portrait"). A phone's box is full as it is, so it keeps this one.
-	if r.size.y >= TALL_INFO:
+	## AND ONLY WHEN IT FITS (3 Oct 2026): with an INJURED box above it the
+	## panel can be shorter than the tall layout's own content.
+	if r.size.y >= TALL_INFO + (32.0 if Career.levels_banked(f) > 0 else 0.0):
 		_draw_info_tall(v, f, r)
 		return
 	var right_w := 150.0
-	UiKit.text_fit(v, v.font, f.display_name, Vector2(x, y), 18, UiKit.INK, r.size.x - right_w - 40.0)
+	UiKit.text_fit(v, v.font, f.display_name, Vector2(x, y), UiKit.tz(18), UiKit.INK, r.size.x - right_w - 40.0)
 	var sub := UiKit.t("%s  ·  age %d  ·  %s kit %d%%") % [Tuning.pos_name(int(f.pos)), f.age,
 		Quartermaster.name_of(f), int(round(f.armor * 100.0))]
-	UiKit.text_fit(v, v.font, sub, Vector2(x, y + 20.0), 13, UiKit.DIM, r.size.x - right_w - 40.0)
+	UiKit.text_fit(v, v.font, sub, Vector2(x, y + 20.0 * k), cz(13), UiKit.DIM, r.size.x - right_w - 40.0)
 	var deal := UiKit.t("%dy left  ·  %s a year") % [maxi(0, f.years), ClubOffice.money(ClubOffice.billed(f))]
-	UiKit.text_fit(v, v.font, deal, Vector2(x, y + 38.0), 13,
-		UiKit.DOWN if f.years <= 0 else (UiKit.YOU if f.years == 1 else UiKit.DIM), r.size.x - right_w - 40.0)
+	var deal_col := UiKit.DOWN if f.years <= 0 else (UiKit.YOU if f.years == 1 else UiKit.DIM)
+	## HURT SAYS SO HERE TOO (3 Oct 2026), in place of the deal line.
+	if f.injury > 0:
+		deal = f.injury_word() + "  ·  " + UiKit.tn("out %d event", "out %d events", f.injury) % f.injury
+		deal_col = UiKit.DOWN
+	UiKit.text_fit(v, v.font, deal, Vector2(x, y + 38.0 * k), cz(13), deal_col, r.size.x - right_w - 40.0)
 	var stats := [f.strength, f.base, f.skill, f.gas]
 	var sw := (r.size.x - right_w - 40.0) * 0.5
 	for i in 4:
 		var sx := x + float(i % 2) * (sw + 12.0)
-		var sy := y + 60.0 + float(i / 2) * 20.0
-		UiKit.text(v, v.font, TeamCard.cat_name(i), Vector2(sx, sy), 12, UiKit.DIM)
-		UiKit.right(v, v.font, "%d" % int(stats[i]), Vector2(sx + sw, sy), 13, UiKit.INK, 30)
+		var sy := y + (60.0 + float(i / 2) * 20.0) * k
+		UiKit.text(v, v.font, TeamCard.cat_name(i), Vector2(sx, sy), UiKit.tz(12), UiKit.DIM)
+		UiKit.right(v, v.font, "%d" % int(stats[i]), Vector2(sx + sw, sy), UiKit.tz(13), UiKit.INK, 30)
 	var px := r.end.x - right_w
-	UiKit.mid(v, v.font, UiKit.t("OVR"), Vector2(px, y + 4.0), 12, UiKit.DIM, 70)
-	UiKit.mid(v, v.font, "%d" % f.overall(), Vector2(px, y + 40.0), 30, UiKit.DOWN if f.fading() else UiKit.INK, 70)
-	UiKit.mid(v, v.font, UiKit.t("POT"), Vector2(px + 72.0, y + 4.0), 12, UiKit.DIM, 70)
-	UiKit.mid(v, v.font, "%d" % f.potential, Vector2(px + 72.0, y + 40.0), 30,
+	UiKit.mid(v, v.font, UiKit.t("OVR"), Vector2(px, y + 4.0), UiKit.tz(12), UiKit.DIM, 70)
+	UiKit.mid(v, v.font, "%d" % f.overall(), Vector2(px, y + 40.0 * k), UiKit.tz(30), UiKit.DOWN if f.fading() else UiKit.INK, 70)
+	UiKit.mid(v, v.font, UiKit.t("POT"), Vector2(px + 72.0, y + 4.0), UiKit.tz(12), UiKit.DIM, 70)
+	UiKit.mid(v, v.font, "%d" % f.potential, Vector2(px + 72.0, y + 40.0 * k), UiKit.tz(30),
 		UiKit.UP if f.headroom() >= 6 else UiKit.DIM, 70)
 	var banked := Career.levels_banked(f)
 	if banked > 0:
-		UiKit.mid(v, v.font, UiKit.tn("%d level to spend", "%d levels to spend", banked) % banked, Vector2(px, y + 66.0), 13, UiKit.YOU, 142)
+		UiKit.mid(v, v.font, UiKit.tn("%d level to spend", "%d levels to spend", banked) % banked, Vector2(px, y + 66.0 * k), UiKit.tz(13), UiKit.YOU, 142)
 
 
 
 
 ## How tall the info box has to be before it gets the large layout.
-const TALL_INFO := 230.0
+## 262, NOT 230 (3 Oct 2026): the tall layout's last line sits 258 down.
+const TALL_INFO := 262.0
 ## The place kept for his portrait, top left of the tall box.
 const PORTRAIT := Vector2(104.0, 124.0)
 
@@ -521,10 +663,14 @@ static func _draw_info_tall(v: SeasonScene, f: FighterCard, r: Rect2) -> void:
 
 static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: float) -> void:
 	var w := SeasonScene.SQUAD_W
+	## THE ROW AT THE RIGHT COLUMN'S PITCH, which may be tighter (3 Oct 2026).
+	var rh := row_h()
+	if role == "reserve" and Session.season != null:
+		rh = float(right_layout(Session.season.club)["rh"])
 	if v.picked == f:
-		v.draw_rect(Rect2(x, y - 20, w, SeasonScene.SQUAD_ROW - 2), UiKit.SELECT)
+		v.draw_rect(Rect2(x, y - UiKit.tk(20.0), w, rh - 2.0), UiKit.SELECT)
 	elif role == "on the line":
-		v.draw_rect(Rect2(x, y - 20, w, SeasonScene.SQUAD_ROW - 2), UiKit.PANEL)
+		v.draw_rect(Rect2(x, y - UiKit.tk(20.0), w, rh - 2.0), UiKit.PANEL)
 	var col := UiKit.INK if role != "reserve" else UiKit.DIM
 	## FITTED, NOT CLIPPED. The column is a pixel budget and the name is cut to
 	## it — a thirteen-character count let a wide name run into the position.
@@ -534,25 +680,25 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 	## sheet said a single one was waiting.
 	var banked := Career.levels_banked(f)
 	var badge := UiKit.t("+%d") % banked if banked > 0 else ""
-	var bw := v.font.get_string_size(badge, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 13).x + 6.0 if badge != "" else 0.0
-	var nm := UiKit.fit(v.font, f.display_name, 16, SeasonScene.COL_NAME_W - bw)
-	UiKit.text(v, v.font, nm, Vector2(x + SeasonScene.COL_NAME, y), 16, col)
+	var bw := v.font.get_string_size(badge, HORIZONTAL_ALIGNMENT_LEFT, -1.0, cz(13)).x + 6.0 if badge != "" else 0.0
+	var nm := UiKit.fit(v.font, f.display_name, UiKit.tz(16), SeasonScene.COL_NAME_W - bw)
+	UiKit.text(v, v.font, nm, Vector2(x + SeasonScene.COL_NAME, y), UiKit.tz(16), col)
 	if badge != "":
-		var nw := v.font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16).x
-		UiKit.text(v, v.font, badge, Vector2(x + SeasonScene.COL_NAME + nw + 6.0, y), 13, UiKit.YOU)
+		var nw := v.font.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(16)).x
+		UiKit.text(v, v.font, badge, Vector2(x + SeasonScene.COL_NAME + nw + 6.0, y), cz(13), UiKit.YOU)
 	## An injury is the most important thing on a team sheet, so it goes where a
 	## position would and takes the color that means "deal with this".
 	## "HURT · 1", NOT "OUT 1" (playtest 30 Sep #9: "No idea why Norrey is
 	## out"): the word says why, the number is the events he will miss.
 	if f.injury > 0:
-		UiKit.text(v, v.font, UiKit.t("Hurt · %d") % f.injury, Vector2(x + SeasonScene.COL_POS, y), 14, UiKit.DOWN)
+		UiKit.text(v, v.font, UiKit.t("Hurt · %d") % f.injury, Vector2(x + SeasonScene.COL_POS, y), cz(14), UiKit.DOWN)
 	elif role != "on the line":
-		UiKit.text(v, v.font, Tuning.pos_name(int(f.pos)), Vector2(x + SeasonScene.COL_POS, y), 14, UiKit.DIM)
+		UiKit.text(v, v.font, Tuning.pos_name(int(f.pos)), Vector2(x + SeasonScene.COL_POS, y), cz(14), UiKit.DIM)
 	## Kit is this game's salary cap and already costs him base, so it belongs on
 	## the team sheet next to the rating it is quietly subtracting from.
 	var armor_col := armor_col(f.armor)
 	UiKit.text(v, v.font, "%3d%%" % int(round(f.armor * 100.0)),
-		Vector2(x + SeasonScene.COL_ARMOR, y), 14, armor_col)
+		Vector2(x + SeasonScene.COL_ARMOR, y), cz(14), armor_col)
 	## AGE, and it is not decoration — see scripts/game/career.gd. Marked when he
 	## is past the age at which not-being-put-down peaks and has fallen a way from
 	## his own ceiling, because "he is 37 and eight off what he could have been"
@@ -573,21 +719,21 @@ static func _man_row(v: SeasonScene, f: FighterCard, y: float, role: String, x: 
 		deal_col = UiKit.YOU
 	## "0y", NOT "OUT": the third thing on this sheet that said "out" (#9, 30 Sep).
 	UiKit.text(v, v.font, UiKit.t("%dy") % maxi(0, f.years),
-		Vector2(x + SeasonScene.COL_YEARS, y), 14, deal_col)
+		Vector2(x + SeasonScene.COL_YEARS, y), cz(14), deal_col)
 	## THE TWO NUMBERS, together. Retro Bowl's roster screen is read almost
 	## entirely off rating-and-potential, and the pairing is why: neither one
 	## answers "should I keep him" on its own. The ceiling is dimmed so the
 	## rating still reads first at a glance.
-	UiKit.right(v, v.font, "%d" % f.overall(), Vector2(x + SeasonScene.COL_RATING_TO, y), 16,
+	UiKit.right(v, v.font, "%d" % f.overall(), Vector2(x + SeasonScene.COL_RATING_TO, y), cz(16),
 		UiKit.DOWN if f.fading() else col, SeasonScene.COL_RATING_BOX)
-	UiKit.right(v, v.font, "%d" % f.potential, Vector2(x + SeasonScene.COL_POT_TO, y), 14,
+	UiKit.right(v, v.font, "%d" % f.potential, Vector2(x + SeasonScene.COL_POT_TO, y), cz(14),
 		UiKit.UP if f.headroom() >= 6 else UiKit.DIM, SeasonScene.COL_POT_BOX)
 	## THE INVESTED MAN'S CEILING IS GREEN AND CARRIES A "+" (2 Oct 2026: the old
 	## prospect star sat cramped against his position; the choice lives on his
 	## page now, as Invest, and the sheet only says which ceiling is rising).
 	if v.season.prospect == f:
-		var pw: float = v.font.get_string_size("%d" % f.potential, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
-		UiKit.text(v, v.font, "+", Vector2(x + SeasonScene.COL_POT_TO - pw - 9.0, y), 14, UiKit.UP)
+		var pw: float = v.font.get_string_size("%d" % f.potential, HORIZONTAL_ALIGNMENT_LEFT, -1.0, cz(14)).x
+		UiKit.text(v, v.font, "+", Vector2(x + SeasonScene.COL_POT_TO - pw - 9.0, y), cz(14), UiKit.UP)
 
 
 
@@ -639,22 +785,22 @@ static func squad_columns(v: SeasonScene, f: Font, size_hint: int = 0) -> Array:
 		"rect": Rect2(SeasonScene.COL_NAME, 0.0, SeasonScene.COL_NAME_W, 18.0),
 		"head_rect": lhead.call(UiKit.t("FIGHTER"), SeasonScene.COL_NAME)})
 	out.append({"name": "position", "head": "", "align": "left",
-		"rect": Rect2(SeasonScene.COL_POS, 0.0, float(w.call("FLANKER", 13)), 18.0),
+		"rect": Rect2(SeasonScene.COL_POS, 0.0, float(w.call("FLANKER", cz(13))), 18.0),
 		"head_rect": Rect2(SeasonScene.COL_POS, 0.0, 0.0, 14.0)})
 	out.append({"name": "armor", "head": UiKit.t("KIT"), "align": "left",
-		"rect": Rect2(SeasonScene.COL_ARMOR, 0.0, float(w.call("100%", 13)), 18.0),
+		"rect": Rect2(SeasonScene.COL_ARMOR, 0.0, float(w.call("100%", cz(13))), 18.0),
 		"head_rect": lhead.call(UiKit.t("KIT"), SeasonScene.COL_ARMOR)})
 	## `YR` AND NOT `DEAL`. Six pixels separate the wage's stop from the years'
 	## and no four-letter word survives that; the field says `3y` and `OUT`, so
 	## the two letters are the whole of the information anyway.
 	out.append({"name": "years", "head": UiKit.t("DEAL"), "align": "left",
-		"rect": Rect2(SeasonScene.COL_YEARS, 0.0, float(w.call("OUT", 14)), 18.0),
+		"rect": Rect2(SeasonScene.COL_YEARS, 0.0, float(w.call("OUT", cz(14))), 18.0),
 		"head_rect": lhead.call(UiKit.t("DEAL"), SeasonScene.COL_YEARS)})
-	var rating: float = w.call("99", 16)
+	var rating: float = w.call("99", cz(16))
 	out.append({"name": "rating", "head": UiKit.t("OVR"), "align": "right",
 		"rect": Rect2(SeasonScene.COL_RATING_TO - rating, 0.0, rating, 18.0),
 		"head_rect": rhead.call(UiKit.t("OVR"), SeasonScene.COL_RATING_TO)})
-	var pot: float = w.call("99", 14)
+	var pot: float = w.call("99", cz(14))
 	## MAX RIDES THE END OF THE ROW rather than the ceiling's own stop. There are
 	## eight spare pixels at 446 and this label needs six of them to clear `NOW`;
 	## the alternative was a third abbreviation nobody would read.
@@ -673,6 +819,8 @@ static func squad_columns(v: SeasonScene, f: Font, size_hint: int = 0) -> Array:
 ## and two abbreviations a player has to learn do not deliver that; two words he
 ## already knows do. Same reason `KIT` is not `ARM`: this game has a harness and
 ## an armorer, and the word on the team sheet should be the word on the shop.
+## THE HEADINGS DO NOT GROW on a tall screen (3 Oct 2026): German VERTR and GES
+## already sit a few pixels apart at 11px.
 static func _squad_head(v: SeasonScene, x: float, y: float) -> void:
 	var cols: Array = v.squad_columns(v.font, SeasonScene.SQUAD_HEAD_PX)
 	for c in cols:
@@ -688,7 +836,7 @@ static func _squad_head(v: SeasonScene, x: float, y: float) -> void:
 			SeasonScene.SQUAD_HEAD_PX, UiKit.DIM)
 	## AND THE HAIRLINE UNDER IT, which is what turns nine words into a table
 	## header rather than a tenth row of small text.
-	v.draw_line(Vector2(x, y + 6.0), Vector2(x + SeasonScene.SQUAD_W, y + 6.0),
+	v.draw_line(Vector2(x, y + UiKit.tk(6.0)), Vector2(x + SeasonScene.SQUAD_W, y + UiKit.tk(6.0)),
 		UiKit.FRAME, 1.0)
 
 
@@ -714,7 +862,9 @@ static func _qm_rows(v: SeasonScene) -> Array:
 	## men at home after them, drawn quieter.
 	var out: Array = []
 	var men: Array = v.season.club.active_eight().duplicate()
-	var home: Array = v.season.club.reserves()
+	## THE INJURED ARE AT HOME TOO (3 Oct 2026): off `reserves()` now, and a
+	## harness can be mended while its man heals.
+	var home: Array = v.season.club.reserves() + v.season.club.injured()
 	men.append_array(home)
 	var per := maxi(6, int(ceil(float(men.size()) / 2.0)))
 	for i in men.size():

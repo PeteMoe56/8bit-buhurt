@@ -851,27 +851,15 @@ static func result_swing(s: Season, won: bool, drew: bool) -> float:
 		+ s.office.ground_morale()
 
 
-## A HURT MAN DOES NOT HOLD A SEAT WHILE A FIT ONE SITS AT HOME (3 Oct 2026).
-## He cannot fight, so on the bus he is a bench place the corner cannot use. A
-## fit reserve takes his seat; with no fit reserve he still travels, because the
-## eight must be eight.
+## A HURT MAN DOES NOT HOLD A SEAT (3 Oct 2026). He cannot fight, so he comes
+## off the bus altogether — even with no reserve to replace him (Pete: "take him
+## off and create an 'Injured' section"). A reserve takes his seat, fit first;
+## `ensure_a_line` signs walk-ons only when that still leaves no five.
 static func rest_the_injured(s: Season) -> Array[String]:
 	var out: Array[String] = []
-	for f in s.club.reserves():
-		if not f.fit():
-			continue
-		var hurt: FighterCard = null
-		for a in s.club.active_eight():
-			if a.injury > 0:
-				hurt = a
-				break
-		if hurt == null:
-			break
-		hurt.active = false
-		f.active = true
+	for f in s.club.rest_injured(true):
 		out.append(UiKit.t("%s travels in place of the injured") % f.display_name)
-	if not out.is_empty():
-		s.sync_power()
+	s.sync_power()
 	return out
 
 

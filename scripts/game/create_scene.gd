@@ -129,6 +129,12 @@ func bottom_y() -> float:
 	return UiKit.screen().y - 54.0
 
 
+## TALL SCREENS STRETCH BELOW THE TAB ROW (3 Oct 2026): a y on the 540 layout,
+## moved down by tall_k on a 960x720 tablet. k is 1.0 on every phone.
+func _v(y: float) -> float:
+	return 72.0 + (y - 72.0) * UiKit.tall_k()
+
+
 ## The message line, just above that row.
 func flash_line_y() -> float:
 	return UiKit.screen().y - 74.0
@@ -203,8 +209,8 @@ func _fighter_controls() -> void:
 	## 108 this box sat two pixels under it and the shadow ran along its top edge
 	## — the pair read as one control with a line through it. Nothing overlapped,
 	## which is why the layout sweep passed it for as long as it has existed.
-	name_edit.position = Vector2(STAT_X, 116)
-	name_edit.size = Vector2(280, 32)
+	name_edit.position = Vector2(STAT_X, _v(116))
+	name_edit.size = Vector2(280, UiKit.tk(32))
 	name_edit.max_length = 20
 	name_edit.placeholder_text = UiKit.t("His name")
 	name_edit.text = card.display_name
@@ -223,13 +229,13 @@ func _fighter_controls() -> void:
 
 	var lim := _limits()
 	for i in STATS.size():
-		var y := STAT_Y + float(i) * STAT_ROW
+		var y := _v(STAT_Y) + float(i) * UiKit.tk(STAT_ROW)
 		var key: String = STATS[i]
 		var sl := HSlider.new()
 		## 28 tall, not 20: the track draws in the middle either way, and the
 		## extra height is the part a thumb actually lands on.
-		sl.position = Vector2(SLIDER_X, y + 6)
-		sl.size = Vector2(SLIDER_W, 28)
+		sl.position = Vector2(SLIDER_X, y + UiKit.tk(6))
+		sl.size = Vector2(SLIDER_W, UiKit.tk(28))
 		UiKit.skin_slider(sl)
 		sl.min_value = 1
 		sl.max_value = int(lim["stat"])
@@ -243,8 +249,8 @@ func _fighter_controls() -> void:
 	## Weight is not a stat you spend on — it is a build decision with a cost on
 	## both sides, so it sits with the sliders but outside the cap.
 	var w := HSlider.new()
-	w.position = Vector2(SLIDER_X, STAT_Y + 5.0 * STAT_ROW + 6.0)
-	w.size = Vector2(SLIDER_W, 28)
+	w.position = Vector2(SLIDER_X, _v(STAT_Y) + UiKit.tk(5.0 * STAT_ROW + 6.0))
+	w.size = Vector2(SLIDER_W, UiKit.tk(28))
 	UiKit.skin_slider(w)
 	w.min_value = 130
 	w.max_value = 340
@@ -256,14 +262,14 @@ func _fighter_controls() -> void:
 	ui.add_child(w)
 
 	ui.add_child(UiKit.button(UiKit.t("Position: %s") % card.pos_name(),
-		Vector2(RIGHT_X, 108), Vector2(200, 34), func():
+		Vector2(RIGHT_X, _v(108)), Vector2(200, UiKit.tk(34)), func():
 			card.pos = ((int(card.pos) + 1) % 5) as Tuning.Pos
 			_rebuild()))
 	var out := _cuttable()
 	if not out.is_empty():
 		var who: FighterCard = out[replace_i % out.size()]
 		ui.add_child(UiKit.button(UiKit.t("Replaces: %s (%d)") % [UiKit.clip(who.display_name, 12),
-				who.overall()] + "  >", Vector2(RIGHT_X + 208, 108), Vector2(208, 34), func():
+				who.overall()] + "  >", Vector2(RIGHT_X + 208, _v(108)), Vector2(208, UiKit.tk(34)), func():
 			replace_i = (replace_i + 1) % out.size()
 			_rebuild()))
 	var sign_b := UiKit.button(UiKit.t("Sign him — %d CC") % shop.cost(),
@@ -314,6 +320,10 @@ func _cuttable() -> Array:
 	var out: Array = []
 	for f in season.club.reserves():
 		out.append(f)
+	## An injured man is off the eight but can still be let go (3 Oct 2026).
+	for f in season.club.injured():
+		if not out.has(f):
+			out.append(f)
 	out.sort_custom(func(a, b): return a.rating() < b.rating())
 	return out
 
@@ -379,8 +389,8 @@ func _offer_towns() -> void:
 func _club_controls() -> void:
 	club_name_edit = LineEdit.new()
 	UiKit.skin_edit(club_name_edit)
-	club_name_edit.position = Vector2(STAT_X, 152)
-	club_name_edit.size = Vector2(380, 36)
+	club_name_edit.position = Vector2(STAT_X, _v(152))
+	club_name_edit.size = Vector2(380, UiKit.tk(36))
 	club_name_edit.max_length = 30
 	club_name_edit.placeholder_text = UiKit.t("Club name")
 	club_name_edit.text = draft_club_name if draft_club_name != null else season.club.display_name
@@ -392,8 +402,8 @@ func _club_controls() -> void:
 
 	club_short_edit = LineEdit.new()
 	UiKit.skin_edit(club_short_edit)
-	club_short_edit.position = Vector2(STAT_X, 208)
-	club_short_edit.size = Vector2(120, 36)
+	club_short_edit.position = Vector2(STAT_X, _v(208))
+	club_short_edit.size = Vector2(120, UiKit.tk(36))
 	club_short_edit.max_length = 4
 	club_short_edit.placeholder_text = "CLB"
 	club_short_edit.text = draft_club_short if draft_club_short != null else season.club.short_name
@@ -416,19 +426,19 @@ func _club_controls() -> void:
 	## THE SWAP IS THE SAME SWAP. `Season.set_city` trades with whoever holds the
 	## town, so the map stays full here exactly as it does at setup — there is one
 	## relocation in this game and both screens call it.
-	ui.add_child(UiKit.button(Cities.full_name(season.city()) + "  >", Vector2(STAT_X + 96.0, TOWN_Y - 6.0),
-		Vector2(230, 34), func():
+	ui.add_child(UiKit.button(Cities.full_name(season.city()) + "  >", Vector2(STAT_X + 96.0, _v(TOWN_Y) - 6.0),
+		Vector2(230, UiKit.tk(34)), func():
 			popup = "town"
 			town_area = Cities.area_of(season.city())
 			_rebuild()))
 
 	## EACH CARRIES ITS COLOUR (blind review round 3: "Kit color and Mark
 	## color don't show the current colour"): a swatch inside the button.
-	var kit_b := UiKit.button(UiKit.t("Kit color") + "  >", Vector2(STAT_X, 258), Vector2(150, 34), func():
+	var kit_b := UiKit.button(UiKit.t("Kit color") + "  >", Vector2(STAT_X, _v(258)), Vector2(150, UiKit.tk(34)), func():
 		popup = "kit"
 		_rebuild())
 	ui.add_child(_swatched(kit_b, IconBank.KIT_COLORS[kit_i]))
-	var mark_b := UiKit.button(UiKit.t("Mark color") + "  >", Vector2(STAT_X + 158, 258), Vector2(150, 34), func():
+	var mark_b := UiKit.button(UiKit.t("Mark color") + "  >", Vector2(STAT_X + 158, _v(258)), Vector2(150, UiKit.tk(34)), func():
 		popup = "mark"
 		_rebuild())
 	ui.add_child(_swatched(mark_b, IconBank.MARK_COLORS[mark_col_i]))
@@ -442,7 +452,7 @@ func _club_controls() -> void:
 		## THE OPEN PACK IS MARKED (review round 3: Core, Steel and Beasts looked
 		## the same whichever one was showing).
 		ui.add_child(UiKit.selected(UiKit.button(UiKit.t(String(IconBank.PACK_NAME[packs[i]])),
-			Vector2(BANK_X + float(i) * 116.0, 146), Vector2(110, 38), func():
+			Vector2(BANK_X + float(i) * 116.0, _v(146)), Vector2(110, UiKit.tk(38)), func():
 				pack_i = take
 				flash = ""
 				_rebuild()), i == pack_i % packs.size()))
@@ -460,8 +470,9 @@ func _club_controls() -> void:
 		## fault that hid every saved formation name on the chalkboard. Found by
 		## looking for the chalkboard's shape everywhere else rather than fixing
 		## the one Pete happened to open.
-		var bank_b := UiKit.button("", at - Vector2(BANK_R, BANK_R),
-			Vector2(BANK_R * 2.0, BANK_R * 2.0 + 24.0), func():
+		var br := UiKit.tk(BANK_R)
+		var bank_b := UiKit.button("", at - Vector2(br, br),
+			Vector2(br * 2.0, br * 2.0 + UiKit.tk(24.0)), func():
 				if shop.owns(id):
 					icon_i = id
 					flash = ""
@@ -484,9 +495,11 @@ func _club_controls() -> void:
 		bank_b.focus_mode = Control.FOCUS_NONE
 		ui.add_child(bank_b)
 
+	## NEXT IS BOTTOM-RIGHT ON EVERY STEP (3 Oct 2026): step 2 had it beside Back,
+	## steps 1 and 3 on the right. Save stays where it was outside founding.
 	save_btn = UiKit.button(UiKit.t("Next: difficulty  >") if Session.founding
-		else UiKit.t("Save the club"), Vector2(BOTTOM_X, bottom_y()), Vector2(260, 42),
-		_save_club)
+		else UiKit.t("Save the club"), Vector2(UiKit.right_edge(284.0) if Session.founding else BOTTOM_X,
+		bottom_y()), Vector2(260, 42), _save_club)
 	_refresh_save()
 	if Session.founding:
 		ui.add_child(UiKit.button(UiKit.t("Back"), Vector2(24, bottom_y()), Vector2(150, 42), func():
@@ -502,7 +515,8 @@ func _grade_controls() -> void:
 	for i in Grade.ORDER.size():
 		var g: int = Grade.ORDER[i]
 		ui.add_child(UiKit.selected(UiKit.button(Grade.short_of(g),
-			Vector2(GRADE_BTN_X, GRADE_Y + float(i) * GRADE_ROW), GRADE_BTN, func():
+			Vector2(GRADE_BTN_X, _v(GRADE_Y) + float(i) * UiKit.tk(GRADE_ROW)),
+			Vector2(GRADE_BTN.x, UiKit.tk(GRADE_BTN.y)), func():
 				## THROUGH THE SEASON'S OWN VERB. This wrote the two fields by
 				## hand, and the day the grade became changeable from a second
 				## screen that would have been two places resetting MATCHED's
@@ -516,9 +530,10 @@ func _grade_controls() -> void:
 		var x1 := UiKit.right_edge() - 18.0 - 2.0 * DIAL_BTN.x - 6.0
 		for k in DIAL_ROWS.size():
 			var key: String = DIAL_ROWS[k]
-			var y := _dial_y(k) - 17.0
-			ui.add_child(UiKit.button("-", Vector2(x1, y), DIAL_BTN, func(): _dial(key, -1)))
-			ui.add_child(UiKit.button("+", Vector2(x1 + DIAL_BTN.x + 6.0, y), DIAL_BTN,
+			var y := _dial_y(k) - UiKit.tk(17.0)
+			var db := Vector2(DIAL_BTN.x, UiKit.tk(DIAL_BTN.y))
+			ui.add_child(UiKit.button("-", Vector2(x1, y), db, func(): _dial(key, -1)))
+			ui.add_child(UiKit.button("+", Vector2(x1 + DIAL_BTN.x + 6.0, y), db,
 				func(): _dial(key, 1)))
 
 
@@ -534,7 +549,7 @@ const DIAL_ROW_H := 21.0
 
 
 func _dial_y(k: int) -> float:
-	return GRADE_Y + 34.0 + float(k) * DIAL_ROW_H + (8.0 if k >= DIAL_FIGHT_FROM else 0.0)
+	return _v(GRADE_Y) + UiKit.tk(34.0 + float(k) * DIAL_ROW_H + (8.0 if k >= DIAL_FIGHT_FROM else 0.0))
 
 
 func _dial(key: String, dir: int) -> void:
@@ -554,25 +569,26 @@ func _draw_grade() -> void:
 	var g := season.grade
 	## WHICH WAY IS HARDER (round 6: "nothing shows the grades run easy to hard").
 	UiKit.text_fit(self, font, UiKit.t("Easiest at the top"),
-		Vector2(GRADE_BTN_X, GRADE_Y - 10.0), 12, UiKit.DIM, GRADE_BTN.x)
+		Vector2(GRADE_BTN_X, _v(GRADE_Y) - UiKit.tk(10.0)), UiKit.tz(12), UiKit.DIM, GRADE_BTN.x)
 	var custom := g == Grade.G.CUSTOM
 	## As tall as the column of grades, or as the dials need on CUSTOM.
-	var bottom := maxf(GRADE_Y + float(Grade.ORDER.size()) * GRADE_ROW - 4.0,
-		_dial_y(DIAL_ROWS.size() - 1) + 22.0 if custom else 0.0)
+	var gy := _v(GRADE_Y)
+	var bottom := maxf(gy + float(Grade.ORDER.size()) * UiKit.tk(GRADE_ROW) - 4.0,
+		_dial_y(DIAL_ROWS.size() - 1) + UiKit.tk(22.0) if custom else 0.0)
 	## THE MIDDLE: the grade in use, in its own words.
 	## CUSTOM gives the middle 44 to the dials, which need room for their buttons.
 	var give := 44.0 if custom else 0.0
-	var mid := Rect2(GRADE_MID.x, GRADE_Y - 8.0, GRADE_MID.y - give, bottom - GRADE_Y + 8.0)
+	var mid := Rect2(GRADE_MID.x, gy - 8.0, GRADE_MID.y - give, bottom - gy + 8.0)
 	UiKit.window(self, mid, Grade.name_of(g), font)
-	UiKit.para(self, font, Grade.blurb_of(g), Vector2(mid.position.x + 16.0, GRADE_Y + 34.0), 15, UiKit.INK,
-		mid.size.x - 32.0, 20.0, 9)
+	UiKit.para(self, font, Grade.blurb_of(g), Vector2(mid.position.x + 16.0, gy + UiKit.tk(34.0)), UiKit.tz(15),
+		UiKit.INK, mid.size.x - 32.0, UiKit.tk(20.0), 9)
 	## THE RIGHT: WHAT IT CHANGES, in the numbers a player can act on, and the
 	## multiplier is deliberately printed. This game puts a two-digit overall next
 	## to every name on four screens; a setting that quietly changed what those
 	## numbers mean without saying so would make the roster screen a liar.
 	## The fight's own dials (free swing, the fall, the trip, the read) stay on
 	## CUSTOM (1 Oct novice report: first-timers read them as things to fear).
-	var fx := Rect2(GRADE_FX_X - give, GRADE_Y - 8.0, UiKit.right_edge() - GRADE_FX_X + give, mid.size.y)
+	var fx := Rect2(GRADE_FX_X - give, gy - 8.0, UiKit.right_edge() - GRADE_FX_X + give, mid.size.y)
 	UiKit.window(self, fx, UiKit.t("WHAT IT CHANGES"), font)
 	var ix := fx.position.x + 16.0
 	var cg := season.custom_grade
@@ -611,16 +627,17 @@ func _draw_grade() -> void:
 			UiKit.UP if rd > 0.3 else (UiKit.DOWN if rd < 0.3 else UiKit.INK)])
 	## On CUSTOM the − and + sit at the right edge, so the figure stands left of them.
 	var val_r := (UiKit.right_edge() - 18.0 - 2.0 * DIAL_BTN.x - 14.0) if custom else fx.end.x - 16.0
-	var label_w := val_r - ix - 58.0
+	var label_w := val_r - ix - UiKit.tk(58.0)
 	for k in rows.size():
-		var y := _dial_y(k) if custom else GRADE_Y + 34.0 + float(k) * 26.0
-		UiKit.text_fit(self, font, rows[k][0], Vector2(ix, y), 14, UiKit.DIM, label_w)
-		UiKit.right(self, font, rows[k][1], Vector2(val_r, y), 16, rows[k][2], 56.0)
+		var y := _dial_y(k) if custom else gy + UiKit.tk(34.0 + float(k) * 26.0)
+		UiKit.text_fit(self, font, rows[k][0], Vector2(ix, y), UiKit.tz(14), UiKit.DIM, label_w)
+		UiKit.right(self, font, rows[k][1], Vector2(val_r, y), UiKit.tz(16), rows[k][2], UiKit.tk(56.0))
 	if custom:
-		var ry := _dial_y(DIAL_FIGHT_FROM) - 19.0
+		var ry := _dial_y(DIAL_FIGHT_FROM) - UiKit.tk(19.0)
 		draw_line(Vector2(ix, ry), Vector2(fx.end.x - 16.0, ry), UiKit.EDGE, 1.0)
 	## THE FOOTER SAYS THE TWO THINGS A PLAYER NEEDS.
-	UiKit.text(self, font, UiKit.t("Tap a grade to use it. It is saved with the club, and you can change it later."), Vector2(STAT_X, 452.0), 14, UiKit.DIM)
+	UiKit.text_fit(self, font, UiKit.t("Tap a grade to use it. It is saved with the club, and you can change it later."),
+		Vector2(STAT_X, _v(452.0)), UiKit.tz(14), UiKit.DIM, UiKit.span())
 
 
 func _save_club() -> void:
@@ -687,35 +704,39 @@ func _draw_fighter() -> void:
 	UiKit.right(self, font, UiKit.t("%d of %d creations left") % [shop.left(), Workshop.MAX_FIGHTERS],
 		Vector2(UiKit.right_edge(120.0), 64), 14, UiKit.DIM, 200.0)
 
+	var k24 := UiKit.tk(24)
+	var k45 := UiKit.tk(45)
 	for i in STATS.size():
-		var y := STAT_Y + float(i) * STAT_ROW
-		UiKit.text_fit(self, font, UiKit.t(STAT_LABEL[i]), Vector2(STAT_X, y + 24), 16, UiKit.INK,
+		var y := _v(STAT_Y) + float(i) * UiKit.tk(STAT_ROW)
+		## NAME AND BLURB KEEP THEIR PHONE SIZE: their widths do not grow (3 Oct 2026).
+		UiKit.text_fit(self, font, UiKit.t(STAT_LABEL[i]), Vector2(STAT_X, y + k24), 16, UiKit.INK,
 			SLIDER_X - STAT_X - 6.0)
 		UiKit.text(self, font, str(int(card.get(STATS[i]))),
-			Vector2(SLIDER_X + SLIDER_W + 14, y + 24), 16, UiKit.YOU)
-		UiKit.text(self, font, UiKit.t(STAT_BLURB[i]), Vector2(STAT_X, y + 45), 14, UiKit.DIM)
-	var wy := STAT_Y + 5.0 * STAT_ROW
-	UiKit.text(self, font, UiKit.t("Weight"), Vector2(STAT_X, wy + 24), 16, UiKit.INK)
+			Vector2(SLIDER_X + SLIDER_W + 14, y + k24), UiKit.tz(16), UiKit.YOU)
+		UiKit.text_fit(self, font, UiKit.t(STAT_BLURB[i]), Vector2(STAT_X, y + k45), 14, UiKit.DIM,
+			RIGHT_X - STAT_X - 8.0)
+	var wy := _v(STAT_Y) + 5.0 * UiKit.tk(STAT_ROW)
+	UiKit.text(self, font, UiKit.t("Weight"), Vector2(STAT_X, wy + k24), 16, UiKit.INK)
 	UiKit.text(self, font, UiKit.t("%d lb") % card.weight,
-		Vector2(SLIDER_X + SLIDER_W + 14, wy + 24), 16, UiKit.YOU)
-	UiKit.text(self, font, UiKit.t("In harness. Decides a bullrush more than anything else."),
-		Vector2(STAT_X, wy + 45), 14, UiKit.DIM)
+		Vector2(SLIDER_X + SLIDER_W + 14, wy + k24), UiKit.tz(16), UiKit.YOU)
+	UiKit.text_fit(self, font, UiKit.t("In harness. Decides a bullrush more than anything else."),
+		Vector2(STAT_X, wy + k45), 14, UiKit.DIM, RIGHT_X - STAT_X - 8.0)
 
 	## THE CEILING, DRAWN. The bar fills to his rating and the marshal's line
 	## sits at what the division allows, so the cap is a place on screen rather
 	## than a sentence that appears after the fact.
-	var r := Rect2(RIGHT_X, 190, 340, 22)
+	var r := Rect2(RIGHT_X, _v(190), 340, UiKit.tk(22))
 	var ceiling := int(lim["rating"])
-	UiKit.text(self, font, UiKit.t("Rating"), Vector2(RIGHT_X, 180), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Rating"), Vector2(RIGHT_X, _v(180)), UiKit.tz(14), UiKit.DIM)
 	var frac := clampf(card.rating() / float(ceiling), 0.0, 1.0)
 	var over: bool = card.rating() > float(ceiling)
 	UiKit.bar(self, r, frac, UiKit.DOWN if over else UiKit.UP)
 	draw_line(Vector2(r.end.x, r.position.y - 4), Vector2(r.end.x, r.end.y + 4),
 		Tuning.COL_MARSHAL, 2.0)
-	UiKit.text(self, font, "%d" % card.overall(), Vector2(RIGHT_X, 232), 20,
+	UiKit.text(self, font, "%d" % card.overall(), Vector2(RIGHT_X, _v(232)), UiKit.tz(20),
 		UiKit.DOWN if over else UiKit.INK)
 	UiKit.right(self, font, UiKit.t("Cap for a made man: %d") % ceiling,
-		Vector2(RIGHT_X + 340, 232), 14, UiKit.DIM, 300.0)
+		Vector2(RIGHT_X + 340, _v(232)), UiKit.tz(14), UiKit.DIM, 300.0)
 
 	var wage := ClubOffice.wage(card)
 	var cap := season.office.cap()
@@ -726,15 +747,16 @@ func _draw_fighter() -> void:
 	var out := _cuttable()
 	if season.club.roster.size() >= MeleeClub.SQUAD_MAX and not out.is_empty():
 		bill -= ClubOffice.billed(out[replace_i % out.size()])
-	UiKit.text(self, font, UiKit.t("Wage"), Vector2(RIGHT_X, 282), 14, UiKit.DIM)
-	UiKit.text(self, font, ClubOffice.money(wage), Vector2(RIGHT_X, 306), 18, UiKit.INK)
-	UiKit.text(self, font, UiKit.t("Bill after the trade"), Vector2(RIGHT_X, 340), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("Wage"), Vector2(RIGHT_X, _v(282)), UiKit.tz(14), UiKit.DIM)
+	UiKit.text(self, font, ClubOffice.money(wage), Vector2(RIGHT_X, _v(306)), UiKit.tz(18), UiKit.INK)
+	UiKit.text(self, font, UiKit.t("Bill after the trade"), Vector2(RIGHT_X, _v(340)), UiKit.tz(14), UiKit.DIM)
 	UiKit.text(self, font, UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
-		Vector2(RIGHT_X, 364), 18, UiKit.DOWN if bill > cap else UiKit.INK)
+		Vector2(RIGHT_X, _v(364)), UiKit.tz(18), UiKit.DOWN if bill > cap else UiKit.INK)
 
 	var err := Workshop.fighter_legal(card, season.office.tier)
 	if err != "" and card.display_name.strip_edges() != "":
-		UiKit.text(self, font, err, Vector2(RIGHT_X, 404), 14, UiKit.DOWN)
+		UiKit.text_fit(self, font, err, Vector2(RIGHT_X, _v(404)), UiKit.tz(14), UiKit.DOWN,
+			UiKit.right_edge() - RIGHT_X)
 
 
 func _draw_club() -> void:
@@ -744,19 +766,19 @@ func _draw_club() -> void:
 
 	## Beside the name field and short of the mark shelf's first button.
 	## LABELS ABOVE THEIR FIELDS (blind review round 3: they sat to the right).
-	UiKit.text(self, font, UiKit.t("CLUB NAME"), Vector2(STAT_X, 148), 12, UiKit.DIM)
-	UiKit.text(self, font, UiKit.t("SHORT NAME"), Vector2(STAT_X, 204), 12, UiKit.DIM)
-	UiKit.text(self, font, UiKit.t("HOME TOWN"), Vector2(STAT_X, TOWN_Y - 12.0), 11, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("CLUB NAME"), Vector2(STAT_X, _v(148)), UiKit.tz(12), UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("SHORT NAME"), Vector2(STAT_X, _v(204)), UiKit.tz(12), UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("HOME TOWN"), Vector2(STAT_X, _v(TOWN_Y) - 12.0), UiKit.tz(11), UiKit.DIM)
 
 	## The badge, at the size a badge is looked at, with the club's letters under
 	## it — which is the pair that has to work, not either one alone.
 	## 352 AND NOT 372. The badge is 108 pixels of decoration and the town row
 	## needs the band under it; the badge is the thing that gives way, because it
 	## is the only thing on this tab nobody has to read.
-	UiKit.badge(self, Vector2(STAT_X + 92, 352), 50, kit, mark, icon_i)
-	UiKit.text(self, font, short.to_upper(), Vector2(STAT_X + 168, 348), 26, UiKit.INK)
+	UiKit.badge(self, Vector2(STAT_X + 92, _v(352)), UiKit.tk(50), kit, mark, icon_i)
+	UiKit.text(self, font, short.to_upper(), Vector2(STAT_X + 168, _v(348)), UiKit.tz(26), UiKit.INK)
 	UiKit.text(self, font, IconBank.icon_name(icon_i),
-		Vector2(STAT_X + 168, 372), 14, UiKit.DIM)
+		Vector2(STAT_X + 168, _v(372)), UiKit.tz(14), UiKit.DIM)
 
 	## ON THE MESSAGE LINE, ABOVE THE ROW (3 Oct 2026): at (324, bottom - 28) it
 	## was drawn under the Save button and read "e is two to four letters."
@@ -787,6 +809,7 @@ func _swatched(b: Button, col: Color) -> Button:
 
 
 func _draw_bank(kit: Color, mark: Color) -> void:
+	var br := UiKit.tk(BANK_R)
 	var packs := IconBank.packs()
 	var shelf := IconBank.in_pack(packs[pack_i % packs.size()])
 	for i in shelf.size():
@@ -796,26 +819,26 @@ func _draw_bank(kit: Color, mark: Color) -> void:
 		if id == icon_i:
 			## The one he is wearing, ringed. Not a tick in a corner — at this
 			## size a tick is four pixels and the ring is unmissable.
-			draw_rect(Rect2(at - Vector2(BANK_R + 5, BANK_R + 5),
-				Vector2(BANK_R * 2 + 10, BANK_R * 2 + 10)), UiKit.YOU, false, 2.0)
+			draw_rect(Rect2(at - Vector2(br + 5, br + 5),
+				Vector2(br * 2 + 10, br * 2 + 10)), UiKit.YOU, false, 2.0)
 		## Darkening BOTH colors made a locked mark unreadable — dark gray on
 		## dark red — which defeats the point of drawing it at all. The kit goes
 		## back, the mark stays bright and goes translucent instead, so the
 		## shape still reads and it still says "not yours".
 		var k: Color = kit if have else kit.darkened(0.42)
 		var m: Color = mark if have else Color(mark, 0.45)
-		UiKit.badge(self, at, BANK_R, k, m, id)
+		UiKit.badge(self, at, br, k, m, id)
 		## ITS NAME EITHER WAY, and the price beside it when it is not his
 		## (blind review round 3: locked marks showed a price and no name).
 		var nm := IconBank.icon_name(id)
-		UiKit.text_fit(self, font, nm, at + Vector2(-BANK_R, BANK_R + 16), 12,
-			UiKit.INK if have else UiKit.DIM, BANK_R * 2.0 + BANK_GAP - 6.0)
+		UiKit.text_fit(self, font, nm, at + Vector2(-br, br + UiKit.tk(16)), UiKit.tz(12),
+			UiKit.INK if have else UiKit.DIM, br * 2.0 + BANK_GAP - 6.0)
 		## THE PRICE IS A TAG ON THE TILE (round 4: "Chevron 1 CC" ran into the
 		## next name), with a lock, so an unowned mark cannot pass for an owned one.
 		if not have:
 			var tag := UiKit.t("%d CC") % IconBank.cost(id)
 			var tw := font.get_string_size(tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 26.0
-			var tr := Rect2(at + Vector2(BANK_R - tw, -BANK_R), Vector2(tw, 18))
+			var tr := Rect2(at + Vector2(br - tw, -br), Vector2(tw, 18))
 			draw_rect(tr, Color(0, 0, 0, 0.78))
 			## GOLD WHEN HE CAN BUY IT, DIM WHEN HE CANNOT (item 2, 30 Sep).
 			var can: bool = IconBank.cost(id) <= season.office.credits
@@ -827,8 +850,9 @@ func _draw_bank(kit: Color, mark: Color) -> void:
 func _bank_slot(i: int) -> Vector2:
 	var col := i % BANK_COLS
 	var row := int(i / BANK_COLS)
-	return Vector2(BANK_X + BANK_R + float(col) * (BANK_R * 2.0 + BANK_GAP),
-		198.0 + BANK_R + float(row) * (BANK_R * 2.0 + 34.0))
+	var br := UiKit.tk(BANK_R)
+	return Vector2(BANK_X + br + float(col) * (br * 2.0 + BANK_GAP),
+		_v(198.0) + br + float(row) * (br * 2.0 + UiKit.tk(34.0)))
 
 
 
@@ -837,7 +861,46 @@ const POP := Rect2(160.0, 60.0, 640.0, 420.0)
 
 
 func _pop_rect() -> Rect2:
+	if popup == "town":
+		return _town_rect()
 	return Rect2(Vector2(floorf((UiKit.screen().x - POP.size.x) * 0.5), POP.position.y), POP.size)
+
+
+## THE TOWN POPUP TAKES NEARLY THE WHOLE SCREEN (Pete, 3 Oct 2026: "make them
+## bigger"). 51 state chips at 50x28 with 4px gaps were mis-tapped (MA/MD/ME);
+## at 40+ tall with 8px gaps they need the width and the height both.
+const TOWN_W := 912.0
+const TOWN_LIST_W := 300.0
+const CHIP_GAP := 8.0
+const CHIP_H := 44.0
+## Which page of states is showing, when a region has more than fit.
+var town_page := 0
+
+
+func _town_rect() -> Rect2:
+	var w := minf(TOWN_W, UiKit.screen().x - 48.0)
+	return Rect2(Vector2(floorf((UiKit.screen().x - w) * 0.5), 16.0), Vector2(w, UiKit.screen().y - 32.0))
+
+
+## The chip grid: where it starts, its column count, chip size and rows per page.
+func _chip_grid(areas: Array[String]) -> Dictionary:
+	var r := _town_rect()
+	var gap := UiKit.tk(CHIP_GAP)
+	var h := UiKit.tk(CHIP_H)
+	var top := r.position + Vector2(24.0, 56.0)
+	var gw := r.size.x - 48.0 - TOWN_LIST_W - 24.0
+	var gh := r.end.y - 16.0 - top.y
+	## AS WIDE AS THE LONGEST NAME NEEDS (a European region's are countries).
+	var need := 56.0
+	for a in areas:
+		need = maxf(need, font.get_string_size(a, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 16).x + 20.0)
+	var cols := maxi(1, int(floorf((gw + gap) / (need + gap))))
+	var w := floorf((gw - gap * float(cols - 1)) / float(cols))
+	var rows := maxi(1, int(floorf((gh + gap) / (h + gap))))
+	## A PAGE ROW ONLY WHEN ONE IS NEEDED; every US state fits on one page.
+	if areas.size() > cols * rows:
+		rows -= 1
+	return {"top": top, "cols": cols, "rows": rows, "size": Vector2(w, h), "gap": gap}
 
 
 func _popup_controls() -> void:
@@ -877,7 +940,7 @@ func _popup_controls() -> void:
 				sw.color = Color(cols[i], 0.25)
 			ui.add_child(UiKit.selected(b, i == sel))
 		return
-	## THE HOME TOWN: a state (or country), then its towns.
+	## THE HOME TOWN: a state (or country), then its towns. ONE TAP PER STATE.
 	var areas: Array[String] = []
 	for c in Cities.table(season.world.region):
 		var a := String(c["area"])
@@ -888,20 +951,39 @@ func _popup_controls() -> void:
 		town_area = Cities.area_of(season.city())
 	if not areas.has(town_area):
 		town_area = areas[0] if not areas.is_empty() else ""
-	for i in areas.size():
-		var a: String = areas[i]
-		## SIX ACROSS (2 Oct 2026): every state now has towns, 51 buttons in 9 rows.
-		var at := r.position + Vector2(24.0 + float(i % 6) * 54.0, 60.0 + float(i / 6) * 31.0)
-		ui.add_child(UiKit.selected(UiKit.button(a, at, Vector2(50, 28), func(k = a):
+	var g := _chip_grid(areas)
+	var cols: int = g["cols"]
+	var per: int = cols * int(g["rows"])
+	var pages := maxi(1, ceili(float(areas.size()) / float(per)))
+	town_page = clampi(town_page, 0, pages - 1)
+	var cs: Vector2 = g["size"]
+	var gap: float = g["gap"]
+	var top: Vector2 = g["top"]
+	for j in range(town_page * per, mini(areas.size(), (town_page + 1) * per)):
+		var a: String = areas[j]
+		var i := j - town_page * per
+		## 3 OCT 2026: chips 40+ tall with 8+ px between them, the grid filling the
+		## popup's left side (51 states at 50x28 and 4px apart were mis-tapped).
+		var at := top + Vector2(float(i % cols) * (cs.x + gap), float(i / cols) * (cs.y + gap))
+		ui.add_child(UiKit.selected(UiKit.button(a, at, cs, func(k = a):
 			town_area = k
 			_rebuild()), a == town_area))
+	if pages > 1:
+		var py := top.y + float(g["rows"]) * (cs.y + gap)
+		ui.add_child(UiKit.arrow(false, Vector2(top.x, py), Vector2(56, cs.y), func():
+			town_page = (town_page + pages - 1) % pages
+			_rebuild()))
+		ui.add_child(UiKit.arrow(true, Vector2(top.x + 64.0, py), Vector2(56, cs.y), func():
+			town_page = (town_page + 1) % pages
+			_rebuild()))
+	var lx := r.end.x - 24.0 - TOWN_LIST_W
 	var y := 0
 	for c in Cities.table(season.world.region):
 		if String(c["area"]) != town_area:
 			continue
 		var city := String(c["name"])
-		ui.add_child(UiKit.selected(UiKit.button(city, r.position + Vector2(352.0, 60.0 + float(y) * 38.0),
-			Vector2(264, 32), func(t = city):
+		ui.add_child(UiKit.selected(UiKit.button(city, Vector2(lx, top.y + float(y) * (cs.y + gap)),
+			Vector2(TOWN_LIST_W, cs.y), func(t = city):
 				if t != season.city():
 					var was := season.city()
 					var err := season.set_city(t)

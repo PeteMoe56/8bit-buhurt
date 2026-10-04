@@ -8,7 +8,8 @@ extends RefCounted
 
 
 static func _office_row_y(v: SeasonScene, i: int) -> float:
-	return SeasonScene.CONTENT_Y + 34.0 + float(i) * ROW_STEP
+	## TALL SCREENS TAKE A LONGER STEP (3 Oct 2026); tall_k() is 1.0 on a phone.
+	return SeasonScene.CONTENT_Y + UiKit.tk(34.0) + float(i) * UiKit.tk(ROW_STEP)
 
 
 const ROW_STEP := 64.0
@@ -62,7 +63,7 @@ static func _office_controls(v: SeasonScene) -> void:
 		var row: Dictionary = SeasonScene.OFFICE_ROWS[i]
 		var kind = row["kind"]
 		var y := v._office_row_y(i)
-		var hb := UiKit.button("?", Vector2(HELP_X, y + 4.0), Vector2(34, 34), func(k = str(kind)):
+		var hb := UiKit.button("?", Vector2(HELP_X, y + UiKit.tk(4.0)), Vector2(34, UiKit.tk(34.0)), func(k = str(kind)):
 			v.help_key = k
 			v._rebuild())
 		hb.tooltip_text = UiKit.t(String(row["label"]))
@@ -73,7 +74,7 @@ static func _office_controls(v: SeasonScene) -> void:
 		## THE PRICE ONLY: the upkeep it brings is on the labelled line under it
 		## (round 2, 2 Oct: "1/yr" on the button and "0 CC/Year" floating below).
 		var b := UiKit.button(upgrade_word(v, kind) + UiKit.t(" · %d CC") % cost,
-			Vector2(UPGRADE_X, y + 4.0), Vector2(UPGRADE_W, 34), func():
+			Vector2(UPGRADE_X, y + UiKit.tk(4.0)), Vector2(UPGRADE_W, UiKit.tk(34.0)), func():
 				var err: String
 				if kind is String and kind == "cap":
 					err = o.raise_cap()
@@ -376,13 +377,14 @@ static func _draw_shop(v: SeasonScene) -> void:
 
 static func _draw_office(v: SeasonScene) -> void:
 	var o := v.season.office
-	UiKit.text(v, v.font, UiKit.t("UPGRADES"), Vector2(SeasonScene.BAR_X, SeasonScene.CONTENT_Y + 6.0), 20, UiKit.INK)
+	UiKit.text(v, v.font, UiKit.t("UPGRADES"), Vector2(SeasonScene.BAR_X, SeasonScene.CONTENT_Y + 6.0), UiKit.tz(20), UiKit.INK)
 	for i in SeasonScene.OFFICE_ROWS.size():
 		var row: Dictionary = SeasonScene.OFFICE_ROWS[i]
 		var kind = row["kind"]
 		var y := v._office_row_y(i)
 		var label := UiKit.t(String(row["label"]))
-		var bar := Rect2(SeasonScene.BAR_X, y + 8.0, BAR_W, SeasonScene.BAR_H)
+		## BARS, LABELS AND FIGURES GROW WITH THE ROW ON A TALL SCREEN (3 Oct 2026).
+		var bar := Rect2(SeasonScene.BAR_X, y + UiKit.tk(8.0), BAR_W, UiKit.tk(SeasonScene.BAR_H))
 		var right := ""
 		if kind is String and kind == "cap":
 			## A GAUGE, THE BILL WRITTEN IN THE FILL (Pete, 1 Oct 2026).
@@ -393,8 +395,8 @@ static func _draw_office(v: SeasonScene) -> void:
 			v.draw_rect(Rect2(bar.position, Vector2(bar.size.x * frac, bar.size.y)),
 				UiKit.DOWN if bill > cap else UiKit.YOU)
 			v.draw_rect(bar, UiKit.FRAME, false, 1.0)
-			UiKit.text(v, v.font, ClubOffice.money(bill), bar.position + Vector2(6, 19), 14, UiKit.BG)
-			UiKit.right(v, v.font, ClubOffice.money(cap), Vector2(bar.end.x - 6.0, bar.position.y + 19.0), 14,
+			UiKit.text(v, v.font, ClubOffice.money(bill), bar.position + Vector2(6, UiKit.tk(19.0)), UiKit.tz(14), UiKit.BG)
+			UiKit.right(v, v.font, ClubOffice.money(cap), Vector2(bar.end.x - 6.0, bar.position.y + UiKit.tk(19.0)), UiKit.tz(14),
 				UiKit.DIM, 80)
 		elif kind is String and kind == "insurance":
 			var il := o.rule_level(Federation.Rule.INSURANCE)
@@ -413,18 +415,18 @@ static func _draw_office(v: SeasonScene) -> void:
 						right = UiKit.tn("-%d event off a knock", "-%d events off a knock",
 							o.injury_relief()) % o.injury_relief()
 			UiKit.meter(v, bar, o.level(f), ClubOffice.FACILITY_MAX, UiKit.UP if o.level(f) > 0 else UiKit.EDGE)
-		UiKit.pair(v, v.font, label, right, Vector2(SeasonScene.BAR_X, y), HELP_X + 34.0, 13, 12, UiKit.DIM, UiKit.INK)
+		UiKit.pair(v, v.font, label, right, Vector2(SeasonScene.BAR_X, y), HELP_X + 34.0, UiKit.tz(13), UiKit.tz(12), UiKit.DIM, UiKit.INK)
 		var keep := row_upkeep(v, kind)
 		var nxt := row_upkeep_next(v, kind) if row_cost(v, kind) > 0 else keep
 		## UPKEEP IN THE QUIET INK (3 Oct 2026): a running cost the club can pay is
 		## not a danger, and red is kept for the ones it cannot.
 		UiKit.right(v, v.font, (UiKit.t("Upkeep %d → %d CC/yr") % [keep, nxt]) if nxt != keep
-			else UiKit.t("Upkeep %d CC/yr") % keep, Vector2(UPGRADE_X + UPGRADE_W, y + 52.0), 13,
+			else UiKit.t("Upkeep %d CC/yr") % keep, Vector2(UPGRADE_X + UPGRADE_W, y + UiKit.tk(52.0)), UiKit.tz(13),
 			UiKit.DIM, UPGRADE_W)
-	var ty := v._office_row_y(SeasonScene.OFFICE_ROWS.size()) + 16.0
-	v.draw_line(Vector2(SeasonScene.BAR_X, ty - 18.0), Vector2(UPGRADE_X + UPGRADE_W, ty - 18.0), UiKit.FRAME, 1.0)
+	var ty := v._office_row_y(SeasonScene.OFFICE_ROWS.size()) + UiKit.tk(16.0)
+	v.draw_line(Vector2(SeasonScene.BAR_X, ty - UiKit.tk(18.0)), Vector2(UPGRADE_X + UPGRADE_W, ty - UiKit.tk(18.0)), UiKit.FRAME, 1.0)
 	UiKit.pair(v, v.font, UiKit.t("Maintenance total, arena included"), UiKit.t("%d CC/yr") % upkeep_total(v),
-		Vector2(SeasonScene.BAR_X, ty), UPGRADE_X + UPGRADE_W, 15, 15, UiKit.INK, UiKit.INK)
+		Vector2(SeasonScene.BAR_X, ty), UPGRADE_X + UPGRADE_W, UiKit.tz(15), UiKit.tz(15), UiKit.INK, UiKit.INK)
 	_draw_arena_panel(v)
 
 
@@ -437,28 +439,29 @@ static func _draw_arena_panel(v: SeasonScene) -> void:
 	UiKit.panel(v, r)
 	var x := r.position.x + 16.0
 	var w := r.size.x - 32.0
-	var y := r.position.y + 26.0
-	UiKit.text(v, v.font, UiKit.t("ARENA"), Vector2(x, y), 13, UiKit.DIM)
-	y += 26.0
-	UiKit.text_fit(v, v.font, a.arena_name(), Vector2(x, y), 19, UiKit.INK, w)
-	y += 22.0
+	## THE PANEL'S LINES SPREAD AND GROW ON A TALL SCREEN (3 Oct 2026).
+	var y := r.position.y + UiKit.tk(26.0)
+	UiKit.text(v, v.font, UiKit.t("ARENA"), Vector2(x, y), UiKit.tz(13), UiKit.DIM)
+	y += UiKit.tk(26.0)
+	UiKit.text_fit(v, v.font, a.arena_name(), Vector2(x, y), UiKit.tz(19), UiKit.INK, w)
+	y += UiKit.tk(22.0)
 	UiKit.text_fit(v, v.font, UiKit.t("Level %d of %d  ·  holds %d") % [a.level, Arena.LEVELS.size() - 1, a.capacity()],
-		Vector2(x, y), 13, UiKit.DIM, w)
-	y += 30.0
+		Vector2(x, y), UiKit.tz(13), UiKit.DIM, w)
+	y += UiKit.tk(30.0)
 	UiKit.pair(v, v.font, UiKit.t("Crowd"), UiKit.t("%d%% full") % int(round(o.fill() * 100.0)),
-		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.INK)
-	y += 8.0
-	UiKit.bar(v, Rect2(x, y, w, 8), o.fill(), UiKit.YOU)
-	y += 30.0
+		Vector2(x, y), x + w, UiKit.tz(14), UiKit.tz(14), UiKit.DIM, UiKit.INK)
+	y += UiKit.tk(8.0)
+	UiKit.bar(v, Rect2(x, y, w, UiKit.tk(8.0)), o.fill(), UiKit.YOU)
+	y += UiKit.tk(30.0)
 	UiKit.pair(v, v.font, UiKit.t("A home fight pays"), UiKit.t("%d CC") % o.crowd_pay(),
-		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.UP)
-	y += 24.0
+		Vector2(x, y), x + w, UiKit.tz(14), UiKit.tz(14), UiKit.DIM, UiKit.UP)
+	y += UiKit.tk(24.0)
 	UiKit.pair(v, v.font, UiKit.t("Maintenance"), UiKit.t("%d CC/yr") % o.arena_upkeep(),
-		Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.INK)
-	y += 24.0
+		Vector2(x, y), x + w, UiKit.tz(14), UiKit.tz(14), UiKit.DIM, UiKit.INK)
+	y += UiKit.tk(24.0)
 	if not a.at_top():
 		UiKit.pair(v, v.font, UiKit.t("Next"), String(UiKit.t(String(a.next()["name"]))),
-			Vector2(x, y), x + w, 14, 14, UiKit.DIM, UiKit.INK)
+			Vector2(x, y), x + w, UiKit.tz(14), UiKit.tz(14), UiKit.DIM, UiKit.INK)
 
 
 ## ------------------------------------------------------------------ the "?"

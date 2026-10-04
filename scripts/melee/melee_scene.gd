@@ -2204,7 +2204,15 @@ func _draw_hint() -> void:
 	var band_up: bool = sim.orders_issued == 0 and sim.round_no == 1 and drawing == -1 \
 		and wheel_man == -1 and not held and not _veteran() and beat_t <= 0.0
 	if not band_up:
-		UiKit.raw(self, font, Vector2(24, 50), UiKit.fit(font, msg, 14, 340.0), HORIZONTAL_ALIGNMENT_LEFT, 340, 14, COL_INK)
+		## MEASURED, NOT CUT (3 Oct 2026): at 14px the line is 392 wide and came out
+		## "Tap to hold g." in its 340. A pixel smaller at a time, to 12; past that it
+		## wraps onto a second line rather than losing words.
+		var px := 14
+		while px > UiKit.MIN_PX and font.get_string_size(msg, HORIZONTAL_ALIGNMENT_LEFT, -1.0, px).x > 340.0:
+			px -= 1
+		var hl := UiKit.wrap(font, msg, 340.0, px)
+		for k in hl.size():
+			UiKit.raw(self, font, Vector2(24, 50 + k * (px + 2)), String(hl[k]), HORIZONTAL_ALIGNMENT_LEFT, 340, px, COL_INK)
 	## SAID IN WORDS (blind review round 3: "0 routes · 0 of 0 calls" unexplained).
 	## NOTHING UNTIL THERE IS SOMETHING TO COUNT (round 8: "Routes 0 · choices
 	## 0/0" was cryptic before the first order).

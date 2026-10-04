@@ -82,45 +82,46 @@ static func _draw_market(v: SeasonScene) -> void:
 	## reviewers read the bare right-hand column as a different group).
 	for ci in 2:
 		UiKit.text(v, v.font, String(heads[ci]),
-			Vector2(24 + float(ci) * (cell + SeasonScene.QM_GAP), SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22), 12, UiKit.DIM)
+			Vector2(24 + float(ci) * (cell + SeasonScene.QM_GAP), SeasonScene.CONTENT_Y + UiKit.tk(SeasonScene.QM_TOP - 22)), UiKit.tz(12), UiKit.DIM)
 	## COLUMN HEADINGS (blind review round 3: "Borrowed" x13 and an unlabelled
 	## "3 CC" told the player nothing). Over both halves.
 	for cx in [24.0, 24.0 + cell + SeasonScene.QM_GAP]:
-		var hy := SeasonScene.CONTENT_Y + SeasonScene.QM_TOP - 22
+		## TALL SCREENS: HEADS, ROWS AND FACES GROW TOGETHER (3 Oct 2026).
+		var hy := SeasonScene.CONTENT_Y + UiKit.tk(SeasonScene.QM_TOP - 22)
 		var gx0: float = cx + SeasonScene.QM_NAME_W + 6.0
 		if not uniform:
-			UiKit.text_fit(v, v.font, UiKit.t("HARNESS"), Vector2(gx0, hy), 12, UiKit.DIM, SeasonScene.QM_GRADE_W)
+			UiKit.text_fit(v, v.font, UiKit.t("HARNESS"), Vector2(gx0, hy), UiKit.tz(12), UiKit.DIM, SeasonScene.QM_GRADE_W)
 		## "KIT", AND THE TICK NAMED IN THE HEADING straight over the ticks it
 		## names (item 2: "unlabelled tick"). KIT is the Squad table's word.
 		var bx0: float = gx0 + _grade_w(uniform)
 		var tick_x: float = bx0 + SeasonScene.QM_BAR_W * FighterCard.INSPECTION_MIN
 		## The word goes over the percentages it heads; the bar's heading is the tick.
-		UiKit.text_fit(v, v.font, UiKit.t("KIT"), Vector2(bx0 + SeasonScene.QM_BAR_W + 6.0, hy), 12,
+		UiKit.text_fit(v, v.font, UiKit.t("KIT"), Vector2(bx0 + SeasonScene.QM_BAR_W + 6.0, hy), UiKit.tz(12),
 			UiKit.DIM, 48.0)
 		v.draw_rect(Rect2(tick_x - 1.0, hy - 10.0, 2.0, 12.0), UiKit.DOWN)
 		## "PASS", NOT "min" (review, 1 Oct 2026: it read as "Imin").
-		UiKit.text(v, v.font, UiKit.t("pass"), Vector2(tick_x + 4.0, hy), 12, UiKit.DOWN)
+		UiKit.text(v, v.font, UiKit.t("pass"), Vector2(tick_x + 4.0, hy), UiKit.tz(12), UiKit.DOWN)
 		## NEXT, NOT FIX (round 8: a sound harness showed its upgrade price under
 		## FIX, so 90% "cost" more than 73%). Each row now says which it is.
 		if _any_next(v, cap):
-			UiKit.right(v, v.font, UiKit.t("NEXT"), Vector2(cx + cell, hy), 12, UiKit.DIM, _cost_w(uniform))
+			UiKit.right(v, v.font, UiKit.t("NEXT"), Vector2(cx + cell, hy), UiKit.tz(12), UiKit.DIM, _cost_w(uniform))
 
 	## WHAT TO DO HERE, said (blind review, 29 Sep: "no visible action"). The
 	## rows are the buttons; the line on each bar is the marshals' minimum.
 	## A TRAINING WEEK SAYS SO before a Fix button is tapped and refused (3 Oct 2026).
 	if v.qm_pick == null and not o.fixture_week:
 		UiKit.text_fit(v, v.font, ClubOffice.between_fixtures_word(),
-			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
+			Vector2(24, SeasonScene.action_y() - 14.0), UiKit.tz(14), UiKit.INK, UiKit.span())
 	elif v.qm_pick == null:
 		UiKit.text_fit(v, v.font, UiKit.t("Tap a fighter to fix his kit or buy him a better harness."),
-			Vector2(24, SeasonScene.action_y() - 14.0), 14, UiKit.INK, UiKit.span())
+			Vector2(24, SeasonScene.action_y() - 14.0), UiKit.tz(14), UiKit.INK, UiKit.span())
 	elif not Quartermaster.topped_out(v.qm_pick, cap) and repair_why(v, v.qm_pick) != "":
-		UiKit.text_fit(v, v.font, repair_why(v, v.qm_pick), Vector2(24, SeasonScene.action_y() - 14.0), 14,
+		UiKit.text_fit(v, v.font, repair_why(v, v.qm_pick), Vector2(24, SeasonScene.action_y() - 14.0), UiKit.tz(14),
 			UiKit.INK, UiKit.span())
 	elif not pick_has_action(v):
 		## NOTHING TO SELL HIM, AND IT SAYS WHY (novice report 2: a tapped man lit
 		## up, the hint and the Fight button went, and nothing came in their place).
-		UiKit.text_fit(v, v.font, pick_refusal(v), Vector2(24, SeasonScene.action_y() - 14.0), 14,
+		UiKit.text_fit(v, v.font, pick_refusal(v), Vector2(24, SeasonScene.action_y() - 14.0), UiKit.tz(14),
 			UiKit.INK, UiKit.span())
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
@@ -128,17 +129,17 @@ static func _draw_market(v: SeasonScene) -> void:
 		var x: float = row["x"]
 		var bus: bool = row["bus"]
 		## EVERY ROW IS A BUTTON AND NOW LOOKS LIKE ONE: a plate under it.
-		v.draw_rect(Rect2(x - 4.0, y - 20, cell + 8.0, SeasonScene.QM_ROW - 4),
+		v.draw_rect(Rect2(x - 4.0, y - UiKit.tk(20.0), cell + 8.0, UiKit.tk(SeasonScene.QM_ROW) - 4),
 			UiKit.SELECT if v.qm_pick == f else UiKit.PANEL)
 
 		## A MAN IN THE RESERVE IS DRAWN QUIETER. His kit still wears, but he is
 		## not the one the marshals are about to look at.
-		UiKit.text(v, v.font, UiKit.clip_px(v.font, f.display_name, 14, SeasonScene.QM_NAME_W),
-			Vector2(x, y), 14, UiKit.INK if bus else UiKit.DIM)
+		UiKit.text(v, v.font, UiKit.clip_px(v.font, f.display_name, UiKit.tz(14), SeasonScene.QM_NAME_W),
+			Vector2(x, y), UiKit.tz(14), UiKit.INK if bus else UiKit.DIM)
 		var gx := x + SeasonScene.QM_NAME_W + 6.0
 		if not uniform:
-			UiKit.text(v, v.font, UiKit.clip_px(v.font, Quartermaster.name_of(f), 12,
-			SeasonScene.QM_GRADE_W), Vector2(gx, y), 12,
+			UiKit.text(v, v.font, UiKit.clip_px(v.font, Quartermaster.name_of(f), UiKit.tz(12),
+			SeasonScene.QM_GRADE_W), Vector2(gx, y), UiKit.tz(12),
 			UiKit.UP if Quartermaster.grade_of(f) >= Quartermaster.Grade.FITTED
 			else UiKit.DIM)
 
@@ -149,13 +150,13 @@ static func _draw_market(v: SeasonScene) -> void:
 		## so the gap he can NEVER close is visible — which is the whole sales
 		## pitch for the next harness and the one thing a percentage hides.
 		var bx := gx + _grade_w(uniform)
-		var r := Rect2(bx, y - 11, SeasonScene.QM_BAR_W, 13)
+		var r := Rect2(bx, y - UiKit.tk(11.0), SeasonScene.QM_BAR_W, UiKit.tk(13.0))
 		var col := UiKit.DOWN if not f.passes_inspection() \
 			else (UiKit.UP if f.inspection_margin() >= Quartermaster.RISK_MARGIN
 				else UiKit.YOU)
 		UiKit.bar(v, r, clampf(f.armor, 0.0, 1.0), col)
 		## AND THE NUMBER (round 4: "the bars have no number").
-		UiKit.text(v, v.font, "%d%%" % int(round(f.armor * 100.0)), Vector2(bx + SeasonScene.QM_BAR_W + 6.0, y), 13, col)
+		UiKit.text(v, v.font, "%d%%" % int(round(f.armor * 100.0)), Vector2(bx + SeasonScene.QM_BAR_W + 6.0, y), UiKit.tz(13), col)
 		v.draw_rect(Rect2(r.position.x + r.size.x * FighterCard.INSPECTION_MIN - 1.0,
 			r.position.y - 3, 2.0, r.size.y + 6), UiKit.DOWN)
 		if Quartermaster.ceiling(f) < 0.999:
@@ -176,7 +177,7 @@ static func _draw_market(v: SeasonScene) -> void:
 			word = UiKit.t("new %d CC") % Quartermaster.upgrade_cost(f)
 			wcol = UiKit.DIM
 		if word != "":
-			UiKit.right_fit(v, v.font, word, Vector2(x + cell, y), 12, wcol, _cost_w(uniform))
+			UiKit.right_fit(v, v.font, word, Vector2(x + cell, y), UiKit.tz(12), wcol, _cost_w(uniform))
 
 
 
@@ -211,8 +212,8 @@ static func _market_controls(v: SeasonScene) -> void:
 
 	for row in v._qm_rows():
 		var f: FighterCard = row["card"]
-		var b := UiKit.button("", Vector2(float(row["x"]) - 4.0, float(row["y"]) - 20),
-			Vector2(cell + 8.0, SeasonScene.QM_ROW - 4), func():
+		var b := UiKit.button("", Vector2(float(row["x"]) - 4.0, float(row["y"]) - UiKit.tk(20.0)),
+			Vector2(cell + 8.0, UiKit.tk(SeasonScene.QM_ROW) - 4), func():
 				v.qm_pick = f
 				v.flash = ""
 				v._rebuild())

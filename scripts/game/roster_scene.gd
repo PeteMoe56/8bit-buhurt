@@ -69,6 +69,21 @@ func _build() -> void:
 
 ## Every card on the screen and where it goes. One list, so the drawing and the
 ## hit boxes cannot disagree about where a man is.
+## TALL SCREENS: TALLER CARDS, THE SECOND ROW BELOW THEM (3 Oct 2026). The
+## width cannot grow (five cards fill it), so only heights take tall_k(), which
+## is 1.0 on a phone.
+static func card_h() -> float:
+	return UiKit.tk(CARD_H)
+
+
+static func small_h() -> float:
+	return UiKit.tk(SMALL_H)
+
+
+static func small_y() -> float:
+	return LINE_Y + UiKit.tk(SMALL_Y - LINE_Y)
+
+
 func _slots() -> Array:
 	var out: Array = []
 	if season == null:
@@ -78,18 +93,21 @@ func _slots() -> Array:
 	var x0 := (UiKit.screen().x - total_w) * 0.5
 	for i in line.size():
 		out.append({"card": line[i], "kind": "line",
-			"rect": Rect2(x0 + float(i) * (CARD_W + CARD_GAP), LINE_Y, CARD_W, CARD_H)})
+			"rect": Rect2(x0 + float(i) * (CARD_W + CARD_GAP), LINE_Y, CARD_W, card_h())})
 	var rest: Array = []
 	for f in season.club.active_eight():
 		if not line.has(f):
 			rest.append({"card": f, "kind": "bench"})
 	for f in season.club.reserves():
 		rest.append({"card": f, "kind": "reserve"})
+	## THE INJURED, LAST (3 Oct 2026): off the eight but still on the squad sheet.
+	for f in season.club.injured():
+		rest.append({"card": f, "kind": "reserve"})
 	var sw := float(rest.size()) * SMALL_W + float(maxi(0, rest.size() - 1)) * SMALL_GAP
 	var sx := (UiKit.screen().x - sw) * 0.5
 	for i in rest.size():
 		var e: Dictionary = rest[i]
-		e["rect"] = Rect2(sx + float(i) * (SMALL_W + SMALL_GAP), SMALL_Y, SMALL_W, SMALL_H)
+		e["rect"] = Rect2(sx + float(i) * (SMALL_W + SMALL_GAP), small_y(), SMALL_W, small_h())
 		out.append(e)
 	return out
 
@@ -123,7 +141,7 @@ func _draw() -> void:
 	## first of them, because a header that sits over the first card reads as
 	## that card's title.
 	UiKit.text(self, font, UiKit.t("THE BENCH AND THE RESERVE"),
-		Vector2(24, SMALL_Y - 12), 12, UiKit.DIM)
+		Vector2(24, small_y() - 12), 12, UiKit.DIM)
 	_footer()
 
 

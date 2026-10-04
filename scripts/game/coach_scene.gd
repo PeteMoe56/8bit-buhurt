@@ -41,6 +41,12 @@ func _ready() -> void:
 	_build()
 
 
+## TALL SCREENS STRETCH BELOW THE HEADER (3 Oct 2026): a y on the 540 layout,
+## moved down by tall_k on a 960x720 tablet so the page fills it. Phones: k = 1.
+func _v(y: float) -> float:
+	return 72.0 + (y - 72.0) * UiKit.tall_k()
+
+
 func _coach() -> Coach:
 	return season.coach
 
@@ -80,40 +86,43 @@ func _build() -> void:
 	if creating:
 		## HIGHER, AND THE FACE BIGGER (Pete, 2 Oct 2026 playtest: "First Name/Last
 		## Name can be brought up, the portrait/Face/Kit/Beard can be made larger").
-		first_edit = _edit(Vector2(24, NAME_Y), 200.0, draft_first if draft_first != null else c.first_name,
+		first_edit = _edit(Vector2(24, _v(NAME_Y)), 200.0, draft_first if draft_first != null else c.first_name,
 			UiKit.t("First name"), func(t: String): draft_first = t)
-		last_edit = _edit(Vector2(240, NAME_Y), 220.0, draft_last if draft_last != null else c.last_name,
+		last_edit = _edit(Vector2(240, _v(NAME_Y)), 220.0, draft_last if draft_last != null else c.last_name,
 			UiKit.t("Last name"), func(t: String): draft_last = t)
 		## THE FACE, KIT AND BEARD (art to follow): three cycling parts.
 		var parts := [[UiKit.t("Face"), "face"], [UiKit.t("Kit"), "kit"], [UiKit.t("Beard"), "beard"]]
 		## Each part both ways: < back, the part itself (forward), > forward.
 		for i in parts.size():
 			var p: Array = parts[i]
-			var y := PART_Y + float(i) * PART_STEP
-			ui.add_child(UiKit.arrow(false, Vector2(PART_X, y), Vector2(48, 48), func(key = String(p[1])):
+			var y := _v(PART_Y) + float(i) * UiKit.tk(PART_STEP)
+			var ph := UiKit.tk(48)
+			ui.add_child(UiKit.arrow(false, Vector2(PART_X, y), Vector2(48, ph), func(key = String(p[1])):
 				c.set(key, (int(c.get(key)) + 5) % 6)
 				_build()))
 			ui.add_child(UiKit.button("%s %d" % [String(p[0]), int(c.get(String(p[1]))) + 1],
-				Vector2(PART_X + 54.0, y), Vector2(150, 48), func(key = String(p[1])):
+				Vector2(PART_X + 54.0, y), Vector2(150, ph), func(key = String(p[1])):
 					c.set(key, (int(c.get(key)) + 1) % 6)
 					_build()))
-			ui.add_child(UiKit.arrow(true, Vector2(PART_X + 210.0, y), Vector2(48, 48), func(key = String(p[1])):
+			ui.add_child(UiKit.arrow(true, Vector2(PART_X + 210.0, y), Vector2(48, ph), func(key = String(p[1])):
 				c.set(key, (int(c.get(key)) + 1) % 6)
 				_build()))
 		for b in 3:
 			ui.add_child(UiKit.selected(UiKit.button(Coach.background_name(b),
-				Vector2(24 + float(b) * 148.0, BG_Y), Vector2(140, 40), func(k = b):
+				Vector2(24 + float(b) * 148.0, _v(BG_Y)), Vector2(140, UiKit.tk(40)), func(k = b):
 					c.set_background(k)
 					_build()), c.background == b))
 	## THE SKILLS: + to spend, − to take back while still creating.
 	## THE "?" SITS AFTER THE HEADING, measured: "DEINE FÄHIGKEITEN" is twice "YOUR SKILLS".
-	var hw := font.get_string_size(UiKit.t("YOUR SKILLS"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
-	ui.add_child(UiKit.button("?", Vector2(SKILL_X + 20.0 + hw, SKILL_Y + 4.0), Vector2(32, 30), func():
+	var hw := font.get_string_size(UiKit.t("YOUR SKILLS"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(14)).x
+	var sy := _v(SKILL_Y)
+	ui.add_child(UiKit.button("?", Vector2(SKILL_X + 20.0 + hw, sy + UiKit.tk(4.0)), Vector2(32, UiKit.tk(30)), func():
 		help_open = true
 		_build()))
 	for i in 5:
-		var y := SKILL_Y + 66.0 + float(i) * SKILL_ROW
-		var plus := UiKit.button("+", Vector2(UiKit.right_edge(76.0), y - 26.0), Vector2(46, 44), func(k = i):
+		var y := sy + UiKit.tk(66.0 + float(i) * SKILL_ROW)
+		var bh := UiKit.tk(44)
+		var plus := UiKit.button("+", Vector2(UiKit.right_edge(76.0), y - UiKit.tk(26.0)), Vector2(46, bh), func(k = i):
 			var err := c.spend(k)
 			flash = err
 			if err == "" and not creating:
@@ -122,7 +131,7 @@ func _build() -> void:
 		plus.disabled = c.points <= 0 or c.skill(i) >= Coach.SKILL_MAX
 		ui.add_child(plus)
 		if creating:
-			var minus := UiKit.button("-", Vector2(UiKit.right_edge(128.0), y - 26.0), Vector2(46, 44), func(k = i):
+			var minus := UiKit.button("-", Vector2(UiKit.right_edge(128.0), y - UiKit.tk(26.0)), Vector2(46, bh), func(k = i):
 				c.unspend(k)
 				_build())
 			minus.disabled = c.skill(i) <= (1 if i == int(Coach.BACKGROUND_SKILL[c.background]) else 0)
@@ -141,7 +150,7 @@ func _edit(at: Vector2, w: float, text: String, hint: String, on_change: Callabl
 	var e := LineEdit.new()
 	UiKit.skin_edit(e)
 	e.position = at
-	e.size = Vector2(w, 36)
+	e.size = Vector2(w, UiKit.tk(36))
 	e.max_length = 16
 	e.placeholder_text = hint
 	e.text = text
@@ -192,15 +201,15 @@ func _draw() -> void:
 	else:
 		UiKit.text(self, font, UiKit.t("YOUR COACH"), Vector2(24, 40), 22, UiKit.YOU)
 	if c.created:
-		UiKit.text_fit(self, font, c.display_name, Vector2(24, 140), 24, UiKit.INK, 440.0)
+		UiKit.text_fit(self, font, c.display_name, Vector2(24, _v(140)), UiKit.tz(24), UiKit.INK, 440.0)
 		UiKit.text_fit(self, font, UiKit.t("%s  ·  level %d  ·  record %s") % [Coach.background_name(c.background),
-			c.level, c.record_line()], Vector2(24, 168), 15, UiKit.DIM, 440.0)
+			c.level, c.record_line()], Vector2(24, _v(168)), UiKit.tz(15), UiKit.DIM, 440.0)
 		UiKit.text(self, font, UiKit.t("XP %d of %d to level %d") % [c.xp, Coach.need(c.level), c.level + 1],
-			Vector2(24, 206), 14, UiKit.DIM)
-		UiKit.bar(self, Rect2(24, 214, 300, 10), float(c.xp) / float(Coach.need(c.level)), UiKit.YOU)
+			Vector2(24, _v(206)), UiKit.tz(14), UiKit.DIM)
+		UiKit.bar(self, Rect2(24, _v(214), 300, UiKit.tk(10)), float(c.xp) / float(Coach.need(c.level)), UiKit.YOU)
 		## WHAT THE STARS ARE DOING RIGHT NOW (review, 1 Oct 2026: the left half
 		## was empty).
-		UiKit.text(self, font, UiKit.t("WHAT YOUR SKILLS DO NOW"), Vector2(24, 262), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("WHAT YOUR SKILLS DO NOW"), Vector2(24, _v(262)), UiKit.tz(12), UiKit.DIM)
 		var now := [
 			UiKit.t("Practice and bouts: +%d%% XP") % (c.skill(Coach.Skill.TRAINING) * 5),
 			UiKit.t("A loss costs the room %d%% less") % (c.skill(Coach.Skill.MOTIVATION) * 10),
@@ -209,27 +218,30 @@ func _draw() -> void:
 			UiKit.t("Free agents: %d%% cheaper") % (c.skill(Coach.Skill.RECRUITING) * 5),
 		]
 		for i in now.size():
-			UiKit.text_fit(self, font, String(now[i]), Vector2(24, 290 + i * 26), 15,
+			UiKit.text_fit(self, font, String(now[i]), Vector2(24, _v(290) + UiKit.tk(i * 26)), UiKit.tz(15),
 				UiKit.INK if c.skill(i) > 0 else UiKit.DIM, 440.0)
 	else:
-		UiKit.text(self, font, UiKit.t("FIRST NAME"), Vector2(24, NAME_Y - 8.0), 12, UiKit.DIM)
-		UiKit.text(self, font, UiKit.t("LAST NAME"), Vector2(240, NAME_Y - 8.0), 12, UiKit.DIM)
-		UiKit.panel(self, Rect2(24, PART_Y, PORTRAIT.x, PORTRAIT.y))
-		UiKit.mid(self, font, UiKit.t("art to follow"), Vector2(24, PART_Y + PORTRAIT.y * 0.5 + 4.0), 12, UiKit.DIM, PORTRAIT.x)
-		UiKit.text(self, font, UiKit.t("BACKGROUND"), Vector2(24, BG_Y - 8.0), 12, UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("FIRST NAME"), Vector2(24, _v(NAME_Y) - 8.0), UiKit.tz(12), UiKit.DIM)
+		UiKit.text(self, font, UiKit.t("LAST NAME"), Vector2(240, _v(NAME_Y) - 8.0), UiKit.tz(12), UiKit.DIM)
+		## TALLER, NOT WIDER, on a tablet: the part buttons sit 12px right of it.
+		var ph := UiKit.tk(PORTRAIT.y)
+		UiKit.panel(self, Rect2(24, _v(PART_Y), PORTRAIT.x, ph))
+		UiKit.mid(self, font, UiKit.t("art to follow"), Vector2(24, _v(PART_Y) + ph * 0.5 + 4.0), UiKit.tz(12), UiKit.DIM, PORTRAIT.x)
+		UiKit.text(self, font, UiKit.t("BACKGROUND"), Vector2(24, _v(BG_Y) - 8.0), UiKit.tz(12), UiKit.DIM)
 		UiKit.para(self, font, UiKit.t("Each background starts with a point: Training, Business or Tactics."),
-			Vector2(24, BG_Y + 60.0), 13, UiKit.DIM, 440.0, 16.0, 2)
+			Vector2(24, _v(BG_Y) + UiKit.tk(60.0)), UiKit.tz(13), UiKit.DIM, 440.0, UiKit.tk(16.0), 2)
 	# ---- the skills
-	var r := Rect2(SKILL_X - 8.0, SKILL_Y - 8.0, UiKit.right_edge() - SKILL_X + 16.0, 352.0)
+	var sy := _v(SKILL_Y)
+	var r := Rect2(SKILL_X - 8.0, sy - 8.0, UiKit.right_edge() - SKILL_X + 16.0, UiKit.tk(352.0))
 	UiKit.panel(self, r)
-	UiKit.text(self, font, UiKit.t("YOUR SKILLS"), Vector2(SKILL_X + 8.0, SKILL_Y + 26.0), 14, UiKit.DIM)
+	UiKit.text(self, font, UiKit.t("YOUR SKILLS"), Vector2(SKILL_X + 8.0, sy + UiKit.tk(26.0)), UiKit.tz(14), UiKit.DIM)
 	for i in 5:
-		var y := SKILL_Y + 66.0 + float(i) * SKILL_ROW
-		UiKit.text_fit(self, font, Coach.skill_name(i), Vector2(SKILL_X + 8.0, y), 17, UiKit.INK, 140.0)
-		UiKit.stars(self, Vector2(SKILL_X + 160.0, y - 14.0), c.skill(i) * 20, UiKit.YOU, 14.0, 3.0)
+		var y := sy + UiKit.tk(66.0 + float(i) * SKILL_ROW)
+		UiKit.text_fit(self, font, Coach.skill_name(i), Vector2(SKILL_X + 8.0, y), UiKit.tz(17), UiKit.INK, 140.0)
+		UiKit.stars(self, Vector2(SKILL_X + 160.0, y - UiKit.tk(14.0)), c.skill(i) * 20, UiKit.YOU, 14.0, 3.0)
 	var pts := UiKit.tn("%d point to spend", "%d points to spend", c.points) % c.points
 	draw_line(Vector2(r.position.x + 12.0, r.end.y - 44.0), Vector2(r.end.x - 12.0, r.end.y - 44.0), UiKit.FRAME, 1.0)
-	UiKit.mid(self, font, pts, Vector2(r.position.x, r.end.y - 16.0), 16,
+	UiKit.mid(self, font, pts, Vector2(r.position.x, r.end.y - 16.0), UiKit.tz(16),
 		UiKit.YOU if c.points > 0 else UiKit.DIM, r.size.x)
 	if flash != "":
 		UiKit.text_fit(self, font, flash, Vector2(196, UiKit.screen().y - 28.0), 14, UiKit.DOWN, 480.0)

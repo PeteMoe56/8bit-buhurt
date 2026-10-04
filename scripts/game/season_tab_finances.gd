@@ -50,20 +50,21 @@ static func _finances_controls(v: SeasonScene) -> void:
 		var names := ""
 		for r in o.untaught():
 			names += ("" if names == "" else UiKit.t(" and ")) + UiKit.t(String(Tuning.ROLE_NAME[r]))
-		var yy := panel_top() + 74.0 + float(o.captains.size()) * 42.0 + (22.0 if o.captains.is_empty() else 0.0)
+		## THE SAME GROWN PITCH THE STAFF PANEL IS DRAWN AT (3 Oct 2026).
+		var yy := panel_top() + UiKit.tk(74.0) + float(o.captains.size()) * UiKit.tk(42.0) + (UiKit.tk(22.0) if o.captains.is_empty() else 0.0)
 		## NOT RED: red is for what cannot be undone (review, 1 Oct 2026).
 		v.ui.add_child(UiKit.button(UiKit.t("Hire for %s") % names, Vector2(panel_x(1) + 14.0, yy - 4.0),
-			Vector2(pw - 28.0, 32), func():
+			Vector2(pw - 28.0, UiKit.tk(32.0)), func():
 				Session.staff_browse = true
 				Session.autosave()
 				UiKit.go("res://scenes/Staff.tscn"), "helm"))
 	## A POINT TO SPEND opens the coach's page, where the + buttons are.
 	var c := v.season.coach
 	if c.points > 0:
-		var ry := panel_top() + 56.0 + YOU_SKILL_Y + 5.0 * YOU_ROW - 14.0
+		var ry := panel_top() + UiKit.tk(56.0) + UiKit.tk(YOU_SKILL_Y) + 5.0 * UiKit.tk(YOU_ROW) - 14.0
 		## NOT GOLD: the hub has one gold button and it is the way forward (C3).
 		v.ui.add_child(UiKit.button(UiKit.tn("Spend %d point", "Spend %d points", c.points) % c.points,
-			Vector2(panel_x(2) + 14.0, ry), Vector2(pw - 28.0, 34), func():
+			Vector2(panel_x(2) + 14.0, ry), Vector2(pw - 28.0, UiKit.tk(34.0)), func():
 				Session.autosave()
 				UiKit.go("res://scenes/Coach.tscn"), "ladder"))
 
@@ -90,68 +91,70 @@ static func panel_bottom() -> float:
 static func _draw_management(v: SeasonScene) -> void:
 	var o := v.season.office
 	var pw := panel_w()
+	## TALL SCREENS: EVERY LINE OF THE THREE PANELS GROWS BY tall_k() (3 Oct
+	## 2026), so the iPad's panels are not two-thirds empty. 1.0 on a phone.
 	for i in 3:
 		UiKit.panel(v, Rect2(panel_x(i), panel_top(), pw, panel_bottom() - panel_top()))
 	var heads := [UiKit.t("FINANCES  ·  THIS YEAR"), UiKit.t("STAFF"), UiKit.t("YOU")]
 	for i in 3:
-		UiKit.text_fit(v, v.font, heads[i], Vector2(panel_x(i) + 14.0, panel_top() + 24.0), 13, UiKit.DIM, pw - 28.0)
+		UiKit.text_fit(v, v.font, heads[i], Vector2(panel_x(i) + 14.0, panel_top() + UiKit.tk(24.0)), UiKit.tz(13), UiKit.DIM, pw - 28.0)
 	# ---- finances
 	var x := panel_x(0) + 14.0
 	var w := pw - 28.0
-	var y := panel_top() + 60.0
+	var y := panel_top() + UiKit.tk(60.0)
 	var i_n := ClubOffice.book_total(o.books_in)
 	var o_n := ClubOffice.book_total(o.books_out)
-	UiKit.pair(v, v.font, UiKit.t("In"), UiKit.t("%d CC") % i_n, Vector2(x, y), x + w, 20, 20, UiKit.INK, UiKit.UP)
-	y += 32.0
+	UiKit.pair(v, v.font, UiKit.t("In"), UiKit.t("%d CC") % i_n, Vector2(x, y), x + w, UiKit.tz(20), UiKit.tz(20), UiKit.INK, UiKit.UP)
+	y += UiKit.tk(32.0)
 	## WHAT GOES OUT IS NOT A DANGER (3 Oct 2026): red is kept for the year's net
 	## when it is short, below, and for a bill that cannot be met.
-	UiKit.pair(v, v.font, UiKit.t("Out"), UiKit.t("%d CC") % o_n, Vector2(x, y), x + w, 20, 20, UiKit.INK, UiKit.INK)
-	y += 14.0
+	UiKit.pair(v, v.font, UiKit.t("Out"), UiKit.t("%d CC") % o_n, Vector2(x, y), x + w, UiKit.tz(20), UiKit.tz(20), UiKit.INK, UiKit.INK)
+	y += UiKit.tk(14.0)
 	v.draw_line(Vector2(x, y), Vector2(x + w, y), UiKit.FRAME, 1.0)
-	y += 28.0
+	y += UiKit.tk(28.0)
 	var net := i_n - o_n
-	UiKit.pair(v, v.font, UiKit.t("Total"), UiKit.t("%+d CC") % net, Vector2(x, y), x + w, 22, 22, UiKit.INK,
+	UiKit.pair(v, v.font, UiKit.t("Total"), UiKit.t("%+d CC") % net, Vector2(x, y), x + w, UiKit.tz(22), UiKit.tz(22), UiKit.INK,
 		UiKit.UP if net > 0 else (UiKit.DOWN if net < 0 else UiKit.INK))
-	y += 34.0
+	y += UiKit.tk(34.0)
 	UiKit.para(v, v.font, UiKit.t("%d CC in hand. Gates and prizes land as events are fought.") % o.credits,
-		Vector2(x, y), 13, UiKit.DIM, w, 17.0, 3)
+		Vector2(x, y), UiKit.tz(13), UiKit.DIM, w, UiKit.tk(17.0), 3)
 	# ---- staff
 	x = panel_x(1) + 14.0
-	y = panel_top() + 52.0
-	UiKit.text(v, v.font, UiKit.t("CAPTAINS"), Vector2(x, y), 12, UiKit.DIM)
-	y += 22.0
+	y = panel_top() + UiKit.tk(52.0)
+	UiKit.text(v, v.font, UiKit.t("CAPTAINS"), Vector2(x, y), UiKit.tz(12), UiKit.DIM)
+	y += UiKit.tk(22.0)
 	if o.captains.is_empty():
-		UiKit.text_fit(v, v.font, UiKit.t("Nobody teaching."), Vector2(x, y), 14, UiKit.DOWN, w)
-		y += 22.0
+		UiKit.text_fit(v, v.font, UiKit.t("Nobody teaching."), Vector2(x, y), UiKit.tz(14), UiKit.DOWN, w)
+		y += UiKit.tk(22.0)
 	for c in o.captains:
-		UiKit.text_fit(v, v.font, String(c.get("name", "?")), Vector2(x, y), 15, UiKit.INK, w - 70.0)
-		UiKit.stars(v, Vector2(x + w - 64.0, y - 11.0), int(c.get("grade", 1)) * 20, UiKit.YOU, 11.0, 2.0)
-		y += 18.0
+		UiKit.text_fit(v, v.font, String(c.get("name", "?")), Vector2(x, y), UiKit.tz(15), UiKit.INK, w - 70.0)
+		UiKit.stars(v, Vector2(x + w - 64.0, y - UiKit.tk(11.0)), int(c.get("grade", 1)) * 20, UiKit.YOU, 11.0, 2.0)
+		y += UiKit.tk(18.0)
 		var t := ClubOffice.trait_of(c)
 		var line := ClubOffice.teaches_line(c)
 		if t != ClubOffice.Trait.NONE:
 			line = UiKit.t("%s  ·  %s") % [UiKit.t(String(ClubOffice.TRAIT_NAME[t])), line]
-		UiKit.text_fit(v, v.font, line, Vector2(x, y), 12, UiKit.DIM, w)
-		y += 24.0
+		UiKit.text_fit(v, v.font, line, Vector2(x, y), UiKit.tz(12), UiKit.DIM, w)
+		y += UiKit.tk(24.0)
 	if not o.untaught().is_empty():
 		## THE WARNING IS A BUTTON (built in the controls): it opens the captain list.
-		y += 34.0
-	SeasonFinancesTab._draw_armorer_line(v, x, y + 6.0, w)
+		y += UiKit.tk(34.0)
+	SeasonFinancesTab._draw_armorer_line(v, x, y + UiKit.tk(6.0), w)
 	# ---- you
 	x = panel_x(2) + 14.0
-	y = panel_top() + 56.0
+	y = panel_top() + UiKit.tk(56.0)
 	SeasonFinancesTab._draw_you(v, x, y, w)
 
 
 ## THE ARMORER, under the captains. Filled in by the armorer's own patch.
 static func _draw_armorer_line(v: SeasonScene, x: float, y: float, w: float) -> void:
 	var a: Dictionary = v.season.office.armorer
-	UiKit.text(v, v.font, UiKit.t("ARMORER"), Vector2(x, y), 12, UiKit.DIM)
-	y += 22.0
-	UiKit.text_fit(v, v.font, String(a.get("name", "")), Vector2(x, y), 15, UiKit.INK, w - 70.0)
-	UiKit.stars(v, Vector2(x + w - 64.0, y - 11.0), int(a.get("stars", 1)) * 20, UiKit.YOU, 11.0, 2.0)
+	UiKit.text(v, v.font, UiKit.t("ARMORER"), Vector2(x, y), UiKit.tz(12), UiKit.DIM)
+	y += UiKit.tk(22.0)
+	UiKit.text_fit(v, v.font, String(a.get("name", "")), Vector2(x, y), UiKit.tz(15), UiKit.INK, w - 70.0)
+	UiKit.stars(v, Vector2(x + w - 64.0, y - UiKit.tk(11.0)), int(a.get("stars", 1)) * 20, UiKit.YOU, 11.0, 2.0)
 	UiKit.text_fit(v, v.font, UiKit.t("Makes up to %s") % Armorer.metal_name(Armorer.cap_of(a)),
-		Vector2(x, y + 18.0), 12, UiKit.DIM, w)
+		Vector2(x, y + UiKit.tk(18.0)), UiKit.tz(12), UiKit.DIM, w)
 
 
 const YOU_SKILL_Y := 64.0
@@ -160,17 +163,17 @@ const YOU_ROW := 24.0
 
 static func _draw_you(v: SeasonScene, x: float, y: float, w: float) -> void:
 	var c := v.season.coach
-	UiKit.text_fit(v, v.font, c.display_name, Vector2(x, y), 19, UiKit.YOU, w)
+	UiKit.text_fit(v, v.font, c.display_name, Vector2(x, y), UiKit.tz(19), UiKit.YOU, w)
 	UiKit.text_fit(v, v.font, UiKit.t("%s  ·  level %d") % [Coach.background_name(c.background), c.level],
-		Vector2(x, y + 20.0), 13, UiKit.DIM, w)
-	UiKit.bar(v, Rect2(x, y + 30.0, w, 9), float(c.xp) / float(Coach.need(c.level)), UiKit.YOU)
+		Vector2(x, y + UiKit.tk(20.0)), UiKit.tz(13), UiKit.DIM, w)
+	UiKit.bar(v, Rect2(x, y + UiKit.tk(30.0), w, UiKit.tk(9.0)), float(c.xp) / float(Coach.need(c.level)), UiKit.YOU)
 	for i in 5:
-		var sy := y + YOU_SKILL_Y + float(i) * YOU_ROW
-		UiKit.text_fit(v, v.font, Coach.skill_name(i), Vector2(x, sy), 14, UiKit.INK, w - 110.0)
-		UiKit.stars(v, Vector2(x + w - 104.0, sy - 11.0), c.skill(i) * 20, UiKit.YOU, 11.0, 2.0)
-	var ry := y + YOU_SKILL_Y + 5.0 * YOU_ROW + 4.0
+		var sy := y + UiKit.tk(YOU_SKILL_Y) + float(i) * UiKit.tk(YOU_ROW)
+		UiKit.text_fit(v, v.font, Coach.skill_name(i), Vector2(x, sy), UiKit.tz(14), UiKit.INK, w - 110.0)
+		UiKit.stars(v, Vector2(x + w - 104.0, sy - UiKit.tk(11.0)), c.skill(i) * 20, UiKit.YOU, 11.0, 2.0)
+	var ry := y + UiKit.tk(YOU_SKILL_Y) + 5.0 * UiKit.tk(YOU_ROW) + 4.0
 	if c.points <= 0:
-		UiKit.text_fit(v, v.font, UiKit.t("Record %s") % c.record_line(), Vector2(x, ry), 13, UiKit.DIM, w)
+		UiKit.text_fit(v, v.font, UiKit.t("Record %s") % c.record_line(), Vector2(x, ry), UiKit.tz(13), UiKit.DIM, w)
 
 
 
@@ -200,7 +203,7 @@ static func _draw_finances(v: SeasonScene) -> void:
 	## the one line that matters off the screen at 22 a row.
 	var n_rows := _rows_of(o.books_in, was_in, ClubOffice.IN_ORDER) + _rows_of(o.books_out, was_out, ClubOffice.OUT_ORDER)
 	_row_h = clampf((SeasonScene.action_y() - 12.0 - SeasonScene.CONTENT_Y - 166.0) / float(maxi(1, n_rows)),
-		15.0, SeasonScene.FIN_ROW)
+		15.0, UiKit.tk(SeasonScene.FIN_ROW))
 	var y := SeasonScene.CONTENT_Y + 26.0
 	y = v._fin_block(o.books_in, was_in, ClubOffice.IN_ORDER, y, UiKit.UP)
 	var in_now := ClubOffice.book_total(o.books_in)
