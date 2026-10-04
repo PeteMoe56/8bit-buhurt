@@ -190,6 +190,9 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 	## does not stop on a Tuesday night.
 	s._grade_bout(int(s.last_result[0]), int(s.last_result[1]))
 	s._award_xp(sim)
+	Achievements.after_bout(sim)
+	if sim.rounds_won[0] > sim.rounds_won[1]:
+		Achievements.unlock("FIRST_WIN")
 	if mine:
 		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
 	else:

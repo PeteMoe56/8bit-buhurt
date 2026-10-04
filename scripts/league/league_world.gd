@@ -162,6 +162,9 @@ func note_record(key: String, value: int, holder: String, at_season: int) -> boo
 	var cur: Dictionary = records.get(key, {})
 	if not cur.is_empty() and int(cur.get("value", 0)) >= value:
 		return false
+	## Breaking one, not writing the first line of an empty book.
+	if not cur.is_empty():
+		Achievements.unlock("IN_THE_BOOK")
 	records[key] = {"value": value, "holder": holder, "season": at_season}
 	return true
 
@@ -1371,6 +1374,14 @@ func _record_honors(c: Cup) -> void:
 		return
 	if c.champion >= 0 and c.champion < clubs.size():
 		clubs[c.champion]["titles"] = int(clubs[c.champion]["titles"]) + 1
+	if c.champion == player_club and player_club >= 0:
+		var cid := String(c.get_meta("id", ""))
+		if cid == "worlds":
+			Achievements.unlock("WORLDS")
+		elif cid.begins_with("playoff:"):
+			Achievements.unlock("PLAYOFF")
+		else:
+			Achievements.unlock("SILVERWARE")
 	honors.append({
 		"id": String(c.get_meta("id", "")),
 		"name": c.cup_name,

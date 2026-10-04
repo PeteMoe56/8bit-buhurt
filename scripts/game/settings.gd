@@ -58,6 +58,9 @@ static func load_once() -> void:
 				tips_seen.append(String(k))
 		fullscreen = bool(cfg.get_value("display", "fullscreen", fullscreen))
 	apply()
+	## STEAM, on a Steam build, as early as the game has a first screen: started
+	## once, and anything earned offline re-sent. Nothing anywhere else.
+	Achievements.boot()
 	apply_display()
 	apply_language()
 

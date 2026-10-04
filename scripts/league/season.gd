@@ -263,6 +263,7 @@ func hire_captain(c: Dictionary) -> String:
 	if err != "":
 		return err
 	last_arrival = office.arrival_effect(c, club)
+	Achievements.unlock("CAPTAIN")
 	office.sync_morale(club)
 	sync_power()
 	return ""

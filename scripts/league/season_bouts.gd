@@ -222,6 +222,7 @@ static func post_bout(s: Season, sim: MeleeSim) -> void:
 	var gate := s.gate_now()
 	var before := s._my_row()
 	s._award_xp(sim)
+	Achievements.after_bout(sim)
 	s.world.play_week(s.last_result)
 	s._after_event(int(s.last_result[0]), int(s.last_result[1]), gate)
 	## INJURIES LAND AFTER THE WEEK TICKS, and the order is the whole fix.
@@ -753,6 +754,7 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) -> 
 			UiKit.t("The counter  ·  %s") % Arena.sells(s.office.arena.level), "event",
 			ClubOffice.LINE_COUNTER)
 	if rf > ra:
+		Achievements.unlock("FIRST_WIN")
 		s.office.take(Season.CREDITS_WIN, UiKit.t("Won the event"), "event", ClubOffice.LINE_PRIZE)
 		s.office.morale_after(true, false)
 	elif rf == ra:

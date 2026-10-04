@@ -189,9 +189,33 @@ const WAYPOINT_HIT: float = 8.0         ## close enough to call a waypoint reach
 # ------------------------------------------------------------------ prompts
 ## The prompt opens at this range and the AI answers it when the timer runs out.
 ## "The AI will choose unless you choose." — Pete, 10 Sep 2026.
-const PROMPT_RANGE: float = 34.0
+## 100 (Pete, Bullrush Bench, 4 Oct 2026; was 34): the wheel opens with room
+## to run, so a Bullrush picked off it is a CHARGE and not a lean.
+const PROMPT_RANGE: float = 100.0
 const PROMPT_TIME: float = 2.2
 const CONTACT_RANGE: float = 24.0       ## where the chosen action actually resolves
+
+## BULLRUSH FEEL (Pete, Bullrush Bench, 4 Oct 2026). Distances are list units
+## centre to centre, times seconds. The sim reads the charge and the slides; the
+## screen reads the impact, the hit-stop and the jolt.
+const BR_SPEED: float = 3.00            ## charge pace, x walking pace
+const BR_STOP: float = 18.0             ## centre-to-centre gap where he plants
+const BR_BRACE: float = 0.00            ## beat at the stop point before impact
+const BR_IMPACT: float = 1.5            ## shake / jolt / flash, 0-10
+const BR_HITSTOP: float = 0.10          ## frozen frames on contact
+const BR_FAIL_SLIDE: float = 24.0       ## the thrower slides on his back
+const BR_FAIL_SLIDE_T: float = 0.50
+const BR_BUMP_JOLT: float = 12.0        ## contact, nobody falls
+const BR_BUMP_SLIDE: float = 20.0
+const BR_BUMP_SLIDE_T: float = 0.50
+const BR_DOWN_IMPACT: float = 3.00      ## x impact when he is floored
+const BR_DOWN_SLIDE: float = 51.0
+const BR_DOWN_SLIDE_T: float = 0.50
+## THE RAIL (Pete: "bounce off the arena border too off at an angle"). A man
+## sliding into the rail glances off it at the angle he went in, keeping this
+## much of the slide he had left.
+const BR_RAIL_KICK: float = 0.60
+const BR_RAIL_KNOCK: float = 2.0        ## shake when he hits it, 0-10
 
 enum Menu { APPROACH, GRAPPLED, THIRD_MAN }
 enum Act { BULLRUSH, GRAPPLE, HIT, TAKEDOWN, HOLD, ESCAPE, BREAK }
@@ -245,7 +269,10 @@ const TD_GANG: float = 0.06             ## [the 2-on-1] third man on an occupied
 ##   sent_walks  a sent man keeps walking while his question is open, instead of
 ##               standing at the range it came up at.
 static var sent_edge: float = _env("RB_SENT_EDGE")
-static var sent_walks: bool = false
+## ON since the wheel opens at 100 (4 Oct 2026): standing still 76 units out
+## while the question is open reads as a man who forgot what he was sent to do.
+## The wheel freezes the fight anyway; this is the no-wheel path and the probes.
+static var sent_walks: bool = true
 ## Pete's two #10 extras (29 Sep, evening), ON (grid X, n=240: wheel help
 ## 42.7 -> 50.8 against hands-off 45.0; RB_FIRST_SWING=0 / RB_MATE_GRIP=0 off):
 ##   MATE_GRIP    a man you SENT arriving on an enemy who has one of ours tied up

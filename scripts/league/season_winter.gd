@@ -35,6 +35,10 @@ static func roll_over(s: Season) -> void:
 		s.office.take(Season.purse(finished, League.club_count(before), before),
 			UiKit.t("Finished %s") % UiKit.ordinal(finished), "season", ClubOffice.LINE_PRIZE)
 	if after > before:
+		Achievements.unlock(["STATE", "REGIONAL", "NATIONAL"][clampi(after - 1, 0, 2)])
+	if s.world.history.size() >= 5:
+		Achievements.unlock("LIFER")
+	if after > before:
 		s.office.take(Season.CREDITS_PROMOTED, UiKit.t("Went up"), "season", ClubOffice.LINE_PRIZE)
 		s.office.after_move(true)
 	elif after < before:

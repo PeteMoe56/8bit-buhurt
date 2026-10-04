@@ -433,6 +433,10 @@ static func hosted_weight() -> float:
 ## with the last place's rubbish still in it.
 func built() -> void:
 	condition = 1.0
+	if level >= 1:
+		Achievements.unlock("BREAKING_GROUND")
+	if level >= MAX_LEVEL:
+		Achievements.unlock("NATIONAL_ARENA")
 
 
 func here() -> Dictionary:

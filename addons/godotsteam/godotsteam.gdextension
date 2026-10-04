@@ -1,0 +1,19 @@
+[configuration]
+entry_symbol = "godotsteam_init"
+compatibility_minimum = "4.4"
+
+; GodotSteam 4.22.1 GDExtension (Steamworks 1.65), from codeberg.org/godotsteam/godotsteam.
+; Desktop only (4 Oct 2026): Windows and Linux 64-bit, the two Steam depots. The
+; Android / macOS / 32-bit libraries in the upstream zip are left out on purpose,
+; and the Android and iOS presets exclude this folder, so a phone build never
+; carries Steam. The game reaches it only through Achievements.gd.
+
+[libraries]
+linux.debug.x86_64 = "res://addons/godotsteam/linux64/libgodotsteam.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/godotsteam/linux64/libgodotsteam.linux.template_release.x86_64.so"
+windows.debug.x86_64 = "res://addons/godotsteam/win64/libgodotsteam.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/godotsteam/win64/libgodotsteam.windows.template_release.x86_64.dll"
+
+[dependencies]
+linux.x86_64 = { "res://addons/godotsteam/linux64/libsteam_api.so": "" }
+windows.x86_64 = { "res://addons/godotsteam/win64/steam_api64.dll": "" }

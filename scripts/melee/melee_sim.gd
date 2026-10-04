@@ -26,6 +26,12 @@ signal prompt_closed(idx: int)
 signal action_resolved(idx: int, act: int, target: int, success: bool)
 signal round_finished(round_no: int, winner: int)
 signal bout_finished(winner: int)
+## A BULLRUSH LANDED (4 Oct 2026), for the screen's impact and jolt. `outcome`
+## is BR_FELL (the thrower went over), BR_BUMP (contact, nobody fell) or
+## BR_DOWNED; `dir` is the way the charge was running.
+signal bullrush_landed(idx: int, target: int, outcome: int, dir: Vector2)
+## A sliding man met the rail and glanced off it.
+signal rail_hit(idx: int)
 
 enum State { CLOSING, GRAPPLED, RECOVER, DOWN, OUT }
 enum Phase { CHARGE, LIVE, CORNER, OVER }
@@ -67,6 +73,12 @@ class Prompt extends RefCounted:
 	## decoration. Answering commits him instantly; ignoring it commits him when
 	## the timer runs out. Either way nothing is lost by not answering.
 	var committed: bool = false
+
+
+## How a bullrush ended, for `bullrush_landed`.
+const BR_FELL := 0
+const BR_BUMP := 1
+const BR_DOWNED := 2
 
 
 class Man extends RefCounted:
@@ -131,6 +143,23 @@ class Man extends RefCounted:
 	## WHICH ROUND he first gassed in — the report printed the last round.
 	var gassed_round: int = 0
 	var orders_given: int = 0
+	## THE CHARGE (Pete's Bullrush Bench, 4 Oct 2026): picked BULLRUSH off the
+	## wheel and running at it, BR_SPEED x his pace, until BR_STOP. The screen
+	## reads it for the trail.
+	var charging: bool = false
+	var brace_t: float = 0.0
+	## A SLIDE: shoved, or on his back, skidding `slide_dist` along `slide_dir`
+	## over `slide_dur`, glancing off the rail. `slide_age < 0` is no slide.
+	var slide_from: Vector2 = Vector2.ZERO
+	var slide_dir: Vector2 = Vector2.ZERO
+	var slide_dist: float = 0.0
+	var slide_dur: float = 0.0
+	var slide_age: float = -1.0
+	var slide_hits: int = 0
+	var slide_called: bool = false   ## put there by a bullrush the player called
+
+	func sliding() -> bool:
+		return slide_age >= 0.0
 
 	func gas_frac() -> float:
 		return clampf(tank / eff_tank(), 0.0, 1.0)
@@ -373,6 +402,10 @@ var plan_t := [Tuning.PLAN_TIME, Tuning.PLAN_TIME]
 ## measured, never used to change the fight
 var orders_issued: int = 0
 var prompts_answered: int = 0
+## FOR THE ACHIEVEMENTS (4 Oct 2026): what the player's own calls did this bout.
+var called_br_downs: int = 0      ## a bullrush he called off the wheel floored his man
+var called_br_rail: int = 0       ## ...and sent a man skidding into the rail
+var clean_rounds: int = 0         ## rounds won with all five of ours on their feet
 var prompts_timed_out: int = 0
 var log_lines: Array[Dictionary] = []
 
@@ -591,6 +624,9 @@ func _set_the_line() -> void:
 		var fy: float = spot.y if m.team == 0 else 1.0 - spot.y
 		var x: float = Tuning.LIST_W * fx
 		m.pos = Vector2(x, Tuning.LIST_H * fy)
+		m.slide_age = -1.0
+		m.charging = false
+		m.brace_t = 0.0
 		## The plan's zone, in that team's own frame: x from their left, y from
 		## their own rail toward the enemy. His own formation spot is the default
 		## lateral answer — he goes STRAIGHT AHEAD unless the plan moves him.
@@ -984,6 +1020,7 @@ func tick() -> void:
 	_choose_targets()
 	for m in men:
 		_step(m)
+	_tick_slides()
 	_spread_out()
 	for m in men:
 		_tick_prompt(m)
@@ -1351,9 +1388,17 @@ func _step_closing(m: Man) -> void:
 	## Holding at the range the options came up at, waiting for an answer.
 	var waiting: bool = m.prompt != null and not m.prompt.committed \
 		and m.prompt.menu != Tuning.Menu.GRAPPLED
+	## THE CHARGE. Bullrush is the answer and he is going for the man he was
+	## sent at: BR_SPEED x his pace, and he plants BR_STOP short of him.
+	m.charging = homing and m.prompt != null and m.prompt.committed \
+		and m.prompt.menu == Tuning.Menu.APPROACH and m.prompt.choice == Tuning.Act.BULLRUSH
+	if not m.charging:
+		m.brace_t = 0.0
 	var to_goal := goal - m.pos
 	if to_goal.length() > 1.0 and (not waiting or Tuning.sent_walks):
 		var step := _speed(m) * Tuning.TICK
+		if m.charging:
+			step = minf(step * Tuning.BR_SPEED, maxf(0.0, to_goal.length() - _plant_gap()))
 		m.pos += to_goal.normalized() * step
 		## Charged by the METRE. See Tuning.GAS_MOVE — per second, this went to
 		## nothing the moment the list got longer and the men got quicker.
@@ -1383,9 +1428,21 @@ func _step_closing(m: Man) -> void:
 		## the AI's pick in the same tick, and it counted as timed out.
 		if m.prompt != null and m.prompt.menu != Tuning.Menu.GRAPPLED:
 			return
+	## WALKED IN WITH THE QUESTION STILL OPEN: the AI's answer stands. (The
+	## wheel freezes the fight, so this is the no-wheel path and the probes.)
+	if waiting and Tuning.sent_walks and d <= m.contact_range():
+		m.prompt.committed = true
+		waiting = false
+		m.charging = m.prompt.choice == Tuning.Act.BULLRUSH
 	if waiting:
 		return
-	if d <= m.contact_range() and m.next_act <= 0.0:
+	var reach := m.contact_range()
+	if m.charging:
+		reach = _plant_gap() + 0.5
+		if d <= reach and m.brace_t < Tuning.BR_BRACE:
+			m.brace_t += Tuning.TICK
+			return
+	if d <= reach and m.next_act <= 0.0:
 		m.next_act = rng.randf_range(Tuning.ACT_AFTER[0], Tuning.ACT_AFTER[1])
 		var act: int = m.prompt.choice if m.prompt != null else _ai_choose(m, tgt, menu)
 		m.acting_for_player = m.prompt != null and m.prompt.by_player
@@ -1930,8 +1987,16 @@ func _resolve(m: Man, act: int, target: int) -> void:
 	match act:
 		Tuning.Act.BULLRUSH:
 			m.tank = maxf(0.0, m.tank - Tuning.BR_GAS * m.eff_tank())
+			var dir := t.pos - m.pos
+			dir = Vector2.DOWN if dir.length() < 0.01 else dir.normalized()
+			m.charging = false
 			if rng.randf() < _bullrush_chance(m, t):
 				_put_down(t, m)
+				_slide(t, dir, Tuning.BR_DOWN_SLIDE, Tuning.BR_DOWN_SLIDE_T)
+				if m.acting_for_player and m.team == 0:
+					called_br_downs += 1
+					t.slide_called = true
+				bullrush_landed.emit(m.idx, t.idx, BR_DOWNED, dir)
 				ok = true
 			else:
 				## Missing one is the most expensive mistake in the game, and it
@@ -1948,6 +2013,16 @@ func _resolve(m: Man, act: int, target: int) -> void:
 				if br_fall > 0.0 and m.acting_for_player \
 						and rng.randf() < bullrush_fall_chance(m, t):
 					_put_down(m, t)
+					_slide(m, -dir, Tuning.BR_FAIL_SLIDE, Tuning.BR_FAIL_SLIDE_T)
+					bullrush_landed.emit(m.idx, t.idx, BR_FELL, dir)
+				else:
+					## CONTACT, NOBODY FALLS: he is shoved and stays up. Not a man
+					## in a clinch — his partner has him, and the pair would only
+					## be dragged back together.
+					if t.state != State.GRAPPLED:
+						_slide(t, dir, Tuning.BR_BUMP_SLIDE, Tuning.BR_BUMP_SLIDE_T)
+						t.slide_called = m.acting_for_player and m.team == 0
+					bullrush_landed.emit(m.idx, t.idx, BR_BUMP, dir)
 
 		Tuning.Act.GRAPPLE:
 			if t.state == State.GRAPPLED:
@@ -2129,6 +2204,97 @@ func _put_down(loser: Man, winner: Man) -> void:
 	fighter_downed.emit(loser.idx, winner.idx)
 
 
+# ------------------------------------------------------------------- slides
+## Where a bullrush plants: BR_STOP short. Inside BODY_RADIUS is allowed — the
+## hit lands in the same tick he gets there, before `_spread_out` eases the two
+## bodies apart — so 18 reads as shoulder into shield.
+func _plant_gap() -> float:
+	return maxf(1.0, Tuning.BR_STOP)
+
+
+func _slide(m: Man, dir: Vector2, dist: float, dur: float) -> void:
+	if dist <= 0.0:
+		return
+	m.slide_from = m.pos
+	m.slide_dir = dir
+	m.slide_dist = dist
+	m.slide_dur = maxf(Tuning.TICK, dur)
+	m.slide_age = 0.0
+	m.slide_hits = 0
+	m.slide_called = false
+
+
+## Where a slide of length `s` from `from` along `dir` has got to, and how many
+## times it has met the rail. Each time it does, what is left of the slide is
+## cut to BR_RAIL_KICK and turned away from the rail, so he comes off at the
+## angle he went in. The rail is where `_spread_out` keeps a man: RAIL_INSET.
+static func slide_path(from: Vector2, dir: Vector2, s: float) -> Array:
+	var p := from
+	var d := dir
+	var rem := s
+	var hits := 0
+	var lo := Vector2(Tuning.RAIL_INSET, Tuning.RAIL_INSET)
+	var hi := Vector2(Tuning.LIST_W - Tuning.RAIL_INSET, Tuning.LIST_H - Tuning.RAIL_INSET)
+	for _n in 6:
+		if rem <= 0.000001:
+			break
+		var t := INF
+		var axis := -1
+		if d.x < 0.0 and (p.x - lo.x) / -d.x < t:
+			t = (p.x - lo.x) / -d.x
+			axis = 0
+		if d.x > 0.0 and (hi.x - p.x) / d.x < t:
+			t = (hi.x - p.x) / d.x
+			axis = 0
+		if d.y < 0.0 and (p.y - lo.y) / -d.y < t:
+			t = (p.y - lo.y) / -d.y
+			axis = 1
+		if d.y > 0.0 and (hi.y - p.y) / d.y < t:
+			t = (hi.y - p.y) / d.y
+			axis = 1
+		t = maxf(0.0, t)
+		if t >= rem:
+			p += d * rem
+			rem = 0.0
+			break
+		p += d * t
+		rem = (rem - t) * Tuning.BR_RAIL_KICK
+		hits += 1
+		if axis == 0:
+			d.x = -d.x
+		else:
+			d.y = -d.y
+	return [p, hits]
+
+
+## Eased out — fast off the hit, settling at the end — the same curve the Bench
+## draws. Moved by the DIFFERENCE between this tick's point and the last one, so
+## a standing man shoved along still walks and is still pushed by his neighbours.
+func _tick_slides() -> void:
+	for m in men:
+		if m.slide_age < 0.0:
+			continue
+		var k0 := clampf(m.slide_age / m.slide_dur, 0.0, 1.0)
+		m.slide_age += Tuning.TICK
+		var k1 := clampf(m.slide_age / m.slide_dur, 0.0, 1.0)
+		var a: Array = slide_path(m.slide_from, m.slide_dir, m.slide_dist * _ease_out(k0))
+		var b: Array = slide_path(m.slide_from, m.slide_dir, m.slide_dist * _ease_out(k1))
+		m.pos += Vector2(b[0]) - Vector2(a[0])
+		m.pos.x = clampf(m.pos.x, Tuning.RAIL_INSET, Tuning.LIST_W - Tuning.RAIL_INSET)
+		m.pos.y = clampf(m.pos.y, Tuning.RAIL_INSET, Tuning.LIST_H - Tuning.RAIL_INSET)
+		if int(b[1]) > m.slide_hits:
+			m.slide_hits = int(b[1])
+			if m.slide_called:
+				called_br_rail += 1
+			rail_hit.emit(m.idx)
+		if k1 >= 1.0:
+			m.slide_age = -1.0
+
+
+static func _ease_out(k: float) -> float:
+	return 1.0 - pow(1.0 - k, 3.0)
+
+
 # ----------------------------------------------------------------- round end
 func standing_count(team: int) -> int:
 	var n := 0
@@ -2170,6 +2336,8 @@ func _check_round_end() -> void:
 	if winner != -1:
 		rounds_won[winner] += 1
 		margin[winner] += absi(s0 - s1)
+	if winner == 0 and round_downs[1] == 0:
+		clean_rounds += 1
 	for m in men:
 		if m.standing():
 			m.rounds_standing += 1

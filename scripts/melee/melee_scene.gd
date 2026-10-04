@@ -185,6 +185,13 @@ var again_button: Button
 ## ticked while the fight screen was showing, the corner timer never counted
 ## down. The bout deadlocked between rounds one and two, forever.
 var corner_done_for_round: int = -1
+## THE BULLRUSH'S AFTERMATH (Pete's Bullrush Bench, 4 Oct 2026). A jolt is a
+## snap along the charge that springs back — idx -> {"dir": sim Vector2, "amt":
+## list units} — and a man on his back lies along the way he slid.
+var jolts: Dictionary = {}
+var down_dir: Dictionary = {}
+## How fast a jolt springs back: what is left of it after one second.
+const JOLT_LEFT := 0.0008
 
 ## ------------------------------------------------------------ calls and skips
 var calls_total: int = Grade.PAUSES_BASE
@@ -278,6 +285,10 @@ func _new_bout(seed_value: int) -> void:
 	## nudge. `Juice.down` plays the sound itself, so there is one call here and
 	## not a sound call that somebody later forgets to keep in step.
 	sim.fighter_downed.connect(_on_downed)
+	sim.bullrush_landed.connect(_on_bullrush)
+	sim.rail_hit.connect(_on_rail)
+	jolts.clear()
+	down_dir.clear()
 	sim.action_resolved.connect(func(i, a, _t, ok):
 		if ok and not skipping:
 			Audio.play("clash")
@@ -367,6 +378,10 @@ func _fit_width() -> void:
 
 func _process(delta: float) -> void:
 	_fit_width()
+	for k in jolts.keys():
+		jolts[k]["amt"] = float(jolts[k]["amt"]) * pow(JOLT_LEFT, delta)
+		if float(jolts[k]["amt"]) < 0.2:
+			jolts.erase(k)
 	marshal_t = maxf(0.0, marshal_t - delta)
 	if beat_t > 0.0 and not paused:
 		beat_t = maxf(0.0, beat_t - delta)
@@ -618,6 +633,46 @@ func _on_downed(idx: int, _by: int) -> void:
 	## coordinate would put "DOWN" in the top-left corner of the world.
 	Juice.pop("down%d" % idx, UiKit.t("DOWN"),
 		_to_screen(sim.men[idx].pos) + Vector2(off_x, off_y - 16.0), col)
+
+
+## THE HIT, sized by Pete's dials. The full impact — hit-stop, shake, the white —
+## is for the bullrush the PLAYER called off the wheel; the AI's own bullrushes
+## still shove, jolt and slide, with a quarter of the shake and no freeze, so a
+## list full of them does not stutter.
+func _on_bullrush(idx: int, target: int, outcome: int, dir: Vector2) -> void:
+	if skipping:
+		return
+	var downed := outcome == MeleeSim.BR_DOWNED
+	var mult := Tuning.BR_DOWN_IMPACT if downed else 1.0
+	var sev := Tuning.BR_IMPACT / 10.0 * mult
+	var called: bool = sim.men[idx].acting_for_player
+	if called:
+		var spec := {"freeze": Tuning.BR_HITSTOP * mult, "trauma": sev, "hold": 0.2}
+		if sev > 0.0:
+			spec["flash"] = Color(1, 1, 1, minf(0.55, sev * 0.5))
+		Juice.event("bullrush", Juice.Rank.BIG if downed else Juice.Rank.HIT, spec)
+	else:
+		Juice.event("bullrush", Juice.Rank.TAP, {"trauma": sev * 0.25, "hold": 0.15})
+	match outcome:
+		MeleeSim.BR_FELL:
+			jolts[target] = {"dir": dir, "amt": 1.5 * sev}     ## he barely rocks
+			down_dir[idx] = -dir
+		MeleeSim.BR_BUMP:
+			jolts[target] = {"dir": dir, "amt": Tuning.BR_BUMP_JOLT}
+		_:
+			jolts[target] = {"dir": dir, "amt": Tuning.BR_BUMP_JOLT * mult}
+			down_dir[target] = dir
+
+
+func _on_rail(_idx: int) -> void:
+	if skipping or Tuning.BR_RAIL_KNOCK <= 0.0:
+		return
+	Juice.event("rail", Juice.Rank.TAP, {"trauma": Tuning.BR_RAIL_KNOCK / 10.0, "hold": 0.12})
+
+
+## A sim direction on the screen: the list is drawn turned, sim x down and sim y across.
+func _screen_dir(d: Vector2) -> Vector2:
+	return Vector2(d.y * LIST_SX, d.x * LIST_SCALE)
 
 
 func _on_bout_finished(_w: int) -> void:
@@ -1651,10 +1706,26 @@ func _draw_man(m) -> void:
 
 	if m.state == MeleeSim.State.OUT:
 		return
+	if jolts.has(m.idx):
+		p += _screen_dir(jolts[m.idx]["dir"]) * float(jolts[m.idx]["amt"])
 	if m.state == MeleeSim.State.DOWN:
-		draw_rect(Rect2(p - Vector2(h * 0.5, w * 0.35), Vector2(h, w * 0.7)), Tuning.COL_DOWN)
-		draw_rect(Rect2(p - Vector2(h * 0.5, w * 0.35), Vector2(h, w * 0.7)), club.kit, false, 3.0)
+		## On his back along the way he slid; flat across the list otherwise.
+		var ang := 0.0
+		if down_dir.has(m.idx):
+			ang = _screen_dir(down_dir[m.idx]).angle()
+		draw_set_transform(p, ang)
+		draw_rect(Rect2(-Vector2(h * 0.5, w * 0.35), Vector2(h, w * 0.7)), Tuning.COL_DOWN)
+		draw_rect(Rect2(-Vector2(h * 0.5, w * 0.35), Vector2(h, w * 0.7)), club.kit, false, 3.0)
+		draw_set_transform(Vector2.ZERO)
 		return
+
+	## THE CHARGE: a short trail behind him while he runs at his man.
+	if m.charging and m.order != null and m.order.target != -1:
+		var back := (p - _to_screen(sim.men[m.order.target].pos)).normalized()
+		for i in range(1, 5):
+			var r := 10.0 - float(i) * 2.0
+			var c := p + back * (12.0 + float(i) * 7.0)
+			draw_rect(Rect2(c - Vector2(r * 0.5, r), Vector2(r, r * 2.0)), Color(1.0, 0.82, 0.24, 0.35))
 
 	draw_rect(Rect2(p + Vector2(-w * 0.5, h * 0.46), Vector2(w, 5.0)), Color(0, 0, 0, 0.30))
 	## PLANTED: a gold bar under his feet, the ground he is holding.

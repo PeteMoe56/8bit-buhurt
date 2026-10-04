@@ -496,6 +496,8 @@ func buy_harness(card: FighterCard) -> String:
 	spend(cost, LINE_KIT)
 	card.harness = next
 	card.armor = Quartermaster.ceiling(card)
+	if next == Quartermaster.Grade.TITANIUM:
+		Achievements.unlock("TITANIUM")
 	return ""
 
 

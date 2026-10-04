@@ -32,6 +32,7 @@ static func release(s: Season, f: FighterCard) -> String:
 	if s.prospect == f:
 		s.prospect = null
 	if paid > 0:
+		Achievements.unlock("BUSINESS")
 		s.office.take(paid, UiKit.t("%s traded") % f.display_name,
 			UiKit.t("season %d") % s.world.season, ClubOffice.LINE_TRANSFER)
 	for other in s.club.active_eight():
@@ -686,6 +687,7 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
 	s.office.spend(fee, ClubOffice.LINE_SQUAD)
 	s.market_taken.append(Market.taken_key(f))
 	note_signed(s, card)
+	Achievements.unlock("NEW_BLOOD")
 	s.sync_power()
 	return ""
 
