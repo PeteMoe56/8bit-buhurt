@@ -51,6 +51,14 @@ class Order extends RefCounted:
 	var sprint: bool = false
 	## Free enemies he has already passed on this route — each gets one try.
 	var passed: Dictionary = {}
+	## A ROUTE ENDING ON AN ENEMY FOLLOWS HIM (Pete, 4 Oct 2026: "it ends up
+	## running past them and only following them after the route is run in its
+	## entirety"). Where the target stood when the route was drawn, and for each
+	## waypoint how far along the route it lies (0..1). The route is bent by the
+	## enemy's movement since, in proportion: its end stays on him, its first
+	## bend barely moves. See `route_point`.
+	var aim_at: Vector2 = Vector2.ZERO
+	var weights: Array[float] = []
 
 	func done() -> bool:
 		return path.is_empty() and target == -1
@@ -754,8 +762,38 @@ func _order(m: Man, path: Array, target: int, from_play: bool) -> void:
 		o.path.append(Vector2(v))
 	o.target = target
 	o.from_play = from_play
+	if target != -1:
+		o.aim_at = men[target].pos
+		var total := 0.0
+		var prev := m.pos
+		var run: Array[float] = []
+		for v in o.path:
+			total += prev.distance_to(v)
+			run.append(total)
+			prev = v
+		for d in run:
+			o.weights.append(d / total if total > 0.001 else 1.0)
 	m.order = o
 	m.target = target
+
+
+## Waypoint `i` of a man's route as it stands NOW: a route aimed at an enemy is
+## carried along by how far that enemy has moved since it was drawn.
+func route_point(m: Man, i: int) -> Vector2:
+	var o := m.order
+	var w := o.path[i]
+	if o.target != -1 and i < o.weights.size() and men[o.target].standing():
+		w += (men[o.target].pos - o.aim_at) * o.weights[i]
+		w = Vector2(clampf(w.x, Tuning.RAIL_INSET, Tuning.LIST_W - Tuning.RAIL_INSET),
+			clampf(w.y, Tuning.RAIL_INSET, Tuning.LIST_H - Tuning.RAIL_INSET))
+	return w
+
+
+## Drop the next waypoint (and its weight with it).
+static func _pop_waypoint(o: Order) -> void:
+	o.path.remove_at(0)
+	if not o.weights.is_empty():
+		o.weights.remove_at(0)
 
 
 ## Put the called play on the line. Normalised, own-frame coordinates, mirrored
@@ -1366,10 +1404,29 @@ func _step_closing(m: Man) -> void:
 
 	if m.under_orders():
 		var o := m.order
-		if not o.path.is_empty():
+		if not o.path.is_empty() and o.target != -1 and men[o.target].standing():
+			goal = route_point(m, 0)
+			## HE GOES FOR HIM, NOT PAST HIM: within the range a sent man is
+			## asked his options at, with the enemy nearer than the next bend and
+			## roughly the same way, the rest of the route is spent. A bend that
+			## swings wide of him (a flank, a way round) is still walked.
+			var to_t := men[o.target].pos - m.pos
+			var to_g := goal - m.pos
+			## The last point of such a route IS the man (it is carried onto
+			## him), and he cannot stand on a man: it is homing from there.
+			if o.path.size() == 1 or (to_t.length() <= Tuning.PROMPT_RANGE \
+					and to_t.length() <= to_g.length() + Tuning.WAYPOINT_HIT \
+					and (to_g.length() < 0.01 or to_t.normalized().dot(to_g.normalized()) > 0.5)):
+				o.path.clear()
+				o.weights.clear()
+				goal = men[o.target].pos
+				homing = true
+			elif m.pos.distance_to(goal) <= Tuning.WAYPOINT_HIT:
+				_pop_waypoint(o)
+		elif not o.path.is_empty():
 			goal = o.path[0]
 			if m.pos.distance_to(goal) <= Tuning.WAYPOINT_HIT:
-				o.path.remove_at(0)
+				_pop_waypoint(o)
 		elif o.target != -1 and men[o.target].standing():
 			goal = men[o.target].pos
 			homing = true
@@ -1855,7 +1912,7 @@ func _facing(d: Man) -> Vector2:
 		if v.length() > 0.01:
 			return v.normalized()
 	if d.under_orders() and not d.order.path.is_empty():
-		var w := d.order.path[0] - d.pos
+		var w := route_point(d, 0) - d.pos
 		if w.length() > 0.01:
 			return w.normalized()
 	return Vector2(1, 0) if d.team == 0 else Vector2(-1, 0)

@@ -1953,8 +1953,9 @@ func _draw_routes() -> void:
 		if m.order == null or not m.standing():
 			continue
 		var pts := PackedVector2Array([_to_screen(m.pos)])
-		for w in m.order.path:
-			pts.append(_to_screen(w))
+		## As it stands now: a route aimed at a man bends after him.
+		for i in m.order.path.size():
+			pts.append(_to_screen(sim.route_point(m, i)))
 		var hostile := m.order.target != -1
 		if hostile and sim.men[m.order.target].standing():
 			pts.append(_to_screen(sim.men[m.order.target].pos))
@@ -1989,16 +1990,21 @@ func _draw_man(m) -> void:
 		return
 	if jolts.has(m.idx):
 		p += _screen_dir(jolts[m.idx]["dir"]) * float(jolts[m.idx]["amt"])
+	var k := Tuning.man_scale
 	if m.state == MeleeSim.State.DOWN:
 		## On his back along the way he slid; flat across the list otherwise.
 		var ang := 0.0
 		if down_dir.has(m.idx):
 			ang = _screen_dir(down_dir[m.idx]).angle()
-		draw_set_transform(p, ang)
+		draw_set_transform(p, ang, Vector2(k, k))
 		draw_rect(Rect2(-Vector2(h * 0.5, w * 0.35), Vector2(h, w * 0.7)), Tuning.COL_DOWN)
 		draw_rect(Rect2(-Vector2(h * 0.5, w * 0.35), Vector2(h, w * 0.7)), club.kit, false, 3.0)
 		draw_set_transform(Vector2.ZERO)
 		return
+	## Everything below is drawn at his point `p` in design pixels; scaling about
+	## `p` is x' = k·x + p·(1 − k).
+	if k != 1.0:
+		draw_set_transform(p * (1.0 - k), 0.0, Vector2(k, k))
 
 	## THE CHARGE: a short trail behind him while he runs at his man.
 	if m.charging and m.order != null and m.order.target != -1:
@@ -2053,6 +2059,8 @@ func _draw_man(m) -> void:
 	if m.under_orders():
 		draw_rect(Rect2(p - Vector2(w * 0.5 + 4.0, h * 0.5 + 4.0), Vector2(w + 8.0, h + 8.0)),
 			Tuning.COL_ROUTE, false, 2.0)
+	if k != 1.0:
+		draw_set_transform(Vector2.ZERO)
 
 
 ## The club's mark on a surcoat. This used to be a second, slightly different

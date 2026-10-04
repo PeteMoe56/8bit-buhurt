@@ -273,6 +273,11 @@ static var sent_edge: float = _env("RB_SENT_EDGE")
 ## while the question is open reads as a man who forgot what he was sent to do.
 ## The wheel freezes the fight anyway; this is the no-wheel path and the probes.
 static var sent_walks: bool = true
+## HOW BIG A MAN IS DRAWN (Pete, 4 Oct 2026: "they do seem a little small").
+## The whole figure — body, helm, weapon, number, gas and stability bars —
+## scales about his feet-centre; the fight underneath is untouched. RB_MAN_SCALE
+## for trying sizes in the shot tools.
+static var man_scale: float = 1.0 if OS.get_environment("RB_MAN_SCALE") == "" else _env("RB_MAN_SCALE")
 ## Pete's two #10 extras (29 Sep, evening), ON (grid X, n=240: wheel help
 ## 42.7 -> 50.8 against hands-off 45.0; RB_FIRST_SWING=0 / RB_MATE_GRIP=0 off):
 ##   MATE_GRIP    a man you SENT arriving on an enemy who has one of ours tied up
