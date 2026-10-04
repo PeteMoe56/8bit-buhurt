@@ -1174,15 +1174,15 @@ Nobody's ground.,Nobody's ground.,Estadio de nadie.,Terrain neutre.,Niemandes Ar
 %s — the other end of the country,%s — the other end of the country,%s — la otra punta del país,%s — l'autre bout du pays,%s — ans andere Ende des Landes,%s — dall'altra parte del paese,%s — do outro lado do país,%s — drugi koniec kraju,%s — другой конец страны,%s — 国の反対側
 puts him down,puts him down,lo derriba,le met au sol,wirft ihn um,lo atterra,derruba ele,powala go,валит его,ダウンさせる
 balance -%d%%,balance -%d%%,equilibrio -%d%%,équilibre -%d%%,Stand -%d%%,equilibrio -%d%%,equilíbrio -%d%%,balans -%d%%,баланс -%d%%,体勢 -%d%%
-takedown %d%%,takedown %d%%,derribo %d%%,projection %d%%,Wurf %d%%,atterramento %d%%,queda %d%%,obalenie %d%%,бросок %d%%,テイクダウン %d%%
-frees your man,frees your man,libera a tu hombre,libère ton homme,befreit deinen Mann,libera il tuo uomo,liberta seu homem,uwalnia twojego,освобождает своего,味方を解放
+takedown %d%%,takedown %d%%,derribo %d%%,projection %d%%,Wurf %d%%,proiezione %d%%,queda %d%%,obalenie %d%%,бросок %d%%,テイクダウン %d%%
+frees your man,frees your man,libera al tuyo,libère ton homme,holt ihn raus,libera il tuo,salva o seu,uwalnia twojego,освобождает своего,味方を解放
 keeps him tied,keeps him tied,lo sujeta,le tient,hält ihn,lo tiene,segura,trzyma go,держит,組み続ける
 breaks free,breaks free,se suelta,se libère,reißt sich los,si libera,se solta,wyrywa się,вырывается,振りほどく
 fall %d%%,fall %d%%,caída %d%%,chute %d%%,Sturz %d%%,caduta %d%%,queda %d%%,upadek %d%%,падение %d%%,転倒 %d%%
-he is too steady,he is too steady,muy firme,trop stable,steht zu fest,troppo saldo,firme demais,zbyt pewny,слишком твёрд,崩れていない
+he holds firm,he holds firm,muy firme,trop stable,steht zu fest,troppo saldo,firme demais,zbyt pewny,слишком твёрд,崩れていない
 CLINCHED,CLINCHED,TRABADOS,AU CORPS-À-CORPS,IM CLINCH,IN PRESA,AGARRADOS,W KLINCZU,В КЛИНЧЕ,組み合い
 #%d,#%d,#%d,#%d,#%d,#%d,#%d,#%d,#%d,#%d
-%d%% chance,%d%% chance,%d%% de éxito,%d%% de chance,%d%% Chance,%d%% di riuscita,%d%% de chance,%d%% szans,шанс %d%%,成功%d%%
+%d%% chance,%d%% chance,%d%% de éxito,%d%% chance,%d%% Chance,%d%% riuscita,%d%% chance,%d%% szans,шанс %d%%,成功%d%%
 Cancel,Cancel,Cancelar,Annuler,Abbrechen,Annulla,Cancelar,Anuluj,Отмена,やめる
 his pick,his pick,su elección,son choix,seine Wahl,la sua scelta,escolha dele,jego wybór,его выбор,本人の選択
 CLINCH,CLINCH,TRABA,AU CORPS,CLINCH,PRESA,AGARRE,KLINCZ,КЛИНЧ,組み合い

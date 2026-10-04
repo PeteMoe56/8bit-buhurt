@@ -19,6 +19,7 @@ func _initialize() -> void:
 	Settings.fight_controls = "corner"
 	Settings.fight_hand = "right"
 	print("\n=== 8-Bit Buhurt — the corner ===\n")
+	_test_the_words_fit_their_sides()
 	scene = load("res://scenes/Melee.tscn").instantiate()
 	root.add_child.call_deferred(scene)
 
@@ -186,3 +187,32 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 	else:
 		print("  FAIL  %s — %s" % [label, detail])
 		failures.append("%s: %s" % [label, detail])
+
+
+## EVERY SIDE'S WORDS FIT THEIR ARC, in every language, at or above the floor
+## sizes (Pete, 3 Oct 2026: bigger, but no clipping through and no wrapping).
+func _test_the_words_fit_their_sides() -> void:
+	var f: Font = UiKit.body()
+	var effects := ["puts him down", "balance -%d%%", "takedown %d%%", "frees your man", "keeps him tied",
+		"breaks free", "fall %d%%", "he holds firm"]
+	var bad: Array[String] = []
+	var was := TranslationServer.get_locale()
+	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "ru", "ja"]:
+		TranslationServer.set_locale(loc)
+		for a in Tuning.ACT_NAME.size():
+			var s: String = Tuning.act_name(a)
+			if FightCorner.arc_px(f, s, FightCorner.NAME_R, FightCorner.NAME_PX) < FightCorner.NAME_MIN:
+				bad.append("%s %s" % [loc, s])
+		var cs := UiKit.t("%d%% chance") % 100
+		if FightCorner.arc_px(f, cs, FightCorner.CHANCE_R, FightCorner.CHANCE_PX) < FightCorner.CHANCE_MIN:
+			bad.append("%s %s" % [loc, cs])
+		for e in effects:
+			var s2: String = UiKit.t(e)
+			if s2.contains("%d"):
+				s2 = s2 % 100
+			if FightCorner.arc_px(f, s2, FightCorner.EFFECT_R, FightCorner.EFFECT_PX) < FightCorner.EFFECT_MIN:
+				bad.append("%s %s" % [loc, s2])
+	TranslationServer.set_locale(was)
+	_ok(bad.is_empty(), "the wheel's words fit their sides",
+		"9 languages, name >= %d px, chance >= %d, effect >= %d; too long: %s" % [FightCorner.NAME_MIN,
+			FightCorner.CHANCE_MIN, FightCorner.EFFECT_MIN, ", ".join(bad) if not bad.is_empty() else "none"])

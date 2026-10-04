@@ -21,10 +21,23 @@ const RI := 126.0          ## the hub's edge; the sides start here (room for its
 const RO := 300.0          ## the sides' outer edge: 174 px of thumb, room for the words (2 Oct)
 const BAND := 10.0         ## the clock on the outer edge
 const SPAN := 30.0         ## each side, in degrees
-## Where each line of a side's words runs, from the corner (outermost first).
-const NAME_R := 272.0
-const CHANCE_R := 248.0
-const EFFECT_R := 226.0
+## Where each line of a side's words runs, from the corner.
+## THE LONGEST LINE ON THE LONGEST ARC (Pete, 3 Oct 2026: "slightly bigger, enough
+## for the legibility, however they DO have to fit within their portion of the
+## wheel without clipping through or wrapping"). A 30-degree side is 102px of arc
+## at 226 and 123 at 274, and the effect line ("puts him down") is the long
+## one, so it goes outside and the short name inside.
+const EFFECT_R := 274.0
+const CHANCE_R := 250.0
+const NAME_R := 226.0
+## The sizes each line asks for; `arc_text` steps one down until it fits its arc,
+## and `test_wheel` holds every language at or above the floors below.
+const NAME_PX := 18
+const CHANCE_PX := 15
+const EFFECT_PX := 14
+const NAME_MIN := 16
+const CHANCE_MIN := 13
+const EFFECT_MIN := 12
 const MARK_R := 176.0
 ## How much of a side's arc its words may fill before they step down a size.
 const ARC_FILL := 0.86
@@ -218,7 +231,7 @@ static func read(v, m, act: int) -> Dictionary:
 				out["col"] = RED_SOFT
 		Tuning.Act.TAKEDOWN:
 			if m.prompt.menu == Tuning.Menu.GRAPPLED and Tuning.td_gate > 0.0 and t.stability > Tuning.td_gate:
-				out["effect"] = UiKit.t("he is too steady")
+				out["effect"] = UiKit.t("he holds firm")
 				out["col"] = RED_SOFT
 	return out
 
@@ -322,11 +335,11 @@ static func _draw_corner(v, m, kind: String) -> void:
 		## the chance, then what it does; the mark sits straight in the side's
 		## inner end. Nothing crosses an edge, in either hand.
 		var r: Dictionary = read(v, m, act)
-		arc_text(v, Tuning.act_name(act), c, NAME_R, mid_a, 16, ink)
+		arc_text(v, Tuning.act_name(act), c, NAME_R, mid_a, NAME_PX, ink)
 		if float(r["p"]) >= 0.0:
-			arc_text(v, UiKit.t("%d%% chance") % int(round(float(r["p"]) * 100.0)), c, CHANCE_R, mid_a, 13,
+			arc_text(v, UiKit.t("%d%% chance") % int(round(float(r["p"]) * 100.0)), c, CHANCE_R, mid_a, CHANCE_PX,
 				v.COL_DIM if waiting else v._odds_col(float(r["p"])))
-		arc_text(v, String(r["effect"]), c, EFFECT_R, mid_a, 12, v.COL_DIM if waiting else r["col"])
+		arc_text(v, String(r["effect"]), c, EFFECT_R, mid_a, EFFECT_PX, v.COL_DIM if waiting else r["col"])
 		var ip := _pt(c, MARK_R, mid_a)
 		UiKit.icon(v, v._act_mark(act), ip - Vector2(16, 16), UiKit.YOU if lit else ink, 2)
 	## THE CLOCK, on the outer edge: draining while he can be overruled, filling
@@ -370,16 +383,26 @@ static func _draw_corner(v, m, kind: String) -> void:
 			Vector2(box.position.x, c.y - 12.0), 12, UiKit.YOU, box.size.x)
 
 
+## The size a line is drawn at on its arc: the asked size, stepped down until it
+## fits the side. Public so `test_wheel` can hold every language to the floors.
+static func arc_room(r: float) -> float:
+	return deg_to_rad(SPAN) * r * ARC_FILL
+
+
+static func arc_px(font: Font, text: String, r: float, size: int) -> int:
+	var px := size
+	while px > 9 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x > arc_room(r):
+		px -= 1
+	return px
+
+
 ## TEXT ALONG AN ARC, centred on `mid_deg` (degrees clockwise from up), reading
 ## clockwise with its tops facing out of the corner. It steps its size down
 ## (to 11) until it fits the side; past that it is cut, and a side's words are
 ## kept short enough that it never is in any language we ship.
 static func arc_text(v, text: String, c: Vector2, r: float, mid_deg: float, size: int, col: Color) -> void:
 	var font: Font = v.font
-	var room := deg_to_rad(SPAN) * r * ARC_FILL
-	var px := size
-	while px > 11 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x > room:
-		px -= 1
+	var px := arc_px(font, text, r, size)
 	var w: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
 	var a := deg_to_rad(mid_deg - 90.0) - (w * 0.5) / r
 	for ch in text:
