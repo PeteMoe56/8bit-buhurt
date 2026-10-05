@@ -35,6 +35,10 @@ func _process(_d: float) -> bool:
 		scene.call("_set_paused", false)
 	if n == 4:
 		scene._pick_strategy(Tuning.Strategy.RUSH_LEFT)
+	## THE PLANNING STAGE WAITS FOR READY (4 Oct 2026): press it, or every
+	## capture is a picture of the men standing on their marks.
+	if n > 4 and bool(scene.get("planning")):
+		scene.call("_ready_up")
 	## The corner waits for a click, so without this the bout never reaches
 	## round two and every long capture is a picture of the corner.
 	elif n > 4 and scene.screen == 2:
