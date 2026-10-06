@@ -42,6 +42,14 @@ static func has_body() -> bool:
 	return ArtBank.has("body_idle")
 
 
+## The slot for a man's weapon: a polearm has its own drawing, everything else
+## carries the sword-and-shield one. A missing polearm frame falls back to it.
+static func slot_for(polearm: bool) -> String:
+	if polearm and ArtBank.has("body_idle_polearm"):
+		return "body_idle_polearm"
+	return "body_idle"
+
+
 ## The keys and what each becomes for this club.
 static func palette(kit: Color, second: Color) -> Array:
 	return [
@@ -78,12 +86,13 @@ static func bake(src: Image, kit: Color, second: Color, mirror: bool) -> Image:
 
 
 ## The idle body in this club's colours, facing right or (mirror) left.
-static func body(club, mirror: bool) -> Texture2D:
-	var key := "%s|%s|%s" % [club.kit.to_html(), club.icon_color.to_html(), mirror]
+static func body(club, mirror: bool, polearm: bool = false) -> Texture2D:
+	var slot := slot_for(polearm)
+	var key := "%s|%s|%s|%s" % [slot, club.kit.to_html(), club.icon_color.to_html(), mirror]
 	if _cache.has(key):
 		return _cache[key]
 	var tex: Texture2D = null
-	var src: Texture2D = ArtBank.get_slot("body_idle")
+	var src: Texture2D = ArtBank.get_slot(slot)
 	if src != null:
 		var img := src.get_image()
 		if img != null:

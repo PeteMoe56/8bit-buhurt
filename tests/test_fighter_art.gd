@@ -38,8 +38,8 @@ func _keys() -> Array:
 	return FighterArt.palette(Color.BLACK, Color.BLACK).map(func(p): return p[0])
 
 
-func _src() -> Image:
-	var tex: Texture2D = ArtBank.get_slot("body_idle")
+func _src(slot: String = "body_idle") -> Image:
+	var tex: Texture2D = ArtBank.get_slot(slot)
 	if tex == null:
 		return null
 	var img := tex.get_image()
@@ -50,11 +50,16 @@ func _src() -> Image:
 
 
 func _test_the_frame_is_all_keys() -> void:
-	var img := _src()
-	_ok(img != null, "the idle frame is in the project", "art/fighter/body_idle.png")
+	for slot in ["body_idle", "body_idle_polearm"]:
+		_frame_is_all_keys(slot)
+
+
+func _frame_is_all_keys(slot: String) -> void:
+	var img := _src(slot)
+	_ok(img != null, "the frame %s is in the project" % slot, String(ArtBank.SLOTS[slot]["path"]))
 	if img == null:
 		return
-	_ok(img.get_size() == Vector2i(24, 32), "at 24 × 32", str(img.get_size()))
+	_ok(img.get_size() == Vector2i(24, 32), "%s at 24 × 32" % slot, str(img.get_size()))
 	var stray := 0
 	var soft := 0
 	var feet := false
@@ -70,9 +75,9 @@ func _test_the_frame_is_all_keys() -> void:
 				feet = true
 			if not _keys().any(func(k): return FighterArt._match(c, k)):
 				stray += 1
-	_ok(stray == 0, "every opaque pixel is a key colour or the outline", "%d strays" % stray)
-	_ok(soft == 0, "no half-transparent pixels", "%d soft" % soft)
-	_ok(feet, "the feet stand on the bottom row", "")
+	_ok(stray == 0, "%s: every opaque pixel is a key colour or the outline" % slot, "%d strays" % stray)
+	_ok(soft == 0, "%s: no half-transparent pixels" % slot, "%d soft" % soft)
+	_ok(feet, "%s: the feet stand on the bottom row" % slot, "")
 
 
 func _test_the_bake_leaves_no_key() -> void:

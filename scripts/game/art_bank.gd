@@ -120,6 +120,8 @@ const SLOTS := {
 	## mirrors it. Drawn at ×2, feet on the bottom row.
 	"body_idle": {"path": "fighter/body_idle.png", "size": Vector2(24, 32),
 		"about": "The fighter standing, guard up — key colours only, feet on the bottom row."},
+	"body_idle_polearm": {"path": "fighter/body_idle_polearm.png", "size": Vector2(24, 32),
+		"about": "The same man standing with a polearm — drawn for every POLEARM card."},
 }
 
 

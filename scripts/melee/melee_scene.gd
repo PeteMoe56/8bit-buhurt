@@ -2022,7 +2022,8 @@ func _draw_man(m) -> void:
 	## whatever `man_scale` is, feet on the line the coded figure stands on; it
 	## faces the other end of the list. Everything around it — shadow, bars,
 	## number, rings — is the same as before.
-	var body: Texture2D = FighterArt.body(club, m.team == 1) if FighterArt.has_body() else null
+	var pole: bool = m.card != null and m.card.weapon == Tuning.Weapon.POLEARM
+	var body: Texture2D = FighterArt.body(club, m.team == 1, pole) if FighterArt.has_body() else null
 	var sprite_rect := Rect2()
 	if body != null:
 		var sz := Vector2(body.get_width(), body.get_height()) * FighterArt.SCALE / k
