@@ -382,7 +382,6 @@ func _rebuild() -> void:
 		Session.guide_topic = GuideScene.Topic.MONEY
 		Session.autosave()
 		UiKit.go("res://scenes/Guide.tscn"))
-	money_q.tooltip_text = UiKit.t("Money")
 	money_q.set_meta("money_help", true)
 	ui.add_child(money_q)
 	## The tape's own control goes with the tab's, so leaving the club tab takes

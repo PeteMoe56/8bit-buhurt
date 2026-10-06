@@ -1085,6 +1085,10 @@ func go_back() -> bool:
 		if again_button != null and again_button.visible:
 			again_button.pressed.emit()
 		return true
+	## BACK ON THE WALK-OUT goes back to the club: nothing has started.
+	if screen == Screen.SPLASH:
+		_leave_before_charge()
+		return true
 	_set_paused(not paused)
 	return true
 
@@ -3515,6 +3519,8 @@ func _show_strategy_panel() -> void:
 ## screen that only works inside the game it is part of.
 const SPLASH_GO := Vector2(330.0, 462.0)
 const SPLASH_GO_SIZE := Vector2(300.0, 52.0)
+const SPLASH_BACK := Vector2(24.0, 466.0)
+const SPLASH_BACK_SIZE := Vector2(150.0, 44.0)
 
 
 ## -1 for "ask the season", or a `Venue.Kind` to force. Only `shot_splash.gd`
@@ -3551,6 +3557,15 @@ func _show_splash() -> void:
 		_show_strategy_panel()))
 	corner_nodes.append(b)
 	ui.add_child(b)
+	## A WAY BACK FROM THE WALK-OUT (tester, 6 Oct 2026: "is there a way a back
+	## button can be put in case someone accidentally hits it?"). Nothing has
+	## happened yet — no man has stepped on the list — so it leaves exactly the
+	## way the corner's Back does before the first charge.
+	var back := UiKit.button(UiKit.t("Back"), SPLASH_BACK, SPLASH_BACK_SIZE, func():
+		Audio.play("back")
+		_leave_before_charge())
+	corner_nodes.append(back)
+	ui.add_child(back)
 	queue_redraw()
 
 

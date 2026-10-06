@@ -66,7 +66,6 @@ static func _office_controls(v: SeasonScene) -> void:
 		var hb := UiKit.button("?", Vector2(HELP_X, y + UiKit.tk(4.0)), Vector2(34, UiKit.tk(34.0)), func(k = str(kind)):
 			v.help_key = k
 			v._rebuild())
-		hb.tooltip_text = UiKit.t(String(row["label"]))
 		v.ui.add_child(hb)
 		var cost := row_cost(v, kind)
 		if cost <= 0:

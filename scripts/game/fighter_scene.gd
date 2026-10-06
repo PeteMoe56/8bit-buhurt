@@ -85,6 +85,8 @@ var ui: CanvasLayer
 var season: Season
 var man: FighterCard
 var flash: String = ""
+## The width of a "?" beside a button.
+const Q_W := 36.0
 ## Why the bus button is dead, when it is. Set in `_build`, drawn in `_draw`.
 var bus_note: String = ""
 ## Why the deal button is off, for the same line (3 Oct 2026).
@@ -295,7 +297,7 @@ func _build() -> void:
 	var invested: bool = season.prospect == man
 	var half := (COL_W - 32.0 - 8.0) * 0.5
 	var inv := UiKit.button(UiKit.t("Invested") if invested else UiKit.t("Invest +%d") % Career.PROSPECT_GAIN,
-		Vector2(R_X + 16, COL_Y + col_h() - 48), Vector2(half, 38), func():
+		Vector2(R_X + 16, COL_Y + col_h() - 48), Vector2(half - Q_W - 8.0, 38), func():
 			var ground := season.office.level(ClubOffice.Facility.TRAINING)
 			if season.prospect == man:
 				season.prospect = null
@@ -308,17 +310,25 @@ func _build() -> void:
 				flash = UiKit.t("%s is your investment: +%d to his max at the winter.") % [
 					man.display_name, Career.PROSPECT_GAIN]
 			Session.autosave()
-			_build(), "up")
-	## SAYS WHAT IT DOES BEFORE THE TAP, on a PC hover (the tap's answer is the
-	## gold line under his name).
-	inv.tooltip_text = UiKit.t("Invest in one man a year: +%d to his max at the winter. Needs a Training ground at %d.") % [
-		Career.PROSPECT_GAIN, Career.PROSPECT_GROUND]
+			## NO ICON: the "?" beside it took the arrow's room, and the words
+			## at full size say more than the arrow did.
+			_build())
 	ui.add_child(UiKit.selected(inv, invested))
+	## A "?" BESIDE IT, NOT A HOVER POP-UP (Pete, 6 Oct 2026: the tooltip was the
+	## OS's modern pop-up box, out of place in an 8-bit game, and never shown on a
+	## phone). The answer lands in the gold line under his name, like the tap's.
+	## Placed off the button's REAL width: a button grows to fit its words, and
+	## "Inwestuj +3" is wider than "Invest +3".
+	var q_x: float = maxf(R_X + 16 + half - Q_W, inv.position.x + inv.size.x + 8.0)
+	ui.add_child(UiKit.button("?", Vector2(q_x, COL_Y + col_h() - 48), Vector2(Q_W, 38), func():
+		flash = UiKit.t("Invest in one man a year: +%d to his max at the winter. Needs a Training ground at %d.") % [
+			Career.PROSPECT_GAIN, Career.PROSPECT_GROUND]
+		_build()))
 	## "To the Hall": "Tag for the Hall" shrank to a squint at half the panel.
 	ui.add_child(UiKit.button(UiKit.t("In the Hall") if tagged else UiKit.t("To the Hall"),
 		## IN HIS RECORD'S PANEL, under the honors it is about (blind review
 		## round 3: it sat cramped in the page header).
-		Vector2(R_X + 16 + half + 8.0, COL_Y + col_h() - 48), Vector2(half, 38), func():
+		Vector2(q_x + Q_W + 8.0, COL_Y + col_h() - 48), Vector2(R_X + 16 + 2.0 * half + 8.0 - (q_x + Q_W + 8.0), 38), func():
 			if tagged:
 				season.world.untag_from_hall(man.display_name)
 				flash = UiKit.t("%s taken out of the Hall.") % man.display_name
