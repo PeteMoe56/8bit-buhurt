@@ -9,7 +9,7 @@ config_version=5
 [application]
 
 config/name="8-Bit Buhurt: Combat Club"
-config/version="1.0.1"
+config/version="1.0.2"
 config/description="8-bit buhurt club manager. Draw the route, he goes and does it."
 config/quit_on_go_back=false
 ; DESKTOP SAVES IN A FIXED FOLDER (Steam, 3 Oct 2026): BonkWorks/CombatClub under
