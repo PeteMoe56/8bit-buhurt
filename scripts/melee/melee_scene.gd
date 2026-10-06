@@ -2018,30 +2018,42 @@ func _draw_man(m) -> void:
 	## PLANTED: a gold bar under his feet, the ground he is holding.
 	if m.planted:
 		draw_rect(Rect2(p + Vector2(-w * 0.5 - 4.0, h * 0.5 + 3.0), Vector2(w + 8.0, 3.0)), UiKit.YOU)
-	## A dark void around every silhouette so two overlapping men never fuse into
-	## one shape. This is what keeps a four-man pile readable on a phone.
-	draw_rect(Rect2(p - Vector2(w * 0.5 + 2.0, h * 0.5 + 2.0), Vector2(w + 4.0, h + 4.0)),
-		Color(0, 0, 0, 0.55))
-	draw_rect(Rect2(p - Vector2(w * 0.5, h * 0.5), Vector2(w, h)), Tuning.COL_STEEL_DARK)
-	draw_rect(Rect2(p - Vector2(w * 0.5 - 3.0, h * 0.5 - 4.0), Vector2(w - 6.0, h - 8.0)), club.kit)
-	_draw_mark(p, club, w - 8.0)
+	## THE SPRITE, WHEN THERE IS ONE (6 Oct 2026). Drawn at the art's own ×2
+	## whatever `man_scale` is, feet on the line the coded figure stands on; it
+	## faces the other end of the list. Everything around it — shadow, bars,
+	## number, rings — is the same as before.
+	var body: Texture2D = FighterArt.body(club, m.team == 1) if FighterArt.has_body() else null
+	var sprite_rect := Rect2()
+	if body != null:
+		var sz := Vector2(body.get_width(), body.get_height()) * FighterArt.SCALE / k
+		sprite_rect = Rect2(Vector2(p.x - sz.x * 0.5, p.y + h * 0.5 - sz.y), sz)
+		draw_texture_rect(body, sprite_rect, false)
+	else:
+		## A dark void around every silhouette so two overlapping men never fuse into
+		## one shape. This is what keeps a four-man pile readable on a phone.
+		draw_rect(Rect2(p - Vector2(w * 0.5 + 2.0, h * 0.5 + 2.0), Vector2(w + 4.0, h + 4.0)),
+			Color(0, 0, 0, 0.55))
+		draw_rect(Rect2(p - Vector2(w * 0.5, h * 0.5), Vector2(w, h)), Tuning.COL_STEEL_DARK)
+		draw_rect(Rect2(p - Vector2(w * 0.5 - 3.0, h * 0.5 - 4.0), Vector2(w - 6.0, h - 8.0)), club.kit)
+		_draw_mark(p, club, w - 8.0)
 	## HIS SHIRT NUMBER, beside him (blind review rounds 2 and 3): the cards
 	## along the bottom say "#3 Kerrigan" and the list had no #3 on it.
 	if m.team == 0:
 		var np := p + Vector2(-w * 0.5 - 20.0, 5.0)
 		UiKit.raw(self, font, np + Vector2(1, 1), "%d" % m.card.number, HORIZONTAL_ALIGNMENT_RIGHT, 16, 13, Color(0, 0, 0, 0.8))
 		UiKit.raw(self, font, np, "%d" % m.card.number, HORIZONTAL_ALIGNMENT_RIGHT, 16, 13, COL_INK)
-	draw_rect(Rect2(p - Vector2(7.0, h * 0.5 + 7.0), Vector2(14.0, 9.0)), Tuning.COL_STEEL)
-	draw_rect(Rect2(p - Vector2(6.0, h * 0.5 + 4.0), Vector2(12.0, 3.0)), Tuning.COL_STEEL_DARK)
-	## HIS WEAPON, until the sprites say it: a pole along his side, or a shield
-	## square on his arm. Placeholder primitives, like the rest of him.
-	var side := 1.0 if m.team == 0 else -1.0
-	if m.card != null and m.card.weapon == Tuning.Weapon.POLEARM:
-		draw_rect(Rect2(p + Vector2(side * (w * 0.5 + 1.0) - 1.5, -h * 0.5 - 8.0),
-			Vector2(3.0, h + 12.0)), Tuning.COL_STEEL)
-	else:
-		draw_rect(Rect2(p + Vector2(side * (w * 0.5 - 2.0) - 5.0, -6.0),
-			Vector2(10.0, 12.0)), Tuning.COL_STEEL_DARK)
+	if body == null:
+		draw_rect(Rect2(p - Vector2(7.0, h * 0.5 + 7.0), Vector2(14.0, 9.0)), Tuning.COL_STEEL)
+		draw_rect(Rect2(p - Vector2(6.0, h * 0.5 + 4.0), Vector2(12.0, 3.0)), Tuning.COL_STEEL_DARK)
+		## HIS WEAPON, until the sprites say it: a pole along his side, or a shield
+		## square on his arm. Placeholder primitives, like the rest of him.
+		var side := 1.0 if m.team == 0 else -1.0
+		if m.card != null and m.card.weapon == Tuning.Weapon.POLEARM:
+			draw_rect(Rect2(p + Vector2(side * (w * 0.5 + 1.0) - 1.5, -h * 0.5 - 8.0),
+				Vector2(3.0, h + 12.0)), Tuning.COL_STEEL)
+		else:
+			draw_rect(Rect2(p + Vector2(side * (w * 0.5 - 2.0) - 5.0, -6.0),
+				Vector2(10.0, 12.0)), Tuning.COL_STEEL_DARK)
 
 	## Two slivers under his feet: gas, then stability. Stability is what a Hit
 	## spends, so it has to be visible or Hit is an invisible investment.
@@ -2057,8 +2069,11 @@ func _draw_man(m) -> void:
 	if m.exposed_t > 0.0:
 		draw_arc(p, 20.0, 0.0, TAU, 20, COL_HOT * Color(1, 1, 1, 0.8), 2.0)
 	if m.under_orders():
-		draw_rect(Rect2(p - Vector2(w * 0.5 + 4.0, h * 0.5 + 4.0), Vector2(w + 8.0, h + 8.0)),
-			Tuning.COL_ROUTE, false, 2.0)
+		if body != null:
+			draw_rect(sprite_rect.grow(2.0), Tuning.COL_ROUTE, false, 2.0)
+		else:
+			draw_rect(Rect2(p - Vector2(w * 0.5 + 4.0, h * 0.5 + 4.0), Vector2(w + 8.0, h + 8.0)),
+				Tuning.COL_ROUTE, false, 2.0)
 	if k != 1.0:
 		draw_set_transform(Vector2.ZERO)
 

@@ -319,6 +319,28 @@ center can be anything; the edges are what shows.
 
 ---
 
+## The fighter on the list — key-coloured sprites, **24 × 32**
+
+The first frame is in: `art/fighter/body_idle.png`, **24 × 32**, facing right,
+feet on the bottom row. It is a **mask in key colours**, not a finished figure —
+the game swaps each key for the club's kit, so one drawing serves every club.
+
+| key | hex | paints |
+|---|---|---|
+| surcoat_a | `#FF00FF` | surcoat, the club's main colour |
+| surcoat_b | `#800080` | second colour (a split, never shading) |
+| trim | `#FFFF00` | edging, belt, straps, helm rim |
+| helm | `#FF0000` | helm dome / cover |
+| steel | `#8080FF` | plate, face plate, weapon |
+| steel_b | `#0000FF` | plate shadow |
+| leather | `#00FF00` | gambeson, gloves, boots |
+| leather_b | `#008000` | leather shadow |
+| mark | `#808080` | the chest badge panel ONLY |
+
+Black is the outline and the eye slit. Type every hex; never eyedrop, and
+switch colour management off on export — a key one step off is not swapped.
+Every pixel fully opaque or fully clear.
+
 ## What is deliberately NOT art
 
 **The fighters.** Men are drawn by the game as silhouettes carrying their

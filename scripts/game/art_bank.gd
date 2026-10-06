@@ -114,6 +114,12 @@ const SLOTS := {
 		"about": "Head 14 of 16 — one man, no harness."},
 	"head_15": {"path": "fighter/head_15.png", "size": PORTRAIT_SIZE,
 		"about": "Head 15 of 16 — one man, no harness."},
+	## THE FIGHTER ON THE LIST (6 Oct 2026, the first sprite in). A colour-keyed
+	## mask, not finished artwork: `FighterArt` swaps the nine key colours for the
+	## club's own kit, so one drawing serves every club. Facing right; the game
+	## mirrors it. Drawn at ×2, feet on the bottom row.
+	"body_idle": {"path": "fighter/body_idle.png", "size": Vector2(24, 32),
+		"about": "The fighter standing, guard up — key colours only, feet on the bottom row."},
 }
 
 
