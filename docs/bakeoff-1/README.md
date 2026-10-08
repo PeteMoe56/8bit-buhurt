@@ -39,6 +39,9 @@ Seed bases: 9001 5150 2718 6060 8123 (the project's five check bases).
   levels added), `unspent` (men still holding a level after the winter),
   `cc_in` / `cc_out` (closed books for the season), `bank` (credits at season
   end), `top_in` (three biggest income lines).
+  **Known flaw (found by ChatGPT in review):** `season_pts` is 0 in every row
+  on both builds: stats only move at the winter, so the column measures nothing.
+  `unspent` counts men holding a level, not the number of levels held.
 - `scores.tsv` — `career_score.gd` per base: 3 careers × 14 seasons.
   `title` = season the National Division was first won (15 = not within 14);
   `t1/t2/t3` = season each rung first reached; `power` = club power at the end;

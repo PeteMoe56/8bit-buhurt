@@ -126,7 +126,7 @@ For each disputed row in §6, run one real task through both, blind if possible:
 | date | task | Claude | ChatGPT | winner / note |
 |---|---|---|---|---|
 | 8 Oct | onboarding review of §5 (unprompted measurement critique) | wrote §5 | 4 verified catches, 0 wrong claims | ChatGPT — found the `level_into` change Claude's own note missed |
-| | #1 levels/money since 1.0.1 — blind verdict on shared outputs | | | |
+| 8 Oct | #1 levels/money since 1.0.1 — blind verdict on shared outputs | same verdict (no sim speed-up; cause is the 1.0.1 manual/spend-levels path); runnable next probe (`level_into` manager); side finding: auto `level_up` loses ~13% of points at the ceiling | same verdict, every number checks out; caught that `season_pts` is 0 in all 240 rows (dead column Claude shipped) and that `unspent` counts men, not levels; next step needs the tester's save — sound but heavier | Pete to score. Claude's read: ChatGPT stronger on auditing the instrument, Claude stronger on an actionable next step |
 
 ### ChatGPT's opening position (8 Oct, relayed by Pete)
 
