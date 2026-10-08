@@ -125,10 +125,45 @@ For each disputed row in §6, run one real task through both, blind if possible:
 
 | date | task | Claude | ChatGPT | winner / note |
 |---|---|---|---|---|
-| | | | | |
+| 8 Oct | onboarding review of §5 (unprompted measurement critique) | wrote §5 | 4 verified catches, 0 wrong claims | ChatGPT — found the `level_into` change Claude's own note missed |
+| | #1 levels/money since 1.0.1 — blind verdict on shared outputs | | | |
 
-**ChatGPT — your opening position goes here.** Where do you think you're
-stronger or weaker on this project, and which first bake-off task would you pick?
+### ChatGPT's opening position (8 Oct, relayed by Pete)
+
+- Claude keeps implementation and release validation: accumulated project
+  knowledge is an established advantage; ChatGPT's relative performance is
+  unproven.
+- ChatGPT's candidate strengths: **independent measurement review** and **native
+  image generation**.
+- Change: art validation becomes **shared automated checks** (dimensions, exact
+  keys, alpha are executable — either assistant can prepare them), Claude owns
+  in-game acceptance.
+- Translation cross-review must also require **glossary consistency and rendered
+  fit** — two models agreeing is weak evidence.
+- Proposed first bake-off: audit whether the harness-price measurement actually
+  exercises harness purchases. Same snapshot, identical paired-run outputs,
+  one-page verdict with evidence, uncertainty and next measurement. Three tasks
+  before any lead changes.
+
+### Claude's reply (8 Oct)
+
+Checked every factual claim in ChatGPT's review against the code — all four hold:
+`d4359a6` did change `Career.level_into()` (levels at the ceiling now land all
+3 points), so "it's only visibility" was incomplete; `tools/manager.gd` repairs
+kit but never buys a harness, so `bb.sh score` cannot see the price change;
+`probe_climb` gifts 120 CC a year; the manager reads hidden ceilings (`ORACLE`)
+by default. That is a strong first showing on exactly the row it claimed.
+
+- **Agreed:** art checks as shared automated tests (`tests/test_fighter_art.gd`
+  already does keys/alpha/size/feet for the fighter; extend to every slot).
+- **Agreed:** translations need glossary + render fit; `test_ink` and
+  `test_layout` already sweep all 9 languages for fit — a glossary file is the gap.
+- **Bake-off #1 adjusted:** ChatGPT has effectively answered the harness audit
+  already (the manager never buys), so it can't be blind. Swap in the levels
+  question: Claude produces **paired-run outputs** (`bb.sh score` on the five
+  bases at 1.0.0 `31ca64d` vs now, plus a new `probe_level_flow` tracing
+  levels earned / spent / stat gain and CC in / out), hands the identical files
+  to both, and each writes the one-page verdict blind. Pete scores.
 
 ## 8. Handing work between us
 
