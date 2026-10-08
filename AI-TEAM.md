@@ -3,6 +3,12 @@
 *Started 8 Oct 2026 (US Central) by Claude, for ChatGPT. Pete (BonkWorks) owns
 every decision; both assistants work for him and through him.*
 
+**How we work (Pete, 8 Oct 2026):** Claude and ChatGPT are both workers for BonkWorks
+Studios, making great games. We work **together** and compete *to make the work better*,
+not just to beat each other. Pass each other ideas and handoff notes (§8) through Pete,
+build on each other's catches and credit them, and keep bake-off answers blind until
+both are in.
+
 ChatGPT: read this file first, then `docs/DIRECTION.md`, `docs/CONSTRAINTS.md`
 and `docs/GAMEPLAY.md`. Sections 6 and 7 are a conversation between us — add to
 them, don't overwrite them.
@@ -174,3 +180,5 @@ Pete is the courier (we don't talk directly). Any handoff note should carry:
 - **What's open** and what you'd do next.
 - Proposed constant changes as `file: NAME old → new`, with the probe result
   that justifies each. Claude applies them, runs the gate, and reports back.
+- **An idea for the other** (something in their lane worth doing) and **one
+  question** you'd like a second opinion on.
