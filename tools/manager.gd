@@ -52,6 +52,13 @@ enum Lv { AUTO, LOW, SPEC }
 var lv_policy: int = Lv.AUTO
 ## true: also spend every placeable level after each event in the season.
 var lv_after_bout: bool = false
+## true: REPORT-FAITHFUL spending (Pete approved, 8 Oct 2026; Codex's audit of
+## `lv_after_bout`): after every bout the player would see a report for — each
+## league fixture and EACH cup tie, not training weeks — and only when a man of
+## the active eight can place a level (`melee_scene._levels_waiting`), spend the
+## whole roster (`FighterScene._all_order` walks every man) by `lv_policy`.
+var lv_report: bool = false
+var report_runs: int = 0
 ## true: buy harness, one rung, for the starting five, worst grade first, out of
 ## the surplus behind the market reserve (1.0.1 doubled these prices).
 var buys_harness: bool = false
@@ -68,10 +75,12 @@ func _init() -> void:
 	lv_policy = Lv.LOW if pol == "low" else (Lv.SPEC if pol == "spec" else Lv.AUTO)
 	lv_after_bout = OS.get_environment("RB_LV_BOUT") == "1"
 	buys_harness = OS.get_environment("RB_HARNESS") == "1"
+	lv_report = OS.get_environment("RB_LV_REPORT") == "1"
 
 
 func policy_tag() -> String:
-	return "%s%s%s" % [["auto", "low", "spec"][lv_policy], "+bout" if lv_after_bout else "",
+	return "%s%s%s%s" % [["auto", "low", "spec"][lv_policy], "+bout" if lv_after_bout else "",
+		"+report" if lv_report else "",
 		"+harness" if buys_harness else ""]
 var _s: Season = null
 var was_tier: int = -1
@@ -262,7 +271,9 @@ func season(s: Season) -> void:
 				"bid": s.decline_bid()
 				"dilemma": s.answer_dilemma(0)
 				"sendoff": s.answer_send_off()
-				"cup": s.sim_cup_tie()
+				"cup":
+					s.sim_cup_tie()
+					report_run(s)
 				"promotion":
 					var terms: Dictionary = s.promotion_terms()
 					s.answer_promotion(s.office.credits >= int(terms["dues_up"]) + 12)
@@ -350,10 +361,39 @@ func season(s: Season) -> void:
 					break
 				if o.raise_ceiling(f) == "":
 					raised += 1
+		## A cup or tournament week: hand the ties over one at a time so the
+		## report-faithful player can spend after each, as the screen lets him.
+		var league_week: bool = s.world.week_kind() == Calendar.Kind.LEAGUE
+		if lv_report and not league_week:
+			var wk := s.world.week
+			var g2 := 0
+			while s.cup_pending() and s.world.week == wk and g2 < 16:
+				g2 += 1
+				s.sim_cup_tie()
+				report_run(s)
 		s.skip_event()
+		if lv_report and league_week:
+			report_run(s)
 		if lv_after_bout:
 			for f in s.club.roster:
 				lv_in_season += place(f)
+
+
+## THE REPORT'S "Spend levels" RUN: only if one of the active eight can place a
+## level, then every man on the books, each by `lv_policy`.
+func report_run(s: Season) -> void:
+	if not lv_report:
+		return
+	var due := false
+	for f in s.club.active_eight():
+		if Career.can_place(f):
+			due = true
+			break
+	if not due:
+		return
+	report_runs += 1
+	for f in s.club.roster:
+		lv_in_season += place(f)
 
 
 ## Spend every level he has waiting, by this manager's policy. Returns how many.

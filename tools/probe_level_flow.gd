@@ -23,6 +23,7 @@ extends SceneTree
 ##   RB_LV=auto|low|spec   how levels are spent (see ProbeManager.Lv)
 ##   RB_LV_BOUT=1          also spend after every event, as a player can
 ##   RB_HARNESS=1          buy harness for the starting five (ProbeManager)
+##   RB_LV_REPORT=1        spend as the report asks: after each bout/cup tie (ProbeManager)
 ## Extra columns: `lv_season` (levels placed during the season), `banked`
 ## (levels still placeable after the winter, summed over men — the honest
 ## version of `unspent`, which counts MEN), `harness_cc`, `power` (club power
@@ -65,7 +66,9 @@ static func _snap(s: Season) -> Dictionary:
 static func _unspent(s: Season) -> int:
 	var n := 0
 	for f in s.club.roster:
-		if Career.can_level(f) and not Career.at_ceiling(f):
+		## `can_place`, not `can_level and not at_ceiling`: a man at 99 in all
+		## four can level but has nowhere to put it (Codex, bake-off #2 audit).
+		if Career.can_place(f):
 			n += 1
 	return n
 
