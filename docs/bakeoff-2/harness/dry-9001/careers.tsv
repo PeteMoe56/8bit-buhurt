@@ -1,0 +1,4 @@
+arm	base	seed	window	first_title_season	right_censored	initial_cc	cc_in	cc_out	final_cc	report_runs	levels_spent_in_season	shared_manager_parity
+no_harness	9001	9001	2		1	8	106	74	40	14	53	pass
+harness_first	9001	9001	2		1	8	107	97	18	14	52	pass
+development_first	9001	9001	2		1	8	107	97	18	14	52	not_run

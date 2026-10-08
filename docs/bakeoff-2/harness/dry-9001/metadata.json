@@ -1,0 +1,406 @@
+{
+	"arms": [
+		"no_harness",
+		"harness_first",
+		"development_first"
+	],
+	"bases": [
+		9001
+	],
+	"button_checks": [
+		{
+			"check": "session",
+			"counts": {
+				"session": {
+					"attempted": 2,
+					"completed": 1
+				}
+			},
+			"first_result": "",
+			"injected_resources": false,
+			"passed": true,
+			"repeat_result": "The squad has already had its extra session this week."
+		},
+		{
+			"check": "ceiling_raise",
+			"counts": {
+				"ceiling_raise": {
+					"attempted": 2,
+					"completed": 1
+				}
+			},
+			"first_result": "",
+			"injected_resources": false,
+			"passed": true,
+			"repeat_result": "Merrick has done his extra reps this week."
+		}
+	],
+	"checks": [
+		{
+			"arm": "no_harness",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 18,
+				"captain_hire": 5,
+				"compliance": 3,
+				"dilemma": 3,
+				"rollover": 18,
+				"signing": 14,
+				"upkeep": 13
+			},
+			"counts": {
+				"arena": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"calendar_step": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"captain_hire": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"compliance": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"cup_tie": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"decline_bid": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"dilemma": {
+					"attempted": 7,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"promotion_decision": {
+					"attempted": 6,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 168,
+					"completed": 27
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"upkeep": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"winter_training_and_roster": {
+					"attempted": 2,
+					"completed": 2
+				}
+			},
+			"failures": [],
+			"final_cc": 40,
+			"final_power": 52,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 415,
+			"seed": 9001,
+			"shared_manager_parity": "pass",
+			"window": 2
+		},
+		{
+			"arm": "harness_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 6,
+				"armorer_hire": 15,
+				"armorer_wage": 11,
+				"captain_hire": 5,
+				"compliance": 3,
+				"dilemma": 3,
+				"harness_upgrade": 12,
+				"rollover": 18,
+				"signing": 11,
+				"tidy_arena": 2,
+				"upkeep": 11
+			},
+			"counts": {
+				"arena": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"captain_hire": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"compliance": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"cup_tie": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"decline_bid": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"dilemma": {
+					"attempted": 7,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"harness_upgrade": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"promotion_decision": {
+					"attempted": 6,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 168,
+					"completed": 25
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"upkeep": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"winter_training_and_roster": {
+					"attempted": 2,
+					"completed": 2
+				}
+			},
+			"failures": [],
+			"final_cc": 18,
+			"final_power": 52,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 497,
+			"seed": 9001,
+			"shared_manager_parity": "pass",
+			"window": 2
+		},
+		{
+			"arm": "development_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 6,
+				"armorer_hire": 15,
+				"armorer_wage": 11,
+				"captain_hire": 5,
+				"compliance": 3,
+				"dilemma": 3,
+				"harness_upgrade": 12,
+				"rollover": 18,
+				"signing": 11,
+				"tidy_arena": 2,
+				"upkeep": 11
+			},
+			"counts": {
+				"arena": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"captain_hire": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"compliance": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"cup_tie": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"decline_bid": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"dilemma": {
+					"attempted": 7,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"harness_upgrade": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"promotion_decision": {
+					"attempted": 6,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 168,
+					"completed": 25
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"upkeep": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"winter_training_and_roster": {
+					"attempted": 2,
+					"completed": 2
+				}
+			},
+			"failures": [],
+			"final_cc": 18,
+			"final_power": 52,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 497,
+			"seed": 9001,
+			"shared_manager_parity": "not_run",
+			"window": 2
+		}
+	],
+	"diagnostic_only": true,
+	"engine": {
+		"build": "official",
+		"hash": "71f334935c000924d403448e698df4441130df18",
+		"hex": 263682,
+		"major": 4,
+		"minor": 6,
+		"patch": 2,
+		"status": "stable",
+		"string": "4.6.2-stable (official)",
+		"timestamp": 0
+	},
+	"policy": "manual LOW, report triggered active-eight gate, whole-roster scope",
+	"rule_fixes_status": "Read accompanying run note; dry run is not balance evidence",
+	"seed_formula": "base + i * 7919",
+	"seeds_per_base": 1,
+	"source_hash_encoding": "UTF-8, CRLF normalized to LF",
+	"source_sha256": {
+		"res://project.godot": "5e3910275164314262081534cb77f019367579f440fecf5467593b944d6490c2",
+		"res://scripts/game/achievements.gd": "7cc4e41d08b35518a793ad12411b7cec5d587ab58483cbfe64e2b0f90afacc46",
+		"res://scripts/game/app_life.gd": "d12281bdca806db731ffcaf95cd00835fef92fb98d4d4c110db5b3279f2f817a",
+		"res://scripts/game/apple_store.gd": "6545e937f0bff92c52415d66f4297527140e741a69a859e059e9563d90821daa",
+		"res://scripts/game/arena_scene.gd": "0362f56bd72d6aa4bed721278882f2c395ef5f75e71e84295a213377f29dd456",
+		"res://scripts/game/art_bank.gd": "ae2ac6a3d07e96449b8a1534148318dbb4683085726a3c17b5de50c707a101f2",
+		"res://scripts/game/audio.gd": "04a08ae93b76bf1d30e2cfd8304c4e931727325a2829c492d5035acf5e9714e3",
+		"res://scripts/game/bracket_scene.gd": "b918ba46335846779f346b01233f4a38b69ce5782cd4a0e560958db196a6168d",
+		"res://scripts/game/brand.gd": "37533d409ea94cf94079af17e4bae69019734d0c8f6b84b10eb7df830d60e142",
+		"res://scripts/game/calendar_scene.gd": "152f2dab57c74a3e21621a0a1c10b8617893d99465e9b432dff197490ce8e511",
+		"res://scripts/game/career.gd": "4e032f562489b358e533a1d29c54315b988b9ca3d6e558825df53aec4e1ccd2f",
+		"res://scripts/game/chalkboard.gd": "e0870dd4bb7d844e561c00f937db0a30a898ff67bc0ce770b1de3926babcb198",
+		"res://scripts/game/chalkboard_scene.gd": "2c99cb78e26d50302a734afa57b9f79d3dda26e3bc0d99e3bdec34504870a9b3",
+		"res://scripts/game/coach_scene.gd": "8e240f890280e51a605bbdd36e0b25e39d4210dd0ffdadd2d4ef796b289e3cf1",
+		"res://scripts/game/create_scene.gd": "3966cf4a86917d6d625da7c3ed2da9a6da488ae3a6a1f05d5704a3283a9790b6",
+		"res://scripts/game/fighter_scene.gd": "af367a7b055caf4923fcb0d3d276a6ebc409685668adf11b8280be1fe8d1c9df",
+		"res://scripts/game/grime.gd": "032e01331743e91bd60c9cb97bfed309d9b8fde9588309f42b53388519d01971",
+		"res://scripts/game/guide_scene.gd": "e3a27fca99d2a471c8f865fc87268cf0162554a5d3aace4c9d309e9d6d6d3b09",
+		"res://scripts/game/icon_bank.gd": "ca6ab9b9f3a6169c1dac31da695b3b0c2a6a13dddda7e209516b5bd3aa83dd9f",
+		"res://scripts/game/juice.gd": "7dca401c1bd7106a5e95ca03c8a604096df3941b0b53aefada09b509351bb484",
+		"res://scripts/game/juice_art.gd": "62141835a3c1fdb1475061175b1dd02890835c9e007e4da41138a15621bfb8fb",
+		"res://scripts/game/market_scene.gd": "1a0c72f521a0d962fecdf637dc77529a59de066a2d066b2afb1294ca88468ade",
+		"res://scripts/game/pad.gd": "7104f215b06a319d1a6d72fb2f548e2a9525a8ae2fa30aaa2cdd2b404f780a6d",
+		"res://scripts/game/playbook.gd": "253c17aa4c8da4b0b16585e5f2900f73292cf4827b2a3bf96ae1a84a847fd540",
+		"res://scripts/game/records_scene.gd": "606f2d657325511d129ee535e52a1f401ebed123aa1c62e14f0c9b0674f3755c",
+		"res://scripts/game/roster_scene.gd": "9557058b97ef7caa1a3468bc8205a6859f75e8ba4107b07504f37c3220bd79eb",
+		"res://scripts/game/save_game.gd": "75337a74ec2cb2302ef74831d131b52eaeb22b6f0d154a939bc78d2ea0099967",
+		"res://scripts/game/season_scene.gd": "6f10a6e8c336f340e51ab191bc4c985c4cc0ceab58bf833e9ab2a7c77577aff2",
+		"res://scripts/game/season_tab_armorer.gd": "0f41063a3b2f30e471e040498746f92aa10752d5ece146133108f11bff87ff73",
+		"res://scripts/game/season_tab_club.gd": "d5044315a54483f608db4d5a61a465ed4c075fe28d04e834d31d392881b630d3",
+		"res://scripts/game/season_tab_clubhouse.gd": "ea8e66bcec4e3e133d27f177ef3a66c3f9abdb1760667b028f939c2a3d7d2705",
+		"res://scripts/game/season_tab_finances.gd": "e6cd9d244ee388a695b15f647391529ad3aa5ac9d6c74e47ea98a83f04949114",
+		"res://scripts/game/season_tab_squad.gd": "47e1588077b76c8e71bf9388a24841d4f7e0d9721aea7a1f2c1e93c7c5ae2b7a",
+		"res://scripts/game/session.gd": "7ed73eb1c9281419fe743cb91ac2770b549f74ec32cf44f05e0229dea361ef9c",
+		"res://scripts/game/settings.gd": "8451a7b755dab33112188fcd5e246682aeb8635c364b60d8d6f46832f7f942ed",
+		"res://scripts/game/settings_scene.gd": "7e0c60548a9399eb7bd650c8c3b9bc1724cc2d1876b5ef696174938b46f54bb0",
+		"res://scripts/game/staff_scene.gd": "9a0b909590955a15cf160aaf6a1b9b8d85a74007fa5d79e4ef0a3ccdebe76aac",
+		"res://scripts/game/start_scene.gd": "9918e418a2dce622a35128bb7690c13d959c077b6a97171001fa4b6b35f8a232",
+		"res://scripts/game/store.gd": "a1b9c128120d4620e1dfe745a7db15d197f927a6944fd414cc4619a5c4896f41",
+		"res://scripts/game/team_card.gd": "8b1a7c32c69e4ffd86083408a249d8e86eaac3d6bb40b6e816bb22a522cb1a36",
+		"res://scripts/game/ticker.gd": "64268a8f4f198ad4d6bfb66379f9820eed0249f1bda98f03d744076239015cb4",
+		"res://scripts/game/title_scene.gd": "0825af2c3fbd96bc26355bba94df381b98948099b97d25de1d821b40a536fbeb",
+		"res://scripts/game/ui.gd": "01eddd16f1cf1630f9836accf656a3fe0270bd5affb72c723ac92c582ca21114",
+		"res://scripts/game/ui_icons.gd": "98bbf54b4894592d9651ee5e43e3d62c28a2660921708b5994a57884f24ad685",
+		"res://scripts/game/workshop.gd": "fa370f8bbb5186005d51b27dbb8794d319c2d269144c54fb91bfd2f3744b54da",
+		"res://scripts/league/arena.gd": "966acaf8c2d0416394823dd1945181ccafce168c7037f23892b267663b7a355e",
+		"res://scripts/league/armorer.gd": "36524cfcb239197ec1830296bb5cc02d4cf864bc86fe11714c5ee58fbb221835",
+		"res://scripts/league/calendar.gd": "4c3bba480e0ba6310deed87666655f60cedefef9104085b4c6ad58cde5224c8f",
+		"res://scripts/league/cities.gd": "a927fd4b4a19fdb2de63dbda9d48fefea8ea64c84a8d5d8046bef17077d1c4b8",
+		"res://scripts/league/club_event.gd": "485b6a91816b0b808ef4d8a9b591ad66e91ce88091a296048ed0a84dcb43fa99",
+		"res://scripts/league/club_factory.gd": "50d9cd6d53de5a04d7225bddb566080b85fc474cf5bb367ad9450e3b102a5bf1",
+		"res://scripts/league/club_office.gd": "ee7607be327f863eefd444dda6cf9dcbe0d087bf27511f3f67e18299476a0053",
+		"res://scripts/league/coach.gd": "95d3b927bac75aee3755f9d8d99e1d04092ed660997a1b9fabc91aa1f73be96d",
+		"res://scripts/league/contracts.gd": "6c672448c8469fd540e1847dfa0660cd625707653aa2fec83609f6f09d6605ab",
+		"res://scripts/league/cup.gd": "d3c7782c17a12b39e061a72d153f62ec2eb3389274a8459688a4a239312fa5f0",
+		"res://scripts/league/dilemma.gd": "cfb77f1b68e1675643755d6f68f7e1e53e7f33db8e385bc3e68a9ad3598096dd",
+		"res://scripts/league/federation.gd": "20d3b0e11a4b311b686e248f6edca35d154c76a96d1f541b71d64b6d665fe7b1",
+		"res://scripts/league/league.gd": "7e1939e837dc26ca741feb19e54fb3320182336b9c1ddeec3db477010f66e921",
+		"res://scripts/league/league_world.gd": "81fd09e1fd395e7adb413726a70e9605793cb2e729d311ebf6a2edb550ef36bd",
+		"res://scripts/league/market.gd": "8836449230eed88cb6b5cd8c0268b5ded691f95f05fed94b49a90a62738a0181",
+		"res://scripts/league/office_books.gd": "3aa5f971c64ec2f62602c828ebb2952510a0209aa0d2a3fc98ca3ebaf6d3a1c6",
+		"res://scripts/league/office_crowd.gd": "2a90cb90398a46dd88dc5e6357a0dd26073192a18e3fbf359f0caa117ce46006",
+		"res://scripts/league/office_staff.gd": "5768faae7cc553c0584c5c41d0f2be795bd96060f39fec7a48dc2cb95fad8b59",
+		"res://scripts/league/quartermaster.gd": "cd8efa2854e26cc0448f732e2bc592987076fd03d07e96b339f43f3ece7219d0",
+		"res://scripts/league/season.gd": "86d6a19f55917caf87509783bbacf4d23b09b2768e726b7b1ef800ea4d0242a1",
+		"res://scripts/league/season_bouts.gd": "8aeff2996bc2d30635ba37167c0d4d3b0bfe5bf324f229c0d813f729996c456e",
+		"res://scripts/league/season_cups.gd": "24196311d16194dbbdb2a2f01a7556305cf201a973c310cfa0aefb14a4c5c017",
+		"res://scripts/league/season_desk.gd": "8a708ca5a6fc87b7c50bd4d1ac0686eb8b8d36f668bf5117137b4558c2235c71",
+		"res://scripts/league/season_winter.gd": "7f064ba0e87cf26f6bcd3d25273e51cae0d91d667ba526e8302fe9dfbdd27c1b",
+		"res://scripts/league/send_off.gd": "9527491ff0cc34e43e03bcd89f49b3a9c59bbb0919f8244255e9ebe5553dffc7",
+		"res://scripts/league/split.gd": "57fcc6f9c1627eb5126dc40cee187790d72611e81856db5a7921c25d101a61e3",
+		"res://scripts/league/venue.gd": "2f18aba19511d162bed59fbda4565145c3465adc912fd8512dd6ec44b149b328",
+		"res://scripts/melee/fight_corner.gd": "369ad8a9a57f71c105073d9cbe9e16c8945b0deaf1f1774b3df1ba31b967a021",
+		"res://scripts/melee/fighter_art.gd": "77d7f070b72a52eb605eef048a962f7854f413a47f5afbd8061beecb94421f08",
+		"res://scripts/melee/fighter_card.gd": "4f7bdefbf597ff4c249abf20dd6d8088d37f904b0e8c30f10506a1187c6aad08",
+		"res://scripts/melee/fighter_trait.gd": "9d2e1bc0723e45ed95288c29aeb4b68eab421968eae6450ae1de029a84d45d78",
+		"res://scripts/melee/grade.gd": "f0513ff5f7a555a34fbf470647d6dea88a150dc0da62e76dd95cc622a8d0cef2",
+		"res://scripts/melee/melee_club.gd": "3317712b12f4421d01a841b0744d37c0ab0b81a7c4b5b73f4c97ea00f1d776b8",
+		"res://scripts/melee/melee_report.gd": "802d0bd802c8157cd0d08e43d7d97ff15883607c065a9d986f30252ae030d0ce",
+		"res://scripts/melee/melee_rosters.gd": "8bcf51ba98a93fb05b9a92c55826ef50ac9b0ebc53f40b76296f3a14dd211182",
+		"res://scripts/melee/melee_scene.gd": "8510e34cb51dc94ab09a589ec6d06e84a913c6fae5a02ea34bd49eb2bd23f815",
+		"res://scripts/melee/melee_sim.gd": "fd497fecc98497b31aaac88d666e39edd886fb576de2c62662daf812598b8e01",
+		"res://scripts/melee/tuning.gd": "d364ec8d6be11f7ca9db274d059a643f6e7e5f523a5e8f647a276cf71b2f34f9",
+		"res://tools/manager.gd": "f9ebff76677b0f93b7e8c41203fa6a13b136c077ca15bf56cde158a0ece21d48",
+		"res://tools/probe_harness_budget.gd": "6899af9b379d385a13290f62f50a65a2a511b3941809c52054b0804a3b7ba263"
+	},
+	"validation_passed": true,
+	"years": 2
+}

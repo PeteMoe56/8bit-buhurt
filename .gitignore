@@ -56,3 +56,5 @@ logs/
 
 # Codex desktop scratch (Windows app-data, engine logs)
 /work/
+
+/docs/bakeoff-2/harness/.runtime/

@@ -1,0 +1,2078 @@
+{
+  "renders": [
+    {
+      "file": "v16x9/01_start.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Strong branded entry; clear Play action."
+    },
+    {
+      "file": "v16x9/02_title_slots.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Empty slots communicate the new-career action clearly."
+    },
+    {
+      "file": "v19x9n/01_start.png",
+      "scores": [
+        5,
+        5,
+        5,
+        4,
+        5,
+        5
+      ],
+      "findings": [
+        "S01-1"
+      ],
+      "note": "Strong branded entry; clear Play action."
+    },
+    {
+      "file": "v19x9n/02_title_slots.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Empty slots communicate the new-career action clearly."
+    },
+    {
+      "file": "v16x10/01_start.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Strong branded entry; clear Play action."
+    },
+    {
+      "file": "v16x10/02_title_slots.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Empty slots communicate the new-career action clearly."
+    },
+    {
+      "file": "v16x9/03_settings.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Grouped settings; selected options and automatic saving are explicit."
+    },
+    {
+      "file": "v16x9/04_season_club.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Club identity, upcoming cup tie and main fight action read clearly."
+    },
+    {
+      "file": "v19x9n/03_settings.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Grouped settings; selected options and automatic saving are explicit."
+    },
+    {
+      "file": "v19x9n/04_season_club.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Club identity, upcoming cup tie and main fight action read clearly."
+    },
+    {
+      "file": "v16x10/03_settings.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Grouped settings; selected options and automatic saving are explicit."
+    },
+    {
+      "file": "v16x10/04_season_club.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Club identity, upcoming cup tie and main fight action read clearly."
+    },
+    {
+      "file": "v16x9/05_season_squad.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Level badges, contract colours and a visible legend support roster decisions."
+    },
+    {
+      "file": "v16x9/06_season_armorer.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Inspection threshold and kit condition are explicit; repair route is explained."
+    },
+    {
+      "file": "v19x9n/05_season_squad.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Level badges, contract colours and a visible legend support roster decisions."
+    },
+    {
+      "file": "v19x9n/06_season_armorer.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Inspection threshold and kit condition are explicit; repair route is explained."
+    },
+    {
+      "file": "v16x10/05_season_squad.png",
+      "scores": [
+        5,
+        4,
+        4,
+        5,
+        5,
+        5
+      ],
+      "findings": [
+        "S05-1"
+      ],
+      "note": "Bench heading disappears in the taller layout."
+    },
+    {
+      "file": "v16x10/06_season_armorer.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Inspection threshold and kit condition are explicit; repair route is explained."
+    },
+    {
+      "file": "v16x9/07_season_clubhouse.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Upgrade price, benefit and recurring upkeep are shown together."
+    },
+    {
+      "file": "v16x9/08_season_finances.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Finance, staff and coach columns retain readable separation."
+    },
+    {
+      "file": "v19x9n/07_season_clubhouse.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Upgrade price, benefit and recurring upkeep are shown together."
+    },
+    {
+      "file": "v19x9n/08_season_finances.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Finance, staff and coach columns retain readable separation."
+    },
+    {
+      "file": "v16x10/07_season_clubhouse.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Upgrade price, benefit and recurring upkeep are shown together."
+    },
+    {
+      "file": "v16x10/08_season_finances.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Finance, staff and coach columns retain readable separation."
+    },
+    {
+      "file": "v16x9/09_roster.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Five starters and smaller bench cards distinguish lineup roles."
+    },
+    {
+      "file": "v16x9/10_fighter.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The level-spending row is prominent; stats have plain-language descriptions."
+    },
+    {
+      "file": "v19x9n/09_roster.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Five starters and smaller bench cards distinguish lineup roles."
+    },
+    {
+      "file": "v19x9n/10_fighter.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The level-spending row is prominent; stats have plain-language descriptions."
+    },
+    {
+      "file": "v16x10/09_roster.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Five starters and smaller bench cards distinguish lineup roles."
+    },
+    {
+      "file": "v16x10/10_fighter.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The level-spending row is prominent; stats have plain-language descriptions."
+    },
+    {
+      "file": "v16x9/11_market.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Fees, wages, rating and unaffordability are explicit."
+    },
+    {
+      "file": "v16x9/12_staff.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S12-1"
+      ],
+      "note": "Extend/Release order reverses between adjacent captain cards."
+    },
+    {
+      "file": "v19x9n/11_market.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Fees, wages, rating and unaffordability are explicit."
+    },
+    {
+      "file": "v19x9n/12_staff.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S12-1"
+      ],
+      "note": "Extend/Release order reverses between adjacent captain cards."
+    },
+    {
+      "file": "v16x10/11_market.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Fees, wages, rating and unaffordability are explicit."
+    },
+    {
+      "file": "v16x10/12_staff.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S12-1"
+      ],
+      "note": "Extend/Release order reverses between adjacent captain cards."
+    },
+    {
+      "file": "v16x9/13_coach.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Available points, current effects and upgrade controls are visible together."
+    },
+    {
+      "file": "v16x9/14_records.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Records retain named club history and clear tab selection."
+    },
+    {
+      "file": "v19x9n/13_coach.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Available points, current effects and upgrade controls are visible together."
+    },
+    {
+      "file": "v19x9n/14_records.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Records retain named club history and clear tab selection."
+    },
+    {
+      "file": "v16x10/13_coach.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Available points, current effects and upgrade controls are visible together."
+    },
+    {
+      "file": "v16x10/14_records.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Records retain named club history and clear tab selection."
+    },
+    {
+      "file": "v16x9/15_guide.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The selected guide topic and compact bullet explanations are clear."
+    },
+    {
+      "file": "v16x9/16_arena.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        5,
+        4
+      ],
+      "findings": [
+        "S16-1"
+      ],
+      "note": "Venue controls are clear; the large venue panel repeats text instead of showing the ground."
+    },
+    {
+      "file": "v19x9n/15_guide.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The selected guide topic and compact bullet explanations are clear."
+    },
+    {
+      "file": "v19x9n/16_arena.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        5,
+        4
+      ],
+      "findings": [
+        "S16-1"
+      ],
+      "note": "Venue controls are clear; the large venue panel repeats text instead of showing the ground."
+    },
+    {
+      "file": "v16x10/15_guide.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The selected guide topic and compact bullet explanations are clear."
+    },
+    {
+      "file": "v16x10/16_arena.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        5,
+        4
+      ],
+      "findings": [
+        "S16-1"
+      ],
+      "note": "Venue controls are clear; the large venue panel repeats text instead of showing the ground."
+    },
+    {
+      "file": "v16x9/17_chalkboard.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Start line, direction, roles and saved state explain the editor."
+    },
+    {
+      "file": "v16x9/18_create_fighter.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Stat descriptions, rating cap, price and wage exposure are readable."
+    },
+    {
+      "file": "v19x9n/17_chalkboard.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Start line, direction, roles and saved state explain the editor."
+    },
+    {
+      "file": "v19x9n/18_create_fighter.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Stat descriptions, rating cap, price and wage exposure are readable."
+    },
+    {
+      "file": "v16x10/17_chalkboard.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Start line, direction, roles and saved state explain the editor."
+    },
+    {
+      "file": "v16x10/18_create_fighter.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Stat descriptions, rating cap, price and wage exposure are readable."
+    },
+    {
+      "file": "v16x9/19_create_club.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Badge preview, selected mark and paid choices are distinct."
+    },
+    {
+      "file": "v16x9/20_create_grade.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Selected grade, immediate saving and mechanical effects are explained."
+    },
+    {
+      "file": "v19x9n/19_create_club.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Badge preview, selected mark and paid choices are distinct."
+    },
+    {
+      "file": "v19x9n/20_create_grade.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Selected grade, immediate saving and mechanical effects are explained."
+    },
+    {
+      "file": "v16x10/19_create_club.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Badge preview, selected mark and paid choices are distinct."
+    },
+    {
+      "file": "v16x10/20_create_grade.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Selected grade, immediate saving and mechanical effects are explained."
+    },
+    {
+      "file": "v16x9/21_bracket.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Bracket route, next opponent and Fight action are easy to locate."
+    },
+    {
+      "file": "v16x9/22_club_menu.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "A focused pause panel keeps Resume primary and the club visible beneath."
+    },
+    {
+      "file": "v19x9n/21_bracket.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Bracket route, next opponent and Fight action are easy to locate."
+    },
+    {
+      "file": "v19x9n/22_club_menu.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "A focused pause panel keeps Resume primary and the club visible beneath."
+    },
+    {
+      "file": "v16x10/21_bracket.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Bracket route, next opponent and Fight action are easy to locate."
+    },
+    {
+      "file": "v16x10/22_club_menu.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "A focused pause panel keeps Resume primary and the club visible beneath."
+    },
+    {
+      "file": "v16x9/23_walkout.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Home identity and roster comparison establish the bout."
+    },
+    {
+      "file": "v16x9/23b_prefight_plan.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Lineup, chosen opening and FIGHT action are well grouped."
+    },
+    {
+      "file": "v16x9/24_fight_live.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Teams, standing counts, timer and route instruction are readable; fixed-ratio framing is purposeful."
+    },
+    {
+      "file": "v19x9/23_walkout.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Home identity and roster comparison establish the bout."
+    },
+    {
+      "file": "v19x9/23b_prefight_plan.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Lineup, chosen opening and FIGHT action are well grouped."
+    },
+    {
+      "file": "v19x9/24_fight_live.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Teams, standing counts, timer and route instruction are readable; fixed-ratio framing is purposeful."
+    },
+    {
+      "file": "v16x9/25_contact_wheel.png",
+      "scores": [
+        5,
+        4,
+        3,
+        4,
+        5,
+        5
+      ],
+      "findings": [
+        "S25-1",
+        "S25-2"
+      ],
+      "note": "Angled three-line labels are harder to scan; the wheel obscures HUD/cards."
+    },
+    {
+      "file": "v16x9/25b_contact_wheel_third.png",
+      "scores": [
+        5,
+        4,
+        3,
+        4,
+        5,
+        5
+      ],
+      "findings": [
+        "S25-1",
+        "S25-2"
+      ],
+      "note": "Angled three-line labels are harder to scan; the wheel obscures HUD/cards."
+    },
+    {
+      "file": "v16x9/26_corner.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Round result, energy recovery, substitutions and next opening are clearly grouped."
+    },
+    {
+      "file": "v19x9/25_contact_wheel.png",
+      "scores": [
+        5,
+        4,
+        3,
+        4,
+        5,
+        5
+      ],
+      "findings": [
+        "S25-1",
+        "S25-2"
+      ],
+      "note": "Angled three-line labels are harder to scan; the wheel obscures HUD/cards."
+    },
+    {
+      "file": "v19x9/25b_contact_wheel_third.png",
+      "scores": [
+        5,
+        4,
+        3,
+        4,
+        5,
+        5
+      ],
+      "findings": [
+        "S25-1",
+        "S25-2"
+      ],
+      "note": "Angled three-line labels are harder to scan; the wheel obscures HUD/cards."
+    },
+    {
+      "file": "v19x9/26_corner.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Round result, energy recovery, substitutions and next opening are clearly grouped."
+    },
+    {
+      "file": "v16x9/26b_corner_playbook.png",
+      "scores": [
+        4,
+        5,
+        5,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S26b-1",
+        "S26b-2"
+      ],
+      "note": "Two exit labels need clearer distinction; header typography differs."
+    },
+    {
+      "file": "v16x9/26c_corner_favourites.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Two favourites visible (manifest says four); selected opening remains clear."
+    },
+    {
+      "file": "v16x9/27_corner_sub.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Incoming fighter, energy and same-role recommendation are clear."
+    },
+    {
+      "file": "v19x9/26b_corner_playbook.png",
+      "scores": [
+        4,
+        5,
+        5,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S26b-1",
+        "S26b-2"
+      ],
+      "note": "Two exit labels need clearer distinction; header typography differs."
+    },
+    {
+      "file": "v19x9/26c_corner_favourites.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Two favourites visible (manifest says four); selected opening remains clear."
+    },
+    {
+      "file": "v19x9/27_corner_sub.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Incoming fighter, energy and same-role recommendation are clear."
+    },
+    {
+      "file": "v16x9/28_report.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Named contributions, management feedback and level-spending route are visible."
+    },
+    {
+      "file": "v16x9/29_tip_route.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S29-1"
+      ],
+      "note": "Instruction is clear; stale Walk out/Back controls remain over fighter cards."
+    },
+    {
+      "file": "v16x9/29b_tip_corner.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The corner instruction explains substitutions, planning and the timer."
+    },
+    {
+      "file": "v19x9/28_report.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Named contributions, management feedback and level-spending route are visible."
+    },
+    {
+      "file": "v19x9/29_tip_route.png",
+      "scores": [
+        5,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S29-1"
+      ],
+      "note": "Instruction is clear; stale Walk out/Back controls remain over fighter cards."
+    },
+    {
+      "file": "v19x9/29b_tip_corner.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The corner instruction explains substitutions, planning and the timer."
+    },
+    {
+      "file": "v16x9/30_dilemma.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Narrative choices show cash and morale/kit trade-offs."
+    },
+    {
+      "file": "v16x9/31_promotion.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Required ground, total cost, current funds and recurring upkeep are explicit."
+    },
+    {
+      "file": "v16x9/32_fixture_sim.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Confirmation identifies the opponent and explains that simmed consequences still apply."
+    },
+    {
+      "file": "v19x9/30_dilemma.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Narrative choices show cash and morale/kit trade-offs."
+    },
+    {
+      "file": "v19x9/31_promotion.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Required ground, total cost, current funds and recurring upkeep are explicit."
+    },
+    {
+      "file": "v19x9/32_fixture_sim.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Confirmation identifies the opponent and explains that simmed consequences still apply."
+    },
+    {
+      "file": "v16x9/32b_promo_ground_state.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Required upgrade chain, staged building rule and next purchase are explicit."
+    },
+    {
+      "file": "v16x9/33_records_this_year.png",
+      "scores": [
+        5,
+        4,
+        4,
+        5,
+        5,
+        5
+      ],
+      "findings": [
+        "S33-1"
+      ],
+      "note": "Totals crowd the current-grade text in the footer."
+    },
+    {
+      "file": "v16x9/34_promo_ground_regional.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Required upgrade chain, staged building rule and next purchase are explicit."
+    },
+    {
+      "file": "v19x9/32b_promo_ground_state.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Required upgrade chain, staged building rule and next purchase are explicit."
+    },
+    {
+      "file": "v19x9/33_records_this_year.png",
+      "scores": [
+        5,
+        4,
+        4,
+        5,
+        5,
+        5
+      ],
+      "findings": [
+        "S33-1"
+      ],
+      "note": "Totals crowd the current-grade text in the footer."
+    },
+    {
+      "file": "v19x9/34_promo_ground_regional.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Required upgrade chain, staged building rule and next purchase are explicit."
+    },
+    {
+      "file": "v16x9/35_hub_week1.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Opponent, rating advantage, coming fixtures and Fight/Sim actions are clear."
+    },
+    {
+      "file": "v16x9/36_history.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Sparse history is an honest empty-trophy state, not a viewport defect."
+    },
+    {
+      "file": "v16x9/37_worlds_groups.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Four pools, the player's row and the qualification rule are readable."
+    },
+    {
+      "file": "v19x9/35_hub_week1.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Opponent, rating advantage, coming fixtures and Fight/Sim actions are clear."
+    },
+    {
+      "file": "v19x9/36_history.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Sparse history is an honest empty-trophy state, not a viewport defect."
+    },
+    {
+      "file": "v19x9/37_worlds_groups.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Four pools, the player's row and the qualification rule are readable."
+    },
+    {
+      "file": "v16x9/37b_bracket_done.png",
+      "scores": [
+        5,
+        3,
+        4,
+        4,
+        5,
+        5
+      ],
+      "findings": [
+        "S37b-1"
+      ],
+      "note": "Champion text straddles the bottom edge of Your Path."
+    },
+    {
+      "file": "v16x9/38_playbook_favs.png",
+      "scores": [
+        3,
+        2,
+        3,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S38-1",
+        "S26b-1",
+        "S26b-2"
+      ],
+      "note": "The playbook has no opaque modal backing; walk-out text interleaves with its controls."
+    },
+    {
+      "file": "v16x9/38b_playbook_favs.png",
+      "scores": [
+        3,
+        2,
+        3,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S38-1",
+        "S26b-1",
+        "S26b-2"
+      ],
+      "note": "The playbook has no opaque modal backing; walk-out text interleaves with its controls."
+    },
+    {
+      "file": "v19x9/37b_bracket_done.png",
+      "scores": [
+        5,
+        3,
+        4,
+        4,
+        5,
+        5
+      ],
+      "findings": [
+        "S37b-1"
+      ],
+      "note": "Champion text straddles the bottom edge of Your Path."
+    },
+    {
+      "file": "v19x9/38_playbook_favs.png",
+      "scores": [
+        3,
+        2,
+        3,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S38-1",
+        "S26b-1",
+        "S26b-2"
+      ],
+      "note": "The playbook has no opaque modal backing; walk-out text interleaves with its controls."
+    },
+    {
+      "file": "v19x9/38b_playbook_favs.png",
+      "scores": [
+        3,
+        2,
+        3,
+        5,
+        4,
+        5
+      ],
+      "findings": [
+        "S38-1",
+        "S26b-1",
+        "S26b-2"
+      ],
+      "note": "The playbook has no opaque modal backing; walk-out text interleaves with its controls."
+    },
+    {
+      "file": "v16x9/39_free_agent_market_ask.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The recommendation names the upgrade, its fee and available funds."
+    },
+    {
+      "file": "v16x9/39_free_agent_market_picked.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The picked agent's named signing action is prominent."
+    },
+    {
+      "file": "v16x9/40_popup_mark.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Badge preview and disabled-colour explanation are clear."
+    },
+    {
+      "file": "v19x9/39_free_agent_market_ask.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The recommendation names the upgrade, its fee and available funds."
+    },
+    {
+      "file": "v19x9/39_free_agent_market_picked.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The picked agent's named signing action is prominent."
+    },
+    {
+      "file": "v19x9/40_popup_mark.png",
+      "scores": [
+        5,
+        4,
+        5,
+        3,
+        5,
+        5
+      ],
+      "findings": [
+        "S40-1"
+      ],
+      "note": "The popup is shifted right and its dimmer leaves a 105px grey strip."
+    },
+    {
+      "file": "v16x9/40_popup_town.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "State and city selection, current choice and Done are clear."
+    },
+    {
+      "file": "v16x9/41_calendar.png",
+      "scores": [
+        5,
+        4,
+        3,
+        5,
+        5,
+        5
+      ],
+      "findings": [
+        "S41-1",
+        "S41-2"
+      ],
+      "note": "Tournament names truncate identically; the season header crowds its status."
+    },
+    {
+      "file": "v16x9/42_founding_step_1.png",
+      "scores": [
+        4,
+        5,
+        5,
+        5,
+        4,
+        3
+      ],
+      "findings": [
+        "S42-1"
+      ],
+      "note": "Face/kit/beard choices have an 'art to follow' preview placeholder."
+    },
+    {
+      "file": "v19x9/40_popup_town.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "State and city selection, current choice and Done are clear."
+    },
+    {
+      "file": "v19x9/41_calendar.png",
+      "scores": [
+        5,
+        4,
+        3,
+        5,
+        5,
+        5
+      ],
+      "findings": [
+        "S41-1",
+        "S41-2"
+      ],
+      "note": "Tournament names truncate identically; the season header crowds its status."
+    },
+    {
+      "file": "v19x9/42_founding_step_1.png",
+      "scores": [
+        4,
+        5,
+        5,
+        5,
+        4,
+        3
+      ],
+      "findings": [
+        "S42-1"
+      ],
+      "note": "Face/kit/beard choices have an 'art to follow' preview placeholder."
+    },
+    {
+      "file": "v16x9/42_founding_step_2.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The club preview and named next step support the founding flow."
+    },
+    {
+      "file": "v16x9/42_founding_step_3.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Final step gives a clear selected grade and Start action."
+    },
+    {
+      "file": "v16x9/42_founding_step_4.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Custom controls and values remain readable; this is still step 3 of 3."
+    },
+    {
+      "file": "v19x9/42_founding_step_2.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "The club preview and named next step support the founding flow."
+    },
+    {
+      "file": "v19x9/42_founding_step_3.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Final step gives a clear selected grade and Start action."
+    },
+    {
+      "file": "v19x9/42_founding_step_4.png",
+      "scores": [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+      ],
+      "findings": [],
+      "note": "Custom controls and values remain readable; this is still step 3 of 3."
+    }
+  ],
+  "findings": [
+    {
+      "id": "S01-1",
+      "severity": "S3",
+      "tags": "[seen][judgement]",
+      "text": "The right-hand music credit ends around x1145, inside the declared right 63px inset (safe edge x1107). This is nonessential text, but the footer does not share the menu's safe-area discipline.",
+      "evidence": [
+        "v19x9n/01_start.png"
+      ],
+      "region": "bottom-right music credit, y512",
+      "suggestion": "Inset footer credits by the same safe-area margin as the menu content.",
+      "effort": "S",
+      "criteria": [
+        "C4"
+      ]
+    },
+    {
+      "id": "S05-1",
+      "severity": "S2",
+      "tags": "[seen][judgement]",
+      "text": "The second roster block loses its BENCH heading in the 16:10 render, although the corresponding heading is visible at 16:9 and 19:9. The lineup/reserve distinction is less explicit.",
+      "evidence": [
+        "v16x10/05_season_squad.png"
+      ],
+      "region": "left roster between starters and Dain/Pike/Orr, y338–360",
+      "suggestion": "Anchor BENCH above the second block after the taller-layout calculation, with a reserved label row.",
+      "effort": "S",
+      "criteria": [
+        "C2",
+        "C3"
+      ]
+    },
+    {
+      "id": "S12-1",
+      "severity": "S2",
+      "tags": "[seen][judgement][needs validation]",
+      "text": "Vaughn's actions are Release then Extend; Ardry's are Extend then Release. Adjacent cards reverse the placement of the destructive action. Whether this causes wrong taps needs testing, but the inconsistency is visible.",
+      "evidence": [
+        "v16x9/12_staff.png",
+        "v19x9n/12_staff.png",
+        "v16x10/12_staff.png"
+      ],
+      "region": "captain action buttons below the two cards",
+      "suggestion": "Use one fixed Extend/Release order for every captain card and keep the destructive action visually separated.",
+      "effort": "S",
+      "criteria": [
+        "C2",
+        "C5"
+      ]
+    },
+    {
+      "id": "S16-1",
+      "severity": "S3",
+      "tags": "[seen][judgement]",
+      "text": "The roughly 520×300 venue panel is a flat field containing the venue name/capacity again and a badge. It conveys less of a club-owned physical ground than the accompanying description promises.",
+      "evidence": [
+        "v16x9/16_arena.png",
+        "v19x9n/16_arena.png",
+        "v16x10/16_arena.png"
+      ],
+      "region": "large left venue panel",
+      "suggestion": "Use a small pixel-art venue illustration for the current stage, retaining capacity and the club badge as overlays; let upgrades visibly change the ground.",
+      "effort": "M",
+      "criteria": [
+        "C2",
+        "C6"
+      ]
+    },
+    {
+      "id": "S25-1",
+      "severity": "S2",
+      "tags": "[seen][judgement]",
+      "text": "Action, chance and consequence text rotate with each wedge, including an almost vertical Takedown/Bullrush label. Comparing the three options requires reading several orientations; the small raster letters lose clarity at these angles.",
+      "evidence": [
+        "v16x9/25_contact_wheel.png",
+        "v19x9/25_contact_wheel.png",
+        "v16x9/25b_contact_wheel_third.png",
+        "v19x9/25b_contact_wheel_third.png"
+      ],
+      "region": "lower-right wheel wedge labels",
+      "suggestion": "Keep action names and probability/effect lines horizontal on compact plates aligned with their wedges; retain the wedge hit areas and sport-specific effects.",
+      "effort": "M",
+      "criteria": [
+        "C2",
+        "C3"
+      ]
+    },
+    {
+      "id": "S25-2",
+      "severity": "S2",
+      "tags": "[seen][judgement]",
+      "text": "The open wheel covers the fifth fighter's bottom card and part of the opponent's standing panel. At 1170px wide the far-right 105px gutter remains available above it, while the overlapping HUD loses context.",
+      "evidence": [
+        "v16x9/25_contact_wheel.png",
+        "v19x9/25_contact_wheel.png",
+        "v16x9/25b_contact_wheel_third.png",
+        "v19x9/25b_contact_wheel_third.png"
+      ],
+      "region": "opponent HUD and bottom-right fighter status behind wheel",
+      "suggestion": "Reserve a prompt region or relocate compact option plates so standing counts and the selected fighter's status stay unobscured; do not stretch the locked list.",
+      "effort": "M",
+      "criteria": [
+        "C4"
+      ]
+    },
+    {
+      "id": "S26b-1",
+      "severity": "S3",
+      "tags": "[seen][judgement]",
+      "text": "The full-playbook modal's header uses smooth sans-serif lettering while its cards and surrounding fight UI use the pixel font. This is a conspicuous typographic change inside the same interaction.",
+      "evidence": [
+        "v16x9/26b_corner_playbook.png",
+        "v19x9/26b_corner_playbook.png",
+        "v16x9/38_playbook_favs.png",
+        "v19x9/38_playbook_favs.png",
+        "v16x9/38b_playbook_favs.png",
+        "v19x9/38b_playbook_favs.png"
+      ],
+      "region": "top modal title/instruction line",
+      "suggestion": "Use the established pixel-font header style, with wrapping or a shorter title rather than a fallback font.",
+      "effort": "S",
+      "criteria": [
+        "C5"
+      ]
+    },
+    {
+      "id": "S26b-2",
+      "severity": "S2",
+      "tags": "[seen][judgement][needs validation]",
+      "text": "Done picking favourites and Back to the corner are equally weighted exit-like actions, without explaining whether Done returns to the corner or changes an editing mode. In the pre-bout renders, 'Back to the corner' also names a different context from the walk-out beneath it.",
+      "evidence": [
+        "v16x9/26b_corner_playbook.png",
+        "v19x9/26b_corner_playbook.png",
+        "v16x9/38_playbook_favs.png",
+        "v19x9/38_playbook_favs.png",
+        "v16x9/38b_playbook_favs.png",
+        "v19x9/38b_playbook_favs.png"
+      ],
+      "region": "two bottom modal buttons",
+      "suggestion": "If Done commits favourites and returns, make that one primary exit; otherwise name the mode change explicitly and visually distinguish it from Back to the corner. Use 'Back to the plan' or the actual opener's name before a bout.",
+      "effort": "S",
+      "criteria": [
+        "C1"
+      ]
+    },
+    {
+      "id": "S29-1",
+      "severity": "S2",
+      "tags": "[seen][judgement][needs validation]",
+      "text": "Back and Walk out remain visible beneath the route coach mark, superimposed on live-fight fighter cards. The render mixes pre-bout actions with the fight's HUD; whether this is a fixture artifact or a live transition defect needs reproduction.",
+      "evidence": [
+        "v16x9/29_tip_route.png",
+        "v19x9/29_tip_route.png"
+      ],
+      "region": "bottom-left Back and bottom-centre Walk out behind dimmer",
+      "suggestion": "Reproduce the first-bout transition, then hide the walk-out controls before drawing the live fight/coach mark; correct the shot fixture instead if production already does that.",
+      "effort": "S",
+      "criteria": [
+        "C2",
+        "C5"
+      ]
+    },
+    {
+      "id": "S33-1",
+      "severity": "S3",
+      "tags": "[seen][judgement]",
+      "text": "The footer's red -33 differential runs directly into 'now at full steel', so the statistic and grade read as one continuous string.",
+      "evidence": [
+        "v16x9/33_records_this_year.png",
+        "v19x9/33_records_this_year.png"
+      ],
+      "region": "bottom-right summary inside the record panel, y410",
+      "suggestion": "Give the differential a fixed-width total cell with at least one text-space of padding, and place the current grade in a separate labelled footer field.",
+      "effort": "S",
+      "criteria": [
+        "C2",
+        "C3"
+      ]
+    },
+    {
+      "id": "S37b-1",
+      "severity": "S2",
+      "tags": "[seen][judgement]",
+      "text": "The CHAMPION heading fits near the bottom of Your Path, but the winning club's name straddles the panel's bottom border. The most celebratory result gets the least stable placement.",
+      "evidence": [
+        "v16x9/37b_bracket_done.png",
+        "v19x9/37b_bracket_done.png"
+      ],
+      "region": "right Your Path panel, CHAMPION and Detroit Free at y425–454",
+      "suggestion": "Reserve a complete champion footer inside the panel or shorten the round summaries enough to give the winner its own padded row.",
+      "effort": "S",
+      "criteria": [
+        "C2",
+        "C3",
+        "C4"
+      ]
+    },
+    {
+      "id": "S38-1",
+      "severity": "S2",
+      "tags": "[seen][judgement][needs validation]",
+      "text": "The pre-bout full playbook is drawn without the opaque panel/backdrop seen in the corner version. Louisville and both clubs' stats remain between and behind its title, cards and ordering instructions, merging two screens' content.",
+      "evidence": [
+        "v16x9/38_playbook_favs.png",
+        "v19x9/38_playbook_favs.png",
+        "v16x9/38b_playbook_favs.png",
+        "v19x9/38b_playbook_favs.png"
+      ],
+      "region": "entire overlay, especially title y80–110 and ordering instruction y378–400",
+      "suggestion": "Give the pre-bout editor the same opaque modal panel and dimmer as the corner editor; reproduce in the live transition to distinguish game behavior from shot setup.",
+      "effort": "S",
+      "criteria": [
+        "C1",
+        "C2",
+        "C3"
+      ]
+    },
+    {
+      "id": "S40-1",
+      "severity": "S2",
+      "tags": "[seen][judgement]",
+      "text": "The wide mark-colour popup centres around x689 rather than x585, and the dimmer leaves the leftmost 105px as a uniform grey strip. This is a visible frame/overlay-offset mismatch, not useful side padding.",
+      "evidence": [
+        "v19x9/40_popup_mark.png"
+      ],
+      "region": "full modal and left x0–104 strip",
+      "suggestion": "Position the modal and scrim in the same coordinate space: apply the wide-frame offset once, cover the full viewport and centre within the safe content rect.",
+      "effort": "S",
+      "criteria": [
+        "C2",
+        "C4"
+      ]
+    },
+    {
+      "id": "S41-1",
+      "severity": "S2",
+      "tags": "[seen][judgement]",
+      "text": "Tournament cells truncate to BALTIMORE..., while the sidebar contains both Baltimore Open and Baltimore Classic. The distinguishing event name disappears from the dated cells.",
+      "evidence": [
+        "v16x9/41_calendar.png",
+        "v19x9/41_calendar.png"
+      ],
+      "region": "calendar dates 16–18 and sidebar event list",
+      "suggestion": "Wrap the event suffix onto a second line or use distinct short labels such as 'B. Classic'; keep the full name available on selection.",
+      "effort": "S",
+      "criteria": [
+        "C3"
+      ]
+    },
+    {
+      "id": "S41-2",
+      "severity": "S3",
+      "tags": "[seen][judgement]",
+      "text": "THE SEASON and 'now: weekdays' touch in the right-hand panel header with no stable separation.",
+      "evidence": [
+        "v16x9/41_calendar.png",
+        "v19x9/41_calendar.png"
+      ],
+      "region": "top of right-hand season panel",
+      "suggestion": "Put the current phase on a separate line beneath the panel heading.",
+      "effort": "S",
+      "criteria": [
+        "C2"
+      ]
+    },
+    {
+      "id": "S42-1",
+      "severity": "S2",
+      "tags": "[seen][judgement]",
+      "text": "Face, Kit and Beard controls sit beside a portrait box that only says 'art to follow'. The player cannot see the appearance these choices produce, and unfinished production wording reaches the new-career flow.",
+      "evidence": [
+        "v16x9/42_founding_step_1.png",
+        "v19x9/42_founding_step_1.png"
+      ],
+      "region": "coach portrait preview and appearance controls",
+      "suggestion": "Render the selected coach appearance; until that exists, remove the appearance controls without a visible preview and the development placeholder from the player flow.",
+      "effort": "M",
+      "criteria": [
+        "C1",
+        "C5",
+        "C6"
+      ]
+    }
+  ]
+}

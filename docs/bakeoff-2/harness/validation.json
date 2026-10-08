@@ -1,0 +1,38 @@
+{
+  "coverage": "3 arms / 6 season rows / 2 separate button checks",
+  "source_snapshot": "matches",
+  "parity": "2/2 pass",
+  "ledgers": [
+    {
+      "ledger": "button_check_ceiling_raise.jsonl",
+      "rows": 5,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "ledger": "button_check_session.jsonl",
+      "rows": 5,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "ledger": "development_first-9001.jsonl",
+      "rows": 497,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "ledger": "harness_first-9001.jsonl",
+      "rows": 497,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "ledger": "no_harness-9001.jsonl",
+      "rows": 415,
+      "money": "pass",
+      "xp": "pass"
+    }
+  ],
+  "balance_conclusions": "not drawn"
+}

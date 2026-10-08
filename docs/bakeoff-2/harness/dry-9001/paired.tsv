@@ -1,0 +1,4 @@
+base	seed	reference	treatment	reference_first_title	treatment_first_title	reference_censored	treatment_censored	title_delta_both_observed_only	final_cc_delta	final_power_delta	session_cc_delta	ceiling_raise_cc_delta	signing_cc_delta	armorer_hire_cc_delta	armorer_wage_cc_delta	harness_upgrade_cc_delta	repair_cc_delta
+9001	9001	no_harness	harness_first			1	1		-22	0	0	0	-3	15	11	12	0
+9001	9001	no_harness	development_first			1	1		-22	0	0	0	-3	15	11	12	0
+9001	9001	harness_first	development_first			1	1		0	0	0	0	0	0	0	0	0

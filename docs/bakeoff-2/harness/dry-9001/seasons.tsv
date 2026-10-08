@@ -1,0 +1,7 @@
+arm	base	seed	elapsed_season	opening_cc	cc_in	cc_out	cc_pre_rollover	cc_post_rollover	power_pre_rollover	power_post_rollover	tier_pre_rollover	tier_post_rollover
+no_harness	9001	9001	1	8	43	22	30	29	50	50	0	1
+no_harness	9001	9001	2	29	63	52	49	40	52	52	1	1
+harness_first	9001	9001	1	8	43	26	28	25	50	50	0	1
+harness_first	9001	9001	2	25	64	71	34	18	52	52	1	1
+development_first	9001	9001	1	8	43	26	28	25	50	50	0	1
+development_first	9001	9001	2	25	64	71	34	18	52	52	1	1
