@@ -53,3 +53,6 @@ logs/
 
 # StoreKit addon: fetched by Codemagic for the iOS build (codemagic.yaml), never committed
 /addons/GodotApplePlugins*/
+
+# Codex desktop scratch (Windows app-data, engine logs)
+/work/

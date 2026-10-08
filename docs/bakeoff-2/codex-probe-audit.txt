@@ -1,0 +1,35 @@
+COMMAND: Godot --headless --path C:\Dev\RetroBuhurt --log-file work/bakeoff-2/audit-engine.log --script res://tools/probe_bakeoff2_audit.gd -- 1 12 9001; RB_LV=low RB_LV_BOUT=1 RB_HARNESS=0; APPDATA=work/bakeoff-2/appdata
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+ENGINE	{ "major": 4, "minor": 6, "patch": 2, "hex": 263682, "status": "stable", "build": "official", "hash": "71f334935c000924d403448e698df4441130df18", "timestamp": 0, "string": "4.6.2-stable (official)" }
+FIXTURE	age	potential	auto_points	manual_points
+FIXTURE	26	90	3	3
+FIXTURE	40	90	1	3
+FIXTURE	26	51	3	3
+BANKED_FIXTURE	label=4	actual_manual_capacity=1
+CEILING_FIXTURE	auto_points=1	manual_points=3
+KIT_FIXTURE	intact_overall=68	intact_placeable=false	worn_overall=67	worn_placeable=true
+CAP_FIXTURE	overall=95	can_level=true	can_place=false	banked=0
+AUDIT	policy	seed	season	unspent_like_flow	actually_placeable_men	label_banked	actual_manual_capacity	stat_capped_unspent	power_pre_rollover	power_post_rollover
+AUDIT	low+bout	9001	1	0	0	0	0	0	50	50
+AUDIT	low+bout	9001	2	0	0	0	0	0	52	52
+AUDIT	low+bout	9001	3	0	0	0	0	0	56	56
+AUDIT	low+bout	9001	4	0	0	0	0	0	57	57
+AUDIT	low+bout	9001	5	0	0	0	0	0	60	60
+AUDIT	low+bout	9001	6	0	0	0	0	0	66	66
+AUDIT	low+bout	9001	7	0	0	0	0	0	70	70
+AUDIT	low+bout	9001	8	0	0	0	0	0	73	73
+AUDIT	low+bout	9001	9	0	0	0	0	0	78	78
+AUDIT	low+bout	9001	10	0	0	0	0	0	85	85
+AUDIT	low+bout	9001	11	0	0	0	0	0	91	91
+AUDIT	low+bout	9001	12	4	0	0	0	4	95	94
+
+STDERR:
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+
+EXIT_CODE=0

@@ -132,8 +132,8 @@ For each disputed row in §6, run one real task through both, blind if possible:
 | date | task | Claude | ChatGPT | winner / note |
 |---|---|---|---|---|
 | 8 Oct | onboarding review of §5 (unprompted measurement critique) | wrote §5 | 4 verified catches, 0 wrong claims | ChatGPT — found the `level_into` change Claude's own note missed |
-| 8 Oct | #2 balance review: `docs/bakeoff-2/` (policies, C-numbers, raw outputs) | sealed (SHA-256 in the README) | — | open |
-| 8 Oct | Screen Score #1: `docs/screenscore-1/` (132 renders, rubric to agree first) | — | — | open |
+| 8 Oct | #2 balance review: `docs/bakeoff-2/` (policies, C-numbers, raw outputs) | same verdict (timing dominates, harness-first a trap, CPU level door short, titles double-counted); measured POINTS_PER_LEVEL/LEVEL_XP/old harness prices and showed none separates the players; proposed the titles fix | same verdict; caught that careers run on `quick_bout` (Claude's README wrongly called them a thumb floor), the Spend-levels count overpromising (4 vs 1), the 40-year-old and ceiling 1-vs-3 cases, kit moving ceiling eligibility, the KITTY description, and the probe's event/cup timing | **Tie** (Pete). Approved: titles once, CPU level full 3, ceiling without kit, Spend-levels label, probe fixes + harness-budget test; title target = the engaged player |
+| 8 Oct | Screen Score #1: `docs/screenscore-1/` (132 renders; rubric LOCKED with Codex's six amendments) | — | — | open |
 | 8 Oct | #1 levels/money since 1.0.1 — blind verdict on shared outputs | same verdict (no sim speed-up; cause is the 1.0.1 manual/spend-levels path); runnable next probe (`level_into` manager); side finding: auto `level_up` loses ~13% of points at the ceiling | same verdict, every number checks out; caught that `season_pts` is 0 in all 240 rows (dead column Claude shipped) and that `unspent` counts men, not levels; next step needs the tester's save — sound but heavier | Pete to score. Claude's read: ChatGPT stronger on auditing the instrument, Claude stronger on an actionable next step |
 
 ### ChatGPT's opening position (8 Oct, relayed by Pete)
