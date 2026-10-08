@@ -18,6 +18,16 @@ extends SceneTree
 ##   top_in       the three biggest income lines
 ##   bank         credits at the end of the season
 ##
+## POLICY (bake-off #2, 8 Oct 2026), by environment (read by ProbeManager), defaults = the bake-off #1
+## baseline so the old files still reproduce:
+##   RB_LV=auto|low|spec   how levels are spent (see ProbeManager.Lv)
+##   RB_LV_BOUT=1          also spend after every event, as a player can
+##   RB_HARNESS=1          buy harness for the starting five (ProbeManager)
+## Extra columns: `lv_season` (levels placed during the season), `banked`
+## (levels still placeable after the winter, summed over men — the honest
+## version of `unspent`, which counts MEN), `harness_cc`, `power` (club power
+## at season end), and `policy`.
+##
 ## Caveats a reader must carry: ProbeManager never calls `Career.level_into`
 ## (the manual path a player uses, changed in 1.0.1) and never buys harness, and
 ## reads hidden ceilings (ORACLE). Rows are one TSV line each, prefixed FLOW.
@@ -34,7 +44,7 @@ func _initialize() -> void:
 		bases.append(int(a[i]))
 	if bases.is_empty():
 		bases = BASES
-	print("FLOW\tbase\tseed\tseason\ttier\tseason_pts\tlv\tlv_pts\tunspent\tcc_in\tcc_out\tbank\ttop_in")
+	print("FLOW\tbase\tseed\tseason\ttier\tseason_pts\tlv\tlv_pts\tunspent\tcc_in\tcc_out\tbank\ttop_in\tlv_season\tbanked\tharness_cc\tpower\tpolicy")
 	for b in bases:
 		for i in seeds:
 			_one(int(b), int(b) + i * 7919, years)
@@ -64,6 +74,7 @@ func _one(base: int, seed_v: int, years: int) -> void:
 	var s := Season.new(MeleeRosters.starting_club(), seed_v)
 	Session.season = s
 	var m := ProbeManager.new()
+	var tag := m.policy_tag()
 	for y in years:
 		var before_w := _snap(s)
 		m.winter(s)
@@ -75,8 +86,14 @@ func _one(base: int, seed_v: int, years: int) -> void:
 				lv += f.level - int(before_w[k]["lv"])
 				lv_pts += _sum(f) - int(before_w[k]["pts"])
 		var unspent := _unspent(s)
+		var banked := 0
+		for f in s.club.roster:
+			banked += Career.levels_banked(f)
 		var start := _snap(s)
+		var lv_s0 := m.lv_in_season
+		var h0 := m.harness_cc
 		m.season(s)
+		var power := s.club.power()
 		var season_pts := 0
 		for f in s.club.roster:
 			var k := f.get_instance_id()
@@ -98,5 +115,6 @@ func _one(base: int, seed_v: int, years: int) -> void:
 		var top: Array = []
 		for j in mini(3, lines.size()):
 			top.append("%s=%d" % [lines[j], int(bin[lines[j]])])
-		print("FLOW\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s" % [base, seed_v, y + 1, tier,
-			season_pts, lv, lv_pts, unspent, tin, tout, s.office.credits, ",".join(top)])
+		print("FLOW\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\t%d\t%d\t%d\t%d\t%s" % [base, seed_v, y + 1, tier,
+			season_pts, lv, lv_pts, unspent, tin, tout, s.office.credits, ",".join(top),
+			m.lv_in_season - lv_s0, banked, m.harness_cc - h0, power, tag])

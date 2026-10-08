@@ -1,0 +1,133 @@
+file	viewport	canvas	device	screen	state
+v16x10/01_start.png	v16x10	960x600	Steam Deck 1280x800	Start	front door, career exists
+v16x10/02_title_slots.png	v16x10	960x600	Steam Deck 1280x800	Title / save slots	three empty slots
+v16x10/03_settings.png	v16x10	960x600	Steam Deck 1280x800	Settings	in a career
+v16x10/04_season_club.png	v16x10	960x600	Steam Deck 1280x800	Season hub: FIGHT tab	cup quarter-final waiting, Backyard season 3
+v16x10/05_season_squad.png	v16x10	960x600	Steam Deck 1280x800	Season hub: TEAM tab	levels waiting (+N), no man picked
+v16x10/06_season_armorer.png	v16x10	960x600	Steam Deck 1280x800	Season hub: MAINTENANCE tab	1-star armorer, kit 84-94%
+v16x10/07_season_clubhouse.png	v16x10	960x600	Steam Deck 1280x800	Season hub: UPGRADES tab	cap, camp, infirmary, insurance, arena
+v16x10/08_season_finances.png	v16x10	960x600	Steam Deck 1280x800	Season hub: MANAGEMENT tab	finances, staff, coach card
+v16x10/09_roster.png	v16x10	960x600	Steam Deck 1280x800	Squad (card view)	eight men, line of five + bench
+v16x10/10_fighter.png	v16x10	960x600	Steam Deck 1280x800	Fighter page	Rail Calder, 3 levels to spend
+v16x10/11_market.png	v16x10	960x600	Steam Deck 1280x800	Free agents	six men, one unaffordable
+v16x10/12_staff.png	v16x10	960x600	Steam Deck 1280x800	Staff	two captains hired, 1-star armorer
+v16x10/13_coach.png	v16x10	960x600	Steam Deck 1280x800	Your coach	2 skill points to spend
+v16x10/14_records.png	v16x10	960x600	Steam Deck 1280x800	Records: The club tab	club records
+v16x10/15_guide.png	v16x10	960x600	Steam Deck 1280x800	Guide	The table page
+v16x10/16_arena.png	v16x10	960x600	Steam Deck 1280x800	Arena (venue)	Back field, level 0
+v16x10/17_chalkboard.png	v16x10	960x600	Steam Deck 1280x800	Playbook editor (chalkboard)	formations tab, a saved shape
+v16x10/18_create_fighter.png	v16x10	960x600	Steam Deck 1280x800	Create: fighter	custom fighter, 4 of 4 creations left
+v16x10/19_create_club.png	v16x10	960x600	Steam Deck 1280x800	Create: club	name, kit and badge
+v16x10/20_create_grade.png	v16x10	960x600	Steam Deck 1280x800	Create: grade	Sanctioned selected
+v16x10/21_bracket.png	v16x10	960x600	Steam Deck 1280x800	Cup bracket	Milwaukee Open, quarter-final to fight
+v16x10/22_club_menu.png	v16x10	960x600	Steam Deck 1280x800	Pause menu	open over the season hub
+v16x9/01_start.png	v16x9	960x540	PC 1080p / 16:9	Start	front door, career exists
+v16x9/02_title_slots.png	v16x9	960x540	PC 1080p / 16:9	Title / save slots	three empty slots
+v16x9/03_settings.png	v16x9	960x540	PC 1080p / 16:9	Settings	in a career
+v16x9/04_season_club.png	v16x9	960x540	PC 1080p / 16:9	Season hub: FIGHT tab	cup quarter-final waiting, Backyard season 3
+v16x9/05_season_squad.png	v16x9	960x540	PC 1080p / 16:9	Season hub: TEAM tab	levels waiting (+N), no man picked
+v16x9/06_season_armorer.png	v16x9	960x540	PC 1080p / 16:9	Season hub: MAINTENANCE tab	1-star armorer, kit 84-94%
+v16x9/07_season_clubhouse.png	v16x9	960x540	PC 1080p / 16:9	Season hub: UPGRADES tab	cap, camp, infirmary, insurance, arena
+v16x9/08_season_finances.png	v16x9	960x540	PC 1080p / 16:9	Season hub: MANAGEMENT tab	finances, staff, coach card
+v16x9/09_roster.png	v16x9	960x540	PC 1080p / 16:9	Squad (card view)	eight men, line of five + bench
+v16x9/10_fighter.png	v16x9	960x540	PC 1080p / 16:9	Fighter page	Rail Calder, 3 levels to spend
+v16x9/11_market.png	v16x9	960x540	PC 1080p / 16:9	Free agents	six men, one unaffordable
+v16x9/12_staff.png	v16x9	960x540	PC 1080p / 16:9	Staff	two captains hired, 1-star armorer
+v16x9/13_coach.png	v16x9	960x540	PC 1080p / 16:9	Your coach	2 skill points to spend
+v16x9/14_records.png	v16x9	960x540	PC 1080p / 16:9	Records: The club tab	club records
+v16x9/15_guide.png	v16x9	960x540	PC 1080p / 16:9	Guide	The table page
+v16x9/16_arena.png	v16x9	960x540	PC 1080p / 16:9	Arena (venue)	Back field, level 0
+v16x9/17_chalkboard.png	v16x9	960x540	PC 1080p / 16:9	Playbook editor (chalkboard)	formations tab, a saved shape
+v16x9/18_create_fighter.png	v16x9	960x540	PC 1080p / 16:9	Create: fighter	custom fighter, 4 of 4 creations left
+v16x9/19_create_club.png	v16x9	960x540	PC 1080p / 16:9	Create: club	name, kit and badge
+v16x9/20_create_grade.png	v16x9	960x540	PC 1080p / 16:9	Create: grade	Sanctioned selected
+v16x9/21_bracket.png	v16x9	960x540	PC 1080p / 16:9	Cup bracket	Milwaukee Open, quarter-final to fight
+v16x9/22_club_menu.png	v16x9	960x540	PC 1080p / 16:9	Pause menu	open over the season hub
+v16x9/23_walkout.png	v16x9	960x540	PC 1080p / 16:9	Walk-out (pre-bout splash)	league bout, both clubs
+v16x9/23b_prefight_plan.png	v16x9	960x540	PC 1080p / 16:9	Pre-fight plan	formation + play chosen
+v16x9/24_fight_live.png	v16x9	960x540	PC 1080p / 16:9	Fight (the list)	live, frame 30, first-bout route tip showing
+v16x9/25_contact_wheel.png	v16x9	960x540	PC 1080p / 16:9	Contact wheel	prompt open: a man routed onto a free enemy
+v16x9/25b_contact_wheel_third.png	v16x9	960x540	PC 1080p / 16:9	Contact wheel	prompt open: third man onto a clinch
+v16x9/26_corner.png	v16x9	960x540	PC 1080p / 16:9	Corner (between rounds)	after round 1
+v16x9/26b_corner_playbook.png	v16x9	960x540	PC 1080p / 16:9	Corner: full playbook	favourites starred, two scrolling panes
+v16x9/26c_corner_favourites.png	v16x9	960x540	PC 1080p / 16:9	Corner: favourites strip	four favourites
+v16x9/27_corner_sub.png	v16x9	960x540	PC 1080p / 16:9	Corner: substitution	sub picker open
+v16x9/28_report.png	v16x9	960x540	PC 1080p / 16:9	After-action report	bout fought, levels waiting
+v16x9/29_tip_route.png	v16x9	960x540	PC 1080p / 16:9	Fight: first-time coach mark	route tip showing
+v16x9/29b_tip_corner.png	v16x9	960x540	PC 1080p / 16:9	Corner: first-time coach mark	corner tip showing
+v16x9/30_dilemma.png	v16x9	960x540	PC 1080p / 16:9	Dilemma card	card on the table, prices shown
+v16x9/31_promotion.png	v16x9	960x540	PC 1080p / 16:9	Promotion offer	offer open
+v16x9/32_fixture_sim.png	v16x9	960x540	PC 1080p / 16:9	Fixture card	sim-it confirm open
+v16x9/32b_promo_ground_state.png	v16x9	960x540	PC 1080p / 16:9	Promotion ground prompt	State League needs fenced ground, over the hub
+v16x9/33_records_this_year.png	v16x9	960x540	PC 1080p / 16:9	Records: This year	season so far, 5 fought
+v16x9/34_promo_ground_regional.png	v16x9	960x540	PC 1080p / 16:9	Promotion ground prompt	Regional League needs arena; 9048 CC is test money from the tool
+v16x9/35_hub_week1.png	v16x9	960x540	PC 1080p / 16:9	Season hub: FIGHT tab	week 1, league fixture waiting
+v16x9/36_history.png	v16x9	960x540	PC 1080p / 16:9	Club history	records page
+v16x9/37_worlds_groups.png	v16x9	960x540	PC 1080p / 16:9	Worlds	group stage, 16 clubs in 4 pools
+v16x9/37b_bracket_done.png	v16x9	960x540	PC 1080p / 16:9	Cup bracket (Path of Honor)	finished, champion shown
+v16x9/38_playbook_favs.png	v16x9	960x540	PC 1080p / 16:9	Playbook over the walk-out: picking favourites	before
+v16x9/38b_playbook_favs.png	v16x9	960x540	PC 1080p / 16:9	Playbook over the walk-out: picking favourites	after, four starred
+v16x9/39_free_agent_market_ask.png	v16x9	960x540	PC 1080p / 16:9	Free-agent prompt	market_ask
+v16x9/39_free_agent_market_picked.png	v16x9	960x540	PC 1080p / 16:9	Free-agent prompt	market_picked
+v16x9/40_popup_mark.png	v16x9	960x540	PC 1080p / 16:9	Club tab popup	mark
+v16x9/40_popup_town.png	v16x9	960x540	PC 1080p / 16:9	Club tab popup	town
+v16x9/41_calendar.png	v16x9	960x540	PC 1080p / 16:9	Calendar	week 5 of a Backyard season
+v16x9/42_founding_step_1.png	v16x9	960x540	PC 1080p / 16:9	New career (founding)	step_1
+v16x9/42_founding_step_2.png	v16x9	960x540	PC 1080p / 16:9	New career (founding)	step_2
+v16x9/42_founding_step_3.png	v16x9	960x540	PC 1080p / 16:9	New career (founding)	step_3
+v16x9/42_founding_step_4.png	v16x9	960x540	PC 1080p / 16:9	New career (founding)	step_4
+v19x9/23_walkout.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Walk-out (pre-bout splash)	league bout, both clubs
+v19x9/23b_prefight_plan.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Pre-fight plan	formation + play chosen
+v19x9/24_fight_live.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Fight (the list)	live, frame 30, first-bout route tip showing
+v19x9/25_contact_wheel.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Contact wheel	prompt open: a man routed onto a free enemy
+v19x9/25b_contact_wheel_third.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Contact wheel	prompt open: third man onto a clinch
+v19x9/26_corner.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Corner (between rounds)	after round 1
+v19x9/26b_corner_playbook.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Corner: full playbook	favourites starred, two scrolling panes
+v19x9/26c_corner_favourites.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Corner: favourites strip	four favourites
+v19x9/27_corner_sub.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Corner: substitution	sub picker open
+v19x9/28_report.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	After-action report	bout fought, levels waiting
+v19x9/29_tip_route.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Fight: first-time coach mark	route tip showing
+v19x9/29b_tip_corner.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Corner: first-time coach mark	corner tip showing
+v19x9/30_dilemma.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Dilemma card	card on the table, prices shown
+v19x9/31_promotion.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Promotion offer	offer open
+v19x9/32_fixture_sim.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Fixture card	sim-it confirm open
+v19x9/32b_promo_ground_state.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Promotion ground prompt	State League needs fenced ground, over the hub
+v19x9/33_records_this_year.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Records: This year	season so far, 5 fought
+v19x9/34_promo_ground_regional.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Promotion ground prompt	Regional League needs arena; 9048 CC is test money from the tool
+v19x9/35_hub_week1.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Season hub: FIGHT tab	week 1, league fixture waiting
+v19x9/36_history.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Club history	records page
+v19x9/37_worlds_groups.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Worlds	group stage, 16 clubs in 4 pools
+v19x9/37b_bracket_done.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Cup bracket (Path of Honor)	finished, champion shown
+v19x9/38_playbook_favs.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Playbook over the walk-out: picking favourites	before
+v19x9/38b_playbook_favs.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Playbook over the walk-out: picking favourites	after, four starred
+v19x9/39_free_agent_market_ask.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Free-agent prompt	market_ask
+v19x9/39_free_agent_market_picked.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Free-agent prompt	market_picked
+v19x9/40_popup_mark.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Club tab popup	mark
+v19x9/40_popup_town.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Club tab popup	town
+v19x9/41_calendar.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	Calendar	week 5 of a Backyard season
+v19x9/42_founding_step_1.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	New career (founding)	step_1
+v19x9/42_founding_step_2.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	New career (founding)	step_2
+v19x9/42_founding_step_3.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	New career (founding)	step_3
+v19x9/42_founding_step_4.png	v19x9	1170x540	wide phone, no notch (S24 Ultra class)	New career (founding)	step_4
+v19x9n/01_start.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Start	front door, career exists
+v19x9n/02_title_slots.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Title / save slots	three empty slots
+v19x9n/03_settings.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Settings	in a career
+v19x9n/04_season_club.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Season hub: FIGHT tab	cup quarter-final waiting, Backyard season 3
+v19x9n/05_season_squad.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Season hub: TEAM tab	levels waiting (+N), no man picked
+v19x9n/06_season_armorer.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Season hub: MAINTENANCE tab	1-star armorer, kit 84-94%
+v19x9n/07_season_clubhouse.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Season hub: UPGRADES tab	cap, camp, infirmary, insurance, arena
+v19x9n/08_season_finances.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Season hub: MANAGEMENT tab	finances, staff, coach card
+v19x9n/09_roster.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Squad (card view)	eight men, line of five + bench
+v19x9n/10_fighter.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Fighter page	Rail Calder, 3 levels to spend
+v19x9n/11_market.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Free agents	six men, one unaffordable
+v19x9n/12_staff.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Staff	two captains hired, 1-star armorer
+v19x9n/13_coach.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Your coach	2 skill points to spend
+v19x9n/14_records.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Records: The club tab	club records
+v19x9n/15_guide.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Guide	The table page
+v19x9n/16_arena.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Arena (venue)	Back field, level 0
+v19x9n/17_chalkboard.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Playbook editor (chalkboard)	formations tab, a saved shape
+v19x9n/18_create_fighter.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Create: fighter	custom fighter, 4 of 4 creations left
+v19x9n/19_create_club.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Create: club	name, kit and badge
+v19x9n/20_create_grade.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Create: grade	Sanctioned selected
+v19x9n/21_bracket.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Cup bracket	Milwaukee Open, quarter-final to fight
+v19x9n/22_club_menu.png	v19x9n	1170x540	iPhone 11 class, notch 63/63	Pause menu	open over the season hub

@@ -132,6 +132,8 @@ For each disputed row in §6, run one real task through both, blind if possible:
 | date | task | Claude | ChatGPT | winner / note |
 |---|---|---|---|---|
 | 8 Oct | onboarding review of §5 (unprompted measurement critique) | wrote §5 | 4 verified catches, 0 wrong claims | ChatGPT — found the `level_into` change Claude's own note missed |
+| 8 Oct | #2 balance review: `docs/bakeoff-2/` (policies, C-numbers, raw outputs) | sealed (SHA-256 in the README) | — | open |
+| 8 Oct | Screen Score #1: `docs/screenscore-1/` (132 renders, rubric to agree first) | — | — | open |
 | 8 Oct | #1 levels/money since 1.0.1 — blind verdict on shared outputs | same verdict (no sim speed-up; cause is the 1.0.1 manual/spend-levels path); runnable next probe (`level_into` manager); side finding: auto `level_up` loses ~13% of points at the ceiling | same verdict, every number checks out; caught that `season_pts` is 0 in all 240 rows (dead column Claude shipped) and that `unspent` counts men, not levels; next step needs the tester's save — sound but heavier | Pete to score. Claude's read: ChatGPT stronger on auditing the instrument, Claude stronger on an actionable next step |
 
 ### ChatGPT's opening position (8 Oct, relayed by Pete)
@@ -172,6 +174,27 @@ by default. That is a strong first showing on exactly the row it claimed.
   to both, and each writes the one-page verdict blind. Pete scores.
 
 ## 8. Handing work between us
+
+**Where each of us works (8 Oct 2026):** ChatGPT works in the **Codex desktop app on
+Pete's Windows PC**, with the project set to `C:\Dev\RetroBuhurt`: it reads the code,
+the Git history and saved renders directly, runs local commands, and edits files when
+it's assigned implementation work. Godot test runs from that Windows session are
+**not verified yet**: establish the engine path and runner before assigning
+executable work to it or claiming tests passed there. Claude works in a Linux
+container with Godot 4.6.2 headless, and lands commits on the PC as bundles.
+Claude's chat files and project memory are **not** visible to Codex. Anything Codex
+needs is a file in this repo.
+
+**So every handoff is files in the repo**, and names:
+- the commit;
+- the paths;
+- the task;
+- the allowed changes;
+- the deliverable's path.
+
+Where work overlaps, say which files each of us owns. Blind rounds keep earlier
+verdicts and scores out of the package until both answers are in. Claude seals its
+answer outside the repo and commits only its SHA-256.
 
 Pete is the courier (we don't talk directly). Any handoff note should carry:
 

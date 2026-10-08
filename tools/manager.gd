@@ -40,6 +40,39 @@ enum Read { ORACLE, MIDPOINT, OPTIMIST, PESSIMIST, IGNORE, BLIND }
 var bargain: bool = false
 const BARGAIN_PER_CC := 0.35
 var reading: int = Read.ORACLE
+## HOW HE SPENDS A LEVEL, AND WHEN (bake-off #2, 8 Oct 2026). Defaults are the
+## pacing baseline every number since 16 Sep was measured on: the automatic
+## `Career.level_up`, at the winter only. The other values are FIXED policies
+## standing in for a player at the keyboard, who spends through
+## `Career.level_into` (changed in 1.0.1, d4359a6) and can spend after any bout.
+##   AUTO  `Career.level_up` (lowest stat under its peak, stops at the ceiling)
+##   LOW   `level_into` his lowest stat with room (same pick, manual door)
+##   SPEC  `level_into` his HIGHEST stat with room (a specialist build)
+enum Lv { AUTO, LOW, SPEC }
+var lv_policy: int = Lv.AUTO
+## true: also spend every placeable level after each event in the season.
+var lv_after_bout: bool = false
+## true: buy harness, one rung, for the starting five, worst grade first, out of
+## the surplus behind the market reserve (1.0.1 doubled these prices).
+var buys_harness: bool = false
+var harness_cc: int = 0
+var lv_in_season: int = 0
+
+
+## The policy can be set from the environment so EVERY career tool that plays
+## this manager (`bb.sh score`, `bases`, `probe_level_flow`, …) runs it without
+## its own flags. Unset = the baseline.
+##   RB_LV=auto|low|spec   RB_LV_BOUT=1   RB_HARNESS=1
+func _init() -> void:
+	var pol := OS.get_environment("RB_LV").to_lower()
+	lv_policy = Lv.LOW if pol == "low" else (Lv.SPEC if pol == "spec" else Lv.AUTO)
+	lv_after_bout = OS.get_environment("RB_LV_BOUT") == "1"
+	buys_harness = OS.get_environment("RB_HARNESS") == "1"
+
+
+func policy_tag() -> String:
+	return "%s%s%s" % [["auto", "low", "spec"][lv_policy], "+bout" if lv_after_bout else "",
+		"+harness" if buys_harness else ""]
 var _s: Season = null
 var was_tier: int = -1
 var raised: int = 0
@@ -59,7 +92,7 @@ func winter(s: Season) -> int:
 	var took := market(s, went_up)
 	staff(s)
 	for f in s.club.roster:
-		place_all(f)
+		place(f)
 	## AND PUT THE BEST MEN ON THE LINE. Roster order is the depth chart and a
 	## signing lands at the END of it, so a manager who does not do this signs
 	## better men and never plays them — see `MeleeClub.best_line`.
@@ -268,6 +301,34 @@ func season(s: Season) -> void:
 		## game and it is the one thing here that recurs, so it goes before the
 		## ceilings rather than out of what they leave. Still behind the market's
 		## reserve — a signing is worth more than any amount of training.
+		## HARNESS FIRST, when the policy is on: ahead of the session and the
+		## ceilings, out of everything above the bills (not behind KITTY) — the
+		## player who has decided kit is the priority.
+		## A harness above Rust needs an armorer who can make it (cap = stars-1),
+		## so the harness policy also hires the best armorer who will come and
+		## whom the surplus covers — the UI's Armorer tab, `Armorer.pool`.
+		if buys_harness and o.credits > keep:
+			var best_a: Dictionary = {}
+			for a in Armorer.pool(s.seed_value, s.world.season, String(o.armorer.get("name", ""))):
+				var st := int(a.get("stars", 1))
+				if st <= int(o.armorer.get("stars", 1)) or not Armorer.will_come(st, o.tier):
+					continue
+				if Armorer.wage_of(a) > o.credits - keep:
+					continue
+				if best_a.is_empty() or st > int(best_a.get("stars", 1)):
+					best_a = a
+			if not best_a.is_empty() and o.hire_armorer(best_a) == "":
+				harness_cc += Armorer.wage_of(best_a)
+		if buys_harness and o.fixture_week:
+			var five: Array = s.club.starting_five()
+			five.sort_custom(func(a, b): return Quartermaster.grade_of(a) < Quartermaster.grade_of(b))
+			for f in five:
+				var c := Quartermaster.upgrade_cost(f)
+				if c <= 0 or o.credits <= keep + c:
+					continue
+				if o.buy_harness(f) == "":
+					harness_cc += c
+				break
 		if o.credits > keep + KITTY:
 			s.run_session()
 
@@ -290,6 +351,30 @@ func season(s: Season) -> void:
 				if o.raise_ceiling(f) == "":
 					raised += 1
 		s.skip_event()
+		if lv_after_bout:
+			for f in s.club.roster:
+				lv_in_season += place(f)
+
+
+## Spend every level he has waiting, by this manager's policy. Returns how many.
+func place(f: FighterCard) -> int:
+	if lv_policy == Lv.AUTO:
+		var lv0 := f.level
+		place_all(f)
+		return f.level - lv0
+	var n := 0
+	while n < 8 and Career.can_place(f):
+		var room: Array = Career.raisable(f)
+		var pick: int = room[0]
+		for st in room:
+			var v := Career.read_stat(f, st)
+			if (lv_policy == Lv.LOW and v < Career.read_stat(f, pick)) \
+					or (lv_policy == Lv.SPEC and v > Career.read_stat(f, pick)):
+				pick = st
+		if not bool(Career.level_into(f, pick).get("levelled", false)):
+			break
+		n += 1
+	return n
 
 
 ## Spend every point he has waiting. Free, and nobody leaves them sitting.

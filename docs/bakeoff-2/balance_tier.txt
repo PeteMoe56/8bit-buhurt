@@ -1,0 +1,7 @@
+engine: 4.6.2.stable.official.71f334935   (/tmp/godot462/Godot_v4.6.2-stable_linux.x86_64)   tier: balance   load: 0.12 0.11 0.04
+  ok   all scripts parse (290 in one engine)
+  ok   test_c6                             151s  HOLDS (5 checks)
+  ok   test_grade                          138s  HOLDS (3 checks)
+  ok   test_invariants                     100s  HOLD (1434 checks)
+  ok   test_melee                          537s  HOLD (7 checks)
+SUITE GREEN — 5 runs (balance)   logs: logs/tests/
