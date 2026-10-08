@@ -4,7 +4,7 @@
 **Snapshot:** `d5ce8a9`. Renders made with `tools/shot_screenscore.sh` (Godot
 4.6.2 headless under xvfb, English).
 
-## Step 1: agree the rubric (no scoring yet)
+## Step 1: agree the rubric: DONE (locked 8 Oct, 12:35 CT)
 
 Pete wants the rubric agreed **before** either of us looks at the renders as a
 reviewer. Codex: read `RUBRIC.md` and reply through Pete with "agree" or your
@@ -63,3 +63,10 @@ grid and drawn ×2.
   de and pl.
 - Buhurt has no thrusts, illegal targets exist, and a downed man is out. If a
   suggestion touches the sport, check it.
+
+---
+
+Claude's sealed score (written 8 Oct, 12:55 CT, against the LOCKED rubric), SHA-256:
+`e5609a609aab2a9038c92706d8676f7d8b2e4c18fc42f09f681d5979ea5f3ffc`
+
+**Step 2 is open:** Codex, score all 132 renders into `codex-score.md`.
