@@ -1,0 +1,121 @@
+FLOW	base	seed	season	tier	season_pts	lv	lv_pts	unspent	cc_in	cc_out	bank	top_in
+FLOW	9001	9001	1	0	0	0	0	0	42	19	31	Prize money=17,The gate=13,The club=6
+FLOW	9001	9001	2	1	0	21	63	0	60	65	26	The gate=33,Prize money=15,The counter=6
+FLOW	9001	9001	3	1	0	34	102	0	87	73	40	The gate=39,Prize money=20,Tournaments=14
+FLOW	9001	9001	4	1	0	21	63	0	127	118	49	The gate=40,Tournaments=28,Prize money=24
+FLOW	9001	9001	5	2	0	33	99	1	138	133	54	The gate=86,The counter=28,The ground=10
+FLOW	9001	9001	6	1	0	58	172	5	143	156	41	The gate=56,Tournaments=28,Prize money=23
+FLOW	9001	9001	7	2	0	82	242	5	179	170	50	The gate=111,The counter=35,Prize money=17
+FLOW	9001	9001	8	2	0	79	231	7	192	194	48	The gate=104,Prize money=31,The counter=28
+FLOW	9001	9001	9	3	0	83	222	7	218	224	42	The gate=146,The counter=42,Prize money=13
+FLOW	9001	9001	10	3	0	75	183	5	280	250	72	The gate=157,The counter=49,Prize money=37
+FLOW	9001	9001	11	3	0	70	150	5	268	290	50	The gate=167,The counter=56,Prize money=24
+FLOW	9001	9001	12	3	0	92	186	11	294	288	56	The gate=136,Tournaments=50,The counter=44
+FLOW	9001	16920	1	0	0	0	0	0	65	39	34	Prize money=20,The gate=17,Tournaments=14
+FLOW	9001	16920	2	1	0	21	63	0	91	86	39	The gate=46,Prize money=22,The counter=12
+FLOW	9001	16920	3	2	0	30	90	0	146	149	36	The gate=98,The counter=28,Prize money=13
+FLOW	9001	16920	4	2	0	76	228	6	176	157	55	The gate=82,Prize money=25,The counter=25
+FLOW	9001	16920	5	2	0	66	196	3	249	261	43	The gate=126,The counter=49,Prize money=33
+FLOW	9001	16920	6	3	0	82	243	5	231	239	35	The gate=147,The counter=42,The club=18
+FLOW	9001	16920	7	3	0	74	216	2	235	228	42	The gate=146,The counter=42,Prize money=19
+FLOW	9001	16920	8	3	0	70	198	1	291	288	45	The gate=179,The counter=63,Prize money=28
+FLOW	9001	16920	9	3	0	72	191	4	289	288	46	The gate=174,The counter=63,Prize money=30
+FLOW	9001	16920	10	3	0	73	176	3	296	291	51	The gate=149,Prize money=42,The counter=42
+FLOW	9001	16920	11	3	0	68	130	6	354	321	84	The gate=147,Tournaments=70,The counter=61
+FLOW	9001	16920	12	3	0	72	99	9	424	415	93	The gate=191,The counter=99,Tournaments=65
+FLOW	5150	5150	1	0	0	0	0	0	49	19	38	Prize money=18,The gate=17,Tournaments=8
+FLOW	5150	5150	2	1	0	24	72	0	57	69	26	The gate=31,Prize money=11,The counter=6
+FLOW	5150	5150	3	1	0	24	72	0	87	76	37	The gate=35,Prize money=22,Tournaments=16
+FLOW	5150	5150	4	2	0	34	102	0	105	98	44	The gate=60,The counter=16,The ground=11
+FLOW	5150	5150	5	1	0	43	129	0	117	111	50	The gate=42,The counter=19,Prize money=19
+FLOW	5150	5150	6	1	0	44	132	1	134	137	47	The gate=55,Prize money=25,The counter=21
+FLOW	5150	5150	7	2	0	70	210	4	254	250	51	The gate=130,The counter=49,Prize money=33
+FLOW	5150	5150	8	3	0	86	255	6	281	284	48	The gate=177,The counter=63,Prize money=21
+FLOW	5150	5150	9	3	0	83	245	6	250	260	38	The gate=163,The counter=56,Prize money=20
+FLOW	5150	5150	10	3	0	86	225	7	294	279	53	The gate=154,Prize money=43,The counter=42
+FLOW	5150	5150	11	3	0	81	190	6	270	250	73	The gate=149,Prize money=44,The counter=42
+FLOW	5150	5150	12	3	0	81	160	9	399	315	157	The gate=150,Tournaments=140,Prize money=44
+FLOW	5150	13069	1	0	0	0	0	0	43	19	32	The gate=17,Prize money=14,The club=5
+FLOW	5150	13069	2	1	0	21	63	0	86	78	40	The gate=34,Prize money=18,Tournaments=14
+FLOW	5150	13069	3	1	0	27	79	0	128	118	50	The gate=52,Tournaments=28,Prize money=22
+FLOW	5150	13069	4	1	0	53	159	3	124	128	46	The gate=58,Prize money=22,The counter=17
+FLOW	5150	13069	5	2	0	53	159	3	164	161	49	The gate=90,The counter=35,Prize money=22
+FLOW	5150	13069	6	2	0	60	176	3	244	241	52	The gate=129,The counter=49,Prize money=36
+FLOW	5150	13069	7	3	0	84	248	8	222	225	49	The gate=143,The counter=42,Prize money=19
+FLOW	5150	13069	8	3	0	83	240	5	284	278	55	The gate=133,Tournaments=45,The counter=42
+FLOW	5150	13069	9	3	0	74	197	4	376	370	61	The gate=195,The counter=99,Prize money=35
+FLOW	5150	13069	10	3	0	75	176	7	385	322	124	The gate=180,The counter=77,Tournaments=60
+FLOW	5150	13069	11	3	0	78	152	8	388	421	91	The gate=163,Tournaments=85,The counter=66
+FLOW	5150	13069	12	3	0	87	141	10	427	459	59	The gate=200,The counter=99,Tournaments=55
+FLOW	2718	2718	1	0	0	0	0	0	55	30	33	Prize money=20,The gate=19,Tournaments=10
+FLOW	2718	2718	2	1	0	22	66	0	86	80	39	The gate=38,Prize money=23,Tournaments=14
+FLOW	2718	2718	3	2	0	30	90	0	112	107	44	The gate=67,Prize money=18,The counter=15
+FLOW	2718	2718	4	2	0	55	165	0	100	103	41	The gate=55,The counter=14,The club=13
+FLOW	2718	2718	5	2	0	58	173	2	153	141	53	The gate=67,The counter=31,Prize money=27
+FLOW	2718	2718	6	2	0	52	155	0	223	230	46	The gate=104,The counter=35,Prize money=34
+FLOW	2718	2718	7	3	0	63	174	2	252	251	47	The gate=166,The counter=63,Prize money=10
+FLOW	2718	2718	8	2	0	62	162	3	230	239	38	The gate=106,Prize money=39,The counter=35
+FLOW	2718	2718	9	3	0	79	202	6	249	239	48	The gate=155,The counter=49,Prize money=29
+FLOW	2718	2718	10	3	0	81	182	7	318	293	73	The gate=172,The counter=63,Prize money=39
+FLOW	2718	2718	11	3	0	83	160	5	288	313	48	The gate=168,The counter=56,Prize money=40
+FLOW	2718	2718	12	3	0	84	128	10	228	223	53	The gate=142,The counter=42,Prize money=31
+FLOW	2718	10637	1	0	0	0	0	0	60	33	35	Prize money=19,The gate=16,The club=11
+FLOW	2718	10637	2	1	0	22	66	0	109	103	41	The gate=49,Tournaments=22,Prize money=21
+FLOW	2718	10637	3	2	0	36	108	0	117	113	45	The gate=81,The counter=20,The club=7
+FLOW	2718	10637	4	1	0	63	189	5	104	110	39	The gate=55,Prize money=20,The counter=16
+FLOW	2718	10637	5	2	0	60	175	2	175	179	35	The gate=110,Prize money=32,The counter=28
+FLOW	2718	10637	6	3	0	62	181	2	194	197	32	The gate=136,The counter=24,Prize money=15
+FLOW	2718	10637	7	3	0	69	202	3	194	178	48	The gate=117,The counter=34,Prize money=19
+FLOW	2718	10637	8	3	0	63	179	2	257	247	58	The gate=100,The counter=62,Prize money=35
+FLOW	2718	10637	9	3	0	83	227	6	301	298	61	The gate=148,The counter=66,Prize money=43
+FLOW	2718	10637	10	3	0	84	213	5	303	300	64	The gate=160,The counter=66,Prize money=39
+FLOW	2718	10637	11	3	0	89	166	8	450	413	101	The gate=186,Tournaments=110,The counter=88
+FLOW	2718	10637	12	3	0	74	109	9	424	433	92	The gate=183,The counter=88,Tournaments=65
+FLOW	6060	6060	1	0	0	0	0	0	67	33	42	The gate=18,Prize money=17,The club=13
+FLOW	6060	6060	2	1	0	21	63	0	91	100	33	The gate=44,Prize money=25,The counter=9
+FLOW	6060	6060	3	2	0	32	96	0	126	116	43	The gate=86,The counter=16,Prize money=13
+FLOW	6060	6060	4	2	0	50	150	2	139	146	36	The gate=92,The counter=24,Prize money=17
+FLOW	6060	6060	5	2	0	52	154	0	146	138	44	The gate=95,The counter=20,Prize money=18
+FLOW	6060	6060	6	2	0	72	211	3	180	180	44	The gate=111,The counter=28,Prize money=24
+FLOW	6060	6060	7	2	0	68	193	3	168	173	39	The gate=84,Prize money=35,The counter=16
+FLOW	6060	6060	8	3	0	56	154	2	247	239	47	The gate=147,The counter=63,Prize money=15
+FLOW	6060	6060	9	2	0	56	152	2	218	219	46	The gate=106,Prize money=37,The counter=35
+FLOW	6060	6060	10	3	0	47	116	2	259	257	48	The gate=173,The counter=56,Prize money=20
+FLOW	6060	6060	11	3	0	54	125	3	272	257	63	The gate=144,The counter=42,Prize money=41
+FLOW	6060	6060	12	3	0	61	105	5	369	358	74	The gate=153,Tournaments=80,The counter=66
+FLOW	6060	13979	1	0	0	0	0	0	62	39	31	Prize money=18,The gate=17,Tournaments=14
+FLOW	6060	13979	2	1	0	22	66	0	72	67	36	The gate=36,Prize money=15,The counter=9
+FLOW	6060	13979	3	1	0	25	75	0	124	121	39	The gate=56,Prize money=25,Tournaments=22
+FLOW	6060	13979	4	2	0	53	158	2	159	148	50	The gate=89,The counter=32,Prize money=21
+FLOW	6060	13979	5	2	0	63	186	3	177	183	44	The gate=95,The counter=41,Prize money=28
+FLOW	6060	13979	6	3	0	82	243	5	215	214	45	The gate=144,The counter=42,Prize money=11
+FLOW	6060	13979	7	2	0	74	210	3	206	201	50	The gate=113,The counter=42,Prize money=25
+FLOW	6060	13979	8	2	0	64	186	3	276	277	49	The gate=130,The counter=49,Tournaments=42
+FLOW	6060	13979	9	2	0	76	187	6	231	235	45	The gate=100,Tournaments=42,Prize money=39
+FLOW	6060	13979	10	3	0	77	167	8	275	258	62	The gate=157,The counter=49,Prize money=42
+FLOW	6060	13979	11	3	0	78	133	9	344	327	79	The gate=161,Tournaments=80,The counter=49
+FLOW	6060	13979	12	3	0	88	138	11	307	331	55	The gate=125,Tournaments=70,The counter=50
+FLOW	8123	8123	1	0	0	0	0	0	46	30	24	The gate=18,Prize money=17,Tournaments=6
+FLOW	8123	8123	2	1	0	23	69	0	71	49	46	The gate=38,Prize money=13,The counter=8
+FLOW	8123	8123	3	1	0	25	75	0	99	104	41	The gate=38,Prize money=26,Tournaments=14
+FLOW	8123	8123	4	2	0	32	96	0	139	131	49	The gate=92,The counter=24,Prize money=9
+FLOW	8123	8123	5	1	0	50	148	3	122	141	30	The gate=46,Prize money=27,Tournaments=20
+FLOW	8123	8123	6	2	0	42	126	2	174	151	53	The gate=97,The counter=35,Prize money=21
+FLOW	8123	8123	7	2	0	43	125	1	210	208	55	The gate=119,The counter=42,Prize money=27
+FLOW	8123	8123	8	2	0	47	139	3	219	223	51	The gate=131,The counter=49,Prize money=17
+FLOW	8123	8123	9	2	0	62	178	5	223	217	57	The gate=106,The counter=35,Prize money=33
+FLOW	8123	8123	10	2	0	94	257	10	215	220	52	The gate=121,The counter=42,Prize money=33
+FLOW	8123	8123	11	2	0	92	217	10	237	241	48	The gate=111,Tournaments=42,Prize money=39
+FLOW	8123	8123	12	3	0	79	161	8	289	275	62	The gate=125,The counter=47,Prize money=43
+FLOW	8123	16042	1	0	0	0	0	0	50	24	34	The gate=19,Prize money=19,Tournaments=6
+FLOW	8123	16042	2	1	0	23	69	0	65	67	32	The gate=41,Prize money=14,The counter=6
+FLOW	8123	16042	3	1	0	27	81	0	109	97	44	The gate=45,Prize money=22,Tournaments=22
+FLOW	8123	16042	4	2	0	52	156	1	145	147	42	The gate=101,The counter=28,Prize money=9
+FLOW	8123	16042	5	1	0	83	246	7	143	137	48	The gate=58,Tournaments=28,Prize money=24
+FLOW	8123	16042	6	2	0	76	224	5	177	180	45	The gate=96,The counter=42,Prize money=22
+FLOW	8123	16042	7	2	0	74	218	4	191	182	54	The gate=111,The counter=35,Prize money=24
+FLOW	8123	16042	8	2	0	62	182	2	244	244	54	The gate=105,The counter=45,Prize money=39
+FLOW	8123	16042	9	3	0	83	207	6	280	275	59	The gate=157,The counter=66,Prize money=29
+FLOW	8123	16042	10	3	0	85	175	7	380	318	121	The gate=166,The counter=77,Tournaments=75
+FLOW	8123	16042	11	3	0	78	141	9	461	460	122	The gate=172,Tournaments=130,The counter=77
+FLOW	8123	16042	12	3	0	88	152	11	470	437	155	The gate=158,Tournaments=145,The counter=66

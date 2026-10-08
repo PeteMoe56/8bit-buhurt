@@ -1,0 +1,1167 @@
+diff --git a/scripts/game/career.gd b/scripts/game/career.gd
+index 6fb00f2..a1b69d8 100644
+--- a/scripts/game/career.gd
++++ b/scripts/game/career.gd
+@@ -833,12 +833,20 @@ static func level_into(f: FighterCard, stat: int) -> Dictionary:
+ 		return {"levelled": false, "reason": UiKit.t("not earned"),
+ 			"short": next_level_at(f) - f.xp}
+ 	var before := f.overall()
+-	## POINTS_PER_LEVEL INTO THE STAT HE CHOSE, stopping at his ceiling or the
+-	## stat's own top — the same rule the automatic path keeps.
+-	for k in POINTS_PER_LEVEL:
+-		if k > 0 and (at_ceiling(f) or not raisable(f).has(stat)):
++	## POINTS_PER_LEVEL INTO THE STAT HE CHOSE, AND ALL OF THEM (Pete, 4 Oct
++	## 2026: "I put +3 in a 53/55 Strength, should've shown +1 left"). The
++	## ceiling is checked before a level, not in the middle of one: it stopped a
++	## level two points in, threw the third away and spent the level anyway. A
++	## man one short of his ceiling now finishes the level he started, a fraction
++	## over. A stat at 99 passes its leftover to the next stat with room.
++	var left := POINTS_PER_LEVEL
++	while left > 0:
++		var room := raisable(f)
++		if room.is_empty():
+ 			break
+-		write_stat(f, stat, read_stat(f, stat) + 1)
++		var into: int = stat if room.has(stat) else room[0]
++		write_stat(f, into, read_stat(f, into) + 1)
++		left -= 1
+ 	return _took(f, before, stat)
+ 
+ 
+diff --git a/scripts/league/arena.gd b/scripts/league/arena.gd
+index 9c4bf67..249aa35 100644
+--- a/scripts/league/arena.gd
++++ b/scripts/league/arena.gd
+@@ -433,6 +433,10 @@ static func hosted_weight() -> float:
+ ## with the last place's rubbish still in it.
+ func built() -> void:
+ 	condition = 1.0
++	if level >= 1:
++		Achievements.unlock("BREAKING_GROUND")
++	if level >= MAX_LEVEL:
++		Achievements.unlock("NATIONAL_ARENA")
+ 
+ 
+ func here() -> Dictionary:
+diff --git a/scripts/league/calendar.gd b/scripts/league/calendar.gd
+index 1c392e7..753576b 100644
+--- a/scripts/league/calendar.gd
++++ b/scripts/league/calendar.gd
+@@ -101,6 +101,11 @@ static func own_week_number(cal: Array, after_day: int) -> int:
+ 		var w: Dictionary = cal[i]
+ 		if int(w["kind"]) == Kind.LEAGUE and int(w["day"]) + 1 == after_day:
+ 			return i + 2
++	## THE SAME FALLBACK `insert_own` USES (3 Oct 2026): before the bye and the
++	## playoff, not after the last week.
++	for i in cal.size():
++		if int(cal[i]["kind"]) == Kind.PLAYOFF or int(cal[i]["kind"]) == Kind.BYE:
++			return i + 1
+ 	return cal.size() + 1
+ 
+ 
+diff --git a/scripts/league/club_factory.gd b/scripts/league/club_factory.gd
+index 7be4a64..3ba994a 100644
+--- a/scripts/league/club_factory.gd
++++ b/scripts/league/club_factory.gd
+@@ -309,6 +309,10 @@ static func _tune_to(club: MeleeClub, target: int) -> void:
+ ## CPU club built from its id must come back in the colors it always had.
+ const CPU_KITS: int = 14
+ const CPU_MARKS: int = 9
++## AND THE ORIGINAL TWENTY MARKS (3 Oct 2026, audit). `% ICONS.size()` meant
++## the first icon added to the bank re-drew every CPU club's mark in every save.
++## Pinned like the colours; new icons are for the player.
++const CPU_ICONS: int = 20
+ 
+ 
+ static func _field(rng: RandomNumberGenerator) -> Color:
+@@ -325,7 +329,7 @@ static func _icon_color(rng: RandomNumberGenerator) -> Color:
+ ## CPU clubs wear anything in the bank. The bank is a shop for the PLAYER; the
+ ## other forty-one clubs in the country have their own kit already.
+ static func _icon(rng: RandomNumberGenerator) -> int:
+-	return int(IconBank.ICONS[rng.randi() % IconBank.ICONS.size()]["id"])
++	return int(IconBank.ICONS[rng.randi() % CPU_ICONS]["id"])
+ 
+ 
+ 
+diff --git a/scripts/league/club_office.gd b/scripts/league/club_office.gd
+index 26739bd..bcbec1e 100644
+--- a/scripts/league/club_office.gd
++++ b/scripts/league/club_office.gd
+@@ -139,9 +139,14 @@ static func wage(card: FighterCard) -> int:
+ ## do it here rather than at the point of signing so the discount survives a
+ ## re-sign — a trait that only applied once would be a one-off, not a trait.
+ static func billed(card: FighterCard) -> int:
+-	var base := card.wage_agreed if card.wage_agreed > 0 else wage(card)
+-	return maxi(1, int(round(float(base)
+-		* FighterTrait.mod(card.trait_id, "wage", 1.0))))
++	return billed_at(card, card.wage_agreed if card.wage_agreed > 0 else wage(card))
++
++
++## WHAT A GIVEN DEAL WOULD BILL FOR THIS MAN, trait and all. The cap checks ask
++## this (3 Oct 2026): they used to compare the raw wage, so a CHEAP man was
++## refused for a bill 20% bigger than the one he would actually run up.
++static func billed_at(card: FighterCard, deal: int) -> int:
++	return maxi(1, int(round(float(deal) * FighterTrait.mod(card.trait_id, "wage", 1.0))))
+ 
+ 
+ static func wage_bill(club: MeleeClub) -> int:
+@@ -491,6 +496,8 @@ func buy_harness(card: FighterCard) -> String:
+ 	spend(cost, LINE_KIT)
+ 	card.harness = next
+ 	card.armor = Quartermaster.ceiling(card)
++	if next == Quartermaster.Grade.TITANIUM:
++		Achievements.unlock("TITANIUM")
+ 	return ""
+ 
+ 
+diff --git a/scripts/league/dilemma.gd b/scripts/league/dilemma.gd
+index d356a8f..c6a4178 100644
+--- a/scripts/league/dilemma.gd
++++ b/scripts/league/dilemma.gd
+@@ -131,14 +131,14 @@ const CARDS: Array[Dictionary] = [
+ 	"id": "van",
+ 	"who": Who.WORST_KIT,
+ 	"weight": 3,
+-	"title": "A van in the parking lot",
+-	"text": "There is an armorer working out of a van at the far end. He has gambesons in three sizes, a grinder, and a line. He will do the whole club before the first bout if you want.",
++	"title": "The armorer's van",
++	"text": "An armorer has parked his van at the far end of the lot and is selling gambesons, the padded jackets your fighters wear under their steel. He can refit the whole club before the first bout, or just patch up {man}, whose kit is the worst on the squad.",
+ 	"options": [
+-		{"label": "New gambesons all around", "blurb": "Proper kit, properly fitted, and it is not cheap.",
++		{"label": "Refit the whole club", "blurb": "New padding for everyone. Expensive, but every harness comes back up.",
+ 			"fx": {"cc": -6, "kit": 0.22}},
+-		{"label": "Just patch the worst of it", "blurb": "{man} first, and whatever the hour is worth.",
++		{"label": "Just fix {man}", "blurb": "Cheap. Only the worst kit gets better.",
+ 			"fx": {"cc": -2, "armor": 0.28}},
+-		{"label": "Wave him off", "blurb": "Nobody has the money and everybody noticed.",
++		{"label": "Send him away", "blurb": "No money spent. The squad saw you walk past and is annoyed.",
+ 			"fx": {"morale": -0.05, "kit": -0.02}},
+ 	],
+ },
+@@ -147,14 +147,14 @@ const CARDS: Array[Dictionary] = [
+ 	"who": Who.ANYONE,
+ 	"weight": 3,
+ 	"tone": Tone.SHADY,
+-	"title": "A very good price",
+-	"text": "Somebody knows somebody with a pallet of plate going cheap. It is good steel. Nobody will say which club it came off, and one of the helms still has a name inside it.",
++	"title": "Armor that fell off a truck",
++	"text": "A guy who knows a guy has a pallet of armor for sale, dirt cheap. It's good steel, but nobody will say where it came from, and one helmet still has another club's name scratched inside. Buy it and people will talk.",
+ 	"options": [
+-		{"label": "Take the pallet", "blurb": "Every harness in the club, for the price of two.",
++		{"label": "Buy the whole pallet", "blurb": "Kit for the whole club at a bargain. Word gets around about where it came from.",
+ 			"fx": {"cc": -4, "kit": 0.30, "note": -2.0}},
+-		{"label": "Take the plain pieces only", "blurb": "The ones with nothing written in them.",
++		{"label": "Only the unmarked pieces", "blurb": "A smaller haul, and nothing anyone can trace.",
+ 			"fx": {"cc": -3, "kit": 0.12}},
+-		{"label": "Nothing doing", "blurb": "The room is quietly relieved and quietly poorer.",
++		{"label": "Walk away", "blurb": "The squad respects it, but the old kit keeps wearing out.",
+ 			"fx": {"morale": 0.04, "kit": -0.03}},
+ 	],
+ },
+@@ -163,156 +163,158 @@ const CARDS: Array[Dictionary] = [
+ 	"who": Who.WORST_KIT,
+ 	"weight": 3,
+ 	"tone": Tone.CLEAN,
+-	"title": "The federation's fitting day",
+-	"text": "The federation is running a kit clinic before the event — a proper fitter, a stack of new gambesons, and an inspector who will sign off anything that passes in front of him.",
++	"title": "Federation kit check",
++	"text": "The federation is holding a kit check before today's event: a professional fitter, new padding at cost, and an inspector signing off armor on the spot. It takes the morning you would normally spend warming up.",
+ 	"options": [
+-		{"label": "Put the whole club through", "blurb": "A morning gone, and every harness legal.",
++		{"label": "Send the whole club", "blurb": "Costs a little and the morning. Every harness is legal and the federation notices.",
+ 			"fx": {"cc": -3, "kit": 0.18, "note": 1.0}},
+-		{"label": "Send {man} on his own", "blurb": "He is the one who needs it.",
++		{"label": "Just send {man}", "blurb": "His kit is the worst on the squad. He comes back fully fixed.",
+ 			"fx": {"cc": -1, "armor": 0.34}},
+-		{"label": "We have an event to fight", "blurb": "Warm up instead. The kit will keep.",
++		{"label": "Skip it and warm up", "blurb": "The fighters get a proper warm-up. The kit keeps wearing.",
+ 			"fx": {"xp": 8, "kit": -0.02}},
+ 	],
+ },
+ {
+ 	"id": "harness",
+ 	"who": Who.WORST_KIT,
+-	"title": "Condemned at the gate",
+-	"text": "The marshal has looked at {man}'s harness and will not pass it. There is a smith in the parking lot who will work through the morning for a price.",
++	"title": "Failed inspection",
++	"text": "At the gate, the marshal inspects {man}'s armor and fails it. He can't fight in it today. A blacksmith in the parking lot can repair it before your bout, for a fee.",
+ 	"options": [
+-		{"label": "Pay the smith", "blurb": "Straight back on the line, at a price.",
++		{"label": "Pay the blacksmith", "blurb": "Fixed properly, and he's back on the list today.",
+ 			"fx": {"cc": -3, "armor": 0.30}},
+-		{"label": "Borrow a club spare", "blurb": "It fits nobody. He will fight in it anyway.",
++		{"label": "Lend him the spare", "blurb": "The club's spare set barely fits. He fights in it, unhappy.",
+ 			"fx": {"armor": 0.10, "morale": -0.05}},
+-		{"label": "He sits out", "blurb": "One event, and the eight covers.",
++		{"label": "He sits this one out", "blurb": "He misses this event and the rest of the squad covers.",
+ 			"fx": {"injury": 1, "morale": -0.03}},
+ 	],
+ },
+ {
+ 	"id": "two_clubs",
+ 	"who": Who.ANYONE,
+-	"title": "Two shirts",
+-	"text": "{man} has been fighting for somebody else on the weekends {club} is not out. Nobody has broken a rule. Everybody has noticed.",
++	"title": "Fighting for two clubs",
++	"text": "{man} has been fighting for another club on the weekends {club} has no event. It isn't against the rules, but the rest of the squad has noticed and they don't like it.",
+ 	"options": [
+-		{"label": "Fine him", "blurb": "It is in the agreement he signed.",
++		{"label": "Fine him", "blurb": "His contract allows it. The squad thinks it's petty.",
+ 			"fx": {"cc": 2, "morale": -0.09}},
+-		{"label": "Have a word", "blurb": "Quietly, and once.",
++		{"label": "Have a quiet word", "blurb": "He gets the message. Not much changes.",
+ 			"fx": {"morale": -0.02, "xp": 4}},
+-		{"label": "Let him get on with it", "blurb": "More mat time is more mat time.",
++		{"label": "Let him keep at it", "blurb": "The extra fights make him better, and he might get hurt doing it.",
+ 			"fx": {"morale": 0.06, "xp": 12, "injury": 1}},
+ 	],
+ },
+ {
+ 	"id": "brewery",
+ 	"who": Who.ANYONE,
+-	"title": "A name on the rail",
+-	"text": "A brewery two towns over will pay to put its name along the rail. It is not a lot of money and it is not a small banner.",
++	"title": "A brewery sponsor",
++	"text": "A brewery from a nearby town wants to sponsor {club} and hang a big banner along your arena's rail. It's steady money, but some of the fighters don't want to be a beer advert.",
+ 	"options": [
+-		{"label": "Take the money", "blurb": "It pays for a season of harness repairs.",
++		{"label": "Take the deal", "blurb": "Money in and a bigger name. Some grumbling in the locker room.",
+ 			"fx": {"cc": 6, "note": 1.5, "morale": -0.07}},
+-		{"label": "Turn it down", "blurb": "{club} is not an advert.",
++		{"label": "Say no", "blurb": "The fighters are proud of it. You give up the money.",
+ 			"fx": {"morale": 0.06, "note": -0.5}},
+ 	],
+ },
+ {
+ 	"id": "carpark",
+ 	"who": Who.ANYONE,
+-	"title": "After the bout",
+-	"text": "Something happened in the parking lot after {rival}. {man} was in the middle of it and is not saying much.",
++	"title": "Parking lot fight",
++	"text": "After your bout with {rival}, a fight broke out in the parking lot. {man} was in the middle of it and won't say what happened. The story will be all over the circuit by Tuesday.",
+ 	"options": [
+-		{"label": "Report it yourself", "blurb": "Before somebody else does.",
++		{"label": "Report it yourself", "blurb": "Honest, and the squad respects it. Your reputation takes the hit.",
+ 			"fx": {"note": -2.0, "morale": 0.08}},
+-		{"label": "Say nothing", "blurb": "It will be around the circuit by Tuesday either way.",
++		{"label": "Keep quiet", "blurb": "Nobody can prove anything, but the squad hates the silence.",
+ 			"fx": {"note": 2.5, "morale": -0.10}},
+ 	],
+ },
+ {
+ 	"id": "veterans_place",
+ 	"who": Who.OLDEST,
+-	"title": "The old man's place",
+-	"text": "{man} has asked to come off the eight so one of the young guys can travel. He means it. He is also still one of the better fighters here.",
++	"title": "The veteran steps aside",
++	"text": "{man}, your oldest fighter, has offered to step off the traveling squad so a young fighter can get event experience. He means it, but he is still one of your best.",
+ 	"options": [
+-		{"label": "Take him up on it", "blurb": "The reserve learns more in one event than in a winter.",
++		{"label": "Accept his offer", "blurb": "The squad loves it. He takes a year off his contract.",
+ 			"fx": {"morale": 0.10, "years": -1}},
+-		{"label": "He is still needed", "blurb": "The young man can wait a year.",
++		{"label": "Keep him traveling", "blurb": "You stay stronger now. The youngster waits, and the squad notices.",
+ 			"fx": {"morale": -0.05, "xp": 10}},
+ 	],
+ },
+ {
+ 	"id": "film_crew",
+ 	"who": Who.ANYONE,
+-	"title": "Somebody with a camera",
+-	"text": "A crew making something about the sport wants to follow {club} for the rest of the season. They want access to everything, including the bad weeks.",
++	"title": "Documentary crew",
++	"text": "A film crew making a documentary about armored combat wants to follow {club} for the rest of the season, cameras in the locker room included. Great for your name, hard on the fighters.",
+ 	"options": [
+-		{"label": "Let them in", "blurb": "People will hear of us.",
++		{"label": "Give them full access", "blurb": "A big boost to your name and your crowd. The fighters hate the cameras.",
+ 			"fx": {"note": 5.0, "fans": 0.05, "morale": -0.12}},
+-		{"label": "Training only", "blurb": "A compromise nobody likes.",
++		{"label": "Training sessions only", "blurb": "Some exposure, some annoyance.",
+ 			"fx": {"note": 2.0, "morale": -0.04}},
+-		{"label": "No", "blurb": "The guys have day jobs.",
++		{"label": "Turn them down", "blurb": "The fighters are relieved. You lose the publicity.",
+ 			"fx": {"morale": 0.07, "note": -1.0}},
+ 	],
+ },
+ {
+ 	"id": "share_venue",
+ 	"who": Who.ANYONE,
+-	"title": "Sharing a hall",
+-	"text": "{rival} have lost their ground and have asked to share yours for the rest of the year. They will pay their way.",
++	"title": "A rival needs your arena",
++	"text": "{rival} lost their arena and want to rent yours for the rest of the year. They will pay, and their fans will come through your gate, but people will say you are propping up a rival.",
+ 	"options": [
+-		{"label": "Let them in", "blurb": "Their people will come through your gate.",
++		{"label": "Rent it at a fair price", "blurb": "Some rent, and their fans swell your crowd.",
+ 			"fx": {"cc": 5, "fans": 0.08, "note": -1.5}},
+-		{"label": "Charge them properly", "blurb": "Business is business.",
++		{"label": "Charge them top dollar", "blurb": "Good money. You look greedy and the squad is uneasy.",
+ 			"fx": {"cc": 9, "morale": -0.06, "note": -2.5}},
+-		{"label": "No room", "blurb": "It is our hall.",
++		{"label": "Say no", "blurb": "Loyal to your own, and you leave money on the table.",
+ 			"fx": {"note": 1.0, "morale": -0.03}},
+ 	],
+ },
+ {
+ 	"id": "longer_deal",
+ 	"who": Who.BEST,
+-	"title": "A word about the paperwork",
+-	"text": "{man} has been asked about by two other clubs and would like to know where he stands. He is not asking for much. He is asking now.",
++	"title": "Contract talk",
++	"text": "Two other clubs have been asking about {man}, your best fighter. He wants to know now whether you will extend his contract. If you do, he will want a raise.",
+ 	"options": [
+-		{"label": "Give him the year", "blurb": "And the raise that comes with it.",
++		{"label": "Extend him a year", "blurb": "He stays another season. His pay rises about 18%.",
+ 			"fx": {"years": 1, "wage": 1.18, "morale": 0.08}},
+-		{"label": "After the season", "blurb": "Nothing is decided in October.",
++		{"label": "Talk after the season", "blurb": "No raise yet, but he and the squad feel brushed off.",
+ 			"fx": {"morale": -0.08}},
+ 	],
+ },
+ {
+ 	"id": "marshal",
+ 	"who": Who.ANYONE,
+-	"title": "The marshal wants a word",
+-	"text": "About how {club} has been fighting. Nothing has been called, and he would rather not have to call it.",
++	"title": "The marshal's warning",
++	"text": "The head marshal has pulled you aside. {club} has been fighting right at the edge of the rules. Nothing has been penalized yet, but he would rather not have to start.",
+ 	"options": [
+-		{"label": "Apologize and rein it in", "blurb": "Quiet season, quiet club.",
++		{"label": "Apologize, tone it down", "blurb": "The squad relaxes. Other clubs see you as soft.",
+ 			"fx": {"note": -1.5, "morale": 0.05}},
+-		{"label": "Stand by the guys", "blurb": "It is a contact sport.",
++		{"label": "Back your fighters", "blurb": "The squad loves it and you get a hard reputation. You pay a small fine.",
+ 			"fx": {"cc": -2, "note": 2.0, "morale": 0.09}},
+ 	],
+ },
+ {
+ 	"id": "gambesons",
+ 	"who": Who.ANYONE,
+-	"title": "The gambeson order",
+-	"text": "Half the padding in the kit room is older than half the club. There is a bulk price if the order goes in this week.",
++	"title": "Worn-out padding",
++	"text": "Most of the padding in your kit room is worn thin and older than some of your fighters. A supplier will give you a bulk discount if you order this week.",
+ 	"options": [
+-		{"label": "Kit everybody out", "blurb": "All thirteen, done properly.",
++		## THE BOOKS HOLD TWELVE, NOT THIRTEEN (3 Oct 2026), so the label says the
++		## squad rather than a number that was wrong.
++		{"label": "Order for the whole squad", "blurb": "Everybody's padding is new.",
+ 			"fx": {"cc": -7, "kit": 0.16}},
+-		{"label": "Just the eight", "blurb": "The reserve can wait.",
+-			"fx": {"cc": -4, "kit": 0.08, "morale": -0.05}},
+-		{"label": "Another year", "blurb": "It has lasted this long.",
++		{"label": "Order for the eight", "blurb": "The traveling squad gets new kit. The reserves feel left out.",
++			"fx": {"cc": -4, "kit_eight": 0.08, "morale": -0.05}},
++		{"label": "Wait another year", "blurb": "No money spent. The squad is sick of the old kit.",
+ 			"fx": {"morale": -0.08}},
+ 	],
+ },
+ {
+ 	"id": "camp_abroad",
+ 	"who": Who.YOUNGEST,
+-	"title": "A winter away",
+-	"text": "{man} has been invited to train abroad for the winter with people who are much better than anybody here. It would cost {club} his flights.",
++	"title": "Training camp overseas",
++	"text": "{man}, your youngest fighter, has been invited to a winter training camp overseas with top international fighters. The club would have to pay for his flights.",
+ 	"options": [
+-		{"label": "Pay his way", "blurb": "He comes back a different fighter.",
++		{"label": "Pay for the trip", "blurb": "He comes back a much better fighter, with a higher ceiling.",
+ 			"fx": {"cc": -5, "potential": 2, "xp": 14}},
+-		{"label": "We cannot", "blurb": "And he knows the club could have.",
++		{"label": "Say you can't afford it", "blurb": "He stays home, and the squad thinks you could have paid.",
+ 			"fx": {"morale": -0.10}},
+ 	],
+ },
+@@ -320,58 +322,109 @@ const CARDS: Array[Dictionary] = [
+ 	"id": "local_paper",
+ 	"who": Who.BEST,
+ 	"title": "The local paper",
+-	"text": "They want a full page on {man} — the job, the harness, the drive to events. He is not sure. The photographer is already booked.",
++	"text": "The local newspaper wants a full-page story on {man}, your best fighter: his day job, his armor, the long drives to events. Good publicity, but rival clubs read the paper too.",
+ 	"options": [
+-		{"label": "Put him forward", "blurb": "People turn up to watch a name. Other clubs read papers too.",
++		{"label": "Run the story", "blurb": "Fans come to see him. Rival clubs notice him too, and he may leave sooner.",
+ 			"fx": {"note": 3.0, "fans": 0.04, "years": -1}},
+-		{"label": "Host them at the club", "blurb": "A day off the kit room and a spread laid on.",
++		{"label": "Host them at the club", "blurb": "A friendly day with food laid on. A smaller boost, and it costs a little.",
+ 			"fx": {"cc": -2, "note": 1.5, "fans": 0.02, "morale": 0.05}},
+ 	],
+ },
+ {
+ 	"id": "drinking",
+ 	"who": Who.ANYONE,
+-	"title": "The back of the van",
+-	"text": "There is a cool box going to events that is not full of water, and it is going out before the fighting rather than after.",
++	"title": "Beer before the bouts",
++	"text": "Someone has been bringing a cooler of beer to events, and it's getting opened before the fights, not after. Drinking before you fight in armor is how people get hurt.",
+ 	"options": [
+-		{"label": "Stop it", "blurb": "Written down, and enforced.",
++		{"label": "Ban it", "blurb": "A clear rule, enforced. Safer, but the squad is unhappy.",
+ 			"fx": {"morale": -0.11, "kit": 0.04, "note": 1.0}},
+-		{"label": "After the last bout only", "blurb": "A line everybody can live with.",
+-			"fx": {"morale": -0.03}},
+-		{"label": "Leave it", "blurb": "They are grown men.",
++		{"label": "Only after the last bout", "blurb": "A compromise everyone can live with.",
++			"fx": {"morale": 0.03, "kit": -0.05}},
++		{"label": "Leave it alone", "blurb": "The squad is happy. Someone may get hurt.",
+ 			"fx": {"morale": 0.07, "injury": 1}},
+ 	],
+ },
+ {
+ 	"id": "charity",
+ 	"who": Who.A_RESERVE,
+-	"title": "A show for the hospice",
++	"title": "Charity demonstration",
+ 	## REWRITTEN (playtest 30 Sep #8: "makes zero sense for the choices"). Each
+ 	## answer now says what it is and why it costs what it costs.
+-	"text": "A charity in town wants a fight demonstration on a free Saturday. Full harness draws a crowd. It is also a long day of hitting each other.",
++	"text": "The local hospice wants {club} to put on a fight demonstration at their fundraiser on a free Saturday. Full armor draws a crowd, but it's a long day of real hits.",
+ 	"options": [
+-		{"label": "Full demonstration", "blurb": "The town will talk about it. A man may get hurt.",
++		{"label": "Full armored demo", "blurb": "A big crowd and plenty of goodwill. {man} could get hurt.",
+ 			"fx": {"fans": 0.10, "note": 2.0, "injury": 1, "xp": 8}},
+-		{"label": "Send two to talk", "blurb": "No armor, no risk. Two men lose their day off.",
++		{"label": "Send two to talk", "blurb": "No armor, no risk. Two fighters give up their day off.",
+ 			"fx": {"fans": 0.03, "note": 0.5, "morale": -0.04}},
+-		{"label": "Turn it down", "blurb": "The town notices, and the men wanted to do it.",
++		{"label": "Decline", "blurb": "The town notices, and the fighters wanted to go.",
+ 			"fx": {"note": -1.5, "morale": -0.04}},
+ 	],
+ },
+ {
+ 	"id": "smith_debt",
+ 	"who": Who.WORST_KIT,
+-	"title": "The armorer's bill",
+-	"text": "The smith who keeps half this club standing up has not been paid since the spring. He has not asked twice. He will not ask a third time.",
++	"title": "The unpaid blacksmith",
++	"text": "The blacksmith who repairs most of your armor hasn't been paid since spring. He has asked once. He won't ask again; he'll just stop working for you.",
+ 	"options": [
+-		{"label": "Settle it in full", "blurb": "And he starts on the kit room tomorrow.",
++		{"label": "Pay him in full", "blurb": "He starts on your kit room tomorrow.",
+ 			"fx": {"cc": -6, "kit": 0.10, "morale": 0.06}},
+-		{"label": "Half now", "blurb": "He has heard that before.",
++		{"label": "Pay half now", "blurb": "It buys some time. He has heard that before.",
+ 			"fx": {"cc": -3, "morale": -0.02}},
+-		{"label": "It will have to wait", "blurb": "He works for two other clubs.",
++		{"label": "Make him wait", "blurb": "He puts his other clubs first. Your kit suffers.",
+ 			"fx": {"morale": -0.09, "kit": -0.05}},
+ 	],
+ },
++{
++	## ------------------------------------------------- Beast energy drinks
++	## Pete, 3 Oct 2026: three cards about Beast energy drinks — a shipment, a
++	## sponsorship, and the argument over the best flavor ("White is the correct
++	## answer"). Written in the dilemma-deck doc and loaded from there.
++	"id": "beast_shipment",
++	"who": Who.ANYONE,
++	"weight": 2,
++	"tone": Tone.SHADY,
++	"title": "A truck full of Beast",
++	"text": "A delivery driver has 40 cases of Beast energy drink he says nobody will miss, and he'll leave them at your arena for a handshake. Your fighters would drink them by the gallon. Nobody asks where they came from.",
++	"options": [
++		{"label": "Stock the locker room", "blurb": "The squad is wired for a month. People wonder how you got them.",
++			"fx": {"morale": 0.07, "xp": 6, "note": -1.5}},
++		{"label": "Sell them at the gate", "blurb": "Easy money from the crowd. The squad watches it go out the door.",
++			"fx": {"cc": 4, "morale": -0.03, "note": -1.0}},
++		{"label": "Send the truck away", "blurb": "Clean hands. The squad is crushed.",
++			"fx": {"morale": -0.06, "note": 1.0}},
++	],
++},
++{
++	"id": "beast_sponsor",
++	"who": Who.ANYONE,
++	"weight": 2,
++	"tone": Tone.CLEAN,
++	"title": "Beast wants a sponsor",
++	"text": "Beast Energy wants to sponsor {club}: their fang logo on every surcoat, cans at every event, and a cash payment each season. In return they pick your walkout music, and it's loud.",
++	"options": [
++		{"label": "Sign the full deal", "blurb": "Real money and a big name. The fighters hate the walkout music.",
++			"fx": {"cc": 8, "morale": -0.06, "note": 2.0, "fans": 0.05}},
++		{"label": "Logo only, no music", "blurb": "Half the money. Some fighters still hate wearing a logo.",
++			"fx": {"cc": 4, "morale": -0.02, "note": 1.0}},
++		{"label": "Turn them down", "blurb": "The squad keeps its music. You keep drinking your own.",
++			"fx": {"morale": 0.03, "note": -1.0}},
++	],
++},
++{
++	"id": "beast_flavor",
++	"who": Who.ANYONE,
++	"weight": 2,
++	"title": "The flavor argument",
++	"text": "The locker room is split over the best flavor of Beast energy drink. It started as a joke and now two fighters aren't speaking. The squad wants you to settle it, and the club will only stock one.",
++	"options": [
++		{"label": "White. Obviously.", "blurb": "The correct answer. Peace returns, and white costs a little more.",
++			"fx": {"cc": -1, "morale": 0.09}},
++		{"label": "Original green", "blurb": "The classic. Half the squad thinks you're wrong.",
++			"fx": {"morale": -0.06}},
++		{"label": "Let them settle it", "blurb": "They fight it out in sparring. Somebody takes it too far.",
++			"fx": {"morale": -0.02, "xp": 6, "injury": 1}},
++	],
++},
+ ]
+ 
+ 
+@@ -392,11 +445,12 @@ const CARDS: Array[Dictionary] = [
+ ## you can read rather than a total you can optimise. So: the money, the room,
+ ## the kit and the name, in that order, and nothing else. What a card does to one
+ ## man's contract or his ceiling stays in the prose where it belongs.
+-const FX_SHOWN: Array[String] = ["cc", "morale", "kit", "note", "fans"]
++## `kit_eight` is kit on the travelling eight only (3 Oct 2026) and reads as kit.
++const FX_SHOWN: Array[String] = ["cc", "morale", "kit", "kit_eight", "note", "fans"]
+ const FX_WORD := {
+ 	## PLAIN WORDS (playtest 30 Sep #7: "Why not just have Team Morale? Why
+ 	## name and not renown?"). They needed a legend; now they do not.
+-	"cc": "CC", "morale": "team morale", "kit": "kit", "note": "renown", "fans": "crowd",
++	"cc": "CC", "morale": "team morale", "kit": "kit", "kit_eight": "kit", "note": "renown", "fans": "crowd",
+ }
+ 
+ 
+diff --git a/scripts/league/league_world.gd b/scripts/league/league_world.gd
+index 4b6dd0e..f4e503b 100644
+--- a/scripts/league/league_world.gd
++++ b/scripts/league/league_world.gd
+@@ -162,6 +162,14 @@ func note_record(key: String, value: int, holder: String, at_season: int) -> boo
+ 	var cur: Dictionary = records.get(key, {})
+ 	if not cur.is_empty() and int(cur.get("value", 0)) >= value:
+ 		return false
++	## BREAKING ONE THAT STOOD: another man's, from an earlier season (audit,
++	## 4 Oct 2026). "Not the first line of an empty book" was not enough — the
++	## book fills in the first bout, the next man past the first rating "broke"
++	## it, and a career count broke its own record every bout after; everyone
++	## had this one by the end of their first event.
++	if not cur.is_empty() and int(cur.get("season", at_season)) < at_season \
++			and String(cur.get("holder", "")) != holder:
++		Achievements.unlock("IN_THE_BOOK")
+ 	records[key] = {"value": value, "holder": holder, "season": at_season}
+ 	return true
+ 
+@@ -174,9 +182,63 @@ func _init(seed_value: int = 0, player_power: int = 42,
+ 	## American clubs with a European flag on it.
+ 	region = region_
+ 	_build_pyramid(player_power)
++	_seed_history(seed_value)
+ 	_new_season()
+ 
+ 
++## THE BOOK IS NOT EMPTY ON DAY ONE (Pete, 4 Oct 2026: "We need to fill the
++## record books artificially with fighters/teams for past records and
++## championships, make them harder to get those records"). The circuit is older
++## than your club: every record already has a mark, set by a man from another
++## club before you arrived, and the top divisions have won titles between them.
++## A first bout no longer writes the book, and breaking a mark means something.
++##
++## Its own random stream, seeded off the world's: drawing these from `rng` would
++## shift every club the pyramid builds after it, and with it every fixture a
++## fixed seed has ever produced.
++const LEGEND_MARKS := {
++	"downs_event": [6, 8],
++	"downs_career": [95, 130],
++	"events": [55, 70],
++	"standing": [80, 110],
++	"rating": [70, 76],
++}
++
++
++func _seed_history(seed_value: int) -> void:
++	var r := RandomNumberGenerator.new()
++	r.seed = hash("history:%d" % seed_value)
++	for key in LEGEND_MARKS:
++		var band: Array = LEGEND_MARKS[key]
++		var from: Dictionary = clubs[r.randi_range(1, clubs.size() - 1)]
++		records[key] = {
++			"value": r.randi_range(int(band[0]), int(band[1])),
++			## TWO NAMES: a legend is never the namesake of a man on your sheet,
++			## who goes by his surname — so beating him is never "his own record".
++			"holder": "%s %s" % [Armorer.FIRST[r.randi() % Armorer.FIRST.size()],
++				ClubFactory.SURNAMES[r.randi() % ClubFactory.SURNAMES.size()]],
++			"club": String(from.get("short", "")),
++			"season": -r.randi_range(1, 12),
++		}
++	## TITLES BEFORE YOU: twelve past national titles shared among the top two
++	## divisions, mostly the top.
++	var top: Array = []
++	var second: Array = []
++	for c in clubs:
++		if int(c["id"]) == player_club:
++			continue
++		if int(c["tier"]) == League.TIERS.size() - 1:
++			top.append(c)
++		elif int(c["tier"]) == League.TIERS.size() - 2:
++			second.append(c)
++	for k in 12:
++		var pool: Array = second if (r.randf() < 0.2 and not second.is_empty()) else top
++		if pool.is_empty():
++			continue
++		var c: Dictionary = pool[r.randi() % pool.size()]
++		c["titles"] = int(c["titles"]) + 1
++
++
+ # ------------------------------------------------------------------- setup
+ ## WHERE EVERY CLUB IS — `Cities`, and a region the whole world shares.
+ ##
+@@ -1371,6 +1433,14 @@ func _record_honors(c: Cup) -> void:
+ 		return
+ 	if c.champion >= 0 and c.champion < clubs.size():
+ 		clubs[c.champion]["titles"] = int(clubs[c.champion]["titles"]) + 1
++	if c.champion == player_club and player_club >= 0:
++		var cid := String(c.get_meta("id", ""))
++		if cid == "worlds":
++			Achievements.unlock("WORLDS")
++		elif cid.begins_with("playoff:"):
++			Achievements.unlock("PLAYOFF")
++		else:
++			Achievements.unlock("SILVERWARE")
+ 	honors.append({
+ 		"id": String(c.get_meta("id", "")),
+ 		"name": c.cup_name,
+diff --git a/scripts/league/quartermaster.gd b/scripts/league/quartermaster.gd
+index a68da86..e0103c7 100644
+--- a/scripts/league/quartermaster.gd
++++ b/scripts/league/quartermaster.gd
+@@ -133,11 +133,13 @@ const WEAR := {
+ ## of a season and outfitting the whole eight is a project. That is deliberate —
+ ## an upgrade a club can buy for everybody in one afternoon is a menu, not a
+ ## decision.
++## DOUBLED (Pete, 4 Oct 2026, Steam playthrough: "Armorer prices should be
++## doubled"). Were 3 / 7 / 14 / 24.
+ const COST := {
+-	Grade.SERVICEABLE: 3,
+-	Grade.FITTED: 7,
+-	Grade.TOURNAMENT: 14,
+-	Grade.TITANIUM: 24,
++	Grade.SERVICEABLE: 6,
++	Grade.FITTED: 14,
++	Grade.TOURNAMENT: 28,
++	Grade.TITANIUM: 48,
+ }
+ 
+ 
+diff --git a/scripts/league/season.gd b/scripts/league/season.gd
+index da1d2b7..a58cbb0 100644
+--- a/scripts/league/season.gd
++++ b/scripts/league/season.gd
+@@ -263,6 +263,7 @@ func hire_captain(c: Dictionary) -> String:
+ 	if err != "":
+ 		return err
+ 	last_arrival = office.arrival_effect(c, club)
++	Achievements.unlock("CAPTAIN")
+ 	office.sync_morale(club)
+ 	sync_power()
+ 	return ""
+@@ -289,6 +290,9 @@ func sync_power() -> void:
+ 	## asked — which is why it is the first line of the function everything else
+ 	## already calls after touching the squad.
+ 	club.travel_cap = office.travel_slots
++	## NO HURT MAN ON THE BUS, whatever path hurt him (3 Oct 2026). Only acts when
++	## someone is injured; `rest_injured` is a no-op otherwise.
++	club.rest_injured()
+ 	world.set_player_power(club.power())
+ 	## The cap is your DIVISION's rule, so it has to follow you up and down the
+ 	## pyramid. Promotion is a pay rise for the whole club, and relegation is the
+@@ -763,8 +767,8 @@ func sim_cup_tie() -> void:
+ 
+ 
+ ## -> SeasonCups (season_cups.gd)
+-func _finish_cup_round(c: Cup, won: bool) -> void:
+-	SeasonCups._finish_cup_round(self, c, won)
++func _finish_cup_round(c: Cup, won: bool, drew: bool = false) -> void:
++	SeasonCups._finish_cup_round(self, c, won, drew)
+ 
+ 
+ ## -> SeasonCups (season_cups.gd)
+diff --git a/scripts/league/season_bouts.gd b/scripts/league/season_bouts.gd
+index 0ffe321..d7c7ed7 100644
+--- a/scripts/league/season_bouts.gd
++++ b/scripts/league/season_bouts.gd
+@@ -222,6 +222,7 @@ static func post_bout(s: Season, sim: MeleeSim) -> void:
+ 	var gate := s.gate_now()
+ 	var before := s._my_row()
+ 	s._award_xp(sim)
++	Achievements.after_bout(sim)
+ 	s.world.play_week(s.last_result)
+ 	s._after_event(int(s.last_result[0]), int(s.last_result[1]), gate)
+ 	## INJURIES LAND AFTER THE WEEK TICKS, and the order is the whole fix.
+@@ -238,6 +239,7 @@ static func post_bout(s: Season, sim: MeleeSim) -> void:
+ 	## does not tick the week — so the identical injury was free in the league
+ 	## and expensive in a cup. Applying after the tick makes both paths agree.
+ 	s._apply_bout_injuries(sim)
++	rest_the_injured(s)
+ 	s._apply_regime(was_home)
+ 	s._log(opp, before, true, was_home)
+ 	s._grade_bout(int(s.last_result[0]), int(s.last_result[1]))
+@@ -367,8 +369,11 @@ static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
+ 			## RNG would make a squad decision reshuffle the country, which is a
+ 			## bug this project has already fixed twice.
+ 			var roll := RandomNumberGenerator.new()
+-			roll.seed = hash("knock:%d:%d:%d:%s" % [s.world.rng.seed, s.world.season,
+-				s.world.event, card.display_name])
++			## THE WEEK AND THE BOUT ARE IN THE SEED (3 Oct 2026). Keyed on the
++			## league day alone, every tie of a cup weekend rolled the same number
++			## for a man as the league bout before it: hurt in all, or in none.
++			roll.seed = hash("knock:%d:%d:%d:%d:%d:%s" % [s.world.rng.seed, s.world.season,
++				s.world.event, s.world.week, sim.rng.seed, card.display_name])
+ 			## AND THE GRADE'S SHARE of it (playtest 30 Sep: too many knocks).
+ 			if roll.randf() > s.office.regime_injury(Tuning.role_of(int(card.pos))) * s.office.knocks_scale \
+ 					* s.office.knock_guard():
+@@ -463,7 +468,10 @@ static func _award_xp(s: Season, sim: MeleeSim) -> void:
+ 	## AND THE WEEK THAT LED UP TO IT. Every man on the books, starters included
+ 	## — they get a quarter of a practice on top of what the afternoon paid them.
+ 	## See `_practice`.
+-	s._practice()
++	## ONCE A WEEK, NOT ONCE A TIE (3 Oct 2026): a fought cup weekend of three
++	## ties practised the whole roster three times; simmed, once.
++	if s.practiced_week != s.world.week:
++		s._practice()
+ 
+ 	## ------------------------------------------------------- who sat, and who
+ 	## PRIMA DONNA — *"Sours every event he does not start."*
+@@ -609,9 +617,12 @@ static func session_xp(s: Season) -> int:
+ 	var total := 0
+ 	for f in five:
+ 		var role := Tuning.role_of(int(f.pos))
++		## THE COACH TOO (3 Oct 2026): `_practice` multiplies by him, so the
++		## button quoted less than the session paid.
+ 		var got := Career.practice_xp(s.office.coaching(role), not Tuning.session_full_week) \
+ 			* s.office.practice_ground() * s.office.regime_xp(role) \
+-			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0)
++			* s.office.specialty_xp(role) * FighterTrait.mod(f.trait_id, "xp", 1.0) \
++			* s.coach.training_mult()
+ 		total += maxi(1, int(round(got)))
+ 	return int(round(float(total) / float(five.size())))
+ 
+@@ -743,6 +754,7 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) ->
+ 			UiKit.t("The counter  ·  %s") % Arena.sells(s.office.arena.level), "event",
+ 			ClubOffice.LINE_COUNTER)
+ 	if rf > ra:
++		Achievements.unlock("FIRST_WIN")
+ 		s.office.take(Season.CREDITS_WIN, UiKit.t("Won the event"), "event", ClubOffice.LINE_PRIZE)
+ 		s.office.morale_after(true, false)
+ 	elif rf == ra:
+@@ -824,6 +836,35 @@ static func _after_event(s: Season, rf: int, ra: int, gate: Dictionary = {}) ->
+ 
+ 
+ 
++## THE RESULT, ON THE MEN (3 Oct 2026). The club figure is an average of the
++## eight and `sync_morale` rebuilds it from them, so a swing given only to
++## `office.morale` was gone by the next event. Cup results and dilemma cards
++## come through here; the league result has its own fuller version above.
++static func room_shift(s: Season, swing: float, soften: bool = true) -> void:
++	if swing < 0.0 and soften:
++		swing *= s.coach.morale_loss_mult()
++	for f in s.club.active_eight():
++		f.morale_shift(swing)
++	s.office.sync_morale(s.club)
++
++
++static func result_swing(s: Season, won: bool, drew: bool) -> float:
++	return (ClubOffice.MORALE_WIN if won else (0.0 if drew else ClubOffice.MORALE_LOSS)) \
++		+ s.office.ground_morale()
++
++
++## A HURT MAN DOES NOT HOLD A SEAT (3 Oct 2026). He cannot fight, so he comes
++## off the bus altogether — even with no reserve to replace him (Pete: "take him
++## off and create an 'Injured' section"). A reserve takes his seat, fit first;
++## `ensure_a_line` signs walk-ons only when that still leaves no five.
++static func rest_the_injured(s: Season) -> Array[String]:
++	var out: Array[String] = []
++	for f in s.club.rest_injured(true):
++		out.append(UiKit.t("%s travels in place of the injured") % f.display_name)
++	s.sync_power()
++	return out
++
++
+ static func _roll_availability(s: Season) -> void:
+ 	## A FRESH STREAM PER WEEK, seeded on the week, rather than a draw from the
+ 	## season-long roster stream.
+diff --git a/scripts/league/season_cups.gd b/scripts/league/season_cups.gd
+index 61c013d..13afcdc 100644
+--- a/scripts/league/season_cups.gd
++++ b/scripts/league/season_cups.gd
+@@ -12,9 +12,20 @@ extends RefCounted
+ ## way a cup tie is answered before the next matchday — a decision the game
+ ## stops and asks for is a decision the player notices making.
+ static func bid_open(s: Season) -> bool:
++	_date_offers(s)
+ 	return not s.bid_offers.is_empty()
+ 
+ 
++## A DATE THAT HAS GONE BY IS THE NEXT ONE (3 Oct 2026). Season one asks after
++## the first bout, so "Opening weeks" named a league day already played: the
++## screen said week 2 and `insert_own` put the show in week 3.
++static func _date_offers(s: Season) -> void:
++	var soonest := s.world.event + 1
++	for o in s.bid_offers:
++		if int(o["event"]) < soonest:
++			o["event"] = soonest
++
++
+ 
+ 
+ ## Put the year's dates on the table. Called at the start of every season,
+@@ -36,6 +47,7 @@ static func take_bid(s: Season, offer_i: int, budget_i: int) -> String:
+ 		return UiKit.t("There is nothing on the table.")
+ 	if offer_i < 0 or offer_i >= s.bid_offers.size():
+ 		return UiKit.t("No such date.")
++	_date_offers(s)
+ 	var offer: Dictionary = s.bid_offers[offer_i]
+ 	var b: Dictionary = ClubEvent.BUDGETS[clampi(budget_i, 0, ClubEvent.BUDGETS.size() - 1)]
+ 	var total := int(offer["bid"]) + int(b["cost"])
+@@ -148,7 +160,11 @@ static func begin_cup_bout(s_: Season) -> MeleeSim:
+ 	if c == null:
+ 		return null
+ 	s_.opponent = s_.club_for(s_.cup_opponent())
+-	var s := hash("cup:%d:%d:%d:%d" % [s_.seed_value, s_.world.season, s_.world.event, s_.cup_opponent()])
++	## THE WEEK AND THE MATCH ARE IN THE SEED (3 Oct 2026): the same opponent
++	## twice in one week (a Worlds pool, then the bronze) replayed one bout.
++	var pm := c.player_match()
++	var s := hash("cup:%d:%d:%d:%d:%d:%s:%d" % [s_.seed_value, s_.world.season, s_.world.event,
++		s_.cup_opponent(), s_.world.week, String(pm.get("round", "")), int(pm.get("day", -1))])
+ 	var sim := MeleeSim.new(s_.club, s_.opponent, s, s_.opposition_scale(s_.cup_opponent()))
+ 	## NEUTRAL GROUND AND A REAL TRIP. `venue_kind()` already answers NEUTRAL
+ 	## while a tie is pending, so it is asked rather than re-decided here; the
+@@ -174,14 +190,19 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
+ 	## does not stop on a Tuesday night.
+ 	s._grade_bout(int(s.last_result[0]), int(s.last_result[1]))
+ 	s._award_xp(sim)
++	Achievements.after_bout(sim)
++	if sim.rounds_won[0] > sim.rounds_won[1]:
++		Achievements.unlock("FIRST_WIN")
+ 	if mine:
+ 		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
+ 	else:
+ 		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
+-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club)
++	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
++		int(m.get("winner", -1)) == -1)
+ 	## THE KNOCK LANDS AFTER THE WEEK TICKS, as it does in the league — see
+ 	## `post_bout`. Before, a cup tie never ticked the week at all.
+ 	s._apply_injuries(sim)
++	SeasonBouts.rest_the_injured(s)
+ 	## AND THE KIT TAKES THE TIE, as a league bout does (Pete, 1 Oct 2026:
+ 	## "fights should wear them").
+ 	SeasonBouts.bout_wear(s)
+@@ -211,10 +232,18 @@ static func sim_cup_tie(s: Season) -> void:
+ 	if c == null:
+ 		return
+ 	var m := c.player_match()
+-	var res: Array = s.world.quick_bout(int(s.world.clubs[int(m["a"])]["power"]),
+-		int(s.world.clubs[int(m["b"])]["power"]))
++	## THE GRADE APPLIES TO A SIMMED TIE (3 Oct 2026), as it does to a simmed
++	## league fixture: the other side's power is scaled, yours is not.
++	var pa := int(s.world.clubs[int(m["a"])]["power"])
++	var pb := int(s.world.clubs[int(m["b"])]["power"])
++	if int(m["a"]) == s.world.player_club:
++		pb = int(round(float(pb) * s.opposition_scale(int(m["b"]))))
++	else:
++		pa = int(round(float(pa) * s.opposition_scale(int(m["a"]))))
++	var res: Array = s.world.quick_bout(pa, pb)
+ 	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
+-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club)
++	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
++		int(m.get("winner", -1)) == -1)
+ 
+ 
+ 
+@@ -222,9 +251,12 @@ static func sim_cup_tie(s: Season) -> void:
+ ## Everything that happens once the player's tie is in the book: the rest of the
+ ## round is played around him, the bracket moves on, and a finished cup is
+ ## retired — with the gate settled if it was his own show.
+-static func _finish_cup_round(s: Season, c: Cup, won: bool) -> void:
+-	s.office.morale_after(won, false)
+-	s.office.after_event(won, false)
++static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false) -> void:
++	## ON THE MEN, NOT THE CLUB FIGURE (3 Oct 2026) — `office.morale_after`
++	## was overwritten by the next `sync_morale`, so a cup result moved nobody.
++	## And a drawn pool bout is a draw, not a loss.
++	SeasonBouts.room_shift(s, SeasonBouts.result_swing(s, won, drew))
++	s.office.after_event(won, drew)
+ 	## A TIE WON PAYS (Pete, 2 Oct 2026: "Cup win rewards ... seemed small" —
+ 	## they were nothing: an invitational paid no CC at all, round or trophy).
+ 	var purse := cup_purse(s)
+diff --git a/scripts/league/season_desk.gd b/scripts/league/season_desk.gd
+index 80ff01f..eafb164 100644
+--- a/scripts/league/season_desk.gd
++++ b/scripts/league/season_desk.gd
+@@ -470,7 +470,10 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
+ 		## only thing stopping a run of hard choices pinning a club at the floor,
+ 		## and a card that set morale directly would be the one place in the game
+ 		## that could do it.
+-		s.office.morale_shift(float(fx["morale"]))
++		## ON THE MEN (3 Oct 2026): a shift on the club figure alone was rebuilt
++		## away by the next event's `sync_morale`. Not softened by the coach —
++		## that is for losses, and a card is a decision.
++		SeasonBouts.room_shift(s, float(fx["morale"]), false)
+ 		said.append(UiKit.t("squad mood up") if float(fx["morale"]) > 0.0 else UiKit.t("squad mood down"))
+ 	## THE DECK'S `note` CURRENCY IS NOW THE FOLLOWING TOO.
+ 	##
+@@ -494,12 +497,18 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
+ 		said.append(UiKit.t("%d%% more following") % int(round(float(fx["fans"]) * 100.0)))
+ 	if fx.has("kit"):
+ 		for f in s.club.roster:
+-			f.armor = clampf(f.armor + float(fx["kit"]), 0.0, 1.0)
++			_mend(f, float(fx["kit"]))
+ 		said.append(UiKit.t("harness mended across the club") if float(fx["kit"]) > 0.0
+ 			else UiKit.t("harness worse across the club"))
++	## THE EIGHT ONLY (3 Oct 2026): "Order for the eight" mended the reserves too.
++	if fx.has("kit_eight"):
++		for f in s.club.active_eight():
++			_mend(f, float(fx["kit_eight"]))
++		said.append(UiKit.t("harness mended for the eight") if float(fx["kit_eight"]) > 0.0
++			else UiKit.t("harness worse for the eight"))
+ 	if man != null:
+ 		if fx.has("armor"):
+-			man.armor = clampf(man.armor + float(fx["armor"]), 0.0, 1.0)
++			_mend(man, float(fx["armor"]))
+ 			said.append((UiKit.t("%s's harness mended") if float(fx["armor"]) > 0.0
+ 				else UiKit.t("%s's harness worse")) % man.display_name)
+ 		if fx.has("injury"):
+@@ -515,9 +524,12 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
+ 		if fx.has("years"):
+ 			man.years = clampi(man.years + int(fx["years"]), 0, Contracts.YEARS_MAX)
+ 			said.append(UiKit.tn("%s has %d year left", "%s has %d years left", man.years) % [man.display_name, man.years])
++		## OFF THE DEAL, NOT THE BILL (3 Oct 2026): the bill already carries his
++		## CHEAP/LOYAL discount and `billed()` applies it again, so an "18% raise"
++		## cut a CHEAP man's bill from 800 to 755.
+ 		if fx.has("wage"):
+-			man.wage_agreed = maxi(1, int(round(float(ClubOffice.billed(man))
+-				* float(fx["wage"]))))
++			var deal := man.wage_agreed if man.wage_agreed > 0 else ClubOffice.wage(man)
++			man.wage_agreed = maxi(1, int(round(float(deal) * float(fx["wage"]))))
+ 
+ 	s.dilemma = {}
+ 	s.sync_power()
+@@ -531,6 +543,32 @@ static func answer_dilemma(s: Season, option_i: int) -> String:
+ 
+ 
+ 
++## A CARD MENDS KIT ONLY AS FAR AS THE METAL GOES (3 Oct 2026). It clamped to
++## 1.0, so a borrowed harness with a 0.90 ceiling came back at 1.00 — the rule is
++## that better than the metal costs new armor. Never takes a man down, either.
++static func _mend(f: FighterCard, d: float) -> void:
++	f.armor = clampf(f.armor + d, 0.0, maxf(Quartermaster.ceiling(f), f.armor))
++
++
++## ------------------------------------------------------- signed this season
++## A DEAL SIGNED THIS SEASON CANNOT BE EXTENDED THIS SEASON (3 Oct 2026). Sign
++## at the going rate, extend the same afternoon at up to 28% off and five years:
++## that is the button `Contracts.EXTEND_MAX_OFF` says the fork must not be. The
++## marks ride in `market_taken`, which is saved and cleared every summer.
++static func _signed_key(f: FighterCard) -> String:
++	return "signed:%s#%d" % [f.display_name, f.number]
++
++
++static func note_signed(s: Season, f: FighterCard) -> void:
++	var k := _signed_key(f)
++	if not s.market_taken.has(k):
++		s.market_taken.append(k)
++
++
++static func signed_this_season(s: Season, f: FighterCard) -> bool:
++	return s.market_taken.has(_signed_key(f))
++
++
+ # ------------------------------------------------------------------ the market
+ ## This summer's free agents, minus anyone already signed out of it.
+ static func market(s: Season) -> Array:
+@@ -602,7 +640,7 @@ const SIGNING_STARTS := true
+ static func sign_wall(s: Season, f: FighterCard) -> String:
+ 	if s.office.credits < s.market_fee(f):
+ 		return "fee"
+-	if ClubOffice.wage_bill(s.club) + s.market_wage(f) > s.office.cap():
++	if ClubOffice.wage_bill(s.club) + ClubOffice.billed_at(f, s.market_wage(f)) > s.office.cap():
+ 		return "cap"
+ 	if s.club.roster.size() >= MeleeClub.SQUAD_MAX:
+ 		return "full"
+@@ -614,10 +652,11 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
+ 	if s.office.credits < fee:
+ 		return UiKit.t("%s costs %d CC and you have %d.") % [f.display_name, fee, s.office.credits]
+ 	var wage := s.market_wage(f)
+-	if ClubOffice.wage_bill(s.club) + wage > s.office.cap():
++	var bills := ClubOffice.billed_at(f, wage)
++	if ClubOffice.wage_bill(s.club) + bills > s.office.cap():
+ 		return UiKit.t("%s wants %s a year. That puts you %s over the cap.") % [
+-			f.display_name, ClubOffice.money(wage),
+-			ClubOffice.money(ClubOffice.wage_bill(s.club) + wage - s.office.cap())]
++			f.display_name, ClubOffice.money(bills),
++			ClubOffice.money(ClubOffice.wage_bill(s.club) + bills - s.office.cap())]
+ 	var card := f.copy()
+ 	card.years = Contracts.YEARS_NEW
+ 	card.wage_agreed = wage
+@@ -646,6 +685,8 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
+ 			s.club.swap_squad(low, card)
+ 	s.office.spend(fee, ClubOffice.LINE_SQUAD)
+ 	s.market_taken.append(Market.taken_key(f))
++	note_signed(s, card)
++	Achievements.unlock("NEW_BLOOD")
+ 	s.sync_power()
+ 	return ""
+ 
+@@ -666,9 +707,11 @@ static func extend(s: Season, f: FighterCard) -> String:
+ 		if f.years >= Contracts.YEARS_MAX:
+ 			return UiKit.t("%s is on the longest deal the club can offer.") % f.display_name
+ 		return UiKit.t("%s is in the last year of his deal. Let it run out, then re-sign him.") % f.display_name
++	if signed_this_season(s, f):
++		return UiKit.t("%s only signed this season. His deal can be extended from next season.") % f.display_name
+ 	var was := ClubOffice.billed(f)
+ 	var wage := s.extend_cost(f)
+-	var bill := ClubOffice.wage_bill(s.club) - was + wage
++	var bill := ClubOffice.wage_bill(s.club) - was + ClubOffice.billed_at(f, wage)
+ 	if bill > s.office.cap():
+ 		return UiKit.t("That deal puts you %s over the cap.") % ClubOffice.money(bill - s.office.cap())
+ 	f.wage_agreed = wage
+@@ -702,6 +745,9 @@ static func resign(s: Season, f: FighterCard) -> String:
+ 		## asked about every length rather than about the one that had gone wrong.
+ 		if f.years >= Contracts.YEARS_MAX:
+ 			return UiKit.t("%s is already on the longest deal the club can offer.") % f.display_name
++		## AND NOT TO A DOOR THAT IS SHUT THIS SEASON (3 Oct 2026).
++		if signed_this_season(s, f):
++			return UiKit.t("%s only signed this season. His deal can be extended from next season.") % f.display_name
+ 		return UiKit.t("%s has %d years left. Extend him instead.") % [f.display_name, f.years]
+ 	## WHAT THE FIGHTER CARD PROMISED IS WHAT HAPPENS. The card reads
+ 	## `Contracts.demand()` — the refusal, the mood-priced wage, two years for a
+@@ -710,13 +756,14 @@ static func resign(s: Season, f: FighterCard) -> String:
+ 	if Contracts.refuses(f):
+ 		return Contracts.refusal(f)
+ 	var wage := s.resign_cost(f)
+-	var bill := ClubOffice.wage_bill(s.club) - ClubOffice.billed(f) + wage
++	var bill := ClubOffice.wage_bill(s.club) - ClubOffice.billed(f) + ClubOffice.billed_at(f, wage)
+ 	if bill > s.office.cap():
+ 		return UiKit.t("%s wants %s a year. That puts you %s over the cap.") % [
+-			f.display_name, ClubOffice.money(wage),
++			f.display_name, ClubOffice.money(ClubOffice.billed_at(f, wage)),
+ 			ClubOffice.money(bill - s.office.cap())]
+ 	f.wage_agreed = wage
+ 	f.years = int(Contracts.demand(f)["years"])
++	note_signed(s, f)
+ 	return ""
+ 
+ 
+diff --git a/scripts/league/season_winter.gd b/scripts/league/season_winter.gd
+index 45d154c..80ee26f 100644
+--- a/scripts/league/season_winter.gd
++++ b/scripts/league/season_winter.gd
+@@ -34,6 +34,10 @@ static func roll_over(s: Season) -> void:
+ 	if finished >= 1:
+ 		s.office.take(Season.purse(finished, League.club_count(before), before),
+ 			UiKit.t("Finished %s") % UiKit.ordinal(finished), "season", ClubOffice.LINE_PRIZE)
++	if after > before:
++		Achievements.unlock(["STATE", "REGIONAL", "NATIONAL"][clampi(after - 1, 0, 2)])
++	if s.world.history.size() >= 5:
++		Achievements.unlock("LIFER")
+ 	if after > before:
+ 		s.office.take(Season.CREDITS_PROMOTED, UiKit.t("Went up"), "season", ClubOffice.LINE_PRIZE)
+ 		s.office.after_move(true)
+@@ -549,6 +553,7 @@ static func _fill_squad(s: Season) -> Array[String]:
+ 		if s.club.sign(w) != "":
+ 			break
+ 		w.active = true
++		SeasonDesk.note_signed(s, w)
+ 		took.append("%s (%s, %d)" % [w.display_name, w.pos_name(), w.overall()])
+ 	return took
+ 
+@@ -559,7 +564,13 @@ static func ensure_a_line(s: Season) -> Array[String]:
+ 	s.last_emergency = []
+ 	## The travel cap first: the party is the first N active men in roster
+ 	## order, and N is the office's, not whatever the club was last built with.
+-	s.sync_power()
++	## THE CAP DIRECTLY, NOT `sync_power` (3 Oct 2026): sync_power now rests the
++	## injured itself, silently, and this path wants the names for the status line.
++	s.club.travel_cap = s.office.travel_slots
++	## THE HURT COME OFF THE BUS and a reserve takes each seat, whether or not
++	## the five is short (3 Oct 2026) — see `SeasonBouts.rest_the_injured`,
++	## which also runs `sync_power`.
++	s.last_emergency.append_array(SeasonBouts.rest_the_injured(s))
+ 	if s.club.starting_five().size() >= MeleeClub.LINE_SIZE:
+ 		return s.last_emergency
+ 	for f in s.club.reserves():
+@@ -599,8 +610,11 @@ static func ensure_a_line(s: Season) -> Array[String]:
+ 		## fit man never is — and the note says so.
+ 		if s.club.roster.size() >= MeleeClub.SQUAD_MAX:
+ 			var worst: FighterCard = null
++			## THE INJURED ONLY (3 Oct 2026). `fit()` is also false for a man with
++			## the weekend off or a harness short of inspection — one weekend, or
++			## a repair — and he was being cut for good.
+ 			for f in s.club.roster:
+-				if not f.fit() and (worst == null or f.overall() < worst.overall()):
++				if f.injury > 0 and not f.active and (worst == null or f.overall() < worst.overall()):
+ 					worst = f
+ 			if worst == null or s.release(worst) != "":
+ 				break
+@@ -614,6 +628,7 @@ static func ensure_a_line(s: Season) -> Array[String]:
+ 					a.active = false
+ 					break
+ 		w.active = true
++		SeasonDesk.note_signed(s, w)
+ 		s.last_emergency.append(UiKit.t("%s signed as an emergency walk-on") % w.display_name)
+ 	if not s.last_emergency.is_empty():
+ 		s.sync_power()
+diff --git a/scripts/melee/fighter_card.gd b/scripts/melee/fighter_card.gd
+index 362e718..0d70b2b 100644
+--- a/scripts/melee/fighter_card.gd
++++ b/scripts/melee/fighter_card.gd
+@@ -331,7 +331,7 @@ func unfit_reason() -> String:
+ 	if not passes_inspection():
+ 		return UiKit.t("kit failed")
+ 	if not available:
+-		return "unavailable"
++		return UiKit.t("unavailable")
+ 	return ""
+ 
+ 
+diff --git a/scripts/melee/tuning.gd b/scripts/melee/tuning.gd
+index 1ac4893..a82b060 100644
+--- a/scripts/melee/tuning.gd
++++ b/scripts/melee/tuning.gd
+@@ -189,10 +189,34 @@ const WAYPOINT_HIT: float = 8.0         ## close enough to call a waypoint reach
+ # ------------------------------------------------------------------ prompts
+ ## The prompt opens at this range and the AI answers it when the timer runs out.
+ ## "The AI will choose unless you choose." — Pete, 10 Sep 2026.
+-const PROMPT_RANGE: float = 34.0
++## 100 (Pete, Bullrush Bench, 4 Oct 2026; was 34): the wheel opens with room
++## to run, so a Bullrush picked off it is a CHARGE and not a lean.
++const PROMPT_RANGE: float = 100.0
+ const PROMPT_TIME: float = 2.2
+ const CONTACT_RANGE: float = 24.0       ## where the chosen action actually resolves
+ 
++## BULLRUSH FEEL (Pete, Bullrush Bench, 4 Oct 2026). Distances are list units
++## centre to centre, times seconds. The sim reads the charge and the slides; the
++## screen reads the impact, the hit-stop and the jolt.
++const BR_SPEED: float = 3.00            ## charge pace, x walking pace
++const BR_STOP: float = 18.0             ## centre-to-centre gap where he plants
++const BR_BRACE: float = 0.00            ## beat at the stop point before impact
++const BR_IMPACT: float = 1.5            ## shake / jolt / flash, 0-10
++const BR_HITSTOP: float = 0.10          ## frozen frames on contact
++const BR_FAIL_SLIDE: float = 24.0       ## the thrower slides on his back
++const BR_FAIL_SLIDE_T: float = 0.50
++const BR_BUMP_JOLT: float = 12.0        ## contact, nobody falls
++const BR_BUMP_SLIDE: float = 20.0
++const BR_BUMP_SLIDE_T: float = 0.50
++const BR_DOWN_IMPACT: float = 3.00      ## x impact when he is floored
++const BR_DOWN_SLIDE: float = 51.0
++const BR_DOWN_SLIDE_T: float = 0.50
++## THE RAIL (Pete: "bounce off the arena border too off at an angle"). A man
++## sliding into the rail glances off it at the angle he went in, keeping this
++## much of the slide he had left.
++const BR_RAIL_KICK: float = 0.60
++const BR_RAIL_KNOCK: float = 2.0        ## shake when he hits it, 0-10
++
+ enum Menu { APPROACH, GRAPPLED, THIRD_MAN }
+ enum Act { BULLRUSH, GRAPPLE, HIT, TAKEDOWN, HOLD, ESCAPE, BREAK }
+ 
+@@ -245,7 +269,15 @@ const TD_GANG: float = 0.06             ## [the 2-on-1] third man on an occupied
+ ##   sent_walks  a sent man keeps walking while his question is open, instead of
+ ##               standing at the range it came up at.
+ static var sent_edge: float = _env("RB_SENT_EDGE")
+-static var sent_walks: bool = false
++## ON since the wheel opens at 100 (4 Oct 2026): standing still 76 units out
++## while the question is open reads as a man who forgot what he was sent to do.
++## The wheel freezes the fight anyway; this is the no-wheel path and the probes.
++static var sent_walks: bool = true
++## HOW BIG A MAN IS DRAWN (Pete, 4 Oct 2026: "they do seem a little small").
++## The whole figure — body, helm, weapon, number, gas and stability bars —
++## scales about his feet-centre; the fight underneath is untouched. RB_MAN_SCALE
++## for trying sizes in the shot tools. 1.35: Pete, 4 Oct 2026.
++static var man_scale: float = 1.35 if OS.get_environment("RB_MAN_SCALE") == "" else _env("RB_MAN_SCALE")
+ ## Pete's two #10 extras (29 Sep, evening), ON (grid X, n=240: wheel help
+ ## 42.7 -> 50.8 against hands-off 45.0; RB_FIRST_SWING=0 / RB_MATE_GRIP=0 off):
+ ##   MATE_GRIP    a man you SENT arriving on an enemy who has one of ours tied up

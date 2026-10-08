@@ -1,0 +1,12 @@
+3800135 2026-10-04 Fighters drawn at 1.35x (Pete's pick)
+efc6039 2026-10-04 Routes onto an enemy follow him; a man_scale knob for fighter size
+2435f5d 2026-10-04 Seeded record book (legends from other clubs, titles before you), harder achievements (career counts, flawless vs a better side, five downs)
+d4359a6 2026-10-04 Playthrough fixes part 1: menu playlist, levels-first report exit, whole levels at the ceiling, page flash under the title, invest tooltip, ticker on every tab, harness prices doubled, knocks are injuries
+abcf11e 2026-10-04 Overnight audit fixes: IN_THE_BOOK only for a record that stood (was unlocking in bout 1); pad reaches name boxes (A opens Steam's keyboard, in window pixels); tips release the pad; one step per stick push; Start/A pause, Y skip; LB/RB not under modals; achievements kept per SteamID, Steam told only on new unlocks, overlay pauses the corner too, low-processor mode off under Steam; BUSINESS only on the player's own trade; Deck keeps "Tap"; mood band and venue names translated; monkey/shot_all/shape-sweep (1280x800) tooling
+b13ddae 2026-10-04 Controller: menus (A/B, d-pad by geometry, lazy focus that survives rebuilds, drawn rows focusable, LB/RB tabs, focus ring), the fight on a pad (cursor, A press/steer/release, wheel steps + A/B, X hold, LB/RB next man), Steam keyboard on text fields, overlay pauses the fight; bullrush pick re-asked on arrival when the situation changed
+d1aebbb 2026-10-03 Bullrush feel from Pete's Bench (wheel 100, 3x charge, plant 18, slides, rail glance) + Steam achievements via GodotSteam 4.22.1 (desktop only)
+725f701 2026-10-03 Injured section off the bus; bigger Hire/state/Staff targets; tall iPad layouts (tall_k); hint, weapon label, Next placement
+326d1ac 2026-10-03 Screen and text audit fixes; every string in all 9 languages; Beast 'fang logo'
+836f62e 2026-10-03 Season audit fixes: one practice per cup weekend, morale effects stick, raise card raises, simmed ties use the grade, no extending in the signing season, injured men give up bus seats
+72b85a9 2026-10-03 Fight audit fixes: routes join where the man is and stay inside the rail; grabbed men keep fighting; clinched men refuse routes; beat hides tips; pause blocks HOLD/SKIP
+ca23f13 2026-10-03 Dilemma deck rewritten (18 cards) plus three Beast cards; answer block sizes the rule
