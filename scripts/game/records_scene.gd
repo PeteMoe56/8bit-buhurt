@@ -204,12 +204,18 @@ func _year() -> void:
 	UiKit.text(self, font, UiKit.t("%d fought") % int(sum["fought"])
 		+ ("" if int(sum["simmed"]) == 0 else UiKit.t(", %d simulated") % int(sum["simmed"])),
 		Vector2(40, _y(414.0)), UiKit.tz(14), UiKit.DIM)
-	UiKit.right(self, font, "%d-%d" % [int(sum["rf"]), int(sum["ra"])],
-		Vector2(UiKit.right_edge(260.0), _y(414.0)), UiKit.tz(14), UiKit.INK, 120)
-	UiKit.right(self, font, "%+d" % pts_all, Vector2(UiKit.right_edge(200.0), _y(414.0)), 13,
+	## RIGHT TO LEFT, EACH MEASURED (Screen Score #1: "-33now at full steel" — the
+	## grade line was longer than the 152 px a fixed column left it, and ran into
+	## the total). The grade first, then the total a gap to its left, then the
+	## rounds a gap to the left of that.
+	var grade_s: String = UiKit.t("now at %s") % Grade.short_of(season.grade).to_lower()
+	var gx: float = UiKit.right_edge(48.0)
+	UiKit.right(self, font, grade_s, Vector2(gx, _y(414.0)), UiKit.tz(14), UiKit.EDGE.lightened(0.5), 260)
+	var dx: float = gx - font.get_string_size(grade_s, HORIZONTAL_ALIGNMENT_LEFT, -1, UiKit.tz(14)).x - 18.0
+	UiKit.right(self, font, "%+d" % pts_all, Vector2(dx, _y(414.0)), 13,
 		UiKit.UP if pts_all > 0 else (UiKit.DOWN if pts_all < 0 else UiKit.DIM), 60)
-	UiKit.right(self, font, UiKit.t("now at %s") % Grade.short_of(season.grade).to_lower(),
-		Vector2(UiKit.right_edge(48.0), _y(414.0)), UiKit.tz(14), UiKit.EDGE.lightened(0.5), 200)
+	UiKit.right(self, font, "%d-%d" % [int(sum["rf"]), int(sum["ra"])],
+		Vector2(minf(UiKit.right_edge(260.0), dx - 60.0), _y(414.0)), UiKit.tz(14), UiKit.INK, 120)
 
 
 func _year_row(r: Dictionary, week: int, cx: float, y: float) -> void:

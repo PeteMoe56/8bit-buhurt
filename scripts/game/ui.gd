@@ -573,6 +573,9 @@ static func bar(ci: CanvasItem, r: Rect2, frac: float, col: Color) -> void:
 ##
 ## `d` carries: tag, number, name, rating, note, right_note, bar (0-1 or -1 for
 ## none), bar_col, band (Color), dim (bool).
+const FOOT_LIFT := 11.0
+
+
 static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 		big: bool = true) -> void:
 	panel(ci, r)
@@ -672,7 +675,9 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 		bar(ci, Rect2(r.position.x + 6, r.end.y - 18, r.size.x - 12, 12), frac,
 			Color(d.get("bar_col", UP)))
 	elif d.has("foot"):
-		right(ci, font, String(d["foot"]), Vector2(r.end.x - 8, r.end.y - 8),
+		## 11 OFF THE BOTTOM, NOT 8 (Screen Score #1): "Journeyman" and "sign 1 CC"
+		## had their descenders on the card's border.
+		right(ci, font, String(d["foot"]), Vector2(r.end.x - 8, r.end.y - FOOT_LIFT),
 			13 if big else 11, Color(d.get("foot_col", YOU)), maxf(140.0, r.size.x * 0.6))
 	## AND THE FOOT'S LEFT, which is the other half of a price.
 	##
@@ -683,7 +688,7 @@ static func card(ci: CanvasItem, font: Font, r: Rect2, d: Dictionary,
 	## of was the one piece a player could not see. A bucketed price with the
 	## bucket hidden is not a seam, it is a surprise.
 	if big and d.has("foot_left"):
-		text(ci, font, String(d["foot_left"]), Vector2(r.position.x + 8, r.end.y - 8),
+		text(ci, font, String(d["foot_left"]), Vector2(r.position.x + 8, r.end.y - FOOT_LIFT),
 			11, Color(d.get("foot_left_col", DIM)))
 
 

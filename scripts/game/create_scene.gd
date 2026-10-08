@@ -683,6 +683,14 @@ func _draw() -> void:
 	if flash != "" and not (tab == Tab.CLUB and popup == "" and _identity_bad() != ""):
 		UiKit.text(self, font, UiKit.fit_px(font, flash, 14, UiKit.span()),
 			Vector2(24, flash_line_y()), 14, UiKit.DIM)
+	## WHY "SIGN HIM" IS GREY (Screen Score #1): a dead button with nothing on
+	## the message line. The line says it, in the office's own words.
+	elif tab == Tab.FIGHTER and popup == "" and sign_btn != null and is_instance_valid(sign_btn) \
+			and sign_btn.disabled and shop.left() > 0:
+		var why := UiKit.t("Name him first.") if card.display_name.strip_edges() == "" \
+			else UiKit.t("That costs %d CC and you have %d.") % [shop.cost(), season.office.credits]
+		UiKit.text(self, font, UiKit.fit_px(font, why, 14, UiKit.span()),
+			Vector2(24, flash_line_y()), 14, UiKit.DIM)
 	if tab == Tab.FIGHTER:
 		_draw_fighter()
 	elif tab == Tab.CLUB:
@@ -748,7 +756,7 @@ func _draw_fighter() -> void:
 	UiKit.text(self, font, UiKit.t("Wage"), Vector2(RIGHT_X, _v(282)), UiKit.tz(14), UiKit.DIM)
 	UiKit.text(self, font, ClubOffice.money(wage), Vector2(RIGHT_X, _v(306)), UiKit.tz(18), UiKit.INK)
 	UiKit.text(self, font, UiKit.t("Bill after the trade"), Vector2(RIGHT_X, _v(340)), UiKit.tz(14), UiKit.DIM)
-	UiKit.text(self, font, UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
+	UiKit.text(self, font, UiKit.t("%s / %s cap") % [ClubOffice.money(bill), ClubOffice.money(cap)],
 		Vector2(RIGHT_X, _v(364)), UiKit.tz(18), UiKit.DOWN if bill > cap else UiKit.INK)
 
 	var err := Workshop.fighter_legal(card, season.office.tier)

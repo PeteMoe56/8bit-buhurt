@@ -45,10 +45,12 @@ func arm_y() -> float:
 	return UiKit.tk(ARM_Y)
 
 
-## RELEASE IS 24 CLEAR OF EXTEND AND ON THE CARD'S OUTER EDGE (Pete, 3 Oct 2026:
-## "make them bigger"; at 8 apart their padded hit boxes overlapped). Captain 1
-## has it on the left, captain 2 on the right, so no Release sits beside a safe
-## button on either side. Both 44 tall (40 visible).
+## RELEASE IS 24 CLEAR OF EXTEND (Pete, 3 Oct 2026: "make them bigger"; at 8
+## apart their padded hit boxes overlapped), and ON THE RIGHT OF EVERY CARD (Pete,
+## 8 Oct 2026, Screen Score #1 S12, both reviewers). It was on each card's outer
+## edge — left on captain 1, right on captain 2 — so the same place under two
+## cards did opposite things. One order everywhere; Release still takes two taps.
+## Both 44 tall (40 visible).
 const BTN_H := 44.0
 const REL_W := 76.0
 const REL_GAP := 24.0
@@ -101,10 +103,9 @@ func _build() -> void:
 			## RELEASE STANDS OFF (round 8: "right next to +1 yr").
 			## A VERB ON EACH (round 9: "+1 yr" needed one), Release narrower and
 			## apart so both read at the same size.
-			var outer_left := i == 0
 			var ext_w := CARD_W - REL_W - REL_GAP
-			var ext_x := x + REL_W + REL_GAP if outer_left else x
-			var rel_x := x if outer_left else x + CARD_W - REL_W
+			var ext_x := x
+			var rel_x := x + CARD_W - REL_W
 			var ext := UiKit.button(UiKit.t("Extend · %d CC") % ClubOffice.extend_cost(season.office.captains[i]),
 				Vector2(ext_x, btn_y()), Vector2(ext_w, UiKit.tk(BTN_H)), _extend.bind(i))
 			ext.disabled = ClubOffice.extend_cost(season.office.captains[i]) > season.office.credits

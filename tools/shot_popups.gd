@@ -22,8 +22,12 @@ func _initialize() -> void:
 
 
 func _open() -> void:
+	## FREED NOW, NOT QUEUED (Screen Score #1, S40): a queued free left the old
+	## Create alive beside the new one for a frame, and the wide-screen frame
+	## offset was applied twice — the grey strip and the off-centre popup in
+	## v19x9/40_popup_* were this tool, not the game.
 	if cur != null:
-		cur.queue_free()
+		cur.free()
 	Session.create_tab = 1
 	cur = (load("res://scenes/Create.tscn") as PackedScene).instantiate()
 	root.add_child.call_deferred(cur)

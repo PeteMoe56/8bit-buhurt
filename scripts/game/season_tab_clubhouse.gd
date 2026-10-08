@@ -155,7 +155,7 @@ static func _club_menu_controls(v: SeasonScene) -> void:
 		## THE GUIDE (Pete, 1 Oct 2026): what everything means, in one place.
 		[UiKit.t("Guide"), "res://scenes/Guide.tscn", "book"],
 		[UiKit.t("Settings"), "res://scenes/Settings.tscn", "cog"],
-		[UiKit.t("Save / Load"), "res://scenes/Title.tscn", "book"],
+		[UiKit.t("Save / Load"), "res://scenes/Title.tscn", "scroll"],  ## not "book": that is the Guide's (Screen Score #1)
 		[UiKit.t("Save & quit"), "res://scenes/Start.tscn", "close"],
 	]
 	for i in items.size():

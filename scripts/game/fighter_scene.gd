@@ -554,7 +554,7 @@ func _meeting_under(i: int) -> Array:
 				[UiKit.t("Ceiling"), str(man.potential), false]]
 		_:
 			var bill := ClubOffice.wage_bill(season.club)
-			return [[UiKit.t("Wage bill"), UiKit.t("%s of %s") % [ClubOffice.money(bill),
+			return [[UiKit.t("Wage bill"), UiKit.t("%s / %s cap") % [ClubOffice.money(bill),
 					ClubOffice.money(season.office.cap())],
 					bill > season.office.cap()],
 				[UiKit.t("Years left"), str(int(round(_roll("years", float(man.years))))),

@@ -2763,6 +2763,9 @@ func _build_ui() -> void:
 	ui.add_child(panel_box)
 
 	panel_title = Label.new()
+	## THE PIXEL FACE. A bare Label draws in Godot's default smooth sans — the
+	## only non-pixel type in 132 renders (Screen Score #1, S26b-1, both reviewers).
+	panel_title.add_theme_font_override("font", UiKit.body())
 	panel_box.add_child(panel_title)
 
 
@@ -3127,6 +3130,7 @@ func _tap_call(shape: Dictionary, call_: Dictionary, key: String) -> void:
 
 func _col_head(page: Control, at: Vector2, t: String) -> void:
 	var l := Label.new()
+	l.add_theme_font_override("font", UiKit.body())
 	l.text = t
 	l.position = at
 	l.add_theme_font_size_override("font_size", 12)
@@ -3273,6 +3277,13 @@ func _book_title() -> void:
 
 
 func _show_playbook() -> void:
+	## NEVER OVER THE WALK-OUT. `_draw` paints the splash and returns before any
+	## panel frame, so a book opened while `screen` is SPLASH has no backing and
+	## the crests and records show through it (Screen Score #1, S38: both
+	## reviewers). The game only opens it from the pre-fight or the corner; this
+	## makes the third way — a tool, or a future button — land on the pre-fight.
+	if screen == Screen.SPLASH:
+		screen = Screen.PREFIGHT
 	## THE CORNER'S CONTROLS GO WITH IT. They are absolutely positioned on the
 	## shared `ui` layer, so a book opened over them would be a book with five SUB
 	## buttons and a FIGHT through it.
@@ -3310,16 +3321,29 @@ func _show_playbook() -> void:
 	row.add_theme_constant_override("separation", 8)
 	panel_box.add_child(row)
 	var half := (PANEL_W - 8.0) * 0.5
-	row.add_child(_panel_button(UiKit.t("Done picking favorites") if starring
-		else UiKit.t("Pick favorites for the corner"), Vector2(half, 40), func():
-			starring = not starring
-			book_note = ""
-			_show_playbook()))
-	row.add_child(_panel_button(UiKit.t("Back to the corner"), Vector2(half, 40), func():
+	## ONE WAY OUT WHILE STARRING (Screen Score #1, S26b-2, Codex). "Done picking
+	## favorites" used to drop back into the book's pick mode beside a second exit,
+	## "Back to the corner" — two exit-looking buttons with different meanings.
+	## Starring is now finished by the one gold button, which saves (every star is
+	## already saved as it is tapped) and goes back to where the book was opened.
+	## And it names that place: before the first charge it is the plan, not the
+	## corner.
+	var back_word := UiKit.t("Back to the corner") if sim.phase == MeleeSim.Phase.CORNER \
+		else UiKit.t("Back to the plan")
+	var go_back := func():
 		starring = false
 		book_note = ""
 		_clear_panel()
-		_build_corner()))
+		_build_corner()
+	if starring:
+		row.add_child(UiKit.primary(_panel_button(UiKit.t("Done picking favorites"),
+			Vector2(PANEL_W, 40), go_back)))
+	else:
+		row.add_child(_panel_button(UiKit.t("Pick favorites for the corner"), Vector2(half, 40), func():
+			starring = true
+			book_note = ""
+			_show_playbook()))
+		row.add_child(_panel_button(back_word, Vector2(half, 40), go_back))
 
 
 
@@ -3354,6 +3378,7 @@ func _build_fav_strip(board: Chalkboard) -> void:
 	if favs.size() < 2:
 		return
 	var head := Label.new()
+	head.add_theme_font_override("font", UiKit.body())
 	head.text = UiKit.t("IN THE CORNER, IN THIS ORDER — tap to move one left")
 	head.add_theme_color_override("font_color", UiKit.DIM)
 	head.add_theme_font_size_override("font_size", 12)

@@ -312,6 +312,15 @@ func _check(t: String, where: String) -> void:
 		var n := String(nm)
 		if n.length() > 3 and (n.begins_with(s.trim_suffix(".")) or s.begins_with(n + ",")):
 			return
+		## A name with one word cut to its initial ("Baltimore Classic" ->
+		## "B. CLASSIC", the calendar's cells since 8 Oct 2026) is still the name.
+		if n.contains(" "):
+			var ws := n.split(" ", false)
+			for wi in ws.size():
+				var ab := ws.duplicate()
+				ab[wi] = String(ws[wi]).substr(0, 1) + "."
+				if " ".join(ab).to_upper() == s.to_upper():
+					return
 	## Money and counts: "43 CC", "$181 of $800", "-4 CC". CC is the currency's
 	## name in every language.
 	if RegEx.create_from_string("^[-+$0-9.,k/ ·%]*(CC)?[-+$0-9.,k/ ·%]*$").search(s) != null:

@@ -71,7 +71,7 @@ fight() {  # $1 tag  $2 WxH  $3 device
   cp_ shots/corner_round.png 26_corner "Corner (between rounds)" "after round 1"
   cp_ shots/corner_sub.png 27_corner_sub "Corner: substitution" "sub picker open"
   cp_ shots/book_stars.png 26b_corner_playbook "Corner: full playbook" "favourites starred, two scrolling panes"
-  cp_ shots/corner_faves.png 26c_corner_favourites "Corner: favourites strip" "four favourites"
+  cp_ shots/corner_faves.png 26c_corner_favourites "Corner: favourites strip" "two favourites starred"  ## was "four": wrong (Codex, Screen Score #1)
   bash tools/bb.sh shot aar "$res" >/dev/null 2>&1
   cp_ shots/aar.png 28_report "After-action report" "bout fought, levels waiting"
   bash tools/bb.sh shot tip "$res" route "$o/29_tip_route.png" >/dev/null 2>&1
@@ -119,7 +119,8 @@ overlays() {  # $1 tag  $2 WxH  $3 device
   bash tools/bb.sh shot founding "$res" "$o/_tmp/fd" >/dev/null 2>&1
   for f in "$o"/_tmp/fd/*.png; do [ -f "$f" ] || continue
     b="$(basename "$f" .png)"; cp "$f" "$o/42_founding_$b.png"
-    row "$tag/42_founding_$b.png" "$tag" "$res" "$dev" "New career (founding)" "$b"; done
+    st="$b"; [ "$b" = "step_4" ] && st="step 3 of 3, Custom grade selected (not a fourth step)"
+    row "$tag/42_founding_$b.png" "$tag" "$res" "$dev" "New career (founding)" "$st"; done
   rm -rf "$o/_tmp"
 }
 

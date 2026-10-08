@@ -820,9 +820,11 @@ func _header() -> void:
 	UiKit.purse(self, font, season.office.credits, purse_at(), PURSE_SIZE, UiKit.YOU)
 	## AND THE WAGES UNDER IT, the other currency, always in sight (review, 1 Oct
 	## 2026: "$174 of $250" beside "37 CC" with nothing to say which is which).
+	## "$" IS A CAP, NOT A WALLET (REGISTER 13.3); the line says so (Pete, 8 Oct
+	## 2026, Screen Score #1: two money units in one header read as two purses).
 	var bill := ClubOffice.wage_bill(season.club)
 	var cap := season.office.cap()
-	UiKit.text_fit(self, font, UiKit.t("%s/%s wages") % [ClubOffice.money(bill), ClubOffice.money(cap)],
+	UiKit.text_fit(self, font, UiKit.t("%s / %s cap") % [ClubOffice.money(bill), ClubOffice.money(cap)],
 		Vector2(purse_box().position.x + 18.0, 45.0), 12, UiKit.DOWN if bill > cap else UiKit.DIM,
 		PURSE_W - 22.0)
 	## LABELED (blind review, 29 Sep: "Good what?"). The squad's mood.

@@ -98,9 +98,16 @@ static func _draw_market(v: SeasonScene) -> void:
 		## The word goes over the percentages it heads; the bar's heading is the tick.
 		UiKit.text_fit(v, v.font, UiKit.t("KIT"), Vector2(bx0 + SeasonScene.QM_BAR_W + 6.0, hy), UiKit.tz(12),
 			UiKit.DIM, 48.0)
-		v.draw_rect(Rect2(tick_x - 1.0, hy - 10.0, 2.0, 12.0), UiKit.DOWN)
+		## RED ONLY WHEN SOMEBODY FAILS (Screen Score #1: a red "pass" over bars
+		## that all pass read as a failure). The mark is the line; red is the news.
+		var any_fail := false
+		for g in v.season.club.active_eight():
+			if not g.passes_inspection():
+				any_fail = true
+		var pass_col: Color = UiKit.DOWN if any_fail else UiKit.DIM
+		v.draw_rect(Rect2(tick_x - 1.0, hy - 10.0, 2.0, 12.0), pass_col)
 		## "PASS", NOT "min" (review, 1 Oct 2026: it read as "Imin").
-		UiKit.text(v, v.font, UiKit.t("pass"), Vector2(tick_x + 4.0, hy), UiKit.tz(12), UiKit.DOWN)
+		UiKit.text(v, v.font, UiKit.t("pass"), Vector2(tick_x + 4.0, hy), UiKit.tz(12), pass_col)
 		## NEXT, NOT FIX (round 8: a sound harness showed its upgrade price under
 		## FIX, so 90% "cost" more than 73%). Each row now says which it is.
 		if _any_next(v, cap):
@@ -158,7 +165,7 @@ static func _draw_market(v: SeasonScene) -> void:
 		## AND THE NUMBER (round 4: "the bars have no number").
 		UiKit.text(v, v.font, "%d%%" % int(round(f.armor * 100.0)), Vector2(bx + SeasonScene.QM_BAR_W + 6.0, y), UiKit.tz(13), col)
 		v.draw_rect(Rect2(r.position.x + r.size.x * FighterCard.INSPECTION_MIN - 1.0,
-			r.position.y - 3, 2.0, r.size.y + 6), UiKit.DOWN)
+			r.position.y - 3, 2.0, r.size.y + 6), UiKit.DOWN if not f.passes_inspection() else UiKit.DIM)
 		if Quartermaster.ceiling(f) < 0.999:
 			v.draw_rect(Rect2(r.position.x + r.size.x * Quartermaster.ceiling(f),
 				r.position.y - 2, 1.0, r.size.y + 4), UiKit.EDGE)

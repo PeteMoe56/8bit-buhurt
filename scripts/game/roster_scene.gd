@@ -206,24 +206,29 @@ func _card(f: FighterCard, r: Rect2, big: bool) -> void:
 			Vector2(r.end.x - 8, r.end.y - 24), 11, UiKit.DOWN, 96)
 
 
+## 48, NOT 44 (Screen Score #1: "Flying" and "49" sat on the boxes' bottom
+## border, descenders through it). Four more pixels of box, same rows.
+const FOOT_H := 48.0
+
+
 func _footer() -> void:
 	var y := UiKit.screen().y - 60.0
 	var bill := ClubOffice.wage_bill(season.club)
 	var cap := season.office.cap()
-	UiKit.panel(self, Rect2(200, y, 380, 44))
+	UiKit.panel(self, Rect2(200, y, 380, FOOT_H))
 	UiKit.text(self, font, UiKit.t("WAGE BILL"), Vector2(212, y + 18), 11, UiKit.DIM)
 	UiKit.bar(self, Rect2(212, y + 24, 356, 12), float(bill) / float(maxi(1, cap)),
 		UiKit.DOWN if bill > cap else UiKit.YOU)
 	UiKit.right(self, font, _bill_word(bill, cap),
 		Vector2(568, y + 18), 11, UiKit.INK if bill <= cap else UiKit.DOWN, 220)
 
-	UiKit.panel(self, Rect2(596, y, 150, 44))
+	UiKit.panel(self, Rect2(596, y, 150, FOOT_H))
 	## ONE WORD FOR ONE THING: the hub says "SQUAD MOOD: Flying" (round 7).
 	UiKit.text(self, font, UiKit.t("SQUAD MOOD"), Vector2(608, y + 18), 12, UiKit.DIM)
 	UiKit.text_fit(self, font, season.office.morale_word(),
-		Vector2(608, y + 36), 15, UiKit.UP if season.office.morale >= 0.6 else UiKit.INK, 130.0)
+		Vector2(608, y + 37), 15, UiKit.UP if season.office.morale >= 0.6 else UiKit.INK, 130.0)
 
-	UiKit.panel(self, Rect2(760, y, 176, 44))
+	UiKit.panel(self, Rect2(760, y, 176, FOOT_H))
 	UiKit.text(self, font, UiKit.t("CLUB RATING"), Vector2(772, y + 18), 12, UiKit.DIM)
 	UiKit.text(self, font, "%d" % season.club.power(), Vector2(772, y + 38), 16, UiKit.YOU)
 
@@ -238,6 +243,6 @@ func _footer() -> void:
 func _bill_word(bill: int, cap: int) -> String:
 	var over := season.office.over_cap(season.club)
 	if over <= 0:
-		return "%s / %s" % [ClubOffice.money(bill), ClubOffice.money(cap)]
+		return UiKit.t("%s / %s cap") % [ClubOffice.money(bill), ClubOffice.money(cap)]
 	return UiKit.t("%s / %s  ·  over by %s") % [ClubOffice.money(bill),
 		ClubOffice.money(cap), ClubOffice.money(over)]

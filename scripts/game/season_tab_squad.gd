@@ -445,7 +445,7 @@ static func _draw_squad(v: SeasonScene) -> void:
 	## The cap, where the decision is: every man on this screen costs against it.
 	var bill := ClubOffice.wage_bill(v.season.club)
 	var cap := v.season.office.cap()
-	UiKit.right(v, v.font, UiKit.t("%s of %s") % [ClubOffice.money(bill), ClubOffice.money(cap)],
+	UiKit.right(v, v.font, UiKit.t("wages %s / %s cap") % [ClubOffice.money(bill), ClubOffice.money(cap)],
 		Vector2(UiKit.right_edge(), SeasonScene.CONTENT_Y), UiKit.tz(14), UiKit.DOWN if bill > cap else UiKit.DIM, 300)
 	## THE HEADINGS, over both columns, before any man is drawn.
 	v._squad_head(24.0, SeasonScene.CONTENT_Y + UiKit.tk(SeasonScene.SQUAD_HEAD_Y))
@@ -479,10 +479,13 @@ static func _draw_squad(v: SeasonScene) -> void:
 		var kind := String(row["kind"])
 		var y := float(row["y"])
 		var x := float(row["x"])
-		if kind == "bench" and y == float(groups["bench"].x):
+		## absf, not ==: `groups` holds Vector2 (32-bit) and `y` a 64-bit float,
+		## so on a tall screen (tall_k 1.11, y 387.5556) they never compared equal
+		## and the BENCH heading vanished at 16:10 (Screen Score #1, S05-1, Codex).
+		if kind == "bench" and absf(y - float(groups["bench"].x)) < 0.5:
 			UiKit.text(v, v.font, UiKit.t("BENCH"), Vector2(24, y - UiKit.tk(28.0)), UiKit.tz(14), UiKit.DIM)
 		if kind == "injured":
-			if y == float(groups["injured"].x):
+			if absf(y - float(groups["injured"].x)) < 0.5:
 				UiKit.text(v, v.font, UiKit.t("INJURED"), Vector2(x, y - UiKit.tk(28.0)), UiKit.tz(14), UiKit.DOWN)
 			_injured_row(v, row["card"], y, x, float(row["h"]))
 			continue

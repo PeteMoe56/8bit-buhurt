@@ -258,7 +258,8 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 ## with. Both, on one screen, is why this variant was chosen over either alone.
 func _road() -> void:
 	## AS TALL AS THE TREE BESIDE IT (3 Oct 2026); 356 on a phone.
-	UiKit.panel(self, Rect2(ROAD_X, 96, ROAD_W, 364 - 8 + maxf(0.0, h() - 540.0)))
+	var road_bottom: float = 96.0 + 364.0 - 8.0 + maxf(0.0, h() - 540.0)
+	UiKit.panel(self, Rect2(ROAD_X, 96, ROAD_W, road_bottom - 96.0))
 	if me < 0:
 		UiKit.text(self, font, UiKit.t("NOT YOUR CUP"), Vector2(ROAD_X + 16, 126), 12, UiKit.DIM)
 		UiKit.text(self, font, UiKit.t("You were not"), Vector2(ROAD_X + 16, 160), 14, UiKit.DIM)
@@ -302,10 +303,14 @@ func _road() -> void:
 			UiKit.text(self, font, UiKit.t("to fight"), Vector2(ROAD_X + 16, y + 44), 14, UiKit.YOU)
 		y += 78.0
 	if cup.champion >= 0:
-		UiKit.text(self, font, UiKit.t("CHAMPION"), Vector2(ROAD_X + 16, 430), 11, UiKit.DIM)
+		## INSIDE THE PANEL (Screen Score #1, S37b-1, both reviewers): the name sat
+		## on the panel's bottom edge at y 452, descenders through the border. Now
+		## measured from the panel's own bottom, below the last round's lines.
+		var cy: float = maxf(y + 8.0, road_bottom - 38.0)
+		UiKit.text(self, font, UiKit.t("CHAMPION"), Vector2(ROAD_X + 16, cy), 11, UiKit.DIM)
 		## FIT BY PIXELS, NOT CHARACTERS (3 Oct 2026): "Columbus Free Compa.".
 		UiKit.text(self, font, _fit(cup.champion, 15, NAME_W),
-			Vector2(ROAD_X + 16, 452), 15,
+			Vector2(ROAD_X + 16, cy + 20.0), 15,
 			UiKit.YOU if cup.champion == me else UiKit.INK)
 
 

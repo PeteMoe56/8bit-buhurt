@@ -221,7 +221,7 @@ func _grid() -> void:
 		var block := Rect2(r.position + Vector2(2, 20), Vector2(cw - 4, ch - 23))
 		if not bool(e[3]):
 			draw_rect(block, c.darkened(0.65 if past else 0.45))
-			UiKit.text(self, font, UiKit.clip_px(font, String(e[1]), 11, cw - 10.0),
+			UiKit.text(self, font, _event_fit(String(e[1]), 11, cw - 10.0),
 				r.position + Vector2(6, 33), 11, c.lightened(0.35))
 			if wi == s.world.week:
 				draw_rect(r, UiKit.YOU, false, 2.0)
@@ -229,12 +229,31 @@ func _grid() -> void:
 		var wk: Dictionary = s.world.calendar[wi]
 		draw_rect(block, c.darkened(0.55 if past else 0.3))
 		var b := _detail(wi, wk)
-		UiKit.text(self, font, UiKit.clip_px(font, String(e[1]), 11, cw - 10.0), block.position + Vector2(4, 13), 11,
+		UiKit.text(self, font, _event_fit(String(e[1]), 11, cw - 10.0), block.position + Vector2(4, 13), 11,
 			c.lightened(0.55))
 		UiKit.text(self, font, UiKit.clip_px(font, String(b[0]), 12, cw - 10.0), block.position + Vector2(4, 28), 12,
 			b[1])
 		if wi == s.world.week:
 			draw_rect(r, UiKit.YOU, false, 3.0)
+
+
+## AN EVENT'S NAME IN A CELL, KEEPING WHAT TELLS IT APART (Screen Score #1,
+## S41-1, Codex): "Baltimore Open" and "Baltimore Classic" were both cut to
+## "BALTIMORE ." — the one word they share. When the whole name will not fit, the
+## longest word (the town, in every language's word order) goes to its initial:
+## "B. OPEN", "B. CLASSIC", "OPEN DE B.". Cut only if even that will not fit.
+func _event_fit(name: String, px: int, width: float) -> String:
+	if font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x <= width:
+		return name
+	var words := name.split(" ", false)
+	if words.size() > 1:
+		var longest := 0
+		for i in words.size():
+			if words[i].length() > words[longest].length():
+				longest = i
+		words[longest] = words[longest].substr(0, 1) + "."
+		return UiKit.clip_px(font, " ".join(words), px, width)
+	return UiKit.clip_px(font, name, px, width)
 
 
 ## THE CELL'S FIRST LINE: what the Saturday is, short enough for a cell.
@@ -323,18 +342,22 @@ func _side() -> void:
 	UiKit.panel(self, r)
 	UiKit.text(self, font, UiKit.t("THE SEASON"), Vector2(sx + 12, top + 22), 12, UiKit.DIM)
 	## WHERE WE ARE IN THE WEEK (2 Oct 2026): before the event, the weekdays.
+	## ON ITS OWN LINE under the heading (Screen Score #1: beside it, it either
+	## touched "THE SEASON" or was cut to "weekda." in the narrow column).
+	var list_top := top + 44.0
 	if not s.world.season_complete():
-		UiKit.right_fit(self, font, UiKit.t("now: weekdays"), Vector2(r.end.x - 12.0, top + 22), 12, UiKit.YOU,
-			SIDE_W - 110.0)
+		UiKit.text_fit(self, font, UiKit.t("now: weekdays"), Vector2(sx + 12, top + 40), 12, UiKit.YOU,
+			SIDE_W - 24.0)
+		list_top = top + 62.0
 	var row_h := 21.0
-	var fit := int((r.size.y - 40.0) / row_h)
+	var fit := int((r.size.y - (list_top - top) + 4.0) / row_h)
 	var n := s.world.weeks_this_season()
 	var start := clampi(s.world.week - fit / 3, 0, maxi(0, n - fit))
 	var days := s.world.events_this_season()
 	for k in mini(fit, n - start):
 		var i := start + k
 		var wk: Dictionary = s.world.calendar[i]
-		var y := top + 44.0 + float(k) * row_h
+		var y := list_top + float(k) * row_h
 		draw_rect(Rect2(sx + 12, y - 10, 10, 11), Calendar.color(int(wk["kind"])))
 		var col := UiKit.YOU if i == s.world.week else (UiKit.DIM if i < s.world.week else UiKit.INK)
 		UiKit.text(self, font, UiKit.clip_px(font, UiKit.t("%d.  %s") % [i + 1, Calendar.short_label(wk, days)], 12,

@@ -35,6 +35,11 @@ func _process(_d: float) -> bool:
 			scene.set("screen", 3)
 			scene.call("_show_strategy_panel")
 		else:
+			## OFF THE WALK-OUT FIRST, as FIGHT does: its Back and Walk out live on
+			## the shared layer and this tool used to leave them under the live
+			## fight (Screen Score #1, S29: a fixture artifact, not the game).
+			scene.call("_clear_corner")
+			scene.call("_hide_panel")
 			sim.phase = MeleeSim.Phase.LIVE
 			scene.set("screen", 2)
 	if n == 16:

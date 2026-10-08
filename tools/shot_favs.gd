@@ -47,6 +47,9 @@ func _process(_d: float) -> bool:
 			_star_four()
 			print("starred %d" % Session.season.board.live_favorites().size())
 			scene.set("starring", true)
+			## THROUGH THE WALK-OUT, as a player gets here (Screen Score #1, S38:
+			## this tool opened the book over the splash, which no player can do).
+			scene.call("_show_strategy_panel")
 			scene.call("_show_playbook")
 		1:
 			root.get_texture().get_image().save_png("res://shots/favs_before.png")

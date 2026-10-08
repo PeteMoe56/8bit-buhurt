@@ -200,5 +200,7 @@ func _draw() -> void:
 	## The credit the licence asks for, on the screen the music is playing on.
 	## The full list is in Settings; this is the one that is a condition.
 	UiKit.right(self, font, UiKit.t("Music: HeatleyBros — heatleybros.com"),
-		Vector2(UiKit.screen().x - 24, UiKit.screen().y - 24), 13,
+		## `right_edge`, which knows the notch (Screen Score #1, S01-1, Codex: on an
+		## iPhone 11 the credit ended at 1145, inside the 63 px right inset).
+		Vector2(UiKit.right_edge(24.0), UiKit.screen().y - 24), 13,
 		UiKit.DIM, 420)

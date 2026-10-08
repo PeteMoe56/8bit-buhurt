@@ -359,6 +359,21 @@ static func _draw_corner(v, m, kind: String) -> void:
 			var b0: float = q.x if right() else q.y - 90.0 * fill_f
 			var b1: float = q.x + 90.0 * fill_f if right() else q.y
 			v.draw_colored_polygon(_ring(c, RO + 3.0, RO + BAND, b0, b1), v.COL_DIM)
+	## THE SCORE IT COVERS (Screen Score #1, S25-2, Codex; Pete approved 8 Oct
+	## 2026). The open wheel sits over the far side's STANDING and DOWNS and the
+	## last fighter cards, so with the fight stopped the count you are deciding
+	## against was hidden. A chip just above the wheel says it again, both sides.
+	if kind == "wheel":
+		var a = v.sim.clubs[0]
+		var b = v.sim.clubs[1]
+		var line := UiKit.t("%s %d · %s %d standing") % [a.short_name, v.sim.standing_count(0),
+			b.short_name, v.sim.standing_count(1)]
+		var cw: float = v.font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x + 16.0
+		var cx0: float = (c.x - RO) if right() else (c.x + RO - cw)
+		var chip := Rect2(cx0, c.y - RO - 30.0, cw, 24.0)
+		v.draw_rect(chip, v.COL_PANEL)
+		v.draw_rect(chip, v.COL_EDGE, false, 2.0)
+		UiKit.raw(v, v.font, chip.position + Vector2(8.0, 17.0), line, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, UiKit.INK)
 	## THE HUB says what this is.
 	var hub_hot: bool = kind == "wheel" and v.wheel_hot == -1
 	v.draw_colored_polygon(_ring(c, 0.0, RI - 6.0, q.x, q.y),

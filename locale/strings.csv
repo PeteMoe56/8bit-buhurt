@@ -1335,6 +1335,7 @@ pick one,pick one,elige una,choisis-en un,wähl einen,scegline uno,escolha um,wy
 Done picking favorites,Done picking favorites,Favoritos elegidos,Favoris choisis,Favoriten fertig,Preferiti scelti,Favoritas escolhidas,Koniec wybierania ulubionych,Вибір завершено,お気に入り選択完了
 Pick favorites for the corner,Pick favorites for the corner,Elige favoritos para la esquina,Choisis les favoris du coin,Favoriten für die Ecke wählen,Scegli i preferiti per l'angolo,Escolha favoritas para o canto,Wybierz ulubione na narożnik,Обери улюблені для кутка,コーナー用のお気に入りを選ぶ
 Back to the corner,Back to the corner,Volver a la esquina,Retour au coin,Zurück in die Ecke,Torna all'angolo,Voltar ao canto,Wróć do narożnika,Назад у куток,コーナーへ戻る
+Back to the plan,Back to the plan,Volver al plan,Retour au plan,Zurück zum Plan,Torna al piano,Voltar ao plano,Wróć do planu,Назад до плану,作戦に戻る
 "IN THE CORNER, IN THIS ORDER — tap to move one left","IN THE CORNER, IN THIS ORDER — tap to move one left","EN LA ESQUINA, EN ESTE ORDEN — toca para mover a la izquierda","AU COIN, DANS CET ORDRE — touche pour décaler à gauche","IN DER ECKE, IN DIESER FOLGE — tippen schiebt nach links","ALL'ANGOLO, IN QUEST'ORDINE — tocca per spostare a sinistra","NO CANTO, NESTA ORDEM — toque para mover à esquerda","W NAROŻNIKU, W TEJ KOLEJNOŚCI — stuknij, by przesunąć w lewo","У КУТКУ ПО ЧЕРЗІ — торкнись, щоб зсунути вліво",コーナーでの指示順 — タップで左へ移動
 Walk out,Walk out,Salir,Entrer,Einlaufen,Entra,Entrar,Wychodzimy,Виходимо,入場
 OUT TO YOUR OWN CROWD,OUT TO YOUR OWN CROWD,SALIDA ANTE TU PÚBLICO,DEVANT TON PUBLIC,RAUS VOR DEIN PUBLIKUM,FUORI DAVANTI AL TUO PUBBLICO,DIANTE DA SUA TORCIDA,DO WŁASNEJ PUBLIKI,ДО СВОЇХ ГЛЯДАЧІВ,ホームの観客の前へ
@@ -1845,3 +1846,8 @@ READY,READY,LISTOS,PRÊTS,BEREIT,PRONTI,PRONTOS,GOTOWI,ГОТОВІ,準備完了
 Goes in %d,Goes in %d,Empieza en %d,Départ dans %d,Los in %d,Si parte tra %d,Começa em %d,Start za %d,Старт за %d,開始まで%d
 FIGHT!,FIGHT!,¡A LUCHAR!,COMBAT !,KAMPF!,COMBATTETE!,LUTEM!,WALKA!,БІЙ!,ファイト!
 "Plan the charge: hold A on a man and steer, then Y.","Plan the charge: hold A on a man and steer, then Y.",Planea la carga: mantén A sobre un hombre y guía; luego Y.,"Prépare la charge : A sur un homme et guide, puis Y.","Plane den Angriff: A auf einem Mann halten und lenken, dann Y.","Prepara la carica: tieni A su un uomo e guida, poi Y.","Planeje a carga: segure A num homem e guie, depois Y.","Zaplanuj szarżę: trzymaj A na zawodniku i prowadź, potem Y.","Сплануй атаку: тримай A на бійці й веди, потім Y.",突撃を計画: 選手でAを押したまま動かし、Yで開始。
+
+%s %d · %s %d standing,%s %d · %s %d standing,%s %d · %s %d en pie,%s %d · %s %d debout,%s %d · %s %d stehen,%s %d · %s %d in piedi,%s %d · %s %d de pé,%s %d · %s %d w grze,%s %d · %s %d на ногах,%s %d · %s %d 人残り
+wages %s / %s cap,wages %s / %s cap,nómina %s / tope %s,paie %s / plafond %s,Löhne %s / Grenze %s,paghe %s / tetto %s,salários %s / teto %s,płace %s / limit %s,зарплати %s / ліміт %s,給与 %s / 上限 %s
+%s / %s cap,%s / %s cap,%s / tope %s,%s / %s max,%s / %s max,%s / tetto %s,%s / teto %s,%s / limit %s,%s / ліміт %s,%s / 上限 %s
+Name him first.,Name him first.,Primero ponle nombre.,Donnez-lui d'abord un nom.,Gib ihm zuerst einen Namen.,Prima dagli un nome.,Dê um nome a ele primeiro.,Najpierw nadaj mu imię.,Спершу дай йому ім’я.,先に名前を付けよう。
