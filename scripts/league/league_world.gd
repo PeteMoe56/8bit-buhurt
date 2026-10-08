@@ -1058,11 +1058,16 @@ func roll_over() -> void:
 		clubs[cid]["tier"] = int(moves_down[cid])
 		club_relegated.emit(int(cid), int(moves_down[cid]))
 
-	## The champion of the top flight gets the title on the board — the playoff
-	## winner, now there is a playoff.
-	var top := playoff_order(League.TIERS.size() - 1)
-	if not top.is_empty():
-		clubs[int(top[0]["club"])]["titles"] = int(clubs[int(top[0]["club"])]["titles"]) + 1
+	## The champion of the top flight gets the title on the board. Since 30 Sep
+	## that is the playoff winner, and the playoff is a cup that `_record_honors`
+	## has ALREADY credited — so only a season decided by the table alone (no
+	## finalists: an older save, or a playoff that never ran) is credited here.
+	## Crediting both counted every National title twice (bake-off #2, 8 Oct
+	## 2026; `test_league` "a title counts once").
+	if finalists.get(League.TIERS.size() - 1, []).is_empty():
+		var top := playoff_order(League.TIERS.size() - 1)
+		if not top.is_empty():
+			clubs[int(top[0]["club"])]["titles"] = int(clubs[int(top[0]["club"])]["titles"]) + 1
 
 	history.append({
 		"season": season,

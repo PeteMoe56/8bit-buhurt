@@ -1327,6 +1327,7 @@ Send a fighter,Send a fighter,Envía a un luchador,Envoie un combattant,Schick e
 SKIP ROUND,SKIP ROUND,SALTAR ASALTO,PASSER LA MANCHE,RUNDE AUSLASSEN,SALTA ROUND,PULAR ROUND,POMIŃ RUNDĘ,ПРОПУСТИТИ РАУНД,ラウンドをスキップ
 Next bout,Next bout,Siguiente combate,Combat suivant,Nächster Kampf,Prossimo scontro,Próximo combate,Następna walka,Наступний бій,次の試合
 Spend levels (%d),Spend levels (%d),Gastar niveles (%d),Placer les niveaux (%d),Stufen vergeben (%d),Spendi livelli (%d),Usar níveis (%d),Rozdaj poziomy (%d),Прокачка (%d),レベルを使う (%d)
+Spend levels,Spend levels,Gastar niveles,Placer les niveaux,Stufen vergeben,Spendi livelli,Usar níveis,Rozdaj poziomy,Прокачка,レベルを使う
 A play you drew.,A play you drew.,Una jugada que dibujaste.,Un schéma que tu as tracé.,Ein Spielzug von dir.,Uno schema che hai disegnato.,Uma jogada sua.,Twoje zagranie.,Твоя схема.,自分で描いた作戦。
 THE PLAYBOOK — %s,THE PLAYBOOK — %s,PIZARRA — %s,LES TACTIQUES — %s,DAS TAKTIKBUCH — %s,IL PLAYBOOK — %s,A CARTILHA — %s,TAKTYKI — %s,ТАКТИКИ — %s,作戦ノート — %s
 "tap to star, %d of %d","tap to star, %d of %d","toca para marcar, %d de %d","touche pour marquer, %d sur %d","Stern antippen, %d von %d","tocca la stella, %d di %d","toque p/ destacar, %d de %d","stuknij, by oznaczyć, %d z %d","познач зіркою, %d з %d",タップでお気に入り、%d / %d

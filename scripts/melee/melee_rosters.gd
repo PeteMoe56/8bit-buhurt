@@ -45,7 +45,7 @@ static func _c(
 	## It is the same information the stats already carry, said in years, and it
 	## means the fixtures age sensibly without a second table to keep in step.
 	f.age = _age_from(f)
-	f.potential = clampi(f.overall() + Career.potential_room(f.age) / 2, 1, 99)
+	f.potential = clampi(f.ability() + Career.potential_room(f.age) / 2, 1, 99)
 	## A deal at the market rate, staggered off the shirt number so the fixtures
 	## do not all expire in the same summer. Derived rather than rolled — these
 	## are FIXTURES, and a fixture that changes between runs is not one.

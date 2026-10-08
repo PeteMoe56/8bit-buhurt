@@ -173,8 +173,8 @@ func create(office: ClubOffice, club: MeleeClub, card: FighterCard,
 	##
 	## Done before the cap is checked, deliberately: the figure the refusal quotes
 	## has to be the figure he will actually be billed at.
-	if card.potential < card.overall():
-		card.potential = clampi(card.overall()
+	if card.potential < card.ability():
+		card.potential = clampi(card.ability()
 			+ Career.potential_room(card.age) / 2, 1, Career.POTENTIAL_CEILING)
 	card.years = Contracts.YEARS_NEW
 	card.wage_agreed = Contracts.offer(ClubOffice.wage(card), card.age)

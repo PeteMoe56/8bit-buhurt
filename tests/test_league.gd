@@ -30,6 +30,7 @@ func _initialize() -> void:
 	_test_the_climb_is_possible()
 	_test_the_climb_is_earned()
 	_test_the_simmed_result_is_not_a_coin_flip()
+	_test_a_title_counts_once()
 
 	print("")
 	for n in notes:
@@ -316,3 +317,35 @@ func _test_the_simmed_result_is_not_a_coin_flip() -> void:
 	_ok(fair and decisive and directed and margins_move,
 		"the simmed result is not a coin flip",
 		"even sides split evenly, a division's width is decisive but not certain, a gap no division allows is, and margins widen with the gap")
+
+
+func _test_a_title_counts_once() -> void:
+	## A CLUB'S "N TITLES" IS ITS SEEDED PAST PLUS EVERY CUP IT HAS WON, ONCE
+	## (bake-off #2, 8 Oct 2026, both assistants). The National playoff is a cup
+	## and `_record_honors` credits it; the roll-over credited the top flight's
+	## champion a second time, so every National title counted twice on the team
+	## card. Checked over twelve seasons on every club that is not a guest.
+	var world := LeagueWorld.new(7311, 44)
+	var start: Dictionary = {}
+	for c in world.clubs:
+		if int(c["tier"]) >= 0:
+			start[int(c["id"])] = int(c["titles"])
+	var national := 0
+	for s in 12:
+		while not world.season_complete():
+			world.play_event()
+		world.roll_over()
+	var won: Dictionary = {}
+	for h in world.honors:
+		var cid := int(h.get("champion", -1))
+		if start.has(cid) and String(h.get("champion_name", "")) == String(world.clubs[cid]["name"]):
+			won[cid] = int(won.get(cid, 0)) + 1
+			if String(h.get("id", "")) == "playoff:%d" % (League.TIERS.size() - 1):
+				national += 1
+	var off: Array = []
+	for cid in start:
+		var want: int = int(start[cid]) + int(won.get(cid, 0))
+		if int(world.clubs[cid]["titles"]) != want:
+			off.append("%s %d≠%d" % [String(world.clubs[cid]["short"]), int(world.clubs[cid]["titles"]), want])
+	_ok(off.is_empty() and national > 0, "a title counts once",
+		"%d National playoffs decided; clubs off: %s" % [national, ", ".join(off) if not off.is_empty() else "none"])

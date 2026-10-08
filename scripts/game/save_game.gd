@@ -883,7 +883,7 @@ static func fighter_from_dict(d: Dictionary) -> FighterCard:
 	f.injury = int(d.get("injury", 0))
 	f.injury_kind = String(d.get("injury_kind", ""))
 	f.age = int(d.get("age", 26))
-	f.potential = int(d.get("potential", f.overall()))
+	f.potential = int(d.get("potential", f.ability()))
 	f.xp = int(d.get("xp", 0))
 	## A FILE FROM BEFORE TRAITS IS A SQUAD OF ORDINARY MEN, which is exactly
 	## what it was — the default is NONE and nothing decodes wrong, so the

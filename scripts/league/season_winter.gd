@@ -406,7 +406,7 @@ static func _train(s: Season) -> void:
 	for f in pool:
 		if not s.office.taught(Tuning.role_of(int(f.pos))):
 			continue
-		if f.overall() < f.potential or Career.will_decline(f):
+		if f.ability() < f.potential or Career.will_decline(f):
 			eligible.append(f)
 	var share := {}
 	var i := 0
@@ -415,14 +415,14 @@ static func _train(s: Season) -> void:
 		guard += 1
 		var f: FighterCard = eligible[i % eligible.size()]
 		i += 1
-		var room: int = maxi(0, f.potential - f.overall())
+		var room: int = maxi(0, f.potential - f.ability())
 		if Career.will_decline(f):
 			room += 1
 		if int(share.get(f, 0)) >= room:
 			## Everyone full? Stop rather than spin.
 			var any := false
 			for g in eligible:
-				var r2: int = maxi(0, g.potential - g.overall())
+				var r2: int = maxi(0, g.potential - g.ability())
 				if Career.will_decline(g):
 					r2 += 1
 				if int(share.get(g, 0)) < r2:

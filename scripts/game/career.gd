@@ -160,7 +160,7 @@ static func decline_for_man(f: FighterCard, stat: int) -> int:
 ## every signing from "how good is he" into "how good is he GOING to be" — which
 ## is a question worth a decision, and the first one was not.
 ##
-## Here it is a ceiling on `overall()`, not on any single stat. A fighter can
+## Here it is a ceiling on `ability()` (overall without the kit penalty, 8 Oct 2026), not on any single stat. A fighter can
 ## rearrange himself under it however his training goes; what he cannot do is
 ## exceed it. Past his peaks he will fall away from it and never get back, which
 ## is what makes potential something you spend a career chasing rather than a
@@ -257,7 +257,7 @@ static func free_agent_potential(f: FighterCard, standard: int, talent: float) -
 		bonus = mini(STANDARD_ROOM, (standard - f.overall()) / 2) \
 			* room / maxi(1, POTENTIAL_GAP_MAX)
 	var gap := int(round(float(room) * FREE_AGENT_WIDE * talent * talent))
-	return clampi(f.overall() + gap + bonus, 1, POTENTIAL_CEILING)
+	return clampi(f.ability() + gap + bonus, 1, POTENTIAL_CEILING)
 
 
 ## WHAT HE WILL BE WORTH, WHICH IS NOT WHAT HE IS WORTH TODAY.
@@ -290,7 +290,7 @@ const PROJECT_YEARS: float = 5.0
 
 
 static func projected(f: FighterCard) -> int:
-	var gap := maxi(0, f.potential - f.overall())
+	var gap := maxi(0, f.potential - f.ability())
 	if gap == 0:
 		return f.overall()
 	var runway := float(maxi(0, PEAK_SKILL - f.age)) / PROJECT_YEARS
@@ -451,7 +451,7 @@ const CEILING_NEAR: int = 4
 ## buying a point a winter can never walk a thirty-eight-year-old to 99, because
 ## by then it offers him nothing.
 static func ceiling_limit(f: FighterCard) -> int:
-	return clampi(f.overall() + potential_room(f.age), 1, POTENTIAL_CEILING)
+	return clampi(f.ability() + potential_room(f.age), 1, POTENTIAL_CEILING)
 
 
 static func can_raise_ceiling(f: FighterCard) -> bool:
@@ -462,8 +462,8 @@ static func can_raise_ceiling(f: FighterCard) -> bool:
 ## division starts him rather than from zero — so the first winter on a young
 ## prospect is cheap and the last point before a man's limit is not.
 static func raise_cost(f: FighterCard) -> int:
-	var room := maxi(1, ceiling_limit(f) - f.overall())
-	var done := maxi(0, f.potential - f.overall())
+	var room := maxi(1, ceiling_limit(f) - f.ability())
+	var done := maxi(0, f.potential - f.ability())
 	return maxi(1, int(round(float(RAISE_COST_PER)
 		* (1.0 + 1.5 * float(done) / float(room)) / learn_rate(f))))
 
@@ -553,7 +553,16 @@ const XP_PER_ROUND_STANDING: int = 1
 ## number; moving income moves what a down is worth, what a round standing is
 ## worth, what a simmed afternoon is worth and what a level costs to buy, all of
 ## which are priced against each other elsewhere in this file.
-const LEVEL_XP: int = 5
+##
+## 5 → 8 ON 8 OCT 2026 (Pete: the ~10-season first title is for "the engaged
+## player" — the one who spends when the report asks). Measured with the
+## report-faithful manager (`RB_LV=low RB_LV_REPORT=1`, 12 careers × 5 bases ×
+## 14 seasons), after the level-door, ceiling and titles fixes the same day:
+## first title 5 → 8.96, 7 → 9.78, 8 → 10.44. Eight, because a thumbed career
+## runs faster than any simmed one, and 10.6 was the bench Pete approved on 2 Oct.
+## The player who never presses Spend levels lands at 12.5 (auto, winter only).
+## It is still the bar, not the income — the reasoning above stands.
+const LEVEL_XP: int = 8
 ## RAISED FROM 3 TO 4 ON 15 Sep 2026. Pete: *"Let's lean more toward theirs."*
 ##
 ## Theirs does not cap at all — `xp_level * 100`, forever — and ours cannot go
@@ -636,7 +645,7 @@ static func retire_chance(f: FighterCard, morale: float = 0.7) -> float:
 		return 1.0
 	if f.age < RETIRE_FROM:
 		return 0.0
-	var faded := maxi(0, f.potential - f.overall())
+	var faded := maxi(0, f.potential - f.ability())
 	var mood := 0.7 - clampf(morale, 0.0, 1.0)
 	return clampf(float(f.age - RETIRE_FROM + 1) * RETIRE_PER_YEAR
 		+ float(faded) * RETIRE_PER_FADED_POINT
@@ -730,7 +739,7 @@ static func cash_value(f: FighterCard) -> int:
 ## `msg_MeetingLevelUpNotNeeded: "$playername has reached his potential."` — and
 ## it is the whole reason potential is the second number on the card.
 static func at_ceiling(f: FighterCard) -> bool:
-	return f.overall() >= f.potential
+	return f.ability() >= f.potential
 
 
 static func can_level(f: FighterCard) -> bool:
@@ -899,45 +908,33 @@ static func level_up(f: FighterCard) -> Dictionary:
 	var report := {"lost": 0, "gained": 0, "spent": 0, "ground": 0, "held": 0}
 	if at_ceiling(f):
 		return {"levelled": false, "reason": "ceiling"}
+	if raisable(f).is_empty():
+		return {"levelled": false, "reason": UiKit.t("nothing to grow")}
 	var before := f.overall()
-	if not _raise_one(f, {}, report):
-		## NOTHING UNPEAKED LEFT — AND A LEVEL STILL HAS TO LAND SOMEWHERE.
-		##
-		## `_raise_one` only grows a stat a man is not yet past, so a fighter past
-		## all four peaks and still under his potential used to come back "nothing
-		## to grow" WITHOUT SPENDING THE BAR, while `can_level` went on saying
-		## yes. `tools/probe_growth.gd` found it the hard way: a twenty-eight year
-		## old sat in a `while can_level(f)` loop forever and hung the probe.
-		##
-		## WHERE THE FALLBACK GOES IS THE WHOLE POINT, and it took two attempts.
-		## Putting it inside `_raise_one` broke `test_career`'s rule that **a
-		## veteran holds but never reverses** — the winter would have handed a
-		## forty-year-old training points that lifted him above where the season
-		## started, which makes age optional. But `_raise_one` serves two callers
-		## with genuinely different rules, and Pete settled the other one on 13
-		## Sep 2026: *"leave the ability to gain all stats still. He's just slower
-		## at leveling."* `level_into` has let a player put a level anywhere at any
-		## age ever since.
-		##
-		## So the automatic path now matches the manual one — a level lands on his
-		## lowest stat with room — and the WINTER, which is the club's training
-		## and not his level, keeps refusing. Two rules, two places, neither
-		## pretending to be the other.
-		var open_ := raisable(f)
-		if open_.is_empty():
-			return {"levelled": false, "reason": UiKit.t("nothing to grow")}
-		var pick: int = open_[0]
-		for stat in open_:
-			if read_stat(f, stat) < read_stat(f, pick):
-				pick = stat
-		write_stat(f, pick, read_stat(f, pick) + 1)
-	## THE REST OF THE LEVEL'S WORTH. Re-checking `at_ceiling` between points
-	## rather than counting them out in advance, because the first point can be
-	## the one that finishes him and a level must never carry a man past his own
-	## potential — that is the whole meaning of the number.
-	for _extra in gain_for(f) - 1:
-		if at_ceiling(f) or not _raise_one(f, {}, report):
-			break
+	## THE CLUB'S DOOR PAYS WHAT THE PLAYER'S DOOR PAYS (Pete, 8 Oct 2026; both
+	## assistants, bake-off #2). This used to stop at the ceiling between points
+	## and, for a man past all four peaks, land one point and quit: a 40-year-old
+	## below his ceiling took 1 point here and 3 through `level_into`, and so did a
+	## man crossing his ceiling — 14% of every CPU level's worth, gone. Now, like
+	## `level_into`, the ceiling is checked BEFORE the level, and the level lands
+	## all `POINTS_PER_LEVEL`.
+	##
+	## WHERE EACH POINT GOES is still the club's choice, not the player's: the
+	## lowest stat still under its peak (`_raise_one`, the same rule the winter's
+	## training ground uses), else the lowest stat with room. `_raise_one` itself
+	## is untouched, so the winter's "a veteran holds but never reverses" stays.
+	var left := gain_for(f)
+	while left > 0:
+		if not _raise_one(f, {}, report):
+			var open_ := raisable(f)
+			if open_.is_empty():
+				break
+			var pick: int = open_[0]
+			for stat in open_:
+				if read_stat(f, stat) < read_stat(f, pick):
+					pick = stat
+			write_stat(f, pick, read_stat(f, pick) + 1)
+		left -= 1
 	## THE REMAINDER IS KEPT. Theirs sets `xp = 1` on crossing, and at their income
 	## that rounding is invisible; at ours an event is worth eleven against a bar
 	## of twenty-four, so discarding it would bin something like a fifth of
@@ -983,16 +980,24 @@ static func can_place(f: FighterCard) -> bool:
 static func levels_banked(f: FighterCard) -> int:
 	if not can_place(f):
 		return 0
-	var xp := f.xp
-	var lvl := f.level
-	var room := maxi(1, (f.potential - f.overall()) * 4)
+	## WALKED ON A COPY, NOT ESTIMATED (8 Oct 2026). This used to walk the XP
+	## bars and treat `(potential - overall) x 4` as a count of levels, without
+	## growing any stat — so a man one level from his ceiling read "+4" and could
+	## spend one (Codex, bake-off #2: label 4, capacity 1). Now it spends them,
+	## on a copy, each into his lowest stat with room. That priority is declared:
+	## a specialist build can cross the ceiling a level sooner or later, so this
+	## is the count for an even spread, and the report's button no longer prints
+	## a number at all.
+	var g := f.copy()
 	var n := 0
-	while n < 9 and n < room:
-		var bar := maxi(1, int(round(float(mini(maxi(1, lvl), LEVEL_BAR_CAP) * LEVEL_XP) * learn_rate(f))))
-		if xp < bar:
+	while n < 9 and can_place(g):
+		var room := raisable(g)
+		var pick: int = room[0]
+		for stat in room:
+			if read_stat(g, stat) < read_stat(g, pick):
+				pick = stat
+		if not bool(level_into(g, pick).get("levelled", false)):
 			break
-		xp -= bar
-		lvl += 1
 		n += 1
 	return n
 
@@ -1080,7 +1085,7 @@ static func level_cost(f: FighterCard) -> int:
 static func train_only(f: FighterCard, points: int) -> int:
 	var report := {"lost": 0, "gained": 0, "spent": 0, "ground": 0, "held": 0}
 	var g := 0
-	while g < points and f.overall() < f.potential:
+	while g < points and f.ability() < f.potential:
 		if not _raise_one(f, {}, report):
 			break
 		g += 1
@@ -1127,7 +1132,7 @@ static func winter(f: FighterCard, coached: bool, ground_points: int) -> Diction
 		## `fell` still reaches `_raise_one`, so a ground point can hold back a loss
 		## the winter just took — that was always the interesting half of this.
 		var g := 0
-		while g < ground_points and f.overall() < f.potential:
+		while g < ground_points and f.ability() < f.potential:
 			if not _raise_one(f, fell, report):
 				break
 			g += 1
@@ -1165,7 +1170,7 @@ static func winter(f: FighterCard, coached: bool, ground_points: int) -> Diction
 	## pinned at 54 against a ceiling of 55 for four straight seasons with the
 	## drift never once firing. Within `CEILING_NEAR` is what "he has caught his
 	## own projection" actually looks like on a moving number.
-	if f.potential - f.overall() <= CEILING_NEAR and can_raise_ceiling(f):
+	if f.potential - f.ability() <= CEILING_NEAR and can_raise_ceiling(f):
 		f.potential = mini(f.potential + CEILING_DRIFT, ceiling_limit(f))
 	return report
 

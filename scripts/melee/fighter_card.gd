@@ -93,7 +93,7 @@ extends Resource
 ## goes at 24, strength at 28, not-being-put-down at 32, technique at 35.
 @export_range(16, 60) var age: int = 26
 
-## THE CEILING ON `overall()`, and the second number the player reads. Not a cap
+## THE CEILING ON `ability()` (overall without the kit penalty), and the second number the player reads. Not a cap
 ## on any single stat: a fighter can rearrange himself under it however his
 ## training goes, he just cannot exceed it. There is exactly one way to raise it
 ## — one prospect a winter — because anything buyable in bulk stops being a
@@ -340,7 +340,7 @@ func unfit_reason() -> String:
 ## was hand-written low — `headroom` clamps rather than showing a fighter as
 ## being beyond himself.
 func headroom() -> int:
-	return maxi(0, potential - overall())
+	return maxi(0, potential - ability())
 
 
 ## Past his peaks and falling away from what he could have been. The roster
@@ -348,7 +348,7 @@ func headroom() -> int:
 ## argument for replacing him and the player should not have to do the
 ## subtraction himself.
 func fading() -> bool:
-	return age > Career.PEAK_BASE and potential - overall() >= 4
+	return age > Career.PEAK_BASE and potential - ability() >= 4
 
 
 func overall() -> int:
@@ -369,6 +369,17 @@ func rating() -> float:
 ## longer rather than only appearing to on a screen.
 func tank() -> float:
 	return 0.70 + (float(fighting_gas()) / 99.0) * 0.60
+
+
+## WHAT HE IS WITHOUT THE KIT PENALTY — the number his POTENTIAL is measured
+## against (Pete, 8 Oct 2026: "Use stats without kit"). `rating()` takes base
+## through his harness condition, which is right for fighting and wrong for
+## development: with unchanged stats a man was at his ceiling in good kit (68)
+## and below it in worn kit (67), so kit decided whether he could level at all
+## (Codex's KIT_FIXTURE, bake-off #2). Every `potential` comparison uses this.
+func ability() -> int:
+	return int(round(float(strength) * 0.22 + float(base) * 0.24 + float(skill) * 0.24
+		+ float(gas) * 0.22 + float(aggression) * 0.08))
 
 
 func effective_base() -> float:

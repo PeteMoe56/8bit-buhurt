@@ -64,8 +64,10 @@ are set from the environment:
 | `auto+harness` | auto | 0 | 1 | Baseline levels, plus a harness policy (below) |
 | `spec+bout+harness` | spec | 1 | 1 | The "engaged player" combination |
 
-**Harness policy:** each week, before the paid session and the ceiling raises, and
-out of everything above the bills (not behind the `KITTY` reserve):
+**Harness policy:** each week, before the paid session and the ceiling raises, out of
+everything above `keep` — which already includes the `KITTY` reserve (corrected after
+Codex's audit: an earlier line here said "not behind KITTY"; sessions and ceilings need
+a further KITTY on top):
 - hire the highest-star armorer from `Armorer.pool` who will come and whose wage is
   covered, because a harness above Rust needs an armorer who can make it
   (`Armorer.cap_of` = stars − 1);
@@ -103,10 +105,11 @@ the armorer's later wages**, which go through the upkeep bill.
 
 ## What this data can and cannot see (read before concluding)
 
-- **Fights are simmed, never thumbed.** Per `docs/CONSTRAINTS.md` C-3, drawing
-  nothing wins about 46% of an even mirror, and C-2 says a good thumb moves an even
-  match to about 87%. So every row here is a **floor** for a player who plays the
-  fights. Pete reads balance that way: a losing career can be turned around.
+- **Career bouts are resolved by `LeagueWorld.quick_bout`** (an Elo formula on club
+  power), not the melee sim. *Corrected after Codex's audit:* an earlier version of this
+  line called every row "a floor for a player who plays the fights" via C-2/C-3 — those
+  are melee-sim numbers and do not apply here. Formations, specialist stat interactions
+  and thumb skill are not exercised at all.
 - **The manager reads hidden ceilings** (`Read.ORACLE`) when signing.
 - **"After every event" is a fixed stand-in for a player,** not a model of one. A
   real player spends levels when the after-action report's "Spend levels (N)" button

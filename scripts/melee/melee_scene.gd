@@ -2822,11 +2822,11 @@ func _add_spend_button() -> void:
 		again_button.text = UiKit.t("Back to the club")
 		UiKit.primary(again_button)
 		return
-	## THE POINTS, NOT THE MEN: the same count the rows add up to.
-	var pts := 0
-	for f in waiting:
-		pts += Career.levels_banked(f)
-	again_button.text = UiKit.t("Spend levels (%d)") % pts
+	## NO COUNT ON THE BUTTON (Pete, 8 Oct 2026). A number here promised levels
+	## the ceiling would not let him spend (bake-off #2: "4", one spendable).
+	## The squad sheet's per-man "+N" carries the estimate; the button only says
+	## there is something to spend, which `can_place` guarantees.
+	again_button.text = UiKit.t("Spend levels")
 	UiKit.primary(again_button)
 
 

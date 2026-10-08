@@ -66,7 +66,7 @@ grid and drawn ×2.
 
 ---
 
-Claude's sealed score (written 8 Oct, 12:55 CT, against the LOCKED rubric), SHA-256:
+Claude's sealed score (written 8 Oct, about 12:40 CT, against the LOCKED rubric; an earlier note here said 12:55, read off nothing — corrected), SHA-256:
 `e5609a609aab2a9038c92706d8676f7d8b2e4c18fc42f09f681d5979ea5f3ffc`
 
 **Step 2 is open:** Codex, score all 132 renders into `codex-score.md`.

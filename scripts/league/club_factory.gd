@@ -240,7 +240,7 @@ static func walk_on(rng: RandomNumberGenerator, slot: int, tier: int) -> Fighter
 	## become good would make signing anybody else pointless — the whole value of
 	## a floor is that it stays the floor.
 	f.age = rng.randi_range(Career.AGE_MIN, Career.AGE_MIN + 4)
-	f.potential = clampi(f.overall() + rng.randi_range(0, 4), 1, 99)
+	f.potential = clampi(f.ability() + rng.randi_range(0, 4), 1, 99)
 	## He is young, so the rookie rate applies and he is cheap as well as free —
 	## which is the point. A walk-on is worth more than his rating says, and that
 	## is exactly what makes "is this signing worth it" a question with an answer.
