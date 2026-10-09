@@ -1851,3 +1851,6 @@ FIGHT!,FIGHT!,¡A LUCHAR!,COMBAT !,KAMPF!,COMBATTETE!,LUTEM!,WALKA!,БІЙ!,フ�
 wages %s / %s cap,wages %s / %s cap,nómina %s / tope %s,paie %s / plafond %s,Löhne %s / Grenze %s,paghe %s / tetto %s,salários %s / teto %s,płace %s / limit %s,зарплати %s / ліміт %s,給与 %s / 上限 %s
 %s / %s cap,%s / %s cap,%s / tope %s,%s / %s max,%s / %s max,%s / tetto %s,%s / teto %s,%s / limit %s,%s / ліміт %s,%s / 上限 %s
 Name him first.,Name him first.,Primero ponle nombre.,Donnez-lui d'abord un nom.,Gib ihm zuerst einen Namen.,Prima dagli un nome.,Dê um nome a ele primeiro.,Najpierw nadaj mu imię.,Спершу дай йому ім’я.,先に名前を付けよう。
+Sponsors,Sponsors,Patrocinadores,Sponsors,Sponsoren,Sponsor,Patrocinadores,Sponsorzy,Спонсори,スポンサー
+Kit sponsors,Kit sponsors,Patrocinio del equipo,Sponsors de l'équipement,Ausrüstungssponsoren,Sponsor dell'armatura,Patrocínio do equipamento,Sponsorzy sprzętu,Спонсори спорядження,装備スポンサー
+  ·  sponsors %s CC a bout,  ·  sponsors %s CC a bout,  ·  patrocinio %s CC por combate,  ·  sponsors %s CC par combat,  ·  Sponsoren %s CC pro Kampf,  ·  sponsor %s CC a incontro,  ·  patrocínio %s CC por luta,  ·  sponsorzy %s CC za walkę,  ·  спонсори %s CC за бій,  ·  スポンサー 1試合%s CC

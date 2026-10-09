@@ -65,7 +65,8 @@ static func _draw_market(v: SeasonScene) -> void:
 		card.size.x - 330.0 - 210.0)
 	UiKit.text_fit(v, v.font, ((UiKit.t("%d CC to put the eight right") % led["bill"]) if int(led["bill"]) > 0
 			else UiKit.t("nothing owing"))
-			+ ((UiKit.t("  ·  all kit %s") % String(grades.keys()[0])) if uniform else ""),
+			+ ((UiKit.t("  ·  all kit %s") % String(grades.keys()[0])) if uniform else "")
+			+ _sponsor_word(v),
 		Vector2(card.position.x + 330.0, card.position.y + 44.0), 13, UiKit.DIM, card.size.x - 330.0 - 210.0)
 
 	var cell := v._qm_cell()
@@ -423,3 +424,15 @@ static func pick_refusal(v: SeasonScene) -> String:
 		return UiKit.t("%s's harness is as good as it gets.") % f.display_name
 	return UiKit.t("%s works up to %s. A better armorer makes better metal.") % [
 		String(o.armorer.get("name", "")), Armorer.metal_name(o.armorer_cap())]
+
+
+## WHAT THE LINE EARNS FROM KIT SPONSORS A BOUT (Harness #2, 8 Oct 2026), so the
+## reason to buy better metal is on the screen where it is bought. Empty while
+## the five are all in Rust, which earns nothing — the line is not there to nag.
+static func _sponsor_word(v) -> String:
+	var per := 0.0
+	for f in v.season.club.starting_five():
+		per += Quartermaster.sponsor_rate(f)
+	if per < 0.05:
+		return ""
+	return UiKit.t("  ·  sponsors %s CC a bout") % ("%.1f" % per)

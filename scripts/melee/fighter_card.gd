@@ -382,8 +382,18 @@ func ability() -> int:
 		+ float(gas) * 0.22 + float(aggression) * 0.08))
 
 
+## BETTER METAL, A BETTER BASE (Pete, 8 Oct 2026: "mild stat bonuses"; Harness #2,
+## Codex). Percent added to base by grade, Rust to Titanium, and it shrinks with
+## the kit's condition like the rest of base. It reaches rating, club power and the
+## fight — between two even clubs, Hardened or better takes a coin flip to about
+## three in four (tools/probe_harness_melee.gd) — but NOT `ability()`, potential
+## or growth headroom: a ceiling is the man, not his kit (Pete, 8 Oct 2026).
+const HARNESS_BASE_BONUS := [0.00, 0.02, 0.05, 0.09, 0.12]
+
+
 func effective_base() -> float:
-	return float(base) * lerpf(0.78, 1.0, armor)
+	var grade_gain: float = float(HARNESS_BASE_BONUS[Quartermaster.grade_of(self)])
+	return minf(99.0, float(base) * (1.0 + grade_gain) * lerpf(0.78, 1.0, armor))
 
 
 func pos_name() -> String:

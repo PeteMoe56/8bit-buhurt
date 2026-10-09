@@ -27,6 +27,8 @@ func _initialize() -> void:
 	_test_the_ledger_is_the_squad()
 	_test_what_armor_is_actually_worth()
 	_test_a_simmed_event_costs_a_week()
+	_test_sponsors_pay_for_kit_that_fights()
+	_test_better_metal_lifts_the_fight_not_the_ceiling()
 	print("")
 	for n in notes:
 		print("   " + n)
@@ -83,18 +85,18 @@ func _test_the_ladder_goes_up() -> void:
 		"borrowed caps at %.2f against an inspection line of %.2f"
 			% [Quartermaster.TOP[Quartermaster.Grade.BORROWED], FighterCard.INSPECTION_MIN])
 
-	## AND THE BOTTOM RUNG IS NOT A NERF EITHER.
+	## AND THE BOTTOM RUNG IS NOT MUCH OF A NERF.
 	##
-	## Every fighter in the world defaults to Borrowed. The first cut of this file
-	## had Borrowed at 0.82 and wearing 1.30x, which shipped a ceiling cut and a
-	## 30% wear increase to every club in the game as a side effect of adding a
-	## shop. A feature that makes the baseline worse so its own upgrades look
-	## better is a feature charging you to undo it. Nothing on this ladder may
-	## wear faster than the game did before it existed.
+	## This said "nothing may wear faster than 1.00" until Pete ruled, 8 Oct 2026
+	## (Harness #2): *"lower gear breaking quicker, and higher gear more
+	## resilient."* Rust now wears a shade over the old game. The point of the old
+	## rule still stands — a shop must not make the baseline a tax — so the line
+	## holds at 1.10, and docs/harness-2 measured the club that never buys at
+	## 0.00 seasons slower to its first title.
 	var worst := 0.0
 	for g in Quartermaster.WEAR.keys():
 		worst = maxf(worst, float(Quartermaster.WEAR[g]))
-	_ok(worst <= 1.0, "and no rung wears faster than the game did before the shop",
+	_ok(worst <= 1.10, "and no rung wears much faster than the game did before the shop",
 		"the worst multiplier on the ladder is x%.2f" % worst)
 	notes.append("the ladder: " + "; ".join(line))
 
@@ -316,3 +318,66 @@ func _test_the_armorer_makes_what_he_can() -> void:
 		bad.append("the three-star did not make Mild")
 	_ok(bad.is_empty(), "the armorer makes and keeps what his stars say",
 		"; ".join(bad) if not bad.is_empty() else "1 star: Rust only; 3 stars hired for %d CC and up to Hardened" % Armorer.wage_of(three))
+
+
+## KIT SPONSORS (Pete, 8 Oct 2026, Harness #2). Paid per man in the line, by metal
+## and condition; Rust earns nothing; fractions carry and survive a save.
+func _test_sponsors_pay_for_kit_that_fights() -> void:
+	var o := ClubOffice.new()
+	o.credits = 0
+	var line: Array = []
+	for i in 5:
+		var f := _man()
+		f.harness = Quartermaster.Grade.BORROWED
+		f.armor = 0.90
+		line.append(f)
+	Quartermaster.pay_sponsors(o, line)
+	_ok(o.credits == 0 and o.harness_receipts == 0.0, "a line in rust earns no sponsor",
+		"%d CC, %.2f carried" % [o.credits, o.harness_receipts])
+
+	for f in line:
+		f.harness = Quartermaster.Grade.TITANIUM
+		f.armor = 1.0
+	Quartermaster.pay_sponsors(o, line)
+	## 5 x 0.65 = 3.25: three credits paid, a quarter carried.
+	_ok(o.credits == 3 and absf(o.harness_receipts - 0.25) < 0.001,
+		"a titanium line is paid whole credits and carries the change",
+		"%d CC, %.2f carried" % [o.credits, o.harness_receipts])
+	_ok(int(o.books_in.get(ClubOffice.LINE_SPONSOR, 0)) == 3,
+		"and it lands on its own line in the books", str(o.books_in))
+
+	## WORN KIT EARNS LESS: half the condition, half the sponsor.
+	var worn := _man()
+	worn.harness = Quartermaster.Grade.TITANIUM
+	worn.armor = 0.5
+	_ok(absf(Quartermaster.sponsor_rate(worn) - 0.325) < 0.001,
+		"and kit that is not kept up earns less", "%.3f a bout" % Quartermaster.sponsor_rate(worn))
+
+	## THE CHANGE IS SAVED, so a reload never loses part of a credit.
+	var back := ClubOffice.from_dict(o.to_dict())
+	_ok(absf(back.harness_receipts - 0.25) < 0.001, "and the change survives a save",
+		"%.2f after the round trip" % back.harness_receipts)
+
+	## EVERY RUNG EARNS MORE THAN THE ONE BELOW.
+	var up := true
+	for g in range(1, Quartermaster.SPONSOR_CC.size()):
+		up = up and float(Quartermaster.SPONSOR_CC[g]) > float(Quartermaster.SPONSOR_CC[g - 1])
+	_ok(up, "and every metal earns more than the one below it", str(Quartermaster.SPONSOR_CC))
+
+
+## THE GRADE BONUS (Pete, 8 Oct 2026: "mild stat bonuses"). It lifts the fight
+## number and never the growth ceiling (Pete, 8 Oct 2026: ceilings use stats
+## without kit).
+func _test_better_metal_lifts_the_fight_not_the_ceiling() -> void:
+	var f := _man()
+	f.armor = 1.0
+	f.harness = Quartermaster.Grade.BORROWED
+	var rust_base := f.effective_base()
+	var rust_ab := f.ability()
+	f.harness = Quartermaster.Grade.TITANIUM
+	_ok(f.effective_base() > rust_base, "better metal lifts the base he fights with",
+		"%.1f in rust, %.1f in titanium" % [rust_base, f.effective_base()])
+	_ok(f.ability() == rust_ab, "and not the ability his ceiling is measured against",
+		"%d both ways" % rust_ab)
+	_ok(f.effective_base() <= rust_base * 1.15, "and the lift is mild",
+		"+%.0f%%" % (100.0 * (f.effective_base() / rust_base - 1.0)))

@@ -223,7 +223,7 @@ static func forfeit_cup_tie(s: Season) -> void:
 		c.record(m, 0, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE)
 	else:
 		c.record(m, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE, 0)
-	s._finish_cup_round(c, false)
+	_finish_cup_round(s, c, false, false, false)
 
 
 static func sim_cup_tie(s: Season) -> void:
@@ -251,7 +251,10 @@ static func sim_cup_tie(s: Season) -> void:
 ## Everything that happens once the player's tie is in the book: the rest of the
 ## round is played around him, the bracket moves on, and a finished cup is
 ## retired — with the gate settled if it was his own show.
-static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false) -> void:
+static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false, played: bool = true) -> void:
+	## THE SPONSOR PAYS FOR A TIE THAT WAS FOUGHT, not one forfeited (Harness #2).
+	if played:
+		Quartermaster.pay_sponsors(s.office, s.club.starting_five())
 	## ON THE MEN, NOT THE CLUB FIGURE (3 Oct 2026) — `office.morale_after`
 	## was overwritten by the next `sync_morale`, so a cup result moved nobody.
 	## And a drawn pool bout is a draw, not a loss.

@@ -107,8 +107,12 @@ const GRADE_BLURB := {
 ##
 ## So the bottom rung is roughly where the game already was — 0.90, which costs
 ## about 0.2 rating points against the old 1.00 and is well inside the noise
-## measured below — wear starts at 1.00 and only ever goes DOWN, and the ladder
-## is a goal rather than a tax.
+## measured below — and the ladder is a goal rather than a tax.
+##
+## WEAR IS THE EXCEPTION NOW (Pete, 8 Oct 2026, Harness #2: *"lower gear breaking
+## quicker, and higher gear more resilient"*). Rust wears 1.05x, a shade faster
+## than the game before the shop. Measured: it moved a club that never buys by
+## 0.00 seasons to its first title (docs/harness-2), because repairs top it up.
 const TOP := {
 	Grade.BORROWED: 0.90,
 	Grade.SERVICEABLE: 0.96,
@@ -119,13 +123,16 @@ const TOP := {
 
 ## AND HOW FAST IT GOES. A multiplier on the wear the regime already applies, so
 ## the regime stays the thing that decides how hard the week was and the harness
-## decides how much of that the kit absorbs. Tournament plate takes a third less.
+## decides how much of that the kit absorbs.
+## UNEVEN STEPS (Pete, 8 Oct 2026): the two cheap metals sit close together and
+## the jump comes at Hardened — Titanium takes a tenth of what Rust does.
+## Codex's Harness #2 "value" ladder; was 1.00 / .86 / .72 / .58 / .50.
 const WEAR := {
-	Grade.BORROWED: 1.00,
-	Grade.SERVICEABLE: 0.86,
-	Grade.FITTED: 0.72,
-	Grade.TOURNAMENT: 0.58,
-	Grade.TITANIUM: 0.50,
+	Grade.BORROWED: 1.05,
+	Grade.SERVICEABLE: 0.90,
+	Grade.FITTED: 0.48,
+	Grade.TOURNAMENT: 0.28,
+	Grade.TITANIUM: 0.10,
 }
 
 ## WHAT THE NEXT RUNG COSTS, indexed by the grade you are BUYING. Priced against
@@ -135,11 +142,18 @@ const WEAR := {
 ## decision.
 ## DOUBLED (Pete, 4 Oct 2026, Steam playthrough: "Armorer prices should be
 ## doubled"). Were 3 / 7 / 14 / 24.
+## AND CUT (Pete, 8 Oct 2026, Harness #2): at 6 / 14 / 28 / 48 a club that bought
+## kit took 18-19 seasons to its first title against 10.9 for one that never did
+## (Codex, 25 careers x 20 seasons); the money came out of training and ceilings.
+## The price is low because the gate on Titanium is the ARMORER, not the bill —
+## only a five-star hand makes it, and he only works in the National Division.
+## Measured across 10 seed groups in docs/harness-2: at 2 / 4 / 8 / 14 buyers
+## are even with non-buyers; at these prices, with the sponsor, they are ahead.
 const COST := {
-	Grade.SERVICEABLE: 6,
-	Grade.FITTED: 14,
-	Grade.TOURNAMENT: 28,
-	Grade.TITANIUM: 48,
+	Grade.SERVICEABLE: 1,
+	Grade.FITTED: 2,
+	Grade.TOURNAMENT: 4,
+	Grade.TITANIUM: 7,
 }
 
 
@@ -244,3 +258,35 @@ static func ledger(who: Array, cap: int = Grade.TITANIUM) -> Dictionary:
 ## harness and 0.0 at the line; a fifth of the way up is about two hard weeks,
 ## which is the horizon a player can actually act on.
 const RISK_MARGIN: float = 0.20
+
+
+## ------------------------------------------------------------------ sponsors
+## GOOD KIT THAT FIGHTS GETS PAID FOR (Pete, 8 Oct 2026, Harness #2, Codex's
+## round-2 design). Each man in the line who stands in a bout earns the club
+## SPONSOR_CC by his metal, times his condition — a sponsor pays for kit that is
+## seen, and kit that is kept up. Rust earns nothing.
+##
+## Why: harness was the one purchase that made a club WORSE. Prices alone got a
+## buyer level with a non-buyer (break-even over 10 seed groups); this is what
+## puts him ahead — 10.28 / 9.76 seasons to a first title against 10.88 / 10.40,
+## and the non-buyer moves 0.00 (docs/harness-2/codex/REPORT-R2.md).
+##
+## WHO COUNTS AS HAVING FOUGHT is the same five the bout wears (`bout_wear`), so
+## the man the sponsor pays and the man whose kit got dented are always the same
+## man. A forfeit fights nobody and pays nothing. Fractions carry over in
+## `ClubOffice.harness_receipts` and are saved, so a club of Mild men is paid a
+## credit every few bouts rather than never.
+const SPONSOR_CC := [0.0, 0.08, 0.20, 0.40, 0.65]
+
+
+static func sponsor_rate(card: FighterCard) -> float:
+	return float(SPONSOR_CC[grade_of(card)]) * clampf(card.armor, 0.0, 1.0)
+
+
+static func pay_sponsors(o: ClubOffice, line: Array) -> void:
+	for f in line:
+		o.harness_receipts += sponsor_rate(f)
+	var paid := int(floor(o.harness_receipts + 0.000000001))
+	o.harness_receipts = maxf(0.0, o.harness_receipts - float(paid))
+	if paid > 0:
+		o.take(paid, UiKit.t("Kit sponsors"), "event", ClubOffice.LINE_SPONSOR)

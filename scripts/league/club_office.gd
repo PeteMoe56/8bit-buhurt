@@ -25,6 +25,9 @@ extends RefCounted
 ## reason about than a bank balance, and it keeps the club's books out of the
 ## way of the fight.
 var credits: int = 8
+## KIT SPONSORS' CHANGE: the part of a credit earned and not yet paid
+## (`Quartermaster.pay_sponsors`). Saved, so it is never lost on a reload.
+var harness_receipts: float = 0.0
 ## THE COACH, for his Tactics and Business. Not saved here: the season hands it
 ## over when it is made and when it is loaded.
 var coach_ref: Coach = null
@@ -1628,6 +1631,8 @@ const LINE_CLUB := "The club"
 const LINE_GATE := "The gate"
 const LINE_PRIZE := "Prize money"
 const LINE_CUP := "Tournaments"
+## WHAT SPONSORS PAY FOR KIT THAT FIGHTS (Harness #2, 8 Oct 2026).
+const LINE_SPONSOR := "Sponsors"
 const LINE_STORE := "Bought credits"
 ## WHAT ANOTHER CLUB PAID FOR A MAN. Its own line rather than a negative on "The
 ## squad", because a club that sold two veterans to fund a signing and a club
@@ -1645,7 +1650,7 @@ const LINE_COUNTER := "The counter"
 const OUT_ORDER: Array[String] = [LINE_SQUAD, LINE_KIT, LINE_GROUND,
 	LINE_FACILITIES, LINE_TRAVEL, LINE_FEDERATION, LINE_CLUB]
 const IN_ORDER: Array[String] = [LINE_GATE, LINE_COUNTER, LINE_PRIZE,
-	LINE_GROUND, LINE_CUP, LINE_TRANSFER, LINE_STORE]
+	LINE_SPONSOR, LINE_GROUND, LINE_CUP, LINE_TRANSFER, LINE_STORE]
 ## -> OfficeBooks (office_books.gd)
 static func _book(books: Dictionary, line: String, cc: int) -> void:
 	OfficeBooks._book(books, line, cc)
@@ -1985,6 +1990,7 @@ func morale_word() -> String:
 # -------------------------------------------------------------------- saving
 func to_dict() -> Dictionary:
 	return {
+		"harness_receipts": harness_receipts,
 		"credits": credits, "cap_level": cap_level, "morale": morale, "tier": tier,
 		"travel": travel_slots, "armorer": armorer.duplicate(),
 		"compliance": compliance.duplicate(),
@@ -2010,6 +2016,7 @@ func to_dict() -> Dictionary:
 static func from_dict(d: Dictionary) -> ClubOffice:
 	var o := ClubOffice.new()
 	o.credits = int(d.get("credits", 0))
+	o.harness_receipts = clampf(float(d.get("harness_receipts", 0.0)), 0.0, .999999999)
 	o.cap_level = int(d.get("cap_level", 0))
 	o.tier = int(d.get("tier", 0))
 	o.morale = float(d.get("morale", 0.7))

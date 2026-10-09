@@ -317,6 +317,7 @@ static func _apply_regime(s: Season, hosted: bool, fought := true) -> void:
 	## wear them, but not training"). The regime used to carry the wear — Hard
 	## took a tenth a week, Light mended a tenth — and a bout took nothing.
 	if fought:
+		Quartermaster.pay_sponsors(s.office, s.club.starting_five())
 		bout_wear(s)
 
 	## AND THE GROUND HAS THE SAME WEEK THE MEN DID.
