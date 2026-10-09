@@ -47,3 +47,9 @@ year 35% / 35% ✗ (mark 40%)**; a rival in the knockout path in 76-77% of World
 over-predicted repeats by ~5 points. **Follow-up chosen after seeing this:** K = 10 (model 49-50%),
 tune and check, then the fresh set 610031… is already spent on step 1, so a new fresh set for
 rivals: **1010009 1050011 1090013 1130027 1170001**. Same marks.
+
+## Note, 13:52 CT
+The first ten-rival tune/check runs and the first 30-season aging run were discarded by the probe
+("Source changed during run"): Claude edited those scratch copies (nation names, Team USA) while
+they ran. Rerun unchanged from the now-final copies. The ten-rival fresh run (1010009…) started
+after the edits finished, passed validation, and stays unread until tune/check are in.
