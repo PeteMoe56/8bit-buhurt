@@ -531,8 +531,8 @@ func _grade_bout(rounds_for: int, rounds_against: int) -> void:
 
 
 ## -> SeasonBouts (season_bouts.gd)
-func _apply_regime(hosted: bool, fought := true) -> void:
-	SeasonBouts._apply_regime(self, hosted, fought)
+func _apply_regime(hosted: bool, fought := true, line: Array = []) -> void:
+	SeasonBouts._apply_regime(self, hosted, fought, line)
 
 
 ## -> SeasonBouts (season_bouts.gd)

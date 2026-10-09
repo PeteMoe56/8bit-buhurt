@@ -238,9 +238,13 @@ static func post_bout(s: Season, sim: MeleeSim) -> void:
 	## A cup tie took the same knock and cost a week, because `post_cup_bout`
 	## does not tick the week — so the identical injury was free in the league
 	## and expensive in a cup. Applying after the tick makes both paths agree.
+	## WHO STOOD IN IT, read before the knocks rest anyone (Harness #2, 8 Oct
+	## 2026): the sponsor pays and the kit wears on these men, not on whoever the
+	## line is after an injured man has been rested.
+	var stood := fought_line(s, sim)
 	s._apply_bout_injuries(sim)
 	rest_the_injured(s)
-	s._apply_regime(was_home)
+	s._apply_regime(was_home, true, stood)
 	s._log(opp, before, true, was_home)
 	s._grade_bout(int(s.last_result[0]), int(s.last_result[1]))
 	s.event_played.emit(opp, s.last_result)
@@ -298,7 +302,7 @@ static func _grade_bout(s: Season, rounds_for: int, rounds_against: int) -> void
 ## asks the world what happened after the world has moved on is a function that
 ## is reliably one week wrong, which is exactly the class of bug `post_cup_bout`
 ## not ticking the week already cost this project a fortnight of.
-static func _apply_regime(s: Season, hosted: bool, fought := true) -> void:
+static func _apply_regime(s: Season, hosted: bool, fought := true, line: Array = []) -> void:
 	## WHO TRAVELLED, for the gate. A DRAW only pulls people in on a day he is
 	## actually there — read off the eight rather than the squad, because a man in
 	## the reserves sells nobody a ticket.
@@ -317,8 +321,9 @@ static func _apply_regime(s: Season, hosted: bool, fought := true) -> void:
 	## wear them, but not training"). The regime used to carry the wear — Hard
 	## took a tenth a week, Light mended a tenth — and a bout took nothing.
 	if fought:
-		Quartermaster.pay_sponsors(s.office, s.club.starting_five())
-		bout_wear(s)
+		var stood: Array = line if not line.is_empty() else s.club.starting_five()
+		Quartermaster.pay_sponsors(s.office, stood)
+		bout_wear(s, stood)
 
 	## AND THE GROUND HAS THE SAME WEEK THE MEN DID.
 	##
@@ -344,11 +349,24 @@ static func _apply_regime(s: Season, hosted: bool, fought := true) -> void:
 const BOUT_WEAR: float = 0.06
 
 
-static func bout_wear(s: Season) -> void:
-	for f in s.club.starting_five():
+static func bout_wear(s: Season, line: Array = []) -> void:
+	for f in (line if not line.is_empty() else s.club.starting_five()):
 		f.armor = clampf(f.armor - BOUT_WEAR
 			* FighterTrait.mod(f.trait_id, "wear", 1.0)
 			* Quartermaster.wear_scale(f), 0.0, Quartermaster.ceiling(f))
+
+## THE MEN WHO STOOD IN A FOUGHT BOUT: the line at the end and every man subbed
+## off during it (`MeleeSim.fought`), ours only, and only men still on the books.
+## A simmed bout has no sim and uses the starting five.
+static func fought_line(s: Season, sim: MeleeSim) -> Array:
+	var out: Array = []
+	if sim == null:
+		return s.club.starting_five()
+	for m in sim.fought():
+		if m.team == 0 and m.card is FighterCard and s.club.roster.has(m.card) and not out.has(m.card):
+			out.append(m.card)
+	return out if not out.is_empty() else s.club.starting_five()
+
 
 static func _apply_bout_injuries(s: Season, sim: MeleeSim) -> void:
 	var line := sim.lineup(0)

@@ -197,15 +197,18 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
 	else:
 		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
-		int(m.get("winner", -1)) == -1)
+	## WHO STOOD IN THE TIE, before anyone is rested (Harness #2, 8 Oct 2026):
+	## the sponsor pays them and their kit takes the wear.
+	var stood := SeasonBouts.fought_line(s, sim)
+	_finish_cup_round(s, c, int(m.get("winner", -1)) == s.world.player_club,
+		int(m.get("winner", -1)) == -1, true, stood)
 	## THE KNOCK LANDS AFTER THE WEEK TICKS, as it does in the league — see
 	## `post_bout`. Before, a cup tie never ticked the week at all.
 	s._apply_injuries(sim)
 	SeasonBouts.rest_the_injured(s)
 	## AND THE KIT TAKES THE TIE, as a league bout does (Pete, 1 Oct 2026:
 	## "fights should wear them").
-	SeasonBouts.bout_wear(s)
+	SeasonBouts.bout_wear(s, stood)
 	s.sync_power()
 
 
@@ -251,10 +254,12 @@ static func sim_cup_tie(s: Season) -> void:
 ## Everything that happens once the player's tie is in the book: the rest of the
 ## round is played around him, the bracket moves on, and a finished cup is
 ## retired — with the gate settled if it was his own show.
-static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false, played: bool = true) -> void:
-	## THE SPONSOR PAYS FOR A TIE THAT WAS FOUGHT, not one forfeited (Harness #2).
+static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false, played: bool = true,
+		line: Array = []) -> void:
+	## THE SPONSOR PAYS FOR A TIE THAT WAS FOUGHT, not one forfeited (Harness #2),
+	## and pays the men who stood in it when the tie was fought out.
 	if played:
-		Quartermaster.pay_sponsors(s.office, s.club.starting_five())
+		Quartermaster.pay_sponsors(s.office, line if not line.is_empty() else s.club.starting_five())
 	## ON THE MEN, NOT THE CLUB FIGURE (3 Oct 2026) — `office.morale_after`
 	## was overwritten by the next `sync_morale`, so a cup result moved nobody.
 	## And a drawn pool bout is a draw, not a loss.

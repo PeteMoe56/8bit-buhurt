@@ -29,6 +29,7 @@ func _initialize() -> void:
 	_test_a_simmed_event_costs_a_week()
 	_test_sponsors_pay_for_kit_that_fights()
 	_test_better_metal_lifts_the_fight_not_the_ceiling()
+	_test_a_league_bout_pays_and_wears_who_fought()
 	print("")
 	for n in notes:
 		print("   " + n)
@@ -381,3 +382,31 @@ func _test_better_metal_lifts_the_fight_not_the_ceiling() -> void:
 		"%d both ways" % rust_ab)
 	_ok(f.effective_base() <= rust_base * 1.15, "and the lift is mild",
 		"+%.0f%%" % (100.0 * (f.effective_base() / rust_base - 1.0)))
+
+
+## THE LEAGUE DOES THE SAME (Harness #2): a knock rests a man before the week's
+## regime runs, so the sponsor and the wear are read off the bout, not the line
+## left standing after it.
+func _test_a_league_bout_pays_and_wears_who_fought() -> void:
+	var season := Season.new(MeleeRosters.starting_club(), 4242)
+	Session.season = season
+	for f in season.club.roster:
+		f.harness = Quartermaster.Grade.TITANIUM
+		f.armor = 1.0
+	var sim := season.begin_bout()
+	sim.run_to_end()
+	var stood := SeasonBouts.fought_line(season, sim)
+	var before := {}
+	for f in season.club.roster:
+		before[f] = f.armor
+	## HURT, forced rather than rolled, so the line rested before the regime is
+	## guaranteed to differ from the line that fought.
+	stood[0].injury = 3
+	season.post_bout(sim)
+	var wrong: Array[String] = []
+	for f in season.club.roster:
+		var dented: bool = float(f.armor) < float(before[f]) - 0.0001
+		if stood.has(f) != dented:
+			wrong.append(f.display_name)
+	_ok(wrong.is_empty(), "a league bout wears the men who fought it and nobody else",
+		"%d fought, wrong: %s" % [stood.size(), ", ".join(wrong) if not wrong.is_empty() else "none"])

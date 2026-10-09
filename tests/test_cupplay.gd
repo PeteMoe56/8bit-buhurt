@@ -39,6 +39,7 @@ func _initialize() -> void:
 	_test_the_weeks_of_a_year()
 	_test_the_send_off()
 	_test_a_cup_weekend_is_one_week()
+	_test_the_men_who_fought_are_paid_and_worn()
 
 	print("")
 	for n in notes:
@@ -466,3 +467,51 @@ func _test_a_cup_weekend_is_one_week() -> void:
 		after += f.morale
 	_ok(after > before, "a cup tie won lifts the men, not just the club figure",
 		"eight's morale %.3f -> %.3f" % [before, after])
+
+
+## THE SPONSOR AND THE WEAR FOLLOW THE MEN WHO STOOD IN THE TIE (Pete, 8 Oct 2026,
+## Harness #2). Codex found the sponsor paid the line before injuries were rested
+## and the wear landed on the line after, so a man hurt in the tie was paid with
+## no dent and the reserve who replaced him was dented with no pay.
+func _test_the_men_who_fought_are_paid_and_worn() -> void:
+	var s := _season()
+	if not _to_a_cup(s):
+		_ok(false, "the men who fought are paid and worn", "no cup came up")
+		return
+	for f in s.club.roster:
+		f.harness = Quartermaster.Grade.TITANIUM
+		f.armor = 1.0
+	var sim := s.begin_cup_bout()
+	sim.run_to_end()
+	var stood := SeasonBouts.fought_line(s, sim)
+	var before := {}
+	for f in s.club.roster:
+		before[f] = f.armor
+	var sp0 := int(s.office.books_in.get(ClubOffice.LINE_SPONSOR, 0))
+	var owed := s.office.harness_receipts
+	for f in stood:
+		owed += Quartermaster.sponsor_rate(f)
+	## A KNOCK ON THE FIRST MAN, forced rather than rolled, so the line that is
+	## rested after the tie is guaranteed to differ from the line that fought it.
+	var hurt: FighterCard = stood[0]
+	hurt.injury = 3
+	s.post_cup_bout(sim)
+	var worn_ok := true
+	var spared_ok := true
+	for f in s.club.roster:
+		var dented: bool = float(f.armor) < float(before[f]) - 0.0001
+		if stood.has(f) and not dented:
+			worn_ok = false
+		if not stood.has(f) and dented:
+			spared_ok = false
+	_ok(stood.size() >= 5 and stood.has(hurt), "the men who stood in the tie are the men read off the bout",
+		"%d men, the hurt man among them" % stood.size())
+	_ok(worn_ok, "every man who fought the tie takes the wear, the hurt man included",
+		"%s at %.3f" % [hurt.display_name, hurt.armor])
+	_ok(spared_ok, "and no man who did not fight it is dented",
+		"the reserve who came in for him kept his kit")
+	## Read off the Sponsors line, not the bank: a won tie also pays a purse.
+	var paid := int(s.office.books_in.get(ClubOffice.LINE_SPONSOR, 0)) - sp0
+	_ok(paid == int(floor(owed + 0.000000001)),
+		"and the sponsor paid for exactly those men",
+		"%d CC paid, %.2f owed" % [paid, owed])
