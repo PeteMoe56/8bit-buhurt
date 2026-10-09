@@ -1,0 +1,32 @@
+Godot Engine v4.6.2.stable.official.71f334935 - https://godotengine.org
+
+
+=== 8-Bit Buhurt — the quartermaster ===
+
+  pass  every rung is better than the one below it, on both axes — Rust top 0.90 wear x1.00; Mild top 0.96 wear x0.86; Hardened top 1.00 wear x0.72; Stainless top 1.00 wear x0.58
+  pass  and the bottom rung is not a club in trouble — borrowed caps at 0.90 against an inspection line of 0.35
+  pass  and no rung wears faster than the game did before the shop — the worst multiplier on the ladder is x1.00
+  pass  the armorer takes a borrowed harness up to its grade and no further — twenty visits left it at 0.88, the grade caps at 0.90, and he stops within 0.08 of it
+  pass  and the refusal says which kind of refusal it is — 'Calder's kit is fine. Come back when there is something to do.'
+  pass  and a harness actually at its ceiling is still sold the next one — 'Calder's rust harness is as good as rust gets. He needs better kit.'
+  pass  and the same condition costs more to fix on better kit — 1 CC borrowed, 2 CC in plate, both read 0.50
+  pass  club spares wear out far faster than tournament plate — x1.00 against x0.58
+  pass  a club can buy a man up a grade — 1 CC
+  pass  and it arrives at the top of its grade, not in the state the old one was — bought at 0.50, arrived at 0.96
+  pass  and it is paid for — 99 CC left of 100
+  pass  and titanium is the end of the ladder — refused with a sentence rather than charging again
+  pass  and a club with no credits buys nothing — refused, and the harness did not change
+  pass  the armorer makes and keeps what his stars say — 1 star: Rust only; 3 stars hired for 4 CC and up to Hardened
+  pass  the ledger counts the men who cannot go out — 1 failing of 8
+  pass  and the men who are one bad week from it — 1 at risk
+  pass  and what it would cost to put the lot right — 11 CC across 8 harnesses
+  pass  armor's whole legal range is still worth about a point and a half — 1.75 rating points from 0.35 to 1.00 — if this fails, the balance moved and the docs are stale
+  pass  and below the line he is worth nothing at all, which is the real cap — a man who cannot pass inspection cannot go out, whatever he rates
+  pass  six simmed events wear the harnesses of the men who travelled — 7.82 -> 6.42 across the eight
+
+   the ladder: Rust top 0.90 wear x1.00; Mild top 0.96 wear x0.86; Hardened top 1.00 wear x0.72; Stainless top 1.00 wear x0.58
+   the ledger: 8 men, 1 failing, 11 CC to fix
+   armor: 1.75 rating points across its whole range; inspection is binary
+
+THE QUARTERMASTER HOLDS (20 checks)
+

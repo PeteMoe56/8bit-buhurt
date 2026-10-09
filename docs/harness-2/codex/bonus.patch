@@ -1,0 +1,19 @@
+diff --git a/scripts/melee/fighter_card.gd b/scripts/melee/fighter_card.gd
+index 94d820d..68d11ea 100644
+--- a/scripts/melee/fighter_card.gd
++++ b/scripts/melee/fighter_card.gd
+@@ -382,8 +382,13 @@ func ability() -> int:
+ 		+ float(gas) * 0.22 + float(aggression) * 0.08))
+ 
+ 
++## Experimental grade benefit; raw ability and development ceilings stay unchanged.
++const HARNESS_BASE_BONUS := [0.00, 0.02, 0.05, 0.09, 0.12]
++
++
+ func effective_base() -> float:
+-	return float(base) * lerpf(0.78, 1.0, armor)
++	var grade_gain: float = float(HARNESS_BASE_BONUS[Quartermaster.grade_of(self)])
++	return minf(99.0, float(base) * (1.0 + grade_gain) * lerpf(0.78, 1.0, armor))
+ 
+ 
+ func pos_name() -> String:

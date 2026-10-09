@@ -1,0 +1,49 @@
+diff --git a/scripts/league/armorer.gd b/scripts/league/armorer.gd
+index 07c4f3d..cb163b0 100644
+--- a/scripts/league/armorer.gd
++++ b/scripts/league/armorer.gd
+@@ -15,7 +15,7 @@ extends RefCounted
+ const MAX_STARS: int = 5
+ ## CC a season, by stars.
+ ## The one-star hand is free (Pete, 1 Oct 2026: a new club starts with him for nothing).
+-const WAGE := [0, 0, 2, 4, 9, 18]  ## top two priced up 2 Oct 2026 (were 7, 12)
++const WAGE := [0, 0, 1, 2, 3, 5]
+ ## The lowest division each grade of man will work in.
+ const MIN_TIER := [0, 0, 0, 0, 1, 3]
+ const POOL_SIZE: int = 5
+diff --git a/scripts/league/quartermaster.gd b/scripts/league/quartermaster.gd
+index e0103c7..89cc07d 100644
+--- a/scripts/league/quartermaster.gd
++++ b/scripts/league/quartermaster.gd
+@@ -121,11 +121,11 @@ const TOP := {
+ ## the regime stays the thing that decides how hard the week was and the harness
+ ## decides how much of that the kit absorbs. Tournament plate takes a third less.
+ const WEAR := {
+-	Grade.BORROWED: 1.00,
+-	Grade.SERVICEABLE: 0.86,
+-	Grade.FITTED: 0.72,
+-	Grade.TOURNAMENT: 0.58,
+-	Grade.TITANIUM: 0.50,
++	Grade.BORROWED: 1.30,
++	Grade.SERVICEABLE: 0.95,
++	Grade.FITTED: 0.55,
++	Grade.TOURNAMENT: 0.30,
++	Grade.TITANIUM: 0.12,
+ }
+ 
+ ## WHAT THE NEXT RUNG COSTS, indexed by the grade you are BUYING. Priced against
+@@ -136,10 +136,10 @@ const WEAR := {
+ ## DOUBLED (Pete, 4 Oct 2026, Steam playthrough: "Armorer prices should be
+ ## doubled"). Were 3 / 7 / 14 / 24.
+ const COST := {
+-	Grade.SERVICEABLE: 6,
+-	Grade.FITTED: 14,
+-	Grade.TOURNAMENT: 28,
+-	Grade.TITANIUM: 48,
++	Grade.SERVICEABLE: 3,
++	Grade.FITTED: 6,
++	Grade.TOURNAMENT: 10,
++	Grade.TITANIUM: 18,
+ }
+ 
+ 

@@ -1,0 +1,84 @@
+--- tools/probe_harness_budget.gd
++++ tools/probe_harness_budget_sensible.gd
+@@ -6,7 +6,7 @@
+ ## Manager season body is pinned/copied because it exposes no purchase-order hook.
+ ## Everything else (winter, market, stat choice, report scope) remains inherited.
+ const MANAGER_SHA := "f9ebff76677b0f93b7e8c41203fa6a13b136c077ca15bf56cde158a0ece21d48"
+-const ARMS := ["no_harness", "harness_first", "development_first"]
++const ARMS := ["no_harness", "harness_first", "development_first", "sensible_buyer"]
+ const BASES := [9001, 5150, 2718, 6060, 8123]
+ var failed := false
+ 
+@@ -255,6 +255,9 @@
+ 			"report_runs": report_runs, "lv_in_season": lv_in_season})
+ 		audit.context = parent
+ 	func _harness(s: Season, keep: int) -> void:
++		if arm_index == 3:
++			_sensible_harness(s, keep)
++			return
+ 		var o := s.office
+ 		if arm_index == 0:
+ 			audit.skipped("harness_policy", "arm_disables_discretionary_harness", {"keep": keep})
+@@ -289,6 +292,44 @@
+ 				break
+ 		else:
+ 			audit.skipped("harness_upgrade", "not_fixture_week")
++	## Visible-age policy: development first, young starting five, through Hardened.
++	## Same reserve plus the new wage; no gifts, hidden-ceiling use or extra repairs.
++	func _sensible_harness(s: Season, keep: int) -> void:
++		var o := s.office
++		var best_a: Dictionary = {}
++		for a in Armorer.pool(s.seed_value, s.world.season, String(o.armorer.get("name", ""))):
++			var st := int(a.get("stars", 1))
++			if st > 3 or st <= int(o.armorer.get("stars", 1)) or not Armorer.will_come(st, o.tier):
++				continue
++			var fee := Armorer.wage_of(a)
++			var extra_wage := maxi(0, fee - Armorer.wage_of(o.armorer))
++			if o.credits <= keep + fee + extra_wage:
++				audit.skipped("armorer_hire", "sensible_reserve", {"candidate": a, "keep": keep})
++				continue
++			if best_a.is_empty() or st > int(best_a.get("stars", 1)):
++				best_a = a
++		if not best_a.is_empty() and o.hire_armorer(best_a) == "":
++			harness_cc += Armorer.wage_of(best_a)
++		keep = o.upkeep_bill() + League.dues_for(o.tier) + KITTY
++		if not o.fixture_week:
++			audit.skipped("harness_upgrade", "not_fixture_week")
++			return
++		var five: Array = s.club.starting_five()
++		five.sort_custom(func(a, b):
++			if Quartermaster.grade_of(a) == Quartermaster.grade_of(b):
++				return a.age < b.age
++			return Quartermaster.grade_of(a) < Quartermaster.grade_of(b))
++		for f in five:
++			if f.age > 30 or Quartermaster.grade_of(f) >= Quartermaster.Grade.FITTED:
++				audit.skipped("harness_upgrade", "sensible_age_or_target", {"fighter": audit.card(f)})
++				continue
++			var cost := Quartermaster.upgrade_cost(f)
++			if o.credits <= keep + cost:
++				audit.skipped("harness_upgrade", "reserve", {"fighter": audit.card(f), "keep": keep, "cost": cost})
++				continue
++			if o.buy_harness(f) == "":
++				harness_cc += cost
++			break
+ 	func season(s: Season) -> void:
+ 		var guard := 0
+ 		while guard < 60:
+@@ -367,7 +408,7 @@
+ func _hashes() -> Dictionary:
+ 	var result := {}
+ 	_scan("res://scripts", result)
+-	for path in ["res://tools/manager.gd", "res://tools/probe_harness_budget.gd", "res://project.godot"]:
++	for path in ["res://tools/manager.gd", "res://tools/probe_harness_budget.gd", "res://tools/probe_harness_budget_sensible.gd", "res://project.godot"]:
+ 		result[path] = _source_hash(path)
+ 	return result
+ 
+@@ -622,7 +663,7 @@
+ 				failed = true
+ 	for base in bases:
+ 		for i in n:
+-			for arm in 3:
++			for arm in 4:
+ 				if _hashes() != hashes:
+ 					failed = true
+ 					push_error("Source changed during run; discard partial experiment")

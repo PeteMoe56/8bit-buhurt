@@ -1,0 +1,76 @@
+arm	base	seed	window	first_title_season	right_censored	initial_cc	cc_in	cc_out	final_cc	report_runs	levels_spent_in_season	shared_manager_parity
+no_harness	9001	9001	20	16	0	8	4253	4107	154	228	809	not_run
+harness_first	9001	9001	20		1	8	2113	2080	41	144	362	not_run
+development_first	9001	9001	20		1	8	1943	1937	14	140	330	not_run
+no_harness	9001	16920	20	14	0	8	5036	4878	166	214	815	not_run
+harness_first	9001	16920	20		1	8	2753	2720	41	191	500	not_run
+development_first	9001	16920	20		1	8	3107	3090	25	194	524	not_run
+no_harness	9001	24839	20		1	8	3828	3790	46	223	623	not_run
+harness_first	9001	24839	20		1	8	3212	3196	24	196	434	not_run
+development_first	9001	24839	20		1	8	3112	3094	26	180	439	not_run
+no_harness	9001	32758	20	20	0	8	3882	3826	64	197	529	not_run
+harness_first	9001	32758	20		1	8	3755	3725	38	202	447	not_run
+development_first	9001	32758	20	18	0	8	3670	3653	25	205	455	not_run
+no_harness	9001	40677	20	15	0	8	3884	3817	75	225	576	not_run
+harness_first	9001	40677	20		1	8	2118	2090	36	159	345	not_run
+development_first	9001	40677	20		1	8	2435	2401	42	173	410	not_run
+no_harness	5150	5150	20		1	8	3621	3575	54	204	573	not_run
+harness_first	5150	5150	20		1	8	2791	2774	25	167	342	not_run
+development_first	5150	5150	20		1	8	2478	2442	44	173	496	not_run
+no_harness	5150	13069	20	11	0	8	5402	5277	133	196	779	not_run
+harness_first	5150	13069	20		1	8	3233	3219	22	201	441	not_run
+development_first	5150	13069	20		1	8	2718	2689	37	183	437	not_run
+no_harness	5150	20988	20		1	8	3841	3788	61	202	598	not_run
+harness_first	5150	20988	20		1	8	2444	2418	34	179	430	not_run
+development_first	5150	20988	20		1	8	2536	2504	40	170	409	not_run
+no_harness	5150	28907	20		1	8	2530	2498	40	190	568	not_run
+harness_first	5150	28907	20		1	8	2542	2509	41	169	377	not_run
+development_first	5150	28907	20		1	8	2602	2568	42	174	486	not_run
+no_harness	5150	36826	20	12	0	8	5096	4946	158	217	878	not_run
+harness_first	5150	36826	20		1	8	3129	3107	30	198	408	not_run
+development_first	5150	36826	20		1	8	3355	3331	32	204	477	not_run
+no_harness	2718	2718	20		1	8	3779	3727	60	220	521	not_run
+harness_first	2718	2718	20		1	8	2856	2825	39	188	409	not_run
+development_first	2718	2718	20		1	8	2911	2876	43	189	450	not_run
+no_harness	2718	10637	20	13	0	8	5185	5102	91	213	817	not_run
+harness_first	2718	10637	20		1	8	2598	2579	27	174	365	not_run
+development_first	2718	10637	20		1	8	2505	2490	23	178	383	not_run
+no_harness	2718	18556	20	13	0	8	4520	4378	150	253	841	not_run
+harness_first	2718	18556	20		1	8	2502	2488	22	181	421	not_run
+development_first	2718	18556	20		1	8	2993	2982	19	182	428	not_run
+no_harness	2718	26475	20	11	0	8	6205	6025	188	177	796	not_run
+harness_first	2718	26475	20		1	8	3358	3352	14	197	455	not_run
+development_first	2718	26475	20	13	0	8	4604	4573	39	220	580	not_run
+no_harness	2718	34394	20	12	0	8	5008	4917	99	185	823	not_run
+harness_first	2718	34394	20		1	8	3044	3028	24	176	508	not_run
+development_first	2718	34394	20		1	8	3300	3271	37	188	457	not_run
+no_harness	6060	6060	20	12	0	8	4191	4126	73	231	684	not_run
+harness_first	6060	6060	20		1	8	2733	2695	46	170	369	not_run
+development_first	6060	6060	20		1	8	3127	3110	25	197	470	not_run
+no_harness	6060	13979	20		1	8	3540	3492	56	192	473	not_run
+harness_first	6060	13979	20		1	8	2550	2519	39	162	354	not_run
+development_first	6060	13979	20		1	8	2710	2695	23	179	388	not_run
+no_harness	6060	21898	20	12	0	8	5652	5511	149	230	947	not_run
+harness_first	6060	21898	20		1	8	3280	3258	30	189	394	not_run
+development_first	6060	21898	20		1	8	3173	3163	18	202	436	not_run
+no_harness	6060	29817	20		1	8	3128	3093	43	201	520	not_run
+harness_first	6060	29817	20		1	8	2571	2562	17	180	358	not_run
+development_first	6060	29817	20		1	8	2951	2947	12	197	401	not_run
+no_harness	6060	37736	20	12	0	8	5374	5203	179	179	784	not_run
+harness_first	6060	37736	20		1	8	2754	2722	40	164	362	not_run
+development_first	6060	37736	20		1	8	2867	2846	29	189	423	not_run
+no_harness	8123	8123	20	13	0	8	4178	4134	52	244	598	not_run
+harness_first	8123	8123	20		1	8	3283	3260	31	189	361	not_run
+development_first	8123	8123	20		1	8	3572	3549	31	209	465	not_run
+no_harness	8123	16042	20	15	0	8	4639	4488	159	242	885	not_run
+harness_first	8123	16042	20		1	8	4056	4040	24	212	491	not_run
+development_first	8123	16042	20		1	8	3539	3526	21	215	504	not_run
+no_harness	8123	23961	20		1	8	2969	2938	39	202	565	not_run
+harness_first	8123	23961	20		1	8	2239	2210	37	170	378	not_run
+development_first	8123	23961	20		1	8	2315	2283	40	175	400	not_run
+no_harness	8123	31880	20	13	0	8	4782	4732	58	194	678	not_run
+harness_first	8123	31880	20		1	8	3138	3123	23	185	368	not_run
+development_first	8123	31880	20		1	8	2975	2954	29	182	407	not_run
+no_harness	8123	39799	20	18	0	8	4242	4138	112	224	598	not_run
+harness_first	8123	39799	20		1	8	2530	2527	11	178	401	not_run
+development_first	8123	39799	20		1	8	2566	2556	18	189	385	not_run

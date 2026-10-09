@@ -1,0 +1,8404 @@
+{
+	"arms": [
+		"no_harness",
+		"harness_first",
+		"development_first"
+	],
+	"bases": [
+		9001,
+		5150,
+		2718,
+		6060,
+		8123
+	],
+	"checks": [
+		{
+			"arm": "no_harness",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 444,
+				"captain_hire": 227,
+				"ceiling_raise": 1175,
+				"compliance": 16,
+				"dilemma": 270,
+				"market_refresh": 210,
+				"rollover": 449,
+				"session": 2002,
+				"signing": 475,
+				"tidy_arena": 156,
+				"upkeep": 605
+			},
+			"counts": {
+				"arena": {
+					"attempted": 174,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 311,
+					"completed": 311
+				},
+				"cap": {
+					"attempted": 14,
+					"completed": 14
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 899,
+					"completed": 178
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 158,
+					"completed": 158
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 164,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 214,
+					"completed": 197
+				},
+				"market_refresh": {
+					"attempted": 70,
+					"completed": 70
+				},
+				"promotion_decision": {
+					"attempted": 13,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 220,
+					"completed": 8
+				},
+				"repair": {
+					"attempted": 3577,
+					"completed": 1061
+				},
+				"resign_contract": {
+					"attempted": 4,
+					"completed": 0
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 190,
+					"completed": 190
+				},
+				"signing": {
+					"attempted": 231,
+					"completed": 19
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 201,
+			"final_power": 95,
+			"first_title_season": 9,
+			"right_censored": false,
+			"rows": 9776,
+			"seed": 9001,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 209,
+				"cap": 72,
+				"captain_hire": 150,
+				"ceiling_raise": 286,
+				"compliance": 16,
+				"dilemma": 207,
+				"harness_upgrade": 780,
+				"rollover": 309,
+				"session": 310,
+				"signing": 11,
+				"tidy_arena": 81,
+				"upkeep": 365
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 271,
+					"completed": 271
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 58,
+					"completed": 38
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 30,
+					"completed": 30
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 131,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 182,
+					"completed": 173
+				},
+				"harness_upgrade": {
+					"attempted": 50,
+					"completed": 50
+				},
+				"promotion_decision": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2478,
+					"completed": 291
+				},
+				"session": {
+					"attempted": 56,
+					"completed": 56
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 24,
+			"final_power": 59,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6652,
+			"seed": 9001,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 236,
+				"cap": 95,
+				"captain_hire": 148,
+				"ceiling_raise": 555,
+				"compliance": 16,
+				"dilemma": 216,
+				"harness_upgrade": 306,
+				"rollover": 329,
+				"session": 584,
+				"signing": 11,
+				"tidy_arena": 94,
+				"upkeep": 406
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 281,
+					"completed": 281
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 120,
+					"completed": 71
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 37,
+					"completed": 37
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 137,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 182,
+					"completed": 166
+				},
+				"harness_upgrade": {
+					"attempted": 31,
+					"completed": 31
+				},
+				"promotion_decision": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2558,
+					"completed": 422
+				},
+				"session": {
+					"attempted": 88,
+					"completed": 88
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 31,
+			"final_power": 67,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7065,
+			"seed": 9001,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 444,
+				"captain_hire": 228,
+				"ceiling_raise": 1526,
+				"compliance": 16,
+				"dilemma": 318,
+				"market_refresh": 156,
+				"rollover": 456,
+				"session": 1939,
+				"signing": 314,
+				"tidy_arena": 151,
+				"upkeep": 615
+			},
+			"counts": {
+				"arena": {
+					"attempted": 164,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 316,
+					"completed": 316
+				},
+				"cap": {
+					"attempted": 14,
+					"completed": 14
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 750,
+					"completed": 227
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 166,
+					"completed": 166
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 176,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 206,
+					"completed": 192
+				},
+				"market_refresh": {
+					"attempted": 52,
+					"completed": 52
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 142,
+					"completed": 5
+				},
+				"repair": {
+					"attempted": 3588,
+					"completed": 1001
+				},
+				"resign_contract": {
+					"attempted": 4,
+					"completed": 1
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 187,
+					"completed": 187
+				},
+				"signing": {
+					"attempted": 158,
+					"completed": 21
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 159,
+			"final_power": 94,
+			"first_title_season": 11,
+			"right_censored": false,
+			"rows": 9445,
+			"seed": 16920,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 229,
+				"cap": 95,
+				"captain_hire": 146,
+				"ceiling_raise": 480,
+				"compliance": 16,
+				"dilemma": 210,
+				"harness_upgrade": 722,
+				"rollover": 315,
+				"session": 373,
+				"signing": 12,
+				"tidy_arena": 102,
+				"upkeep": 431
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 261,
+					"completed": 261
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 97,
+					"completed": 65
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 61,
+					"completed": 61
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 129,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 179,
+					"completed": 145
+				},
+				"harness_upgrade": {
+					"attempted": 50,
+					"completed": 50
+				},
+				"promotion_decision": {
+					"attempted": 38,
+					"completed": 2
+				},
+				"release": {
+					"attempted": 7,
+					"completed": 2
+				},
+				"repair": {
+					"attempted": 2381,
+					"completed": 316
+				},
+				"session": {
+					"attempted": 67,
+					"completed": 67
+				},
+				"signing": {
+					"attempted": 12,
+					"completed": 7
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 28,
+			"final_power": 66,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6676,
+			"seed": 16920,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 256,
+				"cap": 95,
+				"captain_hire": 105,
+				"ceiling_raise": 795,
+				"compliance": 16,
+				"dilemma": 257,
+				"harness_upgrade": 352,
+				"rollover": 389,
+				"session": 925,
+				"signing": 9,
+				"tidy_arena": 113,
+				"upkeep": 448
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 313,
+					"completed": 313
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 161,
+					"completed": 100
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 45,
+					"completed": 45
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 154,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 179,
+					"completed": 161
+				},
+				"harness_upgrade": {
+					"attempted": 36,
+					"completed": 36
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"repair": {
+					"attempted": 2778,
+					"completed": 467
+				},
+				"session": {
+					"attempted": 109,
+					"completed": 109
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 29,
+			"final_power": 70,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7802,
+			"seed": 16920,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 268,
+				"captain_hire": 223,
+				"ceiling_raise": 1598,
+				"compliance": 16,
+				"dilemma": 232,
+				"market_refresh": 45,
+				"rollover": 453,
+				"session": 1776,
+				"signing": 284,
+				"tidy_arena": 141,
+				"upkeep": 582
+			},
+			"counts": {
+				"arena": {
+					"attempted": 141,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 317,
+					"completed": 317
+				},
+				"cap": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 508,
+					"completed": 202
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 146,
+					"completed": 146
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 181,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 214,
+					"completed": 200
+				},
+				"market_refresh": {
+					"attempted": 15,
+					"completed": 15
+				},
+				"promotion_decision": {
+					"attempted": 13,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 5,
+					"completed": 4
+				},
+				"repair": {
+					"attempted": 3662,
+					"completed": 1095
+				},
+				"resign_contract": {
+					"attempted": 1,
+					"completed": 0
+				},
+				"send_off": {
+					"attempted": 27,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 178,
+					"completed": 178
+				},
+				"signing": {
+					"attempted": 19,
+					"completed": 18
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 175,
+			"final_power": 95,
+			"first_title_season": 11,
+			"right_censored": false,
+			"rows": 8940,
+			"seed": 24839,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 247,
+				"cap": 95,
+				"captain_hire": 95,
+				"ceiling_raise": 539,
+				"compliance": 16,
+				"dilemma": 209,
+				"harness_upgrade": 698,
+				"rollover": 349,
+				"session": 658,
+				"signing": 16,
+				"tidy_arena": 89,
+				"upkeep": 393
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 288,
+					"completed": 288
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 78,
+					"completed": 69
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 53,
+					"completed": 53
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 151,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 179,
+					"completed": 161
+				},
+				"harness_upgrade": {
+					"attempted": 45,
+					"completed": 45
+				},
+				"promotion_decision": {
+					"attempted": 42,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2594,
+					"completed": 306
+				},
+				"session": {
+					"attempted": 86,
+					"completed": 86
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 34,
+			"final_power": 70,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7139,
+			"seed": 24839,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 265,
+				"cap": 72,
+				"captain_hire": 91,
+				"ceiling_raise": 730,
+				"compliance": 16,
+				"dilemma": 234,
+				"harness_upgrade": 332,
+				"rollover": 409,
+				"session": 1185,
+				"signing": 13,
+				"tidy_arena": 90,
+				"upkeep": 415
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 321,
+					"completed": 321
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"ceiling_raise": {
+					"attempted": 126,
+					"completed": 99
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 44,
+					"completed": 44
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 165,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 178,
+					"completed": 159
+				},
+				"harness_upgrade": {
+					"attempted": 34,
+					"completed": 34
+				},
+				"promotion_decision": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2830,
+					"completed": 463
+				},
+				"session": {
+					"attempted": 127,
+					"completed": 127
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 18,
+			"final_power": 71,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7941,
+			"seed": 24839,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 268,
+				"captain_hire": 248,
+				"ceiling_raise": 1877,
+				"compliance": 16,
+				"dilemma": 290,
+				"market_refresh": 156,
+				"rollover": 449,
+				"session": 1815,
+				"signing": 391,
+				"tidy_arena": 161,
+				"upkeep": 632
+			},
+			"counts": {
+				"arena": {
+					"attempted": 202,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 310,
+					"completed": 310
+				},
+				"cap": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 602,
+					"completed": 264
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 172,
+					"completed": 172
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 175,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 212,
+					"completed": 196
+				},
+				"market_refresh": {
+					"attempted": 52,
+					"completed": 52
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 153,
+					"completed": 8
+				},
+				"repair": {
+					"attempted": 3536,
+					"completed": 1083
+				},
+				"send_off": {
+					"attempted": 27,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 173,
+					"completed": 173
+				},
+				"signing": {
+					"attempted": 168,
+					"completed": 23
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 160,
+			"final_power": 94,
+			"first_title_season": 10,
+			"right_censored": false,
+			"rows": 9542,
+			"seed": 32758,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 238,
+				"cap": 72,
+				"captain_hire": 117,
+				"ceiling_raise": 389,
+				"compliance": 16,
+				"dilemma": 248,
+				"harness_upgrade": 636,
+				"rollover": 369,
+				"session": 729,
+				"signing": 10,
+				"tidy_arena": 94,
+				"upkeep": 451
+			},
+			"counts": {
+				"arena": {
+					"attempted": 15,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 293,
+					"completed": 293
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"ceiling_raise": {
+					"attempted": 59,
+					"completed": 56
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 55,
+					"completed": 55
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 152,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 168,
+					"completed": 155
+				},
+				"harness_upgrade": {
+					"attempted": 42,
+					"completed": 42
+				},
+				"promotion_decision": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2468,
+					"completed": 309
+				},
+				"send_off": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 87,
+					"completed": 87
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 50,
+			"final_power": 80,
+			"first_title_season": 20,
+			"right_censored": false,
+			"rows": 7053,
+			"seed": 32758,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 247,
+				"cap": 72,
+				"captain_hire": 105,
+				"ceiling_raise": 617,
+				"compliance": 16,
+				"dilemma": 253,
+				"harness_upgrade": 306,
+				"rollover": 389,
+				"session": 952,
+				"signing": 13,
+				"tidy_arena": 94,
+				"upkeep": 442
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 313,
+					"completed": 313
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 83,
+					"completed": 76
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 38,
+					"completed": 38
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 158,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 169,
+					"completed": 161
+				},
+				"harness_upgrade": {
+					"attempted": 31,
+					"completed": 31
+				},
+				"promotion_decision": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2663,
+					"completed": 438
+				},
+				"session": {
+					"attempted": 112,
+					"completed": 112
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 29,
+			"final_power": 72,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7476,
+			"seed": 32758,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 208,
+				"captain_hire": 211,
+				"ceiling_raise": 1353,
+				"compliance": 16,
+				"dilemma": 265,
+				"market_refresh": 21,
+				"rollover": 446,
+				"session": 1698,
+				"signing": 289,
+				"tidy_arena": 134,
+				"upkeep": 564
+			},
+			"counts": {
+				"arena": {
+					"attempted": 127,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 320,
+					"completed": 320
+				},
+				"cap": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 453,
+					"completed": 217
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 122,
+					"completed": 122
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 159,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 200,
+					"completed": 189
+				},
+				"market_refresh": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"promotion_decision": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"repair": {
+					"attempted": 3399,
+					"completed": 1095
+				},
+				"send_off": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 166,
+					"completed": 166
+				},
+				"signing": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 92,
+			"final_power": 95,
+			"first_title_season": 13,
+			"right_censored": false,
+			"rows": 8413,
+			"seed": 40677,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 229,
+				"cap": 95,
+				"captain_hire": 197,
+				"ceiling_raise": 387,
+				"compliance": 16,
+				"dilemma": 187,
+				"harness_upgrade": 1006,
+				"rollover": 348,
+				"session": 553,
+				"signing": 14,
+				"tidy_arena": 125,
+				"upkeep": 519
+			},
+			"counts": {
+				"arena": {
+					"attempted": 104,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 272,
+					"completed": 272
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 60,
+					"completed": 57
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 81,
+					"completed": 81
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 130,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 173,
+					"completed": 138
+				},
+				"harness_upgrade": {
+					"attempted": 55,
+					"completed": 55
+				},
+				"promotion_decision": {
+					"attempted": 21,
+					"completed": 3
+				},
+				"release": {
+					"attempted": 7,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2354,
+					"completed": 312
+				},
+				"send_off": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 71,
+					"completed": 71
+				},
+				"signing": {
+					"attempted": 11,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 40,
+			"final_power": 72,
+			"first_title_season": 18,
+			"right_censored": false,
+			"rows": 6784,
+			"seed": 40677,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 9001,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 229,
+				"cap": 95,
+				"captain_hire": 135,
+				"ceiling_raise": 733,
+				"compliance": 16,
+				"dilemma": 185,
+				"harness_upgrade": 352,
+				"rollover": 355,
+				"session": 722,
+				"signing": 33,
+				"tidy_arena": 88,
+				"upkeep": 423
+			},
+			"counts": {
+				"arena": {
+					"attempted": 51,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 282,
+					"completed": 282
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 126,
+					"completed": 98
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 70,
+					"completed": 70
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 133,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 199,
+					"completed": 180
+				},
+				"harness_upgrade": {
+					"attempted": 36,
+					"completed": 36
+				},
+				"promotion_decision": {
+					"attempted": 36,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 1,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2902,
+					"completed": 454
+				},
+				"session": {
+					"attempted": 94,
+					"completed": 94
+				},
+				"signing": {
+					"attempted": 11,
+					"completed": 10
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 25,
+			"final_power": 66,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7740,
+			"seed": 40677,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 268,
+				"captain_hire": 235,
+				"ceiling_raise": 1444,
+				"compliance": 16,
+				"dilemma": 220,
+				"market_refresh": 51,
+				"rollover": 412,
+				"session": 1607,
+				"signing": 500,
+				"tidy_arena": 140,
+				"upkeep": 559
+			},
+			"counts": {
+				"arena": {
+					"attempted": 124,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 289,
+					"completed": 289
+				},
+				"cap": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 418,
+					"completed": 201
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 145,
+					"completed": 145
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 156,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 211,
+					"completed": 200
+				},
+				"market_refresh": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"promotion_decision": {
+					"attempted": 8,
+					"completed": 2
+				},
+				"release": {
+					"attempted": 34,
+					"completed": 15
+				},
+				"repair": {
+					"attempted": 3252,
+					"completed": 1033
+				},
+				"send_off": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 163,
+					"completed": 163
+				},
+				"signing": {
+					"attempted": 48,
+					"completed": 29
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 161,
+			"final_power": 94,
+			"first_title_season": 13,
+			"right_censored": false,
+			"rows": 8289,
+			"seed": 5150,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 251,
+				"cap": 95,
+				"captain_hire": 144,
+				"ceiling_raise": 455,
+				"compliance": 16,
+				"dilemma": 206,
+				"harness_upgrade": 780,
+				"rollover": 335,
+				"session": 570,
+				"signing": 15,
+				"tidy_arena": 101,
+				"upkeep": 425
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 267,
+					"completed": 267
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 78,
+					"completed": 67
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 60,
+					"completed": 60
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 138,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 191,
+					"completed": 168
+				},
+				"harness_upgrade": {
+					"attempted": 51,
+					"completed": 51
+				},
+				"promotion_decision": {
+					"attempted": 37,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 3,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2534,
+					"completed": 335
+				},
+				"session": {
+					"attempted": 80,
+					"completed": 80
+				},
+				"signing": {
+					"attempted": 8,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 29,
+			"final_power": 68,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6943,
+			"seed": 5150,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 242,
+				"cap": 95,
+				"captain_hire": 142,
+				"ceiling_raise": 771,
+				"compliance": 16,
+				"dilemma": 208,
+				"harness_upgrade": 386,
+				"rollover": 325,
+				"session": 595,
+				"signing": 18,
+				"tidy_arena": 96,
+				"upkeep": 414
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 259,
+					"completed": 259
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 151,
+					"completed": 91
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 66,
+					"completed": 66
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 135,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 192,
+					"completed": 175
+				},
+				"harness_upgrade": {
+					"attempted": 38,
+					"completed": 38
+				},
+				"promotion_decision": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2488,
+					"completed": 400
+				},
+				"session": {
+					"attempted": 93,
+					"completed": 93
+				},
+				"signing": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 26,
+			"final_power": 69,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6953,
+			"seed": 5150,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 345,
+				"captain_hire": 239,
+				"ceiling_raise": 1628,
+				"compliance": 16,
+				"dilemma": 295,
+				"market_refresh": 192,
+				"rollover": 443,
+				"session": 1766,
+				"signing": 581,
+				"tidy_arena": 150,
+				"upkeep": 599
+			},
+			"counts": {
+				"arena": {
+					"attempted": 156,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 304,
+					"completed": 304
+				},
+				"cap": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 616,
+					"completed": 209
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 178,
+					"completed": 178
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 178,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 209,
+					"completed": 189
+				},
+				"market_refresh": {
+					"attempted": 64,
+					"completed": 64
+				},
+				"promotion_decision": {
+					"attempted": 13,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 167,
+					"completed": 14
+				},
+				"repair": {
+					"attempted": 3481,
+					"completed": 1047
+				},
+				"resign_contract": {
+					"attempted": 4,
+					"completed": 0
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 180,
+					"completed": 180
+				},
+				"signing": {
+					"attempted": 180,
+					"completed": 27
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 184,
+			"final_power": 93,
+			"first_title_season": 10,
+			"right_censored": false,
+			"rows": 9401,
+			"seed": 13069,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 265,
+				"cap": 124,
+				"captain_hire": 150,
+				"ceiling_raise": 466,
+				"compliance": 16,
+				"dilemma": 253,
+				"harness_upgrade": 972,
+				"rollover": 409,
+				"session": 923,
+				"signing": 53,
+				"tidy_arena": 121,
+				"upkeep": 513
+			},
+			"counts": {
+				"arena": {
+					"attempted": 95,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 310,
+					"completed": 310
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 75,
+					"completed": 75
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 82,
+					"completed": 82
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 167,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 172,
+					"completed": 166
+				},
+				"harness_upgrade": {
+					"attempted": 49,
+					"completed": 49
+				},
+				"promotion_decision": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2719,
+					"completed": 290
+				},
+				"send_off": {
+					"attempted": 9,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 95,
+					"completed": 95
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 113,
+			"final_power": 88,
+			"first_title_season": 17,
+			"right_censored": false,
+			"rows": 7669,
+			"seed": 13069,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 256,
+				"cap": 124,
+				"captain_hire": 106,
+				"ceiling_raise": 842,
+				"compliance": 16,
+				"dilemma": 282,
+				"harness_upgrade": 280,
+				"rollover": 399,
+				"session": 1024,
+				"signing": 10,
+				"tidy_arena": 103,
+				"upkeep": 462
+			},
+			"counts": {
+				"arena": {
+					"attempted": 31,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 309,
+					"completed": 309
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"ceiling_raise": {
+					"attempted": 109,
+					"completed": 103
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 55,
+					"completed": 55
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 164,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 169,
+					"completed": 159
+				},
+				"harness_upgrade": {
+					"attempted": 28,
+					"completed": 28
+				},
+				"promotion_decision": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2601,
+					"completed": 417
+				},
+				"session": {
+					"attempted": 112,
+					"completed": 112
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 37,
+			"final_power": 74,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7615,
+			"seed": 13069,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 345,
+				"captain_hire": 209,
+				"ceiling_raise": 1168,
+				"compliance": 16,
+				"dilemma": 244,
+				"market_refresh": 153,
+				"rollover": 405,
+				"session": 1473,
+				"signing": 551,
+				"tidy_arena": 115,
+				"upkeep": 490
+			},
+			"counts": {
+				"arena": {
+					"attempted": 112,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 288,
+					"completed": 288
+				},
+				"cap": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 399,
+					"completed": 148
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 145,
+					"completed": 145
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 163,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 221,
+					"completed": 196
+				},
+				"market_refresh": {
+					"attempted": 51,
+					"completed": 51
+				},
+				"promotion_decision": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 154,
+					"completed": 17
+				},
+				"repair": {
+					"attempted": 3368,
+					"completed": 977
+				},
+				"send_off": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 151,
+					"completed": 151
+				},
+				"signing": {
+					"attempted": 165,
+					"completed": 28
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 161,
+			"final_power": 95,
+			"first_title_season": 12,
+			"right_censored": false,
+			"rows": 8678,
+			"seed": 20988,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 247,
+				"cap": 72,
+				"captain_hire": 103,
+				"ceiling_raise": 286,
+				"compliance": 16,
+				"dilemma": 226,
+				"harness_upgrade": 732,
+				"rollover": 375,
+				"session": 755,
+				"signing": 15,
+				"tidy_arena": 82,
+				"upkeep": 376
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 310,
+					"completed": 310
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"ceiling_raise": {
+					"attempted": 103,
+					"completed": 41
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 37,
+					"completed": 37
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 156,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 195,
+					"completed": 176
+				},
+				"harness_upgrade": {
+					"attempted": 48,
+					"completed": 48
+				},
+				"promotion_decision": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 3014,
+					"completed": 347
+				},
+				"send_off": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 79,
+					"completed": 79
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 34,
+			"final_power": 67,
+			"first_title_season": 14,
+			"right_censored": false,
+			"rows": 7834,
+			"seed": 20988,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 265,
+				"cap": 95,
+				"captain_hire": 95,
+				"ceiling_raise": 601,
+				"compliance": 16,
+				"dilemma": 225,
+				"harness_upgrade": 340,
+				"rollover": 382,
+				"session": 938,
+				"signing": 7,
+				"tidy_arena": 92,
+				"upkeep": 422
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 305,
+					"completed": 305
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"ceiling_raise": {
+					"attempted": 149,
+					"completed": 83
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 43,
+					"completed": 43
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 159,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 190,
+					"completed": 180
+				},
+				"harness_upgrade": {
+					"attempted": 34,
+					"completed": 34
+				},
+				"promotion_decision": {
+					"attempted": 36,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2909,
+					"completed": 489
+				},
+				"session": {
+					"attempted": 110,
+					"completed": 110
+				},
+				"signing": {
+					"attempted": 5,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 24,
+			"final_power": 64,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7884,
+			"seed": 20988,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 268,
+				"captain_hire": 234,
+				"ceiling_raise": 1733,
+				"compliance": 16,
+				"dilemma": 260,
+				"market_refresh": 33,
+				"rollover": 436,
+				"session": 1680,
+				"signing": 495,
+				"tidy_arena": 145,
+				"upkeep": 615
+			},
+			"counts": {
+				"arena": {
+					"attempted": 176,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 297,
+					"completed": 297
+				},
+				"cap": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 376,
+					"completed": 213
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 182,
+					"completed": 182
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 156,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 205,
+					"completed": 183
+				},
+				"market_refresh": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"promotion_decision": {
+					"attempted": 20,
+					"completed": 2
+				},
+				"release": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"repair": {
+					"attempted": 3312,
+					"completed": 1058
+				},
+				"send_off": {
+					"attempted": 33,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 168,
+					"completed": 168
+				},
+				"signing": {
+					"attempted": 29,
+					"completed": 29
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 153,
+			"final_power": 94,
+			"first_title_season": 10,
+			"right_censored": false,
+			"rows": 8594,
+			"seed": 28907,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 256,
+				"cap": 95,
+				"captain_hire": 104,
+				"ceiling_raise": 558,
+				"compliance": 16,
+				"dilemma": 209,
+				"harness_upgrade": 766,
+				"rollover": 339,
+				"session": 511,
+				"signing": 5,
+				"tidy_arena": 106,
+				"upkeep": 447
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 287,
+					"completed": 287
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 113,
+					"completed": 79
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 45,
+					"completed": 45
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 127,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 168,
+					"completed": 157
+				},
+				"harness_upgrade": {
+					"attempted": 50,
+					"completed": 50
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2418,
+					"completed": 324
+				},
+				"session": {
+					"attempted": 73,
+					"completed": 73
+				},
+				"signing": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 17,
+			"final_power": 59,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6919,
+			"seed": 28907,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 292,
+				"cap": 72,
+				"captain_hire": 98,
+				"ceiling_raise": 607,
+				"compliance": 16,
+				"dilemma": 248,
+				"harness_upgrade": 340,
+				"rollover": 389,
+				"session": 1050,
+				"signing": 7,
+				"tidy_arena": 101,
+				"upkeep": 451
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 315,
+					"completed": 315
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"ceiling_raise": {
+					"attempted": 96,
+					"completed": 85
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 47,
+					"completed": 47
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 146,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 175,
+					"completed": 147
+				},
+				"harness_upgrade": {
+					"attempted": 34,
+					"completed": 34
+				},
+				"promotion_decision": {
+					"attempted": 48,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2797,
+					"completed": 471
+				},
+				"session": {
+					"attempted": 118,
+					"completed": 118
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 29,
+			"final_power": 70,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7804,
+			"seed": 28907,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 345,
+				"captain_hire": 242,
+				"ceiling_raise": 1854,
+				"compliance": 16,
+				"dilemma": 240,
+				"market_refresh": 84,
+				"rollover": 417,
+				"session": 1727,
+				"signing": 498,
+				"tidy_arena": 168,
+				"upkeep": 592
+			},
+			"counts": {
+				"arena": {
+					"attempted": 170,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 289,
+					"completed": 289
+				},
+				"cap": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 678,
+					"completed": 251
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 161,
+					"completed": 161
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 162,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 206,
+					"completed": 186
+				},
+				"market_refresh": {
+					"attempted": 28,
+					"completed": 28
+				},
+				"promotion_decision": {
+					"attempted": 8,
+					"completed": 2
+				},
+				"release": {
+					"attempted": 75,
+					"completed": 16
+				},
+				"repair": {
+					"attempted": 3220,
+					"completed": 1026
+				},
+				"resign_contract": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"send_off": {
+					"attempted": 21,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 175,
+					"completed": 175
+				},
+				"signing": {
+					"attempted": 89,
+					"completed": 30
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 95,
+			"final_power": 92,
+			"first_title_season": 12,
+			"right_censored": false,
+			"rows": 8928,
+			"seed": 36826,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 249,
+				"cap": 124,
+				"captain_hire": 120,
+				"ceiling_raise": 507,
+				"compliance": 16,
+				"dilemma": 218,
+				"harness_upgrade": 760,
+				"rollover": 347,
+				"session": 614,
+				"signing": 21,
+				"tidy_arena": 110,
+				"upkeep": 449
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 279,
+					"completed": 279
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 133,
+					"completed": 75
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 59,
+					"completed": 59
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 146,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 178,
+					"completed": 162
+				},
+				"harness_upgrade": {
+					"attempted": 47,
+					"completed": 47
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2460,
+					"completed": 316
+				},
+				"session": {
+					"attempted": 80,
+					"completed": 80
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 28,
+			"final_power": 66,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6983,
+			"seed": 36826,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 5150,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 258,
+				"cap": 95,
+				"captain_hire": 140,
+				"ceiling_raise": 746,
+				"compliance": 16,
+				"dilemma": 221,
+				"harness_upgrade": 418,
+				"rollover": 330,
+				"session": 750,
+				"signing": 21,
+				"tidy_arena": 114,
+				"upkeep": 452
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 277,
+					"completed": 277
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 221,
+					"completed": 99
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 57,
+					"completed": 57
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 142,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 178,
+					"completed": 158
+				},
+				"harness_upgrade": {
+					"attempted": 35,
+					"completed": 35
+				},
+				"promotion_decision": {
+					"attempted": 26,
+					"completed": 2
+				},
+				"repair": {
+					"attempted": 2444,
+					"completed": 427
+				},
+				"session": {
+					"attempted": 98,
+					"completed": 98
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 26,
+			"final_power": 58,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7124,
+			"seed": 36826,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 444,
+				"captain_hire": 222,
+				"ceiling_raise": 1394,
+				"compliance": 16,
+				"dilemma": 228,
+				"market_refresh": 177,
+				"rollover": 446,
+				"session": 2019,
+				"signing": 589,
+				"tidy_arena": 159,
+				"upkeep": 636
+			},
+			"counts": {
+				"arena": {
+					"attempted": 219,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 309,
+					"completed": 309
+				},
+				"cap": {
+					"attempted": 14,
+					"completed": 14
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 1064,
+					"completed": 211
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 168,
+					"completed": 168
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 165,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 212,
+					"completed": 187
+				},
+				"market_refresh": {
+					"attempted": 59,
+					"completed": 59
+				},
+				"promotion_decision": {
+					"attempted": 14,
+					"completed": 2
+				},
+				"release": {
+					"attempted": 145,
+					"completed": 3
+				},
+				"repair": {
+					"attempted": 3622,
+					"completed": 1107
+				},
+				"resign_contract": {
+					"attempted": 4,
+					"completed": 1
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 195,
+					"completed": 195
+				},
+				"signing": {
+					"attempted": 161,
+					"completed": 19
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 119,
+			"final_power": 95,
+			"first_title_season": 9,
+			"right_censored": false,
+			"rows": 9914,
+			"seed": 2718,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 33,
+				"armorer_wage": 256,
+				"cap": 124,
+				"captain_hire": 136,
+				"ceiling_raise": 479,
+				"compliance": 16,
+				"dilemma": 216,
+				"harness_upgrade": 896,
+				"rollover": 376,
+				"session": 742,
+				"signing": 12,
+				"tidy_arena": 132,
+				"upkeep": 560
+			},
+			"counts": {
+				"arena": {
+					"attempted": 164,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 307,
+					"completed": 307
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 72,
+					"completed": 66
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 49,
+					"completed": 49
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 151,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 170,
+					"completed": 147
+				},
+				"harness_upgrade": {
+					"attempted": 50,
+					"completed": 50
+				},
+				"promotion_decision": {
+					"attempted": 20,
+					"completed": 2
+				},
+				"repair": {
+					"attempted": 2640,
+					"completed": 316
+				},
+				"resign_contract": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"session": {
+					"attempted": 86,
+					"completed": 86
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 26,
+			"final_power": 73,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7210,
+			"seed": 2718,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 33,
+				"armorer_wage": 274,
+				"cap": 208,
+				"captain_hire": 149,
+				"ceiling_raise": 839,
+				"compliance": 16,
+				"dilemma": 217,
+				"harness_upgrade": 340,
+				"rollover": 416,
+				"session": 1216,
+				"signing": 42,
+				"tidy_arena": 112,
+				"upkeep": 494
+			},
+			"counts": {
+				"arena": {
+					"attempted": 70,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 309,
+					"completed": 309
+				},
+				"cap": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 152,
+					"completed": 129
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 90,
+					"completed": 90
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 159,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 169,
+					"completed": 159
+				},
+				"harness_upgrade": {
+					"attempted": 33,
+					"completed": 33
+				},
+				"promotion_decision": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2630,
+					"completed": 514
+				},
+				"send_off": {
+					"attempted": 12,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 128,
+					"completed": 128
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 59,
+			"final_power": 86,
+			"first_title_season": 13,
+			"right_censored": false,
+			"rows": 7943,
+			"seed": 2718,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 444,
+				"captain_hire": 222,
+				"ceiling_raise": 1468,
+				"compliance": 16,
+				"dilemma": 280,
+				"market_refresh": 285,
+				"rollover": 466,
+				"session": 1901,
+				"signing": 375,
+				"tidy_arena": 156,
+				"upkeep": 604
+			},
+			"counts": {
+				"arena": {
+					"attempted": 173,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 321,
+					"completed": 321
+				},
+				"cap": {
+					"attempted": 14,
+					"completed": 14
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 721,
+					"completed": 194
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 161,
+					"completed": 161
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 182,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 211,
+					"completed": 183
+				},
+				"market_refresh": {
+					"attempted": 95,
+					"completed": 95
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 243,
+					"completed": 5
+				},
+				"repair": {
+					"attempted": 3727,
+					"completed": 1099
+				},
+				"resign_contract": {
+					"attempted": 7,
+					"completed": 2
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 183,
+					"completed": 183
+				},
+				"signing": {
+					"attempted": 255,
+					"completed": 17
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 165,
+			"final_power": 94,
+			"first_title_season": 11,
+			"right_censored": false,
+			"rows": 9889,
+			"seed": 10637,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 265,
+				"cap": 95,
+				"captain_hire": 116,
+				"ceiling_raise": 509,
+				"compliance": 16,
+				"dilemma": 233,
+				"harness_upgrade": 746,
+				"rollover": 409,
+				"session": 930,
+				"signing": 23,
+				"tidy_arena": 96,
+				"upkeep": 439
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 314,
+					"completed": 314
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 103,
+					"completed": 71
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 60,
+					"completed": 60
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 166,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 183,
+					"completed": 168
+				},
+				"harness_upgrade": {
+					"attempted": 48,
+					"completed": 48
+				},
+				"promotion_decision": {
+					"attempted": 25,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2904,
+					"completed": 316
+				},
+				"send_off": {
+					"attempted": 6,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 94,
+					"completed": 94
+				},
+				"signing": {
+					"attempted": 5,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 89,
+			"final_power": 72,
+			"first_title_season": 14,
+			"right_censored": false,
+			"rows": 7876,
+			"seed": 10637,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 256,
+				"cap": 161,
+				"captain_hire": 172,
+				"ceiling_raise": 930,
+				"compliance": 16,
+				"dilemma": 228,
+				"harness_upgrade": 506,
+				"market_refresh": 3,
+				"rollover": 399,
+				"session": 1129,
+				"signing": 52,
+				"tidy_arena": 129,
+				"upkeep": 528
+			},
+			"counts": {
+				"arena": {
+					"attempted": 120,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 292,
+					"completed": 292
+				},
+				"cap": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 233,
+					"completed": 145
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 100,
+					"completed": 100
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 164,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 197,
+					"completed": 172
+				},
+				"harness_upgrade": {
+					"attempted": 41,
+					"completed": 41
+				},
+				"market_refresh": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"promotion_decision": {
+					"attempted": 25,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2900,
+					"completed": 436
+				},
+				"send_off": {
+					"attempted": 12,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 125,
+					"completed": 125
+				},
+				"signing": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 35,
+			"final_power": 75,
+			"first_title_season": 12,
+			"right_censored": false,
+			"rows": 8399,
+			"seed": 10637,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 345,
+				"captain_hire": 228,
+				"ceiling_raise": 1663,
+				"compliance": 16,
+				"dilemma": 298,
+				"market_refresh": 123,
+				"rollover": 443,
+				"session": 1811,
+				"signing": 779,
+				"tidy_arena": 148,
+				"upkeep": 573
+			},
+			"counts": {
+				"arena": {
+					"attempted": 155,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 300,
+					"completed": 300
+				},
+				"cap": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 631,
+					"completed": 176
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 190,
+					"completed": 190
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 180,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 202,
+					"completed": 166
+				},
+				"market_refresh": {
+					"attempted": 41,
+					"completed": 41
+				},
+				"promotion_decision": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 44,
+					"completed": 11
+				},
+				"repair": {
+					"attempted": 3447,
+					"completed": 1076
+				},
+				"resign_contract": {
+					"attempted": 11,
+					"completed": 2
+				},
+				"send_off": {
+					"attempted": 36,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 187,
+					"completed": 187
+				},
+				"signing": {
+					"attempted": 57,
+					"completed": 24
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 157,
+			"final_power": 94,
+			"first_title_season": 9,
+			"right_censored": false,
+			"rows": 8943,
+			"seed": 18556,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 283,
+				"cap": 72,
+				"captain_hire": 91,
+				"ceiling_raise": 270,
+				"compliance": 16,
+				"dilemma": 252,
+				"harness_upgrade": 772,
+				"rollover": 349,
+				"session": 533,
+				"signing": 11,
+				"tidy_arena": 96,
+				"upkeep": 438
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 292,
+					"completed": 292
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"ceiling_raise": {
+					"attempted": 80,
+					"completed": 39
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 43,
+					"completed": 43
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 151,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 177,
+					"completed": 141
+				},
+				"harness_upgrade": {
+					"attempted": 51,
+					"completed": 51
+				},
+				"promotion_decision": {
+					"attempted": 42,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2620,
+					"completed": 324
+				},
+				"resign_contract": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"session": {
+					"attempted": 71,
+					"completed": 71
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 32,
+			"final_power": 63,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7162,
+			"seed": 18556,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 283,
+				"cap": 54,
+				"captain_hire": 76,
+				"ceiling_raise": 611,
+				"compliance": 16,
+				"dilemma": 273,
+				"harness_upgrade": 436,
+				"rollover": 409,
+				"session": 1026,
+				"signing": 14,
+				"tidy_arena": 101,
+				"upkeep": 438
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 324,
+					"completed": 324
+				},
+				"cap": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"captain_hire": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"ceiling_raise": {
+					"attempted": 176,
+					"completed": 80
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 42,
+					"completed": 42
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 167,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 183,
+					"completed": 166
+				},
+				"harness_upgrade": {
+					"attempted": 39,
+					"completed": 39
+				},
+				"promotion_decision": {
+					"attempted": 36,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2987,
+					"completed": 480
+				},
+				"session": {
+					"attempted": 110,
+					"completed": 110
+				},
+				"signing": {
+					"attempted": 5,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 25,
+			"final_power": 73,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 8154,
+			"seed": 18556,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 571,
+				"captain_hire": 251,
+				"ceiling_raise": 1560,
+				"compliance": 16,
+				"dilemma": 265,
+				"market_refresh": 225,
+				"rollover": 446,
+				"session": 2022,
+				"signing": 482,
+				"tidy_arena": 163,
+				"upkeep": 615
+			},
+			"counts": {
+				"arena": {
+					"attempted": 182,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 301,
+					"completed": 301
+				},
+				"cap": {
+					"attempted": 15,
+					"completed": 15
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 1138,
+					"completed": 181
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 193,
+					"completed": 193
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 171,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 214,
+					"completed": 192
+				},
+				"market_refresh": {
+					"attempted": 75,
+					"completed": 75
+				},
+				"promotion_decision": {
+					"attempted": 13,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 184,
+					"completed": 13
+				},
+				"repair": {
+					"attempted": 3546,
+					"completed": 1061
+				},
+				"resign_contract": {
+					"attempted": 7,
+					"completed": 1
+				},
+				"send_off": {
+					"attempted": 36,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 200,
+					"completed": 200
+				},
+				"signing": {
+					"attempted": 196,
+					"completed": 25
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 199,
+			"final_power": 95,
+			"first_title_season": 9,
+			"right_censored": false,
+			"rows": 9932,
+			"seed": 26475,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 274,
+				"cap": 95,
+				"captain_hire": 106,
+				"ceiling_raise": 587,
+				"compliance": 16,
+				"dilemma": 255,
+				"harness_upgrade": 684,
+				"rollover": 416,
+				"session": 1044,
+				"signing": 11,
+				"tidy_arena": 108,
+				"upkeep": 445
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 324,
+					"completed": 324
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 80,
+					"completed": 70
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 49,
+					"completed": 49
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 163,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 175,
+					"completed": 161
+				},
+				"harness_upgrade": {
+					"attempted": 44,
+					"completed": 44
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2825,
+					"completed": 310
+				},
+				"session": {
+					"attempted": 108,
+					"completed": 108
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 33,
+			"final_power": 74,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7870,
+			"seed": 26475,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 33,
+				"armorer_wage": 283,
+				"cap": 208,
+				"captain_hire": 177,
+				"ceiling_raise": 1168,
+				"compliance": 16,
+				"dilemma": 275,
+				"harness_upgrade": 368,
+				"market_refresh": 6,
+				"rollover": 426,
+				"session": 1308,
+				"signing": 181,
+				"tidy_arena": 138,
+				"upkeep": 568
+			},
+			"counts": {
+				"arena": {
+					"attempted": 147,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 301,
+					"completed": 301
+				},
+				"cap": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 306,
+					"completed": 180
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 133,
+					"completed": 133
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 165,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 179,
+					"completed": 169
+				},
+				"harness_upgrade": {
+					"attempted": 34,
+					"completed": 34
+				},
+				"market_refresh": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2817,
+					"completed": 473
+				},
+				"send_off": {
+					"attempted": 21,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 136,
+					"completed": 136
+				},
+				"signing": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 75,
+			"final_power": 92,
+			"first_title_season": 14,
+			"right_censored": false,
+			"rows": 8722,
+			"seed": 26475,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 571,
+				"captain_hire": 239,
+				"ceiling_raise": 1586,
+				"compliance": 16,
+				"dilemma": 240,
+				"market_refresh": 219,
+				"rollover": 400,
+				"session": 1698,
+				"signing": 748,
+				"tidy_arena": 154,
+				"upkeep": 608
+			},
+			"counts": {
+				"arena": {
+					"attempted": 188,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 268,
+					"completed": 268
+				},
+				"cap": {
+					"attempted": 15,
+					"completed": 15
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 755,
+					"completed": 215
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 210,
+					"completed": 210
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 149,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 216,
+					"completed": 190
+				},
+				"market_refresh": {
+					"attempted": 73,
+					"completed": 73
+				},
+				"promotion_decision": {
+					"attempted": 9,
+					"completed": 3
+				},
+				"release": {
+					"attempted": 140,
+					"completed": 26
+				},
+				"repair": {
+					"attempted": 3180,
+					"completed": 1012
+				},
+				"resign_contract": {
+					"attempted": 7,
+					"completed": 0
+				},
+				"send_off": {
+					"attempted": 33,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 172,
+					"completed": 172
+				},
+				"signing": {
+					"attempted": 151,
+					"completed": 37
+				},
+				"tidy_arena": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 152,
+			"final_power": 95,
+			"first_title_season": 10,
+			"right_censored": false,
+			"rows": 9062,
+			"seed": 34394,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 274,
+				"cap": 95,
+				"captain_hire": 84,
+				"ceiling_raise": 265,
+				"compliance": 16,
+				"dilemma": 198,
+				"harness_upgrade": 752,
+				"rollover": 317,
+				"session": 374,
+				"signing": 14,
+				"tidy_arena": 78,
+				"upkeep": 389
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 278,
+					"completed": 278
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 74,
+					"completed": 34
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 42,
+					"completed": 42
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 134,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 186,
+					"completed": 177
+				},
+				"harness_upgrade": {
+					"attempted": 50,
+					"completed": 50
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2623,
+					"completed": 342
+				},
+				"session": {
+					"attempted": 58,
+					"completed": 58
+				},
+				"signing": {
+					"attempted": 5,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 28,
+			"final_power": 49,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6899,
+			"seed": 34394,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 2718,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 274,
+				"cap": 95,
+				"captain_hire": 67,
+				"ceiling_raise": 506,
+				"compliance": 16,
+				"dilemma": 239,
+				"harness_upgrade": 474,
+				"rollover": 384,
+				"session": 1013,
+				"signing": 14,
+				"tidy_arena": 98,
+				"upkeep": 421
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 309,
+					"completed": 309
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"ceiling_raise": {
+					"attempted": 217,
+					"completed": 62
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 49,
+					"completed": 49
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 149,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 187,
+					"completed": 177
+				},
+				"harness_upgrade": {
+					"attempted": 37,
+					"completed": 37
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2890,
+					"completed": 441
+				},
+				"session": {
+					"attempted": 107,
+					"completed": 107
+				},
+				"signing": {
+					"attempted": 5,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 24,
+			"final_power": 59,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7835,
+			"seed": 34394,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 444,
+				"captain_hire": 221,
+				"ceiling_raise": 1476,
+				"compliance": 16,
+				"dilemma": 196,
+				"market_refresh": 96,
+				"rollover": 439,
+				"session": 1770,
+				"signing": 455,
+				"tidy_arena": 147,
+				"upkeep": 588
+			},
+			"counts": {
+				"arena": {
+					"attempted": 139,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 306,
+					"completed": 306
+				},
+				"cap": {
+					"attempted": 14,
+					"completed": 14
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 670,
+					"completed": 192
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 152,
+					"completed": 152
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 164,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 216,
+					"completed": 201
+				},
+				"market_refresh": {
+					"attempted": 32,
+					"completed": 32
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 68,
+					"completed": 10
+				},
+				"repair": {
+					"attempted": 3616,
+					"completed": 1107
+				},
+				"resign_contract": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"send_off": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 174,
+					"completed": 174
+				},
+				"signing": {
+					"attempted": 83,
+					"completed": 25
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 165,
+			"final_power": 93,
+			"first_title_season": 10,
+			"right_censored": false,
+			"rows": 9151,
+			"seed": 6060,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 292,
+				"cap": 124,
+				"captain_hire": 102,
+				"ceiling_raise": 326,
+				"compliance": 16,
+				"dilemma": 197,
+				"harness_upgrade": 868,
+				"rollover": 369,
+				"session": 679,
+				"signing": 23,
+				"tidy_arena": 117,
+				"upkeep": 524
+			},
+			"counts": {
+				"arena": {
+					"attempted": 123,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 298,
+					"completed": 298
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 213,
+					"completed": 53
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 56,
+					"completed": 56
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 148,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 178,
+					"completed": 168
+				},
+				"harness_upgrade": {
+					"attempted": 49,
+					"completed": 49
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2688,
+					"completed": 343
+				},
+				"session": {
+					"attempted": 77,
+					"completed": 77
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 40,
+			"final_power": 63,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7437,
+			"seed": 6060,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 292,
+				"cap": 124,
+				"captain_hire": 80,
+				"ceiling_raise": 716,
+				"compliance": 16,
+				"dilemma": 208,
+				"harness_upgrade": 368,
+				"rollover": 379,
+				"session": 903,
+				"signing": 23,
+				"tidy_arena": 95,
+				"upkeep": 444
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 303,
+					"completed": 303
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"ceiling_raise": {
+					"attempted": 167,
+					"completed": 89
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 60,
+					"completed": 60
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 155,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 176,
+					"completed": 166
+				},
+				"harness_upgrade": {
+					"attempted": 33,
+					"completed": 33
+				},
+				"promotion_decision": {
+					"attempted": 54,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2695,
+					"completed": 446
+				},
+				"session": {
+					"attempted": 103,
+					"completed": 103
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 21,
+			"final_power": 61,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7611,
+			"seed": 6060,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 444,
+				"captain_hire": 251,
+				"ceiling_raise": 1291,
+				"compliance": 16,
+				"dilemma": 271,
+				"market_refresh": 102,
+				"rollover": 419,
+				"session": 1673,
+				"signing": 268,
+				"tidy_arena": 137,
+				"upkeep": 576
+			},
+			"counts": {
+				"arena": {
+					"attempted": 180,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 300,
+					"completed": 300
+				},
+				"cap": {
+					"attempted": 14,
+					"completed": 14
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 731,
+					"completed": 195
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 143,
+					"completed": 143
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 170,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 217,
+					"completed": 187
+				},
+				"market_refresh": {
+					"attempted": 34,
+					"completed": 34
+				},
+				"promotion_decision": {
+					"attempted": 13,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 77,
+					"completed": 6
+				},
+				"repair": {
+					"attempted": 3457,
+					"completed": 980
+				},
+				"resign_contract": {
+					"attempted": 2,
+					"completed": 0
+				},
+				"send_off": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 171,
+					"completed": 171
+				},
+				"signing": {
+					"attempted": 87,
+					"completed": 16
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 227,
+			"final_power": 94,
+			"first_title_season": 12,
+			"right_censored": false,
+			"rows": 9050,
+			"seed": 13979,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 274,
+				"cap": 124,
+				"captain_hire": 146,
+				"ceiling_raise": 379,
+				"compliance": 16,
+				"dilemma": 247,
+				"harness_upgrade": 896,
+				"rollover": 379,
+				"session": 777,
+				"signing": 14,
+				"tidy_arena": 117,
+				"upkeep": 515
+			},
+			"counts": {
+				"arena": {
+					"attempted": 108,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 299,
+					"completed": 299
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 220,
+					"completed": 57
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 55,
+					"completed": 55
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 161,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 185,
+					"completed": 159
+				},
+				"harness_upgrade": {
+					"attempted": 50,
+					"completed": 50
+				},
+				"promotion_decision": {
+					"attempted": 21,
+					"completed": 3
+				},
+				"repair": {
+					"attempted": 2796,
+					"completed": 314
+				},
+				"resign_contract": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"session": {
+					"attempted": 87,
+					"completed": 87
+				},
+				"signing": {
+					"attempted": 5,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 34,
+			"final_power": 69,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7638,
+			"seed": 13979,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 229,
+				"cap": 124,
+				"captain_hire": 185,
+				"ceiling_raise": 745,
+				"compliance": 16,
+				"dilemma": 235,
+				"harness_upgrade": 522,
+				"rollover": 349,
+				"session": 734,
+				"signing": 17,
+				"tidy_arena": 116,
+				"upkeep": 492
+			},
+			"counts": {
+				"arena": {
+					"attempted": 103,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 275,
+					"completed": 275
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 226,
+					"completed": 115
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 68,
+					"completed": 68
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 155,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 187,
+					"completed": 173
+				},
+				"harness_upgrade": {
+					"attempted": 40,
+					"completed": 40
+				},
+				"promotion_decision": {
+					"attempted": 15,
+					"completed": 3
+				},
+				"repair": {
+					"attempted": 2641,
+					"completed": 389
+				},
+				"resign_contract": {
+					"attempted": 3,
+					"completed": 2
+				},
+				"session": {
+					"attempted": 104,
+					"completed": 104
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 33,
+			"final_power": 64,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7515,
+			"seed": 13979,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 345,
+				"captain_hire": 254,
+				"ceiling_raise": 1329,
+				"compliance": 16,
+				"dilemma": 274,
+				"market_refresh": 138,
+				"rollover": 449,
+				"session": 1978,
+				"signing": 690,
+				"tidy_arena": 141,
+				"upkeep": 583
+			},
+			"counts": {
+				"arena": {
+					"attempted": 158,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 310,
+					"completed": 310
+				},
+				"cap": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 693,
+					"completed": 187
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 171,
+					"completed": 171
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 166,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 205,
+					"completed": 165
+				},
+				"market_refresh": {
+					"attempted": 46,
+					"completed": 46
+				},
+				"promotion_decision": {
+					"attempted": 13,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 86,
+					"completed": 17
+				},
+				"repair": {
+					"attempted": 3588,
+					"completed": 1074
+				},
+				"resign_contract": {
+					"attempted": 11,
+					"completed": 3
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 192,
+					"completed": 192
+				},
+				"signing": {
+					"attempted": 99,
+					"completed": 30
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 163,
+			"final_power": 96,
+			"first_title_season": 9,
+			"right_censored": false,
+			"rows": 9190,
+			"seed": 21898,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 283,
+				"cap": 95,
+				"captain_hire": 94,
+				"ceiling_raise": 274,
+				"compliance": 16,
+				"dilemma": 227,
+				"harness_upgrade": 848,
+				"rollover": 385,
+				"session": 852,
+				"signing": 21,
+				"tidy_arena": 96,
+				"upkeep": 443
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 317,
+					"completed": 317
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"ceiling_raise": {
+					"attempted": 141,
+					"completed": 41
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 46,
+					"completed": 46
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 154,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 184,
+					"completed": 168
+				},
+				"harness_upgrade": {
+					"attempted": 53,
+					"completed": 53
+				},
+				"promotion_decision": {
+					"attempted": 25,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2961,
+					"completed": 360
+				},
+				"session": {
+					"attempted": 88,
+					"completed": 88
+				},
+				"signing": {
+					"attempted": 5,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 25,
+			"final_power": 62,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7895,
+			"seed": 21898,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 247,
+				"cap": 95,
+				"captain_hire": 128,
+				"ceiling_raise": 754,
+				"compliance": 16,
+				"dilemma": 243,
+				"harness_upgrade": 332,
+				"rollover": 362,
+				"session": 844,
+				"signing": 13,
+				"tidy_arena": 99,
+				"upkeep": 423
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 285,
+					"completed": 285
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 113,
+					"completed": 101
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 68,
+					"completed": 68
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 143,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 173,
+					"completed": 140
+				},
+				"harness_upgrade": {
+					"attempted": 34,
+					"completed": 34
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2517,
+					"completed": 418
+				},
+				"resign_contract": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"session": {
+					"attempted": 108,
+					"completed": 108
+				},
+				"signing": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 24,
+			"final_power": 65,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7318,
+			"seed": 21898,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 444,
+				"captain_hire": 221,
+				"ceiling_raise": 1383,
+				"compliance": 16,
+				"dilemma": 245,
+				"market_refresh": 12,
+				"rollover": 409,
+				"session": 1405,
+				"signing": 408,
+				"tidy_arena": 132,
+				"upkeep": 544
+			},
+			"counts": {
+				"arena": {
+					"attempted": 121,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 300,
+					"completed": 300
+				},
+				"cap": {
+					"attempted": 14,
+					"completed": 14
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 497,
+					"completed": 183
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 117,
+					"completed": 117
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 157,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 207,
+					"completed": 194
+				},
+				"market_refresh": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"repair": {
+					"attempted": 3347,
+					"completed": 1022
+				},
+				"send_off": {
+					"attempted": 12,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 151,
+					"completed": 151
+				},
+				"signing": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 58,
+			"final_power": 90,
+			"first_title_season": 15,
+			"right_censored": false,
+			"rows": 8334,
+			"seed": 29817,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 287,
+				"cap": 95,
+				"captain_hire": 125,
+				"ceiling_raise": 127,
+				"compliance": 16,
+				"dilemma": 250,
+				"harness_upgrade": 696,
+				"rollover": 298,
+				"session": 276,
+				"signing": 10,
+				"tidy_arena": 86,
+				"upkeep": 416
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 261,
+					"completed": 261
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 129,
+					"completed": 20
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 44,
+					"completed": 44
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 126,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 171,
+					"completed": 139
+				},
+				"harness_upgrade": {
+					"attempted": 47,
+					"completed": 47
+				},
+				"promotion_decision": {
+					"attempted": 32,
+					"completed": 2
+				},
+				"repair": {
+					"attempted": 2308,
+					"completed": 315
+				},
+				"resign_contract": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"session": {
+					"attempted": 46,
+					"completed": 46
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 19,
+			"final_power": 54,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6419,
+			"seed": 29817,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 287,
+				"cap": 72,
+				"captain_hire": 98,
+				"ceiling_raise": 477,
+				"compliance": 16,
+				"dilemma": 253,
+				"harness_upgrade": 374,
+				"rollover": 326,
+				"session": 522,
+				"signing": 10,
+				"tidy_arena": 89,
+				"upkeep": 424
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 282,
+					"completed": 282
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 144,
+					"completed": 70
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 31,
+					"completed": 31
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 137,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 173,
+					"completed": 156
+				},
+				"harness_upgrade": {
+					"attempted": 35,
+					"completed": 35
+				},
+				"promotion_decision": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2476,
+					"completed": 414
+				},
+				"session": {
+					"attempted": 88,
+					"completed": 88
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 18,
+			"final_power": 60,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6950,
+			"seed": 29817,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 268,
+				"captain_hire": 194,
+				"ceiling_raise": 1441,
+				"compliance": 16,
+				"dilemma": 276,
+				"market_refresh": 195,
+				"rollover": 463,
+				"session": 1845,
+				"signing": 521,
+				"tidy_arena": 144,
+				"upkeep": 567
+			},
+			"counts": {
+				"arena": {
+					"attempted": 156,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 323,
+					"completed": 323
+				},
+				"cap": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 579,
+					"completed": 184
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 158,
+					"completed": 158
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 171,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 213,
+					"completed": 197
+				},
+				"market_refresh": {
+					"attempted": 65,
+					"completed": 65
+				},
+				"promotion_decision": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 192,
+					"completed": 9
+				},
+				"repair": {
+					"attempted": 3697,
+					"completed": 1119
+				},
+				"resign_contract": {
+					"attempted": 2,
+					"completed": 0
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 177,
+					"completed": 177
+				},
+				"signing": {
+					"attempted": 204,
+					"completed": 21
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 157,
+			"final_power": 95,
+			"first_title_season": 11,
+			"right_censored": false,
+			"rows": 9625,
+			"seed": 37736,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 238,
+				"cap": 95,
+				"captain_hire": 118,
+				"ceiling_raise": 339,
+				"compliance": 16,
+				"dilemma": 194,
+				"harness_upgrade": 660,
+				"rollover": 305,
+				"session": 350,
+				"signing": 20,
+				"tidy_arena": 87,
+				"upkeep": 412
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 257,
+					"completed": 257
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 77,
+					"completed": 53
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 49,
+					"completed": 49
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 132,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 178,
+					"completed": 156
+				},
+				"harness_upgrade": {
+					"attempted": 46,
+					"completed": 46
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2338,
+					"completed": 300
+				},
+				"session": {
+					"attempted": 62,
+					"completed": 62
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 25,
+			"final_power": 59,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6460,
+			"seed": 37736,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 6060,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 193,
+				"cap": 72,
+				"captain_hire": 144,
+				"ceiling_raise": 399,
+				"compliance": 16,
+				"dilemma": 190,
+				"harness_upgrade": 380,
+				"market_refresh": 3,
+				"rollover": 315,
+				"session": 509,
+				"signing": 14,
+				"tidy_arena": 75,
+				"upkeep": 353
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 270,
+					"completed": 270
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 102,
+					"completed": 61
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 35,
+					"completed": 35
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 131,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 177,
+					"completed": 156
+				},
+				"harness_upgrade": {
+					"attempted": 37,
+					"completed": 37
+				},
+				"market_refresh": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"promotion_decision": {
+					"attempted": 25,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 8,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2436,
+					"completed": 400
+				},
+				"session": {
+					"attempted": 81,
+					"completed": 81
+				},
+				"signing": {
+					"attempted": 13,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 33,
+			"final_power": 66,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6732,
+			"seed": 37736,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 208,
+				"captain_hire": 214,
+				"ceiling_raise": 1795,
+				"compliance": 16,
+				"dilemma": 245,
+				"market_refresh": 48,
+				"rollover": 449,
+				"session": 1828,
+				"signing": 394,
+				"tidy_arena": 144,
+				"upkeep": 582
+			},
+			"counts": {
+				"arena": {
+					"attempted": 141,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 311,
+					"completed": 311
+				},
+				"cap": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 392,
+					"completed": 233
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 154,
+					"completed": 154
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 180,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 205,
+					"completed": 198
+				},
+				"market_refresh": {
+					"attempted": 16,
+					"completed": 16
+				},
+				"promotion_decision": {
+					"attempted": 14,
+					"completed": 2
+				},
+				"release": {
+					"attempted": 34,
+					"completed": 13
+				},
+				"repair": {
+					"attempted": 3400,
+					"completed": 1060
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 176,
+					"completed": 176
+				},
+				"signing": {
+					"attempted": 48,
+					"completed": 27
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 156,
+			"final_power": 95,
+			"first_title_season": 11,
+			"right_censored": false,
+			"rows": 8704,
+			"seed": 8123,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 238,
+				"cap": 95,
+				"captain_hire": 128,
+				"ceiling_raise": 415,
+				"compliance": 16,
+				"dilemma": 253,
+				"harness_upgrade": 780,
+				"rollover": 379,
+				"session": 799,
+				"signing": 12,
+				"tidy_arena": 83,
+				"upkeep": 391
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 297,
+					"completed": 297
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 58,
+					"completed": 53
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 62,
+					"completed": 62
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 161,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 171,
+					"completed": 159
+				},
+				"harness_upgrade": {
+					"attempted": 47,
+					"completed": 47
+				},
+				"promotion_decision": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2541,
+					"completed": 319
+				},
+				"resign_contract": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"send_off": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 89,
+					"completed": 89
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 12,
+			"final_power": 68,
+			"first_title_season": 19,
+			"right_censored": false,
+			"rows": 7154,
+			"seed": 8123,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 220,
+				"cap": 72,
+				"captain_hire": 151,
+				"ceiling_raise": 690,
+				"compliance": 16,
+				"dilemma": 248,
+				"harness_upgrade": 292,
+				"rollover": 359,
+				"session": 701,
+				"signing": 12,
+				"tidy_arena": 85,
+				"upkeep": 401
+			},
+			"counts": {
+				"arena": {
+					"attempted": 34,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 291,
+					"completed": 291
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 114,
+					"completed": 86
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 46,
+					"completed": 46
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 157,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 167,
+					"completed": 153
+				},
+				"harness_upgrade": {
+					"attempted": 30,
+					"completed": 30
+				},
+				"promotion_decision": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2493,
+					"completed": 418
+				},
+				"resign_contract": {
+					"attempted": 5,
+					"completed": 3
+				},
+				"session": {
+					"attempted": 95,
+					"completed": 95
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 31,
+			"final_power": 71,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7199,
+			"seed": 8123,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 571,
+				"captain_hire": 258,
+				"ceiling_raise": 1456,
+				"compliance": 16,
+				"dilemma": 288,
+				"market_refresh": 210,
+				"rollover": 422,
+				"session": 1743,
+				"signing": 469,
+				"tidy_arena": 160,
+				"upkeep": 588
+			},
+			"counts": {
+				"arena": {
+					"attempted": 167,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 291,
+					"completed": 291
+				},
+				"cap": {
+					"attempted": 15,
+					"completed": 15
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 774,
+					"completed": 205
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 173,
+					"completed": 173
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 172,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 213,
+					"completed": 188
+				},
+				"market_refresh": {
+					"attempted": 70,
+					"completed": 70
+				},
+				"promotion_decision": {
+					"attempted": 13,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 185,
+					"completed": 5
+				},
+				"repair": {
+					"attempted": 3441,
+					"completed": 1020
+				},
+				"resign_contract": {
+					"attempted": 6,
+					"completed": 3
+				},
+				"send_off": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 175,
+					"completed": 175
+				},
+				"signing": {
+					"attempted": 200,
+					"completed": 20
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 161,
+			"final_power": 95,
+			"first_title_season": 9,
+			"right_censored": false,
+			"rows": 9483,
+			"seed": 16042,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 296,
+				"cap": 124,
+				"captain_hire": 107,
+				"ceiling_raise": 556,
+				"compliance": 16,
+				"dilemma": 280,
+				"harness_upgrade": 1116,
+				"rollover": 439,
+				"session": 976,
+				"signing": 13,
+				"tidy_arena": 146,
+				"upkeep": 588
+			},
+			"counts": {
+				"arena": {
+					"attempted": 171,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 337,
+					"completed": 337
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 87,
+					"completed": 74
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 50,
+					"completed": 50
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 178,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 169,
+					"completed": 161
+				},
+				"harness_upgrade": {
+					"attempted": 56,
+					"completed": 56
+				},
+				"promotion_decision": {
+					"attempted": 25,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2831,
+					"completed": 290
+				},
+				"send_off": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 92,
+					"completed": 92
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 98,
+			"final_power": 81,
+			"first_title_season": 20,
+			"right_censored": false,
+			"rows": 7681,
+			"seed": 16042,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 251,
+				"cap": 72,
+				"captain_hire": 101,
+				"ceiling_raise": 703,
+				"compliance": 16,
+				"dilemma": 262,
+				"harness_upgrade": 326,
+				"rollover": 392,
+				"session": 1017,
+				"signing": 9,
+				"tidy_arena": 102,
+				"upkeep": 453
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 311,
+					"completed": 311
+				},
+				"cap": {
+					"attempted": 7,
+					"completed": 7
+				},
+				"captain_hire": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"ceiling_raise": {
+					"attempted": 99,
+					"completed": 88
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 45,
+					"completed": 45
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 165,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 167,
+					"completed": 150
+				},
+				"harness_upgrade": {
+					"attempted": 33,
+					"completed": 33
+				},
+				"promotion_decision": {
+					"attempted": 20,
+					"completed": 2
+				},
+				"repair": {
+					"attempted": 2582,
+					"completed": 430
+				},
+				"session": {
+					"attempted": 115,
+					"completed": 115
+				},
+				"signing": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 35,
+			"final_power": 65,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7458,
+			"seed": 16042,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 208,
+				"captain_hire": 220,
+				"ceiling_raise": 1278,
+				"compliance": 16,
+				"dilemma": 264,
+				"market_refresh": 75,
+				"rollover": 400,
+				"session": 1466,
+				"signing": 265,
+				"tidy_arena": 124,
+				"upkeep": 502
+			},
+			"counts": {
+				"arena": {
+					"attempted": 91,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 290,
+					"completed": 290
+				},
+				"cap": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 307,
+					"completed": 160
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 139,
+					"completed": 139
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 161,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 198,
+					"completed": 187
+				},
+				"market_refresh": {
+					"attempted": 25,
+					"completed": 25
+				},
+				"promotion_decision": {
+					"attempted": 19,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 108,
+					"completed": 10
+				},
+				"repair": {
+					"attempted": 3023,
+					"completed": 966
+				},
+				"send_off": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 148,
+					"completed": 148
+				},
+				"signing": {
+					"attempted": 121,
+					"completed": 23
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 166,
+			"final_power": 94,
+			"first_title_season": 13,
+			"right_censored": false,
+			"rows": 8018,
+			"seed": 23961,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"armorer_hire": 31,
+				"armorer_wage": 233,
+				"cap": 95,
+				"captain_hire": 141,
+				"ceiling_raise": 304,
+				"compliance": 16,
+				"dilemma": 265,
+				"harness_upgrade": 738,
+				"rollover": 347,
+				"session": 476,
+				"signing": 25,
+				"tidy_arena": 94,
+				"upkeep": 430
+			},
+			"counts": {
+				"arena": {
+					"attempted": 38,
+					"completed": 5
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 285,
+					"completed": 285
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 11,
+					"completed": 11
+				},
+				"ceiling_raise": {
+					"attempted": 50,
+					"completed": 45
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 45,
+					"completed": 45
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 148,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 193,
+					"completed": 175
+				},
+				"harness_upgrade": {
+					"attempted": 47,
+					"completed": 47
+				},
+				"promotion_decision": {
+					"attempted": 25,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 4,
+					"completed": 1
+				},
+				"repair": {
+					"attempted": 2757,
+					"completed": 326
+				},
+				"send_off": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 60,
+					"completed": 60
+				},
+				"signing": {
+					"attempted": 9,
+					"completed": 6
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 49,
+			"final_power": 78,
+			"first_title_season": 20,
+			"right_censored": false,
+			"rows": 7284,
+			"seed": 23961,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 31,
+				"armorer_wage": 179,
+				"cap": 124,
+				"captain_hire": 166,
+				"ceiling_raise": 570,
+				"compliance": 16,
+				"dilemma": 234,
+				"harness_upgrade": 300,
+				"rollover": 310,
+				"session": 461,
+				"signing": 17,
+				"tidy_arena": 85,
+				"upkeep": 385
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 260,
+					"completed": 260
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"ceiling_raise": {
+					"attempted": 114,
+					"completed": 90
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 52,
+					"completed": 52
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 135,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 191,
+					"completed": 167
+				},
+				"harness_upgrade": {
+					"attempted": 30,
+					"completed": 30
+				},
+				"promotion_decision": {
+					"attempted": 31,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 9,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2540,
+					"completed": 389
+				},
+				"session": {
+					"attempted": 77,
+					"completed": 77
+				},
+				"signing": {
+					"attempted": 14,
+					"completed": 5
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 24,
+			"final_power": 67,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 6969,
+			"seed": 23961,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 345,
+				"captain_hire": 251,
+				"ceiling_raise": 1576,
+				"compliance": 16,
+				"dilemma": 221,
+				"market_refresh": 183,
+				"rollover": 398,
+				"session": 1645,
+				"signing": 294,
+				"tidy_arena": 145,
+				"upkeep": 569
+			},
+			"counts": {
+				"arena": {
+					"attempted": 140,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 275,
+					"completed": 275
+				},
+				"cap": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 607,
+					"completed": 224
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 174,
+					"completed": 174
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 155,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 219,
+					"completed": 180
+				},
+				"market_refresh": {
+					"attempted": 61,
+					"completed": 61
+				},
+				"promotion_decision": {
+					"attempted": 8,
+					"completed": 2
+				},
+				"release": {
+					"attempted": 101,
+					"completed": 8
+				},
+				"repair": {
+					"attempted": 3246,
+					"completed": 995
+				},
+				"resign_contract": {
+					"attempted": 3,
+					"completed": 1
+				},
+				"send_off": {
+					"attempted": 24,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 169,
+					"completed": 169
+				},
+				"signing": {
+					"attempted": 112,
+					"completed": 19
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 223,
+			"final_power": 94,
+			"first_title_season": 10,
+			"right_censored": false,
+			"rows": 8788,
+			"seed": 31880,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 29,
+				"armorer_wage": 263,
+				"cap": 124,
+				"captain_hire": 118,
+				"ceiling_raise": 507,
+				"compliance": 16,
+				"dilemma": 233,
+				"harness_upgrade": 746,
+				"rollover": 368,
+				"session": 833,
+				"signing": 12,
+				"tidy_arena": 114,
+				"upkeep": 461
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 287,
+					"completed": 287
+				},
+				"cap": {
+					"attempted": 9,
+					"completed": 9
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 66,
+					"completed": 64
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 70,
+					"completed": 70
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 146,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 169,
+					"completed": 152
+				},
+				"harness_upgrade": {
+					"attempted": 42,
+					"completed": 42
+				},
+				"promotion_decision": {
+					"attempted": 15,
+					"completed": 3
+				},
+				"repair": {
+					"attempted": 2418,
+					"completed": 301
+				},
+				"send_off": {
+					"attempted": 3,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 91,
+					"completed": 91
+				},
+				"signing": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"tidy_arena": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 38,
+			"final_power": 74,
+			"first_title_season": 19,
+			"right_censored": false,
+			"rows": 6848,
+			"seed": 31880,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 29,
+				"armorer_wage": 263,
+				"cap": 95,
+				"captain_hire": 120,
+				"ceiling_raise": 751,
+				"compliance": 16,
+				"dilemma": 222,
+				"harness_upgrade": 292,
+				"rollover": 365,
+				"session": 958,
+				"signing": 9,
+				"tidy_arena": 110,
+				"upkeep": 461
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"calendar_step": {
+					"attempted": 303,
+					"completed": 303
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 107,
+					"completed": 90
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 44,
+					"completed": 44
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 150,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 169,
+					"completed": 146
+				},
+				"harness_upgrade": {
+					"attempted": 30,
+					"completed": 30
+				},
+				"promotion_decision": {
+					"attempted": 8,
+					"completed": 2
+				},
+				"repair": {
+					"attempted": 2532,
+					"completed": 468
+				},
+				"session": {
+					"attempted": 110,
+					"completed": 110
+				},
+				"signing": {
+					"attempted": 2,
+					"completed": 2
+				},
+				"tidy_arena": {
+					"attempted": 19,
+					"completed": 19
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 32,
+			"final_power": 69,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7313,
+			"seed": 31880,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "no_harness",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 138,
+				"cap": 268,
+				"captain_hire": 238,
+				"ceiling_raise": 1607,
+				"compliance": 16,
+				"dilemma": 300,
+				"market_refresh": 171,
+				"rollover": 473,
+				"session": 2016,
+				"signing": 583,
+				"tidy_arena": 144,
+				"upkeep": 598
+			},
+			"counts": {
+				"arena": {
+					"attempted": 167,
+					"completed": 5
+				},
+				"calendar_step": {
+					"attempted": 326,
+					"completed": 326
+				},
+				"cap": {
+					"attempted": 12,
+					"completed": 12
+				},
+				"captain_hire": {
+					"attempted": 13,
+					"completed": 13
+				},
+				"ceiling_raise": {
+					"attempted": 819,
+					"completed": 235
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 171,
+					"completed": 171
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 170,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 200,
+					"completed": 175
+				},
+				"market_refresh": {
+					"attempted": 57,
+					"completed": 57
+				},
+				"promotion_decision": {
+					"attempted": 18,
+					"completed": 0
+				},
+				"release": {
+					"attempted": 119,
+					"completed": 7
+				},
+				"repair": {
+					"attempted": 3777,
+					"completed": 1121
+				},
+				"resign_contract": {
+					"attempted": 14,
+					"completed": 4
+				},
+				"send_off": {
+					"attempted": 33,
+					"completed": 0
+				},
+				"session": {
+					"attempted": 192,
+					"completed": 192
+				},
+				"signing": {
+					"attempted": 135,
+					"completed": 23
+				},
+				"tidy_arena": {
+					"attempted": 18,
+					"completed": 18
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 164,
+			"final_power": 95,
+			"first_title_season": 10,
+			"right_censored": false,
+			"rows": 9805,
+			"seed": 39799,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "harness_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 265,
+				"cap": 95,
+				"captain_hire": 81,
+				"ceiling_raise": 485,
+				"compliance": 16,
+				"dilemma": 269,
+				"harness_upgrade": 704,
+				"rollover": 403,
+				"session": 786,
+				"signing": 15,
+				"tidy_arena": 95,
+				"upkeep": 427
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 322,
+					"completed": 322
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"ceiling_raise": {
+					"attempted": 105,
+					"completed": 70
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 38,
+					"completed": 38
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 153,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 165,
+					"completed": 153
+				},
+				"harness_upgrade": {
+					"attempted": 46,
+					"completed": 46
+				},
+				"promotion_decision": {
+					"attempted": 30,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2659,
+					"completed": 345
+				},
+				"session": {
+					"attempted": 90,
+					"completed": 90
+				},
+				"signing": {
+					"attempted": 1,
+					"completed": 1
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 34,
+			"final_power": 73,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7541,
+			"seed": 39799,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		},
+		{
+			"arm": "development_first",
+			"base": 8123,
+			"costs_cc": {
+				"arena": 78,
+				"armorer_hire": 33,
+				"armorer_wage": 256,
+				"cap": 95,
+				"captain_hire": 123,
+				"ceiling_raise": 784,
+				"compliance": 16,
+				"dilemma": 260,
+				"harness_upgrade": 292,
+				"rollover": 356,
+				"session": 747,
+				"signing": 15,
+				"tidy_arena": 95,
+				"upkeep": 432
+			},
+			"counts": {
+				"arena": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"armorer_hire": {
+					"attempted": 4,
+					"completed": 4
+				},
+				"calendar_step": {
+					"attempted": 296,
+					"completed": 296
+				},
+				"cap": {
+					"attempted": 8,
+					"completed": 8
+				},
+				"captain_hire": {
+					"attempted": 10,
+					"completed": 10
+				},
+				"ceiling_raise": {
+					"attempted": 115,
+					"completed": 97
+				},
+				"compliance": {
+					"attempted": 3,
+					"completed": 3
+				},
+				"cup_tie": {
+					"attempted": 44,
+					"completed": 44
+				},
+				"decline_bid": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"dilemma": {
+					"attempted": 142,
+					"completed": 0
+				},
+				"extend_contract": {
+					"attempted": 165,
+					"completed": 144
+				},
+				"harness_upgrade": {
+					"attempted": 30,
+					"completed": 30
+				},
+				"promotion_decision": {
+					"attempted": 25,
+					"completed": 1
+				},
+				"release": {
+					"attempted": 5,
+					"completed": 0
+				},
+				"repair": {
+					"attempted": 2450,
+					"completed": 448
+				},
+				"session": {
+					"attempted": 99,
+					"completed": 99
+				},
+				"signing": {
+					"attempted": 6,
+					"completed": 1
+				},
+				"tidy_arena": {
+					"attempted": 17,
+					"completed": 17
+				},
+				"upkeep": {
+					"attempted": 20,
+					"completed": 20
+				},
+				"winter_training_and_roster": {
+					"attempted": 20,
+					"completed": 20
+				}
+			},
+			"failures": [],
+			"final_cc": 26,
+			"final_power": 66,
+			"first_title_season": 0,
+			"right_censored": true,
+			"rows": 7171,
+			"seed": 39799,
+			"shared_manager_parity": "not_run",
+			"window": 20
+		}
+	],
+	"diagnostic_only": false,
+	"engine": {
+		"build": "official",
+		"hash": "71f334935c000924d403448e698df4441130df18",
+		"hex": 263682,
+		"major": 4,
+		"minor": 6,
+		"patch": 2,
+		"status": "stable",
+		"string": "4.6.2-stable (official)",
+		"timestamp": 0
+	},
+	"policy": "manual LOW, report triggered active-eight gate, whole-roster scope",
+	"rule_fixes_status": "Read accompanying run note; dry run is not balance evidence",
+	"seed_formula": "base + i * 7919",
+	"seeds_per_base": 5,
+	"source_hash_encoding": "UTF-8, CRLF normalized to LF",
+	"source_sha256": {
+		"res://project.godot": "5e3910275164314262081534cb77f019367579f440fecf5467593b944d6490c2",
+		"res://scripts/game/achievements.gd": "7cc4e41d08b35518a793ad12411b7cec5d587ab58483cbfe64e2b0f90afacc46",
+		"res://scripts/game/app_life.gd": "d12281bdca806db731ffcaf95cd00835fef92fb98d4d4c110db5b3279f2f817a",
+		"res://scripts/game/apple_store.gd": "6545e937f0bff92c52415d66f4297527140e741a69a859e059e9563d90821daa",
+		"res://scripts/game/arena_scene.gd": "0362f56bd72d6aa4bed721278882f2c395ef5f75e71e84295a213377f29dd456",
+		"res://scripts/game/art_bank.gd": "ae2ac6a3d07e96449b8a1534148318dbb4683085726a3c17b5de50c707a101f2",
+		"res://scripts/game/audio.gd": "04a08ae93b76bf1d30e2cfd8304c4e931727325a2829c492d5035acf5e9714e3",
+		"res://scripts/game/bracket_scene.gd": "8d52c6f24a98c090c20a72d61929dd3bf1e424b3e24329984a9810a507184d70",
+		"res://scripts/game/brand.gd": "37533d409ea94cf94079af17e4bae69019734d0c8f6b84b10eb7df830d60e142",
+		"res://scripts/game/calendar_scene.gd": "b5947ceaffe5bd16f9c577d5a9d46399d44b0d3de82ffdca24267494b8235ff2",
+		"res://scripts/game/career.gd": "e116797997f84bcee35138cf27c4df960f57b1d5184f9008b6c52d6eaa5d48f0",
+		"res://scripts/game/chalkboard.gd": "e0870dd4bb7d844e561c00f937db0a30a898ff67bc0ce770b1de3926babcb198",
+		"res://scripts/game/chalkboard_scene.gd": "2c99cb78e26d50302a734afa57b9f79d3dda26e3bc0d99e3bdec34504870a9b3",
+		"res://scripts/game/coach_scene.gd": "8e240f890280e51a605bbdd36e0b25e39d4210dd0ffdadd2d4ef796b289e3cf1",
+		"res://scripts/game/create_scene.gd": "5198bf8e23208fac546d5e5ce2e1df2f26d758222007ce307d4148c9c0b6ef18",
+		"res://scripts/game/fighter_scene.gd": "64a79efebfe9d3f185cb6d6fb3a345125861275e5ab08cace8fa35be9fd2b6da",
+		"res://scripts/game/grime.gd": "032e01331743e91bd60c9cb97bfed309d9b8fde9588309f42b53388519d01971",
+		"res://scripts/game/guide_scene.gd": "e3a27fca99d2a471c8f865fc87268cf0162554a5d3aace4c9d309e9d6d6d3b09",
+		"res://scripts/game/icon_bank.gd": "ca6ab9b9f3a6169c1dac31da695b3b0c2a6a13dddda7e209516b5bd3aa83dd9f",
+		"res://scripts/game/juice.gd": "7dca401c1bd7106a5e95ca03c8a604096df3941b0b53aefada09b509351bb484",
+		"res://scripts/game/juice_art.gd": "62141835a3c1fdb1475061175b1dd02890835c9e007e4da41138a15621bfb8fb",
+		"res://scripts/game/market_scene.gd": "1a0c72f521a0d962fecdf637dc77529a59de066a2d066b2afb1294ca88468ade",
+		"res://scripts/game/pad.gd": "7104f215b06a319d1a6d72fb2f548e2a9525a8ae2fa30aaa2cdd2b404f780a6d",
+		"res://scripts/game/playbook.gd": "253c17aa4c8da4b0b16585e5f2900f73292cf4827b2a3bf96ae1a84a847fd540",
+		"res://scripts/game/records_scene.gd": "4aa8402316efe6c218ca77b712470a8153dca29c86d5571d26aca2b8307454be",
+		"res://scripts/game/roster_scene.gd": "a2d2865dd43e4714b251238421f6a69267e84dd904e6a09dcd3be12574e9e939",
+		"res://scripts/game/save_game.gd": "fba75b2625cbd64ab72b33e8694d96a9d58467c6ed15e1106df878e261516027",
+		"res://scripts/game/season_scene.gd": "fba714a92f8334d04ddce7bbfbe6ea7c62757143e1f7a55bb73e71a0fdc4fb20",
+		"res://scripts/game/season_tab_armorer.gd": "5ab1c153720f09a57c95e36a02a60dd34aa9fb8c41962e8f4515851bec988baf",
+		"res://scripts/game/season_tab_club.gd": "d5044315a54483f608db4d5a61a465ed4c075fe28d04e834d31d392881b630d3",
+		"res://scripts/game/season_tab_clubhouse.gd": "6729964810bd3b71f6991138d08ee5da401fc2496fad31de62755c6c193c065d",
+		"res://scripts/game/season_tab_finances.gd": "e6cd9d244ee388a695b15f647391529ad3aa5ac9d6c74e47ea98a83f04949114",
+		"res://scripts/game/season_tab_squad.gd": "3f9c4bf44cf2800480bc86fa86f4e8db0d2fe940eb1864ece9776fc235a20d0f",
+		"res://scripts/game/session.gd": "7ed73eb1c9281419fe743cb91ac2770b549f74ec32cf44f05e0229dea361ef9c",
+		"res://scripts/game/settings.gd": "8451a7b755dab33112188fcd5e246682aeb8635c364b60d8d6f46832f7f942ed",
+		"res://scripts/game/settings_scene.gd": "7e0c60548a9399eb7bd650c8c3b9bc1724cc2d1876b5ef696174938b46f54bb0",
+		"res://scripts/game/staff_scene.gd": "0df4e46e42956f83554cafa717cfc1d5a7811aacc4c73d39bc9e651d23282a21",
+		"res://scripts/game/start_scene.gd": "7c2191f97d76051ce9f2c55a15b8aea0a9693e877504c62417629b8707f636c8",
+		"res://scripts/game/store.gd": "a1b9c128120d4620e1dfe745a7db15d197f927a6944fd414cc4619a5c4896f41",
+		"res://scripts/game/team_card.gd": "8b1a7c32c69e4ffd86083408a249d8e86eaac3d6bb40b6e816bb22a522cb1a36",
+		"res://scripts/game/ticker.gd": "64268a8f4f198ad4d6bfb66379f9820eed0249f1bda98f03d744076239015cb4",
+		"res://scripts/game/title_scene.gd": "0825af2c3fbd96bc26355bba94df381b98948099b97d25de1d821b40a536fbeb",
+		"res://scripts/game/ui.gd": "5aec75d1b4230afa64227fe66c904ae9deb7910adce42cb21bddf768a5bd71a7",
+		"res://scripts/game/ui_icons.gd": "98bbf54b4894592d9651ee5e43e3d62c28a2660921708b5994a57884f24ad685",
+		"res://scripts/game/workshop.gd": "f8d54785d39ae07da300d1e2aa2ba4bad250390e8f38640c61a4d6710f27ab76",
+		"res://scripts/league/arena.gd": "966acaf8c2d0416394823dd1945181ccafce168c7037f23892b267663b7a355e",
+		"res://scripts/league/armorer.gd": "36524cfcb239197ec1830296bb5cc02d4cf864bc86fe11714c5ee58fbb221835",
+		"res://scripts/league/calendar.gd": "4c3bba480e0ba6310deed87666655f60cedefef9104085b4c6ad58cde5224c8f",
+		"res://scripts/league/cities.gd": "a927fd4b4a19fdb2de63dbda9d48fefea8ea64c84a8d5d8046bef17077d1c4b8",
+		"res://scripts/league/club_event.gd": "485b6a91816b0b808ef4d8a9b591ad66e91ce88091a296048ed0a84dcb43fa99",
+		"res://scripts/league/club_factory.gd": "75f7eeaddc1be2a3c62917451452818cdc4b97c215b33ac13194a3e545249644",
+		"res://scripts/league/club_office.gd": "ee7607be327f863eefd444dda6cf9dcbe0d087bf27511f3f67e18299476a0053",
+		"res://scripts/league/coach.gd": "95d3b927bac75aee3755f9d8d99e1d04092ed660997a1b9fabc91aa1f73be96d",
+		"res://scripts/league/contracts.gd": "6c672448c8469fd540e1847dfa0660cd625707653aa2fec83609f6f09d6605ab",
+		"res://scripts/league/cup.gd": "d3c7782c17a12b39e061a72d153f62ec2eb3389274a8459688a4a239312fa5f0",
+		"res://scripts/league/dilemma.gd": "cfb77f1b68e1675643755d6f68f7e1e53e7f33db8e385bc3e68a9ad3598096dd",
+		"res://scripts/league/federation.gd": "20d3b0e11a4b311b686e248f6edca35d154c76a96d1f541b71d64b6d665fe7b1",
+		"res://scripts/league/league.gd": "7e1939e837dc26ca741feb19e54fb3320182336b9c1ddeec3db477010f66e921",
+		"res://scripts/league/league_world.gd": "d10920bea526ce9569b205769dce209fc939ae1b46827647b6c63b11404423a2",
+		"res://scripts/league/market.gd": "8836449230eed88cb6b5cd8c0268b5ded691f95f05fed94b49a90a62738a0181",
+		"res://scripts/league/office_books.gd": "3aa5f971c64ec2f62602c828ebb2952510a0209aa0d2a3fc98ca3ebaf6d3a1c6",
+		"res://scripts/league/office_crowd.gd": "2a90cb90398a46dd88dc5e6357a0dd26073192a18e3fbf359f0caa117ce46006",
+		"res://scripts/league/office_staff.gd": "5768faae7cc553c0584c5c41d0f2be795bd96060f39fec7a48dc2cb95fad8b59",
+		"res://scripts/league/quartermaster.gd": "78744f70b1078a7bb207258c532a5f847f8c12516ffede5a9a95a957a83d688d",
+		"res://scripts/league/season.gd": "86d6a19f55917caf87509783bbacf4d23b09b2768e726b7b1ef800ea4d0242a1",
+		"res://scripts/league/season_bouts.gd": "8aeff2996bc2d30635ba37167c0d4d3b0bfe5bf324f229c0d813f729996c456e",
+		"res://scripts/league/season_cups.gd": "24196311d16194dbbdb2a2f01a7556305cf201a973c310cfa0aefb14a4c5c017",
+		"res://scripts/league/season_desk.gd": "8a708ca5a6fc87b7c50bd4d1ac0686eb8b8d36f668bf5117137b4558c2235c71",
+		"res://scripts/league/season_winter.gd": "55ab868cbbd2953ca5f244a11ec065ede42b347b1147af9acbd237d18d3faf0f",
+		"res://scripts/league/send_off.gd": "9527491ff0cc34e43e03bcd89f49b3a9c59bbb0919f8244255e9ebe5553dffc7",
+		"res://scripts/league/split.gd": "57fcc6f9c1627eb5126dc40cee187790d72611e81856db5a7921c25d101a61e3",
+		"res://scripts/league/venue.gd": "2f18aba19511d162bed59fbda4565145c3465adc912fd8512dd6ec44b149b328",
+		"res://scripts/melee/fight_corner.gd": "572bcaea23ef9c3f6d7c550e62815eac2c66ae705944cb7d05c3823a2ffb0a1f",
+		"res://scripts/melee/fighter_art.gd": "77d7f070b72a52eb605eef048a962f7854f413a47f5afbd8061beecb94421f08",
+		"res://scripts/melee/fighter_card.gd": "bcfcce37ec964410c7f17cdfe0fc6ae0c66c7677948b5a68d2d83e36ef3e172a",
+		"res://scripts/melee/fighter_trait.gd": "9d2e1bc0723e45ed95288c29aeb4b68eab421968eae6450ae1de029a84d45d78",
+		"res://scripts/melee/grade.gd": "f0513ff5f7a555a34fbf470647d6dea88a150dc0da62e76dd95cc622a8d0cef2",
+		"res://scripts/melee/melee_club.gd": "3317712b12f4421d01a841b0744d37c0ab0b81a7c4b5b73f4c97ea00f1d776b8",
+		"res://scripts/melee/melee_report.gd": "802d0bd802c8157cd0d08e43d7d97ff15883607c065a9d986f30252ae030d0ce",
+		"res://scripts/melee/melee_rosters.gd": "d0cba4966ff1622d940d1fac9e73e58f049cb8786e62cfa6479c7033cde6401a",
+		"res://scripts/melee/melee_scene.gd": "a621138fe848ff6eda703933273bb46d0ce1fa4c80d6cc8df2fbd7ee8abbe415",
+		"res://scripts/melee/melee_sim.gd": "fd497fecc98497b31aaac88d666e39edd886fb576de2c62662daf812598b8e01",
+		"res://scripts/melee/tuning.gd": "d364ec8d6be11f7ca9db274d059a643f6e7e5f523a5e8f647a276cf71b2f34f9",
+		"res://tools/manager.gd": "f9ebff76677b0f93b7e8c41203fa6a13b136c077ca15bf56cde158a0ece21d48",
+		"res://tools/probe_harness_budget.gd": "6899af9b379d385a13290f62f50a65a2a511b3941809c52054b0804a3b7ba263"
+	},
+	"validation_passed": true,
+	"years": 20
+}

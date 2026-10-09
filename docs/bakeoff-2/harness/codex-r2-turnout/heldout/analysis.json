@@ -1,0 +1,257 @@
+{
+  "time_definition": "mean min(first National title season,20); censored contributes20",
+  "budget_denominator": "25 careers * 20 seasons = 500 closed seasons per arm",
+  "arms": {
+    "no_harness": {
+      "titles": 25,
+      "censored": 0,
+      "restricted_mean_time_20": 10.4,
+      "observed_win_mean": 10.4,
+      "cc_in_per_season": 312.842,
+      "cc_out_per_season": 305.488,
+      "final_cc_mean": 155.08,
+      "final_power_mean": 93.96,
+      "cost_per_season": {
+        "session": 92.712,
+        "ceiling_raise": 72.266,
+        "signing": 21.852,
+        "armorer_hire": 0.0,
+        "armorer_wage": 0.0,
+        "harness_upgrade": 0.0,
+        "repair": 0.0
+      },
+      "actions_per_season": {
+        "session": {
+          "attempted": 9.168,
+          "completed": 9.168
+        },
+        "ceiling_raise": {
+          "attempted": 36.464,
+          "completed": 9.98
+        },
+        "signing": {
+          "attempted": 8.916,
+          "completed": 1.028
+        }
+      },
+      "ledger_metrics_total": {
+        "harness_sponsorship_cc": 0,
+        "harness_resale_cc": 0,
+        "retained_grade_increases": 0,
+        "xp_earned": 1831644,
+        "xp_spent_levels": 967072,
+        "xp_cashed": 0,
+        "levels_spent": 29487,
+        "levels_cashed": 0,
+        "inspection_crossings": 0,
+        "low_condition_arrivals": 0,
+        "zero_power_calendar_or_cup_actions": 0,
+        "low_condition_rollover_stock_observations": 0,
+        "cash_in_cc": 0,
+        "positive_cash_in_rows": 0
+      }
+    },
+    "harness_first": {
+      "titles": 25,
+      "censored": 0,
+      "restricted_mean_time_20": 10.96,
+      "observed_win_mean": 10.96,
+      "cc_in_per_season": 305.034,
+      "cc_out_per_season": 297.786,
+      "final_cc_mean": 152.96,
+      "final_power_mean": 93.48,
+      "cost_per_season": {
+        "session": 84.006,
+        "ceiling_raise": 68.77,
+        "signing": 18.538,
+        "armorer_hire": 0.3,
+        "armorer_wage": 2.584,
+        "harness_upgrade": 11.23,
+        "repair": 0.0
+      },
+      "actions_per_season": {
+        "session": {
+          "attempted": 8.258,
+          "completed": 8.258
+        },
+        "ceiling_raise": {
+          "attempted": 27.546,
+          "completed": 10.006
+        },
+        "signing": {
+          "attempted": 6.614,
+          "completed": 0.988
+        }
+      },
+      "ledger_metrics_total": {
+        "harness_sponsorship_cc": 0,
+        "harness_resale_cc": 0,
+        "retained_grade_increases": 0,
+        "xp_earned": 1612762,
+        "xp_spent_levels": 957100,
+        "xp_cashed": 107,
+        "levels_spent": 28429,
+        "levels_cashed": 2,
+        "inspection_crossings": 0,
+        "low_condition_arrivals": 0,
+        "zero_power_calendar_or_cup_actions": 0,
+        "low_condition_rollover_stock_observations": 0,
+        "cash_in_cc": 41,
+        "positive_cash_in_rows": 2
+      }
+    },
+    "development_first": {
+      "titles": 25,
+      "censored": 0,
+      "restricted_mean_time_20": 10.56,
+      "observed_win_mean": 10.56,
+      "cc_in_per_season": 305.758,
+      "cc_out_per_season": 298.546,
+      "final_cc_mean": 152.24,
+      "final_power_mean": 93.2,
+      "cost_per_season": {
+        "session": 85.146,
+        "ceiling_raise": 69.514,
+        "signing": 17.342,
+        "armorer_hire": 0.3,
+        "armorer_wage": 2.576,
+        "harness_upgrade": 11.198,
+        "repair": 0.0
+      },
+      "actions_per_season": {
+        "session": {
+          "attempted": 8.382,
+          "completed": 8.382
+        },
+        "ceiling_raise": {
+          "attempted": 31.31,
+          "completed": 9.954
+        },
+        "signing": {
+          "attempted": 6.954,
+          "completed": 0.95
+        }
+      },
+      "ledger_metrics_total": {
+        "harness_sponsorship_cc": 0,
+        "harness_resale_cc": 0,
+        "retained_grade_increases": 0,
+        "xp_earned": 1664063,
+        "xp_spent_levels": 961726,
+        "xp_cashed": 0,
+        "levels_spent": 28511,
+        "levels_cashed": 0,
+        "inspection_crossings": 0,
+        "low_condition_arrivals": 0,
+        "zero_power_calendar_or_cup_actions": 0,
+        "low_condition_rollover_stock_observations": 0,
+        "cash_in_cc": 0,
+        "positive_cash_in_rows": 0
+      }
+    }
+  },
+  "contrasts": {
+    "harness_first minus no_harness": {
+      "pairs": 25,
+      "restricted_time_delta_mean": 0.56,
+      "paired_delta_counts": {
+        "-3": 1,
+        "0": 5,
+        "6": 1,
+        "1": 8,
+        "-2": 2,
+        "-1": 4,
+        "2": 2,
+        "3": 1,
+        "4": 1
+      },
+      "both_titles_observed": 25,
+      "observed_pair_title_delta_mean": 0.56,
+      "base_restricted_time_deltas": {
+        "17011": 0.6,
+        "29033": 0,
+        "43049": 2.2,
+        "67061": 0.4,
+        "91081": -0.4
+      },
+      "cc_delta_per_season": {
+        "session": -8.706,
+        "ceiling_raise": -3.496,
+        "signing": -3.314,
+        "armorer_hire": 0.3,
+        "armorer_wage": 2.584,
+        "harness_upgrade": 11.23,
+        "repair": 0.0
+      },
+      "final_cc_delta_mean": -2.12,
+      "final_power_delta_mean": -0.48
+    },
+    "development_first minus no_harness": {
+      "pairs": 25,
+      "restricted_time_delta_mean": 0.16,
+      "paired_delta_counts": {
+        "-3": 2,
+        "0": 5,
+        "1": 5,
+        "4": 1,
+        "-1": 7,
+        "3": 2,
+        "-2": 1,
+        "2": 2
+      },
+      "both_titles_observed": 25,
+      "observed_pair_title_delta_mean": 0.16,
+      "base_restricted_time_deltas": {
+        "17011": 0.2,
+        "29033": 0,
+        "43049": 1.6,
+        "67061": -0.4,
+        "91081": -0.6
+      },
+      "cc_delta_per_season": {
+        "session": -7.566,
+        "ceiling_raise": -2.752,
+        "signing": -4.51,
+        "armorer_hire": 0.3,
+        "armorer_wage": 2.576,
+        "harness_upgrade": 11.198,
+        "repair": 0.0
+      },
+      "final_cc_delta_mean": -2.84,
+      "final_power_delta_mean": -0.76
+    },
+    "development_first minus harness_first": {
+      "pairs": 25,
+      "restricted_time_delta_mean": -0.4,
+      "paired_delta_counts": {
+        "0": 7,
+        "1": 5,
+        "-2": 3,
+        "-1": 6,
+        "2": 2,
+        "-3": 1,
+        "-4": 1
+      },
+      "both_titles_observed": 25,
+      "observed_pair_title_delta_mean": -0.4,
+      "base_restricted_time_deltas": {
+        "17011": -0.4,
+        "29033": 0,
+        "43049": -0.6,
+        "67061": -0.8,
+        "91081": -0.2
+      },
+      "cc_delta_per_season": {
+        "session": 1.1400000000000001,
+        "ceiling_raise": 0.744,
+        "signing": -1.1960000000000002,
+        "armorer_hire": 0.0,
+        "armorer_wage": -0.008,
+        "harness_upgrade": -0.032,
+        "repair": 0.0
+      },
+      "final_cc_delta_mean": -0.72,
+      "final_power_delta_mean": -0.28
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "original_arm_ledgers_byte_identical": {
+    "no_harness": 25,
+    "harness_first": 25,
+    "development_first": 25
+  },
+  "same_game_patch": true
+}

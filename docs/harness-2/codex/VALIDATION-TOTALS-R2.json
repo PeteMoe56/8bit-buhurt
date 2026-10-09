@@ -1,0 +1,16 @@
+{
+  "counts": {
+    "ledger_rows": 11204940,
+    "transaction_rows": 1873111,
+    "positive_cash_in_rows": 84,
+    "careers": 1200,
+    "seasons": 24000,
+    "pairs": 1200
+  },
+  "stock_metrics": {
+    "inspection_crossings": 16,
+    "zero_power_calendar_or_cup_actions": 0,
+    "low_condition_arrivals": 0,
+    "low_condition_rollover_stock_observations": 16
+  }
+}

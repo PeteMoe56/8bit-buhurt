@@ -1,0 +1,148 @@
+diff --git a/scripts/league/armorer.gd b/scripts/league/armorer.gd
+index 07c4f3d..0029fcc 100644
+--- a/scripts/league/armorer.gd
++++ b/scripts/league/armorer.gd
+@@ -15,7 +15,7 @@ extends RefCounted
+ const MAX_STARS: int = 5
+ ## CC a season, by stars.
+ ## The one-star hand is free (Pete, 1 Oct 2026: a new club starts with him for nothing).
+-const WAGE := [0, 0, 2, 4, 9, 18]  ## top two priced up 2 Oct 2026 (were 7, 12)
++const WAGE := [0, 0, 1, 1, 2, 3]
+ ## The lowest division each grade of man will work in.
+ const MIN_TIER := [0, 0, 0, 0, 1, 3]
+ const POOL_SIZE: int = 5
+diff --git a/scripts/league/club_office.gd b/scripts/league/club_office.gd
+index bcbec1e..42d89e7 100644
+--- a/scripts/league/club_office.gd
++++ b/scripts/league/club_office.gd
+@@ -25,6 +25,8 @@ extends RefCounted
+ ## reason about than a bank balance, and it keeps the club's books out of the
+ ## way of the fight.
+ var credits: int = 8
++## Fractional earned kit sponsorship; paid only after an actual appearance.
++var harness_receipts: float = 0.0
+ ## THE COACH, for his Tactics and Business. Not saved here: the season hands it
+ ## over when it is made and when it is loaded.
+ var coach_ref: Coach = null
+@@ -1985,6 +1987,7 @@ func morale_word() -> String:
+ # -------------------------------------------------------------------- saving
+ func to_dict() -> Dictionary:
+ 	return {
++		"harness_receipts": harness_receipts,
+ 		"credits": credits, "cap_level": cap_level, "morale": morale, "tier": tier,
+ 		"travel": travel_slots, "armorer": armorer.duplicate(),
+ 		"compliance": compliance.duplicate(),
+@@ -2010,6 +2013,7 @@ func to_dict() -> Dictionary:
+ static func from_dict(d: Dictionary) -> ClubOffice:
+ 	var o := ClubOffice.new()
+ 	o.credits = int(d.get("credits", 0))
++	o.harness_receipts = clampf(float(d.get("harness_receipts", 0.0)), 0.0, .999999999)
+ 	o.cap_level = int(d.get("cap_level", 0))
+ 	o.tier = int(d.get("tier", 0))
+ 	o.morale = float(d.get("morale", 0.7))
+diff --git a/scripts/league/quartermaster.gd b/scripts/league/quartermaster.gd
+index e0103c7..175e16b 100644
+--- a/scripts/league/quartermaster.gd
++++ b/scripts/league/quartermaster.gd
+@@ -121,11 +121,11 @@ const TOP := {
+ ## the regime stays the thing that decides how hard the week was and the harness
+ ## decides how much of that the kit absorbs. Tournament plate takes a third less.
+ const WEAR := {
+-	Grade.BORROWED: 1.00,
+-	Grade.SERVICEABLE: 0.86,
+-	Grade.FITTED: 0.72,
+-	Grade.TOURNAMENT: 0.58,
+-	Grade.TITANIUM: 0.50,
++	Grade.BORROWED: 1.05,
++	Grade.SERVICEABLE: 0.90,
++	Grade.FITTED: 0.48,
++	Grade.TOURNAMENT: 0.28,
++	Grade.TITANIUM: 0.10,
+ }
+ 
+ ## WHAT THE NEXT RUNG COSTS, indexed by the grade you are BUYING. Priced against
+@@ -136,10 +136,10 @@ const WEAR := {
+ ## DOUBLED (Pete, 4 Oct 2026, Steam playthrough: "Armorer prices should be
+ ## doubled"). Were 3 / 7 / 14 / 24.
+ const COST := {
+-	Grade.SERVICEABLE: 6,
+-	Grade.FITTED: 14,
+-	Grade.TOURNAMENT: 28,
+-	Grade.TITANIUM: 48,
++	Grade.SERVICEABLE: 1,
++	Grade.FITTED: 2,
++	Grade.TOURNAMENT: 4,
++	Grade.TITANIUM: 7,
+ }
+ 
+ 
+@@ -244,3 +244,14 @@ static func ledger(who: Array, cap: int = Grade.TITANIUM) -> Dictionary:
+ ## harness and 0.0 at the line; a fifth of the way up is about two hard weeks,
+ ## which is the horizon a player can actually act on.
+ const RISK_MARGIN: float = 0.20
++
++
++## Experiment: a sponsor pays for maintained equipment actually appearing.
++const APPEARANCE_CC := [0.0, .08, .20, .40, .65]
++static func appearance(o: ClubOffice, line: Array) -> void:
++	for f in line:
++		o.harness_receipts += float(APPEARANCE_CC[grade_of(f)]) * clampf(f.armor, 0.0, 1.0)
++	var paid := int(floor(o.harness_receipts + 0.000000001))
++	o.harness_receipts = maxf(0.0, o.harness_receipts - float(paid))
++	if paid > 0:
++		o.take(paid, "Maintained kit sponsorship", "event", "Harness sponsorship")
+diff --git a/scripts/league/season_bouts.gd b/scripts/league/season_bouts.gd
+index d7c7ed7..d07a011 100644
+--- a/scripts/league/season_bouts.gd
++++ b/scripts/league/season_bouts.gd
+@@ -317,6 +317,7 @@ static func _apply_regime(s: Season, hosted: bool, fought := true) -> void:
+ 	## wear them, but not training"). The regime used to carry the wear — Hard
+ 	## took a tenth a week, Light mended a tenth — and a bout took nothing.
+ 	if fought:
++		Quartermaster.appearance(s.office, s.club.starting_five())
+ 		bout_wear(s)
+ 
+ 	## AND THE GROUND HAS THE SAME WEEK THE MEN DID.
+diff --git a/scripts/league/season_cups.gd b/scripts/league/season_cups.gd
+index 13afcdc..c9e40dc 100644
+--- a/scripts/league/season_cups.gd
++++ b/scripts/league/season_cups.gd
+@@ -223,7 +223,7 @@ static func forfeit_cup_tie(s: Season) -> void:
+ 		c.record(m, 0, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE)
+ 	else:
+ 		c.record(m, Tuning.BOUT_WINS, 0, MeleeClub.LINE_SIZE, 0)
+-	s._finish_cup_round(c, false)
++	_finish_cup_round(s, c, false, false, false)
+ 
+ 
+ static func sim_cup_tie(s: Season) -> void:
+@@ -251,7 +251,9 @@ static func sim_cup_tie(s: Season) -> void:
+ ## Everything that happens once the player's tie is in the book: the rest of the
+ ## round is played around him, the bracket moves on, and a finished cup is
+ ## retired — with the gate settled if it was his own show.
+-static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false) -> void:
++static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false, played: bool = true) -> void:
++	if played:
++		Quartermaster.appearance(s.office, s.club.starting_five())
+ 	## ON THE MEN, NOT THE CLUB FIGURE (3 Oct 2026) — `office.morale_after`
+ 	## was overwritten by the next `sync_morale`, so a cup result moved nobody.
+ 	## And a drawn pool bout is a draw, not a loss.
+diff --git a/scripts/melee/fighter_card.gd b/scripts/melee/fighter_card.gd
+index 94d820d..68d11ea 100644
+--- a/scripts/melee/fighter_card.gd
++++ b/scripts/melee/fighter_card.gd
+@@ -382,8 +382,13 @@ func ability() -> int:
+ 		+ float(gas) * 0.22 + float(aggression) * 0.08))
+ 
+ 
++## Experimental grade benefit; raw ability and development ceilings stay unchanged.
++const HARNESS_BASE_BONUS := [0.00, 0.02, 0.05, 0.09, 0.12]
++
++
+ func effective_base() -> float:
+-	return float(base) * lerpf(0.78, 1.0, armor)
++	var grade_gain: float = float(HARNESS_BASE_BONUS[Quartermaster.grade_of(self)])
++	return minf(99.0, float(base) * (1.0 + grade_gain) * lerpf(0.78, 1.0, armor))
+ 
+ 
+ func pos_name() -> String:

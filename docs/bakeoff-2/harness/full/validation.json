@@ -1,0 +1,615 @@
+{
+  "snapshot_commit": "27367d2911ebd3b6089578425de9fdbdd2aec536",
+  "careers": 75,
+  "seasons": 1500,
+  "pairs": 75,
+  "source_hashes": "match",
+  "validation_passed": true,
+  "totals": {
+    "ledger_rows": 600492,
+    "transaction_rows": 84403,
+    "positive_cash_in_rows": 2
+  },
+  "ledgers": [
+    {
+      "arm": "development_first",
+      "base": 2718,
+      "seed": 2718,
+      "rows": 7943,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 2718,
+      "seed": 10637,
+      "rows": 8399,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 2718,
+      "seed": 18556,
+      "rows": 8154,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 2718,
+      "seed": 26475,
+      "rows": 8722,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 2718,
+      "seed": 34394,
+      "rows": 7835,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 5150,
+      "seed": 5150,
+      "rows": 6953,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 5150,
+      "seed": 13069,
+      "rows": 7615,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 5150,
+      "seed": 20988,
+      "rows": 7884,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 5150,
+      "seed": 28907,
+      "rows": 7804,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 5150,
+      "seed": 36826,
+      "rows": 7124,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 6060,
+      "seed": 6060,
+      "rows": 7611,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 6060,
+      "seed": 13979,
+      "rows": 7515,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 6060,
+      "seed": 21898,
+      "rows": 7318,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 6060,
+      "seed": 29817,
+      "rows": 6950,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 6060,
+      "seed": 37736,
+      "rows": 8259,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 8123,
+      "seed": 8123,
+      "rows": 7199,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 8123,
+      "seed": 16042,
+      "rows": 7458,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 8123,
+      "seed": 23961,
+      "rows": 6969,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 8123,
+      "seed": 31880,
+      "rows": 7313,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 8123,
+      "seed": 39799,
+      "rows": 7171,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 9001,
+      "seed": 9001,
+      "rows": 7065,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 9001,
+      "seed": 16920,
+      "rows": 7802,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 9001,
+      "seed": 24839,
+      "rows": 8853,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 9001,
+      "seed": 32758,
+      "rows": 7476,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "development_first",
+      "base": 9001,
+      "seed": 40677,
+      "rows": 7103,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 2718,
+      "seed": 2718,
+      "rows": 7210,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 2718,
+      "seed": 10637,
+      "rows": 7876,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 2718,
+      "seed": 18556,
+      "rows": 7162,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 2718,
+      "seed": 26475,
+      "rows": 7870,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 2718,
+      "seed": 34394,
+      "rows": 6899,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 5150,
+      "seed": 5150,
+      "rows": 6695,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 5150,
+      "seed": 13069,
+      "rows": 7698,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 5150,
+      "seed": 20988,
+      "rows": 7834,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 5150,
+      "seed": 28907,
+      "rows": 6918,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 5150,
+      "seed": 36826,
+      "rows": 6960,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 6060,
+      "seed": 6060,
+      "rows": 6833,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 6060,
+      "seed": 13979,
+      "rows": 7638,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 6060,
+      "seed": 21898,
+      "rows": 7895,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 6060,
+      "seed": 29817,
+      "rows": 6419,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 6060,
+      "seed": 37736,
+      "rows": 7063,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 8123,
+      "seed": 8123,
+      "rows": 7127,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 8123,
+      "seed": 16042,
+      "rows": 7681,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 8123,
+      "seed": 23961,
+      "rows": 7284,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 8123,
+      "seed": 31880,
+      "rows": 6845,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 8123,
+      "seed": 39799,
+      "rows": 7541,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 9001,
+      "seed": 9001,
+      "rows": 6652,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 9001,
+      "seed": 16920,
+      "rows": 6676,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 9001,
+      "seed": 24839,
+      "rows": 6840,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 9001,
+      "seed": 32758,
+      "rows": 7052,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "harness_first",
+      "base": 9001,
+      "seed": 40677,
+      "rows": 7268,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 2718,
+      "seed": 2718,
+      "rows": 9809,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 2718,
+      "seed": 10637,
+      "rows": 9889,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 2718,
+      "seed": 18556,
+      "rows": 9906,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 2718,
+      "seed": 26475,
+      "rows": 10062,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 2718,
+      "seed": 34394,
+      "rows": 9264,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 5150,
+      "seed": 5150,
+      "rows": 8288,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 5150,
+      "seed": 13069,
+      "rows": 9440,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 5150,
+      "seed": 20988,
+      "rows": 8277,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 5150,
+      "seed": 28907,
+      "rows": 8724,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 5150,
+      "seed": 36826,
+      "rows": 8943,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 6060,
+      "seed": 6060,
+      "rows": 8655,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 6060,
+      "seed": 13979,
+      "rows": 9050,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 6060,
+      "seed": 21898,
+      "rows": 9613,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 6060,
+      "seed": 29817,
+      "rows": 8334,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 6060,
+      "seed": 37736,
+      "rows": 8734,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 8123,
+      "seed": 8123,
+      "rows": 9514,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 8123,
+      "seed": 16042,
+      "rows": 9496,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 8123,
+      "seed": 23961,
+      "rows": 8671,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 8123,
+      "seed": 31880,
+      "rows": 8674,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 8123,
+      "seed": 39799,
+      "rows": 9574,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 9001,
+      "seed": 9001,
+      "rows": 9776,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 9001,
+      "seed": 16920,
+      "rows": 9445,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 9001,
+      "seed": 24839,
+      "rows": 9502,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 9001,
+      "seed": 32758,
+      "rows": 9873,
+      "money": "pass",
+      "xp": "pass"
+    },
+    {
+      "arm": "no_harness",
+      "base": 9001,
+      "seed": 40677,
+      "rows": 8548,
+      "money": "pass",
+      "xp": "pass"
+    }
+  ]
+}

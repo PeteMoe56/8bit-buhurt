@@ -1,0 +1,4 @@
+arm	careers	window	titles_observed	right_censored	attainment_fraction
+no_harness	25	20	24	1	0.960000
+harness_first	25	20	22	3	0.880000
+development_first	25	20	21	4	0.840000

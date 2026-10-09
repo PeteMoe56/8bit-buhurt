@@ -1,0 +1,21 @@
+diff --git a/scripts/league/quartermaster.gd b/scripts/league/quartermaster.gd
+index e0103c7..f83ed7f 100644
+--- a/scripts/league/quartermaster.gd
++++ b/scripts/league/quartermaster.gd
+@@ -121,11 +121,11 @@ const TOP := {
+ ## the regime stays the thing that decides how hard the week was and the harness
+ ## decides how much of that the kit absorbs. Tournament plate takes a third less.
+ const WEAR := {
+-	Grade.BORROWED: 1.00,
+-	Grade.SERVICEABLE: 0.86,
+-	Grade.FITTED: 0.72,
+-	Grade.TOURNAMENT: 0.58,
+-	Grade.TITANIUM: 0.50,
++	Grade.BORROWED: 1.30,
++	Grade.SERVICEABLE: 0.95,
++	Grade.FITTED: 0.55,
++	Grade.TOURNAMENT: 0.30,
++	Grade.TITANIUM: 0.12,
+ }
+ 
+ ## WHAT THE NEXT RUNG COSTS, indexed by the grade you are BUYING. Priced against
