@@ -39,3 +39,30 @@ go into a combination round (2-level fractional factorial over at most 6 levers)
 - Final candidate: 5 careers/base on default AND held-out (17011 29033 43049 67061 91081),
   then the passive player (career_score, RB_LV=auto) and the full gate. No fresh-seed
   confirmation of my own: Codex holds the next fresh set.
+
+## Stage 2 — logged 02:55 after the screen
+Excluded on Pete's standing ruling (31.02 pacing): L1 LEVEL_XP, L4 POINTS_PER_LEVEL.
+No effect in simmed careers: L2 XP_BOUT (simmed bouts use Season.XP_SIMMED), L10 ClubEvent.GATE_K (the manager runs no shows).
+Combination: 2^(6-2) fractional factorial (E=ABC, F=BCD), 3 careers/base, default bases:
+A CREDITS_WIN 2→4, B PURSE_TOP 6→10, C RATING_SCALE 22→30, D GATE_PER_LEVEL 0.35→0.50,
+E DECLINE_RATE 0.30→0.20, F PRACTICE_PER_GRADE 2.6→3.6. Pick: lowest relegations with N wait
+9.5–11.0, D no slower than N, bank10 under 3x income.
+
+## Stage 2 result and stage 3 — logged 03:40
+13 of 15 combos in (FABCE lost to a full disk, FABCDEF never started; both rerunning).
+Pre-registered pick: **FBCDF** (PURSE_TOP 10, RATING_SCALE 30, GATE_PER_LEVEL 0.50,
+PRACTICE_PER_GRADE 3.6): N 9.80, D-N -0.67, relegations 0.40 (base 0.67), bank10 91 vs income 358.
+Main effects (approx.): PURSE_TOP -0.78 wait/-0.14 releg; PRACTICE -0.82/-0.14; RATING_SCALE 30
++1.23/+0.19 (a pace brake that costs relegations).
+Added now: **K2** = PURSE_TOP 10 + PRACTICE_PER_GRADE 3.6 + LEVEL_XP 8→9 (the pacing knob
+re-trimmed instead of RATING_SCALE). Both FBCDF and K2 at 5 careers/base on default and held-out.
+
+## Stage 3 results — logged 04:06 (5 careers/base; baseline = codex-r2-sponsor, same code for sims)
+| set | baseline N/H/D, releg | K1 (FBCDF) | K2 (B+F+LEVEL_XP 9) |
+|---|---|---|---|
+| default | 10.88/10.28/10.28, 0.72 | 9.76/9.12/9.44, 0.56 | 9.40/8.96/9.16, 0.48 |
+| held-out | 10.40/10.16/9.76, 0.64 | 9.16/8.68/8.80, 0.60 | 9.32/9.24/9.52, 0.48 |
+K1 fails pacing on held-out (9.16) and barely moves relegations there. K2 cuts relegations on both
+sets by a quarter-plus but runs fast (9.3-9.4) and its held-out buyer D is 0.2 behind N (noise-level).
+Both fail a pre-set mark, so neither is a recommendation yet. Added: **K3** = B+F+LEVEL_XP 10, both
+sets. The held-out set is now a tuning input, so any K3 result needs a fresh set before it can be called confirmed.

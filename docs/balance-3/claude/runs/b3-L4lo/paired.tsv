@@ -1,0 +1,46 @@
+base	seed	reference	treatment	reference_first_title	treatment_first_title	reference_censored	treatment_censored	title_delta_both_observed_only	final_cc_delta	final_power_delta	session_cc_delta	ceiling_raise_cc_delta	signing_cc_delta	armorer_hire_cc_delta	armorer_wage_cc_delta	harness_upgrade_cc_delta	repair_cc_delta
+9001	9001	no_harness	harness_first	19	14	0	0	-5	164	16	253	515	263	6	48	220	0
+9001	9001	no_harness	development_first	19	19	0	0	0	-6	2	549	320	-75	6	51	231	0
+9001	9001	harness_first	development_first	14	19	0	0	5	-170	-14	296	-195	-338	0	3	11	0
+9001	16920	no_harness	harness_first	19	13	0	0	-6	3	9	265	611	203	6	52	241	0
+9001	16920	no_harness	development_first	19	13	0	0	-6	0	5	377	299	116	6	52	232	0
+9001	16920	harness_first	development_first	13	13	0	0	0	-3	-4	112	-312	-87	0	0	-9	0
+9001	24839	no_harness	harness_first	13	13	0	0	0	27	-5	167	376	-161	6	50	238	0
+9001	24839	no_harness	development_first	13	12	0	0	-1	28	1	276	334	97	6	50	224	0
+9001	24839	harness_first	development_first	13	12	0	0	-1	1	6	109	-42	258	0	0	-14	0
+5150	5150	no_harness	harness_first	15	12	0	0	-3	-2	0	544	624	44	6	50	213	0
+5150	5150	no_harness	development_first	15	12	0	0	-3	120	12	559	888	234	6	50	213	0
+5150	5150	harness_first	development_first	12	12	0	0	0	122	12	15	264	190	0	0	0	0
+5150	13069	no_harness	harness_first	15	12	0	0	-3	249	29	379	785	236	6	49	211	0
+5150	13069	no_harness	development_first	15	13	0	0	-2	2	18	171	291	67	6	49	196	0
+5150	13069	harness_first	development_first	12	13	0	0	1	-247	-11	-208	-494	-169	0	0	-15	0
+5150	20988	no_harness	harness_first		12	1	0		83	22	401	746	337	5	49	194	0
+5150	20988	no_harness	development_first		13	1	0		130	20	393	755	357	5	48	225	0
+5150	20988	harness_first	development_first	12	13	0	0	1	47	-2	-8	9	20	0	-1	31	0
+2718	2718	no_harness	harness_first	10	12	0	0	2	-59	-1	212	390	71	6	51	189	0
+2718	2718	no_harness	development_first	10	12	0	0	2	-66	2	151	514	-15	6	51	217	0
+2718	2718	harness_first	development_first	12	12	0	0	0	-7	3	-61	124	-86	0	0	28	0
+2718	10637	no_harness	harness_first	12	10	0	0	-2	18	1	396	281	249	6	54	222	0
+2718	10637	no_harness	development_first	12	11	0	0	-1	22	-1	496	118	142	6	52	207	0
+2718	10637	harness_first	development_first	10	11	0	0	1	4	-2	100	-163	-107	0	-2	-15	0
+2718	18556	no_harness	harness_first	12		0	1		-47	-8	-36	60	-122	6	51	247	0
+2718	18556	no_harness	development_first	12	13	0	0	1	86	7	167	428	50	6	51	182	0
+2718	18556	harness_first	development_first		13	1	0		133	15	203	368	172	0	0	-65	0
+6060	6060	no_harness	harness_first	14	13	0	0	-1	28	11	244	1077	219	6	51	209	0
+6060	6060	no_harness	development_first	14	14	0	0	0	-7	10	138	972	47	6	51	192	0
+6060	6060	harness_first	development_first	13	14	0	0	1	-35	-1	-106	-105	-172	0	0	-17	0
+6060	13979	no_harness	harness_first	12	12	0	0	0	132	9	298	584	261	6	50	182	0
+6060	13979	no_harness	development_first	12	13	0	0	1	138	11	249	915	340	6	49	210	0
+6060	13979	harness_first	development_first	12	13	0	0	1	6	2	-49	331	79	0	-1	28	0
+6060	21898	no_harness	harness_first	13	12	0	0	-1	119	11	437	689	182	6	51	242	0
+6060	21898	no_harness	development_first	13	11	0	0	-2	65	7	484	1046	178	6	50	198	0
+6060	21898	harness_first	development_first	12	11	0	0	-1	-54	-4	47	357	-4	0	-1	-44	0
+8123	8123	no_harness	harness_first	13	11	0	0	-2	53	8	316	464	377	6	53	204	0
+8123	8123	no_harness	development_first	13	11	0	0	-2	51	9	210	766	298	6	51	213	0
+8123	8123	harness_first	development_first	11	11	0	0	0	-2	1	-106	302	-79	0	-2	9	0
+8123	16042	no_harness	harness_first	13	12	0	0	-1	110	11	149	719	436	6	51	211	0
+8123	16042	no_harness	development_first	13	10	0	0	-3	37	9	234	590	556	6	51	205	0
+8123	16042	harness_first	development_first	12	10	0	0	-2	-73	-2	85	-129	120	0	0	-6	0
+8123	23961	no_harness	harness_first		19	1	0		15	20	387	529	3	6	46	198	0
+8123	23961	no_harness	development_first			1	1		0	10	167	481	-20	6	46	217	0
+8123	23961	harness_first	development_first	19		0	1		-15	-10	-220	-48	-23	0	0	19	0
