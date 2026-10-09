@@ -1,0 +1,5 @@
+arm	titles_out_of_25	right_censored	capped_wait	delta_vs_never
+no_harness	25	0	11.44	0
+harness_first	25	0	10.44	-1.0
+development_first	25	0	10.36	-1.08
+sensible_buyer	25	0	10.24	-1.1999999999999993

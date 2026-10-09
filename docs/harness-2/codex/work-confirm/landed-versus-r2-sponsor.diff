@@ -1,0 +1,191 @@
+--- r2-sponsor/scripts/league/armorer.gd
++++ fae6fba/scripts/league/armorer.gd
+@@ -15,7 +15,7 @@
+ const MAX_STARS: int = 5
+ ## CC a season, by stars.
+ ## The one-star hand is free (Pete, 1 Oct 2026: a new club starts with him for nothing).
+-const WAGE := [0, 0, 1, 1, 2, 3]
++const WAGE := [0, 0, 1, 1, 2, 3]  ## cut 8 Oct 2026, Harness #2 (were 0,0,2,4,9,18)
+ ## The lowest division each grade of man will work in.
+ const MIN_TIER := [0, 0, 0, 0, 1, 3]
+ const POOL_SIZE: int = 5
+--- r2-sponsor/scripts/league/club_office.gd
++++ fae6fba/scripts/league/club_office.gd
+@@ -25,7 +25,8 @@
+ ## reason about than a bank balance, and it keeps the club's books out of the
+ ## way of the fight.
+ var credits: int = 8
+-## Fractional earned kit sponsorship; paid only after an actual appearance.
++## KIT SPONSORS' CHANGE: the part of a credit earned and not yet paid
++## (`Quartermaster.pay_sponsors`). Saved, so it is never lost on a reload.
+ var harness_receipts: float = 0.0
+ ## THE COACH, for his Tactics and Business. Not saved here: the season hands it
+ ## over when it is made and when it is loaded.
+@@ -1630,6 +1631,8 @@
+ const LINE_GATE := "The gate"
+ const LINE_PRIZE := "Prize money"
+ const LINE_CUP := "Tournaments"
++## WHAT SPONSORS PAY FOR KIT THAT FIGHTS (Harness #2, 8 Oct 2026).
++const LINE_SPONSOR := "Sponsors"
+ const LINE_STORE := "Bought credits"
+ ## WHAT ANOTHER CLUB PAID FOR A MAN. Its own line rather than a negative on "The
+ ## squad", because a club that sold two veterans to fund a signing and a club
+@@ -1647,7 +1650,7 @@
+ const OUT_ORDER: Array[String] = [LINE_SQUAD, LINE_KIT, LINE_GROUND,
+ 	LINE_FACILITIES, LINE_TRAVEL, LINE_FEDERATION, LINE_CLUB]
+ const IN_ORDER: Array[String] = [LINE_GATE, LINE_COUNTER, LINE_PRIZE,
+-	LINE_GROUND, LINE_CUP, LINE_TRANSFER, LINE_STORE]
++	LINE_SPONSOR, LINE_GROUND, LINE_CUP, LINE_TRANSFER, LINE_STORE]
+ ## -> OfficeBooks (office_books.gd)
+ static func _book(books: Dictionary, line: String, cc: int) -> void:
+ 	OfficeBooks._book(books, line, cc)
+--- r2-sponsor/scripts/league/quartermaster.gd
++++ fae6fba/scripts/league/quartermaster.gd
+@@ -107,8 +107,12 @@
+ ##
+ ## So the bottom rung is roughly where the game already was — 0.90, which costs
+ ## about 0.2 rating points against the old 1.00 and is well inside the noise
+-## measured below — wear starts at 1.00 and only ever goes DOWN, and the ladder
+-## is a goal rather than a tax.
++## measured below — and the ladder is a goal rather than a tax.
++##
++## WEAR IS THE EXCEPTION NOW (Pete, 8 Oct 2026, Harness #2: *"lower gear breaking
++## quicker, and higher gear more resilient"*). Rust wears 1.05x, a shade faster
++## than the game before the shop. Measured: it moved a club that never buys by
++## 0.00 seasons to its first title (docs/harness-2), because repairs top it up.
+ const TOP := {
+ 	Grade.BORROWED: 0.90,
+ 	Grade.SERVICEABLE: 0.96,
+@@ -119,7 +123,10 @@
+ 
+ ## AND HOW FAST IT GOES. A multiplier on the wear the regime already applies, so
+ ## the regime stays the thing that decides how hard the week was and the harness
+-## decides how much of that the kit absorbs. Tournament plate takes a third less.
++## decides how much of that the kit absorbs.
++## UNEVEN STEPS (Pete, 8 Oct 2026): the two cheap metals sit close together and
++## the jump comes at Hardened — Titanium takes a tenth of what Rust does.
++## Codex's Harness #2 "value" ladder; was 1.00 / .86 / .72 / .58 / .50.
+ const WEAR := {
+ 	Grade.BORROWED: 1.05,
+ 	Grade.SERVICEABLE: 0.90,
+@@ -135,6 +142,13 @@
+ ## decision.
+ ## DOUBLED (Pete, 4 Oct 2026, Steam playthrough: "Armorer prices should be
+ ## doubled"). Were 3 / 7 / 14 / 24.
++## AND CUT (Pete, 8 Oct 2026, Harness #2): at 6 / 14 / 28 / 48 a club that bought
++## kit took 18-19 seasons to its first title against 10.9 for one that never did
++## (Codex, 25 careers x 20 seasons); the money came out of training and ceilings.
++## The price is low because the gate on Titanium is the ARMORER, not the bill —
++## only a five-star hand makes it, and he only works in the National Division.
++## Measured across 10 seed groups in docs/harness-2: at 2 / 4 / 8 / 14 buyers
++## are even with non-buyers; at these prices, with the sponsor, they are ahead.
+ const COST := {
+ 	Grade.SERVICEABLE: 1,
+ 	Grade.FITTED: 2,
+@@ -246,12 +260,33 @@
+ const RISK_MARGIN: float = 0.20
+ 
+ 
+-## Experiment: a sponsor pays for maintained equipment actually appearing.
+-const APPEARANCE_CC := [0.0, .08, .20, .40, .65]
+-static func appearance(o: ClubOffice, line: Array) -> void:
++## ------------------------------------------------------------------ sponsors
++## GOOD KIT THAT FIGHTS GETS PAID FOR (Pete, 8 Oct 2026, Harness #2, Codex's
++## round-2 design). Each man in the line who stands in a bout earns the club
++## SPONSOR_CC by his metal, times his condition — a sponsor pays for kit that is
++## seen, and kit that is kept up. Rust earns nothing.
++##
++## Why: harness was the one purchase that made a club WORSE. Prices alone got a
++## buyer level with a non-buyer (break-even over 10 seed groups); this is what
++## puts him ahead — 10.28 / 9.76 seasons to a first title against 10.88 / 10.40,
++## and the non-buyer moves 0.00 (docs/harness-2/codex/REPORT-R2.md).
++##
++## WHO COUNTS AS HAVING FOUGHT is the same five the bout wears (`bout_wear`), so
++## the man the sponsor pays and the man whose kit got dented are always the same
++## man. A forfeit fights nobody and pays nothing. Fractions carry over in
++## `ClubOffice.harness_receipts` and are saved, so a club of Mild men is paid a
++## credit every few bouts rather than never.
++const SPONSOR_CC := [0.0, 0.08, 0.20, 0.40, 0.65]
++
++
++static func sponsor_rate(card: FighterCard) -> float:
++	return float(SPONSOR_CC[grade_of(card)]) * clampf(card.armor, 0.0, 1.0)
++
++
++static func pay_sponsors(o: ClubOffice, line: Array) -> void:
+ 	for f in line:
+-		o.harness_receipts += float(APPEARANCE_CC[grade_of(f)]) * clampf(f.armor, 0.0, 1.0)
++		o.harness_receipts += sponsor_rate(f)
+ 	var paid := int(floor(o.harness_receipts + 0.000000001))
+ 	o.harness_receipts = maxf(0.0, o.harness_receipts - float(paid))
+ 	if paid > 0:
+-		o.take(paid, "Maintained kit sponsorship", "event", "Harness sponsorship")
++		o.take(paid, UiKit.t("Kit sponsors"), "event", ClubOffice.LINE_SPONSOR)
+--- r2-sponsor/scripts/league/season_bouts.gd
++++ fae6fba/scripts/league/season_bouts.gd
+@@ -317,7 +317,7 @@
+ 	## wear them, but not training"). The regime used to carry the wear — Hard
+ 	## took a tenth a week, Light mended a tenth — and a bout took nothing.
+ 	if fought:
+-		Quartermaster.appearance(s.office, s.club.starting_five())
++		Quartermaster.pay_sponsors(s.office, s.club.starting_five())
+ 		bout_wear(s)
+ 
+ 	## AND THE GROUND HAS THE SAME WEEK THE MEN DID.
+--- r2-sponsor/scripts/league/season_cups.gd
++++ fae6fba/scripts/league/season_cups.gd
+@@ -252,8 +252,9 @@
+ ## round is played around him, the bracket moves on, and a finished cup is
+ ## retired — with the gate settled if it was his own show.
+ static func _finish_cup_round(s: Season, c: Cup, won: bool, drew: bool = false, played: bool = true) -> void:
++	## THE SPONSOR PAYS FOR A TIE THAT WAS FOUGHT, not one forfeited (Harness #2).
+ 	if played:
+-		Quartermaster.appearance(s.office, s.club.starting_five())
++		Quartermaster.pay_sponsors(s.office, s.club.starting_five())
+ 	## ON THE MEN, NOT THE CLUB FIGURE (3 Oct 2026) — `office.morale_after`
+ 	## was overwritten by the next `sync_morale`, so a cup result moved nobody.
+ 	## And a drawn pool bout is a draw, not a loss.
+--- r2-sponsor/scripts/melee/fighter_card.gd
++++ fae6fba/scripts/melee/fighter_card.gd
+@@ -382,7 +382,12 @@
+ 		+ float(gas) * 0.22 + float(aggression) * 0.08))
+ 
+ 
+-## Experimental grade benefit; raw ability and development ceilings stay unchanged.
++## BETTER METAL, A BETTER BASE (Pete, 8 Oct 2026: "mild stat bonuses"; Harness #2,
++## Codex). Percent added to base by grade, Rust to Titanium, and it shrinks with
++## the kit's condition like the rest of base. It reaches rating, club power and the
++## fight — between two even clubs, Hardened or better takes a coin flip to about
++## three in four (tools/probe_harness_melee.gd) — but NOT `ability()`, potential
++## or growth headroom: a ceiling is the man, not his kit (Pete, 8 Oct 2026).
+ const HARNESS_BASE_BONUS := [0.00, 0.02, 0.05, 0.09, 0.12]
+ 
+ 
+--- r2-sponsor/scripts/game/season_tab_armorer.gd
++++ fae6fba/scripts/game/season_tab_armorer.gd
+@@ -65,7 +65,8 @@
+ 		card.size.x - 330.0 - 210.0)
+ 	UiKit.text_fit(v, v.font, ((UiKit.t("%d CC to put the eight right") % led["bill"]) if int(led["bill"]) > 0
+ 			else UiKit.t("nothing owing"))
+-			+ ((UiKit.t("  ·  all kit %s") % String(grades.keys()[0])) if uniform else ""),
++			+ ((UiKit.t("  ·  all kit %s") % String(grades.keys()[0])) if uniform else "")
++			+ _sponsor_word(v),
+ 		Vector2(card.position.x + 330.0, card.position.y + 44.0), 13, UiKit.DIM, card.size.x - 330.0 - 210.0)
+ 
+ 	var cell := v._qm_cell()
+@@ -423,3 +424,15 @@
+ 		return UiKit.t("%s's harness is as good as it gets.") % f.display_name
+ 	return UiKit.t("%s works up to %s. A better armorer makes better metal.") % [
+ 		String(o.armorer.get("name", "")), Armorer.metal_name(o.armorer_cap())]
++
++
++## WHAT THE LINE EARNS FROM KIT SPONSORS A BOUT (Harness #2, 8 Oct 2026), so the
++## reason to buy better metal is on the screen where it is bought. Empty while
++## the five are all in Rust, which earns nothing — the line is not there to nag.
++static func _sponsor_word(v) -> String:
++	var per := 0.0
++	for f in v.season.club.starting_five():
++		per += Quartermaster.sponsor_rate(f)
++	if per < 0.05:
++		return ""
++	return UiKit.t("  ·  sponsors %s CC a bout") % ("%.1f" % per)
