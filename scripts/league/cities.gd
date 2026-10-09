@@ -24,11 +24,15 @@ extends RefCounted
 ## bands are hundreds of miles wide. Precision here is free and wrong numbers are
 ## the kind of thing a player from that city notices immediately.
 
-enum Region { US, EU }
+## ONE WORLD: the United States. A European world was here and is gone (Pete,
+## 9 Oct 2026: "Get rid of European world. It would make doing nationals a
+## mess") — the National champion goes to the Worlds as Team USA, and a second
+## country's pyramid would need its own nationals. The enum stays so the
+## signatures that take a region keep their shape.
+enum Region { US }
 
 const REGION_NAME := {
 	Region.US: "United States",
-	Region.EU: "Europe",
 }
 
 ## `area` is what a person says after the city name — the state, or the country.
@@ -85,6 +89,9 @@ const US := [
 	{"name": "Buffalo", "area": "NY", "lat": 42.89, "lon": -78.88},
 ]
 
+## EUROPEAN HOST CITIES, not a playable map: the elite invitationals are held
+## here (Pete, 10 Sep: "Top Tier ... in High profile cities in Europe"), and
+## distances to them are real.
 const EU := [
 	{"name": "London", "area": "England", "lat": 51.51, "lon": -0.13},
 	{"name": "Paris", "area": "France", "lat": 48.86, "lon": 2.35},
@@ -357,14 +364,14 @@ const ABROAD := [
 ]
 
 
-static func table(region: int) -> Array:
-	return EU if region == Region.EU else US + US_TOWNS
+static func table(_region: int) -> Array:
+	return US + US_TOWNS
 
 
 ## The towns a generated rival club is named for: the big cities only.
-static func league_names(region: int) -> Array[String]:
+static func league_names(_region: int) -> Array[String]:
 	var out: Array[String] = []
-	for c in (EU if region == Region.EU else US):
+	for c in US:
 		out.append(String(c["name"]))
 	return out
 
@@ -380,10 +387,9 @@ static func names(region: int) -> Array[String]:
 ## asked for. A save's region and a save's city have to agree, and if they ever
 ## do not, the honest answer is the city's real coordinates rather than nothing.
 static func find(city: String) -> Dictionary:
-	for r in [Region.US, Region.EU]:
-		for c in table(r):
-			if String(c["name"]) == city:
-				return c
+	for c in US + US_TOWNS + EU:
+		if String(c["name"]) == city:
+			return c
 	for c in ABROAD:
 		if String(c["name"]) == city:
 			return c

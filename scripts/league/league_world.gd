@@ -56,7 +56,6 @@ const INVITATIONAL_SETS := [
 ## The top set's host cities. Real buhurt country, and somewhere worth the trip.
 const ELITE_CITIES := ["Paris", "London", "Rome", "Barcelona", "Prague", "Krakow", "Budapest", "Vienna"]
 const CONTINENTAL_US := ["Toronto", "Montreal", "Vancouver", "Mexico City", "Monterrey", "Chicago", "Denver"]
-const CONTINENTAL_EU := ["Berlin", "Madrid", "Warsaw", "Milan", "Stockholm", "Brussels", "Lisbon"]
 const INVITATIONAL_FIELD: int = 8
 const INVITE_RANK: int = 3              ## top three of your own division
 
@@ -339,7 +338,7 @@ func _unique_name(used: Dictionary) -> String:
 ## in the wrong town.
 static func _city_of(nm: String) -> String:
 	var best := ""
-	for r in [Cities.Region.US, Cities.Region.EU]:
+	for r in [Cities.Region.US]:
 		for entry in Cities.names(r):
 			var e := String(entry)
 			if nm.begins_with(e) and e.length() > best.length():
@@ -1234,8 +1233,7 @@ func invitational_city(set_i: int, slot: int) -> String:
 		"elite":
 			return String(ELITE_CITIES[h % ELITE_CITIES.size()])
 		"continental":
-			var l: Array = CONTINENTAL_EU if region == Cities.Region.EU else CONTINENTAL_US
-			return String(l[h % l.size()])
+			return String(CONTINENTAL_US[h % CONTINENTAL_US.size()])
 	var mine := city_of(player_club)
 	var near: Array = []
 	for c in clubs:
@@ -1262,8 +1260,6 @@ func invitational_name(set_i: int, slot: int) -> String:
 		"elite":
 			return "Kings Cup" if slot == 0 else "Path of Honor"
 		"continental":
-			if region == Cities.Region.EU:
-				return "European Open" if slot == 0 else "Continental Cup"
 			return "North American Open" if slot == 0 else "Continental Cup"
 	var city := invitational_city(set_i, slot)
 	return ("%s Open" if slot == 0 else "%s Classic") % city
@@ -1297,9 +1293,8 @@ func _build_set_invitational(set_i: int, slot: int) -> Cup:
 		depth += 1
 	var g := 0
 	var band: Array = League.TIERS[int(tiers[tiers.size() - 1])]["power"]
-	var pool: Array = (Cities.EU.map(func(c): return String(c["name"])) if String(spec["where"]) == "elite" \
-		and region != Cities.Region.EU else (Cities.ABROAD.map(func(c): return String(c["name"])) \
-		if region != Cities.Region.EU else Cities.US.map(func(c): return String(c["name"]))))
+	var pool: Array = (Cities.EU if String(spec["where"]) == "elite" else Cities.ABROAD) \
+		.map(func(c): return String(c["name"]))
 	while field.size() < INVITATIONAL_FIELD:
 		var h := _inv_hash(set_i, slot, 100 + g)
 		var city := String(pool[h % pool.size()])

@@ -199,20 +199,20 @@ func _test_homesick_is_a_radius_and_not_a_flag() -> void:
 ## THE MAP ITSELF. Made-up towns could not carry a distance; real ones can, and
 ## the figures have to be right because a player from that city will know.
 func _test_the_map_is_a_real_map() -> void:
-	_ok(Cities.US.size() >= 46 and Cities.EU.size() >= 46,
-		"both maps hold more towns than the pyramid has clubs",
-		"%d in the States, %d in Europe" % [Cities.US.size(), Cities.EU.size()])
+	_ok(Cities.US.size() >= 46,
+		"the map holds more towns than the pyramid has clubs",
+		"%d in the States (and %d European host cities)" % [Cities.US.size(), Cities.EU.size()])
 	var dupes := 0
-	for r in [Cities.Region.US, Cities.Region.EU]:
+	for table in [Cities.table(Cities.Region.US), Cities.EU]:
 		var seen := {}
-		for c in Cities.table(r):
+		for c in table:
 			if seen.has(String(c["name"])):
 				dupes += 1
 			seen[String(c["name"])] = true
 	_ok(dupes == 0, "and no town is on a map twice", "%d repeats" % dupes)
 	var blank := 0
-	for r in [Cities.Region.US, Cities.Region.EU]:
-		for c in Cities.table(r):
+	for table in [Cities.table(Cities.Region.US), Cities.EU]:
+		for c in table:
 			if String(c.get("area", "")) == "" or not c.has("lat") or not c.has("lon"):
 				blank += 1
 	_ok(blank == 0, "and every one has a state or a country and a place on the globe",
@@ -237,15 +237,15 @@ func _test_the_map_is_a_real_map() -> void:
 		else ", ".join(wrong))
 	_ok(is_equal_approx(Cities.distance("Detroit", "Detroit"), 0.0),
 		"a club is no distance from itself", "0 miles")
-	## AND A EUROPEAN WORLD IS A EUROPEAN WORLD, not an American one with one
-	## foreign club in it.
-	var eu := Season.new(MeleeRosters.starting_club(), 6060, Cities.Region.EU)
+	## ONE WORLD, AMERICAN (Pete, 9 Oct 2026: the European world is gone). Every
+	## club in a new career is in an American town.
+	var us := Season.new(MeleeRosters.starting_club(), 6060)
 	var stray := 0
-	for c in eu.world.clubs:
-		if not Cities.names(Cities.Region.EU).has(eu.world.city_of(int(c["id"]))):
+	for c in us.world.clubs:
+		if not Cities.names(Cities.Region.US).has(us.world.city_of(int(c["id"]))):
 			stray += 1
-	_ok(stray == 0, "and picking Europe builds a European league",
-		"%d clubs, %d of them somewhere else" % [eu.world.clubs.size(), stray])
+	_ok(stray == 0 and Cities.Region.size() == 1, "and every career is built in the States",
+		"%d clubs, %d of them somewhere else; %d region(s)" % [us.world.clubs.size(), stray, Cities.Region.size()])
 
 
 ## THE ONE THAT ATE A CLUB'S NAME.

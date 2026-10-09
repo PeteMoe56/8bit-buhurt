@@ -906,8 +906,6 @@ somebody,somebody,alguien,quelqu'un,irgendwer,qualcuno,alguém,ktoś,хтось,
 %s lost to %s %d-%d,%s lost to %s %d-%d,%s perdió con %s %d-%d,%s perd contre %s %d-%d,%s verliert gegen %s %d-%d,%s perde con %s %d-%d,%s perdeu para %s por %d-%d,%s przegrywa z %s %d-%d,%s програв %s %d-%d,%sが%sに%d-%dで敗戦
 %s lead the %s by %d point,%s lead the %s by %d point,%s lidera la %s por %d punto,%s mène la %s avec %d point d'avance,%s führt die %s mit %d Punkt an,%s guida la %s di %d punto,%s lidera a %s por %d ponto,%s prowadzi w %s o %d pkt,%s лідирує в %s: +%d очко,%sが%sを%d点差で首位
 %s lead the %s by %d points,%s lead the %s by %d points,%s lidera la %s por %d puntos,%s mène la %s avec %d points d'avance,%s führt die %s mit %d Punkten an,%s guida la %s di %d punti,%s lidera a %s por %d pontos,%s prowadzi w %s o %d pkt,%s лідирує в %s: +%d очок,%sが%sを%d点差で首位
-Europe,Europe,Europa,Europe,Europa,Europa,Europa,Europa,Європа,ヨーロッパ
-United States,United States,Estados Unidos,États-Unis,USA,Stati Uniti,Estados Unidos,Stany Zjednoczone,США,アメリカ
 Show me others,Show me others,Muéstrame otros,Montre-m'en d'autres,Zeig mir andere,Mostrami altre,Mostrar outros,Pokaż inne,Покажи інші,他を見る
 Anywhere will do,Anywhere will do,Cualquier sitio vale,N'importe où,Egal wo,Va bene ovunque,Qualquer lugar serve,Byle gdzie,Будь-де,どこでもいい
 Start a club,Start a club,Fundar un club,Fonder un club,Verein gründen,Fonda un club,Fundar um clube,Załóż klub,Створити клуб,クラブを作る
@@ -1149,7 +1147,6 @@ A season of gates,A season of gates,Una temporada de taquillas,Une saison d'affl
 %s passing it on,%s passing it on,%s pasa el testigo,%s transmet son savoir,%s gibt es weiter,%s passa il testimone,%s passando adiante,%s przekazuje wiedzę,%s навчає інших,%sが技を伝授
 %s let go to make room,%s let go to make room,%s despedido para hacer sitio,%s libéré pour faire de la place,"%s entlassen, um Platz zu schaffen",%s svincolato per fare spazio,%s dispensado para abrir vaga,"%s zwolniony, by zrobić miejsce",%s відпущено заради місця,%sを放出して枠を空けた
 %s signed as an emergency walk-on,%s signed as an emergency walk-on,%s fichado como suplente de urgencia,%s signé en renfort d'urgence,%s als Notnagel verpflichtet,%s ingaggiato d'emergenza,%s contratado às pressas,"%s podpisany awaryjnie, z ulicy",%s підписано терміново на заміну,%sを緊急契約
-Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe,Team Europe
 Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA,Team USA
 MONDAY,MONDAY,LUNES,LUNDI,MONTAG,LUNEDÌ,SEGUNDA,PONIEDZIAŁEK,ПОНЕДІЛОК,月曜日
 NATIONAL CHAMPIONS,NATIONAL CHAMPIONS,CAMPEONES NACIONALES,CHAMPIONS NATIONAUX,LANDESMEISTER,CAMPIONI NAZIONALI,CAMPEÕES NACIONAIS,MISTRZOWIE KRAJU,ЧЕМПІОНИ КРАЇНИ,全国王者

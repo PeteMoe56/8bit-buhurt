@@ -100,21 +100,6 @@ func _build_city_picker() -> void:
 		var b := UiKit.button(city, at, CITY_CARD, func(c = city): _take_city(c))
 		b.tooltip_text = Cities.full_name(city)
 		ui.add_child(b)
-	## THE MAP SWITCH, at the top where it changes what is under it. One button
-	## that names the map you are NOT on, because a toggle labelled with the state
-	## it is already in is the oldest bad button in software.
-	var other: int = Cities.Region.EU if region == Cities.Region.US \
-		else Cities.Region.US
-	## REGION NAME TRANSLATED (3 Oct 2026). Literal keys rather than
-	## t(REGION_NAME[..]) so the extractor sees them without a table entry.
-	var other_name: String = UiKit.t("Europe") if other == Cities.Region.EU \
-		else UiKit.t("United States")
-	ui.add_child(UiKit.button(other_name,
-		Vector2(UiKit.screen().x - 48.0 - 240.0, CITY_AT.y - 54.0),
-		Vector2(240, 40), func():
-			region = other
-			_offer_cities()
-			_build()))
 	var y := CITY_AT.y + float(CITY_ROWS) * (CITY_CARD.y + CITY_GAP.y) + 16.0
 	ui.add_child(UiKit.button(UiKit.t("Show me others"), Vector2(CITY_AT.x, y),
 		Vector2(280, 46), func():

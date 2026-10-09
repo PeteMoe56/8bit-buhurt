@@ -35,9 +35,9 @@ static func due(s: Season) -> bool:
 	return s.world.player_tier() == League.Tier.NATIONAL and s.world.player_champion()
 
 
-## The country's team, by the world's region.
+## The country's team. One world, one country (Pete, 9 Oct 2026).
 static func team_name(s: Season) -> String:
-	return UiKit.t("Team Europe") if s.world.region == Cities.Region.EU else UiKit.t("Team USA")
+	return UiKit.t("Team USA")
 
 
 ## The card in front of the player: {day, title, body, button}.
