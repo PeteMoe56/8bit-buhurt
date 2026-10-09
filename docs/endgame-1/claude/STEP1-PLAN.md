@@ -10,3 +10,13 @@ Pass marks (same as Worlds #1 and Balance #3): first Worlds title 10-12 seasons 
 winning one; late (15-20) Worlds title rate 0.35-0.60; relegations no more than 0.5 above the
 paired reference; bank neither negative nor ballooning (season-12+ median within ±30% of reference).
 If the cup-XP fix pushes pacing under 10, report it; no retuning inside this run.
+
+## Result (13:09 CT): passes on all three sets
+| Set | First Worlds title | Winners | Late title rate | Relegations | Bank 12+ | Negative-cash seasons |
+|---|---|---|---|---|---|---|
+| Tune (points 4 alone → candidate) | 11.16 → 11.07 | 75/75 | 0.65 → 0.46 | 0.48 → 0.12 | 205 → 198 | 0 |
+| Check | 10.60 → 10.65 | 75/75 | 0.66 → 0.43 | 0.57 → 0.43 | 212 → 206 | 0 |
+| Fresh 610031… (read once) | 11.00 | 75/75 | 0.39 | 0.35 | 196 | 0 |
+Raw lines: [step1-results.txt](step1-results.txt). The cup-XP fix did not move pacing under points 4
+(Codex measured −0.2 to −0.6 under points 3) and it lowered relegations on every set.
+Ready for Pete's go and Claude's full gate.

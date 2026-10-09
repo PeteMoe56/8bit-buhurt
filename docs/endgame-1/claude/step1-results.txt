@@ -1,0 +1,7 @@
+p4-d   first Worlds 11.16  winners 75/75  titles/career 6.0  late rate 0.65  relegations 0.48  bank12+ 205  negative-cash seasons 0
+e1-d   first Worlds 11.16  winners 75/75  titles/career 4.7  late rate 0.46  relegations 0.48  bank12+ 203  negative-cash seasons 0
+s1-d   first Worlds 11.07  winners 75/75  titles/career 4.6  late rate 0.46  relegations 0.12  bank12+ 198  negative-cash seasons 0
+p4-h   first Worlds 10.60  winners 75/75  titles/career 6.7  late rate 0.66  relegations 0.57  bank12+ 212  negative-cash seasons 0
+e1-h   first Worlds 10.60  winners 75/75  titles/career 4.8  late rate 0.45  relegations 0.57  bank12+ 206  negative-cash seasons 0
+s1-h   first Worlds 10.65  winners 75/75  titles/career 4.8  late rate 0.43  relegations 0.43  bank12+ 206  negative-cash seasons 0
+s1-f   first Worlds 11.00  winners 75/75  titles/career 4.0  late rate 0.39  relegations 0.35  bank12+ 196  negative-cash seasons 0
