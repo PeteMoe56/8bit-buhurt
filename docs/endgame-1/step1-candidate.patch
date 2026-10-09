@@ -1,0 +1,95 @@
+diff --git a/scripts/game/career.gd b/scripts/game/career.gd
+index b288523..7f76195 100644
+--- a/scripts/game/career.gd
++++ b/scripts/game/career.gd
+@@ -897,7 +897,7 @@ const GAIN_MAX: int = 5
+ ## PETE, LATER THE SAME DAY: "play with the stat points per upgraded level".
+ ## One flat number for every club and every man; `tools/sweep` and the bases
+ ## tune it. A level's worth no longer depends on who is taking it.
+-const POINTS_PER_LEVEL: int = 3
++const POINTS_PER_LEVEL: int = 4
+ 
+ 
+ static func gain_for(_f: FighterCard) -> int:
+diff --git a/scripts/league/cup.gd b/scripts/league/cup.gd
+index 4e3ce6a..2241f7a 100644
+--- a/scripts/league/cup.gd
++++ b/scripts/league/cup.gd
+@@ -394,7 +394,11 @@ func advance() -> bool:
+ 	## because a Worlds bronze is a real result to bring home.
+ 	if day.size() == 2 and third_place.is_empty() and not no_third:
+ 		third_place = _match(int(losers[0]), int(losers[1]), "Third-place match")
+-	_open_round(winners)
++	# Experimental fixed cross-pool halves for the current 16-club Worlds.
++	if has_pools and entrants.size() == 16 and winners.size() == 4:
++		_open_round([winners[0], winners[2], winners[3], winners[1]])
++	else:
++		_open_round(winners)
+ 	return true
+ 
+ 
+diff --git a/scripts/league/league_world.gd b/scripts/league/league_world.gd
+index 5f83ca1..05d387b 100644
+--- a/scripts/league/league_world.gd
++++ b/scripts/league/league_world.gd
+@@ -67,6 +67,8 @@ const WORLDS_FIELD: int = 16
+ ## ONE BERTH: the National champion goes as the country's team (Pete, 1 Oct:
+ ## "a 'bestowing' of the Team USA title and Tabard for Worlds"). It was two.
+ const WORLDS_HOME: int = 1
++## The superpower's band, once the player has won a Worlds (Worlds #1, 9 Oct 2026).
++const ELITE_POWER := [91, 98]
+ 
+ const DRAW_ROUND_CHANCE: float = 0.06
+ const RATING_SCALE: float = 22.0        ## a 22-point gap is about 90/10 on a round
+@@ -1334,6 +1336,13 @@ func _build_worlds(national_rows: Array) -> Cup:
+ 	## with ids past the end of the club list, which keeps them out of every
+ 	## table and every promotion in the country.
+ 	var guest_id := clubs.size()
++	## THE WORLD TAKES NOTICE (Worlds #1): once the player has won a Worlds, one
++	## superpower nation comes every year after, so a champion is the favourite
++	## and not a certainty.
++	var elite_due := false
++	for h in honors:
++		if String(h.get("id", "")) == "worlds" and int(h.get("champion", -1)) == player_club:
++			elite_due = true
+ 	while field.size() < WORLDS_FIELD:
+ 		var band: Array = League.TIERS[League.Tier.NATIONAL]["power"]
+ 		clubs.append({
+@@ -1342,10 +1351,12 @@ func _build_worlds(national_rows: Array) -> Cup:
+ 				SECOND[rng.randi() % SECOND.size()]],
+ 			"short": "GST",
+ 			"tier": -1,                 ## no division; a guest is not in the pyramid
+-			"power": rng.randi_range(int(band[0]) + 4, int(band[1]) + 8),
++			"power": rng.randi_range(ELITE_POWER[0], ELITE_POWER[1]) if elite_due \
++				else rng.randi_range(int(band[0]) + 4, int(band[1]) + 8),
+ 			"titles": 0,
+ 			"guest": true,
+ 		})
++		elite_due = false
+ 		field.append(guest_id)
+ 		guest_id += 1
+ 	field.sort_custom(func(a, b): return int(clubs[a]["power"]) > int(clubs[b]["power"]))
+diff --git a/scripts/league/season_cups.gd b/scripts/league/season_cups.gd
+index cdcad22..2d5d7df 100644
+--- a/scripts/league/season_cups.gd
++++ b/scripts/league/season_cups.gd
+@@ -245,8 +245,17 @@ static func sim_cup_tie(s: Season) -> void:
+ 		pa = int(round(float(pa) * s.opposition_scale(int(m["a"]))))
+ 	var res: Array = s.world.quick_bout(pa, pb)
+ 	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
+-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
+-		int(m.get("winner", -1)) == -1)
++	# Experimental parity: same sim XP and participant wear as a league bout.
++	var stood: Array = s.club.starting_five()
++	for f in stood:
++		f.xp += Season.XP_SIMMED
++		f.bouts += 1
++	if s.practiced_week != s.world.week:
++		s._practice()
++	_finish_cup_round(s, c, int(m.get("winner", -1)) == s.world.player_club,
++		int(m.get("winner", -1)) == -1, true, stood)
++	SeasonBouts.bout_wear(s, stood)
++	s.sync_power()
+ 
+ 
+ 
