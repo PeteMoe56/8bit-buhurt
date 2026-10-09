@@ -65,3 +65,20 @@ after the edits finished, passed validation, and stays unread until tune/check a
 - **Every new system gets a splash screen** that explains it when the player first meets it:
   rivals and the superpower, the tie rule, the camp, hosting events, the send-off stories.
 - Open question to Pete: how real buhurt settles a tied knockout bout.
+- **Pete, 16:32 CT:** the send-off is **five days of events**, Monday to Friday. For that week the
+  button reads **"Next Event"**, not "Next Fight". One event gives the team a tangible boost going
+  into the Worlds (near end-game, so it should be something real). Draft below for Pete to pick from.
+
+### Send-off week, draft (not built)
+| Day | Event | What it does |
+|---|---|---|
+| Mon | **The parade / celebration**: the town turns out for its National champions | Fans and morale (what Monday already does) |
+| Tue | **The newspapers**: clippings of the title run, the men who made it | Story only |
+| Wed | **The interviews**: the captain and a star talk to the press; the player picks a tone (confident / humble) | Small morale swing, flavour line at the Worlds |
+| Thu | **The favourites**: a feature on the nations to beat, led by the returning rivals and the superpower, with their records against you | Story; sets up the rivalry heat |
+| Fri | **The tabard**: Team USA is named, plus the boost | The tangible boost (options below) |
+Boost options, all measurable and none permanent:
+1. **Federation armorers**: the whole eight's kit restored to its ceiling before the Worlds.
+2. **Team USA sponsor**: a one-off CC grant sized to the Worlds purse.
+3. **Federation backing**: every man starts the Worlds week at full morale.
+Each needs a test against the Worlds title rate in fought and simmed play before choosing.
