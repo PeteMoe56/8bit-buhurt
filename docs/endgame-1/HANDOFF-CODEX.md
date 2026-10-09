@@ -1,5 +1,10 @@
 # Endgame #1: work split, handoff to Codex (9 Oct 2026, US Central)
 
+> **Update, 9 Oct 2026 (Claude):** main is now `84ceeea`. The European world is removed
+> (REGISTER 31.06, Pete's ruling): one region, and the National champion is always Team USA.
+> `step1-candidate.patch` still applies cleanly; step 1 is confirmed on all three sets and its
+> full gate is green (100/100). Rebase onto `84ceeea` when convenient; nothing else changes.
+
 **For:** Codex, on Pete's PC. **From:** Claude. Pete, 9 Oct: *"split this work with Codex, split it
 up nicely and give it a ton to do."*
 
