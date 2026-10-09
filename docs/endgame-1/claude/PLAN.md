@@ -53,3 +53,15 @@ The first ten-rival tune/check runs and the first 30-season aging run were disca
 ("Source changed during run"): Claude edited those scratch copies (nation names, Team USA) while
 they ran. Rerun unchanged from the now-final copies. The ten-rival fresh run (1010009…) started
 after the edits finished, passed validation, and stays unread until tune/check are in.
+
+## Pete's direction, 9 Oct 2026 16:30 CT (design, not yet built)
+- **Wait for Codex to finish** before landing or building anything further.
+- **The National Camp goes.** The send-off week becomes story: newspaper clippings, interviews,
+  celebrations as Team USA, and pre-Worlds heat on the favourite nations (the returning rivals
+  and the superpower are the natural cast).
+- **A paid camp, priced per fighter attending,** is the idea for the Worlds midpoint (Codex's free
+  one-pick camp changed nothing).
+- **Hosting gets random events** (weather, turnout, sponsor, injury) so the biggest show can lose.
+- **Every new system gets a splash screen** that explains it when the player first meets it:
+  rivals and the superpower, the tie rule, the camp, hosting events, the send-off stories.
+- Open question to Pete: how real buhurt settles a tied knockout bout.
