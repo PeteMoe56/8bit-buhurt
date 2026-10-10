@@ -1,0 +1,60 @@
+diff --git a/scripts/melee/grade.gd b/scripts/melee/grade.gd
+index d71aa54..48db572 100644
+--- a/scripts/melee/grade.gd
++++ b/scripts/melee/grade.gd
+@@ -195,6 +195,13 @@ const DIALS := {
+ 	## frequent, even on easy"): a share of the regime's injury chance.
+ 	"knocks": [0.2, 1.0, 0.1],
+ }
++## WHICH WAY IS EASIER on each dial: +1 when a bigger number is kinder to the
++## player, -1 when it is harsher (Difficulty #1, Pete 9 Oct 2026: the Custom
++## dials must reach "easier than easiest and harder than hardest").
++const EASIER := {
++	"scale": -1, "pauses": 1, "corner": 1, "bills": -1, "knocks": -1,
++	"swing": 1, "fall": -1, "pass": -1, "read": 1,
++}
+ 
+ 
+ static func clamp_dial(key: String, v: float) -> float:
+diff --git a/tests/test_grade.gd b/tests/test_grade.gd
+index 2a74277..48d6127 100644
+--- a/tests/test_grade.gd
++++ b/tests/test_grade.gd
+@@ -45,6 +45,7 @@ func _initialize() -> void:
+ 		_test_the_skip_stops_at_the_corner()
+ 		_test_the_grade_reaches_the_bills()
+ 		_test_custom_is_your_own_dials()
++		_test_every_dial_reaches_past_the_presets()
+ 	## THE STATISTICAL MEASURE — a balance target, not an invariant, and 320
+ 	## bouts long. Balance tier (and by hand); the fast tier skips it by design.
+ 	if tier != "fast":
+@@ -509,3 +510,29 @@ func _test_custom_is_your_own_dials() -> void:
+ 	_ok(clamped and reaches and kept, "custom is your own dials, clamped, fought and saved",
+ 		"dials %s; clamped %s, reach the fight and bills %s, survive a save %s"
+ 			% [str(cg), clamped, reaches, kept])
++
++
++## EASIER THAN EASIEST, HARDER THAN HARDEST (Pete, 9 Oct 2026). Every Custom dial
++## has to reach past the kindest preset in one direction and past the harshest
++## in the other, or the advanced settings are only the presets again. The free
++## swing is the one exception at its hard end: no swing at all (Hard List) is
++## the floor of a thing that cannot go below nothing.
++func _test_every_dial_reaches_past_the_presets() -> void:
++	var short: Array[String] = []
++	for key in Grade.EASIER:
++		var dir := int(Grade.EASIER[key])
++		var vals: Array = []
++		for g in Grade.TABLE:
++			vals.append(float(Grade.TABLE[g][key]))
++		var d: Array = Grade.DIALS[key]
++		var easiest_preset: float = vals.max() if dir > 0 else vals.min()
++		var hardest_preset: float = vals.min() if dir > 0 else vals.max()
++		var easiest_dial: float = float(d[1]) if dir > 0 else float(d[0])
++		var hardest_dial: float = float(d[0]) if dir > 0 else float(d[1])
++		var easier_ok: bool = (easiest_dial - easiest_preset) * dir > 0.0
++		var harder_ok: bool = (hardest_preset - hardest_dial) * dir > 0.0 \
++			or (key == "swing" and is_equal_approx(hardest_dial, 0.0))
++		if not (easier_ok and harder_ok):
++			short.append("%s (presets %s, dial %s..%s)" % [key, str(vals), d[0], d[1]])
++	_ok(short.is_empty(), "every Custom dial reaches past the easiest and the hardest preset",
++		"all %d dials" % Grade.EASIER.size() if short.is_empty() else ", ".join(short))
