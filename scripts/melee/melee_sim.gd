@@ -2043,16 +2043,22 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
 	var read := _br_read_bonus(a, d)
 	c += read
+	## THE BLINDSIDE LIFTS THE CEILING TOO (Pete, 10 Oct 2026: yes), the same as
+	## the off-balance read: a bonus the 42% cap eats is no bonus at all.
+	var lift := read if Tuning.br_read_lift else 0.0
 	if d.state == State.GRAPPLED and d.target >= 0 and d.target != a.idx:
-		c += Tuning.BR_TIED * a.tmod("td_gang", 1.0)
+		var tied := Tuning.BR_TIED * a.tmod("td_gang", 1.0)
+		c += tied
+		lift += tied
 	if _center_blindside(a, d):
 		c += Tuning.br_center_blind
+		lift += Tuning.br_center_blind
 	if d.exposed_t > 0.0:
 		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
 	c += _sent_edge(a)
 	c *= lerpf(Tuning.BR_EMPTY_TANK, 1.0, a.gas_frac())
-	var cap := Tuning.BR_MAX + (read if Tuning.br_read_lift else 0.0)
+	var cap := Tuning.BR_MAX + lift
 	return clampf(c, Tuning.BR_MIN, cap)
 
 
