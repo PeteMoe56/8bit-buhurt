@@ -384,6 +384,21 @@ static var pread_at: float = 0.5 if OS.get_environment("RB_PREAD_AT") == "" else
 ## +0.30, the player's bullrush only — Pete: "pretty heavily".
 static var br_read: float = 0.30 if OS.get_environment("RB_BR_READ") == "" else _env("RB_BR_READ")
 static var br_read_ai: bool = OS.get_environment("RB_BR_READ_AI") == "1"
+## A MAN ALREADY OFF BALANCE GOES OVER (Pete, 10 Oct 2026: "If I'm coming at
+## you and you're already off balance, you're going down a lot easier"). The
+## read used to be eaten by BR_MAX: base, weight and the stability term already
+## sat near 42%, so +0.30 and +0.60 landed on the same ceiling. Now the read
+## lifts the ceiling by its own size, and it grows the further under the line
+## he is: the full read at the line, up to BR_READ_DEEP x the read flat-footed.
+## RB_BR_READ_LIFT=0 puts the old rule back for comparison.
+static var br_read_lift: bool = OS.get_environment("RB_BR_READ_LIFT") != "0"
+const BR_READ_DEEP: float = 1.5
+const BR_READ_SLIDE: float = 1.5        ## and he is blown further across the floor
+## THE CENTER COMES IN FROM THE ANGLE (Pete, 10 Oct 2026: "centers are still the
+## most effective bullrushers, but it's because of angles and fighters not paying
+## attention"). A Center's bullrush on a man tied up with someone else, or one
+## he reaches from behind, gets this on top. Every side's Center, not only yours.
+static var br_center_blind: float = 0.20 if OS.get_environment("RB_CENTER_BLIND") == "" else _env("RB_CENTER_BLIND")
 static var session_full_week: bool = true
 ## Pete, 29 Sep evening: FULL price (1.0). At 0.25 everyone trained to his
 ## ceiling and reading the scouted range was worth 0.55 seasons, not 1.8.

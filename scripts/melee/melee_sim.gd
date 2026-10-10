@@ -2039,15 +2039,38 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	if d.planted:
 		c -= PLANT_BRACE
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
-	if br_read > 0.0 and (a.acting_for_player or Tuning.br_read_ai) \
-			and d.stability < Tuning.pread_at:
-		c += br_read
+	var read := _br_read_bonus(a, d)
+	c += read
+	if _center_blindside(a, d):
+		c += Tuning.br_center_blind
 	if d.exposed_t > 0.0:
 		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
 	c += _sent_edge(a)
 	c *= lerpf(Tuning.BR_EMPTY_TANK, 1.0, a.gas_frac())
-	return clampf(c, Tuning.BR_MIN, Tuning.BR_MAX)
+	var cap := Tuning.BR_MAX + (read if Tuning.br_read_lift else 0.0)
+	return clampf(c, Tuning.BR_MIN, cap)
+
+
+## A Center reaching a man who isn't looking at him: tied up with somebody else,
+## or come at from behind.
+func _center_blindside(a: Man, d: Man) -> bool:
+	if Tuning.br_center_blind <= 0.0 or Tuning.role_of(a.card.pos) != Tuning.Role.CENTER:
+		return false
+	if d.state == State.GRAPPLED and d.target >= 0 and d.target != a.idx:
+		return true
+	return from_behind(a, d)
+
+
+## The bullrush read on a man under the balance line, 0.0 if it does not apply.
+func _br_read_bonus(a: Man, d: Man) -> float:
+	if br_read <= 0.0 or not (a.acting_for_player or Tuning.br_read_ai) \
+			or d.stability >= Tuning.pread_at:
+		return 0.0
+	if not Tuning.br_read_lift:
+		return br_read
+	var depth := clampf(1.0 - d.stability / maxf(0.01, Tuning.pread_at), 0.0, 1.0)
+	return br_read * lerpf(1.0, Tuning.BR_READ_DEEP, depth)
 
 
 ## Morning decision #10's option (a): off (0.0) unless a probe sets it.
@@ -2071,9 +2094,11 @@ func _resolve(m: Man, act: int, target: int) -> void:
 			var dir := t.pos - m.pos
 			dir = Vector2.DOWN if dir.length() < 0.01 else dir.normalized()
 			m.charging = false
+			var read_on := Tuning.br_read_lift and _br_read_bonus(m, t) > 0.0
 			if rng.randf() < _bullrush_chance(m, t):
 				_put_down(t, m)
-				_slide(t, dir, Tuning.BR_DOWN_SLIDE, Tuning.BR_DOWN_SLIDE_T)
+				_slide(t, dir, Tuning.BR_DOWN_SLIDE * (Tuning.BR_READ_SLIDE if read_on else 1.0),
+					Tuning.BR_DOWN_SLIDE_T)
 				if m.acting_for_player and m.team == 0:
 					called_br_downs += 1
 					t.slide_called = true

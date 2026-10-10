@@ -25,17 +25,22 @@ const SURNAMES := [
 	"Falk", "Grimme", "Holt", "Innis", "Larkin", "Moss", "Norrey", "Poole",
 ]
 
-## What each role is built out of. A Rail is heavy and hard to move, a Flanker is
-## quick and technical, a Center is the immovable one — the same silhouette the
-## fixture clubs have, because a league of identical men is a league of one club
-## with different names on it.
+## What each role is built out of (Pete, 10 Oct 2026, "think football"). A Rail is
+## the defensive lineman: the biggest man on the line, strongest and hardest to
+## move, and he destroys people. A Flanker is the linebacker: middle weight and
+## the heaviest hitter. A Center is the safety: the lightest, quickest and
+## fittest, technical, and the best bullrusher in the game because he comes in
+## from the angle on a man who isn't looking (see Tuning.BR_CENTER_BLIND).
+## The old note here called the Center "the immovable one" and made him the
+## heaviest man in the club. Nobody ever said that; it was wrong.
+## A league of identical men is a league of one club with different names on it.
 ##
 ## Offsets are points against the club's rating, and they must roughly cancel
 ## inside a role or the club would not come out at the rating it was asked for.
 const ARCHETYPE := {
-	Tuning.Role.RAIL:   { "str": 6, "base": 3, "skl": -8, "gas": -1, "agg": -4, "lb": [220, 251] },
-	Tuning.Role.FLANK:  { "str": -6, "base": -8, "skl": 12, "gas": 8, "agg": 10, "lb": [185, 207] },
-	Tuning.Role.CENTER: { "str": 5, "base": 10, "skl": -5, "gas": -4, "agg": -8, "lb": [243, 273] },
+	Tuning.Role.RAIL:   { "str": 6, "base": 10, "skl": -8, "gas": -6, "agg": -2, "lb": [245, 280] },
+	Tuning.Role.FLANK:  { "str": 10, "base": -2, "skl": -4, "gas": -4, "agg": 0, "lb": [210, 235] },
+	Tuning.Role.CENTER: { "str": -6, "base": -6, "skl": 8, "gas": 10, "agg": -6, "lb": [175, 200] },
 }
 
 ## The eight travel in this order, so roster order is the depth chart: five on
