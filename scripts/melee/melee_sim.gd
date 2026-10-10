@@ -2098,11 +2098,9 @@ func _resolve(m: Man, act: int, target: int) -> void:
 			var dir := t.pos - m.pos
 			dir = Vector2.DOWN if dir.length() < 0.01 else dir.normalized()
 			m.charging = false
-			var read_on := Tuning.br_read_lift and _br_read_bonus(m, t) > 0.0
 			if rng.randf() < _bullrush_chance(m, t):
 				_put_down(t, m)
-				_slide(t, dir, Tuning.BR_DOWN_SLIDE * (Tuning.BR_READ_SLIDE if read_on else 1.0),
-					Tuning.BR_DOWN_SLIDE_T)
+				_slide(t, dir, Tuning.BR_DOWN_SLIDE, Tuning.BR_DOWN_SLIDE_T)
 				if m.acting_for_player and m.team == 0:
 					called_br_downs += 1
 					t.slide_called = true

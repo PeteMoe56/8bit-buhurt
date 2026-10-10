@@ -396,7 +396,6 @@ static var br_read_ai: bool = OS.get_environment("RB_BR_READ_AI") == "1"
 ## RB_BR_READ_LIFT=0 puts the old rule back for comparison.
 static var br_read_lift: bool = OS.get_environment("RB_BR_READ_LIFT") != "0"
 const BR_READ_DEEP: float = 1.5
-const BR_READ_SLIDE: float = 1.5        ## and he is blown further across the floor
 ## THE CENTER COMES IN FROM THE ANGLE (Pete, 10 Oct 2026: "centers are still the
 ## most effective bullrushers, but it's because of angles and fighters not paying
 ## attention"). A Center's bullrush on a man tied up with someone else, or one

@@ -208,7 +208,7 @@ static func _boxed(ci: CanvasItem, font: Font, r: Rect2, label: String, value: S
 static func _training(ci: CanvasItem, font: Font, at: Vector2) -> Dictionary:
 	var cw := (W - 12.0) * 0.5
 	UiKit.card(ci, font, Rect2(at, Vector2(cw, 104.0)),
-		{"tag": UiKit.t("Rail") + " + " + UiKit.t("Center"), "name": "Vaughn", "rating": 80, "band": UiKit.SELECT}, true)
+		{"tag": UiKit.t("Rail"), "name": "Vaughn", "rating": 80, "band": UiKit.SELECT}, true)
 	UiKit.card(ci, font, Rect2(at + Vector2(cw + 12.0, 0), Vector2(cw, 104.0)),
 		{"tag": UiKit.t("Center"), "name": "Pike", "rating": 60, "band": UiKit.SELECT}, true)
 	var roles := Rect2(at.x, at.y + 116.0, W, 82.0)
@@ -218,9 +218,9 @@ static func _training(ci: CanvasItem, font: Font, at: Vector2) -> Dictionary:
 		var y := roles.position.y + 24.0 + float(k) * 22.0
 		var taught := k != 1
 		var col: Color = UiKit.INK if taught else UiKit.DOWN
-		UiKit.text_fit(ci, font, String(names[k]), Vector2(roles.position.x + 12.0, y), 14, col, 96.0)
+		UiKit.text_fit(ci, font, String(names[k]), Vector2(roles.position.x + 12.0, y), 14, col, 88.0)
 		UiKit.text_fit(ci, font, UiKit.t("Normal") if taught else UiKit.t("nobody teaches it"),
-			Vector2(roles.position.x + 112.0, y), 13, UiKit.DIM if taught else UiKit.DOWN, W - 124.0)
+			Vector2(roles.position.x + 104.0, y), 13, UiKit.DIM if taught else UiKit.DOWN, W - 112.0)
 	var load := Rect2(at.x, at.y + 210.0, W, 56.0)
 	UiKit.panel(ci, load)
 	var loads := [UiKit.t("Light"), UiKit.t("Normal"), UiKit.t("Hard")]
