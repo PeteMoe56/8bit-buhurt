@@ -12,7 +12,7 @@ class_name GuideScene
 const LIST_X := 24.0
 const LIST_W := 220.0
 const LIST_Y := 24.0
-const LIST_STEP := 48.0
+const LIST_STEP := 44.0  ## ten topics and Back (10 Oct 2026: The wheel)
 const PAGE_X := 264.0
 const PAGE_Y := 24.0
 const LINE_H := 21.0
@@ -25,7 +25,7 @@ var season: Season
 ## Which topic is open. `tab` so the layout and ink sweeps can open every page.
 var tab := 0
 ## The pages, by name, for a button that opens one (`Session.guide_topic`).
-enum Topic { SEASON, TABLE, FIGHT, TEAM, TRAINING, KIT, MONEY, UPGRADES, COACH }
+enum Topic { SEASON, TABLE, FIGHT, WHEEL, TEAM, TRAINING, KIT, MONEY, UPGRADES, COACH }
 
 
 static func topics() -> Array:
@@ -33,6 +33,7 @@ static func topics() -> Array:
 		UiKit.t("The season"),
 		UiKit.t("The table"),
 		UiKit.t("The fight"),
+		UiKit.t("The wheel"),
 		UiKit.t("Your team"),
 		UiKit.t("Training"),
 		UiKit.t("Kit & armorer"),
@@ -66,12 +67,11 @@ static func page(i: int) -> Array:
 			UiKit.t("A man who goes down stays down until the round is over."),
 			UiKit.t("A round ends when a side is wiped out, it is three on one, or time runs out. More men standing wins it."),
 			UiKit.t("HOLD freezes the fight so you can give one order. You get two a bout."),
-			UiKit.t("Drag your man onto an enemy to send him. When he gets there the fight stops and his three choices open in the corner."),
-			UiKit.t("A man who meets someone on his own shows his choices too, his own pick outlined, without stopping the fight. Rust means clinched: wait for the edge to fill."),
 			UiKit.t("Between rounds you can swap in up to two men from the bench. Rested men come back fresher."),
 			UiKit.t("Your Playbook plan steers your line for the opening seconds of each round."),
 		]
-		3: return [
+		3: return []    ## a picture page, see `picture`
+		4: return [
 			UiKit.t("Five starters, three on the bench, up to four in reserve. Reserves do not travel."),
 			UiKit.t("OVR is how good he is now. POT is as good as he can get."),
 			UiKit.t("Strength puts men down. Base keeps him up. Skill wins the grapple. Gas is his tank."),
@@ -80,7 +80,7 @@ static func page(i: int) -> Array:
 			UiKit.t("Free agents cost CC to sign, and their wage goes on your books."),
 			UiKit.t("Unhappy men turn down new deals and walk. Men start to retire from 33."),
 		]
-		4: return [
+		5: return [
 			UiKit.t("Hire up to two captains. Each teaches roles: Rail, Flanker or Center."),
 			UiKit.t("A role nobody teaches gets no training over the winter."),
 			UiKit.t("Light: less XP, happier men. Normal: steady. Hard: half again the XP, but more knocks and grumbling."),
@@ -88,7 +88,7 @@ static func page(i: int) -> Array:
 			UiKit.t("Winter camp: your training ground and captains share out points over the winter."),
 			UiKit.t("Invest: once a year, tap Invest on a man's page for +3 POT at the winter. Needs training ground 3."),
 		]
-		5: return [
+		6: return [
 			UiKit.t("Every man's harness has a metal and a condition. Below the pass mark he cannot fight."),
 			UiKit.t("Metals: Rust, Mild, Hardened, Stainless, Titanium. Better metal wears slower."),
 			UiKit.t("Your armorer's stars are the best metal he can make and keep up. More stars, more wage."),
@@ -96,14 +96,14 @@ static func page(i: int) -> Array:
 			UiKit.t("Repair each man once a week, in a fight week. Each winter your armorer restores every harness to the best its own metal allows."),
 			UiKit.t("Worn kit makes a man easier to put down."),
 		]
-		6: return [
+		7: return [
 			UiKit.t("CC is club money. Everything you buy costs CC."),
 			UiKit.t("$ is a fighter's yearly wage. It never comes out of CC. It only has to fit under your salary cap."),
 			UiKit.t("CC comes in from the gate at every event, the bar at home games, wins, draws and where you finish."),
 			UiKit.t("Each summer you pay upkeep on your ground, buildings, insurance and armorer. Division dues come at the start of a season."),
 			UiKit.t("Cannot pay a bill? That thing drops a level."),
 		]
-		7: return [
+		8: return [
 			UiKit.t("Ground: more seats, more gate. Fenced ground for State, Arena for Regional, National Arena for National."),
 			UiKit.t("Training ground: more winter camp and practice."),
 			UiKit.t("Infirmary: fewer knocks, and injured men come back sooner."),
@@ -138,7 +138,7 @@ func _rebuild() -> void:
 	var names := topics()
 	for i in names.size():
 		ui.add_child(UiKit.selected(UiKit.button(String(names[i]),
-			Vector2(LIST_X, LIST_Y + float(i) * LIST_STEP), Vector2(LIST_W, 44), func(k = i):
+			Vector2(LIST_X, LIST_Y + float(i) * LIST_STEP), Vector2(LIST_W, LIST_STEP - 4.0), func(k = i):
 				tab = k
 				Audio.play("tap")
 				_rebuild()), i == tab))
@@ -158,6 +158,10 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("GUIDE"), r.position + Vector2(24, 34), 12, UiKit.DIM)
 	UiKit.text_fit(self, font, String(topics()[tab]), r.position + Vector2(24, 62), 22, UiKit.INK,
 		r.size.x - 48.0)
+	var pic := picture(tab)
+	if not pic.is_empty():
+		_draw_picture_page(r, pic)
+		return
 	var w := r.size.x - 64.0
 	## THE PAGE FITS ITS PANEL IN EVERY LANGUAGE: a longer translation steps the
 	## whole page down a pixel at a time rather than running off the bottom.
@@ -172,6 +176,67 @@ func _draw() -> void:
 		var n := UiKit.para(self, font, String(line), Vector2(r.position.x + 44.0, y), px, UiKit.INK,
 			w, lh, 3)
 		y += float(n) * lh + GAP
+
+
+## A PICTURE AND WHAT IT MEANS (Pete, 10 Oct 2026: "make the guide actually show
+## pictures and explanations, those lists are way too cluttered"). A page with a
+## picture shows it on the left with gold numbers on it, the same numbers down
+## the right with one short line each, and at most one tip under them.
+##   tex    the picture, cut from a real screen by `tools/shot_guide_art.sh`
+##   marks  [number, point on the picture in its own pixels]
+##   notes  one line per number, in order
+##   tip    optional, under the notes
+static func picture(i: int) -> Dictionary:
+	match i:
+		Topic.WHEEL: return {
+			"tex": "res://art/guide/wheel.png",
+			"marks": [[1, Vector2(78, 232)], [2, Vector2(250, 398)], [3, Vector2(396, 112)], [4, Vector2(394, 322)]],
+			"notes": [
+				UiKit.t("The move."),
+				UiKit.t("5%/23%: his chance to put the man down, then the chance he falls instead."),
+				UiKit.t("Hit always lands. This is the balance it takes off."),
+				UiKit.t("Cancel: back to the fight."),
+			],
+			"tip": UiKit.t("Reach a man already tied up with someone and you can bullrush him while he isn't looking."),
+		}
+	return {}
+
+
+const PIC_SIDE := 320.0
+var _tex := {}
+const MARK_R := 13.0
+
+
+func _draw_picture_page(r: Rect2, pic: Dictionary) -> void:
+	var path := String(pic["tex"])
+	if not _tex.has(path):
+		_tex[path] = load(path)
+	var tex: Texture2D = _tex[path]
+	var at := r.position + Vector2(24.0, 92.0)
+	var scale: float = PIC_SIDE / maxf(tex.get_width(), tex.get_height())
+	draw_texture_rect(tex, Rect2(at, tex.get_size() * scale), false)
+	for mk in pic["marks"]:
+		var p: Vector2 = at + Vector2(mk[1]) * scale
+		_number(p, int(mk[0]))
+	var x := at.x + PIC_SIDE + 28.0
+	var w := r.end.x - 24.0 - (x + 30.0)
+	var y := at.y + 14.0
+	for k in pic["notes"].size():
+		_number(Vector2(x + MARK_R, y - 5.0), k + 1)
+		var n := UiKit.para(self, font, String(pic["notes"][k]), Vector2(x + 30.0, y), 16, UiKit.INK, w, LINE_H, 3)
+		y += float(n) * LINE_H + 18.0
+	if pic.has("tip"):
+		y += 8.0
+		draw_rect(Rect2(x, y - 12.0, w + 30.0, 2.0), UiKit.FRAME)
+		y += 14.0
+		UiKit.para(self, font, String(pic["tip"]), Vector2(x, y), 15, UiKit.DIM, w + 30.0, LINE_H - 1.0, 6)
+
+
+## A gold disc with a dark number, the same on the picture and beside its line.
+func _number(p: Vector2, k: int) -> void:
+	draw_circle(p, MARK_R + 2.0, UiKit.BG)
+	draw_circle(p, MARK_R, UiKit.YOU)
+	UiKit.mid(self, font, str(k), p + Vector2(-MARK_R, 5.0), 14, UiKit.BG, MARK_R * 2.0)
 
 
 func _height(lines: Array, w: float, px: int, lh: float) -> float:
