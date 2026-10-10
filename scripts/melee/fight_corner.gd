@@ -69,9 +69,7 @@ static func point(v) -> Vector2:
 ## Side `i`'s span in degrees clockwise from up. Side 0 lies along the floor,
 ## side 2 stands up the wall, in either hand.
 static func span(i: int) -> Vector2:
-	if right():
-		return Vector2(270.0 + SPAN * i, 300.0 + SPAN * i)
-	return Vector2(90.0 - SPAN * (i + 1), 90.0 - SPAN * i)
+	return span_hand(i, right())
 
 
 static func quadrant() -> Vector2:
@@ -298,54 +296,14 @@ static func _draw_corner(v, m, kind: String) -> void:
 	else:
 		_mark(v, m, true)
 	var fill: Color = RUST if clinch else UiKit.SELECT
-	var edge: Color = RUST_EDGE if clinch else v.COL_DIM
+	var edge: Color = RUST_EDGE if clinch else DIM
 	var pick: int = m.prompt.choice if kind != "wheel" else -99
-	## TWO PASSES: every side first, then every side's words, so no side's
-	## edge is drawn through its neighbour's words.
-	for i in acts.size():
-		var act: int = acts[i]
-		var s: Vector2 = span(i)
-		var hot: bool = kind == "wheel" and act == v.wheel_hot
-		var lit: bool = act == pick and not waiting
-		var pts: PackedVector2Array = _ring(c, RI, RO, s.x + 0.6, s.y - 0.6)
-		var body: Color = RUST_DARK if waiting else (UiKit.YOU if hot else fill)
-		v.draw_colored_polygon(pts, body)
-		var outline: PackedVector2Array = pts.duplicate()
-		outline.append(pts[0])
-		v.draw_polyline(outline, edge, 2.0)
-	## The gold outline of his pick over the plain edges, so it is whole.
-	for i in acts.size():
-		if int(acts[i]) == pick and not waiting:
-			var s2: Vector2 = span(i)
-			var lit_pts: PackedVector2Array = _ring(c, RI, RO, s2.x + 0.6, s2.y - 0.6)
-			lit_pts.append(lit_pts[0])
-			v.draw_polyline(lit_pts, UiKit.YOU, 4.0)
-	for i in acts.size():
-		var act: int = acts[i]
-		var s: Vector2 = span(i)
-		var hot: bool = kind == "wheel" and act == v.wheel_hot
-		var lit: bool = act == pick and not waiting
-		var ink: Color = v.COL_DIM if waiting else (UiKit.BG if hot else UiKit.INK)
-		var mid_a := (s.x + s.y) * 0.5
-		## THE WORDS FOLLOW THE SIDE (Pete, 2 Oct 2026), curved along its arc.
-		var r: Dictionary = read(v, m, act)
-		var dim: bool = waiting
-		arc_text(v, Tuning.act_name(act), c, NAME_R, mid_a, NAME_PX, ink)
-		if String(r["sub"]) != "":
-			arc_text(v, String(r["sub"]), c, SUB_R, mid_a, SUB_PX, v.COL_DIM if dim else r["sub_col"])
-		var ip := _pt(c, MARK_R, mid_a)
-		UiKit.icon(v, v._act_mark(act), ip - Vector2(16, 16), UiKit.YOU if lit else ink, 2)
-		var parts: Array = []
-		if float(r["p"]) >= 0.0:
-			parts.append(["%d%%" % int(round(float(r["p"]) * 100.0)),
-				v.COL_DIM if dim else v._odds_col(float(r["p"]))])
-		if float(r["fall"]) > 0.0:
-			parts.append(["/", v.COL_DIM])
-			parts.append(["%d%%" % int(round(float(r["fall"]) * 100.0)), v.COL_DIM if dim else RED_SOFT])
-		if not parts.is_empty():
-			arc_parts(v, parts, c, CHANCE_R, mid_a, CHANCE_PX)
-		if String(r["inner"]) != "":
-			inner_text(v, String(r["inner"]), c, mid_a, v.COL_DIM if dim else ink)
+	var rows: Array = []
+	for act in acts:
+		var r: Dictionary = read(v, m, int(act))
+		r["act"] = int(act)
+		rows.append(r)
+	draw_sides(v, c, rows, right(), fill, edge, waiting, pick, v.wheel_hot if kind == "wheel" else -99)
 	## THE CLOCK, on the outer edge: draining while he can be overruled, filling
 	## grey while a clinched man gets ready.
 	var q: Vector2 = quadrant()
@@ -400,6 +358,95 @@ static func _draw_corner(v, m, kind: String) -> void:
 	if kind != "wheel" and v.corner_order.size() > 1:
 		UiKit.mid(v, v.font, UiKit.t("+%d · tap here") % (v.corner_order.size() - 1),
 			Vector2(box.position.x, c.y - 12.0), 12, UiKit.YOU, box.size.x)
+
+
+## THE THREE SIDES AND THEIR WORDS, for the fight and for the Guide alike (Pete,
+## 10 Oct 2026: "why can't the wheel just be created the same as in game so it
+## doesn't have to be a screenshot?"). `rows` is one Dictionary per side, in
+## order, as `read` makes them plus "act". `rh` is the hand; `pick` the act
+## outlined in gold, `hot` the one under the thumb (-99 for none).
+static func draw_sides(v, c: Vector2, rows: Array, rh: bool, fill: Color, edge: Color,
+		waiting: bool, pick: int, hot_act: int) -> void:
+	## TWO PASSES: every side first, then every side's words, so no side's
+	## edge is drawn through its neighbour's words.
+	for i in rows.size():
+		var act: int = int(rows[i]["act"])
+		var s: Vector2 = span_hand(i, rh)
+		var hot: bool = act == hot_act
+		var pts: PackedVector2Array = _ring(c, RI, RO, s.x + 0.6, s.y - 0.6)
+		var body: Color = RUST_DARK if waiting else (UiKit.YOU if hot else fill)
+		v.draw_colored_polygon(pts, body)
+		var outline: PackedVector2Array = pts.duplicate()
+		outline.append(pts[0])
+		v.draw_polyline(outline, edge, 2.0)
+	## The gold outline of his pick over the plain edges, so it is whole.
+	for i in rows.size():
+		if int(rows[i]["act"]) == pick and not waiting:
+			var s2: Vector2 = span_hand(i, rh)
+			var lit_pts: PackedVector2Array = _ring(c, RI, RO, s2.x + 0.6, s2.y - 0.6)
+			lit_pts.append(lit_pts[0])
+			v.draw_polyline(lit_pts, UiKit.YOU, 4.0)
+	for i in rows.size():
+		var r: Dictionary = rows[i]
+		var act: int = int(r["act"])
+		var s: Vector2 = span_hand(i, rh)
+		var hot: bool = act == hot_act
+		var lit: bool = act == pick and not waiting
+		var ink: Color = DIM if waiting else (UiKit.BG if hot else UiKit.INK)
+		var mid_a := (s.x + s.y) * 0.5
+		var dim: bool = waiting
+		## THE WORDS FOLLOW THE SIDE (Pete, 2 Oct 2026), curved along its arc.
+		arc_text(v, Tuning.act_name(act), c, NAME_R, mid_a, NAME_PX, ink)
+		if String(r["sub"]) != "":
+			arc_text(v, String(r["sub"]), c, SUB_R, mid_a, SUB_PX, DIM if dim else r["sub_col"])
+		var ip := _pt(c, MARK_R, mid_a)
+		UiKit.icon(v, act_mark(act), ip - Vector2(16, 16), UiKit.YOU if lit else ink, 2)
+		var parts: Array = []
+		if float(r["p"]) >= 0.0:
+			parts.append(["%d%%" % int(round(float(r["p"]) * 100.0)),
+				DIM if dim else odds_col(float(r["p"]))])
+		if float(r["fall"]) > 0.0:
+			parts.append(["/", DIM])
+			parts.append(["%d%%" % int(round(float(r["fall"]) * 100.0)), DIM if dim else RED_SOFT])
+		if not parts.is_empty():
+			arc_parts(v, parts, c, CHANCE_R, mid_a, CHANCE_PX)
+		if String(r["inner"]) != "":
+			inner_text(v, String(r["inner"]), c, mid_a, DIM if dim else ink)
+
+
+## The wheel's quiet colour (the fight screen's COL_DIM).
+const DIM := Color("a59c8b")
+
+
+## Side `i`'s span for a given hand (see `span`).
+static func span_hand(i: int, rh: bool) -> Vector2:
+	if rh:
+		return Vector2(270.0 + SPAN * i, 300.0 + SPAN * i)
+	return Vector2(90.0 - SPAN * (i + 1), 90.0 - SPAN * i)
+
+
+## EACH MARK READS AS ITS WORD (review round 3: the round shield read as a
+## target, and a padlock as anything but a clinch).
+static func act_mark(act: int) -> String:
+	match act:
+		Tuning.Act.BULLRUSH: return "shield"
+		Tuning.Act.GRAPPLE: return "fist"
+		Tuning.Act.HIT: return "sword"
+		Tuning.Act.TAKEDOWN: return "down"
+		Tuning.Act.HOLD: return "lock"
+		Tuning.Act.ESCAPE: return "boot"
+		Tuning.Act.BREAK: return "gate"
+	return "cursor"
+
+
+## A chance's colour: green when likely, gold in the middle, red for a long shot
+## (round 8: 5% in white read as neutral).
+static func odds_col(p: float) -> Color:
+	if p >= 0.6:
+		return UiKit.UP
+	if p >= 0.35:
+		return UiKit.YOU
+	return UiKit.DOWN.lightened(0.2)
 
 
 ## The size a line is drawn at on its arc: the asked size, stepped down until it

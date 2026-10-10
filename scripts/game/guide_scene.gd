@@ -189,8 +189,10 @@ func _draw() -> void:
 static func picture(i: int) -> Dictionary:
 	match i:
 		Topic.WHEEL: return {
-			"tex": "res://art/guide/wheel.png",
-			"marks": [[1, Vector2(78, 232)], [2, Vector2(250, 398)], [3, Vector2(396, 112)], [4, Vector2(394, 322)]],
+			"draw": "wheel",
+			## Numbers placed by the wheel's own geometry: [number, radius, angle].
+			"marks": [[1, FightCorner.RO + 18.0, 280.0], [2, FightCorner.RI - 18.0, 302.0],
+				[3, FightCorner.RO + 18.0, 352.0], [4, FightCorner.RI - 30.0, 335.0]],
 			"notes": [
 				UiKit.t("The move."),
 				UiKit.t("5%/23%: his chance to put the man down, then the chance he falls instead."),
@@ -203,21 +205,14 @@ static func picture(i: int) -> Dictionary:
 
 
 const PIC_SIDE := 320.0
-var _tex := {}
 const MARK_R := 13.0
 
 
 func _draw_picture_page(r: Rect2, pic: Dictionary) -> void:
-	var path := String(pic["tex"])
-	if not _tex.has(path):
-		_tex[path] = load(path)
-	var tex: Texture2D = _tex[path]
 	var at := r.position + Vector2(24.0, 92.0)
-	var scale: float = PIC_SIDE / maxf(tex.get_width(), tex.get_height())
-	draw_texture_rect(tex, Rect2(at, tex.get_size() * scale), false)
-	for mk in pic["marks"]:
-		var p: Vector2 = at + Vector2(mk[1]) * scale
-		_number(p, int(mk[0]))
+	match String(pic.get("draw", "")):
+		"wheel":
+			_draw_wheel_picture(at, pic)
 	var x := at.x + PIC_SIDE + 28.0
 	var w := r.end.x - 24.0 - (x + 30.0)
 	var y := at.y + 14.0
@@ -230,6 +225,24 @@ func _draw_picture_page(r: Rect2, pic: Dictionary) -> void:
 		draw_rect(Rect2(x, y - 12.0, w + 30.0, 2.0), UiKit.FRAME)
 		y += 14.0
 		UiKit.para(self, font, String(pic["tip"]), Vector2(x, y), 15, UiKit.DIM, w + 30.0, LINE_H - 1.0, 6)
+
+
+## THE REAL WHEEL, drawn by the fight's own code with example numbers, so the
+## words on it are in the player's language: a man sent at a free enemy.
+func _draw_wheel_picture(at: Vector2, pic: Dictionary) -> void:
+	var c := at + Vector2(PIC_SIDE, PIC_SIDE) - Vector2(8.0, 8.0)
+	var rows := [
+		{"act": Tuning.Act.BULLRUSH, "p": 0.05, "fall": 0.23, "sub": "", "sub_col": UiKit.INK, "inner": ""},
+		{"act": Tuning.Act.GRAPPLE, "p": 1.0, "fall": -1.0, "sub": UiKit.t("takedown %d%%") % 14,
+			"sub_col": UiKit.INK, "inner": ""},
+		{"act": Tuning.Act.HIT, "p": 1.0, "fall": -1.0, "sub": UiKit.t("-%d%% balance") % 9,
+			"sub_col": UiKit.INK, "inner": ""},
+	]
+	FightCorner.draw_sides(self, c, rows, true, UiKit.SELECT, FightCorner.DIM, false, -99, -99)
+	draw_colored_polygon(FightCorner._ring(c, 0.0, FightCorner.RI - 6.0, 270.0, 360.0), UiKit.BG)
+	UiKit.mid(self, font, UiKit.t("Cancel"), Vector2(c.x - 106.0, c.y - 34.0), 15, UiKit.INK, 100.0)
+	for mk in pic["marks"]:
+		_number(FightCorner._pt(c, float(mk[1]), float(mk[2])), int(mk[0]))
 
 
 ## A gold disc with a dark number, the same on the picture and beside its line.
