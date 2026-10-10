@@ -321,6 +321,15 @@ func _check(t: String, where: String) -> void:
 				ab[wi] = String(ws[wi]).substr(0, 1) + "."
 				if " ".join(ab).to_upper() == s.to_upper():
 					return
+	## A MIDDLE LINE OF A WRAPPED, FILLED TEMPLATE has neither bracket, and its
+	## number is filled in: "+3 to the stat you pick," from "...: +%d to the stat
+	## you pick, on his page." Put the placeholder back and look for it in what
+	## was asked of the table (the Guide's notes, 10 Oct 2026).
+	var templ := RegEx.create_from_string("[0-9]+").sub(s, "%d", true)
+	if templ != s:
+		for k in asked:
+			if String(k).contains(templ):
+				return
 	## Money and counts: "43 CC", "$181 of $800", "-4 CC". CC is the currency's
 	## name in every language.
 	if RegEx.create_from_string("^[-+$0-9.,k/ ·%]*(CC)?[-+$0-9.,k/ ·%]*$").search(s) != null:

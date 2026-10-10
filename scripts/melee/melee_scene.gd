@@ -2196,12 +2196,7 @@ func _wheel_answer(m, opt: int) -> void:
 
 ## GREEN, YELLOW, RED — the chance an option lands.
 func _odds_col(p: float) -> Color:
-	if p >= 0.6:
-		return UiKit.UP
-	if p >= 0.35:
-		return UiKit.YOU
-	## A LONG SHOT IS A RISK, and says so (round 8: 5% in white read as neutral).
-	return UiKit.DOWN.lightened(0.2)
+	return FightCorner.odds_col(p)
 
 
 func _draw_wheel(m) -> void:
@@ -2325,17 +2320,7 @@ func _draw_wheel(m) -> void:
 
 ## The mark on each side of the guard triangle.
 static func _act_mark(act: int) -> String:
-	match act:
-		## EACH MARK READS AS ITS WORD (review round 3: the round shield read as
-		## a target, and a padlock as anything but a clinch).
-		Tuning.Act.BULLRUSH: return "shield"
-		Tuning.Act.GRAPPLE: return "fist"
-		Tuning.Act.HIT: return "sword"
-		Tuning.Act.TAKEDOWN: return "down"
-		Tuning.Act.HOLD: return "lock"
-		Tuning.Act.ESCAPE: return "boot"
-		Tuning.Act.BREAK: return "gate"
-	return "cursor"
+	return FightCorner.act_mark(act)
 
 
 # ------------------------------------------------------------------ prompts

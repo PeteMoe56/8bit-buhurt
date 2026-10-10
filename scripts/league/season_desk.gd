@@ -168,6 +168,49 @@ static func weakest_on_eight(s: Season) -> FighterCard:
 
 ## THE MEN WHO WOULD MAKE THE EIGHT AND THE CLUB CAN TAKE: fee paid with the
 ## summer bill still in hand, wage under the cap, a place on the books. Best first.
+## WHO STEPS DOWN when nobody in the signing's own role is worse than him (10 Oct
+## 2026). It used to be the weakest man on the eight whatever his role, and when
+## he was the only cover for a place the line lost more than it gained (power
+## 49.81 -> 49.78 for a better man signed). Each worse man is tried; the one whose
+## stepping down leaves the strongest club goes.
+static func _best_to_stand_down(s: Season, card: FighterCard) -> FighterCard:
+	var best: FighterCard = null
+	var best_p := -1.0
+	for m in s.club.active_eight():
+		if m.rating() >= card.rating():
+			continue
+		if s.club.swap_squad(m, card) != "":
+			continue
+		var p := s.club.power_exact()
+		s.club.swap_squad(card, m)
+		if best == null or p > best_p:
+			best_p = p
+			best = m
+	return best
+
+
+## WOULD SIGNING HIM MAKE THE CLUB STRONGER? Yes if he outrates a man in his own
+## role on the eight; otherwise only if somebody can step down for him and the
+## club still comes out stronger. Tried on the books for a moment and put back.
+## The market only asks about, and only lists as upgrades, men who pass.
+static func signing_helps(s: Season, f: FighterCard) -> bool:
+	for m in s.club.active_eight():
+		if Tuning.role_of(int(m.pos)) == Tuning.role_of(int(f.pos)) and m.rating() < f.rating():
+			return true
+	var was_active := f.active
+	f.active = false
+	s.club.roster.append(f)
+	var before := s.club.power_exact()
+	var after := before
+	var low := _best_to_stand_down(s, f)
+	if low != null and s.club.swap_squad(low, f) == "":
+		after = s.club.power_exact()
+		s.club.swap_squad(f, low)
+	s.club.roster.erase(f)
+	f.active = was_active
+	return after > before
+
+
 static func market_upgrades(s: Season) -> Array:
 	var out: Array = []
 	var low := weakest_on_eight(s)
@@ -175,7 +218,8 @@ static func market_upgrades(s: Season) -> Array:
 		return out
 	var spare := s.office.credits - s.office.summer_bill()
 	for f in s.market():
-		if f.rating() <= low.rating() or s.market_fee(f) > spare or sign_wall(s, f) != "":
+		if f.rating() <= low.rating() or s.market_fee(f) > spare or sign_wall(s, f) != "" \
+				or not signing_helps(s, f):
 			continue
 		out.append(f)
 	out.sort_custom(func(a, b): return a.rating() > b.rating())
@@ -676,11 +720,14 @@ static func sign_from_market(s: Season, f: FighterCard) -> String:
 	if SIGNING_STARTS and not card.active:
 		var low: FighterCard = null
 		for m in s.club.active_eight():
-			if int(m.pos) == int(card.pos) and m.rating() < card.rating() \
+			## His own ROLE, not his own slot: a left flanker signed for a club
+			## whose worse flanker plays on the right is still a flanker (10 Oct
+			## 2026: standing down the only cover of another role cost power).
+			if Tuning.role_of(int(m.pos)) == Tuning.role_of(int(card.pos)) and m.rating() < card.rating() \
 					and (low == null or m.rating() < low.rating()):
 				low = m
 		if low == null:
-			low = weakest_on_eight(s)
+			low = _best_to_stand_down(s, card)
 		if low != null and card.rating() > low.rating():
 			s.club.swap_squad(low, card)
 	s.office.spend(fee, ClubOffice.LINE_SQUAD)

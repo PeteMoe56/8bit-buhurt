@@ -21,24 +21,26 @@ const RI := 126.0          ## the hub's edge; the sides start here (room for its
 const RO := 300.0          ## the sides' outer edge: 174 px of thumb, room for the words (2 Oct)
 const BAND := 10.0         ## the clock on the outer edge
 const SPAN := 30.0         ## each side, in degrees
-## Where each line of a side's words runs, from the corner.
-## THE LONGEST LINE ON THE LONGEST ARC (Pete, 3 Oct 2026: "slightly bigger, enough
-## for the legibility, however they DO have to fit within their portion of the
-## wheel without clipping through or wrapping"). A 30-degree side is 102px of arc
-## at 226 and 123 at 274, and the effect line ("puts him down") is the long
-## one, so it goes outside and the short name inside.
-const EFFECT_R := 274.0
-const CHANCE_R := 250.0
-const NAME_R := 226.0
-## The sizes each line asks for; `arc_text` steps one down until it fits its arc,
-## and `test_wheel` holds every language at or above the floors below.
-const NAME_PX := 18
-const CHANCE_PX := 15
-const EFFECT_PX := 14
-const NAME_MIN := 16
+## WHAT EACH SIDE SAYS, from the outside in (Pete, 10 Oct 2026: "Bullrush, Hit,
+## Break should be the biggest words there and the fall/chance/balance should be
+## smaller. No explainers. Just put percentages closest to the dial center."):
+##   the act's NAME, biggest, on the outside;
+##   Hit's balance dent under it (the only side with a second number);
+##   the act's ICON;
+##   the CHANCE nearest the hub, with Bullrush's fall beside it in red, or
+##   Break's "Free Teammate".
+## Each line steps its size down until it fits its arc; `test_corner` holds every
+## language at or above the floors below.
+const NAME_R := 272.0
+const SUB_R := 246.0
+const MARK_R := 216.0
+const CHANCE_R := 172.0
+const NAME_PX := 24
+const SUB_PX := 14
+const CHANCE_PX := 17
+const NAME_MIN := 18
+const SUB_MIN := 11
 const CHANCE_MIN := 13
-const EFFECT_MIN := 12
-const MARK_R := 176.0
 ## How much of a side's arc its words may fill before they step down a size.
 const ARC_FILL := 0.86
 
@@ -67,9 +69,7 @@ static func point(v) -> Vector2:
 ## Side `i`'s span in degrees clockwise from up. Side 0 lies along the floor,
 ## side 2 stands up the wall, in either hand.
 static func span(i: int) -> Vector2:
-	if right():
-		return Vector2(270.0 + SPAN * i, 300.0 + SPAN * i)
-	return Vector2(90.0 - SPAN * (i + 1), 90.0 - SPAN * i)
+	return span_hand(i, right())
 
 
 static func quadrant() -> Vector2:
@@ -202,37 +202,32 @@ static func press_bar(v, p: Vector2) -> bool:
 
 
 # ------------------------------------------------------------ the words
-## What one act will do, for its side: the chance it lands and what it does.
-## `p` < 0 means no chance to show. The wheel's own numbers, from the sim.
+## What one act's side shows: `p` the chance (< 0 for none), `fall` Bullrush's
+## fall (< 0 for none), `sub` a small line under the name, `inner` words in the
+## chance's place. The wheel's own numbers, from the sim.
 static func read(v, m, act: int) -> Dictionary:
 	var t = v.sim.men[m.prompt.target]
 	var o: Dictionary = v.sim.contact_odds(m.idx, act, t.idx)
-	var out: Dictionary = {"p": float(o["p"]), "effect": UiKit.t("puts him down"), "col": UiKit.INK}
+	var out: Dictionary = {"p": float(o["p"]), "fall": -1.0, "sub": "", "sub_col": UiKit.INK, "inner": ""}
 	match act:
 		Tuning.Act.HIT:
 			out["p"] = 1.0
-			## Shorter than the wheel's "his balance -9%": a side is 30 degrees wide.
-			out["effect"] = UiKit.t("balance -%d%%") % int(round(float(o["dent"]) * 100.0))
+			out["sub"] = UiKit.t("-%d%% balance") % int(round(float(o["dent"]) * 100.0))
 		Tuning.Act.GRAPPLE:
 			out["p"] = 1.0
-			out["effect"] = UiKit.t("takedown %d%%") % int(round(float(o["p"]) * 100.0))
+			out["sub"] = UiKit.t("takedown %d%%") % int(round(float(o["p"]) * 100.0))
 		Tuning.Act.BREAK:
 			out["p"] = -1.0
-			out["effect"] = UiKit.t("frees your man")
-		Tuning.Act.HOLD:
+			out["inner"] = UiKit.t("Free Teammate")
+		Tuning.Act.HOLD, Tuning.Act.ESCAPE:
 			out["p"] = -1.0
-			out["effect"] = UiKit.t("keeps him tied")
-		Tuning.Act.ESCAPE:
-			out["p"] = -1.0
-			out["effect"] = UiKit.t("breaks free")
 		Tuning.Act.BULLRUSH:
 			if float(o["fall"]) > 0.0:
-				out["effect"] = UiKit.t("fall %d%%") % int(round(float(o["fall"]) * 100.0))
-				out["col"] = RED_SOFT
+				out["fall"] = float(o["fall"])
 		Tuning.Act.TAKEDOWN:
 			if m.prompt.menu == Tuning.Menu.GRAPPLED and Tuning.td_gate > 0.0 and t.stability > Tuning.td_gate:
-				out["effect"] = UiKit.t("he holds firm")
-				out["col"] = RED_SOFT
+				out["sub"] = UiKit.t("he holds firm")
+				out["sub_col"] = RED_SOFT
 	return out
 
 
@@ -301,47 +296,14 @@ static func _draw_corner(v, m, kind: String) -> void:
 	else:
 		_mark(v, m, true)
 	var fill: Color = RUST if clinch else UiKit.SELECT
-	var edge: Color = RUST_EDGE if clinch else v.COL_DIM
+	var edge: Color = RUST_EDGE if clinch else DIM
 	var pick: int = m.prompt.choice if kind != "wheel" else -99
-	## TWO PASSES: every side first, then every side's words, so no side's
-	## edge is drawn through its neighbour's words.
-	for i in acts.size():
-		var act: int = acts[i]
-		var s: Vector2 = span(i)
-		var hot: bool = kind == "wheel" and act == v.wheel_hot
-		var lit: bool = act == pick and not waiting
-		var pts: PackedVector2Array = _ring(c, RI, RO, s.x + 0.6, s.y - 0.6)
-		var body: Color = RUST_DARK if waiting else (UiKit.YOU if hot else fill)
-		v.draw_colored_polygon(pts, body)
-		var outline: PackedVector2Array = pts.duplicate()
-		outline.append(pts[0])
-		v.draw_polyline(outline, edge, 2.0)
-	## The gold outline of his pick over the plain edges, so it is whole.
-	for i in acts.size():
-		if int(acts[i]) == pick and not waiting:
-			var s2: Vector2 = span(i)
-			var lit_pts: PackedVector2Array = _ring(c, RI, RO, s2.x + 0.6, s2.y - 0.6)
-			lit_pts.append(lit_pts[0])
-			v.draw_polyline(lit_pts, UiKit.YOU, 4.0)
-	for i in acts.size():
-		var act: int = acts[i]
-		var s: Vector2 = span(i)
-		var hot: bool = kind == "wheel" and act == v.wheel_hot
-		var lit: bool = act == pick and not waiting
-		var ink: Color = v.COL_DIM if waiting else (UiKit.BG if hot else UiKit.INK)
-		var mid_a := (s.x + s.y) * 0.5
-		## THE WORDS FOLLOW THE SIDE (Pete, 2 Oct 2026: options 4 and 5 — a bigger
-		## corner, the words curved along each side's arc). Name on the outside,
-		## the chance, then what it does; the mark sits straight in the side's
-		## inner end. Nothing crosses an edge, in either hand.
-		var r: Dictionary = read(v, m, act)
-		arc_text(v, Tuning.act_name(act), c, NAME_R, mid_a, NAME_PX, ink)
-		if float(r["p"]) >= 0.0:
-			arc_text(v, UiKit.t("%d%% chance") % int(round(float(r["p"]) * 100.0)), c, CHANCE_R, mid_a, CHANCE_PX,
-				v.COL_DIM if waiting else v._odds_col(float(r["p"])))
-		arc_text(v, String(r["effect"]), c, EFFECT_R, mid_a, EFFECT_PX, v.COL_DIM if waiting else r["col"])
-		var ip := _pt(c, MARK_R, mid_a)
-		UiKit.icon(v, v._act_mark(act), ip - Vector2(16, 16), UiKit.YOU if lit else ink, 2)
+	var rows: Array = []
+	for act in acts:
+		var r: Dictionary = read(v, m, int(act))
+		r["act"] = int(act)
+		rows.append(r)
+	draw_sides(v, c, rows, right(), fill, edge, waiting, pick, v.wheel_hot if kind == "wheel" else -99)
 	## THE CLOCK, on the outer edge: draining while he can be overruled, filling
 	## grey while a clinched man gets ready.
 	var q: Vector2 = quadrant()
@@ -398,6 +360,95 @@ static func _draw_corner(v, m, kind: String) -> void:
 			Vector2(box.position.x, c.y - 12.0), 12, UiKit.YOU, box.size.x)
 
 
+## THE THREE SIDES AND THEIR WORDS, for the fight and for the Guide alike (Pete,
+## 10 Oct 2026: "why can't the wheel just be created the same as in game so it
+## doesn't have to be a screenshot?"). `rows` is one Dictionary per side, in
+## order, as `read` makes them plus "act". `rh` is the hand; `pick` the act
+## outlined in gold, `hot` the one under the thumb (-99 for none).
+static func draw_sides(v, c: Vector2, rows: Array, rh: bool, fill: Color, edge: Color,
+		waiting: bool, pick: int, hot_act: int) -> void:
+	## TWO PASSES: every side first, then every side's words, so no side's
+	## edge is drawn through its neighbour's words.
+	for i in rows.size():
+		var act: int = int(rows[i]["act"])
+		var s: Vector2 = span_hand(i, rh)
+		var hot: bool = act == hot_act
+		var pts: PackedVector2Array = _ring(c, RI, RO, s.x + 0.6, s.y - 0.6)
+		var body: Color = RUST_DARK if waiting else (UiKit.YOU if hot else fill)
+		v.draw_colored_polygon(pts, body)
+		var outline: PackedVector2Array = pts.duplicate()
+		outline.append(pts[0])
+		v.draw_polyline(outline, edge, 2.0)
+	## The gold outline of his pick over the plain edges, so it is whole.
+	for i in rows.size():
+		if int(rows[i]["act"]) == pick and not waiting:
+			var s2: Vector2 = span_hand(i, rh)
+			var lit_pts: PackedVector2Array = _ring(c, RI, RO, s2.x + 0.6, s2.y - 0.6)
+			lit_pts.append(lit_pts[0])
+			v.draw_polyline(lit_pts, UiKit.YOU, 4.0)
+	for i in rows.size():
+		var r: Dictionary = rows[i]
+		var act: int = int(r["act"])
+		var s: Vector2 = span_hand(i, rh)
+		var hot: bool = act == hot_act
+		var lit: bool = act == pick and not waiting
+		var ink: Color = DIM if waiting else (UiKit.BG if hot else UiKit.INK)
+		var mid_a := (s.x + s.y) * 0.5
+		var dim: bool = waiting
+		## THE WORDS FOLLOW THE SIDE (Pete, 2 Oct 2026), curved along its arc.
+		arc_text(v, Tuning.act_name(act), c, NAME_R, mid_a, NAME_PX, ink)
+		if String(r["sub"]) != "":
+			arc_text(v, String(r["sub"]), c, SUB_R, mid_a, SUB_PX, DIM if dim else r["sub_col"])
+		var ip := _pt(c, MARK_R, mid_a)
+		UiKit.icon(v, act_mark(act), ip - Vector2(16, 16), UiKit.YOU if lit else ink, 2)
+		var parts: Array = []
+		if float(r["p"]) >= 0.0:
+			parts.append(["%d%%" % int(round(float(r["p"]) * 100.0)),
+				DIM if dim else odds_col(float(r["p"]))])
+		if float(r["fall"]) > 0.0:
+			parts.append(["/", DIM])
+			parts.append(["%d%%" % int(round(float(r["fall"]) * 100.0)), DIM if dim else RED_SOFT])
+		if not parts.is_empty():
+			arc_parts(v, parts, c, CHANCE_R, mid_a, CHANCE_PX)
+		if String(r["inner"]) != "":
+			inner_text(v, String(r["inner"]), c, mid_a, DIM if dim else ink)
+
+
+## The wheel's quiet colour (the fight screen's COL_DIM).
+const DIM := Color("a59c8b")
+
+
+## Side `i`'s span for a given hand (see `span`).
+static func span_hand(i: int, rh: bool) -> Vector2:
+	if rh:
+		return Vector2(270.0 + SPAN * i, 300.0 + SPAN * i)
+	return Vector2(90.0 - SPAN * (i + 1), 90.0 - SPAN * i)
+
+
+## EACH MARK READS AS ITS WORD (review round 3: the round shield read as a
+## target, and a padlock as anything but a clinch).
+static func act_mark(act: int) -> String:
+	match act:
+		Tuning.Act.BULLRUSH: return "shield"
+		Tuning.Act.GRAPPLE: return "fist"
+		Tuning.Act.HIT: return "sword"
+		Tuning.Act.TAKEDOWN: return "down"
+		Tuning.Act.HOLD: return "lock"
+		Tuning.Act.ESCAPE: return "boot"
+		Tuning.Act.BREAK: return "gate"
+	return "cursor"
+
+
+## A chance's colour: green when likely, gold in the middle, red for a long shot
+## (round 8: 5% in white read as neutral).
+static func odds_col(p: float) -> Color:
+	if p >= 0.6:
+		return UiKit.UP
+	if p >= 0.35:
+		return UiKit.YOU
+	return UiKit.DOWN.lightened(0.2)
+
+
 ## The size a line is drawn at on its arc: the asked size, stepped down until it
 ## fits the side. Public so `test_wheel` can hold every language to the floors.
 static func arc_room(r: float) -> float:
@@ -427,4 +478,42 @@ static func arc_text(v, text: String, c: Vector2, r: float, mid_deg: float, size
 		v.draw_set_transform(at, t + PI * 0.5, Vector2.ONE)
 		v.draw_string(font, Vector2(-cw * 0.5, px * 0.35), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, px, col)
 		a += cw / r
+	v.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Words in the chance's place (Break's "Free Teammate"). One line if it fits at
+## the chance's floor, otherwise split at its first space onto two arcs.
+static func inner_lines(font: Font, text: String) -> Array:
+	if arc_px(font, text, CHANCE_R, SUB_PX) >= CHANCE_MIN or not text.contains(" "):
+		return [text]
+	var k := text.find(" ")
+	return [text.substr(0, k), text.substr(k + 1)]
+
+
+static func inner_text(v, text: String, c: Vector2, mid_deg: float, col: Color) -> void:
+	var lines := inner_lines(v.font, text)
+	if lines.size() == 1:
+		arc_text(v, text, c, CHANCE_R, mid_deg, SUB_PX, col)
+		return
+	arc_text(v, String(lines[0]), c, CHANCE_R + 9.0, mid_deg, SUB_PX, col)
+	arc_text(v, String(lines[1]), c, CHANCE_R - 9.0, mid_deg, SUB_PX, col)
+
+
+## Several pieces along one arc, each its own colour, sized together as one line.
+static func arc_parts(v, parts: Array, c: Vector2, r: float, mid_deg: float, size: int) -> void:
+	var font: Font = v.font
+	var whole := ""
+	for pc in parts:
+		whole += String(pc[0])
+	var px := arc_px(font, whole, r, size)
+	var w: float = font.get_string_size(whole, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	var a := deg_to_rad(mid_deg - 90.0) - (w * 0.5) / r
+	for pc in parts:
+		for ch in String(pc[0]):
+			var cw: float = font.get_string_size(ch, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+			var t := a + (cw * 0.5) / r
+			var at := c + Vector2(cos(t), sin(t)) * r
+			v.draw_set_transform(at, t + PI * 0.5, Vector2.ONE)
+			v.draw_string(font, Vector2(-cw * 0.5, px * 0.35), ch, HORIZONTAL_ALIGNMENT_LEFT, -1, px, pc[1])
+			a += cw / r
 	v.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

@@ -257,13 +257,30 @@ func _test_a_refusal_names_a_door_that_opens() -> void:
 ## THE FIRST YEAR UP (lane B, 2 Oct 2026). A club just promoted, with money,
 ## is asked about the free agents before its first bout; a man signed who
 ## outrates one on the eight takes his place; the fee is the promotion share.
-func _test_the_first_year_up() -> void:
-	var s := Season.new(MeleeRosters.starting_club(), 31337)
+func _first_year_world(seed_v: int) -> Season:
+	var s := Season.new(MeleeRosters.starting_club(), seed_v)
 	while s.club.roster.size() >= MeleeClub.SQUAD_MAX:
 		s.club.roster.pop_back()
 	s.office.credits = 5000
 	while s.office.cap_level < 60:
 		s.office.cap_level += 1
+	return s
+
+
+func _test_the_first_year_up() -> void:
+	## A WORLD WHOSE MARKET HAS A REAL UPGRADE IN IT (10 Oct 2026). The market
+	## only offers men whose signing makes the club stronger (`signing_helps`),
+	## and on some seeds the only men who outrate the weakest of the eight are
+	## of another role, whose signing would strip a place of its cover. This test
+	## is about the ask and the signing, so it takes the first seed from 31337 on
+	## whose market holds a man who helps.
+	var seed_v := 31337
+	var s := _first_year_world(seed_v)
+	for k in 40:
+		if not SeasonDesk.market_upgrades(s).is_empty():
+			break
+		seed_v += 101
+		s = _first_year_world(seed_v)
 	## Not promoted and not hoarding: quiet. (5000 CC is a hoard, so the quiet
 	## check holds the purse at one summer's bill.)
 	s.office.credits = maxi(1, s.office.summer_bill())
@@ -286,17 +303,25 @@ func _test_the_first_year_up() -> void:
 	_ok(s.market_fee(best) == want, "the first year up, the fee is the promotion share",
 		"%d CC listed, %d charged (x%.2f)" % [base_fee, s.market_fee(best), Market.PROMOTED_FEE_MULT])
 	var power_before := s.club.power_exact()
+	var eight_before: Array = s.club.active_eight()
 	var key := Market.taken_key(best)
 	var err := s.sign_from_market(best)
 	var signed: FighterCard = null
 	for f in s.club.roster:
 		if Market.taken_key(f) == key or f.display_name == best.display_name:
 			signed = f
+	## WHO STEPPED DOWN: a worse man, his own role first (10 Oct 2026), and the
+	## club came out stronger for it.
+	var stood: FighterCard = null
+	for m in eight_before:
+		if not m.active:
+			stood = m
 	_ok(err == "" and signed != null and signed.active == SeasonDesk.SIGNING_STARTS
-			and not (SeasonDesk.SIGNING_STARTS and low.active) and s.club.power_exact() >= power_before,
+			and (not SeasonDesk.SIGNING_STARTS or (stood != null and stood.rating() < signed.rating()))
+			and s.club.power_exact() >= power_before,
 		"a signing who outrates a man on the eight takes his place",
-		"%s on the eight: %s; %s stood down: %s; power %.1f -> %.1f" % [best.display_name,
-			str(signed != null and signed.active), low.display_name, str(not low.active),
+		"%s on the eight: %s; stood down: %s; power %.1f -> %.1f" % [best.display_name,
+			str(signed != null and signed.active), stood.display_name if stood != null else "nobody",
 			power_before, s.club.power_exact()])
 	s.market_warned = s.world.season
 	_ok(s.market_ask().is_empty(), "and the ask is made once a season", "answered for season %d" % s.world.season)

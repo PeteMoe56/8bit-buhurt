@@ -191,8 +191,9 @@ clubs' rows.
 
 The league carries a rating for every club in the country. That is enough to resolve a
 fixture on paper and nothing like enough to *fight* one, so `ClubFactory` turns a rating
-into eight fighters, five reserves and legal heraldry — Rails heavy, Flankers quick,
-Centers immovable, the same silhouette the hand-written fixture clubs have.
+into eight fighters, five reserves and legal heraldry — Rails the biggest, Flankers the
+hardest hitters, Centers light and quick (Pete, 10 Oct 2026), the same silhouette the
+hand-written fixture clubs have.
 
 It is seeded off the club's **id alone**, so it needs no save data and the club you play
 in October fields the same eight it fielded in March. And it does not try to invert

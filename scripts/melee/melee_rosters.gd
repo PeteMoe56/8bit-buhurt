@@ -11,9 +11,10 @@ extends RefCounted
 ## sounds important in prose is not the same as one that is balanced.
 ##
 ## They exist to make the fight legible, so the five are deliberately unalike:
-## the Rails are heavy and hard to move, the Flankers are quick and light, the
-## Centers are the immovable ones. If everyone is a 50 the readability question
-## gets a dishonest answer.
+## the Rails are the biggest and hardest to move, the Flankers hit hardest, the
+## Centers are the light, quick, fit ones (Pete, 10 Oct 2026: "Centers are like
+## Harrison Smith, Flankers like Ray Lewis, Rails like a defensive lineman").
+## If everyone is a 50 the readability question gets a dishonest answer.
 ##
 ## World rule inherited from Hedge Knight: real countries, fictional
 ## federations, clubs, fighters and armorers. Russia is excluded entirely.
@@ -72,24 +73,24 @@ static func _age_from(f: FighterCard) -> int:
 ## the third round is the truest thing a buhurt club has.
 static func player_club() -> MeleeClub:
 	var cards: Array[FighterCard] = [
-		_c("Ward", 1, P.RAIL_L, 78, 74, 55, 58, 42, 243),
-		_c("Iles", 2, P.FLANK_L, 64, 56, 78, 79, 64, 194),
-		_c("Kerrigan", 3, P.CENTER, 76, 82, 62, 64, 40, 256),
-		_c("Vance", 4, P.FLANK_R, 72, 58, 66, 34, 78, 209, 0.82),
-		_c("Ash", 5, P.RAIL_R, 77, 71, 58, 61, 52, 236),
+		_c("Ward", 1, P.RAIL_L, 78, 81, 55, 53, 44, 268),
+		_c("Iles", 2, P.FLANK_L, 80, 62, 62, 67, 54, 216),
+		_c("Kerrigan", 3, P.CENTER, 65, 66, 75, 78, 42, 191),
+		_c("Vance", 4, P.FLANK_R, 88, 64, 50, 22, 68, 231, 0.82),
+		_c("Ash", 5, P.RAIL_R, 77, 78, 58, 56, 54, 261),
 		## THE BENCH. Three men — eight for a 5v5, Pete 10 Sep 2026 — one per role,
 		## so every place on the line has cover. They sit AFTER the five because
 		## starting_five() takes the first available man at each position, which
 		## makes roster order the depth chart.
-		_c("Doole", 6, P.RAIL_L, 71, 69, 52, 66, 47, 227),
-		_c("Peake", 7, P.FLANK_L, 60, 54, 71, 81, 58, 187),
-		_c("Marsh", 8, P.CENTER, 70, 76, 58, 62, 44, 249),
+		_c("Doole", 6, P.RAIL_L, 71, 76, 52, 61, 49, 252),
+		_c("Peake", 7, P.FLANK_L, 76, 60, 55, 69, 48, 209),
+		_c("Marsh", 8, P.CENTER, 59, 60, 71, 76, 46, 184),
 		## THE RESERVE. Never at an event, never in a club's rating — they exist in
 		## the roster menu, where you train them, outfit them and promote them onto
 		## the eight. Three of a possible five, so there is room to sign.
-		_c("Ivey", 9, P.FLANK_R, 55, 49, 63, 72, 55, 185, 0.74, false),
-		_c("Coll", 10, P.RAIL_R, 66, 63, 46, 54, 51, 218, 0.80, false),
-		_c("Nesbit", 11, P.CENTER, 58, 66, 50, 57, 38, 238, 0.68, false),
+		_c("Ivey", 9, P.FLANK_R, 71, 55, 47, 60, 45, 207, 0.74, false),
+		_c("Coll", 10, P.RAIL_R, 66, 70, 46, 49, 53, 243, 0.80, false),
+		_c("Nesbit", 11, P.CENTER, 47, 50, 63, 71, 40, 173, 0.68, false),
 	]
 	return MeleeClub.build(
 		## DETROIT AND NOT CROSS TIMBERS. The map is real now and a club from an
@@ -105,22 +106,22 @@ static func player_club() -> MeleeClub:
 ## Center with light flanks. Beating them is a formation problem.
 static func rival_club() -> MeleeClub:
 	var cards: Array[FighterCard] = [
-		_c("Halvard", 1, P.RAIL_L, 75, 70, 54, 60, 45, 238),
-		_c("Brandt", 2, P.FLANK_L, 68, 60, 80, 72, 74, 198),
-		_c("Oster", 3, P.CENTER, 86, 84, 66, 68, 55, 267),
-		_c("Lund", 4, P.FLANK_R, 62, 54, 74, 77, 61, 190),
-		_c("Petit", 5, P.RAIL_R, 73, 68, 57, 59, 48, 229),
+		_c("Halvard", 1, P.RAIL_L, 75, 77, 54, 55, 47, 263),
+		_c("Brandt", 2, P.FLANK_L, 84, 66, 64, 60, 64, 220),
+		_c("Oster", 3, P.CENTER, 75, 68, 79, 82, 57, 202),
+		_c("Lund", 4, P.FLANK_R, 78, 60, 58, 65, 51, 212),
+		_c("Petit", 5, P.RAIL_R, 73, 75, 57, 54, 50, 254),
 		## A better bench than yours, man for man, which is most of why they are the
 		## stronger club on paper and all of why they are stronger in a third round.
-		_c("Renard", 6, P.RAIL_L, 74, 69, 56, 63, 49, 234),
-		_c("Kolb", 7, P.FLANK_L, 66, 58, 76, 75, 70, 196),
-		_c("Ferrier", 8, P.CENTER, 79, 80, 61, 65, 52, 260),
+		_c("Renard", 6, P.RAIL_L, 74, 76, 56, 58, 51, 259),
+		_c("Kolb", 7, P.FLANK_L, 82, 64, 60, 63, 60, 218),
+		_c("Ferrier", 8, P.CENTER, 68, 64, 74, 79, 54, 195),
 		## A full reserve as well as a better bench. They are not beating you with
 		## five men, they are beating you with a club.
-		_c("Aubry", 9, P.FLANK_R, 64, 57, 72, 73, 63, 194, 0.86, false),
-		_c("Serre", 10, P.RAIL_R, 70, 66, 55, 61, 46, 223, 0.90, false),
-		_c("Maury", 11, P.CENTER, 67, 72, 54, 60, 43, 247, 0.78, false),
-		_c("Vasseur", 12, P.FLANK_L, 59, 52, 69, 76, 60, 190, 0.71, false),
+		_c("Aubry", 9, P.FLANK_R, 80, 63, 56, 61, 53, 216, 0.86, false),
+		_c("Serre", 10, P.RAIL_R, 70, 73, 55, 56, 48, 248, 0.90, false),
+		_c("Maury", 11, P.CENTER, 56, 56, 67, 74, 45, 182, 0.78, false),
+		_c("Vasseur", 12, P.FLANK_L, 75, 58, 53, 64, 50, 212, 0.71, false),
 	]
 	return MeleeClub.build(
 		"Iron Crown Companions", "ICC",

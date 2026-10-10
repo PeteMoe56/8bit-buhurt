@@ -1684,10 +1684,12 @@ func _ai_choose(m: Man, tgt: Man, menu: int) -> int:
 				## what you do once somebody already has. `agg > 0.4` here meant
 				## every third man went straight for the takedown, which made one
 				## loose fighter next to a clinch into a takedown machine.
-				if tgt.exposed_t > 0.0:
-					return Tuning.Act.TAKEDOWN
+				## The blindside replaced the third man's takedown (10 Oct 2026); a
+				## Center goes for it on any man tied up, the angle is his.
+				if tgt.exposed_t > 0.0 or Tuning.role_of(m.card.pos) == Tuning.Role.CENTER:
+					return Tuning.Act.BULLRUSH
 				var third_gate: float = float(sk["wear_read"]) + Tuning.THIRD_MAN_BONUS
-				return Tuning.Act.TAKEDOWN if tgt.stability < third_gate else Tuning.Act.HIT
+				return Tuning.Act.BULLRUSH if tgt.stability < third_gate else Tuning.Act.HIT
 			return Tuning.Act.BREAK if bool(sk["rescues"]) else Tuning.Act.HIT
 		Tuning.Menu.GRAPPLED:
 			## You do not beat a man you are tied up with — you hold him until he
@@ -2039,15 +2041,46 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	if d.planted:
 		c -= PLANT_BRACE
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
-	if br_read > 0.0 and (a.acting_for_player or Tuning.br_read_ai) \
-			and d.stability < Tuning.pread_at:
-		c += br_read
+	var read := _br_read_bonus(a, d)
+	c += read
+	## THE BLINDSIDE LIFTS THE CEILING TOO (Pete, 10 Oct 2026: yes), the same as
+	## the off-balance read: a bonus the 42% cap eats is no bonus at all.
+	var lift := read if Tuning.br_read_lift else 0.0
+	if d.state == State.GRAPPLED and d.target >= 0 and d.target != a.idx:
+		var tied := Tuning.BR_TIED * a.tmod("td_gang", 1.0)
+		c += tied
+		lift += tied
+	if _center_blindside(a, d):
+		c += Tuning.br_center_blind
+		lift += Tuning.br_center_blind
 	if d.exposed_t > 0.0:
 		## HEAD DOWN is exposed to a bullrush the same as to a takedown.
 		c += Tuning.EXPOSED_BONUS * d.tmod("exposed_against", 1.0)
 	c += _sent_edge(a)
 	c *= lerpf(Tuning.BR_EMPTY_TANK, 1.0, a.gas_frac())
-	return clampf(c, Tuning.BR_MIN, Tuning.BR_MAX)
+	var cap := Tuning.BR_MAX + lift
+	return clampf(c, Tuning.BR_MIN, cap)
+
+
+## A Center reaching a man who isn't looking at him: tied up with somebody else,
+## or come at from behind.
+func _center_blindside(a: Man, d: Man) -> bool:
+	if Tuning.br_center_blind <= 0.0 or Tuning.role_of(a.card.pos) != Tuning.Role.CENTER:
+		return false
+	if d.state == State.GRAPPLED and d.target >= 0 and d.target != a.idx:
+		return true
+	return from_behind(a, d)
+
+
+## The bullrush read on a man under the balance line, 0.0 if it does not apply.
+func _br_read_bonus(a: Man, d: Man) -> float:
+	if br_read <= 0.0 or not (a.acting_for_player or Tuning.br_read_ai) \
+			or d.stability >= Tuning.pread_at:
+		return 0.0
+	if not Tuning.br_read_lift:
+		return br_read
+	var depth := clampf(1.0 - d.stability / maxf(0.01, Tuning.pread_at), 0.0, 1.0)
+	return br_read * lerpf(1.0, Tuning.BR_READ_DEEP, depth)
 
 
 ## Morning decision #10's option (a): off (0.0) unless a probe sets it.

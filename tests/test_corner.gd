@@ -193,8 +193,7 @@ func _ok(cond: bool, label: String, detail: String) -> void:
 ## sizes (Pete, 3 Oct 2026: bigger, but no clipping through and no wrapping).
 func _test_the_words_fit_their_sides() -> void:
 	var f: Font = UiKit.body()
-	var effects := ["puts him down", "balance -%d%%", "takedown %d%%", "frees your man", "keeps him tied",
-		"breaks free", "fall %d%%", "he holds firm"]
+	var subs := ["-%d%% balance", "takedown %d%%", "he holds firm"]
 	var bad: Array[String] = []
 	var was := TranslationServer.get_locale()
 	for loc in ["en", "es", "fr", "de", "it", "pt_BR", "pl", "uk", "ja"]:
@@ -203,16 +202,21 @@ func _test_the_words_fit_their_sides() -> void:
 			var s: String = Tuning.act_name(a)
 			if FightCorner.arc_px(f, s, FightCorner.NAME_R, FightCorner.NAME_PX) < FightCorner.NAME_MIN:
 				bad.append("%s %s" % [loc, s])
-		var cs := UiKit.t("%d%% chance") % 100
-		if FightCorner.arc_px(f, cs, FightCorner.CHANCE_R, FightCorner.CHANCE_PX) < FightCorner.CHANCE_MIN:
-			bad.append("%s %s" % [loc, cs])
-		for e in effects:
+		## The widest chance line: Bullrush's chance and fall together.
+		## Two digits each: a bullrush is capped well short of 100%.
+		if FightCorner.arc_px(f, "99%/99%", FightCorner.CHANCE_R, FightCorner.CHANCE_PX) < FightCorner.CHANCE_MIN:
+			bad.append("%s chance/fall" % loc)
+		for e in subs:
 			var s2: String = UiKit.t(e)
 			if s2.contains("%d"):
-				s2 = s2 % 100
-			if FightCorner.arc_px(f, s2, FightCorner.EFFECT_R, FightCorner.EFFECT_PX) < FightCorner.EFFECT_MIN:
+				s2 = s2 % 99
+			if FightCorner.arc_px(f, s2, FightCorner.SUB_R, FightCorner.SUB_PX) < FightCorner.SUB_MIN:
 				bad.append("%s %s" % [loc, s2])
+		## Break's words, on one arc or split onto two.
+		for line in FightCorner.inner_lines(f, UiKit.t("Free Teammate")):
+			if FightCorner.arc_px(f, String(line), FightCorner.CHANCE_R - 9.0, FightCorner.SUB_PX) < FightCorner.SUB_MIN + 1:
+				bad.append("%s %s" % [loc, line])
 	TranslationServer.set_locale(was)
 	_ok(bad.is_empty(), "the wheel's words fit their sides",
-		"9 languages, name >= %d px, chance >= %d, effect >= %d; too long: %s" % [FightCorner.NAME_MIN,
-			FightCorner.CHANCE_MIN, FightCorner.EFFECT_MIN, ", ".join(bad) if not bad.is_empty() else "none"])
+		"9 languages, name >= %d px, chance >= %d, small line >= %d; too long: %s" % [FightCorner.NAME_MIN,
+			FightCorner.CHANCE_MIN, FightCorner.SUB_MIN, ", ".join(bad) if not bad.is_empty() else "none"])
