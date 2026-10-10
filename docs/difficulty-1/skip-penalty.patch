@@ -1,0 +1,47 @@
+diff --git a/scripts/league/season.gd b/scripts/league/season.gd
+index 90e5267..d638321 100644
+--- a/scripts/league/season.gd
++++ b/scripts/league/season.gd
+@@ -1094,6 +1094,10 @@ static func purse(place: int, field: int, tier: int) -> int:
+ 		float(clampi(place, 1, field) - 1) / float(field - 1)
+ 	return maxi(1, int(round(top * lerpf(1.0, PURSE_TAIL, down))))
+ ## -> SeasonWinter (season_winter.gd)
++## What a skipped bout adds to the other side's strength (see SeasonBouts).
++const SKIP_HANDICAP: float = 1.07
++
++
+ func roll_over() -> void:
+ 	SeasonWinter.roll_over(self)
+ 	send_off = 0
+diff --git a/scripts/league/season_bouts.gd b/scripts/league/season_bouts.gd
+index 54bc70a..bb44d02 100644
+--- a/scripts/league/season_bouts.gd
++++ b/scripts/league/season_bouts.gd
+@@ -694,7 +694,10 @@ static func skip_event(s: Season) -> void:
+ 	## read only by `MeleeSim`, so pressing SIM IT fought the season at no
+ 	## difficulty at all and five twenty-season careers at five different grades
+ 	## came back identical.
+-	s.world.player_scale = s.opposition_scale(opp)
++	## A SKIPPED BOUT IS HARDER (Pete, 9 Oct 2026: skipping should add "about
++	## 3-4 seasons onto it if you're habitual with it"). Only bouts the player
++	## skips; a fought bout never sees it, and an occasional skip costs little.
++	s.world.player_scale = s.opposition_scale(opp) * Season.SKIP_HANDICAP
+ 	s.world.play_week()
+ 	s.world.player_scale = 1.0
+ 	var now := s._my_row()
+diff --git a/scripts/league/season_cups.gd b/scripts/league/season_cups.gd
+index cdcad22..339df10 100644
+--- a/scripts/league/season_cups.gd
++++ b/scripts/league/season_cups.gd
+@@ -240,9 +240,9 @@ static func sim_cup_tie(s: Season) -> void:
+ 	var pa := int(s.world.clubs[int(m["a"])]["power"])
+ 	var pb := int(s.world.clubs[int(m["b"])]["power"])
+ 	if int(m["a"]) == s.world.player_club:
+-		pb = int(round(float(pb) * s.opposition_scale(int(m["b"]))))
++		pb = int(round(float(pb) * s.opposition_scale(int(m["b"])) * Season.SKIP_HANDICAP))
+ 	else:
+-		pa = int(round(float(pa) * s.opposition_scale(int(m["a"]))))
++		pa = int(round(float(pa) * s.opposition_scale(int(m["a"])) * Season.SKIP_HANDICAP))
+ 	var res: Array = s.world.quick_bout(pa, pb)
+ 	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
+ 	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
