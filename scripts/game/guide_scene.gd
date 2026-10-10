@@ -207,6 +207,11 @@ func _draw() -> void:
 
 
 const MARK_R := 13.0
+## What the last page drew, for `test_guide`: numbers on the picture, numbered
+## lines beside it, and whether those lines fit the panel.
+var drawn_marks := 0
+var drawn_notes := 0
+var notes_fit := true
 
 
 ## THE PICTURE ON THE LEFT, its numbered lines on the right and the tips under
@@ -215,15 +220,23 @@ const MARK_R := 13.0
 func _draw_page(r: Rect2, pg: Dictionary) -> void:
 	var at := r.position + Vector2(30.0, 100.0)
 	var marks: Dictionary = GuideArt.draw(self, font, tab, at)
+	drawn_marks = marks.size()
 	for k in marks:
 		_number(Vector2(marks[k]), int(k))
 	var x := at.x + GuideArt.W + 36.0
 	var w := r.end.x - 24.0 - x
 	var notes: Array = pg["notes"]
-	var tips: Array = pg["tips"]
+	var tips: Array = (pg["tips"] as Array).duplicate()
+	var room := r.end.y - 14.0 - (at.y + 8.0)
 	var px := 16
-	while px > 12 and _page_height(notes, tips, w, px) > r.end.y - 20.0 - (at.y - 6.0):
+	while px > 12 and _page_height(notes, tips, w, px) > room:
 		px -= 1
+	## STILL TOO LONG at the smallest size (a long language): the last tip goes
+	## before anything is cut. The notes are the page; a tip is a bonus.
+	while not tips.is_empty() and _page_height(notes, tips, w, px) > room:
+		tips.pop_back()
+	notes_fit = _page_height(notes, [], w, px) <= room
+	drawn_notes = notes.size()
 	var lh := float(px) + 5.0
 	var y := at.y + 8.0
 	for k in notes.size():

@@ -250,14 +250,14 @@ static func _kit(ci: CanvasItem, font: Font, at: Vector2) -> Dictionary:
 	var box := Rect2(at.x, at.y + 76.0, W, 244.0)
 	UiKit.panel(ci, box)
 	var pass_f := 0.35
-	var bx := box.position.x + 100.0
-	var bw := box.size.x - 112.0
+	var bx := box.position.x + 122.0
+	var bw := box.size.x - 134.0
 	for k in men.size():
 		var m: Array = men[k]
 		var y := box.position.y + 16.0 + float(k) * 56.0
 		var bad: bool = float(m[2]) < pass_f
 		UiKit.text(ci, font, String(m[0]), Vector2(box.position.x + 12.0, y + 16.0), 14, UiKit.DOWN if bad else UiKit.INK)
-		UiKit.text_fit(ci, font, String(m[1]), Vector2(box.position.x + 12.0, y + 36.0), 12, UiKit.DIM, 84.0)
+		UiKit.text_fit(ci, font, String(m[1]), Vector2(box.position.x + 12.0, y + 36.0), 12, UiKit.DIM, 106.0)
 		UiKit.bar(ci, Rect2(bx, y + 6.0, bw, 18.0), float(m[2]), UiKit.DOWN if bad else UiKit.UP)
 		## The pass mark: a white tick across the bar.
 		var tx := bx + 3.0 + (bw - 6.0) * pass_f
