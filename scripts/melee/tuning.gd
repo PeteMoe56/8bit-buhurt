@@ -223,7 +223,10 @@ enum Act { BULLRUSH, GRAPPLE, HIT, TAKEDOWN, HOLD, ESCAPE, BREAK }
 const MENU_ACTS := {
 	Menu.APPROACH: [Act.BULLRUSH, Act.GRAPPLE, Act.HIT],
 	Menu.GRAPPLED: [Act.TAKEDOWN, Act.HOLD, Act.ESCAPE],
-	Menu.THIRD_MAN: [Act.TAKEDOWN, Act.HIT, Act.BREAK],
+	## THE BLINDSIDE (Pete, 10 Oct 2026): arriving on a man tied up with somebody
+	## else, you run through him. Takedown lives on the clinch wheel, where a man
+	## has the grip to throw with; a third man running in does not.
+	Menu.THIRD_MAN: [Act.BULLRUSH, Act.HIT, Act.BREAK],
 }
 
 ## Pete's word, not the dossier's. The glossary calls this a "check"; he fights,
@@ -399,6 +402,9 @@ const BR_READ_SLIDE: float = 1.5        ## and he is blown further across the fl
 ## attention"). A Center's bullrush on a man tied up with someone else, or one
 ## he reaches from behind, gets this on top. Every side's Center, not only yours.
 static var br_center_blind: float = 0.20 if OS.get_environment("RB_CENTER_BLIND") == "" else _env("RB_CENTER_BLIND")
+## Anyone's bullrush on a man tied up with somebody else: he isn't looking.
+## The Third Man trait multiplies it (his "td_gang").
+const BR_TIED: float = 0.10
 static var session_full_week: bool = true
 ## Pete, 29 Sep evening: FULL price (1.0). At 0.25 everyone trained to his
 ## ceiling and reading the scouted range was worth 0.55 seasons, not 1.8.

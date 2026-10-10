@@ -1684,10 +1684,12 @@ func _ai_choose(m: Man, tgt: Man, menu: int) -> int:
 				## what you do once somebody already has. `agg > 0.4` here meant
 				## every third man went straight for the takedown, which made one
 				## loose fighter next to a clinch into a takedown machine.
-				if tgt.exposed_t > 0.0:
-					return Tuning.Act.TAKEDOWN
+				## The blindside replaced the third man's takedown (10 Oct 2026); a
+				## Center goes for it on any man tied up, the angle is his.
+				if tgt.exposed_t > 0.0 or Tuning.role_of(m.card.pos) == Tuning.Role.CENTER:
+					return Tuning.Act.BULLRUSH
 				var third_gate: float = float(sk["wear_read"]) + Tuning.THIRD_MAN_BONUS
-				return Tuning.Act.TAKEDOWN if tgt.stability < third_gate else Tuning.Act.HIT
+				return Tuning.Act.BULLRUSH if tgt.stability < third_gate else Tuning.Act.HIT
 			return Tuning.Act.BREAK if bool(sk["rescues"]) else Tuning.Act.HIT
 		Tuning.Menu.GRAPPLED:
 			## You do not beat a man you are tied up with — you hold him until he
@@ -2041,6 +2043,8 @@ func _bullrush_chance(a: Man, d: Man) -> float:
 	c += (1.0 - d.stability) * Tuning.BR_STABILITY_W
 	var read := _br_read_bonus(a, d)
 	c += read
+	if d.state == State.GRAPPLED and d.target >= 0 and d.target != a.idx:
+		c += Tuning.BR_TIED * a.tmod("td_gang", 1.0)
 	if _center_blindside(a, d):
 		c += Tuning.br_center_blind
 	if d.exposed_t > 0.0:
