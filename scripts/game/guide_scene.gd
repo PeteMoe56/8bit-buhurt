@@ -43,79 +43,124 @@ static func topics() -> Array:
 	]
 
 
-static func page(i: int) -> Array:
+## WHAT EACH PAGE SAYS beside its picture (Pete, 10 Oct 2026: "make the guide
+## actually show pictures and explanations, those lists are way too cluttered").
+## `notes` go with the gold numbers `GuideArt.draw` puts on the picture, in
+## order; `tips` sit under them, smaller. Every line here is checked against the
+## code that does the thing — `docs/` is not the source.
+static func page(i: int) -> Dictionary:
 	match i:
-		0: return [
-			UiKit.t("Each Saturday is one event: a league day, a cup weekend, a bye week or the playoff."),
-			UiKit.t("In the league every club fights every other club once."),
-			UiKit.t("The top four go to the playoff. Both finalists go up a division."),
-			UiKit.t("The bottom two go down. Nobody goes down from the Backyard Circuit."),
-			UiKit.t("To go up, your ground must be big enough for the division above. See Upgrades."),
-			UiKit.t("Top three when a cup weekend comes around are invited, if your insurance is high enough."),
-			UiKit.t("Backyard, State, Regional, National. Win the National playoff to go to the Worlds."),
-		]
-		1: return [
-			UiKit.t("P played · W won · D drawn · L lost"),
-			UiKit.t("RD: rounds won minus rounds lost."),
-			UiKit.t("MG: margin. Men left standing when you won a round, minus the same against you."),
-			UiKit.t("PTS: 3 for a win, 1 for a draw."),
-			UiKit.t("Level on points? MG decides first, then RD."),
-			UiKit.t("Green rows go to the playoff. Red rows go down."),
-		]
-		2: return [
-			UiKit.t("Five against five. Best of three rounds, two minutes each."),
-			UiKit.t("A man who goes down stays down until the round is over."),
-			UiKit.t("A round ends when a side is wiped out, it is three on one, or time runs out. More men standing wins it."),
-			UiKit.t("HOLD freezes the fight so you can give one order. You get two a bout."),
-			UiKit.t("Between rounds you can swap in up to two men from the bench. Rested men come back fresher."),
-			UiKit.t("Your Playbook plan steers your line for the opening seconds of each round."),
-		]
-		3: return []    ## a picture page, see `picture`
-		4: return [
-			UiKit.t("Five starters, three on the bench, up to four in reserve. Reserves do not travel."),
-			UiKit.t("OVR is how good he is now. POT is as good as he can get."),
-			UiKit.t("Strength puts men down. Base keeps him up. Skill wins the grapple. Gas is his tank."),
-			UiKit.t("Bouts and practice give XP. A full bar is a level: +%d to the stat you pick, on his page.") % Career.POINTS_PER_LEVEL,
-			UiKit.t("His deal is $ a year, counted against your salary cap. Extend early and he costs less."),
-			UiKit.t("Free agents cost CC to sign, and their wage goes on your books."),
-			UiKit.t("Unhappy men turn down new deals and walk. Men start to retire from 33."),
-		]
-		5: return [
-			UiKit.t("Hire up to two captains. Each teaches roles: Rail, Flanker or Center."),
-			UiKit.t("A role nobody teaches gets no training over the winter."),
-			UiKit.t("Light: less XP, happier men. Normal: steady. Hard: half again the XP, but more knocks and grumbling."),
-			UiKit.t("Session: once in a fight week, pay CC for an extra week of practice."),
-			UiKit.t("Winter camp: your training ground and captains share out points over the winter."),
-			UiKit.t("Invest: once a year, tap Invest on a man's page for +3 POT at the winter. Needs training ground 3."),
-		]
-		6: return [
-			UiKit.t("Every man's harness has a metal and a condition. Below the pass mark he cannot fight."),
-			UiKit.t("Metals: Rust, Mild, Hardened, Stainless, Titanium. Better metal wears slower."),
-			UiKit.t("Your armorer's stars are the best metal he can make and keep up. More stars, more wage."),
-			UiKit.t("Every fight wears the kit of the men who fought it. Training does not."),
-			UiKit.t("Repair each man once a week, in a fight week. Each winter your armorer restores every harness to the best its own metal allows."),
-			UiKit.t("Worn kit makes a man easier to put down."),
-		]
-		7: return [
-			UiKit.t("CC is club money. Everything you buy costs CC."),
-			UiKit.t("$ is a fighter's yearly wage. It never comes out of CC. It only has to fit under your salary cap."),
-			UiKit.t("CC comes in from the gate at every event, the bar at home games, wins, draws and where you finish."),
-			UiKit.t("Each summer you pay upkeep on your ground, buildings, insurance and armorer. Division dues come at the start of a season."),
-			UiKit.t("Cannot pay a bill? That thing drops a level."),
-		]
-		8: return [
-			UiKit.t("Ground: more seats, more gate. Fenced ground for State, Arena for Regional, National Arena for National."),
-			UiKit.t("Training ground: more winter camp and practice."),
-			UiKit.t("Infirmary: fewer knocks, and injured men come back sooner."),
-			UiKit.t("Salary cap: more room for wages."),
-			UiKit.t("Insurance: State needs 1, Regional 2, National 3. Without it, no cups and no Worlds."),
-			UiKit.t("Everything you build costs upkeep each summer. One job per building per week."),
-		]
-	var out: Array = [UiKit.t("Wins, finishes, cup runs and promotion give your coach XP. Each level is a skill point.")]
+		Topic.SEASON: return {
+			"notes": [
+				UiKit.t("You start here."),
+				UiKit.t("The top four go to the playoff. Both finalists go up a division."),
+				UiKit.t("The bottom two go down. Nobody goes down from the Backyard Circuit."),
+				UiKit.t("Backyard, State, Regional, National. Win the National playoff to go to the Worlds."),
+			],
+			"tips": [
+				UiKit.t("Each Saturday is one event: a league day, a cup weekend, a bye week or the playoff."),
+				UiKit.t("Top three when a cup weekend comes around are invited, if your insurance is high enough."),
+			],
+		}
+		Topic.TABLE: return {
+			"notes": [
+				UiKit.t("RD: rounds won minus rounds lost."),
+				UiKit.t("MG: margin. Men left standing when you won a round, minus the same against you."),
+				UiKit.t("PTS: 3 for a win, 1 for a draw."),
+				UiKit.t("Green rows go to the playoff. Red rows go down."),
+			],
+			"tips": [
+				UiKit.t("Level on points? MG decides first, then RD."),
+				UiKit.t("P played · W won · D drawn · L lost"),
+			],
+		}
+		Topic.FIGHT: return {
+			"notes": [
+				UiKit.t("Five against five. Best of three rounds, two minutes each."),
+				UiKit.t("HOLD freezes the fight so you can give one order. You get two a bout."),
+				UiKit.t("A round ends when a side is wiped out, it is three on one, or time runs out. More men standing wins it."),
+				UiKit.t("Rounds you have won. Two wins the bout."),
+				UiKit.t("A man who goes down stays down until the round is over."),
+			],
+			"tips": [
+				UiKit.t("Between rounds you can swap in up to two men from the bench. Rested men come back fresher."),
+				UiKit.t("Your Playbook plan steers your line for the opening seconds of each round."),
+			],
+		}
+		Topic.WHEEL: return {
+			"notes": [
+				UiKit.t("The move."),
+				UiKit.t("5%/23%: his chance to put the man down, then the chance he falls instead."),
+				UiKit.t("Hit always lands. This is the balance it takes off."),
+				UiKit.t("Cancel: back to the fight."),
+			],
+			"tips": [
+				UiKit.t("Drag your man onto an enemy to send him. When he gets there the fight stops and his three choices open in the corner."),
+				UiKit.t("Reach a man already tied up with someone and you can bullrush him while he isn't looking."),
+			],
+		}
+		Topic.TEAM: return {
+			"notes": [
+				UiKit.t("OVR is how good he is now. POT is as good as he can get."),
+				UiKit.t("Strength puts men down. Base keeps him up. Skill wins the grapple. Gas is his tank."),
+				UiKit.t("Bouts and practice give XP. A full bar is a level: +%d to the stat you pick, on his page.") % Career.POINTS_PER_LEVEL,
+				UiKit.t("His deal is $ a year, counted against your salary cap. Extend early and he costs less."),
+			],
+			"tips": [
+				UiKit.t("Five starters, three on the bench, up to four in reserve. Reserves do not travel."),
+				UiKit.t("Unhappy men turn down new deals and walk. Men start to retire from 33."),
+			],
+		}
+		Topic.TRAINING: return {
+			"notes": [
+				UiKit.t("Hire up to two captains. Each teaches roles: Rail, Flanker or Center."),
+				UiKit.t("A role nobody teaches gets no training over the winter."),
+				UiKit.t("Light: less XP, happier men. Normal: steady. Hard: half again the XP, but more knocks and grumbling."),
+				UiKit.t("Session: once in a fight week, pay CC for an extra week of practice."),
+			],
+			"tips": [
+				UiKit.t("Winter camp: your training ground and captains share out points over the winter."),
+				UiKit.t("Invest: once a year, tap Invest on a man's page for +3 POT at the winter. Needs training ground 3."),
+			],
+		}
+		Topic.KIT: return {
+			"notes": [
+				UiKit.t("Your armorer's stars are the best metal he can make and keep up. More stars, more wage."),
+				UiKit.t("Metals: Rust, Mild, Hardened, Stainless, Titanium. Better metal wears slower."),
+				UiKit.t("Every fight wears the kit of the men who fought it. Training does not."),
+				UiKit.t("Every man's harness has a metal and a condition. Below the pass mark he cannot fight."),
+			],
+			"tips": [
+				UiKit.t("Repair each man once a week, in a fight week. Each winter your armorer restores every harness to the best its own metal allows."),
+				UiKit.t("Worn kit makes a man easier to put down."),
+			],
+		}
+		Topic.MONEY: return {
+			"notes": [
+				UiKit.t("CC comes in from the gate at every event, the bar at home games, wins, draws and where you finish."),
+				UiKit.t("Each summer you pay upkeep on your ground, buildings, insurance and armorer. Division dues come at the start of a season."),
+				UiKit.t("CC is club money. Everything you buy costs CC."),
+				UiKit.t("$ is a fighter's yearly wage. It never comes out of CC. It only has to fit under your salary cap."),
+			],
+			"tips": [UiKit.t("Cannot pay a bill? That thing drops a level.")],
+		}
+		Topic.UPGRADES: return {
+			"notes": [
+				UiKit.t("Ground: more seats, more gate. Fenced ground for State, Arena for Regional, National Arena for National."),
+				UiKit.t("Training ground: more winter camp and practice."),
+				UiKit.t("Infirmary: fewer knocks, and injured men come back sooner."),
+				UiKit.t("Insurance: State needs 1, Regional 2, National 3. Without it, no cups and no Worlds."),
+			],
+			"tips": [
+				UiKit.t("Salary cap: more room for wages."),
+				UiKit.t("Everything you build costs upkeep each summer. One job per building per week."),
+			],
+		}
+	var notes: Array = [UiKit.t("Wins, finishes, cup runs and promotion give your coach XP. Each level is a skill point.")]
 	## THE SAME LINES AS THE "?" ON YOUR COACH PAGE, so the two can never disagree.
 	for k in 5:
-		out.append(COACH.skill_help(k))
-	return out
+		notes.append(COACH.skill_help(k))
+	return {"notes": notes, "tips": []}
 
 
 func _ready() -> void:
@@ -158,91 +203,52 @@ func _draw() -> void:
 	UiKit.text(self, font, UiKit.t("GUIDE"), r.position + Vector2(24, 34), 12, UiKit.DIM)
 	UiKit.text_fit(self, font, String(topics()[tab]), r.position + Vector2(24, 62), 22, UiKit.INK,
 		r.size.x - 48.0)
-	var pic := picture(tab)
-	if not pic.is_empty():
-		_draw_picture_page(r, pic)
-		return
-	var w := r.size.x - 64.0
-	## THE PAGE FITS ITS PANEL IN EVERY LANGUAGE: a longer translation steps the
-	## whole page down a pixel at a time rather than running off the bottom.
-	var px := 16
-	var lh := LINE_H
-	while px > 13 and _height(page(tab), w, px, lh) > r.end.y - 16.0 - (r.position.y + 100.0):
-		px -= 1
-		lh -= 1.0
-	var y := r.position.y + 100.0
-	for line in page(tab):
-		draw_rect(Rect2(r.position.x + 26.0, y - 10.0, 6, 6), UiKit.YOU)
-		var n := UiKit.para(self, font, String(line), Vector2(r.position.x + 44.0, y), px, UiKit.INK,
-			w, lh, 3)
-		y += float(n) * lh + GAP
+	_draw_page(r, page(tab))
 
 
-## A PICTURE AND WHAT IT MEANS (Pete, 10 Oct 2026: "make the guide actually show
-## pictures and explanations, those lists are way too cluttered"). A page with a
-## picture shows it on the left with gold numbers on it, the same numbers down
-## the right with one short line each, and at most one tip under them.
-##   tex    the picture, cut from a real screen by `tools/shot_guide_art.sh`
-##   marks  [number, point on the picture in its own pixels]
-##   notes  one line per number, in order
-##   tip    optional, under the notes
-static func picture(i: int) -> Dictionary:
-	match i:
-		Topic.WHEEL: return {
-			"draw": "wheel",
-			## Numbers placed by the wheel's own geometry: [number, radius, angle].
-			"marks": [[1, FightCorner.RO + 18.0, 280.0], [2, FightCorner.RI - 18.0, 302.0],
-				[3, FightCorner.RO + 18.0, 352.0], [4, FightCorner.RI - 30.0, 335.0]],
-			"notes": [
-				UiKit.t("The move."),
-				UiKit.t("5%/23%: his chance to put the man down, then the chance he falls instead."),
-				UiKit.t("Hit always lands. This is the balance it takes off."),
-				UiKit.t("Cancel: back to the fight."),
-			],
-			"tip": UiKit.t("Reach a man already tied up with someone and you can bullrush him while he isn't looking."),
-		}
-	return {}
-
-
-const PIC_SIDE := 320.0
 const MARK_R := 13.0
 
 
-func _draw_picture_page(r: Rect2, pic: Dictionary) -> void:
-	var at := r.position + Vector2(24.0, 92.0)
-	match String(pic.get("draw", "")):
-		"wheel":
-			_draw_wheel_picture(at, pic)
-	var x := at.x + PIC_SIDE + 28.0
-	var w := r.end.x - 24.0 - (x + 30.0)
-	var y := at.y + 14.0
-	for k in pic["notes"].size():
+## THE PICTURE ON THE LEFT, its numbered lines on the right and the tips under
+## them. The words step down a pixel at a time until the page fits its panel,
+## in every language.
+func _draw_page(r: Rect2, pg: Dictionary) -> void:
+	var at := r.position + Vector2(30.0, 100.0)
+	var marks: Dictionary = GuideArt.draw(self, font, tab, at)
+	for k in marks:
+		_number(Vector2(marks[k]), int(k))
+	var x := at.x + GuideArt.W + 36.0
+	var w := r.end.x - 24.0 - x
+	var notes: Array = pg["notes"]
+	var tips: Array = pg["tips"]
+	var px := 16
+	while px > 12 and _page_height(notes, tips, w, px) > r.end.y - 20.0 - (at.y - 6.0):
+		px -= 1
+	var lh := float(px) + 5.0
+	var y := at.y + 8.0
+	for k in notes.size():
 		_number(Vector2(x + MARK_R, y - 5.0), k + 1)
-		var n := UiKit.para(self, font, String(pic["notes"][k]), Vector2(x + 30.0, y), 16, UiKit.INK, w, LINE_H, 3)
-		y += float(n) * LINE_H + 18.0
-	if pic.has("tip"):
-		y += 8.0
-		draw_rect(Rect2(x, y - 12.0, w + 30.0, 2.0), UiKit.FRAME)
-		y += 14.0
-		UiKit.para(self, font, String(pic["tip"]), Vector2(x, y), 15, UiKit.DIM, w + 30.0, LINE_H - 1.0, 6)
+		var n := UiKit.para(self, font, String(notes[k]), Vector2(x + 32.0, y), px, UiKit.INK, w - 32.0, lh, 5)
+		y += float(n) * lh + 10.0
+	if not tips.is_empty():
+		y += 4.0
+		draw_rect(Rect2(x, y - 12.0, w, 2.0), UiKit.FRAME)
+		y += 10.0
+	for t in tips:
+		var n2 := UiKit.para(self, font, String(t), Vector2(x, y), px - 1, UiKit.DIM, w, lh - 1.0, 5)
+		y += float(n2) * (lh - 1.0) + 8.0
 
 
-## THE REAL WHEEL, drawn by the fight's own code with example numbers, so the
-## words on it are in the player's language: a man sent at a free enemy.
-func _draw_wheel_picture(at: Vector2, pic: Dictionary) -> void:
-	var c := at + Vector2(PIC_SIDE, PIC_SIDE) - Vector2(8.0, 8.0)
-	var rows := [
-		{"act": Tuning.Act.BULLRUSH, "p": 0.05, "fall": 0.23, "sub": "", "sub_col": UiKit.INK, "inner": ""},
-		{"act": Tuning.Act.GRAPPLE, "p": 1.0, "fall": -1.0, "sub": UiKit.t("takedown %d%%") % 14,
-			"sub_col": UiKit.INK, "inner": ""},
-		{"act": Tuning.Act.HIT, "p": 1.0, "fall": -1.0, "sub": UiKit.t("-%d%% balance") % 9,
-			"sub_col": UiKit.INK, "inner": ""},
-	]
-	FightCorner.draw_sides(self, c, rows, true, UiKit.SELECT, FightCorner.DIM, false, -99, -99)
-	draw_colored_polygon(FightCorner._ring(c, 0.0, FightCorner.RI - 6.0, 270.0, 360.0), UiKit.BG)
-	UiKit.mid(self, font, UiKit.t("Cancel"), Vector2(c.x - 106.0, c.y - 34.0), 15, UiKit.INK, 100.0)
-	for mk in pic["marks"]:
-		_number(FightCorner._pt(c, float(mk[1]), float(mk[2])), int(mk[0]))
+func _page_height(notes: Array, tips: Array, w: float, px: int) -> float:
+	var lh := float(px) + 5.0
+	var h := 0.0
+	for n in notes:
+		h += float(mini(5, UiKit.wrap(font, String(n), w - 32.0, px).size())) * lh + 10.0
+	if not tips.is_empty():
+		h += 14.0
+	for t in tips:
+		h += float(mini(5, UiKit.wrap(font, String(t), w, px - 1).size())) * (lh - 1.0) + 8.0
+	return h
 
 
 ## A gold disc with a dark number, the same on the picture and beside its line.
@@ -251,9 +257,3 @@ func _number(p: Vector2, k: int) -> void:
 	draw_circle(p, MARK_R, UiKit.YOU)
 	UiKit.mid(self, font, str(k), p + Vector2(-MARK_R, 5.0), 14, UiKit.BG, MARK_R * 2.0)
 
-
-func _height(lines: Array, w: float, px: int, lh: float) -> float:
-	var h := 0.0
-	for line in lines:
-		h += float(mini(3, UiKit.wrap(font, String(line), w, px).size())) * lh + GAP
-	return h
