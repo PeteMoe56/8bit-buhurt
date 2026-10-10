@@ -1,21 +1,27 @@
 diff --git a/scripts/melee/grade.gd b/scripts/melee/grade.gd
-index d71aa54..48db572 100644
+index d71aa54..76275ac 100644
 --- a/scripts/melee/grade.gd
 +++ b/scripts/melee/grade.gd
-@@ -195,6 +195,13 @@ const DIALS := {
+@@ -190,10 +190,17 @@ const DIALS := {
+ 	"pass": [0.0, 0.24, 0.04],
+ 	## THE BULLRUSH READ (Pete, 30 Sep 2026: "balance that for difficulty
+ 	## settings"): what your bullrush gains on a man under half balance.
+-	"read": [0.0, 0.4, 0.1],
++	"read": [0.0, 0.6, 0.1],
+ 	## HOW OFTEN A KNOCK LANDS (Pete, playtest 30 Sep: "injuries are too
  	## frequent, even on easy"): a share of the regime's injury chance.
- 	"knocks": [0.2, 1.0, 0.1],
- }
+-	"knocks": [0.2, 1.0, 0.1],
++	"knocks": [0.2, 1.4, 0.1],
++}
 +## WHICH WAY IS EASIER on each dial: +1 when a bigger number is kinder to the
 +## player, -1 when it is harsher (Difficulty #1, Pete 9 Oct 2026: the Custom
 +## dials must reach "easier than easiest and harder than hardest").
 +const EASIER := {
 +	"scale": -1, "pauses": 1, "corner": 1, "bills": -1, "knocks": -1,
 +	"swing": 1, "fall": -1, "pass": -1, "read": 1,
-+}
+ }
  
  
- static func clamp_dial(key: String, v: float) -> float:
 diff --git a/tests/test_grade.gd b/tests/test_grade.gd
 index 2a74277..48d6127 100644
 --- a/tests/test_grade.gd
