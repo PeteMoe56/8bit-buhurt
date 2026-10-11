@@ -511,8 +511,8 @@ func _tournament_info(wi: int, wk: Dictionary, lines: Array) -> void:
 	var field: Array = c.entrants.duplicate()
 	var shown: Array = []
 	for id in field.slice(0, 8):
-		shown.append(UiKit.t("%s (%d)") % [String(s.world.clubs[int(id)]["name"]) if int(id) != s.world.player_club
-			or s.world.team_title == "" or c != s.world.worlds else s.world.team_title, int(s.world.clubs[int(id)]["power"])])
+		shown.append(UiKit.t("%s (%d)") % [LeagueWorld.worlds_name_for(c, s.world, int(id)) if c == s.world.worlds
+			else String(s.world.clubs[int(id)]["name"]), int(s.world.clubs[int(id)]["power"])])
 	lines.append([UiKit.t("Field: %s") % UiKit.t(", ").join(shown) + ("" if field.size() <= 8 else UiKit.t(" and %d more") % (field.size() - 8)), UiKit.DIM])
 
 

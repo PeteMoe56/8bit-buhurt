@@ -500,6 +500,9 @@ static func to_dict(season: Season) -> Dictionary:
 		"hall": w.hall.duplicate(true),
 		"cups": cups,
 		"worlds": w.worlds.to_dict() if w.worlds != null else {},
+		## THE RETURNING RIVALS (Endgame #1). Defaulted, not required: a save
+		## from before them draws them at its next Worlds.
+		"rivals": w.rivals.duplicate(true),
 		"results": season.results.duplicate(true),
 		"club": club_to_dict(season.club),
 		"office": season.office.to_dict(),
@@ -594,6 +597,7 @@ static func from_dict(d: Dictionary) -> Season:
 		w.cups.append(Cup.from_dict(c as Dictionary))
 	var worlds: Dictionary = d.get("worlds", {})
 	w.worlds = Cup.from_dict(worlds) if not worlds.is_empty() else null
+	w.rivals = _dicts(d.get("rivals", []))
 	_load_weeks(w, d)
 	s.results = _dicts(d.get("results", []))
 	s.office = ClubOffice.from_dict(d.get("office", {}))
