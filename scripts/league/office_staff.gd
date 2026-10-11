@@ -299,7 +299,8 @@ static func coaching(o: ClubOffice, role: int) -> int:
 	var best := 0
 	for c in o.captains:
 		if ClubOffice.specialties_of(c).has(role):
-			best = maxi(best, int(c.get("grade", 1)))
+			## A LEGEND TEACHES A STAR ABOVE HIS GRADE (`Legends.TEACH_BONUS`).
+			best = maxi(best, int(c.get("grade", 1)) + (Legends.TEACH_BONUS if bool(c.get("legend", false)) else 0))
 	return best
 
 

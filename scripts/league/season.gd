@@ -255,6 +255,10 @@ func staff_pool() -> Array:
 		seen[nm] = true
 		out.append(c)
 	out.sort_custom(func(a, b): return int(a.get("grade", 1)) > int(b.get("grade", 1)))
+	## THE CLUB'S OWN LEGENDS head the list (`Legends`), in place of the weakest.
+	var leg := Legends.offers(self, seen)
+	if not leg.is_empty():
+		out = leg + out.slice(0, maxi(0, STAFF_POOL - leg.size()))
 	return out
 
 
@@ -263,6 +267,7 @@ func hire_captain(c: Dictionary) -> String:
 	if err != "":
 		return err
 	last_arrival = office.arrival_effect(c, club)
+	Legends.arrive(self, c)
 	Achievements.unlock("CAPTAIN")
 	office.sync_morale(club)
 	sync_power()

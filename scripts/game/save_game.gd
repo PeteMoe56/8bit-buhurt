@@ -497,6 +497,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"worlds_camp": season.worlds_camp,
 		"grudge_rival": w.grudge_rival,
 		"clippings": w.clippings.duplicate(true),
+		"legends": w.legends.duplicate(true),
 		"tables": w.tables.duplicate(true),
 		"history": w.history.duplicate(true),
 		"honors": w.honors.duplicate(true),
@@ -702,6 +703,7 @@ static func from_dict(d: Dictionary) -> Season:
 	s.worlds_camp = int(d.get("worlds_camp", 0))
 	s.world.grudge_rival = int(d.get("grudge_rival", -1))
 	s.world.clippings = _dicts(d.get("clippings", []))
+	s.world.legends = _dicts(d.get("legends", []))
 	s.sync_power()
 	s.sync_week()
 	return s

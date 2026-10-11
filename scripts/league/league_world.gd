@@ -182,6 +182,11 @@ var records: Dictionary = {}
 ## automatically. This is the opposite and they are both worth having.
 const HOF_MAX: int = 12
 var hall: Array[Dictionary] = []
+## CLUB LEGENDS (Pete, 11 Oct 2026: "start them as good if not a little better
+## than normal ones, maybe a boost effect with them too"). A man who retires
+## from your club with silverware, a Hall place or a pile of downs comes back
+## on the staff market as a captain. {name, role, honors, downs, season}.
+var legends: Array[Dictionary] = []
 
 
 func in_hall(nm: String) -> bool:

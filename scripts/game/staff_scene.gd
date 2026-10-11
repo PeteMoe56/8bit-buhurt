@@ -177,7 +177,10 @@ func _draw_market() -> void:
 		var y := LIST.position.y + 80.0 + float(i) * LIST_ROW
 		if i % 2 == 0:
 			draw_rect(Rect2(LIST.position.x + 8.0, y - 26.0, LIST.size.x - 16.0, LIST_ROW - 2.0), UiKit.BG)
-		UiKit.text_fit(self, font, String(c.get("name", "?")), Vector2(LIST.position.x + 20, y), 15, UiKit.INK, 130.0)
+		UiKit.text_fit(self, font, String(c.get("name", "?")), Vector2(LIST.position.x + 20, y), 15,
+			UiKit.YOU if bool(c.get("legend", false)) else UiKit.INK, 130.0)
+		if bool(c.get("legend", false)):
+			UiKit.text(self, font, UiKit.t("CLUB LEGEND"), Vector2(LIST.position.x + 20, y + 14.0), 10, UiKit.YOU)
 		UiKit.stars(self, Vector2(LIST.position.x + 160, y - 12.0), int(c.get("grade", 1)) * 20, UiKit.YOU, 11.0, 3.0)
 		UiKit.text_fit(self, font, _roles_of(c), Vector2(LIST.position.x + 240, y), 14, UiKit.DIM, 200.0)
 		var t := ClubOffice.trait_of(c)
@@ -236,7 +239,7 @@ func _draw() -> void:
 			var c: Dictionary = o.captains[i]
 			var reg := int(c.get("regime", ClubOffice.Regime.NORMAL))
 			UiKit.card(self, font, r, {
-				"tag": _roles_of(c), "name": String(c["name"]),
+				"tag": (UiKit.t("LEGEND") + "  ·  " if bool(c.get("legend", false)) else "") + _roles_of(c), "name": String(c["name"]),
 				"rating": int(c["grade"]) * 20,
 				"band": UiKit.SELECT,
 				## THE REGIME AND THE YEARS LEFT ON HIS DEAL, together, because they

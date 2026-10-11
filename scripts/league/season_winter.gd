@@ -449,6 +449,7 @@ static func _train(s: Season) -> void:
 		## the only order in which `retire_chance` can read a current card.
 		if s._roster_rng().randf() < Career.retire_chance(f, s.office.morale):
 			retired.append("%s (%d)" % [f.display_name, f.age])
+			Legends.note_retired(s, f)
 			s.club.roster.erase(f)
 	## WHAT THE GROUND DID NOT MANAGE TO SPEND goes round again, among the men
 	## still on the books after the retirements — post-decline, so the room the
