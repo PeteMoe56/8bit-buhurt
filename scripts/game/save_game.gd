@@ -470,7 +470,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"saved": Time.get_datetime_string_from_system(false),
 		## Denormalised for the title screen, so listing three slots does not
 		## mean rebuilding three worlds.
-		"club_name": season.club.display_name,
+		"club_name": season.club.home_name(),
 		"season": w.season,
 		"event": w.event,
 		"events": League.events_in_season(w.player_tier()),
@@ -807,9 +807,13 @@ static func club_to_dict(c: MeleeClub) -> Dictionary:
 	var men: Array = []
 	for f in c.roster:
 		men.append(fighter_to_dict(f))
+	## THE CLUB, NOT ITS TABARD: a club wearing Team USA saves its own colours
+	## and name, and puts the tabard back on after loading (`sync_tabard`).
+	var h: Dictionary = c.home if not c.home.is_empty() else {
+		"name": c.display_name, "short": c.short_name, "kit": c.kit, "icon_color": c.icon_color}
 	return {
-		"name": c.display_name, "short": c.short_name,
-		"kit": c.kit.to_html(), "icon_color": c.icon_color.to_html(),
+		"name": String(h["name"]), "short": String(h["short"]),
+		"kit": (h["kit"] as Color).to_html(), "icon_color": (h["icon_color"] as Color).to_html(),
 		"icon": int(c.icon), "roster": men,
 	}
 

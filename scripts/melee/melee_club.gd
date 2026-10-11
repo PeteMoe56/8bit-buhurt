@@ -17,6 +17,36 @@ extends Resource
 @export var icon_color: Color = Color("f4f4e8")
 @export var icon: int = 4
 @export var roster: Array[FighterCard] = []
+## A NATION'S FLAG instead of the club mark (11 Oct 2026). Runtime only: a Worlds
+## guest gets its code when built; the player's club gets "USA" while it holds
+## the tabard (`Season.sync_tabard`), with its own colours and name kept in
+## `home` so the save always writes the club, not the tabard.
+var flag: String = ""
+var home: Dictionary = {}
+
+
+## The club as it is at home, whatever it is wearing this week.
+func home_name() -> String:
+	return String(home["name"]) if not home.is_empty() else display_name
+
+
+## PUT ON THE TABARD (code "USA") or take it off (""): name, short name and kit
+## become the nation's, and come back exactly as they were.
+func wear(code: String) -> void:
+	if code != "" and home.is_empty():
+		home = {"name": display_name, "short": short_name, "kit": kit, "icon_color": icon_color}
+		flag = code
+		display_name = UiKit.t("Team USA") if code == "USA" else display_name
+		short_name = code
+		kit = Nations.kit(code)
+		icon_color = Nations.mark(code)
+	elif code == "" and not home.is_empty():
+		display_name = String(home["name"])
+		short_name = String(home["short"])
+		kit = home["kit"]
+		icon_color = home["icon_color"]
+		home = {}
+		flag = ""
 
 
 ## The five, ordered Rail · Flanker · Center · Flanker · Rail.

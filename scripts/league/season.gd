@@ -283,7 +283,15 @@ func _dress_sim(sim: MeleeSim, opp_id: int, kind: int, dist: float) -> void:
 ## a signing, a cut, a promotion, a repair — because the league sorts on this
 ## number and nothing else, and a table that has not heard about your new Center
 ## is lying to you.
+## TEAM USA, WORN (Pete, 11 Oct 2026: "Once you're temporarily Team USA, you're
+## that flag and name"). From the tabard on Friday to the end of the season the
+## club fights, and is shown, as Team USA under the US flag.
+func sync_tabard() -> void:
+	club.wear("USA" if world.team_title != "" else "")
+
+
 func sync_power() -> void:
+	sync_tabard()
 	## HOW MANY YOU CAN TAKE, before anything reads the eight. `active_eight()`
 	## is what club power averages, what the lineup is drawn from and what the
 	## corner offers, so the cap has to be on the club before any of those are
@@ -410,6 +418,7 @@ func club_for(id: int) -> MeleeClub:
 	if bool(c.get("guest", false)) and Nations.COLORS.has(String(c["short"])):
 		built.kit = Nations.kit(String(c["short"]))
 		built.icon_color = Nations.mark(String(c["short"]))
+		built.flag = String(c["short"])
 	_clubs[id] = { "club": built, "power": int(c["power"]) }
 	return built
 ## -> SeasonBouts (season_bouts.gd)
@@ -1106,6 +1115,7 @@ func roll_over() -> void:
 	SeasonWinter.roll_over(self)
 	send_off = 0
 	send_off_picks = {}
+	sync_tabard()
 	sync_week()
 
 

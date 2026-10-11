@@ -791,11 +791,14 @@ func _draw() -> void:
 func _header() -> void:
 	var w: Dictionary = season.world.clubs[season.world.player_club]
 	draw_rect(Rect2(-UiKit.frame_off, 0, UiKit.real_screen().x, 62), UiKit.PANEL)
-	UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
-		season.club.icon_color, int(season.club.icon))
+	if season.club.flag != "":
+		Nations.draw(self, Vector2(14, 15), 32.0, season.club.flag)
+	else:
+		UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
+			season.club.icon_color, int(season.club.icon))
 	## MEASURED AGAINST THE PURSE, which moved left for the Club button.
 	var room := purse_box().position.x - 68.0 - 12.0
-	UiKit.text(self, font, UiKit.clip_px(font, String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
+	UiKit.text(self, font, UiKit.clip_px(font, season.club.display_name if season.club.flag != "" else String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
 	var sub := UiKit.t("%s  ·  Season %d  ·  rating %d") % [
 		season.tier_name(), season.world.season, int(w["power"])]
 	## AND WHAT THE KIT IS TAKING OFF IT (1 Oct novice report): "rating 48 (-2

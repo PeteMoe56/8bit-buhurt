@@ -44,9 +44,14 @@ func _process(_d: float) -> bool:
 		return false
 	root.get_texture().get_image().save_png("res://shots/sendoff_%d.png" % (day + 1))
 	print("wrote sendoff_%d  due=%s" % [day + 1, SendOff.due(s)])
-	s.answer_send_off(0)
+	if day < SendOff.STEPS:
+		s.answer_send_off(0)
 	day += 1
-	if day >= SendOff.STEPS:
+	if day == SendOff.STEPS:
+		## AFTER THE TABARD: the header wears the flag and the name.
+		_mount()
+		return false
+	if day > SendOff.STEPS:
 		print("team=%s  grudge=%d  picks=%s" % [s.world.team_title, s.world.grudge_rival, str(s.send_off_picks)])
 		return true
 	_mount()

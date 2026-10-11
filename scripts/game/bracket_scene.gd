@@ -103,13 +103,13 @@ func _fit(id: int, px: int, width: float) -> String:
 
 ## TRANSLATED ROUND HEADERS (3 Oct 2026): Cup.ROUND_NAMES is the English key,
 ## and German showed "QUARTER-FINALS". Same mapping as Cup.round_label().
-## The nation's flag, 12 tall, at a Worlds; returns the room it took (0 when
+## The nation's flag, 16 tall, at a Worlds; returns the room it took (0 when
 ## there is none) so the name beside it moves along.
 func _flag(at: Vector2, id: int) -> float:
 	var code := Nations.code_for(cup, Session.season.world if Session.season != null else null, id)
 	if code == "":
 		return 0.0
-	return Nations.draw(self, at, 12.0, code) + 6.0
+	return Nations.draw(self, at, 16.0, code) + 6.0
 
 
 func _round_label(clubs: int) -> String:
@@ -285,7 +285,7 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 		UiKit.text(self, font, "%d" % (cup.entrants.find(id) + 1),
 			Vector2(at.x + 8, at.y + UiKit.tk(19.0)), UiKit.tz(12), UiKit.DIM)
 		## A FLAG AT THE WORLDS (11 Oct 2026), and the name moves along for it.
-		var fw := _flag(Vector2(at.x + 24, at.y + UiKit.tk(14.0) - 6.0), id)
+		var fw := _flag(Vector2(at.x + 24, at.y + UiKit.tk(14.0) - 8.0), id)
 		## FITTED, NOT CUT AT 16 CHARACTERS (round 5: "New Orleans Gua.").
 		UiKit.text(self, font, _fit(id, UiKit.tz(14), NAME_W - fw),
 			Vector2(at.x + 24 + fw, at.y + UiKit.tk(19.0)), UiKit.tz(14), col)
@@ -409,7 +409,7 @@ func _pools() -> void:
 			## FIT BY PIXELS, NOT CHARACTERS (3 Oct 2026): the name gets whatever
 			## the numbers leave, less a gap, instead of a twenty-character cut.
 			var stats_w := font.get_string_size(stats, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
-			var pfw := _flag(Vector2(px + 44, ry - 12), id)
+			var pfw := _flag(Vector2(px + 44, ry - 14), id)
 			UiKit.text(self, font, _fit(id, 14, 426.0 - 44.0 - stats_w - 16.0 - pfw), Vector2(px + 44 + pfw, ry), 14, col)
 			UiKit.right(self, font, stats, Vector2(px + 426, ry), 14, col, 240)
 	UiKit.text(self, font, UiKit.t("Top %d of each pool make the knockout.") % Cup.POOLS_ADVANCE,

@@ -238,6 +238,7 @@ static func answer(s: Season, choice: int = 0) -> String:
 			out = UiKit.t("Five days to the Worlds.")
 		_:
 			s.world.team_title = team_name(s)
+			s.sync_tabard()
 			for f in s.club.active_eight():
 				f.honors += 1
 			s.send_off_picks["gift"] = choice

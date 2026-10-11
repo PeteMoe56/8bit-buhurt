@@ -2087,6 +2087,12 @@ func _draw_man(m) -> void:
 ## match statement from the one in UiKit — which is how a club could wear one
 ## mark on the league table and another in the fight. One function now.
 func _draw_mark(p: Vector2, club, s: float) -> void:
+	## A NATION FIGHTS UNDER ITS FLAG (11 Oct 2026): Team USA and every guest.
+	if club.flag != "" and Nations.flag(club.flag, s > 20.0) != null:
+		## Whole-pixel sizes only: 16, 32 or 64 tall, never a blurred in-between.
+		var fh := 64.0 if s >= 70.0 else (32.0 if s >= 40.0 else 16.0)
+		Nations.draw(self, p - Vector2(roundf(fh * 1.5) * 0.5, fh * 0.5), fh, club.flag)
+		return
 	IconBank.draw_icon(self, p, s * 0.5, club.icon_color, club.kit, club.icon)
 
 

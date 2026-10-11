@@ -527,7 +527,6 @@ static func _draw_send_off(v: SeasonScene, card: Dictionary = {}) -> void:
 		UiKit.panel(v, a)
 		var c := a.get_center() - Vector2(0, 24)
 		Nations.draw(v, c - Vector2(72, 48), 96.0, "USA")
-		UiKit.badge(v, c, 34.0, v.season.club.kit, v.season.club.icon_color, v.season.club.icon)
 		var dw := v.font.get_string_size(String(card["day"]), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(22)).x
 		UiKit.text(v, v.font, String(card["day"]), Vector2(c.x - dw * 0.5, a.end.y - 36), UiKit.tz(22), UiKit.YOU)
 	var r := send_off_text_rect()
