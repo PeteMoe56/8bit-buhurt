@@ -9,7 +9,6 @@ the same four NES voices as the rest of the score (`buhurt_music.py`):
 
     anthem     The Star-Spangled Banner (John Stafford Smith, c. 1773)
                transcribed by hand
-    yankee     Yankee Doodle (traditional, 18th c.), transcribed by hand
     country    My Country, 'Tis of Thee (the 1744 tune), transcribed by hand
     stripes    The Stars and Stripes Forever (Sousa, 1896), from the Mutopia
                Project's public-domain MIDI (piece 626, John Church 1897 ed.)
@@ -300,7 +299,6 @@ if __name__ == "__main__":
     os.makedirs(out, exist_ok=True)
     jobs = {
         "anthem": anthem,
-        "yankee": yankee,
         "country": country,
         "stripes": lambda: from_midi(os.path.join(mid, "stars_stripes.mid")),
         "liberty": lambda: from_midi(os.path.join(mid, "TheLibertyBell.mid")),

@@ -522,11 +522,12 @@ static func _draw_send_off(v: SeasonScene, card: Dictionary = {}) -> void:
 		v.draw_texture_rect(load(path), a, false)
 		v.draw_rect(a, UiKit.FRAME, false, 2.0)
 	else:
-		## UNTIL THE PICTURE ARRIVES: the club's badge on the Team USA flag and the
-		## day, a poster rather than an empty frame.
+		## UNTIL THE PICTURE ARRIVES (Pete, 11 Oct 2026: "put the art panels in
+		## as 'Art pending' until later"): the day, and a plain label.
 		UiKit.panel(v, a)
 		var c := a.get_center() - Vector2(0, 24)
-		Nations.draw(v, c - Vector2(72, 48), 96.0, "USA")
+		var pw := v.font.get_string_size(UiKit.t("Art pending"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(14)).x
+		UiKit.text(v, v.font, UiKit.t("Art pending"), Vector2(c.x - pw * 0.5, c.y), UiKit.tz(14), UiKit.DIM)
 		var dw := v.font.get_string_size(String(card["day"]), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(22)).x
 		UiKit.text(v, v.font, String(card["day"]), Vector2(c.x - dw * 0.5, a.end.y - 36), UiKit.tz(22), UiKit.YOU)
 	var r := send_off_text_rect()

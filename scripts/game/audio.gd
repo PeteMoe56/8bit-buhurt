@@ -129,8 +129,6 @@ const MUSIC := {
 		"db": -10.0, "loop": true, "in": 1.0, "out": 0.8},
 	"usa_liberty": {"path": "res://audio/music/usa_liberty.ogg", "about": "Sousa, The Liberty Bell.",
 		"db": -10.0, "loop": true, "in": 1.0, "out": 0.8},
-	"usa_yankee": {"path": "res://audio/music/usa_yankee.ogg", "about": "Yankee Doodle.",
-		"db": -9.0, "loop": true, "in": 1.0, "out": 0.8},
 	"usa_country": {"path": "res://audio/music/usa_country.ogg", "about": "My Country, 'Tis of Thee.",
 		"db": -9.0, "loop": true, "in": 1.0, "out": 0.8},
 	"fight": {
@@ -350,7 +348,7 @@ const PLAYLIST := ["menu", "club", "menu_own"]
 ## While the club is Team USA the menus mix these in. USA_SHARE of the bag is
 ## national: with three menu tracks and a share of 0.5, three of the five songs
 ## join each shuffle (a different three each time), so it is half and half.
-const USA_PLAYLIST := ["usa_anthem", "usa_stripes", "usa_liberty", "usa_yankee", "usa_country"]
+const USA_PLAYLIST := ["usa_anthem", "usa_stripes", "usa_liberty", "usa_country"]
 const USA_SHARE := 0.5
 static var _bag: Array = []
 static var _last_list := ""

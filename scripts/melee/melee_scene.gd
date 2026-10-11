@@ -2424,8 +2424,11 @@ func _draw_banner(team: int, x: float, club) -> void:
 	var cx := x + BANNER_W * 0.5
 	## The club's kit, then its mark on top — the same two-color badge the
 	## men are wearing, at a size you can read from the other side of a room.
-	draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), club.kit)
-	draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), COL_EDGE, false, 2.0)
+	## A FLAG STANDS ON ITS OWN (Pete, 11 Oct 2026: "I don't like the
+	## backgrounds behind these flags"): no kit plate behind a nation's flag.
+	if club.flag == "":
+		draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), club.kit)
+		draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), COL_EDGE, false, 2.0)
 	_draw_mark(Vector2(cx, BANNER_TOP + 62.0), club, 46.0)
 	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 118.0), club.short_name,
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 26, COL_INK)
@@ -3679,8 +3682,9 @@ func _splash_club(club, side: int, cx: float) -> void:
 	## ON ITS KIT, the way the fight's banner draws it (29 Sep 2026). The bare
 	## mark sat on the black band, and a navy mark on black is no mark at all.
 	var plate := Rect2(cx - 50.0, 162.0, 100.0, 100.0)
-	draw_rect(plate, club.kit)
-	draw_rect(plate, COL_EDGE, false, 2.0)
+	if club.flag == "":
+		draw_rect(plate, club.kit)
+		draw_rect(plate, COL_EDGE, false, 2.0)
 	_draw_mark(Vector2(cx, 212.0), club, 76.0)
 	UiKit.raw(self, font, Vector2(cx - 220.0, 286.0), club.display_name,
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 17, COL_INK)
