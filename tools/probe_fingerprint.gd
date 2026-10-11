@@ -28,6 +28,7 @@ func _initialize() -> void:
 					"bid": season.decline_bid()
 					"dilemma": season.answer_dilemma(0)
 					"sendoff": season.answer_send_off()
+					"camp": season.answer_camp(WorldsCamp.Pick.SKIP)
 					"cup": season.sim_cup_tie()
 					"promotion": season.answer_promotion(true)
 			if season.season_complete():

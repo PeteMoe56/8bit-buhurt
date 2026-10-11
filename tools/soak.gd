@@ -573,6 +573,7 @@ func _drain_the_queue(s: Season) -> void:
 				_spent("dilemma answered")
 			"sendoff":
 				s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup":
 				return          ## the bout loop plays these itself
 			_:

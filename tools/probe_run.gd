@@ -313,6 +313,7 @@ func _season(s: Season) -> void:
 					if not took:
 						s.decline_bid()
 				"sendoff": s.answer_send_off()
+				"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 				"dilemma":
 					s.answer_dilemma(0)
 				"promotion":

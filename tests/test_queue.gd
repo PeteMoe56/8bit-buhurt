@@ -86,6 +86,7 @@ func _initialize() -> void:
 						"bid": s.decline_bid()
 						"dilemma": s.answer_dilemma(0)
 						"sendoff": s.answer_send_off()
+						"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 						"cup": s.sim_cup_tie()
 						"promotion": s.answer_promotion(true)
 				if s.season_complete() and s.blocked_by() == "":
@@ -168,6 +169,7 @@ func _gold_step() -> void:
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
 			"sendoff": s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup": s.sim_cup_tie()
 			"": s.skip_event()
 			_: break

@@ -21,6 +21,7 @@ func _initialize() -> void:
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
 			"sendoff": s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup": s.sim_cup_tie()
 			_: s.skip_event()
 	## TOP OF THE TABLE, by giving the club the points rather than by editing
@@ -38,6 +39,7 @@ func _initialize() -> void:
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
 			"sendoff": s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup": s.sim_cup_tie()
 	s.office.credits = 21
 	Session.season = s

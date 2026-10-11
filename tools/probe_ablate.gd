@@ -138,6 +138,7 @@ func _run(seed_v: int = 31337) -> Array:
 							if not took:
 								s.decline_bid()
 						"sendoff": s.answer_send_off()
+						"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 						"dilemma":
 							var card := s.dilemma_card()
 							var opts: Array = card.get("options", [])

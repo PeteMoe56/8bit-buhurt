@@ -887,6 +887,9 @@ func blocked_by() -> String:
 	## next fight. The offers wait on the table; they are asked after bout one.
 	if bid_open() and first_bout_done():
 		return "bid"
+	## THE WORLDS CAMP, between the pools and the knockout (`WorldsCamp`).
+	if WorldsCamp.due(self):
+		return "camp"
 	if cup_pending():
 		return "cup"
 	## THE NATIONAL CHAMPION'S SEND-OFF, a card a day in the bye before the
@@ -1119,6 +1122,14 @@ func send_off_card() -> Dictionary:
 
 func answer_send_off(choice: int = 0) -> String:
 	return SendOff.answer(self, choice)
+
+
+## The season the Worlds camp was answered in (0 never).
+var worlds_camp: int = 0
+
+
+func answer_camp(pick: int) -> String:
+	return WorldsCamp.answer(self, pick)
 
 
 

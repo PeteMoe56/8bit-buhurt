@@ -494,6 +494,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"team_title": w.team_title,
 		"send_off": season.send_off,
 		"send_off_picks": season.send_off_picks.duplicate(),
+		"worlds_camp": season.worlds_camp,
 		"grudge_rival": w.grudge_rival,
 		"clippings": w.clippings.duplicate(true),
 		"tables": w.tables.duplicate(true),
@@ -698,6 +699,7 @@ static func from_dict(d: Dictionary) -> Season:
 	## got two men better every time the player reloaded.
 	s.send_off = int(d.get("send_off", 0))
 	s.send_off_picks = (d.get("send_off_picks", {}) as Dictionary).duplicate()
+	s.worlds_camp = int(d.get("worlds_camp", 0))
 	s.world.grudge_rival = int(d.get("grudge_rival", -1))
 	s.world.clippings = _dicts(d.get("clippings", []))
 	s.sync_power()

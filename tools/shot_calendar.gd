@@ -35,6 +35,7 @@ func _initialize() -> void:
 					s.decline_bid()
 				continue
 			"sendoff": s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"dilemma":
 				s.answer_dilemma(0)
 				continue

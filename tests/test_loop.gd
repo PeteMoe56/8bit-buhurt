@@ -111,6 +111,7 @@ func _test_knocks_heal() -> void:
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
 			"sendoff": s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup": s.sim_cup_tie()
 			"promotion": s.answer_promotion(false)
 	s.skip_event()
