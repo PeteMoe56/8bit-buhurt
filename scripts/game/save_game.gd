@@ -493,6 +493,9 @@ static func to_dict(season: Season) -> Dictionary:
 		"finalists": w.finalists.duplicate(true),
 		"team_title": w.team_title,
 		"send_off": season.send_off,
+		"send_off_picks": season.send_off_picks.duplicate(),
+		"grudge_rival": w.grudge_rival,
+		"clippings": w.clippings.duplicate(true),
 		"tables": w.tables.duplicate(true),
 		"history": w.history.duplicate(true),
 		"honors": w.honors.duplicate(true),
@@ -694,6 +697,9 @@ static func from_dict(d: Dictionary) -> Season:
 	## different; without that check it would have surfaced as a club that quietly
 	## got two men better every time the player reloaded.
 	s.send_off = int(d.get("send_off", 0))
+	s.send_off_picks = (d.get("send_off_picks", {}) as Dictionary).duplicate()
+	s.world.grudge_rival = int(d.get("grudge_rival", -1))
+	s.world.clippings = _dicts(d.get("clippings", []))
 	s.sync_power()
 	s.sync_week()
 	return s

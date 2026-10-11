@@ -137,6 +137,11 @@ var finalists: Dictionary = {}
 ## THE COUNTRY'S NAME ON THE PLAYER'S CLUB at this year's Worlds, once the
 ## tabard is handed over ("" otherwise). See `SendOff`.
 var team_title: String = ""
+## THE RIVAL WHO HEARD IT (send-off Wednesday, 11 Oct 2026): this year's Worlds
+## brings him `SendOff.GRUDGE_POWER` stronger. -1 for nobody.
+var grudge_rival: int = -1
+## Tuesday's front pages, one a title year, kept for the club's history.
+var clippings: Array = []
 var tables: Dictionary = {}             ## tier -> { club_id: row }
 var history: Array[Dictionary] = []
 
@@ -600,6 +605,7 @@ func _new_season() -> void:
 	event = 0
 	week = 0
 	team_title = ""
+	grudge_rival = -1
 	days_played.clear()
 	finalists.clear()
 	schedule.clear()
@@ -1465,7 +1471,7 @@ func _build_worlds(national_rows: Array) -> Cup:
 			won_worlds = true
 	var rp: Array = []
 	for i in rivals.size():
-		rp.append(rival_power(i, season))
+		rp.append(rival_power(i, season) + (SendOff.GRUDGE_POWER if i == grudge_rival else 0))
 	var top := -1
 	if won_worlds and not rp.is_empty():
 		top = 0
@@ -1624,6 +1630,8 @@ func _record_honors(c: Cup) -> void:
 		## The same run as a number, so the coach's reputation and the label on
 		## the cabinet are two readings of one walk rather than two walks.
 		"exit": c.player_exit_size(),
+		## THE FINAL'S SCORE, champion first (send-off Tuesday's front page).
+		"score": c.final_score(),
 	})
 
 

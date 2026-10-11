@@ -172,8 +172,8 @@ func _days_map() -> Dictionary:
 		var k := int(wk["kind"])
 		out[_key(Calendar.date_of(s.world.season, i))] = [i, _short(wk, days), _color_of(wk), true]
 		if _send_off_week(wk):
-			var labels := [UiKit.t("CELEBRATION"), UiKit.t("NATIONAL CAMP")]
-			for j in 2:
+			var labels := [UiKit.t("PARADE"), UiKit.t("PAPERS"), UiKit.t("INTERVIEW"), UiKit.t("FAVORITES"), UiKit.t("TABARD")]
+			for j in SendOff.STEPS:
 				out[_key(Calendar.date_of(s.world.season, i, int(SendOff.DAY_SHIFT[j])))] = [i, labels[j], SEND_OFF_COLOR, false]
 			continue
 		if not Calendar.is_tournament(k):
@@ -400,10 +400,10 @@ func _info(wi: int) -> Array:
 		Calendar.Kind.BYE:
 			if _send_off_week(wk):
 				title = UiKit.t("THE SEND-OFF")
-				lines.append([UiKit.t("National champions only. Three days before the Worlds:"), UiKit.INK])
-				lines.append([UiKit.t("Monday: the club celebrates. Renown and team morale up."), UiKit.DIM])
-				lines.append([UiKit.t("Wednesday: the national camp. Two weeks of training in three days."), UiKit.DIM])
-				lines.append([UiKit.t("Saturday: the tabard. You go to the Worlds as %s.") % SendOff.team_name(s), UiKit.YOU])
+				lines.append([UiKit.t("National champions only. One event a day before the Worlds:"), UiKit.INK])
+				lines.append([UiKit.t("Monday the parade, Tuesday the papers, Wednesday the interview,"), UiKit.DIM])
+				lines.append([UiKit.t("Thursday the favorites, Friday the tabard and one gift."), UiKit.DIM])
+				lines.append([UiKit.t("You go to the Worlds as %s.") % SendOff.team_name(s), UiKit.YOU])
 			else:
 				lines.append([UiKit.t("No match. The squad trains, and knocks get a week to heal."), UiKit.DIM])
 		_:

@@ -485,6 +485,18 @@ func run_all(resolver: Callable, guard: int = 40) -> void:
 		advance()
 
 
+## The final's rounds, champion first ("2-1"); "" before it is played.
+func final_score() -> String:
+	if rounds.is_empty():
+		return ""
+	var last: Array = rounds[rounds.size() - 1]
+	if last.size() != 1 or not bool(last[0].get("played", false)):
+		return ""
+	var m: Dictionary = last[0]
+	var a_won := int(m.get("winner", -1)) == int(m["a"])
+	return "%d-%d" % [int(m["ra"]) if a_won else int(m["rb"]), int(m["rb"]) if a_won else int(m["ra"])]
+
+
 ## Where the player got to, as a label. "" if he was not in it.
 func finish_label() -> String:
 	if player_club == -1 or not entrants.has(player_club):

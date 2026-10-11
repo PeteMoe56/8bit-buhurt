@@ -1102,19 +1102,23 @@ static func purse(place: int, field: int, tier: int) -> int:
 func roll_over() -> void:
 	SeasonWinter.roll_over(self)
 	send_off = 0
+	send_off_picks = {}
 	sync_week()
 
 
-## How many of the send-off's three days have been done this year.
+## How many of the send-off week's five days have been done this year.
 var send_off: int = 0
+## What was picked on Wednesday ("interview": 0 confident / 1 humble) and on
+## Friday ("gift": SendOff.Gift), this year.
+var send_off_picks: Dictionary = {}
 
 
 func send_off_card() -> Dictionary:
 	return SendOff.card(self)
 
 
-func answer_send_off() -> String:
-	return SendOff.answer(self)
+func answer_send_off(choice: int = 0) -> String:
+	return SendOff.answer(self, choice)
 
 
 

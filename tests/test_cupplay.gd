@@ -367,9 +367,9 @@ func _test_the_weeks_of_a_year() -> void:
 		"%d weeks, last four %s" % [n.size(), str(n.slice(n.size() - 4))])
 
 
-## THE SEND-OFF: the National champion's bye before the Worlds is three cards —
-## the celebration, the national camp, the tabard — and the club goes to the
-## Worlds under the country's name, as its only berth.
+## THE SEND-OFF WEEK: the National champion's bye before the Worlds is five
+## events, Monday to Friday — and the club goes to the Worlds under the
+## country's name, as its only berth.
 func _test_the_send_off() -> void:
 	var s := Season.new(MeleeRosters.starting_club(), 4242)
 	var w := s.world
@@ -388,23 +388,18 @@ func _test_the_send_off() -> void:
 	w.finalists[League.Tier.NATIONAL] = [w.player_club, other]
 	w.week = w.calendar.size() - 2
 	var fans := s.office.fans
-	var xp := 0
-	for f in s.club.roster:
-		xp += f.xp
 	var asked: Array[String] = []
 	var guard := 0
 	while s.blocked_by() == "sendoff" and guard < 6:
 		guard += 1
 		asked.append(String(s.send_off_card()["title"]))
 		s.answer_send_off()
-	var xp2 := 0
-	for f in s.club.roster:
-		xp2 += f.xp
-	_ok(asked.size() == SendOff.STEPS and s.office.fans > fans and xp2 > xp
+	_ok(asked.size() == SendOff.STEPS and s.office.fans > fans and w.clippings.size() == 1
+			and w.grudge_rival >= 0 and s.send_off_picks.has("gift")
 			and w.team_title == SendOff.team_name(s),
-		"the champion is sent off: celebrated, trained, given the tabard",
-		"%s; fans %.0f -> %.0f, squad XP +%d, going as '%s'" % [", ".join(asked), fans, s.office.fans,
-			xp2 - xp, w.team_title])
+		"the champion's send-off week: parade, papers, interview, favorites, the tabard and a gift",
+		"%s; fans %.0f -> %.0f, clippings %d, grudge %d, going as '%s'" % [", ".join(asked), fans, s.office.fans,
+			w.clippings.size(), w.grudge_rival, w.team_title])
 	## And the Worlds takes the champion as the country's one club.
 	s.skip_event()
 	var home := 0

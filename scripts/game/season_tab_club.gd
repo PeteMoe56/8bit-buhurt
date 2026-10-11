@@ -260,11 +260,26 @@ static func _club_controls(v: SeasonScene) -> void:
 	## past is a notification.
 	if block == "sendoff":
 		var so: Dictionary = v.season.send_off_card()
-		v.ui.add_child(UiKit.primary(UiKit.button(String(so["button"]),
-			Vector2(UiKit.right_edge(300.0 + 24.0), SeasonScene.action_y()), Vector2(300, 46), func():
-				v.flash = v.season.answer_send_off()
-				Session.autosave()
-				v._rebuild(), "trophy")))
+		var opts: Array = so.get("options", [])
+		if opts.is_empty():
+			v.ui.add_child(UiKit.primary(UiKit.button(String(so["button"]) + "  >",
+				Vector2(UiKit.right_edge(300.0 + 24.0), SeasonScene.action_y()), Vector2(300, 46), func():
+					v.flash = v.season.answer_send_off()
+					Session.autosave()
+					v._rebuild(), "trophy")))
+			return
+		## A CHOICE (Wednesday's answer, Friday's gift): one button per option,
+		## under its own column of the right-hand panel.
+		var r := send_off_text_rect()
+		var gw: float = (r.size.x - float(opts.size() - 1) * 12.0) / float(opts.size())
+		for i in opts.size():
+			var o: Dictionary = opts[i]
+			var ii := i
+			v.ui.add_child(UiKit.button(String(o["label"]),
+				Vector2(r.position.x + float(i) * (gw + 12.0), SeasonScene.action_y()), Vector2(gw, 46), func():
+					v.flash = v.season.answer_send_off(ii)
+					Session.autosave()
+					v._rebuild()))
 		return
 	if block == "dilemma":
 		var card := v.season.dilemma_card()
@@ -455,18 +470,90 @@ static func _schedule(v: SeasonScene) -> void:
 
 ## THE SEND-OFF CARD, the whole panel like a dilemma's: the day, the title, the
 ## words. One answer, on the button. Art follows (Pete, 1 Oct).
+## THE SEND-OFF WEEK (Pete, 9 Oct 2026; mockups approved 10 Oct). Art on the
+## left — `art/sendoff/<day>.png` once ChatGPT has drawn it, a labelled frame
+## until then — and the day on the right: title, story, what it does.
+const SEND_OFF_ART_W := 340.0
+
+
+static func send_off_art_rect() -> Rect2:
+	var y := SeasonScene.CONTENT_Y + 10.0
+	return Rect2(24, y, SEND_OFF_ART_W, SeasonScene.action_y() - 14.0 - y)
+
+
+static func send_off_text_rect() -> Rect2:
+	var a := send_off_art_rect()
+	var x := a.end.x + 16.0
+	return Rect2(x, a.position.y, UiKit.right_edge() - x, a.size.y)
+
+
 static func _draw_send_off(v: SeasonScene) -> void:
 	var card: Dictionary = v.season.send_off_card()
-	var y := SeasonScene.CONTENT_Y + 10.0
-	UiKit.panel(v, Rect2(24, y, UiKit.span(), UiKit.tk(300.0)))
+	var a := send_off_art_rect()
+	var path := "res://art/sendoff/%s.png" % String(card.get("art", ""))
+	if ResourceLoader.exists(path):
+		v.draw_texture_rect(load(path), a, false)
+		v.draw_rect(a, UiKit.FRAME, false, 2.0)
+	else:
+		## UNTIL THE PICTURE ARRIVES: the club's badge on the Team USA flag and the
+		## day, a poster rather than an empty frame.
+		UiKit.panel(v, a)
+		var c := a.get_center() - Vector2(0, 24)
+		Nations.draw(v, c - Vector2(72, 48), 96.0, "USA")
+		UiKit.badge(v, c, 34.0, v.season.club.kit, v.season.club.icon_color, v.season.club.icon)
+		var dw := v.font.get_string_size(String(card["day"]), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(22)).x
+		UiKit.text(v, v.font, String(card["day"]), Vector2(c.x - dw * 0.5, a.end.y - 36), UiKit.tz(22), UiKit.YOU)
+	var r := send_off_text_rect()
+	UiKit.panel(v, r)
+	var x := r.position.x + 18.0
+	var w := r.size.x - 36.0
+	var y := r.position.y + UiKit.tk(28.0)
 	UiKit.text(v, v.font, UiKit.t("THE SEND-OFF  ·  %s  ·  %d OF %d") % [String(card["day"]),
-		v.season.send_off + 1, SendOff.STEPS], Vector2(48, y + UiKit.tk(30.0)), UiKit.tz(13), UiKit.DIM)
-	UiKit.text(v, v.font, String(card["title"]), Vector2(48, y + UiKit.tk(62.0)), UiKit.tz(22), UiKit.YOU)
-	## TALL SCREENS: A BIGGER VOICE IN A TALLER CARD (3 Oct 2026); 1.0 on a phone.
-	var line_y := y + UiKit.tk(104.0)
-	for line in UiKit.wrap(v.font, String(card["body"]), UiKit.span(48.0), UiKit.tz(16)):
-		UiKit.text(v, v.font, line, Vector2(48, line_y), UiKit.tz(16), UiKit.INK)
-		line_y += UiKit.tk(26.0)
+		v.season.send_off + 1, SendOff.STEPS], Vector2(x, y), UiKit.tz(12), UiKit.DIM)
+	y += UiKit.tk(30.0)
+	UiKit.text_fit(v, v.font, String(card["title"]), Vector2(x, y), UiKit.tz(22), UiKit.YOU, w)
+	y += UiKit.tk(28.0)
+	if card.has("headline"):
+		UiKit.text_fit(v, v.font, String(card["headline"]), Vector2(x, y), UiKit.tz(18), UiKit.INK, w)
+		y += UiKit.tk(26.0)
+	var n := UiKit.para(v, v.font, String(card["body"]), Vector2(x, y), UiKit.tz(15), UiKit.INK, w, UiKit.tk(20.0), 4)
+	y += UiKit.tk(20.0) * float(n) + UiKit.tk(8.0)
+	if card.has("quote"):
+		n = UiKit.para(v, v.font, String(card["quote"]), Vector2(x, y), UiKit.tz(14), UiKit.DIM, w, UiKit.tk(19.0), 2)
+		y += UiKit.tk(19.0) * float(n) + UiKit.tk(6.0)
+	for fact in card.get("facts", []):
+		if String(fact[1]) == "":
+			continue
+		UiKit.text(v, v.font, String(fact[0]), Vector2(x, y), UiKit.tz(13), UiKit.DIM)
+		UiKit.right(v, v.font, String(fact[1]), Vector2(r.end.x - 18.0, y), UiKit.tz(13), UiKit.INK, w * 0.6)
+		y += UiKit.tk(19.0)
+	## THURSDAY: THE NATIONS TO BEAT, one row each — flag, name, why, stars,
+	## and the record against you.
+	for nat in card.get("nations", []):
+		var fw := Nations.draw(v, Vector2(x, y - 13.0), 16.0, String(nat["code"]))
+		UiKit.text(v, v.font, String(nat["tag"]), Vector2(x + fw + 8.0, y - 2.0), UiKit.tz(11), UiKit.YOU)
+		UiKit.text_fit(v, v.font, UiKit.t(String(nat["name"])), Vector2(x + fw + 8.0, y + UiKit.tk(16.0)), UiKit.tz(15), UiKit.INK, w * 0.5)
+		## FIVE PIPS FOR POWER, gold for each star.
+		for st in 5:
+			v.draw_rect(Rect2(r.end.x - 18.0 - float(5 - st) * 12.0, y - 11.0, 9.0, 9.0),
+				UiKit.YOU if st < int(nat["stars"]) else UiKit.EDGE)
+		var rec: String = UiKit.t("never met") if int(nat["met"]) == 0 else UiKit.t("vs you %d-%d") % [int(nat["won"]), int(nat["lost"])]
+		UiKit.right(v, v.font, rec, Vector2(r.end.x - 18.0, y + UiKit.tk(16.0)), UiKit.tz(12), UiKit.DIM, w * 0.45)
+		y += UiKit.tk(40.0)
+	var cx := x
+	for chip in card.get("chips", []):
+		UiKit.text(v, v.font, String(chip), Vector2(cx, r.end.y - 16.0), UiKit.tz(13), UiKit.UP)
+		cx += v.font.get_string_size(String(chip), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(13)).x + 24.0
+	## THE CHOICES: each option's line and what it does, over its button.
+	var opts: Array = card.get("options", [])
+	if not opts.is_empty():
+		var gw: float = (r.size.x - float(opts.size() - 1) * 12.0) / float(opts.size())
+		for i in opts.size():
+			var o: Dictionary = opts[i]
+			var ox := r.position.x + float(i) * (gw + 12.0) + 8.0
+			var oy := r.end.y - UiKit.tk(104.0)
+			UiKit.para(v, v.font, String(o["line"]), Vector2(ox, oy), UiKit.tz(13), UiKit.INK, gw - 16.0, UiKit.tk(17.0), 3)
+			UiKit.para(v, v.font, String(o["fx"]), Vector2(ox, r.end.y - UiKit.tk(34.0)), UiKit.tz(12), UiKit.UP, gw - 16.0, UiKit.tk(16.0), 2)
 
 
 static func _draw_dilemma(v: SeasonScene) -> void:
