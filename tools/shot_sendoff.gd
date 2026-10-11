@@ -12,6 +12,10 @@ var scene: Node = null
 
 
 func _initialize() -> void:
+	Settings.tips_enabled = false
+	if OS.get_environment("RB_LOCALE") != "":
+		Settings.load_once()
+		TranslationServer.set_locale(OS.get_environment("RB_LOCALE"))
 	s = Season.new(MeleeRosters.starting_club(), 4242)
 	Session.season = s
 	s.decline_bid()
@@ -42,7 +46,7 @@ func _process(_d: float) -> bool:
 	n += 1
 	if n < 12:
 		return false
-	root.get_texture().get_image().save_png("res://shots/sendoff_%d.png" % (day + 1))
+	root.get_texture().get_image().save_png("res://shots/sendoff_%s%d.png" % [OS.get_environment("RB_LOCALE"), day + 1])
 	print("wrote sendoff_%d  due=%s" % [day + 1, SendOff.due(s)])
 	if day < SendOff.STEPS:
 		s.answer_send_off(0)
