@@ -180,6 +180,11 @@ func _ready() -> void:
 		ground_open = true
 	elif not season.market_ask().is_empty():
 		market_open = true
+	## WHAT HAPPENED AT YOUR SHOW, said once (`HostEvents`).
+	if flash == "" and bool(season.last_show.get("unread", false)):
+		var hw := HostEvents.words(String(season.last_show.get("event", "")))
+		flash = UiKit.t("Your show: %s. %s") % [hw[0], hw[1]]
+		season.last_show["unread"] = false
 	## OUT IN THE SEMIS, STILL A BOUT TO FIGHT (Pete, 11 Oct 2026): said every
 	## time the screen opens until the bronze match is fought.
 	var bc := season.pending_cup()

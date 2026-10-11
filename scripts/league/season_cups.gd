@@ -491,6 +491,10 @@ static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 		float(ClubEvent.BUDGETS[e.budget]["draw"]))
 	var g := ClubEvent.show_gate(heads, float(ClubEvent.BUDGETS[e.budget]["take"])) \
 		+ ClubEvent.entry_fees(s.world.player_tier())
+	## THE WEEKEND'S LUCK (`HostEvents`): rain, a no-show, a full house...
+	var ev := HostEvents.roll(s, e)
+	g = int(round(float(g) * float(ev["gate"])))
+	var extra := int(ev["cc"])
 	var podium := 0
 	if c.champion == s.world.player_club:
 		podium = ClubEvent.PODIUM[0]
@@ -499,6 +503,10 @@ static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 	elif c.third == s.world.player_club:
 		podium = ClubEvent.PODIUM[2]
 	s.office.take(g + podium, UiKit.t("The cup"), "event", ClubOffice.LINE_CUP)
+	if extra > 0:
+		s.office.take(extra, HostEvents.words(String(ev["id"]))[0], "event", ClubOffice.LINE_CUP)
+	elif extra < 0:
+		s.office.spend(-extra, ClubOffice.LINE_CLUB)
 	## A crowd is the loudest thing that can happen to a club, and everyone who
 	## came is half a fan afterwards. An empty house is not punished twice — the
 	## lost credits are punishment enough — so this only ever adds.
@@ -509,10 +517,14 @@ static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 	if podium > 0:
 		s.office.fans += (s.office.fan_cap() - s.office.fans) * 0.067
 		s.office.crowd_came(0)
+	if float(ev["fans"]) > 0.0:
+		s.office.fans += (s.office.fan_cap() - s.office.fans) * float(ev["fans"])
+		s.office.crowd_came(0)
 	e.settled = true
 	s.last_show = {
 		"kind": e.kind_name(), "heads": heads, "gate": g, "cost": e.cost(),
-		"net": g + podium - e.cost(), "finish": c.player_finish, "podium": podium,
+		"net": g + podium + extra - e.cost(), "finish": c.player_finish, "podium": podium,
+		"event": String(ev["id"]), "unread": String(ev["id"]) != "",
 	}
 	e.report = s.last_show.duplicate()
 	s.world.retire_cup(c)
