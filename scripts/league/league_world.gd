@@ -66,6 +66,8 @@ const WORLDS_FIELD: int = 16
 ## ONE BERTH: the National champion goes as the country's team (Pete, 1 Oct:
 ## "a 'bestowing' of the Team USA title and Tabard for Worlds"). It was two.
 const WORLDS_HOME: int = 1
+## The superpower's band, once the player has won a Worlds (Worlds #1, 9 Oct 2026).
+const ELITE_POWER := [91, 98]
 
 const DRAW_ROUND_CHANCE: float = 0.06
 const RATING_SCALE: float = 22.0        ## a 22-point gap is about 90/10 on a round
@@ -1329,6 +1331,13 @@ func _build_worlds(national_rows: Array) -> Cup:
 	## with ids past the end of the club list, which keeps them out of every
 	## table and every promotion in the country.
 	var guest_id := clubs.size()
+	## THE WORLD TAKES NOTICE (Worlds #1): once the player has won a Worlds, one
+	## superpower nation comes every year after, so a champion is the favourite
+	## and not a certainty.
+	var elite_due := false
+	for h in honors:
+		if String(h.get("id", "")) == "worlds" and int(h.get("champion", -1)) == player_club:
+			elite_due = true
 	while field.size() < WORLDS_FIELD:
 		var band: Array = League.TIERS[League.Tier.NATIONAL]["power"]
 		clubs.append({
@@ -1337,10 +1346,12 @@ func _build_worlds(national_rows: Array) -> Cup:
 				SECOND[rng.randi() % SECOND.size()]],
 			"short": "GST",
 			"tier": -1,                 ## no division; a guest is not in the pyramid
-			"power": rng.randi_range(int(band[0]) + 4, int(band[1]) + 8),
+			"power": rng.randi_range(ELITE_POWER[0], ELITE_POWER[1]) if elite_due \
+				else rng.randi_range(int(band[0]) + 4, int(band[1]) + 8),
 			"titles": 0,
 			"guest": true,
 		})
+		elite_due = false
 		field.append(guest_id)
 		guest_id += 1
 	field.sort_custom(func(a, b): return int(clubs[a]["power"]) > int(clubs[b]["power"]))

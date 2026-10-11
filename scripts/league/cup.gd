@@ -394,7 +394,11 @@ func advance() -> bool:
 	## because a Worlds bronze is a real result to bring home.
 	if day.size() == 2 and third_place.is_empty() and not no_third:
 		third_place = _match(int(losers[0]), int(losers[1]), "Third-place match")
-	_open_round(winners)
+	# Experimental fixed cross-pool halves for the current 16-club Worlds.
+	if has_pools and entrants.size() == 16 and winners.size() == 4:
+		_open_round([winners[0], winners[2], winners[3], winners[1]])
+	else:
+		_open_round(winners)
 	return true
 
 

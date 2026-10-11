@@ -245,8 +245,17 @@ static func sim_cup_tie(s: Season) -> void:
 		pa = int(round(float(pa) * s.opposition_scale(int(m["a"]))))
 	var res: Array = s.world.quick_bout(pa, pb)
 	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
-		int(m.get("winner", -1)) == -1)
+	# Experimental parity: same sim XP and participant wear as a league bout.
+	var stood: Array = s.club.starting_five()
+	for f in stood:
+		f.xp += Season.XP_SIMMED
+		f.bouts += 1
+	if s.practiced_week != s.world.week:
+		s._practice()
+	_finish_cup_round(s, c, int(m.get("winner", -1)) == s.world.player_club,
+		int(m.get("winner", -1)) == -1, true, stood)
+	SeasonBouts.bout_wear(s, stood)
+	s.sync_power()
 
 
 
