@@ -172,8 +172,8 @@ func _days_map() -> Dictionary:
 		var k := int(wk["kind"])
 		out[_key(Calendar.date_of(s.world.season, i))] = [i, _short(wk, days), _color_of(wk), true]
 		if _send_off_week(wk):
-			var labels := [UiKit.t("CELEBRATION"), UiKit.t("NATIONAL CAMP")]
-			for j in 2:
+			var labels := [UiKit.t("PARADE"), UiKit.t("PAPERS"), UiKit.t("INTERVIEW"), UiKit.t("FAVORITES"), UiKit.t("TABARD")]
+			for j in SendOff.STEPS:
 				out[_key(Calendar.date_of(s.world.season, i, int(SendOff.DAY_SHIFT[j])))] = [i, labels[j], SEND_OFF_COLOR, false]
 			continue
 		if not Calendar.is_tournament(k):
@@ -400,10 +400,10 @@ func _info(wi: int) -> Array:
 		Calendar.Kind.BYE:
 			if _send_off_week(wk):
 				title = UiKit.t("THE SEND-OFF")
-				lines.append([UiKit.t("National champions only. Three days before the Worlds:"), UiKit.INK])
-				lines.append([UiKit.t("Monday: the club celebrates. Renown and team morale up."), UiKit.DIM])
-				lines.append([UiKit.t("Wednesday: the national camp. Two weeks of training in three days."), UiKit.DIM])
-				lines.append([UiKit.t("Saturday: the tabard. You go to the Worlds as %s.") % SendOff.team_name(s), UiKit.YOU])
+				lines.append([UiKit.t("National champions only. One event a day before the Worlds:"), UiKit.INK])
+				lines.append([UiKit.t("Monday the parade, Tuesday the papers, Wednesday the interview,"), UiKit.DIM])
+				lines.append([UiKit.t("Thursday the favorites, Friday the tabard and one gift."), UiKit.DIM])
+				lines.append([UiKit.t("You go to the Worlds as %s.") % SendOff.team_name(s), UiKit.YOU])
 			else:
 				lines.append([UiKit.t("No match. The squad trains, and knocks get a week to heal."), UiKit.DIM])
 		_:
@@ -511,8 +511,8 @@ func _tournament_info(wi: int, wk: Dictionary, lines: Array) -> void:
 	var field: Array = c.entrants.duplicate()
 	var shown: Array = []
 	for id in field.slice(0, 8):
-		shown.append(UiKit.t("%s (%d)") % [String(s.world.clubs[int(id)]["name"]) if int(id) != s.world.player_club
-			or s.world.team_title == "" or c != s.world.worlds else s.world.team_title, int(s.world.clubs[int(id)]["power"])])
+		shown.append(UiKit.t("%s (%d)") % [LeagueWorld.worlds_name_for(c, s.world, int(id)) if c == s.world.worlds
+			else String(s.world.clubs[int(id)]["name"]), int(s.world.clubs[int(id)]["power"])])
 	lines.append([UiKit.t("Field: %s") % UiKit.t(", ").join(shown) + ("" if field.size() <= 8 else UiKit.t(" and %d more") % (field.size() - 8)), UiKit.DIM])
 
 

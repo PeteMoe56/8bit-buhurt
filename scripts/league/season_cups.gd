@@ -165,7 +165,9 @@ static func begin_cup_bout(s_: Season) -> MeleeSim:
 	var pm := c.player_match()
 	var s := hash("cup:%d:%d:%d:%d:%d:%s:%d" % [s_.seed_value, s_.world.season, s_.world.event,
 		s_.cup_opponent(), s_.world.week, String(pm.get("round", "")), int(pm.get("day", -1))])
+	s_.world.prime_tiebreak(c)
 	var sim := MeleeSim.new(s_.club, s_.opponent, s, s_.opposition_scale(s_.cup_opponent()))
+	sim.knockout_sudden_death = c.sudden_death and c.stage == Cup.Stage.KNOCKOUT
 	## NEUTRAL GROUND AND A REAL TRIP. `venue_kind()` already answers NEUTRAL
 	## while a tie is pending, so it is asked rather than re-decided here; the
 	## distance is to the club you are actually fighting, which on a cup night is
@@ -194,9 +196,9 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 	if sim.rounds_won[0] > sim.rounds_won[1]:
 		Achievements.unlock("FIRST_WIN")
 	if mine:
-		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
+		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1], int(m["a"]) if sim.overtime_winner == 0 else (int(m["b"]) if sim.overtime_winner == 1 else -1))
 	else:
-		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
+		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0], int(m["b"]) if sim.overtime_winner == 0 else (int(m["a"]) if sim.overtime_winner == 1 else -1))
 	## WHO STOOD IN THE TIE, before anyone is rested (Harness #2, 8 Oct 2026):
 	## the sponsor pays them and their kit takes the wear.
 	var stood := SeasonBouts.fought_line(s, sim)
@@ -234,6 +236,7 @@ static func sim_cup_tie(s: Season) -> void:
 	var c := s.pending_cup()
 	if c == null:
 		return
+	s.world.prime_tiebreak(c)
 	var m := c.player_match()
 	## THE GRADE APPLIES TO A SIMMED TIE (3 Oct 2026), as it does to a simmed
 	## league fixture: the other side's power is scaled, yours is not.
@@ -243,10 +246,22 @@ static func sim_cup_tie(s: Season) -> void:
 		pb = int(round(float(pb) * s.opposition_scale(int(m["b"]))))
 	else:
 		pa = int(round(float(pa) * s.opposition_scale(int(m["a"]))))
+	if c.sudden_death:
+		c.tie_powers[int(m["a"])] = pa
+		c.tie_powers[int(m["b"])] = pb
 	var res: Array = s.world.quick_bout(pa, pb)
 	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
-	s._finish_cup_round(c, int(m.get("winner", -1)) == s.world.player_club,
-		int(m.get("winner", -1)) == -1)
+	# Experimental parity: same sim XP and participant wear as a league bout.
+	var stood: Array = s.club.starting_five()
+	for f in stood:
+		f.xp += Season.XP_SIMMED
+		f.bouts += 1
+	if s.practiced_week != s.world.week:
+		s._practice()
+	_finish_cup_round(s, c, int(m.get("winner", -1)) == s.world.player_club,
+		int(m.get("winner", -1)) == -1, true, stood)
+	SeasonBouts.bout_wear(s, stood)
+	s.sync_power()
 
 
 
@@ -476,6 +491,10 @@ static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 		float(ClubEvent.BUDGETS[e.budget]["draw"]))
 	var g := ClubEvent.show_gate(heads, float(ClubEvent.BUDGETS[e.budget]["take"])) \
 		+ ClubEvent.entry_fees(s.world.player_tier())
+	## THE WEEKEND'S LUCK (`HostEvents`): rain, a no-show, a full house...
+	var ev := HostEvents.roll(s, e)
+	g = int(round(float(g) * float(ev["gate"])))
+	var extra := int(ev["cc"])
 	var podium := 0
 	if c.champion == s.world.player_club:
 		podium = ClubEvent.PODIUM[0]
@@ -484,6 +503,10 @@ static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 	elif c.third == s.world.player_club:
 		podium = ClubEvent.PODIUM[2]
 	s.office.take(g + podium, UiKit.t("The cup"), "event", ClubOffice.LINE_CUP)
+	if extra > 0:
+		s.office.take(extra, HostEvents.words(String(ev["id"]))[0], "event", ClubOffice.LINE_CUP)
+	elif extra < 0:
+		s.office.spend(-extra, ClubOffice.LINE_CLUB)
 	## A crowd is the loudest thing that can happen to a club, and everyone who
 	## came is half a fan afterwards. An empty house is not punished twice — the
 	## lost credits are punishment enough — so this only ever adds.
@@ -494,10 +517,14 @@ static func _settle_gate(s: Season, e: ClubEvent, c: Cup) -> void:
 	if podium > 0:
 		s.office.fans += (s.office.fan_cap() - s.office.fans) * 0.067
 		s.office.crowd_came(0)
+	if float(ev["fans"]) > 0.0:
+		s.office.fans += (s.office.fan_cap() - s.office.fans) * float(ev["fans"])
+		s.office.crowd_came(0)
 	e.settled = true
 	s.last_show = {
 		"kind": e.kind_name(), "heads": heads, "gate": g, "cost": e.cost(),
-		"net": g + podium - e.cost(), "finish": c.player_finish, "podium": podium,
+		"net": g + podium + extra - e.cost(), "finish": c.player_finish, "podium": podium,
+		"event": String(ev["id"]), "unread": String(ev["id"]) != "",
 	}
 	e.report = s.last_show.duplicate()
 	s.world.retire_cup(c)

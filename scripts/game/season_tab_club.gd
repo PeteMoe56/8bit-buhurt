@@ -81,7 +81,7 @@ static func _upkeep_word(v: SeasonScene) -> String:
 static func _club_controls(v: SeasonScene) -> void:
 	## A CLUB'S CARD, OPEN: it owns the tab until it is closed — unless a card
 	## that has to be answered has come up, which outranks it.
-	if ["dilemma", "sendoff"].has(v.season.blocked_by()):
+	if ["dilemma", "sendoff", "camp"].has(v.season.blocked_by()):
 		v.team_card = -1
 	if v.team_card >= 0:
 		var cr := _card_rect()
@@ -93,7 +93,7 @@ static func _club_controls(v: SeasonScene) -> void:
 	## EVERY ROW OF THE TABLE OPENS THAT CLUB'S CARD (Pete, 1 Oct 2026).
 	## ONE PRESS AREA OVER THE WHOLE TABLE, and the row is read from where the
 	## finger landed: sixteen rows at 22 cannot each be a 56-pixel button.
-	if not ["dilemma", "sendoff"].has(v.season.blocked_by()):
+	if not ["dilemma", "sendoff", "camp"].has(v.season.blocked_by()):
 		var rows := v.season.table()
 		## THE ROW PITCH THE TABLE IS DRAWN AT (3 Oct 2026): taller on a tablet.
 		var rh := UiKit.tk(SeasonScene.ROW_H)
@@ -132,7 +132,7 @@ static func _club_controls(v: SeasonScene) -> void:
 	## five rows of fixtures end at 418 and the action row starts at 476.
 	## THE CALENDAR (30 Sep 2026): the whole year as weeks. Not over a full-panel
 	## card (a dilemma, the send-off), whose words run down to this band.
-	var card_up: bool = ["dilemma", "sendoff"].has(v.season.blocked_by())
+	var card_up: bool = ["dilemma", "sendoff", "camp"].has(v.season.blocked_by())
 	if not card_up:
 		v.ui.add_child(UiKit.button(UiKit.t("Calendar"), Vector2(24, SeasonScene.action_y() - 52.0),
 			Vector2(200, 44), func():
@@ -241,7 +241,7 @@ static func _club_controls(v: SeasonScene) -> void:
 				return
 			var c := v.season.pending_cup()
 			var nm := c.cup_name
-			var rnd := c.round_label()
+			var rnd := c.player_round_label()
 			v.season.sim_cup_tie()
 			Session.autosave()
 			v.flash = UiKit.t("%s %s simulated.") % [nm, rnd.to_lower()]
@@ -258,13 +258,41 @@ static func _club_controls(v: SeasonScene) -> void:
 	## player is most likely to want to read rather than clear, so it does not go
 	## first — but it does go before the fight, because a dilemma you can walk
 	## past is a notification.
+	if block == "camp":
+		var cc := _camp_card(v)
+		var cr := send_off_text_rect()
+		var cops: Array = cc["options"]
+		var cw: float = (cr.size.x - float(cops.size() - 1) * 12.0) / float(cops.size())
+		for i in cops.size():
+			var ii := i
+			v.ui.add_child(UiKit.button(String(cops[i]["label"]),
+				Vector2(cr.position.x + float(i) * (cw + 12.0), SeasonScene.action_y()), Vector2(cw, 46), func():
+					v.flash = v.season.answer_camp(ii)
+					Session.autosave()
+					v._rebuild()))
+		return
 	if block == "sendoff":
 		var so: Dictionary = v.season.send_off_card()
-		v.ui.add_child(UiKit.primary(UiKit.button(String(so["button"]),
-			Vector2(UiKit.right_edge(300.0 + 24.0), SeasonScene.action_y()), Vector2(300, 46), func():
-				v.flash = v.season.answer_send_off()
-				Session.autosave()
-				v._rebuild(), "trophy")))
+		var opts: Array = so.get("options", [])
+		if opts.is_empty():
+			v.ui.add_child(UiKit.primary(UiKit.button(String(so["button"]) + "  >",
+				Vector2(UiKit.right_edge(300.0 + 24.0), SeasonScene.action_y()), Vector2(300, 46), func():
+					v.flash = v.season.answer_send_off()
+					Session.autosave()
+					v._rebuild(), "trophy")))
+			return
+		## A CHOICE (Wednesday's answer, Friday's gift): one button per option,
+		## under its own column of the right-hand panel.
+		var r := send_off_text_rect()
+		var gw: float = (r.size.x - float(opts.size() - 1) * 12.0) / float(opts.size())
+		for i in opts.size():
+			var o: Dictionary = opts[i]
+			var ii := i
+			v.ui.add_child(UiKit.button(String(o["label"]),
+				Vector2(r.position.x + float(i) * (gw + 12.0), SeasonScene.action_y()), Vector2(gw, 46), func():
+					v.flash = v.season.answer_send_off(ii)
+					Session.autosave()
+					v._rebuild()))
 		return
 	if block == "dilemma":
 		var card := v.season.dilemma_card()
@@ -380,6 +408,9 @@ static func _draw_club(v: SeasonScene) -> void:
 	if v.season.blocked_by() == "sendoff":
 		_draw_send_off(v)
 		return
+	if v.season.blocked_by() == "camp":
+		_draw_send_off(v, _camp_card(v))
+		return
 	v._fixture()
 	v._last_event()
 	v._schedule()
@@ -455,18 +486,102 @@ static func _schedule(v: SeasonScene) -> void:
 
 ## THE SEND-OFF CARD, the whole panel like a dilemma's: the day, the title, the
 ## words. One answer, on the button. Art follows (Pete, 1 Oct).
-static func _draw_send_off(v: SeasonScene) -> void:
-	var card: Dictionary = v.season.send_off_card()
+## THE SEND-OFF WEEK (Pete, 9 Oct 2026; mockups approved 10 Oct). Art on the
+## left — `art/sendoff/<day>.png` once ChatGPT has drawn it, a labelled frame
+## until then — and the day on the right: title, story, what it does.
+const SEND_OFF_ART_W := 340.0
+
+
+static func send_off_art_rect() -> Rect2:
 	var y := SeasonScene.CONTENT_Y + 10.0
-	UiKit.panel(v, Rect2(24, y, UiKit.span(), UiKit.tk(300.0)))
-	UiKit.text(v, v.font, UiKit.t("THE SEND-OFF  ·  %s  ·  %d OF %d") % [String(card["day"]),
-		v.season.send_off + 1, SendOff.STEPS], Vector2(48, y + UiKit.tk(30.0)), UiKit.tz(13), UiKit.DIM)
-	UiKit.text(v, v.font, String(card["title"]), Vector2(48, y + UiKit.tk(62.0)), UiKit.tz(22), UiKit.YOU)
-	## TALL SCREENS: A BIGGER VOICE IN A TALLER CARD (3 Oct 2026); 1.0 on a phone.
-	var line_y := y + UiKit.tk(104.0)
-	for line in UiKit.wrap(v.font, String(card["body"]), UiKit.span(48.0), UiKit.tz(16)):
-		UiKit.text(v, v.font, line, Vector2(48, line_y), UiKit.tz(16), UiKit.INK)
-		line_y += UiKit.tk(26.0)
+	return Rect2(24, y, SEND_OFF_ART_W, SeasonScene.action_y() - 14.0 - y)
+
+
+static func send_off_text_rect() -> Rect2:
+	var a := send_off_art_rect()
+	var x := a.end.x + 16.0
+	return Rect2(x, a.position.y, UiKit.right_edge() - x, a.size.y)
+
+
+## The Worlds camp in the send-off's frame: same art-left, words-right card.
+static func _camp_card(v: SeasonScene) -> Dictionary:
+	var c := WorldsCamp.card(v.season)
+	c["day"] = UiKit.t("WORLDS")
+	c["kicker"] = UiKit.t("THE WORLDS  ·  BEFORE THE KNOCKOUT")
+	c["art"] = "camp"
+	c["chips"] = []
+	return c
+
+
+static func _draw_send_off(v: SeasonScene, card: Dictionary = {}) -> void:
+	if card.is_empty():
+		card = v.season.send_off_card()
+	var a := send_off_art_rect()
+	var path := "res://art/sendoff/%s.png" % String(card.get("art", ""))
+	if ResourceLoader.exists(path):
+		v.draw_texture_rect(load(path), a, false)
+		v.draw_rect(a, UiKit.FRAME, false, 2.0)
+	else:
+		## UNTIL THE PICTURE ARRIVES (Pete, 11 Oct 2026: "put the art panels in
+		## as 'Art pending' until later"): the day, and a plain label.
+		UiKit.panel(v, a)
+		var c := a.get_center() - Vector2(0, 24)
+		var pw := v.font.get_string_size(UiKit.t("Art pending"), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(14)).x
+		UiKit.text(v, v.font, UiKit.t("Art pending"), Vector2(c.x - pw * 0.5, c.y), UiKit.tz(14), UiKit.DIM)
+		var dw := v.font.get_string_size(String(card["day"]), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(22)).x
+		UiKit.text(v, v.font, String(card["day"]), Vector2(c.x - dw * 0.5, a.end.y - 36), UiKit.tz(22), UiKit.YOU)
+	var r := send_off_text_rect()
+	UiKit.panel(v, r)
+	var x := r.position.x + 18.0
+	var w := r.size.x - 36.0
+	var y := r.position.y + UiKit.tk(28.0)
+	var kick: String = String(card["kicker"]) if card.has("kicker") else UiKit.t("THE SEND-OFF  ·  %s  ·  %d OF %d") % [String(card["day"]),
+		v.season.send_off + 1, SendOff.STEPS]
+	UiKit.text(v, v.font, kick, Vector2(x, y), UiKit.tz(12), UiKit.DIM)
+	y += UiKit.tk(30.0)
+	UiKit.text_fit(v, v.font, String(card["title"]), Vector2(x, y), UiKit.tz(22), UiKit.YOU, w)
+	y += UiKit.tk(28.0)
+	if card.has("headline"):
+		UiKit.text_fit(v, v.font, String(card["headline"]), Vector2(x, y), UiKit.tz(18), UiKit.INK, w)
+		y += UiKit.tk(26.0)
+	var n := UiKit.para(v, v.font, String(card["body"]), Vector2(x, y), UiKit.tz(15), UiKit.INK, w, UiKit.tk(20.0), 4)
+	y += UiKit.tk(20.0) * float(n) + UiKit.tk(8.0)
+	if card.has("quote"):
+		n = UiKit.para(v, v.font, String(card["quote"]), Vector2(x, y), UiKit.tz(14), UiKit.DIM, w, UiKit.tk(19.0), 2)
+		y += UiKit.tk(19.0) * float(n) + UiKit.tk(6.0)
+	for fact in card.get("facts", []):
+		if String(fact[1]) == "":
+			continue
+		UiKit.text(v, v.font, String(fact[0]), Vector2(x, y), UiKit.tz(13), UiKit.DIM)
+		UiKit.right(v, v.font, String(fact[1]), Vector2(r.end.x - 18.0, y), UiKit.tz(13), UiKit.INK, w * 0.6)
+		y += UiKit.tk(19.0)
+	## THURSDAY: THE NATIONS TO BEAT, one row each — flag, name, why, stars,
+	## and the record against you.
+	for nat in card.get("nations", []):
+		var fw := Nations.draw(v, Vector2(x, y - 13.0), 16.0, String(nat["code"]))
+		UiKit.text(v, v.font, String(nat["tag"]), Vector2(x + fw + 8.0, y - 2.0), UiKit.tz(11), UiKit.YOU)
+		UiKit.text_fit(v, v.font, UiKit.t(String(nat["name"])), Vector2(x + fw + 8.0, y + UiKit.tk(16.0)), UiKit.tz(15), UiKit.INK, w * 0.5)
+		## FIVE PIPS FOR POWER, gold for each star.
+		for st in 5:
+			v.draw_rect(Rect2(r.end.x - 18.0 - float(5 - st) * 12.0, y - 11.0, 9.0, 9.0),
+				UiKit.YOU if st < int(nat["stars"]) else UiKit.EDGE)
+		var rec: String = UiKit.t("never met") if int(nat["met"]) == 0 else UiKit.t("vs you %d-%d") % [int(nat["won"]), int(nat["lost"])]
+		UiKit.right(v, v.font, rec, Vector2(r.end.x - 18.0, y + UiKit.tk(16.0)), UiKit.tz(12), UiKit.DIM, w * 0.45)
+		y += UiKit.tk(40.0)
+	var cx := x
+	for chip in card.get("chips", []):
+		UiKit.text(v, v.font, String(chip), Vector2(cx, r.end.y - 16.0), UiKit.tz(13), UiKit.UP)
+		cx += v.font.get_string_size(String(chip), HORIZONTAL_ALIGNMENT_LEFT, -1.0, UiKit.tz(13)).x + 24.0
+	## THE CHOICES: each option's line and what it does, over its button.
+	var opts: Array = card.get("options", [])
+	if not opts.is_empty():
+		var gw: float = (r.size.x - float(opts.size() - 1) * 12.0) / float(opts.size())
+		for i in opts.size():
+			var o: Dictionary = opts[i]
+			var ox := r.position.x + float(i) * (gw + 12.0) + 8.0
+			var oy := r.end.y - UiKit.tk(104.0)
+			UiKit.para(v, v.font, String(o.get("line", "")), Vector2(ox, oy), UiKit.tz(13), UiKit.INK, gw - 16.0, UiKit.tk(17.0), 3)
+			UiKit.para(v, v.font, String(o["fx"]), Vector2(ox, r.end.y - UiKit.tk(34.0)), UiKit.tz(12), UiKit.UP, gw - 16.0, UiKit.tk(16.0), 2)
 
 
 static func _draw_dilemma(v: SeasonScene) -> void:
@@ -673,11 +788,13 @@ static func _fixture_title(v: SeasonScene) -> String:
 			return UiKit.t("TOURNAMENT BID")
 		"cup":
 			var cup := v.season.pending_cup()
-			return "%s  ·  %s" % [cup.cup_name.to_upper(), cup.round_label().to_upper()]
+			return "%s  ·  %s" % [cup.cup_name.to_upper(), cup.player_round_label().to_upper()]
 		"dilemma":
 			return UiKit.t("A DECISION")
 		"sendoff":
 			return UiKit.t("THE SEND-OFF")
+		"camp":
+			return UiKit.t("THE WORLDS CAMP")
 	if v.season.season_complete():
 		return UiKit.t("SEASON COMPLETE")
 	## THE WEEK, AND WHAT IT IS (30 Sep 2026). One fixture a Saturday, so the
@@ -766,10 +883,15 @@ static func _fixture(v: SeasonScene) -> void:
 	if cup != null:
 		var opp := v.season.cup_opponent()
 		var o: Dictionary = v.season.world.clubs[opp]
+		## THE NATION'S FLAG AT THE WORLDS (11 Oct 2026).
+		var fw := Nations.draw(v, Vector2(44, y + UiKit.tk(52.0) - 20.0), 16.0,
+			Nations.code_for(cup, v.season.world, opp))
+		fw = fw + 10.0 if fw > 0.0 else 0.0
 		UiKit.text_fit(v, v.font, UiKit.clip(UiKit.t(String(o["name"])), 26),
-			Vector2(44, y + UiKit.tk(52.0)), UiKit.tz(22), UiKit.INK, SeasonScene.fixture_w() - 40.0)
+			Vector2(44 + fw, y + UiKit.tk(52.0)), UiKit.tz(22), UiKit.INK, SeasonScene.fixture_w() - 40.0 - fw)
 		var gap := int(v.season.world.clubs[v.season.world.player_club]["power"]) - int(o["power"])
-		UiKit.text(v, v.font, UiKit.t("rating %d  ·  win or you are out") % int(o["power"]),
+		UiKit.text(v, v.font, (UiKit.t("rating %d  ·  win it for the bronze") if cup.player_on_bronze()
+			else UiKit.t("rating %d  ·  win or you are out")) % int(o["power"]),
 			Vector2(44, y + UiKit.tk(80.0)), UiKit.tz(14), UiKit.UP if gap > 0 else UiKit.DOWN)
 		return
 	if v.season.season_complete():

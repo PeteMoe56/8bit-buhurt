@@ -57,6 +57,7 @@ TABLES = {
     "scripts/league/club_event.gd": ["SLOTS", "BUDGETS"],
     "scripts/game/season_tab_finances.gd": ["NET_WORD"],
     "scripts/game/icon_bank.gd": ["ICONS", "PACK_NAME"],
+    "scripts/league/send_off.gd": ["QUOTES", "HEADLINES"],
     "scripts/melee/tuning.gd": ["POS_NAME", "ROLE_NAME", "CONDITION_WORDS", "WEAPON_NAME", "STRATEGIES", "AI_SKILL"],
     "scripts/game/season_scene.gd": ["OFFICE_ROWS", "RESERVE_SORTS"],
     "scripts/game/ticker.gd": ["QUIPS"],

@@ -66,6 +66,55 @@ const WORLDS_FIELD: int = 16
 ## ONE BERTH: the National champion goes as the country's team (Pete, 1 Oct:
 ## "a 'bestowing' of the Team USA title and Tabard for Worlds"). It was two.
 const WORLDS_HOME: int = 1
+## The superpower's band, once the player has won a Worlds (Worlds #1, 9 Oct 2026).
+const ELITE_POWER := [91, 98]
+## THE RETURNING RIVALS (Endgame #1, 9 Oct 2026). How many of the fifteen
+## guests are the same nations every year, where their generations sit, and how
+## far a golden generation lifts one (or a lean one drops it). Measured in the
+## Worlds model: six is the fewest that brings last year's knockout rival back
+## in about two years in five and gives most careers a nemesis.
+## THE WORLDS IS NATIONS (Pete, 9 Oct 2026: "Worlds is supposed to be ALL
+## country names, including the player's team being renamed Team USA"). Every
+## club from abroad is a national team. Named like the player's own tabard —
+## "Team USA" is a proper name in all nine languages, so these are too. Russia
+## and Belarus are absent: the sport's federation has suspended them.
+const NATIONS := [
+	["Team Ukraine", "UKR"], ["Team Poland", "POL"], ["Team France", "FRA"],
+	["Team Germany", "GER"], ["Team Italy", "ITA"], ["Team Spain", "ESP"],
+	["Team Great Britain", "GBR"], ["Team Ireland", "IRL"], ["Team Belgium", "BEL"],
+	["Team Netherlands", "NED"], ["Team Denmark", "DEN"], ["Team Sweden", "SWE"],
+	["Team Norway", "NOR"], ["Team Finland", "FIN"], ["Team Czechia", "CZE"],
+	["Team Slovakia", "SVK"], ["Team Hungary", "HUN"], ["Team Austria", "AUT"],
+	["Team Switzerland", "SUI"], ["Team Portugal", "POR"], ["Team Israel", "ISR"],
+	["Team Canada", "CAN"], ["Team Mexico", "MEX"], ["Team Argentina", "ARG"],
+	["Team Brazil", "BRA"], ["Team Chile", "CHI"], ["Team Australia", "AUS"],
+	["Team New Zealand", "NZL"], ["Team Japan", "JPN"], ["Team Latvia", "LAT"],
+	["Team Lithuania", "LTU"], ["Team Estonia", "EST"], ["Team Romania", "ROU"],
+	["Team Croatia", "CRO"], ["Team Serbia", "SRB"], ["Team Greece", "GRE"],
+]
+## The home country never comes as a guest: its place is the National champion's.
+func _nation_pool() -> Array:
+	return NATIONS.duplicate(true)
+
+
+## THE NATIONAL CHAMPION IS TEAM USA (Pete, 9 Oct 2026: "The team that wins
+## Nationals is Team USA") — whoever won it, the player or a club the AI runs.
+## A Worlds entrant on the pyramid (tier >= 0) is the home berth; everybody else
+## in the field is already a national team by name.
+static func worlds_name_for(c: Cup, w: LeagueWorld, id: int) -> String:
+	if id < 0 or id >= w.clubs.size():
+		return "—"
+	if c != null and String(c.get_meta("id", "")) == "worlds" and c.entrants.has(id) \
+			and int(w.clubs[id].get("tier", -1)) >= 0:
+		return UiKit.t("Team USA")
+	return String(w.clubs[id]["name"])
+
+
+const RIVALS: int = 6
+const RIVAL_MID := [72.0, 84.0]
+const RIVAL_SWING: float = 5.0
+const RIVAL_YEARS := [6.0, 12.0]
+const RIVAL_POWER := [66, 90]
 
 const DRAW_ROUND_CHANCE: float = 0.06
 const RATING_SCALE: float = 22.0        ## a 22-point gap is about 90/10 on a round
@@ -88,6 +137,11 @@ var finalists: Dictionary = {}
 ## THE COUNTRY'S NAME ON THE PLAYER'S CLUB at this year's Worlds, once the
 ## tabard is handed over ("" otherwise). See `SendOff`.
 var team_title: String = ""
+## THE RIVAL WHO HEARD IT (send-off Wednesday, 11 Oct 2026): this year's Worlds
+## brings him `SendOff.GRUDGE_POWER` stronger. -1 for nobody.
+var grudge_rival: int = -1
+## Tuesday's front pages, one a title year, kept for the club's history.
+var clippings: Array = []
 var tables: Dictionary = {}             ## tier -> { club_id: row }
 var history: Array[Dictionary] = []
 
@@ -96,6 +150,13 @@ var history: Array[Dictionary] = []
 ## is live right now; `honors` is the trophy cabinet.
 var cups: Array = []
 var worlds: Cup = null
+## SUDDEN DEATH (Pete, 11 Oct 2026: "Sudden death"). An exactly tied knockout
+## bout is settled by extra rounds, not by the seeding. Saved, so an old save
+## keeps the seed rule it was playing under until its next season.
+var knockout_sudden_death := true
+## The returning nations: name, generation (mid, swing, years, phase) and their
+## record against the player. Saved; built the first time a Worlds is drawn.
+var rivals: Array = []
 var honors: Array[Dictionary] = []
 
 ## THE CLUB'S RECORD BOOK, and it has to live here rather than on a fighter.
@@ -121,6 +182,11 @@ var records: Dictionary = {}
 ## automatically. This is the opposite and they are both worth having.
 const HOF_MAX: int = 12
 var hall: Array[Dictionary] = []
+## CLUB LEGENDS (Pete, 11 Oct 2026: "start them as good if not a little better
+## than normal ones, maybe a boost effect with them too"). A man who retires
+## from your club with silverware, a Hall place or a pile of downs comes back
+## on the staff market as a captain. {name, role, honors, downs, season}.
+var legends: Array[Dictionary] = []
 
 
 func in_hall(nm: String) -> bool:
@@ -544,6 +610,7 @@ func _new_season() -> void:
 	event = 0
 	week = 0
 	team_title = ""
+	grudge_rival = -1
 	days_played.clear()
 	finalists.clear()
 	schedule.clear()
@@ -1321,6 +1388,71 @@ func _build_set_invitational(set_i: int, slot: int) -> Cup:
 ## 1 Oct 2026; this note used to say top two); the other fourteen
 ## are invited from abroad and are rated off the top flight's own band, so a
 ## Worlds berth is not a victory lap.
+## Draw the rivals once, from their own stream so the world's dice are not
+## moved by it.
+func _ensure_rivals() -> void:
+	if not rivals.is_empty():
+		return
+	var r := RandomNumberGenerator.new()
+	r.seed = hash([rng.seed, "rivals"])
+	var pool := _nation_pool()
+	for i in RIVALS:
+		var nat: Array = pool.pop_at(r.randi() % pool.size())
+		rivals.append({
+			"name": String(nat[0]), "short": String(nat[1]),
+			"mid": r.randf_range(RIVAL_MID[0], RIVAL_MID[1]),
+			"swing": r.randf_range(RIVAL_SWING * 0.5, RIVAL_SWING),
+			"years": r.randf_range(RIVAL_YEARS[0], RIVAL_YEARS[1]),
+			"phase": r.randf_range(0.0, TAU),
+			"met": 0, "beat_you": 0, "lost_to_you": 0, "titles": 0,
+		})
+
+
+## A rival's strength in a given season: its generation's cycle plus a little
+## year-to-year noise, the same every time it is asked (hashed, not drawn).
+func rival_power(i: int, season_no: int) -> int:
+	var rv: Dictionary = rivals[i]
+	var r := RandomNumberGenerator.new()
+	r.seed = hash([rng.seed, "rival", i, season_no])
+	var p := float(rv["mid"]) + float(rv["swing"]) * sin(TAU * float(season_no) / float(rv["years"]) + float(rv["phase"])) \
+		+ r.randfn(0.0, 1.5)
+	return clampi(int(round(p)), RIVAL_POWER[0], RIVAL_POWER[1])
+
+
+## After a Worlds: each rival's record against the player, and its titles.
+func _note_rivals(c: Cup) -> void:
+	var all: Array = c.pool_matches.duplicate()
+	for rd in c.rounds:
+		all.append_array(rd)
+	if not c.third_place.is_empty():
+		all.append(c.third_place)
+	for m in all:
+		if not bool(m.get("played", false)):
+			continue
+		var a := int(m["a"])
+		var b := int(m["b"])
+		if a != player_club and b != player_club:
+			continue
+		var other := b if a == player_club else a
+		if other < 0 or other >= clubs.size():
+			continue
+		var ri := int(clubs[other].get("rival", -1))
+		if ri < 0 or ri >= rivals.size():
+			continue
+		rivals[ri]["met"] = int(rivals[ri]["met"]) + 1
+		## `winner` is set for every decided bout, pool or knockout; a drawn pool
+		## bout leaves it at -1 and counts as a meeting only.
+		var w := int(m.get("winner", -1))
+		if w == other:
+			rivals[ri]["beat_you"] = int(rivals[ri]["beat_you"]) + 1
+		elif w == player_club:
+			rivals[ri]["lost_to_you"] = int(rivals[ri]["lost_to_you"]) + 1
+	if c.champion >= 0 and c.champion < clubs.size():
+		var ci := int(clubs[c.champion].get("rival", -1))
+		if ci >= 0 and ci < rivals.size():
+			rivals[ci]["titles"] = int(rivals[ci]["titles"]) + 1
+
+
 func _build_worlds(national_rows: Array) -> Cup:
 	var field: Array = []
 	for i in mini(WORLDS_HOME, national_rows.size()):
@@ -1329,13 +1461,52 @@ func _build_worlds(national_rows: Array) -> Cup:
 	## with ids past the end of the club list, which keeps them out of every
 	## table and every promotion in the country.
 	var guest_id := clubs.size()
+	## THE RIVALS COME BACK (Endgame #1): the same few nations every year, each
+	## on its own generation, so a club you lost to returns. They are guests on
+	## the club list for the week like everybody else; who they are lives in
+	## `rivals`, which the save keeps.
+	_ensure_rivals()
+	## THE WORLD TAKES NOTICE (Worlds #1): once the player has won a Worlds, the
+	## strongest rival that year rises to the superpower's band — a nation you
+	## already know, not a stranger, and drawn from its own cycle, never from
+	## the player's power.
+	var won_worlds := false
+	for h in honors:
+		if String(h.get("id", "")) == "worlds" and int(h.get("champion", -1)) == player_club:
+			won_worlds = true
+	var rp: Array = []
+	for i in rivals.size():
+		rp.append(rival_power(i, season) + (SendOff.GRUDGE_POWER if i == grudge_rival else 0))
+	var top := -1
+	if won_worlds and not rp.is_empty():
+		top = 0
+		for i in rp.size():
+			if int(rp[i]) > int(rp[top]):
+				top = i
+		rp[top] = rng.randi_range(ELITE_POWER[0], ELITE_POWER[1])
+	for i in rivals.size():
+		if field.size() >= WORLDS_FIELD:
+			break
+		clubs.append({
+			"id": guest_id, "name": String(rivals[i]["name"]), "short": String(rivals[i].get("short", "RIV")),
+			"tier": -1, "power": int(rp[i]), "titles": int(rivals[i].get("titles", 0)),
+			"guest": true, "rival": i,
+		})
+		field.append(guest_id)
+		guest_id += 1
+	var free_nations := _nation_pool()
+	for rv in rivals:
+		for k in free_nations.size():
+			if String(free_nations[k][0]) == String(rv["name"]):
+				free_nations.remove_at(k)
+				break
 	while field.size() < WORLDS_FIELD:
 		var band: Array = League.TIERS[League.Tier.NATIONAL]["power"]
+		var nat: Array = free_nations.pop_at(rng.randi() % free_nations.size())
 		clubs.append({
 			"id": guest_id,
-			"name": "%s %s" % [Cities.names(region)[rng.randi() % Cities.names(region).size()],
-				SECOND[rng.randi() % SECOND.size()]],
-			"short": "GST",
+			"name": String(nat[0]),
+			"short": String(nat[1]),
 			"tier": -1,                 ## no division; a guest is not in the pyramid
 			"power": rng.randi_range(int(band[0]) + 4, int(band[1]) + 8),
 			"titles": 0,
@@ -1351,10 +1522,10 @@ func _build_worlds(national_rows: Array) -> Cup:
 	if cup_entry_barred and field.has(player_club):
 		field.erase(player_club)
 		var band2: Array = League.TIERS[League.Tier.NATIONAL]["power"]
+		var spare: Array = free_nations.pop_at(rng.randi() % free_nations.size())
 		clubs.append({
-			"id": clubs.size(), "short": "GST", "tier": -1, "titles": 0, "guest": true,
-			"name": "%s %s" % [Cities.names(region)[rng.randi() % Cities.names(region).size()],
-				SECOND[rng.randi() % SECOND.size()]],
+			"id": clubs.size(), "short": String(spare[1]), "tier": -1, "titles": 0, "guest": true,
+			"name": String(spare[0]),
 			"power": rng.randi_range(int(band2[0]) + 4, int(band2[1]) + 8),
 		})
 		field.append(clubs.size() - 1)
@@ -1374,7 +1545,15 @@ func _build_worlds(national_rows: Array) -> Cup:
 var hold_player_cups: bool = false
 
 
+func prime_tiebreak(c: Cup) -> void:
+	if c == null: return
+	c.sudden_death = knockout_sudden_death
+	for id in c.entrants:
+		if int(id) >= 0 and int(id) < clubs.size(): c.tie_powers[int(id)] = int(clubs[int(id)]["power"])
+
 func cup_resolver() -> Callable:
+	for c in cups: prime_tiebreak(c)
+	prime_tiebreak(worlds)
 	return func(a: int, b: int) -> Array:
 		return quick_bout(int(clubs[a]["power"]), int(clubs[b]["power"]))
 
@@ -1433,6 +1612,8 @@ func _record_honors(c: Cup) -> void:
 		return
 	if c.champion >= 0 and c.champion < clubs.size():
 		clubs[c.champion]["titles"] = int(clubs[c.champion]["titles"]) + 1
+	if String(c.get_meta("id", "")) == "worlds":
+		_note_rivals(c)
 	if c.champion == player_club and player_club >= 0:
 		var cid := String(c.get_meta("id", ""))
 		if cid == "worlds":
@@ -1448,12 +1629,14 @@ func _record_honors(c: Cup) -> void:
 		"champion": c.champion,
 		## THE NAME TOO: a champion from abroad is a guest whose id is reused
 		## once he goes home.
-		"champion_name": String(clubs[c.champion]["name"]) if c.champion >= 0 and c.champion < clubs.size() else "",
+		"champion_name": worlds_name_for(c, self, c.champion) if c.champion >= 0 and c.champion < clubs.size() else "",
 		"runner_up": c.runner_up,
 		"player": c.finish_label(),
 		## The same run as a number, so the coach's reputation and the label on
 		## the cabinet are two readings of one walk rather than two walks.
 		"exit": c.player_exit_size(),
+		## THE FINAL'S SCORE, champion first (send-off Tuesday's front page).
+		"score": c.final_score(),
 	})
 
 

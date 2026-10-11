@@ -180,6 +180,16 @@ func _ready() -> void:
 		ground_open = true
 	elif not season.market_ask().is_empty():
 		market_open = true
+	## WHAT HAPPENED AT YOUR SHOW, said once (`HostEvents`).
+	if flash == "" and bool(season.last_show.get("unread", false)):
+		var hw := HostEvents.words(String(season.last_show.get("event", "")))
+		flash = UiKit.t("Your show: %s. %s") % [hw[0], hw[1]]
+		season.last_show["unread"] = false
+	## OUT IN THE SEMIS, STILL A BOUT TO FIGHT (Pete, 11 Oct 2026): said every
+	## time the screen opens until the bronze match is fought.
+	var bc := season.pending_cup()
+	if flash == "" and bc != null and bc.player_on_bronze():
+		flash = UiKit.t("Out in the semi-finals, but not finished: win the third-place match for the bronze.")
 	if flash == "":
 		flash = season.summer_warning()
 	if flash == "":
@@ -199,6 +209,7 @@ func _ready() -> void:
 ## THE SHOULDERS STEP THE TABS (controller, 4 Oct 2026): LB left, RB right,
 ## through the tabs this season shows, wrapping. The same as pressing the tab.
 var tabs_shown: Array[int] = []
+var splash_up := false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -277,6 +288,10 @@ func _upkeep_word() -> String:
 
 func _rebuild() -> void:
 	_centre_modals()
+	## A NEW SYSTEM SAYS WHAT IT IS, the first time it turns up (`Splash`), on
+	## opening or the moment an answer brings it on. One at a time.
+	if season != null and not splash_up:
+		splash_up = Splash.offer(self, season)
 	if Session.save_failed and not Session.save_warned:
 		Session.save_warned = true
 		flash = UiKit.t("Could not save — your phone may be out of space. The last save is safe.")
@@ -786,11 +801,14 @@ func _draw() -> void:
 func _header() -> void:
 	var w: Dictionary = season.world.clubs[season.world.player_club]
 	draw_rect(Rect2(-UiKit.frame_off, 0, UiKit.real_screen().x, 62), UiKit.PANEL)
-	UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
-		season.club.icon_color, int(season.club.icon))
+	if season.club.flag != "":
+		Nations.draw(self, Vector2(14, 15), 32.0, season.club.flag)
+	else:
+		UiKit.badge(self, Vector2(38, 31), 20, season.club.kit,
+			season.club.icon_color, int(season.club.icon))
 	## MEASURED AGAINST THE PURSE, which moved left for the Club button.
 	var room := purse_box().position.x - 68.0 - 12.0
-	UiKit.text(self, font, UiKit.clip_px(font, String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
+	UiKit.text(self, font, UiKit.clip_px(font, season.club.display_name if season.club.flag != "" else String(w["name"]), 20, room), Vector2(68, 28), 20, UiKit.INK)
 	var sub := UiKit.t("%s  ·  Season %d  ·  rating %d") % [
 		season.tier_name(), season.world.season, int(w["power"])]
 	## AND WHAT THE KIT IS TAKING OFF IT (1 Oct novice report): "rating 48 (-2

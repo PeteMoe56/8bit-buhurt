@@ -897,7 +897,7 @@ const GAIN_MAX: int = 5
 ## PETE, LATER THE SAME DAY: "play with the stat points per upgraded level".
 ## One flat number for every club and every man; `tools/sweep` and the bases
 ## tune it. A level's worth no longer depends on who is taking it.
-const POINTS_PER_LEVEL: int = 3
+const POINTS_PER_LEVEL: int = 4
 
 
 static func gain_for(_f: FighterCard) -> int:

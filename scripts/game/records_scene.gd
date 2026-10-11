@@ -412,6 +412,13 @@ func _history() -> void:
 	var h: Array = season.honors()
 	var y := _y(100.0)
 	UiKit.text(self, font, UiKit.t("TROPHIES"), Vector2(24, y), UiKit.tz(14), UiKit.DIM)
+	## THE MEDAL COUNT, across every cup the club has fought in.
+	var counts := Medal.counts(h, season.world.player_club)
+	var mx := 200.0
+	for k in 3:
+		Medal.draw(self, Vector2(mx, y - _p(5.0)), _p(7.0), k + 1)
+		UiKit.text(self, font, "%d" % int(counts[k]), Vector2(mx + _p(12.0), y), UiKit.tz(14), UiKit.INK)
+		mx += _p(56.0)
 	y += _p(30.0)
 	var any := false
 	for i in range(h.size() - 1, maxi(-1, h.size() - 11), -1):
@@ -421,8 +428,13 @@ func _history() -> void:
 		if not mine and not won:
 			continue
 		any = true
+		## A MEDAL FOR A PODIUM (Pete, 11 Oct 2026: "Might be a good place to put
+		## a history and a medal"): gold, silver or bronze beside the trophy row.
+		var place := 1 if won else Medal.place_of(String(e["player"]))
+		if place > 0:
+			Medal.draw(self, Vector2(30, y - _p(5.0)), _p(7.0), place)
 		UiKit.text(self, font, UiKit.t("S%d  %s") % [int(e["season"]),
-			UiKit.clip(String(e["name"]), 22)], Vector2(40, y), UiKit.tz(15), UiKit.INK)
+			UiKit.clip(String(e["name"]), 22)], Vector2(44, y), UiKit.tz(15), UiKit.INK)
 		UiKit.right(self, font, UiKit.t("Champions") if won else Cup.finish_words(String(e["player"])),
 			Vector2(440, y), UiKit.tz(15), UiKit.YOU if won else UiKit.DIM, 200)
 		y += _p(26.0)

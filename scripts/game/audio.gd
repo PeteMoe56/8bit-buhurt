@@ -119,6 +119,18 @@ const MUSIC := {
 		"about": "You won it. The melody lifted out of Dorian into major.",
 		"db": -6.0, "loop": false, "in": 0.05, "out": 0.3,
 	},
+	## TEAM USA'S SONGS (Pete, 11 Oct 2026: "8-Bit USA national songs ... a
+	## ratio of the current songs with national song mixed in"). Public-domain
+	## tunes, our own 8-bit recordings (`tools/music/usa_music.py`). They join
+	## the menu playlist while the club wears the tabard (`USA_PLAYLIST`).
+	"usa_anthem": {"path": "res://audio/music/usa_anthem.ogg", "about": "The Star-Spangled Banner.",
+		"db": -9.0, "loop": true, "in": 1.0, "out": 0.8},
+	"usa_stripes": {"path": "res://audio/music/usa_stripes.ogg", "about": "Sousa, The Stars and Stripes Forever.",
+		"db": -10.0, "loop": true, "in": 1.0, "out": 0.8},
+	"usa_liberty": {"path": "res://audio/music/usa_liberty.ogg", "about": "Sousa, The Liberty Bell.",
+		"db": -10.0, "loop": true, "in": 1.0, "out": 0.8},
+	"usa_country": {"path": "res://audio/music/usa_country.ogg", "about": "My Country, 'Tis of Thee.",
+		"db": -9.0, "loop": true, "in": 1.0, "out": 0.8},
 	"fight": {
 		"path": "res://audio/music/fight.ogg",
 		"about": "A league bout. Driving, and it has to survive three rounds.",
@@ -333,6 +345,11 @@ static func for_mood(mood: int, fighting: bool = false) -> void:
 ## and followed by another (never the same one twice running). Asking for it
 ## while it plays changes nothing.
 const PLAYLIST := ["menu", "club", "menu_own"]
+## While the club is Team USA the menus mix these in. USA_SHARE of the bag is
+## national: with three menu tracks and a share of 0.5, three of the five songs
+## join each shuffle (a different three each time), so it is half and half.
+const USA_PLAYLIST := ["usa_anthem", "usa_stripes", "usa_liberty", "usa_country"]
+const USA_SHARE := 0.5
 static var _bag: Array = []
 static var _last_list := ""
 
@@ -358,7 +375,31 @@ static func _tracks() -> Array:
 		var r := resolve(String(t))
 		if r != "" and not out.has(r):
 			out.append(r)
+	if team_usa():
+		for t in USA_PLAYLIST:
+			if ResourceLoader.exists(String(MUSIC[t]["path"])):
+				out.append(t)
 	return out
+
+
+## Is the club wearing the tabard? Read off the session, so a title screen with
+## no season plays the ordinary set.
+static func team_usa() -> bool:
+	return Session.season != null and Session.season.club != null and Session.season.club.flag == "USA"
+
+
+## The bag for one shuffle: the ordinary tracks, plus national songs to make up
+## USA_SHARE of it while the club is Team USA.
+static func _bag_from(all: Array) -> Array:
+	var plain: Array = []
+	var usa: Array = []
+	for t in all:
+		(usa if String(t).begins_with("usa_") else plain).append(t)
+	if usa.is_empty() or plain.is_empty():
+		return all.duplicate()
+	usa.shuffle()
+	var want := clampi(int(round(float(plain.size()) * USA_SHARE / (1.0 - USA_SHARE))), 1, usa.size())
+	return plain + usa.slice(0, want)
 
 
 static func _next_in_list() -> void:
@@ -367,7 +408,7 @@ static func _next_in_list() -> void:
 		stop()
 		return
 	if _bag.is_empty():
-		_bag = all.duplicate()
+		_bag = _bag_from(all)
 		_bag.shuffle()
 		## No track twice in a row across a reshuffle.
 		if _bag.size() > 1 and _bag[0] == _last_list:

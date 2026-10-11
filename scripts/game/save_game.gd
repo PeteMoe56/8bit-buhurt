@@ -470,7 +470,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"saved": Time.get_datetime_string_from_system(false),
 		## Denormalised for the title screen, so listing three slots does not
 		## mean rebuilding three worlds.
-		"club_name": season.club.display_name,
+		"club_name": season.club.home_name(),
 		"season": w.season,
 		"event": w.event,
 		"events": League.events_in_season(w.player_tier()),
@@ -479,6 +479,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"tier_name": String(League.TIERS[season.world.player_tier()]["name"]),
 
 		"seed": season.seed_value,
+		"knockout_sudden_death": w.knockout_sudden_death,
 		"rng_seed": w.rng.seed,
 		"rng_state": w.rng.state,
 		"clubs": w.clubs.duplicate(true),
@@ -492,6 +493,11 @@ static func to_dict(season: Season) -> Dictionary:
 		"finalists": w.finalists.duplicate(true),
 		"team_title": w.team_title,
 		"send_off": season.send_off,
+		"send_off_picks": season.send_off_picks.duplicate(),
+		"worlds_camp": season.worlds_camp,
+		"grudge_rival": w.grudge_rival,
+		"clippings": w.clippings.duplicate(true),
+		"legends": w.legends.duplicate(true),
 		"tables": w.tables.duplicate(true),
 		"history": w.history.duplicate(true),
 		"honors": w.honors.duplicate(true),
@@ -500,6 +506,9 @@ static func to_dict(season: Season) -> Dictionary:
 		"hall": w.hall.duplicate(true),
 		"cups": cups,
 		"worlds": w.worlds.to_dict() if w.worlds != null else {},
+		## THE RETURNING RIVALS (Endgame #1). Defaulted, not required: a save
+		## from before them draws them at its next Worlds.
+		"rivals": w.rivals.duplicate(true),
 		"results": season.results.duplicate(true),
 		"club": club_to_dict(season.club),
 		"office": season.office.to_dict(),
@@ -568,6 +577,7 @@ static func from_dict(d: Dictionary) -> Season:
 	## rather than staying null in an old save.
 	var s := Season.new(club, int(d["seed"]))
 	var w := s.world
+	w.knockout_sudden_death = bool(d.get("knockout_sudden_death", true))
 	w.rng.seed = int(d["rng_seed"])
 	w.rng.state = int(d["rng_state"])
 	w.clubs.clear()
@@ -594,6 +604,7 @@ static func from_dict(d: Dictionary) -> Season:
 		w.cups.append(Cup.from_dict(c as Dictionary))
 	var worlds: Dictionary = d.get("worlds", {})
 	w.worlds = Cup.from_dict(worlds) if not worlds.is_empty() else null
+	w.rivals = _dicts(d.get("rivals", []))
 	_load_weeks(w, d)
 	s.results = _dicts(d.get("results", []))
 	s.office = ClubOffice.from_dict(d.get("office", {}))
@@ -688,6 +699,11 @@ static func from_dict(d: Dictionary) -> Season:
 	## different; without that check it would have surfaced as a club that quietly
 	## got two men better every time the player reloaded.
 	s.send_off = int(d.get("send_off", 0))
+	s.send_off_picks = (d.get("send_off_picks", {}) as Dictionary).duplicate()
+	s.worlds_camp = int(d.get("worlds_camp", 0))
+	s.world.grudge_rival = int(d.get("grudge_rival", -1))
+	s.world.clippings = _dicts(d.get("clippings", []))
+	s.world.legends = _dicts(d.get("legends", []))
 	s.sync_power()
 	s.sync_week()
 	return s
@@ -793,9 +809,13 @@ static func club_to_dict(c: MeleeClub) -> Dictionary:
 	var men: Array = []
 	for f in c.roster:
 		men.append(fighter_to_dict(f))
+	## THE CLUB, NOT ITS TABARD: a club wearing Team USA saves its own colours
+	## and name, and puts the tabard back on after loading (`sync_tabard`).
+	var h: Dictionary = c.home if not c.home.is_empty() else {
+		"name": c.display_name, "short": c.short_name, "kit": c.kit, "icon_color": c.icon_color}
 	return {
-		"name": c.display_name, "short": c.short_name,
-		"kit": c.kit.to_html(), "icon_color": c.icon_color.to_html(),
+		"name": String(h["name"]), "short": String(h["short"]),
+		"kit": (h["kit"] as Color).to_html(), "icon_color": (h["icon_color"] as Color).to_html(),
 		"icon": int(c.icon), "roster": men,
 	}
 

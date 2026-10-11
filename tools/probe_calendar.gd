@@ -26,6 +26,7 @@ func _initialize() -> void:
 					continue
 				"dilemma": s.answer_dilemma(0); continue
 				"sendoff": s.answer_send_off(); continue
+				"camp": s.answer_camp(WorldsCamp.Pick.SKIP); continue
 				"promotion":
 					if s.answer_promotion(true) != "":
 						s.answer_promotion(false)

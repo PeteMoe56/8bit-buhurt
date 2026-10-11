@@ -45,6 +45,7 @@ func _promotable() -> Season:
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
 			"sendoff": s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup": s.sim_cup_tie()
 			"":
 				if s.season_complete():
@@ -122,6 +123,7 @@ func _test_hoarding_is_said() -> void:
 			"bid": s.decline_bid()
 			"dilemma": s.answer_dilemma(0)
 			"sendoff": s.answer_send_off()
+			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup": s.sim_cup_tie()
 			_: s.skip_event()
 	s.office.credits = s.office.summer_bill() * Season.HOARD_SUMMERS + 50
@@ -137,6 +139,7 @@ func _test_hoarding_is_said() -> void:
 			"bid": spender.decline_bid()
 			"dilemma": spender.answer_dilemma(0)
 			"sendoff": spender.answer_send_off()
+			"camp": spender.answer_camp(WorldsCamp.Pick.SKIP)
 			"cup": spender.sim_cup_tie()
 			_: spender.skip_event()
 	spender.office.credits = spender.office.summer_bill() * Season.HOARD_SUMMERS + 50

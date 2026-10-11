@@ -68,6 +68,8 @@ var pool_days: int = 1
 ## result to a league.
 var no_third: bool = false
 
+var sudden_death := false
+var tie_powers: Dictionary = {}
 var rng := RandomNumberGenerator.new()
 
 
@@ -231,6 +233,19 @@ func round_label() -> String:
 	return UiKit.t(r)
 
 
+## THE PLAYER'S ROUND, FOR A SCREEN (Pete, 11 Oct 2026: "Lost in Semi-Finals
+## and no clear direction that I'm now fighting for 3rd place"). After a lost
+## semi the cup's own round is the final, but the player's bout is the bronze.
+func player_on_bronze() -> bool:
+	return player_in_third() and player_match() == third_place
+
+
+func player_round_label() -> String:
+	if player_on_bronze():
+		return UiKit.t("Bronze match")
+	return round_label()
+
+
 ## The player's next unplayed fixture in this cup, or {} if he has none — he is
 ## out, he was never in, or the cup is over.
 func player_match() -> Dictionary:
@@ -300,7 +315,7 @@ func player_alive() -> bool:
 ## Record a result. `rounds_a`/`rounds_b` are rounds won, `margin_a`/`margin_b`
 ## the standing differential — the same four numbers the league takes, so the
 ## real melee feeds a cup match and a league fixture through one shape.
-func record(m: Dictionary, ra: int, rb: int, ma: int, mb: int) -> void:
+func record(m: Dictionary, ra: int, rb: int, ma: int, mb: int, extra_winner: int = -1) -> void:
 	m["played"] = true
 	m["ra"] = ra
 	m["rb"] = rb
@@ -314,6 +329,8 @@ func record(m: Dictionary, ra: int, rb: int, ma: int, mb: int) -> void:
 	elif stage == Stage.KNOCKOUT:
 		if ma != mb:
 			m["winner"] = int(m["a"]) if ma > mb else int(m["b"])
+		elif sudden_death:
+			m["winner"] = extra_winner if extra_winner in [int(m["a"]),int(m["b"])] else _quick_sudden_death(m)
 		else:
 			m["winner"] = int(m["a"]) if entrants.find(int(m["a"])) \
 				< entrants.find(int(m["b"])) else int(m["b"])
@@ -394,7 +411,11 @@ func advance() -> bool:
 	## because a Worlds bronze is a real result to bring home.
 	if day.size() == 2 and third_place.is_empty() and not no_third:
 		third_place = _match(int(losers[0]), int(losers[1]), "Third-place match")
-	_open_round(winners)
+	# Experimental fixed cross-pool halves for the current 16-club Worlds.
+	if has_pools and entrants.size() == 16 and winners.size() == 4:
+		_open_round([winners[0], winners[2], winners[3], winners[1]])
+	else:
+		_open_round(winners)
 	return true
 
 
@@ -464,6 +485,18 @@ func run_all(resolver: Callable, guard: int = 40) -> void:
 		advance()
 
 
+## The final's rounds, champion first ("2-1"); "" before it is played.
+func final_score() -> String:
+	if rounds.is_empty():
+		return ""
+	var last: Array = rounds[rounds.size() - 1]
+	if last.size() != 1 or not bool(last[0].get("played", false)):
+		return ""
+	var m: Dictionary = last[0]
+	var a_won := int(m.get("winner", -1)) == int(m["a"])
+	return "%d-%d" % [int(m["ra"]) if a_won else int(m["rb"]), int(m["rb"]) if a_won else int(m["ra"])]
+
+
 ## Where the player got to, as a label. "" if he was not in it.
 func finish_label() -> String:
 	if player_club == -1 or not entrants.has(player_club):
@@ -526,6 +559,7 @@ func to_dict() -> Dictionary:
 		## resolve its remaining rounds differently from the run that saved it,
 		## which is the same class of bug as a table that re-sorts on reload.
 		"rng_seed": rng.seed, "rng_state": rng.state,
+		"sudden_death": sudden_death, "tie_powers": tie_powers.duplicate(),
 		"pool_day": pool_day, "pool_days": pool_days, "no_third": no_third,
 	}
 
@@ -551,6 +585,8 @@ static func from_dict(d: Dictionary) -> Cup:
 	c.champion = int(d["champion"])
 	c.runner_up = int(d["runner_up"])
 	c.third = int(d.get("third", -1))
+	c.sudden_death = bool(d.get("sudden_death", false))
+	c.tie_powers = Dictionary(d.get("tie_powers", {})).duplicate()
 	c.no_third = bool(d.get("no_third", false))
 	c.pool_day = int(d.get("pool_day", 0))
 	## A cup saved before the pools were split into days has no "day" on its
@@ -566,3 +602,18 @@ static func from_dict(d: Dictionary) -> Cup:
 	if d.has("rng_state"):
 		c.rng.state = int(d["rng_state"])
 	return c
+
+## The same Elo and draw-round law as LeagueWorld.quick_bout, but one decisive
+## additional round. Own seeded stream: saving does not change its outcome.
+func _quick_sudden_death(m: Dictionary) -> int:
+	var a := int(m["a"])
+	var b := int(m["b"])
+	assert(tie_powers.has(a) and tie_powers.has(b),"Sudden death needs actual bout powers")
+	var roll := RandomNumberGenerator.new()
+	roll.seed = hash("sudden:%d:%d:%d:%s" % [rng.seed,a,b,String(m["round"])])
+	var p := 1.0/(1.0+pow(10.0,float(int(tie_powers[b])-int(tie_powers[a]))/LeagueWorld.RATING_SCALE))
+	var draws := 0
+	while roll.randf() < LeagueWorld.DRAW_ROUND_CHANCE and draws < 100:
+		draws += 1
+	m["sudden_death"] = {"source":"quick_round","draws":draws,"seed":roll.seed,"powers":[int(tie_powers[a]),int(tie_powers[b])]}
+	return a if roll.randf() < p else b

@@ -70,7 +70,7 @@ func _ready() -> void:
 	## this is the cup whose tie is waiting on the player tonight.
 	if Session.season != null and cup != null and cup == Session.season.pending_cup() \
 			and Session.season.blocked_by() == "cup":
-		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight the tie"),
+		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight for bronze") if cup.player_on_bronze() else UiKit.t("Fight the tie"),
 			Vector2(ROAD_X, h() - 56), Vector2(ROAD_W, 44), _fight, "sword")))
 	queue_redraw()
 
@@ -103,6 +103,15 @@ func _fit(id: int, px: int, width: float) -> String:
 
 ## TRANSLATED ROUND HEADERS (3 Oct 2026): Cup.ROUND_NAMES is the English key,
 ## and German showed "QUARTER-FINALS". Same mapping as Cup.round_label().
+## The nation's flag, 16 tall, at a Worlds; returns the room it took (0 when
+## there is none) so the name beside it moves along.
+func _flag(at: Vector2, id: int) -> float:
+	var code := Nations.code_for(cup, Session.season.world if Session.season != null else null, id)
+	if code == "":
+		return 0.0
+	return Nations.draw(self, at, 16.0, code) + 6.0
+
+
 func _round_label(clubs: int) -> String:
 	match clubs:
 		2: return UiKit.t("Final")
@@ -114,10 +123,10 @@ func _round_label(clubs: int) -> String:
 func _name(id: int) -> String:
 	if Session.season == null or id < 0:
 		return "—"
-	## THE TABARD: at the Worlds the champion fights under the country's name.
-	if cup != null and cup == Session.season.world.worlds and id == Session.season.world.player_club \
-			and Session.season.world.team_title != "":
-		return Session.season.world.team_title
+	## THE TABARD: at the Worlds the National champion fights under the
+	## country's name, whoever it is.
+	if cup != null and String(cup.get_meta("id", "")) == "worlds":
+		return LeagueWorld.worlds_name_for(cup, Session.season.world, id)
 	var c: Dictionary = Session.season.world.club(id)
 	return String(c.get("name", "—"))
 
@@ -217,6 +226,39 @@ func _tree() -> void:
 				draw_line(Vector2(ex, mid_y), Vector2(hx, mid_y), UiKit.FRAME, 2.0)
 				draw_line(Vector2(hx, mid_y), Vector2(hx, ny), UiKit.FRAME, 2.0)
 				draw_line(Vector2(hx, ny), Vector2(ex + COL_GAP, ny), UiKit.FRAME, 2.0)
+	_bronze_tie(n_cols)
+
+
+## THE BRONZE, ON THE DRAW (Pete, 11 Oct 2026: "Lost in Semi-Finals and no
+## clear direction that I'm now fighting for 3rd place. It should have a
+## bracket"). The two beaten semi-finalists meet under the final, in the final's
+## column, once the semis are decided.
+func _bronze_tie(n_cols: int) -> void:
+	if cup.no_third or n_cols < 2:
+		return
+	var tp: Dictionary = cup.third_place
+	if tp.is_empty():
+		## Not drawn yet: the losers of the semis that are already decided.
+		var semis: Array = cup.rounds[n_cols - 2] if n_cols - 2 < cup.rounds.size() else []
+		if semis.size() != 2:
+			return
+		var lo: Array = []
+		for m in semis:
+			if bool(m.get("played", false)):
+				lo.append(int(m["b"]) if int(m.get("winner", -1)) == int(m["a"]) else int(m["a"]))
+			else:
+				lo.append(-1)
+		tp = {"a": lo[0], "b": lo[1], "played": false}
+	var x := TREE_X + float(n_cols - 1) * (COL_W + COL_GAP)
+	var y := TREE_TOP + tree_h() * 0.5 + UiKit.tk(70.0)
+	UiKit.text(self, font, UiKit.t("THIRD PLACE  ·  BRONZE"), Vector2(x, y - UiKit.tk(10.0)), UiKit.tz(12),
+		UiKit.YOU if cup.player_on_bronze() else UiKit.DIM)
+	var live: bool = cup.player_on_bronze()
+	if live:
+		draw_rect(Rect2(Vector2(x, y) - Vector2(4, 4), Vector2(COL_W + 8, UiKit.tk(64.0) + 8.0)), UiKit.SELECT)
+	var played: bool = bool(tp.get("played", false))
+	_slot(Vector2(x, y), COL_W, int(tp["a"]), tp, true, played)
+	_slot(Vector2(x, y + UiKit.tk(32.0)), COL_W, int(tp["b"]), tp, false, played)
 
 
 func _tie(at: Vector2, w: float, m: Dictionary, round_i: int) -> void:
@@ -242,9 +284,11 @@ func _slot(at: Vector2, w: float, id: int, m: Dictionary, is_a: bool, played: bo
 	if id >= 0:
 		UiKit.text(self, font, "%d" % (cup.entrants.find(id) + 1),
 			Vector2(at.x + 8, at.y + UiKit.tk(19.0)), UiKit.tz(12), UiKit.DIM)
+		## A FLAG AT THE WORLDS (11 Oct 2026), and the name moves along for it.
+		var fw := _flag(Vector2(at.x + 24, at.y + UiKit.tk(14.0) - 8.0), id)
 		## FITTED, NOT CUT AT 16 CHARACTERS (round 5: "New Orleans Gua.").
-		UiKit.text(self, font, _fit(id, UiKit.tz(14), NAME_W),
-			Vector2(at.x + 24, at.y + UiKit.tk(19.0)), UiKit.tz(14), col)
+		UiKit.text(self, font, _fit(id, UiKit.tz(14), NAME_W - fw),
+			Vector2(at.x + 24 + fw, at.y + UiKit.tk(19.0)), UiKit.tz(14), col)
 	else:
 		UiKit.text(self, font, "—", Vector2(at.x + 24, at.y + UiKit.tk(19.0)), UiKit.tz(14), UiKit.DIM)
 	if played:
@@ -277,7 +321,14 @@ func _road() -> void:
 					m = cand
 		var ties: int = int(pow(2.0, float(total - 1 - i)))
 		var label: String = _round_label(ties * 2)
-		UiKit.text(self, font, label.to_upper(), Vector2(ROAD_X + 16, y), 11, UiKit.DIM)
+		## OUT IN THE SEMIS IS NOT THE END: the last row is the bronze match.
+		var tp: Dictionary = cup.third_place
+		if i == total - 1 and m.is_empty() and not tp.is_empty() \
+				and (int(tp["a"]) == me or int(tp["b"]) == me):
+			m = tp
+			label = UiKit.t("Bronze match")
+			done = false
+		UiKit.text(self, font, label.to_upper(), Vector2(ROAD_X + 16, y), 11, UiKit.YOU if m == tp and not tp.is_empty() else UiKit.DIM)
 		if m.is_empty():
 			## ONE "OUT", NOT THREE. Losing in the quarter-finals used to print
 			## OUT against the semi-final and the final as well, which reads as
@@ -289,18 +340,22 @@ func _road() -> void:
 			y += 58.0
 			continue
 		var opp: int = int(m["b"]) if int(m["a"]) == me else int(m["a"])
-		UiKit.text(self, font, _fit(opp, 14, NAME_W),
-			Vector2(ROAD_X + 16, y + 24), 14, UiKit.INK)
+		var ofw := _flag(Vector2(ROAD_X + 16, y + 12), opp)
+		UiKit.text(self, font, _fit(opp, 14, NAME_W - ofw),
+			Vector2(ROAD_X + 16 + ofw, y + 24), 14, UiKit.INK)
 		if bool(m.get("played", false)):
 			var mine: int = int(m["ra"]) if int(m["a"]) == me else int(m["rb"])
 			var his: int = int(m["rb"]) if int(m["a"]) == me else int(m["ra"])
 			var won: bool = int(m.get("winner", -1)) == me
-			UiKit.text(self, font, UiKit.t("%s  %d-%d") % [UiKit.t("WON") if won else UiKit.t("OUT"), mine, his],
+			var verdict: String = (UiKit.t("BRONZE") if won else UiKit.t("FOURTH")) if m == cup.third_place \
+				else (UiKit.t("WON") if won else UiKit.t("OUT"))
+			UiKit.text(self, font, UiKit.t("%s  %d-%d") % [verdict, mine, his],
 				Vector2(ROAD_X + 16, y + 44), 14, UiKit.UP if won else UiKit.DOWN)
 			if not won:
 				done = true
 		else:
-			UiKit.text(self, font, UiKit.t("to fight"), Vector2(ROAD_X + 16, y + 44), 14, UiKit.YOU)
+			UiKit.text(self, font, UiKit.t("fight for bronze") if m == cup.third_place else UiKit.t("to fight"),
+				Vector2(ROAD_X + 16, y + 44), 14, UiKit.YOU)
 		y += 78.0
 	if cup.champion >= 0:
 		## INSIDE THE PANEL (Screen Score #1, S37b-1, both reviewers): the name sat
@@ -320,7 +375,7 @@ func _road() -> void:
 func _pools() -> void:
 	UiKit.text(self, font, UiKit.t("%s  ·  GROUP STAGE") % cup.cup_name.to_upper(),
 		Vector2(24, 40), 22, UiKit.YOU)
-	UiKit.text(self, font, UiKit.t("%d clubs  ·  %d pools  ·  top %d go through")
+	UiKit.text(self, font, UiKit.t("%d nations  ·  %d pools  ·  top %d go through")
 		% [cup.entrants.size(), cup.pools.size(), Cup.POOLS_ADVANCE],
 		Vector2(24, 64), 14, UiKit.DIM)
 	for p in cup.pools.size():
@@ -354,7 +409,8 @@ func _pools() -> void:
 			## FIT BY PIXELS, NOT CHARACTERS (3 Oct 2026): the name gets whatever
 			## the numbers leave, less a gap, instead of a twenty-character cut.
 			var stats_w := font.get_string_size(stats, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 14).x
-			UiKit.text(self, font, _fit(id, 14, 426.0 - 44.0 - stats_w - 16.0), Vector2(px + 44, ry), 14, col)
+			var pfw := _flag(Vector2(px + 44, ry - 14), id)
+			UiKit.text(self, font, _fit(id, 14, 426.0 - 44.0 - stats_w - 16.0 - pfw), Vector2(px + 44 + pfw, ry), 14, col)
 			UiKit.right(self, font, stats, Vector2(px + 426, ry), 14, col, 240)
 	UiKit.text(self, font, UiKit.t("Top %d of each pool make the knockout.") % Cup.POOLS_ADVANCE,
 		Vector2(194, UiKit.bottom(16.0)), 14, UiKit.DIM)

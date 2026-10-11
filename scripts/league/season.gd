@@ -255,6 +255,10 @@ func staff_pool() -> Array:
 		seen[nm] = true
 		out.append(c)
 	out.sort_custom(func(a, b): return int(a.get("grade", 1)) > int(b.get("grade", 1)))
+	## THE CLUB'S OWN LEGENDS head the list (`Legends`), in place of the weakest.
+	var leg := Legends.offers(self, seen)
+	if not leg.is_empty():
+		out = leg + out.slice(0, maxi(0, STAFF_POOL - leg.size()))
 	return out
 
 
@@ -263,6 +267,7 @@ func hire_captain(c: Dictionary) -> String:
 	if err != "":
 		return err
 	last_arrival = office.arrival_effect(c, club)
+	Legends.arrive(self, c)
 	Achievements.unlock("CAPTAIN")
 	office.sync_morale(club)
 	sync_power()
@@ -283,7 +288,15 @@ func _dress_sim(sim: MeleeSim, opp_id: int, kind: int, dist: float) -> void:
 ## a signing, a cut, a promotion, a repair — because the league sorts on this
 ## number and nothing else, and a table that has not heard about your new Center
 ## is lying to you.
+## TEAM USA, WORN (Pete, 11 Oct 2026: "Once you're temporarily Team USA, you're
+## that flag and name"). From the tabard on Friday to the end of the season the
+## club fights, and is shown, as Team USA under the US flag.
+func sync_tabard() -> void:
+	club.wear("USA" if world.team_title != "" else "")
+
+
 func sync_power() -> void:
+	sync_tabard()
 	## HOW MANY YOU CAN TAKE, before anything reads the eight. `active_eight()`
 	## is what club power averages, what the lineup is drawn from and what the
 	## corner offers, so the cap has to be on the club before any of those are
@@ -405,6 +418,12 @@ func club_for(id: int) -> MeleeClub:
 		return _clubs[id]["club"]
 	var c: Dictionary = world.clubs[id]
 	var built := ClubFactory.build(id, String(c["name"]), String(c["short"]), int(c["power"]))
+	## A NATION WEARS ITS FLAG'S COLOURS (Pete, 11 Oct 2026): a Worlds guest is a
+	## national team, so its kit and mark come off `Nations`, not the dice.
+	if bool(c.get("guest", false)) and Nations.COLORS.has(String(c["short"])):
+		built.kit = Nations.kit(String(c["short"]))
+		built.icon_color = Nations.mark(String(c["short"]))
+		built.flag = String(c["short"])
 	_clubs[id] = { "club": built, "power": int(c["power"]) }
 	return built
 ## -> SeasonBouts (season_bouts.gd)
@@ -882,6 +901,9 @@ func blocked_by() -> String:
 	## next fight. The offers wait on the table; they are asked after bout one.
 	if bid_open() and first_bout_done():
 		return "bid"
+	## THE WORLDS CAMP, between the pools and the knockout (`WorldsCamp`).
+	if WorldsCamp.due(self):
+		return "camp"
 	if cup_pending():
 		return "cup"
 	## THE NATIONAL CHAMPION'S SEND-OFF, a card a day in the bye before the
@@ -1097,19 +1119,32 @@ static func purse(place: int, field: int, tier: int) -> int:
 func roll_over() -> void:
 	SeasonWinter.roll_over(self)
 	send_off = 0
+	send_off_picks = {}
+	sync_tabard()
 	sync_week()
 
 
-## How many of the send-off's three days have been done this year.
+## How many of the send-off week's five days have been done this year.
 var send_off: int = 0
+## What was picked on Wednesday ("interview": 0 confident / 1 humble) and on
+## Friday ("gift": SendOff.Gift), this year.
+var send_off_picks: Dictionary = {}
 
 
 func send_off_card() -> Dictionary:
 	return SendOff.card(self)
 
 
-func answer_send_off() -> String:
-	return SendOff.answer(self)
+func answer_send_off(choice: int = 0) -> String:
+	return SendOff.answer(self, choice)
+
+
+## The season the Worlds camp was answered in (0 never).
+var worlds_camp: int = 0
+
+
+func answer_camp(pick: int) -> String:
+	return WorldsCamp.answer(self, pick)
 
 
 
@@ -1224,7 +1259,7 @@ func mood() -> int:
 	if c == null:
 		return UiKit.Mood.NORMAL
 	## A final is a final whatever competition it belongs to.
-	if c.round_name() == "Final":
+	if c.round_name() == "Final" and not c.player_on_bronze():
 		return UiKit.Mood.FINAL
 	if c.cup_name == "Worlds":
 		return UiKit.Mood.WORLDS
@@ -1244,7 +1279,7 @@ func occasion() -> String:
 	var c := pending_cup()
 	if c == null:
 		return ""
-	return "%s  ·  %s" % [c.cup_name, c.round_label()]
+	return "%s  ·  %s" % [c.cup_name, c.player_round_label()]
 
 
 # ---------------------------------------------------------------- the dilemma

@@ -2087,6 +2087,12 @@ func _draw_man(m) -> void:
 ## match statement from the one in UiKit — which is how a club could wear one
 ## mark on the league table and another in the fight. One function now.
 func _draw_mark(p: Vector2, club, s: float) -> void:
+	## A NATION FIGHTS UNDER ITS FLAG (11 Oct 2026): Team USA and every guest.
+	if club.flag != "" and Nations.flag(club.flag, s > 20.0) != null:
+		## Whole-pixel sizes only: 16, 32 or 64 tall, never a blurred in-between.
+		var fh := 64.0 if s >= 70.0 else (32.0 if s >= 40.0 else 16.0)
+		Nations.draw(self, p - Vector2(roundf(fh * 1.5) * 0.5, fh * 0.5), fh, club.flag)
+		return
 	IconBank.draw_icon(self, p, s * 0.5, club.icon_color, club.kit, club.icon)
 
 
@@ -2388,7 +2394,7 @@ func _draw_scoreboard() -> void:
 	var clock: float = maxf(0.0, Tuning.ROUND_TIME - sim.round_t)
 	## The score lives on the banners now — a scoreline in the top corners and a
 	## club standing down each side was the same fact printed twice.
-	UiKit.raw(self, font, Vector2(0, 30), UiKit.t("R%d  %d:%02d") % [sim.round_no, int(clock) / 60, int(clock) % 60],
+	UiKit.raw(self, font, Vector2(0, 30), (UiKit.t("SUDDEN DEATH  %d:%02d") % [int(clock) / 60, int(clock) % 60] if sim.overtime_rounds > 0 else UiKit.t("R%d  %d:%02d") % [sim.round_no, int(clock) / 60, int(clock) % 60]),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 22, COL_INK)
 	## 52, NOT 50 (round 2, 2 Oct: the line touched HOLD and SKIP ROUND above it;
 	## 54 sat on the field).
@@ -2418,8 +2424,11 @@ func _draw_banner(team: int, x: float, club) -> void:
 	var cx := x + BANNER_W * 0.5
 	## The club's kit, then its mark on top — the same two-color badge the
 	## men are wearing, at a size you can read from the other side of a room.
-	draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), club.kit)
-	draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), COL_EDGE, false, 2.0)
+	## A FLAG STANDS ON ITS OWN (Pete, 11 Oct 2026: "I don't like the
+	## backgrounds behind these flags"): no kit plate behind a nation's flag.
+	if club.flag == "":
+		draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), club.kit)
+		draw_rect(Rect2(cx - 32.0, BANNER_TOP + 30.0, 64.0, 64.0), COL_EDGE, false, 2.0)
 	_draw_mark(Vector2(cx, BANNER_TOP + 62.0), club, 46.0)
 	UiKit.raw(self, font, Vector2(x, BANNER_TOP + 118.0), club.short_name,
 		HORIZONTAL_ALIGNMENT_CENTER, int(BANNER_W), 26, COL_INK)
@@ -3673,8 +3682,9 @@ func _splash_club(club, side: int, cx: float) -> void:
 	## ON ITS KIT, the way the fight's banner draws it (29 Sep 2026). The bare
 	## mark sat on the black band, and a navy mark on black is no mark at all.
 	var plate := Rect2(cx - 50.0, 162.0, 100.0, 100.0)
-	draw_rect(plate, club.kit)
-	draw_rect(plate, COL_EDGE, false, 2.0)
+	if club.flag == "":
+		draw_rect(plate, club.kit)
+		draw_rect(plate, COL_EDGE, false, 2.0)
 	_draw_mark(Vector2(cx, 212.0), club, 76.0)
 	UiKit.raw(self, font, Vector2(cx - 220.0, 286.0), club.display_name,
 		HORIZONTAL_ALIGNMENT_CENTER, 440, 17, COL_INK)

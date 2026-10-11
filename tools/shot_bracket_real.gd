@@ -4,7 +4,7 @@ extends SceneTree
 ## stage. Rendered rather than reasoned about — the fifth time on this project.
 var n := 0
 var at := 0
-var shots := ["bracket_live", "bracket_done", "bracket_pools"]
+var shots := ["bracket_live", "bracket_done", "bracket_pools", "bracket_bronze"]
 var node: Node = null
 var season: Season
 
@@ -39,8 +39,28 @@ func _make(which: int) -> void:
 			var pb := int(season.world.club(b).get("power", 50))
 			return [3 if pa >= pb else 1, 1 if pa >= pb else 3, 4, 2])
 		Session.viewing_cup = cup
+	elif which == 3:
+		## OUT IN THE SEMIS (Pete, 11 Oct 2026): the bronze match waiting.
+		season.world.cups.clear()
+		var cup := Cup.new("St. Louis Open", _ids(8), 5, me)
+		var r := func(_a, _b): return [2, 1, 3, 1]
+		cup.sim_others(r)
+		cup.record(cup.player_match(), 2, 1, 3, 1) if int(cup.player_match()["a"]) == me else cup.record(cup.player_match(), 1, 2, 1, 3)
+		cup.advance()
+		cup.sim_others(r)
+		var pm := cup.player_match()
+		if int(pm["a"]) == me:
+			cup.record(pm, 1, 2, 1, 3)
+		else:
+			cup.record(pm, 2, 1, 3, 1)
+		cup.advance()
+		cup.sim_others(r)
+		season.world.cups.append(cup)
+		Session.viewing_cup = cup
 	else:
-		var cup := Cup.new("Worlds", _ids(16), 3, me, true)
+		## A REAL WORLDS FIELD: Team USA and fifteen nations, flags on.
+		season.world.clubs[me]["tier"] = League.Tier.NATIONAL
+		var cup: Cup = season.world._build_worlds([{"club": me}])
 		cup.sim_others(func(_a, _b): return [3, 1, 4, 2])
 		Session.viewing_cup = cup
 
