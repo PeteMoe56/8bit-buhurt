@@ -241,7 +241,7 @@ static func _club_controls(v: SeasonScene) -> void:
 				return
 			var c := v.season.pending_cup()
 			var nm := c.cup_name
-			var rnd := c.round_label()
+			var rnd := c.player_round_label()
 			v.season.sim_cup_tie()
 			Session.autosave()
 			v.flash = UiKit.t("%s %s simulated.") % [nm, rnd.to_lower()]
@@ -673,7 +673,7 @@ static func _fixture_title(v: SeasonScene) -> String:
 			return UiKit.t("TOURNAMENT BID")
 		"cup":
 			var cup := v.season.pending_cup()
-			return "%s  ·  %s" % [cup.cup_name.to_upper(), cup.round_label().to_upper()]
+			return "%s  ·  %s" % [cup.cup_name.to_upper(), cup.player_round_label().to_upper()]
 		"dilemma":
 			return UiKit.t("A DECISION")
 		"sendoff":
@@ -769,7 +769,8 @@ static func _fixture(v: SeasonScene) -> void:
 		UiKit.text_fit(v, v.font, UiKit.clip(UiKit.t(String(o["name"])), 26),
 			Vector2(44, y + UiKit.tk(52.0)), UiKit.tz(22), UiKit.INK, SeasonScene.fixture_w() - 40.0)
 		var gap := int(v.season.world.clubs[v.season.world.player_club]["power"]) - int(o["power"])
-		UiKit.text(v, v.font, UiKit.t("rating %d  ·  win or you are out") % int(o["power"]),
+		UiKit.text(v, v.font, (UiKit.t("rating %d  ·  win it for the bronze") if cup.player_on_bronze()
+			else UiKit.t("rating %d  ·  win or you are out")) % int(o["power"]),
 			Vector2(44, y + UiKit.tk(80.0)), UiKit.tz(14), UiKit.UP if gap > 0 else UiKit.DOWN)
 		return
 	if v.season.season_complete():

@@ -1224,7 +1224,7 @@ func mood() -> int:
 	if c == null:
 		return UiKit.Mood.NORMAL
 	## A final is a final whatever competition it belongs to.
-	if c.round_name() == "Final":
+	if c.round_name() == "Final" and not c.player_on_bronze():
 		return UiKit.Mood.FINAL
 	if c.cup_name == "Worlds":
 		return UiKit.Mood.WORLDS
@@ -1244,7 +1244,7 @@ func occasion() -> String:
 	var c := pending_cup()
 	if c == null:
 		return ""
-	return "%s  ·  %s" % [c.cup_name, c.round_label()]
+	return "%s  ·  %s" % [c.cup_name, c.player_round_label()]
 
 
 # ---------------------------------------------------------------- the dilemma

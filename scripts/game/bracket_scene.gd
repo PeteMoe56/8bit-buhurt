@@ -70,7 +70,7 @@ func _ready() -> void:
 	## this is the cup whose tie is waiting on the player tonight.
 	if Session.season != null and cup != null and cup == Session.season.pending_cup() \
 			and Session.season.blocked_by() == "cup":
-		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight the tie"),
+		ui.add_child(UiKit.primary(UiKit.button(UiKit.t("Fight for bronze") if cup.player_on_bronze() else UiKit.t("Fight the tie"),
 			Vector2(ROAD_X, h() - 56), Vector2(ROAD_W, 44), _fight, "sword")))
 	queue_redraw()
 
@@ -217,6 +217,39 @@ func _tree() -> void:
 				draw_line(Vector2(ex, mid_y), Vector2(hx, mid_y), UiKit.FRAME, 2.0)
 				draw_line(Vector2(hx, mid_y), Vector2(hx, ny), UiKit.FRAME, 2.0)
 				draw_line(Vector2(hx, ny), Vector2(ex + COL_GAP, ny), UiKit.FRAME, 2.0)
+	_bronze_tie(n_cols)
+
+
+## THE BRONZE, ON THE DRAW (Pete, 11 Oct 2026: "Lost in Semi-Finals and no
+## clear direction that I'm now fighting for 3rd place. It should have a
+## bracket"). The two beaten semi-finalists meet under the final, in the final's
+## column, once the semis are decided.
+func _bronze_tie(n_cols: int) -> void:
+	if cup.no_third or n_cols < 2:
+		return
+	var tp: Dictionary = cup.third_place
+	if tp.is_empty():
+		## Not drawn yet: the losers of the semis that are already decided.
+		var semis: Array = cup.rounds[n_cols - 2] if n_cols - 2 < cup.rounds.size() else []
+		if semis.size() != 2:
+			return
+		var lo: Array = []
+		for m in semis:
+			if bool(m.get("played", false)):
+				lo.append(int(m["b"]) if int(m.get("winner", -1)) == int(m["a"]) else int(m["a"]))
+			else:
+				lo.append(-1)
+		tp = {"a": lo[0], "b": lo[1], "played": false}
+	var x := TREE_X + float(n_cols - 1) * (COL_W + COL_GAP)
+	var y := TREE_TOP + tree_h() * 0.5 + UiKit.tk(70.0)
+	UiKit.text(self, font, UiKit.t("THIRD PLACE  ·  BRONZE"), Vector2(x, y - UiKit.tk(10.0)), UiKit.tz(12),
+		UiKit.YOU if cup.player_on_bronze() else UiKit.DIM)
+	var live: bool = cup.player_on_bronze()
+	if live:
+		draw_rect(Rect2(Vector2(x, y) - Vector2(4, 4), Vector2(COL_W + 8, UiKit.tk(64.0) + 8.0)), UiKit.SELECT)
+	var played: bool = bool(tp.get("played", false))
+	_slot(Vector2(x, y), COL_W, int(tp["a"]), tp, true, played)
+	_slot(Vector2(x, y + UiKit.tk(32.0)), COL_W, int(tp["b"]), tp, false, played)
 
 
 func _tie(at: Vector2, w: float, m: Dictionary, round_i: int) -> void:
@@ -277,7 +310,14 @@ func _road() -> void:
 					m = cand
 		var ties: int = int(pow(2.0, float(total - 1 - i)))
 		var label: String = _round_label(ties * 2)
-		UiKit.text(self, font, label.to_upper(), Vector2(ROAD_X + 16, y), 11, UiKit.DIM)
+		## OUT IN THE SEMIS IS NOT THE END: the last row is the bronze match.
+		var tp: Dictionary = cup.third_place
+		if i == total - 1 and m.is_empty() and not tp.is_empty() \
+				and (int(tp["a"]) == me or int(tp["b"]) == me):
+			m = tp
+			label = UiKit.t("Bronze match")
+			done = false
+		UiKit.text(self, font, label.to_upper(), Vector2(ROAD_X + 16, y), 11, UiKit.YOU if m == tp and not tp.is_empty() else UiKit.DIM)
 		if m.is_empty():
 			## ONE "OUT", NOT THREE. Losing in the quarter-finals used to print
 			## OUT against the semi-final and the final as well, which reads as
@@ -295,12 +335,15 @@ func _road() -> void:
 			var mine: int = int(m["ra"]) if int(m["a"]) == me else int(m["rb"])
 			var his: int = int(m["rb"]) if int(m["a"]) == me else int(m["ra"])
 			var won: bool = int(m.get("winner", -1)) == me
-			UiKit.text(self, font, UiKit.t("%s  %d-%d") % [UiKit.t("WON") if won else UiKit.t("OUT"), mine, his],
+			var verdict: String = (UiKit.t("BRONZE") if won else UiKit.t("FOURTH")) if m == cup.third_place \
+				else (UiKit.t("WON") if won else UiKit.t("OUT"))
+			UiKit.text(self, font, UiKit.t("%s  %d-%d") % [verdict, mine, his],
 				Vector2(ROAD_X + 16, y + 44), 14, UiKit.UP if won else UiKit.DOWN)
 			if not won:
 				done = true
 		else:
-			UiKit.text(self, font, UiKit.t("to fight"), Vector2(ROAD_X + 16, y + 44), 14, UiKit.YOU)
+			UiKit.text(self, font, UiKit.t("fight for bronze") if m == cup.third_place else UiKit.t("to fight"),
+				Vector2(ROAD_X + 16, y + 44), 14, UiKit.YOU)
 		y += 78.0
 	if cup.champion >= 0:
 		## INSIDE THE PANEL (Screen Score #1, S37b-1, both reviewers): the name sat

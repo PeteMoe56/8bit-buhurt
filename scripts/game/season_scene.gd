@@ -180,6 +180,11 @@ func _ready() -> void:
 		ground_open = true
 	elif not season.market_ask().is_empty():
 		market_open = true
+	## OUT IN THE SEMIS, STILL A BOUT TO FIGHT (Pete, 11 Oct 2026): said every
+	## time the screen opens until the bronze match is fought.
+	var bc := season.pending_cup()
+	if flash == "" and bc != null and bc.player_on_bronze():
+		flash = UiKit.t("Out in the semi-finals, but not finished: win the third-place match for the bronze.")
 	if flash == "":
 		flash = season.summer_warning()
 	if flash == "":

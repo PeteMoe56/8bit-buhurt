@@ -2388,7 +2388,7 @@ func _draw_scoreboard() -> void:
 	var clock: float = maxf(0.0, Tuning.ROUND_TIME - sim.round_t)
 	## The score lives on the banners now — a scoreline in the top corners and a
 	## club standing down each side was the same fact printed twice.
-	UiKit.raw(self, font, Vector2(0, 30), UiKit.t("R%d  %d:%02d") % [sim.round_no, int(clock) / 60, int(clock) % 60],
+	UiKit.raw(self, font, Vector2(0, 30), (UiKit.t("SUDDEN DEATH  %d:%02d") % [int(clock) / 60, int(clock) % 60] if sim.overtime_rounds > 0 else UiKit.t("R%d  %d:%02d") % [sim.round_no, int(clock) / 60, int(clock) % 60]),
 		HORIZONTAL_ALIGNMENT_CENTER, int(SCREEN.x), 22, COL_INK)
 	## 52, NOT 50 (round 2, 2 Oct: the line touched HOLD and SKIP ROUND above it;
 	## 54 sat on the field).

@@ -145,6 +145,10 @@ var history: Array[Dictionary] = []
 ## is live right now; `honors` is the trophy cabinet.
 var cups: Array = []
 var worlds: Cup = null
+## SUDDEN DEATH (Pete, 11 Oct 2026: "Sudden death"). An exactly tied knockout
+## bout is settled by extra rounds, not by the seeding. Saved, so an old save
+## keeps the seed rule it was playing under until its next season.
+var knockout_sudden_death := true
 ## The returning nations: name, generation (mid, swing, years, phase) and their
 ## record against the player. Saved; built the first time a Worlds is drawn.
 var rivals: Array = []
@@ -1530,7 +1534,15 @@ func _build_worlds(national_rows: Array) -> Cup:
 var hold_player_cups: bool = false
 
 
+func prime_tiebreak(c: Cup) -> void:
+	if c == null: return
+	c.sudden_death = knockout_sudden_death
+	for id in c.entrants:
+		if int(id) >= 0 and int(id) < clubs.size(): c.tie_powers[int(id)] = int(clubs[int(id)]["power"])
+
 func cup_resolver() -> Callable:
+	for c in cups: prime_tiebreak(c)
+	prime_tiebreak(worlds)
 	return func(a: int, b: int) -> Array:
 		return quick_bout(int(clubs[a]["power"]), int(clubs[b]["power"]))
 

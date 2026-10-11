@@ -165,7 +165,9 @@ static func begin_cup_bout(s_: Season) -> MeleeSim:
 	var pm := c.player_match()
 	var s := hash("cup:%d:%d:%d:%d:%d:%s:%d" % [s_.seed_value, s_.world.season, s_.world.event,
 		s_.cup_opponent(), s_.world.week, String(pm.get("round", "")), int(pm.get("day", -1))])
+	s_.world.prime_tiebreak(c)
 	var sim := MeleeSim.new(s_.club, s_.opponent, s, s_.opposition_scale(s_.cup_opponent()))
+	sim.knockout_sudden_death = c.sudden_death and c.stage == Cup.Stage.KNOCKOUT
 	## NEUTRAL GROUND AND A REAL TRIP. `venue_kind()` already answers NEUTRAL
 	## while a tie is pending, so it is asked rather than re-decided here; the
 	## distance is to the club you are actually fighting, which on a cup night is
@@ -194,9 +196,9 @@ static func post_cup_bout(s: Season, sim: MeleeSim) -> void:
 	if sim.rounds_won[0] > sim.rounds_won[1]:
 		Achievements.unlock("FIRST_WIN")
 	if mine:
-		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1])
+		c.record(m, sim.rounds_won[0], sim.rounds_won[1], sim.margin[0], sim.margin[1], int(m["a"]) if sim.overtime_winner == 0 else (int(m["b"]) if sim.overtime_winner == 1 else -1))
 	else:
-		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0])
+		c.record(m, sim.rounds_won[1], sim.rounds_won[0], sim.margin[1], sim.margin[0], int(m["b"]) if sim.overtime_winner == 0 else (int(m["a"]) if sim.overtime_winner == 1 else -1))
 	## WHO STOOD IN THE TIE, before anyone is rested (Harness #2, 8 Oct 2026):
 	## the sponsor pays them and their kit takes the wear.
 	var stood := SeasonBouts.fought_line(s, sim)
@@ -234,6 +236,7 @@ static func sim_cup_tie(s: Season) -> void:
 	var c := s.pending_cup()
 	if c == null:
 		return
+	s.world.prime_tiebreak(c)
 	var m := c.player_match()
 	## THE GRADE APPLIES TO A SIMMED TIE (3 Oct 2026), as it does to a simmed
 	## league fixture: the other side's power is scaled, yours is not.
@@ -243,6 +246,9 @@ static func sim_cup_tie(s: Season) -> void:
 		pb = int(round(float(pb) * s.opposition_scale(int(m["b"]))))
 	else:
 		pa = int(round(float(pa) * s.opposition_scale(int(m["a"]))))
+	if c.sudden_death:
+		c.tie_powers[int(m["a"])] = pa
+		c.tie_powers[int(m["b"])] = pb
 	var res: Array = s.world.quick_bout(pa, pb)
 	c.record(m, int(res[0]), int(res[1]), int(res[2]), int(res[3]))
 	# Experimental parity: same sim XP and participant wear as a league bout.

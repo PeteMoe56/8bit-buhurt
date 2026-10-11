@@ -364,6 +364,14 @@ var lineups: Array = [[], []]
 var conditions: Dictionary = {}
 var swaps_used := [0, 0]
 
+## SUDDEN DEATH (Pete, 11 Oct 2026). Set by the cup for a knockout bout: a
+## dead-level bout after three rounds goes to extra rounds, first round won
+## goes through.
+const OVERTIME_CAP: int = 3
+var knockout_sudden_death := false
+var overtime_rounds := 0
+var overtime_winner := -1
+var overtime_toss := false
 var rounds_won := [0, 0]
 ## Standing differential, accumulated over the bout. Pete, 10 Sep 2026: "Points
 ## are based on how many up vs how many down. So a 5-1 would be 4 points. A 1-0
@@ -2459,6 +2467,32 @@ func _check_round_end() -> void:
 		m.order = null
 	round_finished.emit(round_no, winner)
 
+	if knockout_sudden_death:
+		if overtime_rounds > 0:
+			if winner != -1:
+				overtime_winner = winner
+				phase = Phase.OVER
+				bout_finished.emit(winner)
+				return
+			## THREE EXTRA ROUNDS AT MOST. Codex's prototype allowed sixteen,
+			## which is a 44-minute bout in the worst case. After three, the side
+			## that put more men down across the whole bout goes through; only a
+			## dead-level bout is tossed.
+			if overtime_rounds >= OVERTIME_CAP:
+				overtime_winner = (0 if downs[0] > downs[1] else 1) if downs[0] != downs[1] else rng.randi_range(0, 1)
+				overtime_toss = downs[0] == downs[1]
+				phase = Phase.OVER
+				bout_finished.emit(overtime_winner)
+				return
+			overtime_rounds += 1
+			phase = Phase.CORNER
+			corner_t = corner_time
+			return
+		if round_no >= Tuning.ROUNDS and rounds_won[0] == rounds_won[1] and margin[0] == margin[1]:
+			overtime_rounds = 1
+			phase = Phase.CORNER
+			corner_t = corner_time
+			return
 	## Best of three. Take two and the third is not fought — Pete, 10 Sep 2026.
 	if round_no >= Tuning.ROUNDS \
 			or rounds_won[0] >= Tuning.BOUT_WINS or rounds_won[1] >= Tuning.BOUT_WINS:
@@ -2470,6 +2504,7 @@ func _check_round_end() -> void:
 
 
 func bout_winner() -> int:
+	if overtime_winner != -1: return overtime_winner
 	if rounds_won[0] != rounds_won[1]:
 		return 0 if rounds_won[0] > rounds_won[1] else 1
 	if downs[0] != downs[1]:

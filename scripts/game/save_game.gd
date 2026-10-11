@@ -479,6 +479,7 @@ static func to_dict(season: Season) -> Dictionary:
 		"tier_name": String(League.TIERS[season.world.player_tier()]["name"]),
 
 		"seed": season.seed_value,
+		"knockout_sudden_death": w.knockout_sudden_death,
 		"rng_seed": w.rng.seed,
 		"rng_state": w.rng.state,
 		"clubs": w.clubs.duplicate(true),
@@ -571,6 +572,7 @@ static func from_dict(d: Dictionary) -> Season:
 	## rather than staying null in an old save.
 	var s := Season.new(club, int(d["seed"]))
 	var w := s.world
+	w.knockout_sudden_death = bool(d.get("knockout_sudden_death", true))
 	w.rng.seed = int(d["rng_seed"])
 	w.rng.state = int(d["rng_state"])
 	w.clubs.clear()
