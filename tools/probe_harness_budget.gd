@@ -202,8 +202,8 @@ class TraceSeason extends Season:
 	func answer_dilemma(option_i: int) -> String:
 		return audit.action("dilemma", func(): return super.answer_dilemma(option_i),
 			{"option": option_i}, "earned")
-	func answer_send_off() -> String:
-		return audit.action("send_off", func(): return super.answer_send_off(), {}, "earned")
+	func answer_send_off(choice: int = 0) -> String:
+		return audit.action("send_off", func(): return super.answer_send_off(choice), {}, "earned")
 	func answer_promotion(take: bool) -> String:
 		return audit.action("promotion_decision", func(): return super.answer_promotion(take), {"take": take})
 	func decline_bid() -> void:

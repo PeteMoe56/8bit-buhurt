@@ -30,7 +30,9 @@ func _initialize() -> void:
 				continue
 			"sendoff":
 				s.answer_send_off()
-			"camp": s.answer_camp(WorldsCamp.Pick.SKIP)
+				continue
+			"camp":
+				s.answer_camp(WorldsCamp.Pick.SKIP)
 				continue
 		s.skip_event()
 	while s.blocked_by() == "dilemma":
