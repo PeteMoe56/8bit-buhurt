@@ -33,8 +33,8 @@ static func counts(honors: Array, player_club: int) -> Array:
 
 static func draw(ci: CanvasItem, at: Vector2, r: float, place: int) -> void:
 	var col: Color = [GOLD, SILVER, BRONZE][clampi(place, 1, 3) - 1]
-	var rb := maxf(1.0, round(r * 0.45))
+	var rb := maxf(1.0, roundf(r * 0.45))
 	ci.draw_rect(Rect2(at.x - r * 0.8, at.y - r * 1.9, rb, r * 1.2), RIBBON)
 	ci.draw_rect(Rect2(at.x + r * 0.8 - rb, at.y - r * 1.9, rb, r * 1.2), RIBBON)
 	ci.draw_circle(at, r, col.darkened(0.35))
-	ci.draw_circle(at, r - maxf(1.0, round(r * 0.25)), col)
+	ci.draw_circle(at, r - maxf(1.0, roundf(r * 0.25)), col)

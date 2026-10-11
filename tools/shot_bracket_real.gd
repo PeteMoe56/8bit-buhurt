@@ -58,7 +58,9 @@ func _make(which: int) -> void:
 		season.world.cups.append(cup)
 		Session.viewing_cup = cup
 	else:
-		var cup := Cup.new("Worlds", _ids(16), 3, me, true)
+		## A REAL WORLDS FIELD: Team USA and fifteen nations, flags on.
+		season.world.clubs[me]["tier"] = League.Tier.NATIONAL
+		var cup: Cup = season.world._build_worlds([{"club": me}])
 		cup.sim_others(func(_a, _b): return [3, 1, 4, 2])
 		Session.viewing_cup = cup
 

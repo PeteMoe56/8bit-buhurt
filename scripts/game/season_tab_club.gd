@@ -766,8 +766,12 @@ static func _fixture(v: SeasonScene) -> void:
 	if cup != null:
 		var opp := v.season.cup_opponent()
 		var o: Dictionary = v.season.world.clubs[opp]
+		## THE NATION'S FLAG AT THE WORLDS (11 Oct 2026).
+		var fw := Nations.draw(v, Vector2(44, y + UiKit.tk(52.0) - 20.0), 16.0,
+			Nations.code_for(cup, v.season.world, opp))
+		fw = fw + 10.0 if fw > 0.0 else 0.0
 		UiKit.text_fit(v, v.font, UiKit.clip(UiKit.t(String(o["name"])), 26),
-			Vector2(44, y + UiKit.tk(52.0)), UiKit.tz(22), UiKit.INK, SeasonScene.fixture_w() - 40.0)
+			Vector2(44 + fw, y + UiKit.tk(52.0)), UiKit.tz(22), UiKit.INK, SeasonScene.fixture_w() - 40.0 - fw)
 		var gap := int(v.season.world.clubs[v.season.world.player_club]["power"]) - int(o["power"])
 		UiKit.text(v, v.font, (UiKit.t("rating %d  ·  win it for the bronze") if cup.player_on_bronze()
 			else UiKit.t("rating %d  ·  win or you are out")) % int(o["power"]),

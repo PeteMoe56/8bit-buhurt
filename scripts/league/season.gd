@@ -405,6 +405,11 @@ func club_for(id: int) -> MeleeClub:
 		return _clubs[id]["club"]
 	var c: Dictionary = world.clubs[id]
 	var built := ClubFactory.build(id, String(c["name"]), String(c["short"]), int(c["power"]))
+	## A NATION WEARS ITS FLAG'S COLOURS (Pete, 11 Oct 2026): a Worlds guest is a
+	## national team, so its kit and mark come off `Nations`, not the dice.
+	if bool(c.get("guest", false)) and Nations.COLORS.has(String(c["short"])):
+		built.kit = Nations.kit(String(c["short"]))
+		built.icon_color = Nations.mark(String(c["short"]))
 	_clubs[id] = { "club": built, "power": int(c["power"]) }
 	return built
 ## -> SeasonBouts (season_bouts.gd)
