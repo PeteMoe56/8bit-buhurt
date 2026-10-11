@@ -209,6 +209,7 @@ func _ready() -> void:
 ## THE SHOULDERS STEP THE TABS (controller, 4 Oct 2026): LB left, RB right,
 ## through the tabs this season shows, wrapping. The same as pressing the tab.
 var tabs_shown: Array[int] = []
+var splash_up := false
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -287,6 +288,10 @@ func _upkeep_word() -> String:
 
 func _rebuild() -> void:
 	_centre_modals()
+	## A NEW SYSTEM SAYS WHAT IT IS, the first time it turns up (`Splash`), on
+	## opening or the moment an answer brings it on. One at a time.
+	if season != null and not splash_up:
+		splash_up = Splash.offer(self, season)
 	if Session.save_failed and not Session.save_warned:
 		Session.save_warned = true
 		flash = UiKit.t("Could not save — your phone may be out of space. The last save is safe.")
